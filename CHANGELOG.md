@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.2.95 - 2026-05-19
+- Bug fixes and general improvements
+- Locked the full analytics cost cleanup audit.
+- Verified cost reductions do not compromise tracking accuracy.
+- Refreshed Beta readiness with cost and analytics evidence.
+
 ## 1.2.94 - 2026-05-19
 - Bug fixes and general improvements
 - Guarded SQL mirror and Data Connect cost paths.

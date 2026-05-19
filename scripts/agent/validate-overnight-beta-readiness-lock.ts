@@ -316,7 +316,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       geminiCloudAssistCostReadiness: report.geminiCloudAssistCostStatus,
       route4xxReadiness: "source_inventory_complete",
       errorHandlingSourceStatus: "error_handling_source_complete",
-      analyticsSemanticsSourceStatus: "analytics_semantics_source_ready_runtime_proof_required",
+      analyticsSemanticsSourceStatus: "analytics_semantics_source_ready_runtime_proof_required; runtime watch-time accuracy still needs deployed media evidence",
       speedSecurityStatus: report.speedSecurityStatus,
       releaseNotesStatus: "same_commit_release_note_artifacts_required",
       canStartManualScreenshotQa: report.canStartScreenshots,

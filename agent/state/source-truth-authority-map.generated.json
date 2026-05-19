@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T06:28:27.851Z",
+  "generatedAtUtc": "2026-05-19T15:34:05.669Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,21 +323,21 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
+      "currentHead": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/final-phase-cleanup-lock.generated.json",
@@ -347,39 +347,39 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
+      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "currentHead": "b811bb9ca2e0a470f1d6311ce456de2c06812291",
+      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/creator-experience-simplification.generated.json",
-      "currentHead": "68dfa1f279c4902f5f870930664f80993a2752b4",
+      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/post-economy-creator-flow-qa.generated.json",
-      "currentHead": "6396ae0691e3bc73465e9ab9556e1db0570bce3f",
+      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
       "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/speed-security-hardening.generated.json",
@@ -402,8 +402,8 @@
     {
       "artifact": "agent/state/beta-score-cleanup.generated.json",
       "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/final-launch-readiness-report.generated.json",

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T15:23:50.230Z",
+  "generatedAtUtc": "2026-05-19T15:32:32.787Z",
   "reportKey": "analytics-cost-runtime-inventory",
-  "currentHead": "f0bde91b407eac578e3d8e948437bdb8cb575e85",
+  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
   "summary": {
     "cloudRunCostFindings": 2,
     "cloudSqlDetected": true,

@@ -1,7 +1,7 @@
 # Analytics Cost Runtime Inventory
 
-Generated: 2026-05-19T15:23:50.230Z
-Current head: f0bde91b407eac578e3d8e948437bdb8cb575e85
+Generated: 2026-05-19T15:32:32.787Z
+Current head: 785975ca9f5f371e9731a73c6ae32439df52dfff
 
 This is a source-only inventory. Operator billing screenshots are context only and are not treated as source truth or proof of cost reduction.
 

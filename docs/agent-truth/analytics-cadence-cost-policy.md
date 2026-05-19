@@ -1,7 +1,7 @@
 # Analytics Cadence Cost Policy
 
-Generated: 2026-05-19T15:23:57.765Z
-Current head: f0bde91b407eac578e3d8e948437bdb8cb575e85
+Generated: 2026-05-19T15:32:40.265Z
+Current head: 785975ca9f5f371e9731a73c6ae32439df52dfff
 
 This report locks source policy for analytics cadence and cost. It does not prove provider billing reduction and does not downgrade priority-live tracking.
 

@@ -1,12 +1,12 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-19T15:25:05.684Z
+Generated: 2026-05-19T15:40:39.776Z
 
-Current HEAD: f0bde91b407eac578e3d8e948437bdb8cb575e85
+Current HEAD: 785975ca9f5f371e9731a73c6ae32439df52dfff
 
 ## Summary
 
-- Beta version: 1.2.94
+- Beta version: 1.2.95
 - Beta score: 45
 - Beta status: Stale evidence
 - Visual evidence: source_only_screenshotEvidenceAttached_false

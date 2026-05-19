@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T15:23:57.765Z",
+  "generatedAtUtc": "2026-05-19T15:32:40.265Z",
   "reportKey": "analytics-cadence-cost-policy",
-  "currentHead": "f0bde91b407eac578e3d8e948437bdb8cb575e85",
+  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
   "summary": {
     "nonPriorityTtlMs": 86400000,
     "priorityLivePreserved": true,

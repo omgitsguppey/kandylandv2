@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T14:47:21.882Z",
+  "generatedAtUtc": "2026-05-19T15:32:02.261Z",
   "reportKey": "admin-analytics-debug-cost-reduction",
-  "currentHead": "83d085481f237358a857f16ca55c99b662ecbed5",
+  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
   "summary": {
     "adminHistoricalDefaultCacheEnabled": true,
     "gaSnapshotFirstEnabled": true,

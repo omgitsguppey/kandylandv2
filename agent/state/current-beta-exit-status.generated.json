@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-19T15:25:05.684Z",
+  "generatedAtUtc": "2026-05-19T15:40:39.776Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "f0bde91b407eac578e3d8e948437bdb8cb575e85",
+  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
   "summary": {
-    "betaVersion": "1.2.94",
+    "betaVersion": "1.2.95",
     "betaScore": 45,
     "betaStatus": "Stale evidence",
     "sourceCleanupP0": 0,
@@ -21,7 +21,7 @@
     "geminiCloudAssistCostReadiness": "cost_review_required",
     "route4xxReadiness": "source_inventory_complete",
     "errorHandlingSourceStatus": "error_handling_source_complete",
-    "analyticsSemanticsSourceStatus": "analytics_semantics_source_ready_runtime_proof_required",
+    "analyticsSemanticsSourceStatus": "analytics_semantics_source_ready_runtime_proof_required; runtime watch-time accuracy still needs deployed media evidence",
     "speedSecurityStatus": "51/beta-risk; findings=90; critical=0; p2BacklogVisible=true",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,

@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.2.94",
-  "betaReleaseCounter": 294,
+  "currentVersion": "1.2.95",
+  "betaReleaseCounter": 295,
   "channel": "beta",
-  "generatedAt": "2026-05-19T15:23:15.848Z",
-  "generatedAtUtc": "2026-05-19T15:23:15.848Z",
+  "generatedAt": "2026-05-19T15:40:07.320Z",
+  "generatedAtUtc": "2026-05-19T15:40:07.320Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.2.95",
+      "previousVersion": "1.2.94",
+      "betaReleaseCounter": 295,
+      "previousBetaReleaseCounter": 294,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(cost): lock final cost audit readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T15:40:07.320Z",
+      "generatedAt": "2026-05-19T15:40:07.320Z",
+      "committedAtUtc": "2026-05-19T15:40:07.320Z",
+      "generatedAtUtc": "2026-05-19T15:40:07.320Z",
+      "updatedAtUtc": "2026-05-19T15:40:07.320Z",
+      "category": "Performance",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked the full analytics cost cleanup audit and refreshed Beta readiness without marking unproven evidence as ready.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked the full analytics cost cleanup audit.",
+        "Verified cost reductions do not compromise tracking accuracy.",
+        "Refreshed Beta readiness with cost and analytics evidence."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted final cost audit lock into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "admin",
+        "runtime jobs",
+        "beta readiness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/final-cost-audit-lock.generated.json",
+        "docs/agent-truth/final-cost-audit-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-cost-audit-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-cost-audit-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.2.94",
       "previousVersion": "1.2.93",

@@ -1,0 +1,1168 @@
+{
+  "generatedAtUtc": "2026-05-19T15:40:57.716Z",
+  "reportKey": "final-cost-audit-lock",
+  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
+  "summary": {
+    "totalAuditItems": 50,
+    "fixedCount": 44,
+    "partiallyFixedCount": 5,
+    "deferredOwnerReviewCount": 1,
+    "externalConsoleReviewCount": 3,
+    "trackingAccuracyPreserved": true,
+    "cloudRunCostReadiness": "cost_review_required; 2 inventory findings",
+    "cloudSqlCostReadiness": "cloud_sql_runtime_not_detected; cloud_sql_external_billing_observed_owner_review_required",
+    "bigQueryCostReadiness": "dailyCadence=true; queryGuards=true",
+    "geminiCostReadiness": "gemini_vertex_admin_ai_runtime_detected; gemini_cloud_assist_external_billing_observed_owner_review_required",
+    "firestoreReadWriteReadiness": "source_ready_batched_cached_due_only_no_dollar_claim",
+    "route4xxReadiness": "source_inventory_complete",
+    "openPrCount": 0,
+    "workingTreeClean": false,
+    "betaScore": 45,
+    "betaStatus": "Stale evidence",
+    "canStartBetaExitReview": false,
+    "p0Count": 0,
+    "p1Count": 6,
+    "p2Count": 3
+  },
+  "auditItemCoverage": [
+    {
+      "item": 1,
+      "title": "DeepTracker non-priority flush cadence",
+      "category": "client telemetry",
+      "status": "fixed",
+      "artifact": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "validator": "npm run check:deeptracker-telemetry-volume-reduction",
+      "sourceFiles": [
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/lib/analytics/analytics-identity-link.ts"
+      ],
+      "savingsModel": "request/event reduction modeled as percent/formula only in DeepTracker report.",
+      "trackingAccuracyRisk": "low",
+      "reason": "DeepTracker volume reduction validator passed with priority and runtime-watch independence guards."
+    },
+    {
+      "item": 2,
+      "title": "DeepTracker lifecycle duplicate finalization",
+      "category": "client telemetry",
+      "status": "fixed",
+      "artifact": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "validator": "npm run check:deeptracker-telemetry-volume-reduction",
+      "sourceFiles": [
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/lib/analytics/analytics-identity-link.ts"
+      ],
+      "savingsModel": "request/event reduction modeled as percent/formula only in DeepTracker report.",
+      "trackingAccuracyRisk": "low",
+      "reason": "DeepTracker volume reduction validator passed with priority and runtime-watch independence guards."
+    },
+    {
+      "item": 3,
+      "title": "Guest event queue cap",
+      "category": "client telemetry",
+      "status": "fixed",
+      "artifact": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "validator": "npm run check:deeptracker-telemetry-volume-reduction",
+      "sourceFiles": [
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/lib/analytics/analytics-identity-link.ts"
+      ],
+      "savingsModel": "request/event reduction modeled as percent/formula only in DeepTracker report.",
+      "trackingAccuracyRisk": "low",
+      "reason": "DeepTracker volume reduction validator passed with priority and runtime-watch independence guards."
+    },
+    {
+      "item": 4,
+      "title": "Hover telemetry stream volume",
+      "category": "client telemetry",
+      "status": "fixed",
+      "artifact": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "validator": "npm run check:deeptracker-telemetry-volume-reduction",
+      "sourceFiles": [
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/lib/analytics/analytics-identity-link.ts"
+      ],
+      "savingsModel": "request/event reduction modeled as percent/formula only in DeepTracker report.",
+      "trackingAccuracyRisk": "low",
+      "reason": "DeepTracker volume reduction validator passed with priority and runtime-watch independence guards."
+    },
+    {
+      "item": 5,
+      "title": "Visibility telemetry stream volume",
+      "category": "client telemetry",
+      "status": "fixed",
+      "artifact": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "validator": "npm run check:deeptracker-telemetry-volume-reduction",
+      "sourceFiles": [
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/lib/analytics/analytics-identity-link.ts"
+      ],
+      "savingsModel": "request/event reduction modeled as percent/formula only in DeepTracker report.",
+      "trackingAccuracyRisk": "low",
+      "reason": "DeepTracker volume reduction validator passed with priority and runtime-watch independence guards."
+    },
+    {
+      "item": 6,
+      "title": "Scroll tracking polling and thresholds",
+      "category": "client telemetry",
+      "status": "fixed",
+      "artifact": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "validator": "npm run check:deeptracker-telemetry-volume-reduction",
+      "sourceFiles": [
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/lib/analytics/analytics-identity-link.ts"
+      ],
+      "savingsModel": "request/event reduction modeled as percent/formula only in DeepTracker report.",
+      "trackingAccuracyRisk": "low",
+      "reason": "DeepTracker volume reduction validator passed with priority and runtime-watch independence guards."
+    },
+    {
+      "item": 7,
+      "title": "Analytics ingest materialization in request path",
+      "category": "ingest/event facts",
+      "status": "partially_fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "medium",
+      "reason": "Source guard is in place, but a follow-up lane remains for identified ingest, rollup materializer, or deployed trigger removal."
+    },
+    {
+      "item": 8,
+      "title": "Guest batch/session reads on flush",
+      "category": "ingest/event facts",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 9,
+      "title": "Consent-denied diagnostics noise",
+      "category": "ingest/event facts",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 10,
+      "title": "Invalid/empty payload route warnings",
+      "category": "ingest/event facts",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 11,
+      "title": "Catch-path duplicate diagnostics",
+      "category": "ingest/event facts",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 12,
+      "title": "Retryable 503 for permanent failures",
+      "category": "ingest/event facts",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 13,
+      "title": "Behavioral timeline facts in hot ingest",
+      "category": "ingest/event facts",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 14,
+      "title": "Identity link duplicate transfer request",
+      "category": "client telemetry",
+      "status": "fixed",
+      "artifact": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "validator": "npm run check:deeptracker-telemetry-volume-reduction",
+      "sourceFiles": [
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/lib/analytics/analytics-identity-link.ts"
+      ],
+      "savingsModel": "request/event reduction modeled as percent/formula only in DeepTracker report.",
+      "trackingAccuracyRisk": "low",
+      "reason": "DeepTracker volume reduction validator passed with priority and runtime-watch independence guards."
+    },
+    {
+      "item": 15,
+      "title": "Event fact dedupe read-before-write",
+      "category": "ingest/event facts",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 16,
+      "title": "Event fact rollups per event",
+      "category": "ingest/event facts",
+      "status": "partially_fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "medium",
+      "reason": "Source guard is in place, but a follow-up lane remains for identified ingest, rollup materializer, or deployed trigger removal."
+    },
+    {
+      "item": 17,
+      "title": "BigQuery export per-event trigger",
+      "category": "BigQuery export",
+      "status": "partially_fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "medium",
+      "reason": "Source guard is in place, but a follow-up lane remains for identified ingest, rollup materializer, or deployed trigger removal."
+    },
+    {
+      "item": 18,
+      "title": "BigQuery export claim transaction per event",
+      "category": "BigQuery export",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 19,
+      "title": "BigQuery readiness repeat failures",
+      "category": "BigQuery export",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 20,
+      "title": "BigQuery dry-run/max-bytes/partition enforcement",
+      "category": "BigQuery export",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 21,
+      "title": "BigQuery row-triggered export instead of batch watermark",
+      "category": "BigQuery export",
+      "status": "partially_fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "medium",
+      "reason": "Source guard is in place, but a follow-up lane remains for identified ingest, rollup materializer, or deployed trigger removal."
+    },
+    {
+      "item": 22,
+      "title": "BigQuery export repeated failure status writes",
+      "category": "BigQuery export",
+      "status": "fixed",
+      "artifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "validator": "npm run check:analytics-hot-path-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-bigquery-export.ts"
+      ],
+      "savingsModel": "hot ingest/export reduction modeled by read/write/retry formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Hot-path validator passed while preserving priority event ingest."
+    },
+    {
+      "item": 23,
+      "title": "Data Connect / Cloud SQL mirror exists as agent context",
+      "category": "Cloud SQL/Data Connect",
+      "status": "fixed",
+      "artifact": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "validator": "npm run check:cloud-sql-gemini-cost-guards",
+      "sourceFiles": [
+        "scripts/agent/sync-sql.ts",
+        "package.json",
+        "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md"
+      ],
+      "savingsModel": "accidental SQL/Data Connect work blocked by fail-closed manual approval guard; external billing requires owner review.",
+      "trackingAccuracyRisk": "none",
+      "reason": "SQL mirror is manual-only and Data Connect remains an agent-context mirror."
+    },
+    {
+      "item": 24,
+      "title": "Cloud SQL billing observed externally without runtime SQL source",
+      "category": "Cloud SQL/Data Connect",
+      "status": "deferred_owner_review",
+      "artifact": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "validator": "npm run check:cloud-sql-gemini-cost-guards",
+      "sourceFiles": [
+        "scripts/agent/sync-sql.ts",
+        "package.json",
+        "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md"
+      ],
+      "savingsModel": "accidental SQL/Data Connect work blocked by fail-closed manual approval guard; external billing requires owner review.",
+      "trackingAccuracyRisk": "none",
+      "reason": "External Cloud SQL billing is operator-observed but no runtime SQL client source is detected."
+    },
+    {
+      "item": 25,
+      "title": "agent:sync-sql casual mirror execution",
+      "category": "Cloud SQL/Data Connect",
+      "status": "fixed",
+      "artifact": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "validator": "npm run check:cloud-sql-gemini-cost-guards",
+      "sourceFiles": [
+        "scripts/agent/sync-sql.ts",
+        "package.json",
+        "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md"
+      ],
+      "savingsModel": "accidental SQL/Data Connect work blocked by fail-closed manual approval guard; external billing requires owner review.",
+      "trackingAccuracyRisk": "none",
+      "reason": "SQL mirror is manual-only and Data Connect remains an agent-context mirror."
+    },
+    {
+      "item": 26,
+      "title": "Admin historical analytics no-store/dynamic cache",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 27,
+      "title": "Admin analytics GA reports by default",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 28,
+      "title": "Admin analytics many Firestore rollups",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 29,
+      "title": "Admin event facts default up to 5000",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 30,
+      "title": "Guest batches/sessions/security/diagnostics high limits",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 31,
+      "title": "Drops archive reads up to 1000",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 32,
+      "title": "Admin debug broad Promise.all load",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 33,
+      "title": "Admin debug creator/subscription/request/message high limits",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 34,
+      "title": "Onboarding history collectionGroup limit 2000",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 35,
+      "title": "Admin debug transactions limit 600",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 36,
+      "title": "Orchestration reads several collections",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 37,
+      "title": "Follow-up getAll referenced drops/creators",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 38,
+      "title": "Queue heartbeat full collection listing",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 39,
+      "title": "Admin support list reads all threads",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 40,
+      "title": "User support list no obvious limit",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 41,
+      "title": "Admin roster broad reads",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 42,
+      "title": "Admin user detail many creator-op queries",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 43,
+      "title": "Admin overview no-store reads many collections",
+      "category": "admin reads",
+      "status": "fixed",
+      "artifact": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "validator": "npm run check:admin-analytics-debug-cost-reduction",
+      "sourceFiles": [
+        "src/app/api/admin/analytics/**",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "src/lib/server/support-threads.ts"
+      ],
+      "savingsModel": "default admin read reduction modeled by snapshot/cache/page/drilldown formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Admin analytics/debug cost validator passed while preserving stale/unavailable truth labels."
+    },
+    {
+      "item": 44,
+      "title": "Analytics realtime summary every 1 minute",
+      "category": "scheduled runtime",
+      "status": "partially_fixed",
+      "artifact": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "validator": "npm run check:scheduled-runtime-cost-reduction",
+      "sourceFiles": [
+        "functions/src/**",
+        "src/lib/server/queue-runtime.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "savingsModel": "scheduled/runtime reduction modeled by invocation/read/write formulas only.",
+      "trackingAccuracyRisk": "medium",
+      "reason": "Source cadence guard is fixed; deployed scheduler state still needs external console verification after deployment."
+    },
+    {
+      "item": 45,
+      "title": "Analytics truth runtime 45-day high-cap windows",
+      "category": "scheduled runtime",
+      "status": "fixed",
+      "artifact": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "validator": "npm run check:scheduled-runtime-cost-reduction",
+      "sourceFiles": [
+        "functions/src/**",
+        "src/lib/server/queue-runtime.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "savingsModel": "scheduled/runtime reduction modeled by invocation/read/write formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Scheduled runtime validator passed with due-only, cursor, and diff-only guards."
+    },
+    {
+      "item": 46,
+      "title": "Behavioral intelligence reads all drops/relationships",
+      "category": "scheduled runtime",
+      "status": "fixed",
+      "artifact": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "validator": "npm run check:scheduled-runtime-cost-reduction",
+      "sourceFiles": [
+        "functions/src/**",
+        "src/lib/server/queue-runtime.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "savingsModel": "scheduled/runtime reduction modeled by invocation/read/write formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Scheduled runtime validator passed with due-only, cursor, and diff-only guards."
+    },
+    {
+      "item": 47,
+      "title": "Behavioral intelligence writes unchanged profiles",
+      "category": "scheduled runtime",
+      "status": "fixed",
+      "artifact": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "validator": "npm run check:scheduled-runtime-cost-reduction",
+      "sourceFiles": [
+        "functions/src/**",
+        "src/lib/server/queue-runtime.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "savingsModel": "scheduled/runtime reduction modeled by invocation/read/write formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Scheduled runtime validator passed with due-only, cursor, and diff-only guards."
+    },
+    {
+      "item": 48,
+      "title": "Queue lifecycle scans scheduled/active drops",
+      "category": "scheduled runtime",
+      "status": "fixed",
+      "artifact": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "validator": "npm run check:scheduled-runtime-cost-reduction",
+      "sourceFiles": [
+        "functions/src/**",
+        "src/lib/server/queue-runtime.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "savingsModel": "scheduled/runtime reduction modeled by invocation/read/write formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Scheduled runtime validator passed with due-only, cursor, and diff-only guards."
+    },
+    {
+      "item": 49,
+      "title": "Active drop notification user streaming",
+      "category": "scheduled runtime",
+      "status": "fixed",
+      "artifact": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "validator": "npm run check:scheduled-runtime-cost-reduction",
+      "sourceFiles": [
+        "functions/src/**",
+        "src/lib/server/queue-runtime.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "savingsModel": "scheduled/runtime reduction modeled by invocation/read/write formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Scheduled runtime validator passed with due-only, cursor, and diff-only guards."
+    },
+    {
+      "item": 50,
+      "title": "Creator subscription cron scans 1000 active subscriptions",
+      "category": "scheduled runtime",
+      "status": "fixed",
+      "artifact": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "validator": "npm run check:scheduled-runtime-cost-reduction",
+      "sourceFiles": [
+        "functions/src/**",
+        "src/lib/server/queue-runtime.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "savingsModel": "scheduled/runtime reduction modeled by invocation/read/write formulas only.",
+      "trackingAccuracyRisk": "low",
+      "reason": "Scheduled runtime validator passed with due-only, cursor, and diff-only guards."
+    }
+  ],
+  "costSavingsModel": [
+    {
+      "category": "client telemetry",
+      "model": "requestReduction ~= 1 - (oldIntervalSeconds / newIntervalSeconds)",
+      "estimatedReduction": "about 83% fewer non-priority interval flush opportunities, plus 70-95% lower hover/visibility/scroll diagnostic volume",
+      "evidence": [
+        "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+        "npm run check:deeptracker-telemetry-volume-reduction"
+      ]
+    },
+    {
+      "category": "hot ingest and event facts",
+      "model": "savedWork ~= inlineTimelineWrites + sessionDocReads + consentDiagnosticWrites + repeatedFailureDiagnostics",
+      "estimatedReduction": "25-65% lower anonymous ingest Firestore/read-write and CPU work, with priority ingest preserved",
+      "evidence": [
+        "agent/state/analytics-hot-path-cost-reduction.generated.json",
+        "npm run check:analytics-hot-path-cost-reduction"
+      ]
+    },
+    {
+      "category": "BigQuery export",
+      "model": "statusWriteReduction ~= repeatedFailuresWithinTtl - 1; triggerWork ~= dueWindowOnly",
+      "estimatedReduction": "up to 95% fewer repeated failure-status writes; event triggers cheap-exit until deploy-scoped trigger retirement",
+      "evidence": [
+        "agent/state/analytics-hot-path-cost-reduction.generated.json",
+        null,
+        "npm run check:analytics-hot-path-cost-reduction",
+        "npm run check:analytics-cadence-cost-policy"
+      ]
+    },
+    {
+      "category": "admin analytics/debug reads",
+      "model": "readReduction = highCostSectionReads - summarySectionReads",
+      "estimatedReduction": "70-95% fewer default Debug reads; 50-90% lower raw sample reads depending on tenant size",
+      "evidence": [
+        "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+        "npm run check:admin-analytics-debug-cost-reduction"
+      ]
+    },
+    {
+      "category": "scheduled runtime jobs",
+      "model": "invocation/read/write reduction = broad scans - due/cursor/changed work",
+      "estimatedReduction": "80% fewer realtime summary executions; typically 70-99% fewer due-only reads on quiet intervals",
+      "evidence": [
+        "agent/state/scheduled-runtime-cost-reduction.generated.json",
+        "npm run check:scheduled-runtime-cost-reduction"
+      ]
+    },
+    {
+      "category": "Cloud SQL/Data Connect and Gemini",
+      "model": "accidentalCostWork = casualSyncs + backgroundAiCalls; guard blocks casual execution",
+      "estimatedReduction": "no dollar claim; accidental SQL mirror and background AI cost paths are blocked or owner-review only",
+      "evidence": [
+        "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+        "npm run check:cloud-sql-gemini-cost-guards"
+      ]
+    }
+  ],
+  "trackingAccuracyGuards": [
+    {
+      "guard": "Priority analytics ingest remains accepted while non-priority materialization is deferred.",
+      "evidence": [
+        "agent/state/analytics-hot-path-cost-reduction.generated.json",
+        "Valid priority ingest still succeeds in focused tests."
+      ],
+      "validator": "npm run check:analytics-hot-path-cost-reduction"
+    },
+    {
+      "guard": "Runtime watch-time v2 remains independent from generic DeepTracker batching.",
+      "evidence": [
+        "agent/state/runtime-watch-time-v2.generated.json",
+        "10s heartbeat and duplicate event id dedupe remain represented."
+      ],
+      "validator": "npm run check:runtime-watch-time-v2"
+    },
+    {
+      "guard": "Guest-to-user identity linking remains link-first and does not duplicate historical events.",
+      "evidence": [
+        "agent/state/guest-user-identity-transfer.generated.json"
+      ],
+      "validator": "npm run check:guest-user-identity-transfer"
+    },
+    {
+      "guard": "External analytics, SQL, BigQuery, and Gemini evidence does not become product truth.",
+      "evidence": [
+        "agent/state/analytics-semantics-final-lock.generated.json",
+        "agent/state/cloud-sql-gemini-cost-guards.generated.json"
+      ],
+      "validator": "npm run check:analytics-semantics-final-lock"
+    }
+  ],
+  "externalOwnerReview": [
+    {
+      "lane": "Cloud SQL/Data Connect",
+      "status": "cloud_sql_external_billing_observed_owner_review_required",
+      "reason": "External billing was observed, but runtime SQL/Data Connect source is not detected in app code.",
+      "nextAction": "Review GCP Cloud SQL instance/process ownership externally before claiming provider savings."
+    },
+    {
+      "lane": "Gemini/Vertex/Cloud Assist",
+      "status": "gemini_cloud_assist_external_billing_observed_owner_review_required",
+      "reason": "Repo has admin AI routes, but external billing source must be mapped by owner in Google Cloud.",
+      "nextAction": "Map Vertex/Gemini service accounts/jobs and confirm whether Cloud Assist usage is outside repo."
+    },
+    {
+      "lane": "Cloud Scheduler/deployed functions",
+      "status": "blocked_external_console",
+      "reason": "Source schedules and guards are updated, but deployed scheduler state was not read in this source-only pass.",
+      "nextAction": "After deployment, verify no stale one-minute or broad-scan triggers remain active."
+    }
+  ],
+  "prCleanupActions": [
+    {
+      "number": 271,
+      "action": "closed",
+      "reason": "stale/outside final cost audit lock lane; broad monolith documentation belongs in a dedicated governance lane."
+    },
+    {
+      "number": 272,
+      "action": "closed",
+      "reason": "no-op/superseded; PR had no changed files after its own revert."
+    },
+    {
+      "number": 273,
+      "action": "closed",
+      "reason": "duplicate/superseded; debug Map optimization already landed and PR contained unrelated generated churn."
+    }
+  ],
+  "dirtyFileActions": [
+    {
+      "path": "CHANGELOG.md",
+      "status": "release_artifact_expected",
+      "action": "commit same-commit release-note artifact."
+    },
+    {
+      "path": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/analytics-cadence-cost-policy.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/analytics-semantics-final-lock.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/guest-user-identity-transfer.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/runtime-watch-time-v2.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/admin-analytics-debug-cost-reduction.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/analytics-cadence-cost-policy.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/analytics-semantics-final-lock.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/guest-user-identity-transfer.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/runtime-watch-time-v2.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/scheduled-runtime-cost-reduction.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "package.json",
+      "status": "real_source_change_needs_review",
+      "action": "commit scoped validator/package source change after targeted checks."
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "status": "release_artifact_expected",
+      "action": "commit same-commit release-note artifact."
+    },
+    {
+      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+      "status": "real_source_change_needs_review",
+      "action": "commit scoped validator/package source change after targeted checks."
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "status": "release_artifact_expected",
+      "action": "commit same-commit release-note artifact."
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "status": "release_artifact_expected",
+      "action": "commit same-commit release-note artifact."
+    },
+    {
+      "path": "agent/state/final-cost-audit-lock.generated.json",
+      "status": "report_artifact_to_commit",
+      "action": "commit final cost audit lock artifact."
+    },
+    {
+      "path": "docs/agent-truth/final-cost-audit-lock.md",
+      "status": "report_artifact_to_commit",
+      "action": "commit final cost audit lock artifact."
+    },
+    {
+      "path": "scripts/agent/validate-final-cost-audit-lock.ts",
+      "status": "report_artifact_to_commit",
+      "action": "commit final cost audit lock artifact."
+    },
+    {
+      "path": "tests/unit/final-cost-audit-lock.spec.ts",
+      "status": "report_artifact_to_commit",
+      "action": "commit final cost audit lock artifact."
+    }
+  ],
+  "remainingBlockers": [
+    {
+      "id": "manual_provider_runtime_admin_evidence_missing",
+      "severity": "P1",
+      "status": "beta_exit_blocked",
+      "nextAction": "Attach manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence before beta exit review."
+    },
+    {
+      "id": "runtime_watch_time_deployed_evidence_missing",
+      "severity": "P1",
+      "status": "source_ready_runtime_unproven",
+      "nextAction": "Capture deployed media playback evidence before claiming live watch-time accuracy."
+    },
+    {
+      "id": "external_cost_owner_review_required",
+      "severity": "P2",
+      "status": "owner_review_required",
+      "nextAction": "Owner-review Cloud SQL, Gemini/Vertex, and deployed scheduler/provider cost lanes in external consoles."
+    }
+  ],
+  "nextExactSteps": [
+    "Run manual screenshot QA and attach evidence artifacts; beta exit remains blocked until real evidence exists.",
+    "Capture deployed runtime watch-time v2 media playback evidence before claiming live watch accuracy.",
+    "Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing in Google Cloud; do not mark not-detected/source-only lanes as pass.",
+    "After deployment, verify Cloud Scheduler/Functions cadence externally so source guards match live schedules."
+  ]
+}
