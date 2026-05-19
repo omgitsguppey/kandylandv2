@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.3.14",
-  "betaReleaseCounter": 314,
+  "currentVersion": "1.3.15",
+  "betaReleaseCounter": 315,
   "channel": "beta",
-  "generatedAt": "2026-05-19T22:49:48.551Z",
-  "generatedAtUtc": "2026-05-19T22:49:48.551Z",
+  "generatedAt": "2026-05-19T23:00:23.317Z",
+  "generatedAtUtc": "2026-05-19T23:00:23.317Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.15",
+      "previousVersion": "1.3.14",
+      "betaReleaseCounter": 315,
+      "previousBetaReleaseCounter": 314,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): close external analytics truth",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T23:00:23.317Z",
+      "generatedAt": "2026-05-19T23:00:23.317Z",
+      "committedAtUtc": "2026-05-19T23:00:23.317Z",
+      "generatedAtUtc": "2026-05-19T23:00:23.317Z",
+      "updatedAtUtc": "2026-05-19T23:00:23.317Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Closed Google Analytics and external analytics evidence ambiguity while keeping first-party analytics as product truth.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Closed Google Analytics evidence ambiguity.",
+        "Kept external analytics separate from product truth.",
+        "Prevented missing external analytics from showing as zero traffic."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted external analytics truth closure fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "admin analytics",
+        "app reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/external-analytics-truth-closure.generated.json",
+        "docs/agent-truth/external-analytics-truth-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-external-analytics-truth-closure.ts",
+        "src/lib/analytics/external-analytics-truth.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/external-analytics-truth-closure.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.14",
       "previousVersion": "1.3.13",
@@ -1346,56 +1396,6 @@
         "tests/unit/deeptracker-telemetry-volume-reduction.spec.ts"
       ],
       "sourceCommit": "03c39a8af422bc530f24536644c61672f8815b24"
-    },
-    {
-      "version": "1.2.90",
-      "previousVersion": "1.2.89",
-      "betaReleaseCounter": 290,
-      "previousBetaReleaseCounter": 289,
-      "commitSha": "b83c1225ffd93a16f6aecdd9b0081695613e32da",
-      "commitTitle": "fix(analytics): reduce hot path cost churn",
-      "commitCount": 1,
-      "commitShas": [
-        "b83c1225ffd93a16f6aecdd9b0081695613e32da"
-      ],
-      "committedAt": "2026-05-19T13:43:56.853Z",
-      "generatedAt": "2026-05-19T13:43:56.853Z",
-      "committedAtUtc": "2026-05-19T13:43:56.853Z",
-      "generatedAtUtc": "2026-05-19T13:43:56.853Z",
-      "updatedAtUtc": "2026-05-19T13:43:56.853Z",
-      "category": "Performance",
-      "title": "Bug fixes and general improvements",
-      "summary": "Reduced hot-path analytics ingest and export cost risks while preserving priority tracking.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reduced hot-path analytics ingest and export cost risks.",
-        "Moved low-priority analytics work toward batched lanes.",
-        "Kept priority tracking accuracy intact while cutting retry and export churn."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted analytics cost patch into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/analytics-hot-path-cost-reduction.generated.json",
-        "docs/agent-truth/analytics-hot-path-cost-reduction.md",
-        "functions/src/analytics-bigquery-export.ts",
-        "functions/src/analytics-event-facts.ts",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-analytics-hot-path-cost-reduction.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/analytics-hot-path-cost-reduction.spec.ts"
-      ],
-      "sourceCommit": "b83c1225ffd93a16f6aecdd9b0081695613e32da"
     }
   ]
 }

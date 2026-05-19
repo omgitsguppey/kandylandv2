@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T18:12:21.048Z",
+  "generatedAtUtc": "2026-05-19T23:03:56.935Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "63121e2011e286af8fd1b7bcbfba3b3801aae7fb",
+  "currentHead": "e395c1d8c55c5645f92672a67a5ec19542ecaeec",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,21 +323,21 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "63121e2011e286af8fd1b7bcbfba3b3801aae7fb",
+      "currentHead": "e395c1d8c55c5645f92672a67a5ec19542ecaeec",
       "status": "current",
       "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "63121e2011e286af8fd1b7bcbfba3b3801aae7fb",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "63121e2011e286af8fd1b7bcbfba3b3801aae7fb",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/final-phase-cleanup-lock.generated.json",
@@ -347,13 +347,13 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "63121e2011e286af8fd1b7bcbfba3b3801aae7fb",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "05473469a47db2b21a9206e1edccc81b4f30c8dc",
+      "currentHead": "dc3ae97ac8edaba50669b0188a12e9f7fa4774f6",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },

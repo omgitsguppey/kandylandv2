@@ -1,0 +1,160 @@
+{
+  "generatedAtUtc": "2026-05-19T23:03:46.560Z",
+  "reportKey": "external-analytics-truth-closure",
+  "currentHead": "e395c1d8c55c5645f92672a67a5ec19542ecaeec",
+  "summary": {
+    "ga4Statuses": [
+      "ga4_server_configured",
+      "ga4_evidence_only"
+    ],
+    "posthogStatuses": [
+      "posthog_missing"
+    ],
+    "firstPartyAnalyticsPrimary": true,
+    "externalAnalyticsProductTruth": false,
+    "missingExternalAnalyticsNotZero": true,
+    "ga4ClientTrackerEnvGated": true,
+    "ga4ClientConsentGated": true,
+    "posthogEnvGated": true,
+    "posthogConsentGated": true,
+    "dataApiDefaultLoadBlocked": true,
+    "docsDoNotClaimUnsupportedGa4Live": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "inventory": [
+    {
+      "id": "external-analytics-contract-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "External analytics truth contract exists."
+    },
+    {
+      "id": "contract-validates",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "External analytics truth contract validates."
+    },
+    {
+      "id": "ga4-recovery-reused",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Existing GA4 recovery truth helper and consent-gated tracker are reused."
+    }
+  ],
+  "ga4Findings": [
+    {
+      "id": "ga4-state-not-unknown",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA4 has explicit statuses and no unknown state."
+    },
+    {
+      "id": "ga4-client-env-gated",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA4 client tracker is gated by NEXT_PUBLIC_GA_MEASUREMENT_ID; current App Hosting source does not expose that public key."
+    },
+    {
+      "id": "ga4-client-consent-gated",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA4 client tracker respects analytics consent."
+    },
+    {
+      "id": "ga4-server-evidence-configured",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 server evidence is configured in source through GA_PROPERTY_ID and the Data API dependency."
+    },
+    {
+      "id": "ga4-evidence-only",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA4 remains external evidence only."
+    }
+  ],
+  "posthogFindings": [
+    {
+      "id": "posthog-state-not-unknown",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "PostHog has explicit status and no unknown state."
+    },
+    {
+      "id": "posthog-env-gated",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "PostHog provider is source-gated and current App Hosting source does not configure PostHog."
+    },
+    {
+      "id": "posthog-consent-gated",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "PostHog capture respects analytics consent."
+    }
+  ],
+  "adminEvidenceFindings": [
+    {
+      "id": "missing-external-not-zero",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Missing external analytics is unavailable evidence, not zero traffic."
+    },
+    {
+      "id": "external-not-product-truth",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "External analytics cannot override first-party event facts and rollups."
+    },
+    {
+      "id": "data-api-default-load-blocked",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA Data API calls remain blocked on default admin analytics load."
+    }
+  ],
+  "docsFindings": [
+    {
+      "id": "docs-keep-ga4-evidence-only",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Docs keep GA4 as evidence/export, not product truth."
+    },
+    {
+      "id": "docs-do-not-claim-live-ga4",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Docs do not claim unsupported live GA4 product truth."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "external-analytics-contract-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added external analytics truth contract."
+    },
+    {
+      "id": "external-analytics-validator-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added external analytics truth validator."
+    },
+    {
+      "id": "external-analytics-test-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added external analytics truth unit coverage."
+    }
+  ],
+  "prCleanupActions": [
+    "No open GA4, PostHog, or external analytics truth PRs were present at start."
+  ],
+  "nextFixOrder": [
+    "If client GA4 evidence is owner-approved, add NEXT_PUBLIC_GA_MEASUREMENT_ID in deployment config in a dedicated config pass.",
+    "Keep GA Data API evidence behind explicit refresh and TTL; do not call it from default admin loads.",
+    "If PostHog evidence is owner-approved, configure NEXT_PUBLIC_POSTHOG_KEY and keep consent gating intact."
+  ]
+}

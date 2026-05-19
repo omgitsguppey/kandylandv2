@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.15 - 2026-05-19
+- Bug fixes and general improvements
+- Closed Google Analytics evidence ambiguity.
+- Kept external analytics separate from product truth.
+- Prevented missing external analytics from showing as zero traffic.
+
 ## 1.3.14 - 2026-05-19
 - Bug fixes and general improvements
 - Clarified BigQuery export readiness.
