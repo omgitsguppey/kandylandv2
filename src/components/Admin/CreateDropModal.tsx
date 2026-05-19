@@ -258,9 +258,10 @@ export interface CreateDropModalProps {
     onSuccess: () => void;
     mode?: "admin" | "creator";
     creatorIdOverride?: string | null;
+    onSubmitFailure?: (message: string) => void;
 }
 
-export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", creatorIdOverride = null }: CreateDropModalProps) {
+export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", creatorIdOverride = null, onSubmitFailure }: CreateDropModalProps) {
     const isEditMode = !!dropId;
     const [fetching, setFetching] = useState(isEditMode);
     const [contentAssets, setContentAssets] = useState<UploadedAsset[]>([]);
@@ -621,10 +622,22 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         setValue("tags", newTags);
     }, [currentTags, setValue]);
 
+    const trackCreatorSubmitFailure = useCallback((message: string) => {
+        if (mode !== "creator") return;
+        trackEvent("creator_drop_submit_failed", {
+            source_component: "CreateDropModal",
+            surface: "creator_submission",
+            reason: message,
+        });
+        onSubmitFailure?.(message);
+    }, [mode, onSubmitFailure]);
+
     const onSubmit: SubmitHandler<DropFormData> = async (data) => {
         try {
             if (duplicateWarnings.length > 0) {
-                toast.error("Resolve duplicate file names before saving this drop.");
+                const message = "Resolve duplicate file names before saving this drop.";
+                trackCreatorSubmitFailure(message);
+                toast.error(message);
                 return;
             }
             if (hasActiveUploads) {
@@ -633,7 +646,9 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     source_component: "create_drop_modal",
                     mode,
                 });
-                toast.error("Uploads are still finishing. Wait for all files to upload before saving this drop.");
+                const message = "Uploads are still finishing. Wait for all files to upload before saving this drop.";
+                trackCreatorSubmitFailure(message);
+                toast.error(message);
                 return;
             }
             if (hasFailedDrafts) {
@@ -765,6 +780,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 },
                 consoleLabel: "[Create Drop Modal] save drop failed",
             });
+            trackCreatorSubmitFailure(message);
             toast.error(message);
         }
     };
@@ -775,9 +791,13 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             .filter(Boolean) as string[];
 
         if (errorMessages.length > 0) {
-            toast.error(`Cannot submit drop due to missing or invalid fields: ${errorMessages.join(", ")}`);
+            const message = `Cannot submit drop due to missing or invalid fields: ${errorMessages.join(", ")}`;
+            trackCreatorSubmitFailure(message);
+            toast.error(message);
         } else {
-            toast.error("Please check the form for errors. Ensure all selected files have been fully uploaded.");
+            const message = "Please check the form for errors. Ensure all selected files have been fully uploaded.";
+            trackCreatorSubmitFailure(message);
+            toast.error(message);
         }
     };
 
@@ -794,7 +814,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     >
                         <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
                             <Dialog.Title className="shrink-0 text-xl font-bold text-white">
-                                {isEditMode ? (mode === "creator" ? "Edit Submission" : "Edit Drop") : (mode === "creator" ? "Submit Creator Drop" : "Create Drop")}
+                                {isEditMode ? (mode === "creator" ? "Edit submission" : "Edit Drop") : (mode === "creator" ? "Submit drop for review" : "Create Drop")}
                             </Dialog.Title>
                             <Dialog.Close asChild>
                                 <button
@@ -1026,19 +1046,21 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                             </div>
                                         </div>
 
-                                            <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-3 text-sm text-gray-300">
-                                            <input
-                                                {...register("autoQueueOnExpire")}
-                                                type="checkbox"
-                                                className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/40 text-brand-purple focus:ring-brand-purple/50"
-                                            />
-                                            <span className="space-y-1">
-                                                <span className="block font-semibold text-white">Auto queue when expired</span>
-                                                <span className="block text-xs text-gray-400">
-                                                    Automatically add this drop back into the admin queue once its live window ends.
-                                                </span>
-                                            </span>
-                                            </label>
+                                            {mode === "admin" ? (
+                                                <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-3 text-sm text-gray-300">
+                                                    <input
+                                                        {...register("autoQueueOnExpire")}
+                                                        type="checkbox"
+                                                        className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/40 text-brand-purple focus:ring-brand-purple/50"
+                                                    />
+                                                    <span className="space-y-1">
+                                                        <span className="block font-semibold text-white">Auto queue when expired</span>
+                                                        <span className="block text-xs text-gray-400">
+                                                            Automatically add this drop back into the admin queue once its live window ends.
+                                                        </span>
+                                                    </span>
+                                                </label>
+                                            ) : null}
                                         </div>
                                     </FormSectionCard>
 
@@ -1078,16 +1100,28 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                             )}
                         </div>
 
-                        <div className="shrink-0 border-t border-white/10 bg-black/65 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 backdrop-blur-md md:px-6 md:pb-6">
+                        <div
+                            className="shrink-0 border-t border-white/10 bg-black/65 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 backdrop-blur-md md:px-6 md:pb-6"
+                            data-creator-drop-form-footer="mobile_safe"
+                        >
+                            <div className="grid grid-cols-[minmax(6rem,0.4fr)_1fr] gap-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-bold text-gray-200 transition-colors hover:bg-white/10"
+                            >
+                                Cancel
+                            </button>
                             <button
                                 type="submit"
                                 form="create-drop-form"
                                 disabled={isSubmitting || fetching || uploadsBusy}
-                                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-purple to-[#d946ef] font-bold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-[#d946ef] px-3 text-sm font-bold text-white shadow-[0_0_18px_rgba(236,72,153,0.25)] transition-all hover:shadow-[0_0_22px_rgba(236,72,153,0.35)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                             >
                                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                {isSubmitting ? "Saving..." : isEditMode ? (mode === "creator" ? "Update Submission" : "Update Drop") : (mode === "creator" ? "Submit For Approval" : "Create Drop")}
+                                {isSubmitting ? "Saving..." : isEditMode ? (mode === "creator" ? "Update submission" : "Update Drop") : (mode === "creator" ? "Submit for review" : "Create Drop")}
                             </button>
+                            </div>
                         </div>
                     </Dialog.Content>
                 </div>

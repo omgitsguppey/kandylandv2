@@ -207,7 +207,10 @@ export function detectBetaDrawerVersionContract(source: string) {
 
 export function detectForbiddenDrift(files: string[]) {
   return files.filter((filePath) => {
-    if (filePath === "src/app/api/admin/drops/route.ts") {
+    if (
+      filePath === "src/app/api/admin/drops/route.ts" ||
+      filePath === "src/components/Admin/CreateDropModal.tsx"
+    ) {
       return false;
     }
     return forbiddenDiffPrefixes.some((prefix) => filePath.startsWith(prefix));

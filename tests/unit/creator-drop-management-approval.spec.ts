@@ -33,7 +33,7 @@ describe("creator drop management approval lane", () => {
     expect(manager).toContain('data-creator-drop-manager="true"');
     expect(manager).toContain('data-drop-manager-surface="creator_submission"');
     expect(manager).toContain('data-admin-approval-required="true"');
-    expect(manager).toContain("Submit drops for admin approval before they go live.");
+    expect(manager).toContain("Submit drops for review before they go live.");
     expect(manager).not.toContain("My KandyDrops");
     expect(manager).not.toContain("unwrapped library");
   });

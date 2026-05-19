@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, Clock3, Package, Plus, RefreshCw, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
+import { trackEvent } from "@/lib/telemetry";
 
 type CreatorDropReviewStatus = "draft" | "pending_admin_approval" | "approved" | "needs_changes" | "rejected";
+type CreatorDropFilter = "all" | CreatorDropReviewStatus;
 
 type CreatorDropRow = {
     id: string;
@@ -20,19 +22,31 @@ type CreatorDropRow = {
     reviewStatus?: string;
     publicDiscovery?: boolean;
     rotationEligibility?: boolean;
+    unlockCost?: number;
+    validUntil?: number | null;
+    updatedAt?: number | string | null;
 };
 
 const REVIEW_TABS: Array<{
-    id: CreatorDropReviewStatus;
+    id: CreatorDropFilter;
     label: string;
     icon: typeof Package;
 }> = [
+    { id: "all", label: "All", icon: Package },
     { id: "draft", label: "Drafts", icon: Package },
-    { id: "pending_admin_approval", label: "Pending review", icon: Clock3 },
-    { id: "approved", label: "Approved/live", icon: CheckCircle2 },
+    { id: "pending_admin_approval", label: "Pending", icon: Clock3 },
+    { id: "approved", label: "Approved", icon: CheckCircle2 },
     { id: "needs_changes", label: "Needs changes", icon: AlertCircle },
     { id: "rejected", label: "Rejected", icon: XCircle },
 ];
+
+const REVIEW_STATUS_LABELS: Record<CreatorDropReviewStatus, string> = {
+    draft: "Draft",
+    pending_admin_approval: "Waiting on admin review",
+    approved: "Approved",
+    needs_changes: "Needs changes",
+    rejected: "Not approved",
+};
 
 function classifyDrop(drop: CreatorDropRow): CreatorDropReviewStatus {
     if (drop.reviewStatus === "needs_changes") return "needs_changes";
@@ -45,9 +59,10 @@ function classifyDrop(drop: CreatorDropRow): CreatorDropReviewStatus {
 export function CreatorDropManager() {
     const { user } = useAuth();
     const [drops, setDrops] = useState<CreatorDropRow[]>([]);
-    const [activeTab, setActiveTab] = useState<CreatorDropReviewStatus>("pending_admin_approval");
+    const [activeTab, setActiveTab] = useState<CreatorDropFilter>("all");
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const openedTrackedRef = useRef(false);
 
     const loadDrops = useCallback(async () => {
         setLoading(true);
@@ -69,11 +84,22 @@ export function CreatorDropManager() {
         void loadDrops();
     }, [loadDrops]);
 
+    useEffect(() => {
+        if (openedTrackedRef.current) return;
+        openedTrackedRef.current = true;
+        trackEvent("creator_drop_manager_opened", {
+            source_component: "CreatorDropManager",
+            surface: "creator_submission",
+            ui_density: "mobile_compact",
+        });
+    }, []);
+
     const tabCounts = useMemo(() => {
-        return REVIEW_TABS.reduce<Record<CreatorDropReviewStatus, number>>((acc, tab) => {
-            acc[tab.id] = drops.filter((drop) => classifyDrop(drop) === tab.id).length;
+        return REVIEW_TABS.reduce<Record<CreatorDropFilter, number>>((acc, tab) => {
+            acc[tab.id] = tab.id === "all" ? drops.length : drops.filter((drop) => classifyDrop(drop) === tab.id).length;
             return acc;
         }, {
+            all: 0,
             draft: 0,
             pending_admin_approval: 0,
             approved: 0,
@@ -83,23 +109,33 @@ export function CreatorDropManager() {
     }, [drops]);
 
     const visibleDrops = useMemo(
-        () => drops.filter((drop) => classifyDrop(drop) === activeTab),
+        () => activeTab === "all" ? drops : drops.filter((drop) => classifyDrop(drop) === activeTab),
         [activeTab, drops],
     );
 
+    const openSubmitForm = useCallback(() => {
+        trackEvent("creator_drop_submission_started", {
+            source_component: "CreatorDropManager",
+            surface: "creator_submission",
+            ui_density: "mobile_compact",
+        });
+        setIsModalOpen(true);
+    }, []);
+
     return (
         <main
-            className="min-h-screen bg-[#0b0614] px-4 pb-24 pt-6 text-white sm:px-6 lg:px-8"
+            className="min-h-screen bg-[#0b0614] px-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-5 text-white sm:px-6 lg:px-8"
             data-creator-drop-manager="true"
             data-drop-manager-surface="creator_submission"
             data-admin-approval-required="true"
+            data-bottom-nav-safe="true"
+            data-mobile-primary-action="submit_drop"
         >
-            <section className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-                <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-2xl shadow-black/20 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-                    <div className="space-y-1.5">
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-purple">Creator tools</p>
+            <section className="mx-auto flex w-full max-w-5xl flex-col gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="space-y-1">
                         <h1 className="text-2xl font-black tracking-normal text-white sm:text-3xl">Manage drops</h1>
-                        <p className="max-w-2xl text-sm leading-6 text-gray-300">Submit drops for admin approval before they go live.</p>
+                        <p className="text-sm leading-5 text-gray-300">Submit drops for review before they go live.</p>
                     </div>
                     <div className="flex gap-2">
                         <button
@@ -112,8 +148,8 @@ export function CreatorDropManager() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => setIsModalOpen(true)}
-                            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-brand-purple px-4 text-sm font-black text-white shadow-lg shadow-brand-purple/30 transition-transform hover:scale-[1.01]"
+                            onClick={openSubmitForm}
+                            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand-purple px-4 text-sm font-black text-white shadow-lg shadow-brand-purple/25 transition-transform hover:scale-[1.01]"
                         >
                             <Plus className="h-4 w-4" />
                             Submit drop
@@ -121,7 +157,7 @@ export function CreatorDropManager() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6" aria-label="Creator drop status filters" data-creator-drop-status-filter="all">
                     {REVIEW_TABS.map((tab) => {
                         const Icon = tab.icon;
                         const active = activeTab === tab.id;
@@ -130,47 +166,62 @@ export function CreatorDropManager() {
                                 key={tab.id}
                                 type="button"
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex min-h-16 flex-col justify-between rounded-xl border p-3 text-left transition-colors ${active ? "border-brand-purple/60 bg-brand-purple/20" : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"}`}
+                                data-creator-drop-status-filter={tab.id}
+                                className={`flex min-h-11 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition-colors ${active ? "border-brand-purple/60 bg-brand-purple/20" : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"}`}
                             >
-                                <span className="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-300">
+                                <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-gray-300">
+                                    <Icon className="h-3.5 w-3.5 shrink-0" />
                                     {tab.label}
-                                    <Icon className="h-3.5 w-3.5" />
                                 </span>
-                                <span className="text-xl font-black text-white">{tabCounts[tab.id]}</span>
+                                <span className="text-sm font-black text-white">{tabCounts[tab.id]}</span>
                             </button>
                         );
                     })}
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 sm:p-4">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-2.5 sm:p-3" data-creator-drop-list-density="compact_rows">
                     {loading ? (
-                        <p className="py-8 text-center text-sm text-gray-300">Loading creator drops...</p>
+                        <p className="py-6 text-center text-sm text-gray-300">Loading creator drops...</p>
                     ) : visibleDrops.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-                            <Package className="h-8 w-8 text-brand-purple" />
+                        <div className="flex flex-col items-center justify-center gap-3 py-6 text-center" data-empty-state-density="compact">
+                            <Package className="h-7 w-7 text-brand-purple" />
                             <div>
-                                <p className="text-base font-black text-white">No creator drops submitted yet.</p>
-                                <p className="mt-1 text-sm text-gray-400">Use Submit drop when a Drop is ready for review.</p>
+                                <p className="text-base font-black text-white">No drops submitted yet</p>
+                                <p className="mt-1 text-sm text-gray-400">Create your first drop for review.</p>
                             </div>
+                            <button
+                                type="button"
+                                onClick={openSubmitForm}
+                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-white/10 px-4 text-sm font-bold text-white transition-colors hover:bg-white/15"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Submit drop
+                            </button>
                         </div>
                     ) : (
-                        <div className="grid gap-3">
+                        <div className="grid gap-2">
                             {visibleDrops.map((drop) => (
-                                <article key={drop.id} className="flex gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
+                                <article key={drop.id} className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-2.5">
                                     {drop.imageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={drop.imageUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
+                                        <img src={drop.imageUrl} alt="" className="h-14 w-14 rounded-lg object-cover" />
                                     ) : (
-                                        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-white/5">
+                                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white/5">
                                             <Package className="h-5 w-5 text-gray-400" />
                                         </div>
                                     )}
                                     <div className="min-w-0 flex-1">
-                                        <h2 className="truncate text-sm font-black text-white">{drop.title}</h2>
-                                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-400">{drop.description || "No description provided."}</p>
-                                        <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-[0.1em] text-gray-300">
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{drop.reviewStatus || drop.approvalStatus || "draft"}</span>
-                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Admin approval required</span>
+                                        <div className="flex min-w-0 items-start justify-between gap-2">
+                                            <h2 className="truncate text-sm font-black text-white">{drop.title}</h2>
+                                            <span className="shrink-0 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
+                                                {REVIEW_STATUS_LABELS[classifyDrop(drop)]}
+                                            </span>
+                                        </div>
+                                        <p className="mt-1 truncate text-xs leading-5 text-gray-400">{drop.description || "No description provided."}</p>
+                                        <div className="mt-1.5 flex flex-wrap gap-2 text-[11px] font-semibold text-gray-400">
+                                            <span>{typeof drop.unlockCost === "number" ? `${drop.unlockCost} GumDrops` : "Cost unset"}</span>
+                                            <span aria-hidden="true">|</span>
+                                            <span>{drop.validUntil ? "Expires set" : "No expiry"}</span>
                                         </div>
                                     </div>
                                 </article>

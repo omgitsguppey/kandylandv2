@@ -263,6 +263,7 @@
         "check:creator-dashboard-role-boundary": "tsx scripts/agent/validate-creator-dashboard-role-boundary.ts",
         "check:creator-nav-role-consolidation": "tsx scripts/agent/validate-creator-nav-role-consolidation.ts",
         "check:creator-drop-management-approval": "tsx scripts/agent/validate-creator-drop-management-approval.ts",
+        "check:creator-drop-manager-mobile-refinement": "tsx scripts/agent/validate-creator-drop-manager-mobile-refinement.ts",
         "check:creator-surface-routing": "tsx scripts/agent/validate-creator-surface-routing.ts",
         "check:creator-settings-source-health": "tsx scripts/agent/validate-creator-settings-source-health.ts",
         "check:creator-landing-dashboard-mobile": "tsx scripts/agent/validate-creator-landing-dashboard-mobile.ts",

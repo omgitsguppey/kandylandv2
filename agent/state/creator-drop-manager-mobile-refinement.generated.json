@@ -1,0 +1,128 @@
+{
+  "generatedAtUtc": "2026-05-19T19:42:06.156Z",
+  "reportKey": "creator-drop-manager-mobile-refinement",
+  "currentHead": "c22e94cf5fc6574c69b43208c4186394a1adb145",
+  "summary": {
+    "dependencyPresent": true,
+    "mobilePrimaryActionClear": true,
+    "formUsesSharedContract": true,
+    "adminOnlyFieldsHidden": true,
+    "approvalCopyClear": true,
+    "compactListEnabled": true,
+    "emptyStateCompact": true,
+    "bottomNavSafe": true,
+    "noUserLibraryLanguage": true,
+    "noComponentDuplication": true,
+    "trackingBounded": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "dependency-present",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Creator drop manager dependency exists and still uses shared creator route/API/contracts."
+    }
+  ],
+  "uiFindings": [
+    {
+      "id": "primary-action",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Mobile screen has one clear Submit drop action and concise review copy."
+    },
+    {
+      "id": "compact-list",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Status filters and drop rows use compact mobile density."
+    },
+    {
+      "id": "compact-empty-state",
+      "severity": "p2",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Empty state is compact and actionable."
+    },
+    {
+      "id": "bottom-nav-safe",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Manager and form footer include bottom safe-area spacing."
+    },
+    {
+      "id": "user-library-separated",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Creator drop manager does not render My KandyDrops or unwrapped library copy."
+    }
+  ],
+  "componentReuseFindings": [
+    {
+      "id": "shared-contract",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Creator manager reuses CreateDropModal and shared Drop contracts."
+    },
+    {
+      "id": "no-duplicate-manager",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "No duplicate creator drop manager or cloned creator modal was introduced."
+    }
+  ],
+  "permissionFindings": [
+    {
+      "id": "creator-safe-copy",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/components/Admin/CreateDropModal.tsx",
+      "summary": "Creator form says submit for review and not publish."
+    },
+    {
+      "id": "admin-only-hidden",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/components/Admin/CreateDropModal.tsx",
+      "summary": "Creator mode does not expose admin queue/public rotation controls."
+    }
+  ],
+  "trackingFindings": [
+    {
+      "id": "bounded-tracking",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Tracking is tied to screen open, form open, and submit failure without polling."
+    },
+    {
+      "id": "mobile-tests",
+      "severity": "p1",
+      "status": "verified",
+      "file": "tests/unit/creator-drop-manager-mobile-refinement.spec.ts",
+      "summary": "Focused mobile refinement tests cover CTA, compact rows, shared contract, admin-only hiding, and tracking."
+    }
+  ],
+  "fixesApplied": [
+    "Converted the creator drop manager header into a compact mobile-first command area.",
+    "Added All/Drafts/Pending/Approved/Needs changes/Rejected compact filters.",
+    "Reduced list rows and empty state spacing for mobile density.",
+    "Changed creator form copy to Submit for review while preserving admin Create Drop behavior.",
+    "Hid admin queue controls from creator mode.",
+    "Added bounded user-action tracking for manager open, submission start, and submission failure."
+  ],
+  "prCleanupActions": [],
+  "nextFixOrder": [
+    "Attach manual mobile screenshot evidence for /dashboard/creator/drops after deployment.",
+    "Consider admin queue density refinements if pending creator submissions increase."
+  ]
+}
