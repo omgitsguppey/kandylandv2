@@ -1,0 +1,148 @@
+{
+  "generatedAtUtc": "2026-05-19T16:58:12.610Z",
+  "reportKey": "creator-nav-role-consolidation",
+  "currentHead": "05473469a47db2b21a9206e1edccc81b4f30c8dc",
+  "summary": {
+    "routeMatrixCanonical": true,
+    "staleDoctrineRemoved": true,
+    "duplicateNavConstantsRemoved": true,
+    "accountSettingsLabelCanonical": true,
+    "creatorDashboardRouteCanonical": true,
+    "creatorSettingsRouteCanonical": true,
+    "userDashboardModulesBlockedOnCreatorRoute": true,
+    "normalUserDashboardPreserved": true,
+    "fanPassCrmUsesReadableIdentity": true,
+    "broadcastAudienceExplicit": true,
+    "oldFollowersCopyRemoved": true,
+    "oldMetricGridRemoved": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "doctrineFindings": [
+    {
+      "id": "route-matrix-doc",
+      "severity": "p1",
+      "file": "docs/agent-truth/creator-nav-role-consolidation.md",
+      "summary": "Canonical creator/user route matrix is documented.",
+      "status": "fixed"
+    },
+    {
+      "id": "stale-doctrine-removed",
+      "severity": "p1",
+      "file": "docs/agent-truth/*.md",
+      "summary": "Conflicting creator settings, followers, raw id, public discovery, and dashboard stacking doctrine is absent.",
+      "status": "fixed"
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "route-constants-canonical",
+      "severity": "p1",
+      "file": "src/lib/creator-profile-routing.ts",
+      "summary": "Creator dashboard, creator settings, account settings, and profile route constants are canonical.",
+      "status": "fixed"
+    },
+    {
+      "id": "creator-dashboard-route-scoped",
+      "severity": "p1",
+      "file": "src/app/dashboard/creator/page.tsx",
+      "summary": "/dashboard/creator renders creator-only content.",
+      "status": "fixed"
+    },
+    {
+      "id": "user-dashboard-preserved",
+      "severity": "p1",
+      "file": "src/app/dashboard/DashboardClient.tsx",
+      "summary": "/dashboard remains the normal user dashboard and redirects creator-role accounts.",
+      "status": "fixed"
+    }
+  ],
+  "navFindings": [
+    {
+      "id": "nav-constants-consolidated",
+      "severity": "p1",
+      "file": "src/components/Navigation",
+      "summary": "Visible nav uses canonical route constants without duplicate account settings literals.",
+      "status": "fixed"
+    },
+    {
+      "id": "account-settings-label",
+      "severity": "p1",
+      "file": "src/components/Navigation",
+      "summary": "Account menus label USER_SETTINGS_ROUTE as Account Settings.",
+      "status": "fixed"
+    },
+    {
+      "id": "creator-dashboard-nav",
+      "severity": "p1",
+      "file": "src/components/Navigation",
+      "summary": "Creator Dashboard nav points to /dashboard/creator.",
+      "status": "fixed"
+    },
+    {
+      "id": "creator-settings-nav",
+      "severity": "p1",
+      "file": "src/components/Navigation",
+      "summary": "Creator Settings nav points to /dashboard/creator/settings.",
+      "status": "fixed"
+    }
+  ],
+  "crmFindings": [
+    {
+      "id": "crm-readable-identity",
+      "severity": "p1",
+      "file": "src/components/Creators/FanPassSubscriberRow.tsx",
+      "summary": "Fan Pass CRM uses hydrated readable fan identity and hides raw ids.",
+      "status": "fixed"
+    },
+    {
+      "id": "broadcast-audience-explicit",
+      "severity": "p1",
+      "file": "src/components/Creators/CreatorBroadcastManager.tsx",
+      "summary": "Broadcast UI and route expose explicit Fans audience.",
+      "status": "fixed"
+    },
+    {
+      "id": "followers-copy-removed",
+      "severity": "p1",
+      "file": "src/app/dashboard/profile",
+      "summary": "Creator-facing broadcast copy says Fans instead of followers.",
+      "status": "fixed"
+    },
+    {
+      "id": "old-metric-grid-removed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator Dashboard uses one compact overview module.",
+      "status": "fixed"
+    }
+  ],
+  "backendFindings": [
+    {
+      "id": "subscriber-privacy-redacted",
+      "severity": "p1",
+      "file": "src/app/api/creator/subscriptions/route.ts",
+      "summary": "Subscriber API redacts private identity fields in normal creator responses.",
+      "status": "fixed"
+    },
+    {
+      "id": "broadcast-unsupported-audience",
+      "severity": "p2",
+      "file": "src/app/api/creator/broadcasts/route.ts",
+      "summary": "Unsupported broadcast audiences fail with a human-safe validation error.",
+      "status": "fixed"
+    }
+  ],
+  "fixesApplied": [
+    "Consolidated account menu settings links on USER_SETTINGS_ROUTE.",
+    "Marked the creator landing route with data-dashboard-surface=\"creator_dashboard\".",
+    "Removed remaining creator-facing followers copy from profile creator broadcast tools.",
+    "Locked route, nav, CRM, broadcast, and dashboard boundary doctrine into a single consolidation report."
+  ],
+  "prCleanupActions": [],
+  "nextFixOrder": [
+    "Attach mobile screenshot evidence for /dashboard/creator and account nav after deployment.",
+    "Keep future creator dashboard additions route-scoped and update this consolidation validator when adding new creator nav destinations."
+  ]
+}

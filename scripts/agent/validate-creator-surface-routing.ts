@@ -154,7 +154,7 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     severity: "p2",
     file: "src/components/Navigation/ProfileSidebar.tsx",
     summary: "Account settings links use Account Settings, not ambiguous Settings, while creator operations use Creator Settings.",
-  }, [sidebar, dropdown].every((source) => source.includes("Account Settings") && !hasPlainSettingsAccountLabel(source)));
+  }, [sidebar, dropdown].every((source) => source.includes("Account Settings") && source.includes("USER_SETTINGS_ROUTE") && !hasPlainSettingsAccountLabel(source)));
 
   add(navigationFindings, {
     id: "user-settings-not-creator-operations",

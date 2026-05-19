@@ -813,6 +813,7 @@ export function CreatorDashboardLandingRoute() {
     return (
         <main
             className="mx-auto w-full max-w-5xl px-3 pt-3 sm:px-4 sm:pt-4"
+            data-dashboard-surface="creator_dashboard"
             data-creator-dashboard-route="landing"
             data-creator-dashboard-content-boundary="creator_only"
             data-creator-dashboard-landing-density="mobile_compact"

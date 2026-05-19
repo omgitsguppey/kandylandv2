@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.2.99 - 2026-05-19
+- Bug fixes and general improvements
+- Cleaned up Creator Dashboard and Creator Settings navigation.
+- Removed stale creator/user dashboard stacking rules.
+- Locked readable Fan Pass CRM and broadcast audience behavior.
+
 ## 1.2.98 - 2026-05-19
 - Bug fixes and general improvements
 - Separated Creator Dashboard from user reward and library sections.

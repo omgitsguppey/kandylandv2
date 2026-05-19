@@ -860,6 +860,7 @@ export function useProfileState() {
                 method: "POST",
                 body: JSON.stringify({
                     message: creatorBroadcastMessage.trim(),
+                    audience: "all_fans",
                 }),
             });
             const result = await response.json().catch(() => ({})) as {
@@ -874,7 +875,7 @@ export function useProfileState() {
             if (result.broadcast) {
                 setCreatorBroadcasts((current) => [result.broadcast as Record<string, unknown>, ...current].slice(0, 6));
             }
-            toast.success("Broadcast sent to followers.");
+            toast.success("Broadcast sent to fans.");
         } catch (error: any) {
             toast.error(error.message || "Failed to send broadcast.");
         } finally {

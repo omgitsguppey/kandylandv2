@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-17T06:28:57.173Z",
+  "generatedAtUtc": "2026-05-19T16:58:40.230Z",
   "reportKey": "user-creator-ui-parity",
-  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "currentHead": "05473469a47db2b21a9206e1edccc81b4f30c8dc",
   "summary": {
-    "surfacesScanned": 71,
+    "surfacesScanned": 73,
     "fakeActionsFound": 0,
     "fakeActionsFixed": 1,
     "mobileParityRisks": 0,
@@ -111,6 +111,16 @@
     },
     {
       "path": "src/app/dashboard/creator/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/creator/settings/page.tsx",
       "classification": "user_ui",
       "checks": [
         "route-action-truth",
@@ -601,6 +611,16 @@
     },
     {
       "path": "src/components/Creators/CreatorUpdatesFeed.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/FanPassSubscriberRow.tsx",
       "classification": "creator_ui",
       "checks": [
         "route-action-truth",

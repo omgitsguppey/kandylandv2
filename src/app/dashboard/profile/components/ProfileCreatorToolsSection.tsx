@@ -71,7 +71,7 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                                     value={creatorBroadcastMessage}
                                     onChange={(event) => setCreatorBroadcastMessage(event.target.value.slice(0, 280))}
                                     rows={2}
-                                    placeholder="Tell followers what just dropped..."
+                                    placeholder="Tell fans what just dropped..."
                                     disabled={isReadOnlyProjection}
                                     className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white resize-none outline-none focus:border-brand-purple/50 disabled:cursor-not-allowed disabled:opacity-60"
                                 />

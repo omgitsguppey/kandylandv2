@@ -47,7 +47,7 @@ describe("creator surface routing", () => {
 
     for (const source of [sidebar, dropdown]) {
       expect(source).toContain('label="Account Settings"');
-      expect(source).toContain('href="/settings"');
+      expect(source).toContain("href={USER_SETTINGS_ROUTE}");
       expect(source).not.toContain('label="Settings"');
       expect(source).not.toContain('title="Settings"');
       expect(source).not.toContain('aria-label="Open settings"');

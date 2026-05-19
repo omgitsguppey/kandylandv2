@@ -8,7 +8,7 @@ import { LogOut, LayoutDashboard, Library, Settings, X, Plus, CircleHelp, LifeBu
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
 import { useUI } from "@/context/UIContext";
-import { CREATOR_DASHBOARD_ROUTE, CREATOR_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
+import { CREATOR_DASHBOARD_ROUTE, CREATOR_SETTINGS_ROUTE, USER_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
 import { trackEvent } from "@/lib/telemetry";
 
 interface ProfileSidebarProps {
@@ -145,7 +145,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                     <SidebarItem href={CREATOR_SETTINGS_ROUTE} icon={<Settings className="w-5 h-5" />} label="Creator Settings" onClick={onClose} />
                                 </>
                             ) : null}
-                            <SidebarItem href="/settings" icon={<Settings className="w-5 h-5" />} label="Account Settings" onClick={onClose} />
+                            <SidebarItem href={USER_SETTINGS_ROUTE} icon={<Settings className="w-5 h-5" />} label="Account Settings" onClick={onClose} />
                         </nav>
 
                         <div className="rounded-2xl border border-white/10 bg-black/20 p-3">

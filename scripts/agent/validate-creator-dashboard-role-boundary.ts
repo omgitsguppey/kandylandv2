@@ -81,6 +81,7 @@ export function buildCreatorDashboardRoleBoundaryReport(): CreatorDashboardRoleB
     && !creatorPage.includes("DashboardClient")
     && !hasAny(creatorSurface, userModuleNeedles);
   const userModulesRemovedFromCreatorDashboard = workspace.includes('data-creator-dashboard-content-boundary="creator_only"')
+    && workspace.includes('data-dashboard-surface="creator_dashboard"')
     && workspace.includes('data-user-dashboard-modules-rendered="false"')
     && !hasAny(creatorSurface, userModuleNeedles);
   const normalUserDashboardPreserved = dashboardClient.includes('data-dashboard-surface="user_dashboard"')

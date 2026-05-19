@@ -22,6 +22,7 @@ describe("creator dashboard role boundary", () => {
     const combined = `${page}\n${workspace}`;
 
     expect(page).toContain("CreatorDashboardLandingRoute");
+    expect(combined).toContain('data-dashboard-surface="creator_dashboard"');
     expect(combined).toContain('data-creator-dashboard-content-boundary="creator_only"');
     expect(combined).toContain('data-user-dashboard-modules-rendered="false"');
     expect(combined).not.toContain("<DailyCheckIn");
