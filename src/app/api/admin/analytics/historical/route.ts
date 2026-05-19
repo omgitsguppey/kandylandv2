@@ -665,6 +665,7 @@ function annotateHistoricalCacheState(
 
     const annotated = {
         ...result.value,
+        generatedAtUtc: toUtcIsoOrNull(result.value.generatedAtMs ?? 0) ?? new Date().toISOString(),
         cacheState: result.cacheStatus,
         cacheAgeMs: result.cacheAgeMs,
         sourceFreshness: result.cacheStatus === "stale"
@@ -917,7 +918,7 @@ async function GET_handler(request: NextRequest) {
         const forceRefresh = searchParams.get("refresh") === "1" || searchParams.get("forceRefresh") === "1";
         const snapshotAuthorityTarget = resolveHistoricalSnapshotAuthorityTarget(section, period);
 
-        if (snapshotAuthorityTarget && !viewerUser) {
+        if (snapshotAuthorityTarget && !viewerUser && !forceRefresh) {
             const snapshotAuthorityResult = await readHistoricalSnapshotAuthorityPayload(snapshotAuthorityTarget);
             return finalize(NextResponse.json(snapshotAuthorityResult.payload, { status: snapshotAuthorityResult.status }));
         }
@@ -982,6 +983,7 @@ async function GET_handler(request: NextRequest) {
                 period,
                 timelineBucket,
                 section,
+                allowVendorReports: forceRefresh,
             });
 
             const {

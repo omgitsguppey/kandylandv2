@@ -3,7 +3,7 @@ import "server-only";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 
 import { adminDb } from "./firebase-admin";
-import { fetchTelemetryLogs, safeRunReport } from "./admin-analytics-shared";
+import { fetchTelemetryLogs, safeRunReport, type AnalyticsReportResponse } from "./admin-analytics-shared";
 import { readThroughEphemeralRouteCache } from "./ephemeral-route-cache";
 import {
   safeDocumentWithDiagnostics,
@@ -14,12 +14,35 @@ import { ANALYTICS_NON_PRIORITY_TTL_MS } from "@/lib/analytics/analytics-cadence
 
 const ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS = ANALYTICS_NON_PRIORITY_TTL_MS;
 const ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT = 370;
-const ADMIN_ANALYTICS_EVENT_FACT_LIMIT = 5_000;
+const ADMIN_ANALYTICS_EVENT_FACT_LIMIT = 500;
 const ADMIN_ANALYTICS_EVENT_STATS_LIMIT = 500;
-const ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT = 1_000;
-const ADMIN_ANALYTICS_DROP_ARCHIVE_LIMIT = 1_000;
-const ADMIN_ANALYTICS_TASK_EVENT_LIMIT = 5_000;
-const ADMIN_ANALYTICS_TRANSACTION_LIMIT = 5_000;
+const ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT = 200;
+const ADMIN_ANALYTICS_DROP_ARCHIVE_LIMIT = 100;
+const ADMIN_ANALYTICS_TASK_EVENT_LIMIT = 500;
+const ADMIN_ANALYTICS_TRANSACTION_LIMIT = 500;
+
+function buildSkippedVendorReport(label: string, issues: string[]): AnalyticsReportResponse {
+  issues.push(`Skipped ${label} GA report on default admin load; vendor evidence refresh requires explicit refresh.`);
+  return {
+    rows: [],
+    fallbackUsed: true,
+    sourceState: "deferred",
+  } as AnalyticsReportResponse;
+}
+
+function runVendorReportWhenAllowed(input: {
+  allowVendorReports: boolean;
+  analyticsClient: BetaAnalyticsDataClient;
+  requestConfig: Parameters<BetaAnalyticsDataClient["runReport"]>[0];
+  label: string;
+  issues: string[];
+}) {
+  if (!input.allowVendorReports) {
+    return Promise.resolve(buildSkippedVendorReport(input.label, input.issues));
+  }
+
+  return safeRunReport(input.analyticsClient, input.requestConfig);
+}
 
 export function getAdminAnalyticsPropertyId() {
   return process.env.GA_PROPERTY_ID || "";
@@ -52,8 +75,9 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
   period: string | null;
   timelineBucket: "day" | "hour";
   section?: string | null;
+  allowVendorReports?: boolean;
 }) {
-  const { analyticsClient, propertyId, startDate, endDate, startDayKey, startMs, period, timelineBucket, section } = input;
+  const { analyticsClient, propertyId, startDate, endDate, startDayKey, startMs, period, timelineBucket, section, allowVendorReports = false } = input;
 
   return readThroughEphemeralRouteCache({
     key: `admin-historical-sources:${propertyId}:${startDate}:${endDate}:${startDayKey}:${startMs}:${period ?? "default"}:${timelineBucket}:${section ?? "all"}`,
@@ -90,7 +114,12 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
           watchSessionsSnapshot,
           watchAssetsSnapshot,
     ] = await Promise.all([
-    safeRunReport(analyticsClient, {
+    runVendorReportWhenAllowed({
+      allowVendorReports,
+      analyticsClient,
+      label: "traffic overview",
+      issues,
+      requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
       metrics: [
@@ -106,8 +135,13 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         dimension: { dimensionName: trafficDimensionName },
         desc: false,
       }],
-    }),
-    safeRunReport(analyticsClient, {
+    }}),
+    runVendorReportWhenAllowed({
+      allowVendorReports,
+      analyticsClient,
+      label: "event mix",
+      issues,
+      requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "eventCount" }],
@@ -120,32 +154,52 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
           },
         },
       },
-    }),
-    safeRunReport(analyticsClient, {
+    }}),
+    runVendorReportWhenAllowed({
+      allowVendorReports,
+      analyticsClient,
+      label: "geo active users",
+      issues,
+      requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "activeUsers" }],
       dimensions: [{ name: "country" }, { name: "city" }],
       orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
       limit: 15,
-    }),
-    safeRunReport(analyticsClient, {
+    }}),
+    runVendorReportWhenAllowed({
+      allowVendorReports,
+      analyticsClient,
+      label: "geo path demand",
+      issues,
+      requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "screenPageViews" }],
       dimensions: [{ name: "country" }, { name: "city" }, { name: "pagePath" }],
       orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
       limit: 250,
-    }),
-    safeRunReport(analyticsClient, {
+    }}),
+    runVendorReportWhenAllowed({
+      allowVendorReports,
+      analyticsClient,
+      label: "top pages",
+      issues,
+      requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "screenPageViews" }, { name: "averageSessionDuration" }, { name: "engagementRate" }],
       dimensions: [{ name: "pagePath" }],
       orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
       limit: 25,
-    }),
-    safeRunReport(analyticsClient, {
+    }}),
+    runVendorReportWhenAllowed({
+      allowVendorReports,
+      analyticsClient,
+      label: "device mix",
+      issues,
+      requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
       metrics: [
@@ -156,8 +210,13 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       dimensions: [{ name: "deviceCategory" }],
       orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
       limit: 3,
-    }),
-    safeRunReport(analyticsClient, {
+    }}),
+    runVendorReportWhenAllowed({
+      allowVendorReports,
+      analyticsClient,
+      label: "guided onboarding duration",
+      issues,
+      requestConfig: {
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate, endDate }],
       metrics: [{ name: "eventCount" }],
@@ -171,7 +230,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
           },
         },
       },
-    }),
+    }}),
     safeQueryWithDiagnostics({
       routeName: "admin/analytics/historical",
       channel: "analytics",
@@ -385,6 +444,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         label: "drops archive",
         issues,
         reader: () => adminDb.collection("drops")
+          .orderBy("validFrom", "desc")
           .limit(ADMIN_ANALYTICS_DROP_ARCHIVE_LIMIT)
           .get(),
       })

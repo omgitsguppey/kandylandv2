@@ -21,27 +21,23 @@ const mockState = vi.hoisted(() => {
         empty: docs.length === 0,
     });
 
-    const makeCollection = (name: string) => ({
-        orderBy() {
-            return {
-                get: async () => {
-                    if (name === "users") {
-                        return makeSnapshot(usersDocs);
-                    }
-                    if (name === "creator_review_queue") {
-                        return makeSnapshot(queueDocs);
-                    }
-                    return makeSnapshot(emptyDocs);
-                },
-            };
-        },
-        where() {
-            return {
-                get: async () => makeSnapshot(emptyDocs),
-            };
-        },
-        get: async () => makeSnapshot(emptyDocs),
-    });
+    const makeCollection = (name: string) => {
+        const query = {
+            orderBy: () => query,
+            where: () => query,
+            limit: () => query,
+            get: async () => {
+                if (name === "users") {
+                    return makeSnapshot(usersDocs);
+                }
+                if (name === "creator_review_queue") {
+                    return makeSnapshot(queueDocs);
+                }
+                return makeSnapshot(emptyDocs);
+            },
+        };
+        return query;
+    };
 
     return {
         usersDocs,

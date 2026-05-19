@@ -81,6 +81,7 @@ const DEBUG_EVENT_STATS_LIMIT = 1_000;
 const DEBUG_CONFIG_SAMPLE_LIMIT = 500;
 const DEBUG_PIPELINE_SERIES_LIMIT = 60;
 const DEBUG_CREATOR_QUEUE_LIMIT = 500;
+const ADMIN_DEBUG_DEFAULT_SECTION = "summary";
 const ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD = "debug_cost_reduced_initial_summary";
 const ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT = 25;
 const ADMIN_DEBUG_INITIAL_LOAD_CACHE_TTL_MS = 30_000;
@@ -145,6 +146,13 @@ let adminDebugInitialLoadCache: {
     storedAtMs: number;
     payload: unknown;
 } | null = null;
+
+function readAdminDebugSummaryPayloadStatus() {
+    return {
+        defaultSection: ADMIN_DEBUG_DEFAULT_SECTION,
+        truthState: "deferred" as const,
+    };
+}
 
 type BugIntakeTriageSummary = {
     loadedCount: number;
@@ -3706,7 +3714,10 @@ async function readInfrastructureDependencies() {
 export async function GET(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
-        if (response.status === 200 && !error) {
+        const section = request.nextUrl.searchParams.get("section")?.trim().toLowerCase() || ADMIN_DEBUG_DEFAULT_SECTION;
+        const forceRefreshForCache = request.nextUrl.searchParams.get("refresh") === "1"
+            || request.nextUrl.searchParams.get("forceRefresh") === "1";
+        if (response.status === 200 && !error && !forceRefreshForCache && section !== "all") {
             void response.clone().json()
                 .then((payload) => {
                     adminDebugInitialLoadCache = {
@@ -3737,6 +3748,8 @@ export async function GET(request: NextRequest) {
         });
         const forceRefresh = request.nextUrl.searchParams.get("refresh") === "1"
             || request.nextUrl.searchParams.get("forceRefresh") === "1";
+        const section = request.nextUrl.searchParams.get("section")?.trim().toLowerCase() || ADMIN_DEBUG_DEFAULT_SECTION;
+        const loadFullDebug = forceRefresh || section === "all";
         if (!forceRefresh && adminDebugInitialLoadCache && adminDebugInitialLoadCache.expiresAtMs > Date.now()) {
             return finalize(NextResponse.json({
                 ...(adminDebugInitialLoadCache.payload && typeof adminDebugInitialLoadCache.payload === "object"
@@ -3754,6 +3767,136 @@ export async function GET(request: NextRequest) {
         }
 
         const nowMs = Date.now();
+        if (section !== "all" && !loadFullDebug) {
+            const summaryPayloadStatus = readAdminDebugSummaryPayloadStatus();
+            const [
+                routeRuntimeHealth,
+                runtimeWarnings,
+                queueJobHeartbeats,
+                notificationDispatchOutcomes,
+                behavioralSnapshotStatus,
+                adminMetricSnapshots,
+            ] = await Promise.all([
+                listRouteRuntimeHealth(),
+                listRuntimeWarnings(40),
+                listQueueJobHeartbeats(ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT),
+                listNotificationDispatchOutcomes(40),
+                getBehavioralSnapshotStatus(),
+                listAdminMetricSnapshotDebugMetadata({ limit: 60 }),
+            ]);
+            const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
+            const runtimeWarningSummary = runtimeWarnings.reduce<{
+                total: number;
+                failed: number;
+                degraded: number;
+                fallback: number;
+                legacyAdapterUses: number;
+                queueDriftWarnings: number;
+            }>((summary, entry) => {
+                const code = toStringValue(entry.code);
+                return {
+                    total: summary.total + 1,
+                    failed: summary.failed + (toStringValue(entry.status) === "failed" ? 1 : 0),
+                    degraded: summary.degraded + (toStringValue(entry.status) === "degraded" ? 1 : 0),
+                    fallback: summary.fallback + (toStringValue(entry.status) === "fallback" ? 1 : 0),
+                    legacyAdapterUses: summary.legacyAdapterUses + (code === QUEUE_RUNTIME_WARNING_CODES.legacyAdapterInvoked ? 1 : 0),
+                    queueDriftWarnings: summary.queueDriftWarnings + (code === QUEUE_RUNTIME_WARNING_CODES.queueMembershipDrift ? 1 : 0),
+                };
+            }, {
+                total: 0,
+                failed: 0,
+                degraded: 0,
+                fallback: 0,
+                legacyAdapterUses: 0,
+                queueDriftWarnings: 0,
+            });
+            const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
+                const lastTouch = Math.max(
+                    toNumber(entry.completedAt),
+                    toNumber(entry.startedAt),
+                    toNumber(entry.updatedAt),
+                );
+                const stale = lastTouch <= 0 || (toNumber(entry.staleAfterMs) > 0 && nowMs - lastTouch > toNumber(entry.staleAfterMs));
+                return {
+                    total: summary.total + 1,
+                    stale: summary.stale + (stale ? 1 : 0),
+                    failed: summary.failed + (entry.status === "failed" ? 1 : 0),
+                    running: summary.running + (entry.status === "running" ? 1 : 0),
+                };
+            }, {
+                total: 0,
+                stale: 0,
+                failed: 0,
+                running: 0,
+            });
+            const deferredSections = [
+                "creator subscriptions",
+                "creator requests",
+                "creator bookings",
+                "creator threads/messages",
+                "transactions",
+                "onboarding history",
+                "orchestration details",
+                "analytics truth drilldowns",
+            ];
+
+            return finalize(NextResponse.json({
+                success: true,
+                section: summaryPayloadStatus.defaultSection,
+                generatedAtUtc: new Date(nowMs).toISOString(),
+                sourceFreshness: "stale_known",
+                truthState: summaryPayloadStatus.truthState,
+                deferredSections,
+                routeRuntimeHealth,
+                routeRuntimeHealthSummary,
+                runtimeWarnings,
+                runtimeWarningSummary,
+                queueJobHeartbeats,
+                queueJobHeartbeatSummary,
+                notificationDispatchOutcomes,
+                behavioralSnapshotStatus,
+                adminMetricSnapshots,
+                costControls: {
+                    guard: ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD,
+                    defaultSection: ADMIN_DEBUG_DEFAULT_SECTION,
+                    fullDebugRequiresSection: "all",
+                    queueHeartbeatLimit: ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT,
+                    status: "bounded_initial_summary",
+                    deferredSections,
+                },
+                verification: buildServerAdminModuleVerification({
+                    module: "admin_debug_summary",
+                    canonicalSource: "route_runtime_health+runtime_warning_records+admin_metric_snapshots",
+                    fallbackSource: null,
+                    freshnessTimestamp: Math.max(
+                        routeRuntimeHealth.reduce((latest, item) => Math.max(latest, Number(item.updatedAtMs) || 0), 0),
+                        adminMetricSnapshots.reduce((latest, item) => Math.max(latest, toTimestampNumber(item.generatedAt)), 0),
+                    ),
+                    degradedReason: routeRuntimeHealthSummary.fail > 0
+                        ? `${routeRuntimeHealthSummary.fail} route runtime checks are failed`
+                        : runtimeWarningSummary.failed > 0
+                            ? `${runtimeWarningSummary.failed} runtime warnings are failed`
+                            : deferredSections.length > 0
+                                ? "High-cost debug sections are deferred until explicit drilldown."
+                                : null,
+                    status: routeRuntimeHealthSummary.fail > 0
+                        ? "failed"
+                        : routeRuntimeHealthSummary.warn > 0 || runtimeWarningSummary.failed > 0 || deferredSections.length > 0
+                            ? "degraded"
+                            : routeRuntimeHealthSummary.stale > 0
+                                ? "stale"
+                                : "live",
+                    countComposition: {
+                        routeWarnings: routeRuntimeHealthSummary.warn,
+                        routeFailures: routeRuntimeHealthSummary.fail,
+                        runtimeWarnings: runtimeWarningSummary.total,
+                        deferredSections: deferredSections.length,
+                    },
+                }),
+                infrastructure: await readInfrastructureDependencies(),
+            }));
+        }
+
         const weekAgoMs = nowMs - ONE_WEEK_MS;
         const weekAgoDayKey = getCSTDateKey(weekAgoMs);
 

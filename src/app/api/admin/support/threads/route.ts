@@ -36,10 +36,11 @@ export async function GET(request: NextRequest) {
 
         const statusParam = request.nextUrl.searchParams.get("status");
         const userIdParam = request.nextUrl.searchParams.get("userId")?.trim() || null;
+        const supportThreadLimit = 200;
         const threads = await listSupportThreadsForAdmin({
             status: statusParam && statusParam !== "all" ? normalizeSupportThreadStatus(statusParam) : "all",
             userId: userIdParam,
-            limit: 200,
+            limit: supportThreadLimit,
         });
 
         const openCount = threads.filter((thread) => thread.status === "open" || thread.status === "pending" || thread.status === "waiting_on_support").length;

@@ -25,6 +25,10 @@ type ThreadMutableFields = {
     messageCount?: number;
 };
 
+const SUPPORT_THREADS_USER_DEFAULT_LIMIT = 50;
+const SUPPORT_THREADS_ADMIN_DEFAULT_LIMIT = 100;
+const SUPPORT_THREAD_MESSAGES_DEFAULT_LIMIT = 100;
+
 function requireAdminDb() {
     if (!adminDb) {
         throw new AuthError("Database unavailable", 500);
@@ -125,6 +129,8 @@ async function listThreadMessages(threadId: string) {
         .collection(SUPPORT_COLLECTIONS.threads)
         .doc(threadId)
         .collection(SUPPORT_COLLECTIONS.messages)
+        .orderBy("createdAt", "asc")
+        .limit(SUPPORT_THREAD_MESSAGES_DEFAULT_LIMIT)
         .get();
 
     return snapshot.docs
@@ -142,13 +148,17 @@ async function readThread(threadId: string) {
     return mapSupportThread(snapshot.id, snapshot.data() as Record<string, unknown>);
 }
 
-export async function listSupportThreadsForUser(userId: string) {
+export async function listSupportThreadsForUser(userId: string, options?: { limit?: number }) {
     const db = requireAdminDb();
-    const snapshot = await db.collection(SUPPORT_COLLECTIONS.threads).where("userId", "==", userId).get();
+    const limitCount = Math.max(1, Math.min(options?.limit ?? SUPPORT_THREADS_USER_DEFAULT_LIMIT, 200));
+    const snapshot = await db.collection(SUPPORT_COLLECTIONS.threads)
+        .where("userId", "==", userId)
+        .orderBy("lastMessageAt", "desc")
+        .limit(limitCount)
+        .get();
 
     return snapshot.docs
-        .map((doc) => mapSupportThread(doc.id, doc.data() as Record<string, unknown>))
-        .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
+        .map((doc) => mapSupportThread(doc.id, doc.data() as Record<string, unknown>));
 }
 
 export async function listSupportThreadsForAdmin(options?: {
@@ -157,7 +167,18 @@ export async function listSupportThreadsForAdmin(options?: {
     limit?: number;
 }) {
     const db = requireAdminDb();
-    const snapshot = await db.collection(SUPPORT_COLLECTIONS.threads).get();
+    const limitCount = Math.max(1, Math.min(options?.limit ?? SUPPORT_THREADS_ADMIN_DEFAULT_LIMIT, 250));
+    let query: FirebaseFirestore.Query = db.collection(SUPPORT_COLLECTIONS.threads);
+    if (options?.userId) {
+        query = query.where("userId", "==", options.userId);
+    }
+    if (options?.status && options.status !== "all" && options.status !== "waiting_on_support" && options.status !== "resolved") {
+        query = query.where("status", "==", options.status);
+    }
+    const snapshot = await query
+        .orderBy("lastMessageAt", "desc")
+        .limit(limitCount)
+        .get();
 
     const filtered = snapshot.docs
         .map((doc) => mapSupportThread(doc.id, doc.data() as Record<string, unknown>))
@@ -186,7 +207,7 @@ export async function listSupportThreadsForAdmin(options?: {
         })
         .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
-    return typeof options?.limit === "number" ? filtered.slice(0, options.limit) : filtered;
+    return filtered.slice(0, limitCount);
 }
 
 async function markThreadRead(threadId: string, viewer: "user" | "admin") {

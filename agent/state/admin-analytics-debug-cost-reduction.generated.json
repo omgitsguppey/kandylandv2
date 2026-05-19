@@ -1,0 +1,156 @@
+{
+  "generatedAtUtc": "2026-05-19T14:47:21.882Z",
+  "reportKey": "admin-analytics-debug-cost-reduction",
+  "currentHead": "83d085481f237358a857f16ca55c99b662ecbed5",
+  "summary": {
+    "adminHistoricalDefaultCacheEnabled": true,
+    "gaSnapshotFirstEnabled": true,
+    "eventFactsDefaultLimitReduced": true,
+    "guestDiagnosticsDefaultLimitReduced": true,
+    "dropsArchivePaged": true,
+    "debugInitialLoadLazy": true,
+    "heartbeatFullScanBlocked": true,
+    "supportThreadsPaged": true,
+    "rosterSummaryDefault": true,
+    "userDetailExpensiveSectionsLazy": true,
+    "truthSemanticsPreserved": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "auditItemsAddressed": [
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43
+  ],
+  "fixesApplied": [
+    {
+      "id": "adminHistoricalDefaultCacheEnabled",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Historical analytics route defaults to cache/stale-known metadata instead of no-store cold rebuild."
+    },
+    {
+      "id": "gaSnapshotFirstEnabled",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA/Data API reports are skipped on default raw fallback and only allowed by explicit refresh."
+    },
+    {
+      "id": "eventFactsDefaultLimitReduced",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Default event-fact sample cap is reduced from 5000."
+    },
+    {
+      "id": "guestDiagnosticsDefaultLimitReduced",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Guest/security/diagnostic default sample caps are reduced."
+    },
+    {
+      "id": "dropsArchivePaged",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Drops archive uses a bounded top-drop snapshot instead of an unordered 1000-doc read."
+    },
+    {
+      "id": "debugInitialLoadLazy",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Admin Debug default route returns a bounded summary and defers high-cost sections."
+    },
+    {
+      "id": "heartbeatFullScanBlocked",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Queue heartbeat listing uses a latest-N query by default."
+    },
+    {
+      "id": "supportThreadsPaged",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Admin and user support thread lists are bounded and ordered by updated activity."
+    },
+    {
+      "id": "rosterSummaryDefault",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Admin roster default is bounded and keeps creator ops behind an explicit includeOps drilldown."
+    },
+    {
+      "id": "userDetailExpensiveSectionsLazy",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Admin user and user-detail expensive creator-op sections are bounded and explicitly requested."
+    },
+    {
+      "id": "truthSemanticsPreserved",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Deferred, stale, and unavailable admin data remains truth-labeled instead of shown as live."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "admin-debug-section-route-split",
+      "status": "deferred",
+      "severity": "P2",
+      "detail": "The debug route now supports summary/all source sections. A later UI pass can call named drilldown sections directly instead of the all section."
+    }
+  ],
+  "costSavingsModel": [
+    {
+      "lane": "admin_debug_default",
+      "formula": "readReduction = highCostSectionReads - summarySectionReads",
+      "estimatedReduction": "70-95% fewer default Debug Firestore reads before explicit drilldown"
+    },
+    {
+      "lane": "admin_analytics_vendor",
+      "formula": "vendorCallReduction = defaultLoads * previousGaReportCount",
+      "estimatedReduction": "up to 100% fewer GA Data API report calls on default non-refresh loads"
+    },
+    {
+      "lane": "admin_analytics_samples",
+      "formula": "sampleReadReduction = previousLimit - newLimit",
+      "estimatedReduction": "50-90% lower raw sample reads for event facts, guest batches, diagnostics, drops, tasks, and transactions"
+    },
+    {
+      "lane": "support_and_roster",
+      "formula": "defaultReadReduction = unboundedOrBroadReads - boundedPageOrDeferredReads",
+      "estimatedReduction": "60-95% fewer default support/roster/user-detail reads on large tenants"
+    }
+  ],
+  "prCleanupActions": [
+    {
+      "number": 271,
+      "action": "not_relevant",
+      "reason": "Open governance/doc PR does not touch admin analytics/debug cost runtime."
+    },
+    {
+      "number": 272,
+      "action": "not_relevant",
+      "reason": "Open creator accessibility PR does not touch admin analytics/debug cost runtime."
+    }
+  ],
+  "nextFixOrder": [
+    "Add UI drilldown controls for named Admin Debug sections after the summary/all route split is consumed.",
+    "Promote verified Admin Analytics materializers for remaining placeholder modules so explicit refreshes use fewer raw sources.",
+    "Add cursor-based support and roster pagination in the admin UI after route-level caps are stable."
+  ]
+}

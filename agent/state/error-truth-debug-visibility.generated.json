@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T21:05:00.000Z",
+  "generatedAtUtc": "2026-05-19T14:48:46.369Z",
   "reportKey": "error-truth-debug-visibility",
-  "currentHead": "8241f31557d2340f691695affc3d2851af3b8fa0",
+  "currentHead": "83d085481f237358a857f16ca55c99b662ecbed5",
   "summary": {
     "phase4Status": "pass",
     "routeCreated": true,

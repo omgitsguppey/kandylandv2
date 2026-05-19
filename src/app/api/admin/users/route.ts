@@ -70,14 +70,18 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 
-const ADMIN_USERS_LIST_LIMIT = 5_000;
-const ADMIN_USERS_DAILY_ROLLUP_LIMIT = 10_000;
-const ADMIN_USERS_WATCH_SESSION_LIMIT = 5_000;
-const ADMIN_USERS_CREATOR_OPS_LIMIT = 5_000;
-const ADMIN_USERS_PENDING_DROP_LIMIT = 1_000;
-const ADMIN_USERS_EVENT_FACT_RECOVERY_LIMIT = 5_000;
+const ADMIN_USERS_LIST_LIMIT = 500;
+const ADMIN_USERS_DAILY_ROLLUP_LIMIT = 1_000;
+const ADMIN_USERS_WATCH_SESSION_LIMIT = 500;
+const ADMIN_USERS_CREATOR_OPS_LIMIT = 500;
+const ADMIN_USERS_PENDING_DROP_LIMIT = 200;
+const ADMIN_USERS_EVENT_FACT_RECOVERY_LIMIT = 1_000;
 
 type AdminUsersKpiFreshness = AdminUsersKpiCard["freshnessState"];
+
+function emptyAdminUsersQuerySnapshot() {
+  return { docs: [], size: 0 } as unknown as FirebaseFirestore.QuerySnapshot;
+}
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -1321,6 +1325,9 @@ async function GET_handler(request: NextRequest) {
     });
 
     const mode = request.nextUrl.searchParams.get("mode") ?? "full";
+    const includeCreatorOps = request.nextUrl.searchParams.get("includeCreatorOps") === "1"
+      || request.nextUrl.searchParams.get("section") === "creator_ops"
+      || mode === "creator_ops";
     const leaderboardPage = clampPositiveInteger(Number(request.nextUrl.searchParams.get("page") ?? "1"));
     const leaderboardPageSize = clampPageSize(Number(request.nextUrl.searchParams.get("pageSize") ?? "10"));
     const leaderboardFilter = (() => {
@@ -1634,13 +1641,13 @@ async function GET_handler(request: NextRequest) {
       adminDb.collection("analytics_user_daily").limit(ADMIN_USERS_DAILY_ROLLUP_LIMIT).get(),
       adminDb.collection("analytics_watch_sessions").limit(ADMIN_USERS_WATCH_SESSION_LIMIT).get(),
       adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
-      adminDb.collection(CREATOR_COLLECTIONS.relationships).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.subscriptions).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.requests).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.bookings).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.messageThreads).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
+      includeCreatorOps ? adminDb.collection(CREATOR_COLLECTIONS.relationships).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminUsersQuerySnapshot()),
+      includeCreatorOps ? adminDb.collection(CREATOR_COLLECTIONS.subscriptions).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminUsersQuerySnapshot()),
+      includeCreatorOps ? adminDb.collection(CREATOR_COLLECTIONS.requests).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminUsersQuerySnapshot()),
+      includeCreatorOps ? adminDb.collection(CREATOR_COLLECTIONS.bookings).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminUsersQuerySnapshot()),
+      includeCreatorOps ? adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminUsersQuerySnapshot()),
+      includeCreatorOps ? adminDb.collection(CREATOR_COLLECTIONS.messageThreads).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminUsersQuerySnapshot()),
+      includeCreatorOps ? adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminUsersQuerySnapshot()),
       adminDb.collection("drops").where("approvalStatus", "==", "pending_review").limit(ADMIN_USERS_PENDING_DROP_LIMIT).get(),
     ]);
 
@@ -2396,11 +2403,14 @@ async function GET_handler(request: NextRequest) {
       });
     }
 
-    const responseData: AdminUsersResponse = {
+    const responseData: AdminUsersResponse & {
+      creatorOpsSourceState: "loaded" | "deferred";
+    } = {
       success: true,
       users,
       analyticsByUser,
       creatorOpsByUser: Object.fromEntries(creatorOpsByUser),
+      creatorOpsSourceState: includeCreatorOps ? "loaded" : "deferred",
       dropReferences,
       summary,
       behaviorLeaderboard,

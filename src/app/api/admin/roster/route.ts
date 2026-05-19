@@ -83,9 +83,13 @@ type RosterEntry = {
     createdAt: number;
 };
 
-const ADMIN_ROSTER_USER_LIMIT = 5_000;
-const ADMIN_ROSTER_CREATOR_OPS_LIMIT = 5_000;
-const ADMIN_ROSTER_QUEUE_LIMIT = 1_000;
+const ADMIN_ROSTER_USER_LIMIT = 500;
+const ADMIN_ROSTER_CREATOR_OPS_LIMIT = 250;
+const ADMIN_ROSTER_QUEUE_LIMIT = 200;
+
+function emptyAdminRosterQuerySnapshot() {
+    return { docs: [], size: 0 } as unknown as FirebaseFirestore.QuerySnapshot;
+}
 
 type CreatorReviewQueueRosterEntry = RosterEntry & {
     creatorDisplayName: string;
@@ -444,6 +448,8 @@ async function GET_handler(request: NextRequest) {
         }
 
         const query = request.nextUrl.searchParams.get("q")?.trim().toLowerCase() || "";
+        const includeOps = request.nextUrl.searchParams.get("includeOps") === "1"
+            || request.nextUrl.searchParams.get("section") === "creator_ops";
         const [
             usersSnapshot,
             creatorRelationshipsSnap,
@@ -457,13 +463,13 @@ async function GET_handler(request: NextRequest) {
             initialQueueSnapshot,
         ] = await Promise.all([
             adminDb.collection("users").orderBy("createdAt", "desc").limit(ADMIN_ROSTER_USER_LIMIT).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.relationships).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.requests).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.bookings).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.messageThreads).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
+            includeOps ? adminDb.collection(CREATOR_COLLECTIONS.relationships).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminRosterQuerySnapshot()),
+            includeOps ? adminDb.collection(CREATOR_COLLECTIONS.subscriptions).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminRosterQuerySnapshot()),
+            includeOps ? adminDb.collection(CREATOR_COLLECTIONS.requests).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminRosterQuerySnapshot()),
+            includeOps ? adminDb.collection(CREATOR_COLLECTIONS.bookings).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminRosterQuerySnapshot()),
+            includeOps ? adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminRosterQuerySnapshot()),
+            includeOps ? adminDb.collection(CREATOR_COLLECTIONS.messageThreads).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminRosterQuerySnapshot()),
+            includeOps ? adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get() : Promise.resolve(emptyAdminRosterQuerySnapshot()),
             adminDb.collection("drops").where("approvalStatus", "==", "pending_review").limit(ADMIN_ROSTER_QUEUE_LIMIT).get(),
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).orderBy("submittedAt", "desc").limit(ADMIN_ROSTER_QUEUE_LIMIT).get(),
         ]);
@@ -759,6 +765,12 @@ async function GET_handler(request: NextRequest) {
             creatorOpsByUser: Object.fromEntries(creatorOpsByUser),
             summary,
             dataLimitWarnings,
+            creatorOpsSourceState: includeOps ? "loaded" : "deferred",
+            costControls: {
+                rosterSummaryDefault: !includeOps,
+                creatorOpsDrilldownRequired: !includeOps,
+                creatorOpsSourceState: includeOps ? "loaded" : "deferred",
+            },
         });
     } catch (error) {
         return handleApiError(error, "Admin.Roster.GET");
