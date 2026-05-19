@@ -1,0 +1,86 @@
+{
+  "generatedAtUtc": "2026-05-19T18:38:21.933Z",
+  "reportKey": "beta-freshness-language",
+  "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
+  "summary": {
+    "internalGitMetadataPreserved": true,
+    "userFacingHeadLanguageRemoved": true,
+    "plainFreshnessMessagesEnabled": true,
+    "refreshActionsMapped": true,
+    "validatorsStillUseInternalHead": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "technicalTermsFound": [],
+  "replacedMessages": [
+    "Replaced Git shorthand with latest code version.",
+    "Replaced source-version mismatch jargon with report was generated before the latest code changes.",
+    "Replaced stale generated report phrasing with refresh outdated generated reports.",
+    "Replaced runtime drift field names with new runtime code landed after this report."
+  ],
+  "refreshCommandMap": [
+    {
+      "reportPath": "agent/state/public-beta-score.generated.json",
+      "command": "npm run score:beta && npm run check:beta-score",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run score:beta && npm run check:beta-score from the latest code version."
+    },
+    {
+      "reportPath": "agent/state/current-beta-exit-status.generated.json",
+      "command": "npm run check:current-beta-exit-status",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run check:current-beta-exit-status from the latest code version."
+    },
+    {
+      "reportPath": "agent/state/evidence-capture-status.generated.json",
+      "command": "npm run check:evidence-capture-status",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run check:evidence-capture-status from the latest code version."
+    },
+    {
+      "reportPath": "agent/state/source-truth-authority-map.generated.json",
+      "command": "npm run check:source-truth-authority-map",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run check:source-truth-authority-map from the latest code version."
+    },
+    {
+      "reportPath": "agent/state/final-cost-audit-lock.generated.json",
+      "command": "npm run check:final-cost-audit-lock",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run check:final-cost-audit-lock from the latest code version."
+    },
+    {
+      "reportPath": "agent/state/creator-dashboard-role-boundary.generated.json",
+      "command": "npm run check:creator-dashboard-role-boundary",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run check:creator-dashboard-role-boundary from the latest code version."
+    },
+    {
+      "reportPath": "agent/state/creator-fan-pass-crm-broadcast.generated.json",
+      "command": "npm run check:creator-fan-pass-crm-broadcast",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run check:creator-fan-pass-crm-broadcast from the latest code version."
+    },
+    {
+      "reportPath": "agent/state/creator-dashboard-overview-stats.generated.json",
+      "command": "npm run check:creator-dashboard-overview-stats",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run check:creator-dashboard-overview-stats from the latest code version."
+    },
+    {
+      "reportPath": "agent/state/beta-health-algorithm-v2.generated.json",
+      "command": "npm run check:beta-health-algorithm-v2",
+      "actionLabel": "Refresh report",
+      "actionDetail": "Run npm run check:beta-health-algorithm-v2 from the latest code version."
+    }
+  ],
+  "fixesApplied": [
+    "Added beta freshness plain-language helper.",
+    "Added beta report refresh command map.",
+    "Updated beta score freshness labels and recommendations.",
+    "Updated beta readiness generated docs to say latest code version."
+  ],
+  "prCleanupActions": [],
+  "nextFixOrder": []
+}

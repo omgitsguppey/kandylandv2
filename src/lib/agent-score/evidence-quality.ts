@@ -7,6 +7,7 @@ import {
   PUBLIC_BETA_EVIDENCE_QUALITY_SCORES,
   PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS,
 } from "./weights";
+import { normalizeTechnicalFreshnessTerms } from "./freshness-language";
 
 export type PublicBetaEvidenceQuality =
   | "formal_passed"
@@ -98,7 +99,7 @@ function resolveFreshness(
     return {
       freshness: "head_mismatch",
       freshnessScore: 0.4,
-      reason: `Evidence sourceCommit ${artifact.sourceCommit} does not match current HEAD ${context.currentHead}.`,
+      reason: "This evidence was generated before the latest code changes.",
     };
   }
   const hours = ageHours(artifact.generatedAtUtc, context.nowUtc);
@@ -309,7 +310,7 @@ export function scoreRegressionRisk(input: PublicBetaRegressionRiskInput): Publi
   for (const report of input.requiredReports ?? []) {
     if (report.sourceCommit && report.currentHead && report.sourceCommit !== report.currentHead) {
       penalty += 20;
-      reasons.push(`${report.path} was generated before current HEAD.`);
+      reasons.push(`${report.path} was generated before the latest code changes.`);
     }
     if (report.freshness === "stale") {
       penalty += 12;
@@ -322,7 +323,7 @@ export function scoreRegressionRisk(input: PublicBetaRegressionRiskInput): Publi
   }
   if (input.runtimeCodeChangedSinceReport) {
     penalty += 15;
-    reasons.push("Runtime code changed after evidence was generated.");
+    reasons.push("New runtime code landed after this report was created.");
   }
   if (input.openPrTriageFresh === false) {
     penalty += 10;
@@ -345,6 +346,6 @@ export function scoreRegressionRisk(input: PublicBetaRegressionRiskInput): Publi
   return {
     score: round(clamp(100 - riskPenalty, 0, 100)),
     riskPenalty,
-    reasons,
+    reasons: reasons.map(normalizeTechnicalFreshnessTerms),
   };
 }

@@ -373,7 +373,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       "Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.",
       "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
       "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
-      "Stale launch/readiness reports should stay retired until after evidence capture; regenerate them only if beta-exit review needs a fresh launch package.",
+      "Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.",
       "Run npm run check:overnight-beta-readiness-lock after attaching evidence.",
     ],
   };
@@ -389,7 +389,7 @@ function renderOvernightDoc(report: OvernightBetaReadinessLockReport) {
 
 Generated: ${report.generatedAtUtc}
 
-Current HEAD: ${report.currentHead}
+Latest code version: ${report.currentHead}
 
 ## Status
 
@@ -431,7 +431,7 @@ function renderCurrentExitDoc(report: CurrentBetaExitStatusReport) {
 
 Generated: ${report.generatedAtUtc}
 
-Current HEAD: ${report.currentHead}
+Latest code version: ${report.currentHead}
 
 ## Summary
 

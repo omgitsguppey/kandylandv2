@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import type { PublicBetaFinding, PublicBetaScoreReport } from "./core";
+import { normalizeTechnicalFreshnessTerms } from "./freshness-language";
 import {
   PUBLIC_BETA_ALLOWED_COMMANDS,
   PUBLIC_BETA_COMMAND_BUDGET_MAX,
@@ -24,7 +25,7 @@ export function buildRecommendedNextActions(
 ) {
   const evidenceActions = evidenceGates
     .filter((gate) => gate.status !== "Ready")
-    .map((gate) => `${gate.status}: ${gate.recommendedAction}`);
+    .map((gate) => normalizeTechnicalFreshnessTerms(`${gate.status}: ${gate.recommendedAction}`));
 
   if (findings.length === 0) {
     return Array.from(new Set([

@@ -176,7 +176,7 @@ describe("beta health algorithm v2 evidence quality", () => {
     expect(score.score).toBeLessThan(80);
   });
 
-  it("penalizes regression risk for currentHead mismatches", () => {
+  it("penalizes regression risk for reports generated before the latest code changes", () => {
     const score = scoreRegressionRisk({
       requiredReports: [{
         path: "agent/state/public-beta-score.generated.json",
@@ -189,6 +189,7 @@ describe("beta health algorithm v2 evidence quality", () => {
     });
 
     expect(score.score).toBeLessThan(100);
-    expect(score.reasons.join("\n")).toContain("current HEAD");
+    expect(score.reasons.join("\n")).toContain("latest code changes");
+    expect(score.reasons.join("\n")).not.toContain("current HEAD");
   });
 });

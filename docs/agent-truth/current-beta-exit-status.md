@@ -1,23 +1,23 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-19T18:10:55.261Z
+Generated: 2026-05-19T18:34:00.446Z
 
-Current HEAD: 63121e2011e286af8fd1b7bcbfba3b3801aae7fb
+Latest code version: 711970501004190b8755fccbb09a4d813e5508e8
 
 ## Summary
 
-- Beta version: 1.3.1
-- Beta score: 38.32
+- Beta version: 1.3.2
+- Beta score: 39.52
 - Beta status: Stale evidence
 - Score version: beta_health_v2
-- Health score: 38.32
+- Health score: 39.52
 - Launch gate status: owner_review
 - Source health: 84.5
 - Runtime health: 0
 - Evidence completeness: 25
 - Freshness: 34.29
 - Cost risk: 52.5
-- Regression risk: 18
+- Regression risk: 30
 - Visual evidence: source_only_screenshotEvidenceAttached_false
 - Provider smoke: missing_formal_evidence
 - Runtime smoke: runtime_unverified
@@ -55,5 +55,5 @@ Current HEAD: 63121e2011e286af8fd1b7bcbfba3b3801aae7fb
 - Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.
 - Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.
 - Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.
-- Stale launch/readiness reports should stay retired until after evidence capture; regenerate them only if beta-exit review needs a fresh launch package.
+- Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.
 - Run npm run check:overnight-beta-readiness-lock after attaching evidence.

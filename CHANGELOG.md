@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.3.2 - 2026-05-19
+- Bug fixes and general improvements
+- Made Beta readiness freshness messages easier to understand.
+- Replaced Git jargon with plain refresh guidance.
+- Kept internal freshness checks strict while improving operator copy.
+
 ## 1.3.1 - 2026-05-19
 - Bug fixes and general improvements
 - Refreshed Beta readiness from the latest source state.

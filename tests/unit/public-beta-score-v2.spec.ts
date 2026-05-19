@@ -204,6 +204,8 @@ describe("public beta score v2 health model", () => {
     expect(report.freshnessScore).toBeLessThan(100);
     expect(report.regressionRiskScore).toBeLessThan(100);
     expect(report.launchGateStatus).not.toBe("launch_ready");
+    expect(report.nuancedScoreExplanation.join("\n")).not.toMatch(/\bHEAD\b|sourceCommit mismatch/u);
+    expect(report.healthScoreBreakdown.regressionRisk.reasons.join("\n")).toContain("latest code changes");
   });
 
   it("still auto-fails critical scanner findings", () => {

@@ -226,7 +226,7 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     "",
     `Generated: ${report.generatedAtUtc}`,
     "",
-    `Current source head: \`${report.currentHead}\``,
+    `Latest code version: \`${report.currentHead}\``,
     "",
     "## Summary",
     "",

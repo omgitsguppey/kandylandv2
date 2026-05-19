@@ -1,11 +1,11 @@
 # Beta Evidence Gap Map
 
-Generated: 2026-05-19T18:14:50.858Z
-Current head: 63121e2011e286af8fd1b7bcbfba3b3801aae7fb
+Generated: 2026-05-19T18:34:22.031Z
+Latest code version: 711970501004190b8755fccbb09a4d813e5508e8
 
 ## Summary
 
-- Beta score/status: 38.32/Stale evidence
+- Beta score/status: 39.52/Stale evidence
 - Launch gate status: owner_review
 - Beta exit review ready: false
 
@@ -40,6 +40,7 @@ Current head: 63121e2011e286af8fd1b7bcbfba3b3801aae7fb
 
 ## Stale Artifacts
 
+- agent/state/source-truth-authority-map.generated.json: Report was generated before the latest code changes.
 - agent/state/final-cost-audit-lock.generated.json: Report was generated before the latest code changes.
 - agent/state/beta-health-algorithm-v2.generated.json: Report was generated before the latest code changes.
 - agent/state/analytics-semantics-final-lock.generated.json: Report was generated before the latest code changes.

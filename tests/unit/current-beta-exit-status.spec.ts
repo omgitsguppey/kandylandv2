@@ -222,4 +222,21 @@ describe("current beta exit status validator", () => {
       "report currentHead must match git HEAD (head).",
     );
   });
+
+  it("keeps beta exit next steps in plain refresh language", () => {
+    const report = reportFixture({
+      nextExactSteps: [
+        "Refresh this report from the latest code version before using beta readiness.",
+        "Use docs/agent-truth/manual-screenshot-qa-checklist.md.",
+        "Use docs/agent-truth/provider-smoke-evidence-checklist.md.",
+        "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
+        "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
+        "Reference agent/state/evidence-capture-status.generated.json.",
+        "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
+      ],
+    });
+
+    expect(report.nextExactSteps.join("\n")).not.toMatch(/\bcurrent HEAD\b|\bHEAD\b|currentHead/u);
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toEqual([]);
+  });
 });

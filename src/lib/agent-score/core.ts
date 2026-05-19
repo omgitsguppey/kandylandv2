@@ -14,6 +14,10 @@ import {
   type PublicBetaEvidenceFreshnessState,
   type PublicBetaEvidenceQuality,
 } from "./evidence-quality";
+import {
+  describeFreshnessState,
+  normalizeTechnicalFreshnessTerms,
+} from "./freshness-language";
 import type { DebugEvidenceAuditSummary } from "../debug-evidence-contract";
 
 export type PublicBetaDomain = keyof typeof PUBLIC_BETA_DOMAIN_WEIGHTS;
@@ -377,7 +381,7 @@ export function evidenceArtifactDetail(
   artifact: PublicBetaEvidenceArtifact | undefined,
   fallbackDetail: string,
 ) {
-  return artifact?.detail || fallbackDetail;
+  return normalizeTechnicalFreshnessTerms(artifact?.detail || fallbackDetail);
 }
 
 export function evidenceArtifactEvidence(artifact: PublicBetaEvidenceArtifact | undefined) {
@@ -388,7 +392,7 @@ export function evidenceArtifactEvidence(artifact: PublicBetaEvidenceArtifact | 
     `artifactPassed=${artifact.passed}`,
     ...(artifact.generatedAtUtc ? [`generatedAtUtc=${artifact.generatedAtUtc}`] : []),
     ...(artifact.sourceCommit ? [`sourceCommit=${artifact.sourceCommit}`] : []),
-    `artifactDetail=${artifact.detail}`,
+    `artifactDetail=${normalizeTechnicalFreshnessTerms(artifact.detail)}`,
     ...artifact.evidence,
   ]));
 }
@@ -530,7 +534,7 @@ function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvide
     return {
       status: "Needs review" as const,
       score: 0,
-      detail: `${commitMismatches.length} generated report(s) were created before the current HEAD.`,
+      detail: `${commitMismatches.length} generated report(s) were created before the latest code changes.`,
       evidence: commitMismatches.map((report) => report.path),
     };
   }
@@ -577,9 +581,9 @@ export function buildPublicBetaEvidenceGates(input: {
   const freshnessDetail = freshnessStatus === reportEvidence.status && reportEvidence.status !== "Ready"
     ? reportEvidence.detail
     : evidence.runtimeCodeChangedSinceReport
-      ? "Runtime code changed after the readiness report was generated."
+      ? describeFreshnessState({ runtimeCodeChangedSinceReport: true }).userMessage
       : evidence.openPrTriageFresh === false
-        ? "Open PR triage is stale or not tied to current HEAD."
+        ? describeFreshnessState({ openPrTriageFresh: false }).userMessage
         : reportEvidence.detail;
   const targetedBehaviorPassed = evidenceArtifactPassed(
     evidence.targetedBehaviorEvidence,
@@ -779,7 +783,7 @@ export function buildPublicBetaEvidenceGates(input: {
       status: targetedBehaviorPassed ? "Ready" : "Unknown evidence",
       detail: targetedBehaviorDetail,
       evidence: targetedBehaviorEvidence,
-      recommendedAction: "Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata.",
+      recommendedAction: "Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
       quality: targetedQuality,
       gateRequiredForExit: false,
       runtimeCredit: 0,
@@ -823,12 +827,12 @@ export function buildPublicBetaEvidenceGates(input: {
     }),
     buildEvidenceGate({
       id: "freshnessIntegrity",
-      label: "Freshness, PR, and HEAD integrity",
+      label: "Report freshness and PR integrity",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.freshnessIntegrity,
       status: freshnessStatus,
       detail: freshnessDetail,
       evidence: reportEvidence.evidence,
-      recommendedAction: "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current.",
+      recommendedAction: "Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current.",
       quality: freshnessQuality,
       gateRequiredForExit: true,
       sourceCredit: freshnessQuality.partialCredit * 100,
@@ -1156,9 +1160,9 @@ export function buildPublicBetaScoreReport(
   const nuancedScoreExplanation = [
     "Source-ready evidence earns source health credit without becoming runtime proof.",
     "Formal manual, provider, runtime, and admin truth artifacts remain required for launch readiness.",
-    "Stale or HEAD-mismatched evidence decays freshness and raises regression risk instead of erasing source health.",
+    "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes.",
-  ];
+  ].map(normalizeTechnicalFreshnessTerms);
   const scoreExplanation = buildScoreExplanation({
     scannerScore,
     scannerStatus,

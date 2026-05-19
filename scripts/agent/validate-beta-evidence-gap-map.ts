@@ -352,7 +352,7 @@ function writeDocs(report: BetaEvidenceGapMapReport) {
     "# Beta Evidence Gap Map",
     "",
     `Generated: ${report.generatedAtUtc}`,
-    `Current head: ${report.currentHead}`,
+    `Latest code version: ${report.currentHead}`,
     "",
     "## Summary",
     "",

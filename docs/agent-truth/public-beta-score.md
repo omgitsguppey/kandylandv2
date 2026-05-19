@@ -29,7 +29,7 @@ Scanner cleanliness is not readiness by itself. The score now also records evide
 - visual/manual smoke evidence
 - runtime/provider smoke evidence
 - admin truth/sample evidence
-- generated report freshness, open PR, and current HEAD integrity
+- generated report freshness, open PR, and latest code version integrity
 
 The report keeps the scanner score separately from the evidence-aware readiness score. Zero scanner findings plus missing evidence must not produce `clean`, `Ready`, or 100/100.
 
@@ -79,13 +79,13 @@ Beta health algorithm v2 layers a nuanced health model on top of these legacy-co
 - source health: source scanners and targeted validator evidence
 - runtime health: formal manual, provider, deployed runtime, and admin sample confidence
 - evidence completeness: required beta-exit artifact completeness
-- freshness: report age, source commit, and current HEAD alignment
+- freshness: report age, source version, and latest code version alignment
 - cost risk: Cloud Run, SQL/Data Connect, Gemini/Cloud Assist, BigQuery, and 4xx readiness
-- regression risk: stale reports, open PR freshness, and high-blast changes after evidence
+- regression risk: outdated reports, open PR freshness, and high-blast changes after evidence
 
 Missing required evidence blocks launch and reduces confidence, but it does not erase unrelated source health. Source-ready evidence can raise `sourceHealthScore`; it cannot produce `runtimeHealthScore` proof or `launch_ready`. Owner-review cost lanes are partial risk, not passes.
 
-Generated reports are evidence snapshots, not doctrine. Reports older than 24 hours must be regenerated or treated as stale evidence before a readiness claim is trusted.
+Generated reports are evidence snapshots, not doctrine. Reports older than 24 hours must be refreshed or treated as outdated evidence before a readiness claim is trusted.
 
 ## Formal Evidence Artifact Doctrine
 
@@ -148,24 +148,24 @@ If a finding needs one of those commands, record the escalation reason in the re
 
 ## 2026-05-19 Beta Health Algorithm v2
 
-`npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-19T18:02:51.227Z` from current source.
+`npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-19T18:34:00.446Z` from the latest code version.
 
 - Score version: `beta_health_v2`.
-- Public beta score: 38.32/100.
-- Health score: 38.32/100.
+- Public beta score: 39.52/100.
+- Health score: 39.52/100.
 - Launch gate status: `owner_review`.
 - Source health: 84.5/100.
 - Runtime health: 0/100.
 - Evidence completeness: 25/100.
 - Freshness: 34.29/100.
 - Cost risk: 52.5/100.
-- Regression risk: 18/100.
+- Regression risk: 30/100.
 
 This is not beta-exit ready. The model now gives source-ready work partial source credit, but launch remains blocked until formal manual, provider, deployed runtime, and admin truth evidence is attached and fresh.
 
 ## 2026-05-14 Phase 1 Evidence Refresh
 
-Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
+Latest code version for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
 
 `npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-14T02:36:22.302Z`.
 
@@ -174,7 +174,7 @@ Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
 - Scanner-only score: 100/100 clean.
 - Current Phase 1 status: `Stale evidence`.
 
-The score still applies caps for targeted behavior evidence, visual/manual smoke, runtime/provider smoke, admin truth/sample evidence, freshness/PR/HEAD integrity, and empty Debug/runtime evidence. This is an evidence-blocked state, not a proven runtime code blocker.
+The score still applies caps for targeted behavior evidence, visual/manual smoke, runtime/provider smoke, admin truth/sample evidence, report freshness and PR integrity, and empty Debug/runtime evidence. This is an evidence-blocked state, not a proven runtime code blocker.
 
 ## 2026-05-14 Formal Smoke Evidence Tracking
 
@@ -206,7 +206,7 @@ At the time of this ingestion fix, `npm run score:beta` still reported 25/100 ov
 
 ## 2026-05-14 Targeted Behavior Evidence Bridge
 
-`agent/state/targeted-behavior-evidence.generated.json` now records focused Phase 1 validator evidence from current HEAD.
+`agent/state/targeted-behavior-evidence.generated.json` now records focused Phase 1 validator evidence from the latest code version at that time.
 
 `npm run score:beta` now reports:
 
