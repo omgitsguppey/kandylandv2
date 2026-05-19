@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.17",
-  "betaReleaseCounter": 317,
+  "currentVersion": "1.3.18",
+  "betaReleaseCounter": 318,
   "channel": "beta",
-  "generatedAt": "2026-05-19T23:59:00.000Z",
-  "generatedAtUtc": "2026-05-19T23:59:00.000Z",
+  "generatedAt": "2026-05-19T23:50:00.000Z",
+  "generatedAtUtc": "2026-05-19T23:50:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.18",
+      "previousVersion": "1.3.17",
+      "betaReleaseCounter": 318,
+      "previousBetaReleaseCounter": 317,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(ui): add mobile scaling doctrine",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T23:50:00.000Z",
+      "generatedAt": "2026-05-19T23:50:00.000Z",
+      "committedAtUtc": "2026-05-19T23:50:00.000Z",
+      "generatedAtUtc": "2026-05-19T23:50:00.000Z",
+      "updatedAtUtc": "2026-05-19T23:50:00.000Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added mobile-first scaling doctrine and shared density guidance for future UI cleanup.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added mobile-first UI scaling rules.",
+        "Prepared shared density and skeleton guidance for admin, user, and creator screens.",
+        "Protected navigation and chat surfaces from broad UI cleanup."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted mobile UI scaling doctrine foundation pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "mobile UI",
+        "admin screens",
+        "creator screens",
+        "user screens"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/mobile-ui-scaling-doctrine.generated.json",
+        "docs/agent-truth/mobile-ui-scaling-doctrine.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-mobile-ui-scaling-doctrine.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/ui/mobile-scale-contract.ts",
+        "tests/unit/mobile-ui-scaling-doctrine.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.17",
       "previousVersion": "1.3.16",
@@ -1339,60 +1390,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/cloud-sql-gemini-cost-guards.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.2.93",
-      "previousVersion": "1.2.92",
-      "betaReleaseCounter": 293,
-      "previousBetaReleaseCounter": 292,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(runtime): reduce scheduled job scan cost",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T15:04:59.522Z",
-      "generatedAt": "2026-05-19T15:04:59.522Z",
-      "committedAtUtc": "2026-05-19T15:04:59.522Z",
-      "generatedAtUtc": "2026-05-19T15:04:59.522Z",
-      "updatedAtUtc": "2026-05-19T15:04:59.522Z",
-      "category": "Performance",
-      "title": "Bug fixes and general improvements",
-      "summary": "Reduced scheduled analytics and runtime scan costs while preserving queue, notification, and subscription correctness.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reduced scheduled analytics and runtime scan costs.",
-        "Moved recurring jobs toward due-only and incremental work.",
-        "Kept subscription, notification, and queue correctness intact."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted scheduled runtime cost patch into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "notifications",
-        "creator subscriptions",
-        "runtime jobs"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/scheduled-runtime-cost-reduction.generated.json",
-        "docs/agent-truth/scheduled-runtime-cost-reduction.md",
-        "functions/src/analytics-truth-runtime.ts",
-        "functions/src/behavioral-intelligence-runtime.ts",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-scheduled-runtime-cost-reduction.ts",
-        "src/app/api/cron/process-creator-subscriptions/route.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/queue-runtime.ts",
-        "tests/unit/scheduled-runtime-cost-reduction.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

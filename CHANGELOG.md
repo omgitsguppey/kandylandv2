@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.18 - 2026-05-19
+- Bug fixes and general improvements
+- Added mobile-first UI scaling rules.
+- Prepared shared density and skeleton guidance for admin, user, and creator screens.
+- Protected navigation and chat surfaces from broad UI cleanup.
+
 ## 1.3.17 - 2026-05-19
 - Bug fixes and general improvements
 - Locked telemetry dependency closure status.
