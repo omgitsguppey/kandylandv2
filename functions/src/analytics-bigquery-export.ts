@@ -1,4 +1,3 @@
-import {onDocumentCreated} from "firebase-functions/v2/firestore"
 import {onSchedule} from "firebase-functions/v2/scheduler"
 import {REGION} from "./firebase-runtime.js"
 import {BigQuery} from "@google-cloud/bigquery"
@@ -7,9 +6,11 @@ import {AnalyticsEventFact, readString, readNumber, readBoolean} from "./analyti
 import {db} from "./firebase-admin.js"
 import {logger} from "firebase-functions"
 
-// First-party canonical event dataset
-const DATASET_ID = process.env.BQ_ANALYTICS_DATASET_ID || process.env.BIGQUERY_ANALYTICS_DATASET_ID || "kandydrops_canonical_analytics"
-const TABLE_ID = process.env.BQ_ANALYTICS_RAW_EVENTS_TABLE_ID || process.env.BIGQUERY_ANALYTICS_RAW_EVENTS_TABLE_ID || "raw_events"
+// First-party canonical event dataset. Missing env means BigQuery evidence is unavailable, not zero traffic.
+const DEFAULT_DATASET_ID = "kandydrops_canonical_analytics"
+const DEFAULT_TABLE_ID = "raw_events"
+const DATASET_ID = process.env.BQ_ANALYTICS_DATASET_ID || process.env.BIGQUERY_ANALYTICS_DATASET_ID || ""
+const TABLE_ID = process.env.BQ_ANALYTICS_RAW_EVENTS_TABLE_ID || process.env.BIGQUERY_ANALYTICS_RAW_EVENTS_TABLE_ID || ""
 const EXPORT_STATUS_COLLECTION = "analytics_export_status"
 const EXPORT_STATUS_DOC_ID = "bigquery_raw_events"
 const DATASET_LOCATION = process.env.BQ_ANALYTICS_LOCATION || process.env.BIGQUERY_ANALYTICS_LOCATION || "US"
@@ -52,9 +53,12 @@ let bqInstance: BigQuery | undefined
 let rawEventsTableReady: Promise<void> | undefined
 let rawEventsTableReadinessFailureUntilMs = 0
 let rawEventsTableReadinessFailureMessage = ""
-let nextExportClaimCheckAfterMs = 0
 let lastExportStatusFailureFingerprint = ""
 let lastExportStatusFailureSuppressUntilMs = 0
+
+function hasBigQueryExportConfig() {
+  return Boolean(DATASET_ID && TABLE_ID)
+}
 
 function getBQ() {
   if (!bqInstance) {
@@ -64,6 +68,10 @@ function getBQ() {
 }
 
 async function ensureRawEventsTableReady() {
+  if (!hasBigQueryExportConfig()) {
+    throw new Error("BigQuery export config missing: set BQ_ANALYTICS_DATASET_ID and BQ_ANALYTICS_RAW_EVENTS_TABLE_ID before exporting analytics evidence")
+  }
+
   const bq = getBQ()
   const dataset = bq.dataset(DATASET_ID)
   const [datasetExists] = await dataset.exists()
@@ -109,7 +117,7 @@ function getRawEventsTableReady() {
 
 async function recordBigQueryExportStatus(input: {
   eventId: string
-  status: "healthy" | "fail"
+  status: "healthy" | "fail" | "config_missing"
   error?: unknown
   exportedRows?: number
   skippedRows?: number
@@ -120,11 +128,11 @@ async function recordBigQueryExportStatus(input: {
 }) {
   const nowMs = Date.now()
   const errorMessage = input.error instanceof Error ? input.error.message : input.error ? String(input.error) : ""
-  const failureFingerprint = input.status === "fail"
+  const failureFingerprint = input.status !== "healthy"
     ? `${input.windowStartMs ?? "unknown"}:${input.windowEndMs ?? "unknown"}:${errorMessage.slice(0, 180)}`
     : ""
   if (
-    input.status === "fail" &&
+    input.status !== "healthy" &&
     failureFingerprint === lastExportStatusFailureFingerprint &&
     nowMs < lastExportStatusFailureSuppressUntilMs
   ) {
@@ -136,14 +144,14 @@ async function recordBigQueryExportStatus(input: {
     return
   }
 
-  if (input.status === "fail") {
+  if (input.status !== "healthy") {
     lastExportStatusFailureFingerprint = failureFingerprint
     lastExportStatusFailureSuppressUntilMs = nowMs + BIGQUERY_EXPORT_STATUS_FAILURE_TTL_MS
   }
 
   const payload = input.status === "healthy"
     ? {
-      writer: "functions/onAnalyticsEventFactBigQueryExport",
+      writer: "functions/scheduledBigQueryRawEventsExport",
       truthClass: EXPORT_TRUTH_CLASS,
       primaryProductTruth: false,
       runtimeImportBlocked: true,
@@ -166,7 +174,7 @@ async function recordBigQueryExportStatus(input: {
       updatedAt: FieldValue.serverTimestamp(),
     }
     : {
-      writer: "functions/onAnalyticsEventFactBigQueryExport",
+      writer: "functions/scheduledBigQueryRawEventsExport",
       truthClass: EXPORT_TRUTH_CLASS,
       primaryProductTruth: false,
       runtimeImportBlocked: true,
@@ -175,8 +183,8 @@ async function recordBigQueryExportStatus(input: {
       cadenceMs: BIGQUERY_EXPORT_MIN_CADENCE_MS,
       queryGuardrails: BIGQUERY_EXPORT_QUERY_GUARDRAILS,
       status: input.status,
-      datasetId: DATASET_ID,
-      tableId: TABLE_ID,
+      datasetId: DATASET_ID || DEFAULT_DATASET_ID,
+      tableId: TABLE_ID || DEFAULT_TABLE_ID,
       lastEventId: input.eventId,
       lastFailedAtMs: nowMs,
       lastExportWindowStartMs: input.windowStartMs ?? null,
@@ -219,28 +227,17 @@ function buildBigQueryExportWatermarkWindow(input: {
   }
 }
 
-async function shouldAttemptBigQueryExportClaim(nowMs: number) {
-  if (nowMs < nextExportClaimCheckAfterMs) {
-    return false
-  }
-
-  const statusSnapshot = await db.collection(EXPORT_STATUS_COLLECTION).doc(EXPORT_STATUS_DOC_ID).get()
-  const statusData = statusSnapshot.exists ? statusSnapshot.data() as Record<string, unknown> : {}
-  const lastRunAtMs = readStatusTimestamp(statusData, [
-    "lastExportStartedAtMs",
-    "lastExportedAtMs",
-    "lastFailedAtMs",
-  ])
-
-  if (lastRunAtMs > 0 && nowMs - lastRunAtMs < BIGQUERY_EXPORT_MIN_CADENCE_MS) {
-    nextExportClaimCheckAfterMs = lastRunAtMs + BIGQUERY_EXPORT_MIN_CADENCE_MS
-    return false
-  }
-
-  return true
-}
-
 async function claimBigQueryExportWindow(eventId: string, nowMs: number) {
+  if (!hasBigQueryExportConfig()) {
+    await recordBigQueryExportStatus({
+      eventId,
+      status: "config_missing",
+      error: "BigQuery export config missing; first-party analytics summaries remain product truth and BigQuery is unavailable evidence.",
+      windowEndMs: nowMs,
+    })
+    return null
+  }
+
   const statusRef = db.collection(EXPORT_STATUS_COLLECTION).doc(EXPORT_STATUS_DOC_ID)
   return db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(statusRef)
@@ -253,7 +250,7 @@ async function claimBigQueryExportWindow(eventId: string, nowMs: number) {
     const window = buildBigQueryExportWatermarkWindow({statusData: data, nowMs})
 
     transaction.set(statusRef, {
-      writer: "functions/onAnalyticsEventFactBigQueryExport",
+      writer: "functions/scheduledBigQueryRawEventsExport",
       truthClass: EXPORT_TRUTH_CLASS,
       primaryProductTruth: false,
       runtimeImportBlocked: true,
@@ -382,24 +379,3 @@ export const scheduledBigQueryRawEventsExport = onSchedule({
     logger.error("[BigQuery Export] Scheduled daily raw-events export failed:", error)
   }
 })
-
-export const onAnalyticsEventFactBigQueryExport = onDocumentCreated(
-  {document: "analytics_event_facts/{eventId}", region: REGION},
-  async (event) => {
-    if (!event.data?.exists) return
-
-    try {
-      const nowMs = Date.now()
-      const dueForClaim = await shouldAttemptBigQueryExportClaim(nowMs)
-      if (!dueForClaim) {
-        logger.info(`[BigQuery Export] Skipped event-triggered export for event ${event.id}; daily cadence window still active`)
-        return
-      }
-
-      await runBigQueryRawEventsExportWindow(event.id, nowMs)
-    } catch (error) {
-      await recordBigQueryExportStatus({eventId: event.id, status: "fail", error, windowEndMs: Date.now()})
-      logger.error(`[BigQuery Export] Failed to export event ${event.id}:`, error)
-    }
-  }
-)

@@ -1,0 +1,206 @@
+{
+  "generatedAtUtc": "2026-05-19T22:52:53.564Z",
+  "reportKey": "bigquery-cloud-pipeline-closure",
+  "currentHead": "381e12eb63e38faf2b2d9729975432e903b6a7a1",
+  "summary": {
+    "exportContractCreated": true,
+    "scheduledWindowExportEnabled": true,
+    "eventTriggeredExportDisabled": true,
+    "watermarkDefined": true,
+    "failureTtlDefined": true,
+    "configMissingStateDefined": true,
+    "missingBigQueryNotZeroTraffic": true,
+    "exportedClaimRequiresInsertPath": true,
+    "queryCostGuardDefined": true,
+    "eventFactsExportEligible": true,
+    "firstPartySummariesRemainProductTruth": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "exportContract": {
+    "version": "bigquery_cloud_pipeline_closure_v1",
+    "sourceCollection": "analytics_event_facts",
+    "destination": {
+      "datasetEnvKeys": [
+        "BQ_ANALYTICS_DATASET_ID",
+        "BIGQUERY_ANALYTICS_DATASET_ID"
+      ],
+      "tableEnvKeys": [
+        "BQ_ANALYTICS_RAW_EVENTS_TABLE_ID",
+        "BIGQUERY_ANALYTICS_RAW_EVENTS_TABLE_ID"
+      ],
+      "defaultDatasetId": "kandydrops_canonical_analytics",
+      "defaultTableId": "raw_events",
+      "locationEnvKeys": [
+        "BQ_ANALYTICS_LOCATION",
+        "BIGQUERY_ANALYTICS_LOCATION"
+      ]
+    },
+    "watermark": {
+      "collection": "analytics_export_status",
+      "documentId": "bigquery_raw_events",
+      "timestampField": "lastExportedEventTimestampMs",
+      "eventIdField": "lastExportedEventId",
+      "startedAtField": "lastExportStartedAtMs",
+      "failedAtField": "lastFailedAtMs"
+    },
+    "batch": {
+      "maxRows": 500,
+      "orderBy": [
+        "timestamp",
+        "__name__"
+      ],
+      "windowStartExclusiveUnlessWatermarkEvent": true
+    },
+    "cadence": {
+      "kind": "daily_windowed",
+      "schedule": "0 4 * * *",
+      "minCadenceMs": 86400000,
+      "eventTriggeredClaimsAllowed": false
+    },
+    "retry": {
+      "failureTtlMs": 3600000,
+      "readinessFailureTtlMs": 3600000,
+      "retryCount": 0,
+      "repeatedFailureStatusSuppressed": true
+    },
+    "queryCostGuards": {
+      "dryRunRequiredForQueries": true,
+      "maximumBytesBilledRequiredForQueries": true,
+      "partitionFilterRequired": true,
+      "partitionField": "timestamp"
+    },
+    "successSemantics": {
+      "claimsExportedOnlyAfterInsert": true,
+      "statusValues": [
+        "scheduled",
+        "healthy",
+        "fail",
+        "config_missing"
+      ],
+      "missingConfigCannotClaimExported": true,
+      "zeroTrafficNeverInferredFromMissingProvider": true
+    },
+    "truthClass": "analytics_evidence_only",
+    "primaryProductTruth": false,
+    "missingConfigTrafficBehavior": "unavailable_not_zero",
+    "adminEvidenceConsumer": "Admin Debug analytics export evidence",
+    "firstPartyFallback": {
+      "summaryCollections": [
+        "analytics_admin_metric_snapshots",
+        "analytics_rollups_daily",
+        "analytics_event_stats"
+      ],
+      "missingBigQueryDoesNotFailProductAnalytics": true
+    }
+  },
+  "exportFindings": [
+    {
+      "id": "export-contract-validates",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "BigQuery export contract validates with no open findings."
+    },
+    {
+      "id": "scheduled-window-export-enabled",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Functions index exposes scheduledBigQueryRawEventsExport and the source keeps the daily window."
+    },
+    {
+      "id": "event-triggered-export-disabled",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Event-fact-created BigQuery export trigger is no longer an active export claim path."
+    },
+    {
+      "id": "watermark-defined",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "BigQuery export uses analytics_export_status watermark fields."
+    },
+    {
+      "id": "exported-claim-requires-insert",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Healthy/exported status is only recorded through the batch insert path."
+    }
+  ],
+  "configFindings": [
+    {
+      "id": "config-missing-state-defined",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Missing BigQuery env produces config_missing instead of a default export claim."
+    },
+    {
+      "id": "missing-bigquery-not-zero",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Missing BigQuery evidence is unavailable_not_zero and first-party summaries remain product truth."
+    }
+  ],
+  "costFindings": [
+    {
+      "id": "failure-ttl-defined",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Readiness and status failures are TTL-capped."
+    },
+    {
+      "id": "query-cost-guards-defined",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Future query lanes require dry-run, maximumBytesBilled, and partition filters."
+    }
+  ],
+  "truthFindings": [
+    {
+      "id": "event-facts-export-eligible",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "analytics_event_facts is explicitly marked as a BigQuery export candidate."
+    },
+    {
+      "id": "first-party-summaries-product-truth",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "BigQuery remains analytics evidence only; first-party summaries remain product truth."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "bigquery-export-contract-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added src/lib/analytics/bigquery-export-contract.ts."
+    },
+    {
+      "id": "scheduled-export-surface-exposed",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Exposed scheduledBigQueryRawEventsExport as the active Functions export lane."
+    },
+    {
+      "id": "event-trigger-export-retired-from-source",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Removed the event-triggered BigQuery export claim from source."
+    },
+    {
+      "id": "config-missing-evidence-state-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added config_missing status handling for missing BigQuery export env."
+    }
+  ],
+  "prCleanupActions": [
+    "No open BigQuery/export/cloud pipeline PRs were present at start."
+  ],
+  "nextFixOrder": [
+    "After deployment, verify scheduledBigQueryRawEventsExport heartbeat in Firebase/Cloud console before treating warehouse evidence as active.",
+    "If owner approves BigQuery queries, add dry-run and maximumBytesBilled validation before any query executes.",
+    "Keep first-party Firestore summaries as product truth even when BigQuery evidence is configured."
+  ]
+}

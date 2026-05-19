@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.14 - 2026-05-19
+- Bug fixes and general improvements
+- Clarified BigQuery export readiness.
+- Kept analytics exports batched, bounded, and evidence-based.
+- Prevented missing BigQuery from showing as zero activity.
+
 ## 1.3.13 - 2026-05-19
 - Bug fixes and general improvements
 - Closed telemetry materialization gaps.
