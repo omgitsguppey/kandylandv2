@@ -12,3 +12,6 @@
 ## 2024-05-09 - Added aria-busy to Button component
 **Learning:** The core Button component visually indicated loading states with a spinner, but did not properly announce this asynchronous loading state to screen readers.
 **Action:** Always apply the `aria-busy={isLoading}` attribute to interactive elements like buttons when they enter a loading state to ensure screen readers are informed of the asynchronous process.
+## $(date +%Y-%m-%d) - aria-expanded state on toggles
+**Learning:** Found some accordion/toggle buttons missing \`aria-expanded\` state indicators when expanding details panels. This causes screen readers to be unaware if a toggle is open or closed.
+**Action:** Always ensure that interactive elements that control the visibility of other sections have their state mapped directly to the \`aria-expanded\` attribute.
