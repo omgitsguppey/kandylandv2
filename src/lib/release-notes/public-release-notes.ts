@@ -1,13 +1,63 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.8",
-  "betaReleaseCounter": 308,
+  "currentVersion": "1.3.9",
+  "betaReleaseCounter": 309,
   "channel": "beta",
-  "generatedAt": "2026-05-19T20:37:09.392Z",
-  "generatedAtUtc": "2026-05-19T20:37:09.392Z",
+  "generatedAt": "2026-05-19T20:49:14.070Z",
+  "generatedAtUtc": "2026-05-19T20:49:14.070Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.9",
+      "previousVersion": "1.3.8",
+      "betaReleaseCounter": 309,
+      "previousBetaReleaseCounter": 308,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): close telemetry dependency graph",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T20:49:14.070Z",
+      "generatedAt": "2026-05-19T20:49:14.070Z",
+      "committedAtUtc": "2026-05-19T20:49:14.070Z",
+      "generatedAtUtc": "2026-05-19T20:49:14.070Z",
+      "updatedAtUtc": "2026-05-19T20:49:14.070Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Mapped telemetry dependencies from client events through analytics evidence and exports.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Mapped telemetry dependencies from client events to analytics evidence.",
+        "Closed broken telemetry lanes and stale tracking claims.",
+        "Kept product truth separate from debug and external evidence."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted telemetry dependency graph and route closure fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "admin analytics",
+        "app reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/telemetry-dependency-graph.generated.json",
+        "docs/agent-truth/telemetry-dependency-graph.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-telemetry-dependency-graph.ts",
+        "src/lib/analytics/telemetry-dependency-graph.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/telemetry-dependency-graph.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.8",
       "previousVersion": "1.3.7",
@@ -1376,50 +1426,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "CHANGELOG.md"
       ],
       "sourceCommit": "f99dfcd24808078a69f8d77985a2f8d23e556d24"
-    },
-    {
-      "version": "1.2.84",
-      "previousVersion": "1.2.83",
-      "betaReleaseCounter": 284,
-      "previousBetaReleaseCounter": 283,
-      "commitSha": "fa8d18a61c85cfcc97a17def243b70c743731984",
-      "commitTitle": "fix(analytics): link guest history to users",
-      "commitCount": 1,
-      "commitShas": [
-        "fa8d18a61c85cfcc97a17def243b70c743731984"
-      ],
-      "committedAt": "2026-05-18T14:25:06.697Z",
-      "generatedAt": "2026-05-18T14:25:06.697Z",
-      "committedAtUtc": "2026-05-18T14:25:06.697Z",
-      "generatedAtUtc": "2026-05-18T14:25:06.697Z",
-      "updatedAtUtc": "2026-05-18T14:25:06.697Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Linked guest analytics history to signed-in users without double-counting.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Linked guest analytics history to signed-in users without double-counting.",
-        "Improved individual user tracking semantics.",
-        "Kept identity transfer idempotent and low-cost."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/analytics/identity-transfer.ts",
-        "agent/state/guest-user-identity-transfer.generated.json",
-        "docs/agent-truth/guest-user-identity-transfer.md",
-        "scripts/agent/validate-guest-user-identity-transfer.ts",
-        "tests/unit/guest-user-identity-transfer.spec.ts",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "fa8d18a61c85cfcc97a17def243b70c743731984"
     }
   ]
 } as const satisfies PublicReleaseNotesDocument;

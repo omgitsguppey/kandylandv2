@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.9 - 2026-05-19
+- Bug fixes and general improvements
+- Mapped telemetry dependencies from client events to analytics evidence.
+- Closed broken telemetry lanes and stale tracking claims.
+- Kept product truth separate from debug and external evidence.
+
 ## 1.3.8 - 2026-05-19
 - Bug fixes and general improvements
 - Clarified Google Analytics evidence status.

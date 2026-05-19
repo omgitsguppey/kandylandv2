@@ -18,6 +18,8 @@ import {
 } from "@/lib/server/analytics-governance";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { normalizeAnonymousRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
+import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
+import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
 import {
     RUNTIME_FACT_CONTRACT_VERSION,
     type RuntimeFact,
@@ -191,21 +193,42 @@ function queueUserTrackingMaterialization(input: {
     };
 }
 
-function queueBehavioralTimelineFacts(input: {
-    runtimeFactCount: number;
-    eligibleFactCount: number;
+async function writeGuestBehavioralTimelineFacts(input: {
+    runtimeFacts: RuntimeFact[];
     batchId: string;
     anonymousVisitorId: string;
     nowMs: number;
+    globalPrivacyControl: boolean;
 }) {
+    const eligibleFacts = input.runtimeFacts
+        .filter((fact) => fact.metricEligible || fact.metricExclusionReason.includes("privacy"))
+        .map((runtimeFact) => mapRuntimeFactToBehavioralTimelineFact({
+            runtimeFact,
+            consentState: input.globalPrivacyControl ? "partial" : "granted",
+        }));
+    let writeResult: { written: number; skipped: number; reason: string };
+    try {
+        writeResult = await writeBehavioralTimelineFacts(eligibleFacts);
+    } catch (error) {
+        await reportAnalyticsIngestFailure(error);
+        writeResult = {
+            written: 0,
+            skipped: eligibleFacts.length,
+            reason: "timeline_write_failed",
+        };
+    }
+
     return {
-        queued: input.eligibleFactCount > 0,
-        queueMode: "deferred_non_priority" as const,
-        materializer: "behavioral_timeline_daily",
+        queued: false,
+        queueMode: "written_bounded" as const,
+        materializer: "behavioral_timeline_facts",
         batchId: input.batchId,
         anonymousVisitorId: input.anonymousVisitorId,
-        runtimeFactCount: input.runtimeFactCount,
-        eligibleFactCount: input.eligibleFactCount,
+        runtimeFactCount: input.runtimeFacts.length,
+        eligibleFactCount: eligibleFacts.length,
+        written: writeResult.written,
+        skipped: writeResult.skipped,
+        reason: writeResult.reason,
         requestedAtMs: input.nowMs,
     };
 }
@@ -403,15 +426,12 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ success: true, deduped: true, processed: 0 });
         }
 
-        const eligibleTimelineFactCount = runtimeFacts
-            .filter((fact) => fact.metricEligible || fact.metricExclusionReason.includes("privacy"))
-            .length;
-        const behavioralTimelineFacts = queueBehavioralTimelineFacts({
-            runtimeFactCount: runtimeFacts.length,
-            eligibleFactCount: eligibleTimelineFactCount,
+        const behavioralTimelineFacts = await writeGuestBehavioralTimelineFacts({
+            runtimeFacts,
             batchId,
             anonymousVisitorId: canonicalAnonymousVisitorId,
             nowMs,
+            globalPrivacyControl,
         });
         const userTrackingMaterialization = queueUserTrackingMaterialization({
             anonymousVisitorId: canonicalAnonymousVisitorId,
