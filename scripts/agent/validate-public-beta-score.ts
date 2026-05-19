@@ -69,6 +69,27 @@ function validateEvidenceGate(gate: PublicBetaEvidenceGate, index: number) {
   }
   requireNumber(gate.weight, `evidenceGates[${index}].weight`, 0, 100);
   requireNumber(gate.score, `evidenceGates[${index}].score`, 0, 100);
+  requireNumber(gate.maxScore, `evidenceGates[${index}].maxScore`, 0, 100);
+  requireNumber(gate.sourceCredit, `evidenceGates[${index}].sourceCredit`, 0, 100);
+  requireNumber(gate.runtimeCredit, `evidenceGates[${index}].runtimeCredit`, 0, 100);
+  requireNumber(gate.evidenceCredit, `evidenceGates[${index}].evidenceCredit`, 0, 100);
+  requireNumber(gate.riskPenalty, `evidenceGates[${index}].riskPenalty`, 0, 100);
+  requireNumber(gate.capImpact, `evidenceGates[${index}].capImpact`, 0, 100);
+  if (!["high", "medium", "low", "none"].includes(String(gate.confidence))) {
+    failures.push(`evidenceGates[${index}].confidence must be a v2 confidence state.`);
+  }
+  if (!["formal_passed", "formal_partial", "source_ready", "operator_reported", "stale", "missing", "unavailable", "failed", "owner_review"].includes(String(gate.evidenceQuality))) {
+    failures.push(`evidenceGates[${index}].evidenceQuality must be a v2 evidence quality.`);
+  }
+  if (!["fresh", "stale", "missing", "unknown", "head_mismatch"].includes(String(gate.freshness))) {
+    failures.push(`evidenceGates[${index}].freshness must be a v2 freshness state.`);
+  }
+  if (typeof gate.gateRequiredForExit !== "boolean") {
+    failures.push(`evidenceGates[${index}].gateRequiredForExit must be boolean.`);
+  }
+  if (typeof gate.blocksLaunch !== "boolean") {
+    failures.push(`evidenceGates[${index}].blocksLaunch must be boolean.`);
+  }
   if (!Array.isArray(gate.evidence)) {
     failures.push(`evidenceGates[${index}].evidence must be an array.`);
   }
@@ -102,6 +123,35 @@ if (report) {
     failures.push(`public beta score currentHead must match git HEAD (${headSha}).`);
   }
   requireNumber(report.scannerScore, "scannerScore", 0, 100);
+  if (report.scoreVersion !== "beta_health_v2") {
+    failures.push("scoreVersion must be beta_health_v2.");
+  }
+  for (const [key, value] of Object.entries({
+    sourceHealthScore: report.sourceHealthScore,
+    runtimeHealthScore: report.runtimeHealthScore,
+    evidenceCompletenessScore: report.evidenceCompletenessScore,
+    freshnessScore: report.freshnessScore,
+    costRiskScore: report.costRiskScore,
+    regressionRiskScore: report.regressionRiskScore,
+    healthScore: report.healthScore,
+  })) {
+    requireNumber(value, key, 0, 100);
+  }
+  if (!["source_ready", "runtime_proven", "evidence_complete", "owner_review", "launch_ready", "blocked"].includes(String(report.launchGateStatus))) {
+    failures.push("launchGateStatus must be a v2 launch gate status.");
+  }
+  if (!Array.isArray(report.launchBlockers)) {
+    failures.push("launchBlockers must be an array.");
+  }
+  if (!Array.isArray(report.scoreDeltaDrivers) || report.scoreDeltaDrivers.length === 0) {
+    failures.push("scoreDeltaDrivers must explain why the score changed.");
+  }
+  if (!Array.isArray(report.nuancedScoreExplanation) || report.nuancedScoreExplanation.length === 0) {
+    failures.push("nuancedScoreExplanation must explain beta health v2 scoring.");
+  }
+  if (!report.healthScoreBreakdown || typeof report.healthScoreBreakdown !== "object") {
+    failures.push("healthScoreBreakdown must be present.");
+  }
   if (!["clean", "pass", "warning", "beta-risk", "fail"].includes(report.scannerStatus)) {
     failures.push("scannerStatus must be a valid public beta status.");
   }
@@ -146,6 +196,10 @@ if (report) {
   } else {
     requireIncludes(report.scoreExplanation.scannerScoreMeaning ?? "", "scanner-only", "scoreExplanation.scannerScoreMeaning");
     requireIncludes(report.scoreExplanation.sourcePassConfidence ?? "", "does not clear", "scoreExplanation.sourcePassConfidence");
+    requireIncludes(report.scoreExplanation.evidenceScoreMeaning ?? "", "partial-credit", "scoreExplanation.evidenceScoreMeaning");
+    if (/missing lanes score zero/iu.test(report.scoreExplanation.evidenceScoreMeaning ?? "")) {
+      failures.push("scoreExplanation.evidenceScoreMeaning must not claim missing lanes simply score zero.");
+    }
     if (report.scannerScore === 100 && /beta ready|readiness is ready/iu.test(report.scoreExplanation.scannerScoreMeaning ?? "")) {
       failures.push("scannerScore 100 must not be presented as beta readiness.");
     }
@@ -175,6 +229,15 @@ if (report) {
     if (report.overallScore >= 100 || report.overallStatus === "clean" || report.readinessStatus === "Ready") {
       failures.push("Zero scanner findings with missing evidence must not produce clean/Ready/100.");
     }
+  }
+  if (report.launchGateStatus === "launch_ready" && report.launchBlockers.length > 0) {
+    failures.push("launch_ready cannot have launch blockers.");
+  }
+  if (
+    report.launchGateStatus === "launch_ready"
+    && report.evidenceGates.some((gate) => gate.gateRequiredForExit && gate.blocksLaunch)
+  ) {
+    failures.push("Required evidence gates that block launch cannot produce launch_ready.");
   }
   if (!report.domainScores || typeof report.domainScores !== "object") {
     failures.push("domainScores must be present.");
@@ -291,6 +354,14 @@ for (const forbidden of staleScoreTruthPatterns) {
 requireIncludes(core, "PublicBetaEvidenceArtifact", "Public beta score core");
 requireIncludes(core, "evidenceArtifactPassed", "Public beta score core");
 requireIncludes(core, "evidenceCapDetails", "Public beta score core");
+requireIncludes(core, "scoreVersion: \"beta_health_v2\"", "Public beta score core");
+requireIncludes(core, "sourceHealthScore", "Public beta score core");
+requireIncludes(core, "runtimeHealthScore", "Public beta score core");
+requireIncludes(core, "evidenceCompletenessScore", "Public beta score core");
+requireIncludes(core, "launchGateStatus", "Public beta score core");
+requireIncludes(core, "scoreCostReadiness", "Public beta score core");
+requireIncludes(core, "scoreRegressionRisk", "Public beta score core");
+requireIncludes(core + weights, "PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS", "Public beta score math core");
 
 for (const expected of [
   "PUBLIC_BETA_DOMAIN_WEIGHTS",

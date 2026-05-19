@@ -17,6 +17,15 @@ export type CurrentBetaExitStatusReport = {
     betaVersion: string;
     betaScore: number;
     betaStatus: string;
+    scoreVersion?: string;
+    healthScore?: number;
+    launchGateStatus?: string;
+    sourceHealthScore?: number;
+    runtimeHealthScore?: number;
+    evidenceCompletenessScore?: number;
+    freshnessScore?: number;
+    costRiskScore?: number;
+    regressionRiskScore?: number;
     sourceCleanupP0: number;
     sourceCleanupP1: number;
     userCreatorP0: number;
@@ -98,6 +107,10 @@ function evidenceMissing(status: string) {
   return !/\b(pass|passed|attached|formal_.*_passed)\b/iu.test(status);
 }
 
+function validScore(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
 function readEvidenceCaptureStatus() {
   if (!existsSync(evidenceCaptureStatusPath)) return null;
   return JSON.parse(readFileSync(evidenceCaptureStatusPath, "utf8")) as {
@@ -137,6 +150,25 @@ export function validateCurrentBetaExitStatusReport(
   if (!report.summary.releaseNotesStatus) {
     failures.push("release notes status must be represented.");
   }
+  if (report.summary.scoreVersion !== "beta_health_v2") {
+    failures.push("scoreVersion beta_health_v2 must be represented in current beta exit status.");
+  }
+  for (const key of [
+    "healthScore",
+    "sourceHealthScore",
+    "runtimeHealthScore",
+    "evidenceCompletenessScore",
+    "freshnessScore",
+    "costRiskScore",
+    "regressionRiskScore",
+  ] as const) {
+    if (!validScore(report.summary[key])) {
+      failures.push(`${key} must be represented as a 0-100 beta health score.`);
+    }
+  }
+  if (!["source_ready", "runtime_proven", "evidence_complete", "owner_review", "launch_ready", "blocked"].includes(String(report.summary.launchGateStatus))) {
+    failures.push("launchGateStatus must be represented as a beta health v2 launch state.");
+  }
   if (!report.summary.errorHandlingSourceStatus || !report.summary.errorHandlingSourceStatus.includes("error_handling_source_complete")) {
     failures.push("error handling source readiness must be represented.");
   }
@@ -166,6 +198,9 @@ export function validateCurrentBetaExitStatusReport(
 
   if ((visualMissing || providerMissing || runtimeMissing) && report.summary.canStartBetaExitReview) {
     failures.push("canStartBetaExitReview must be false while visual/provider/runtime evidence is missing.");
+  }
+  if (report.summary.launchGateStatus !== "launch_ready" && report.summary.canStartBetaExitReview) {
+    failures.push("canStartBetaExitReview must be false until launchGateStatus is launch_ready.");
   }
   if (visualMissing && /\b(pass|passed|complete|completed)\b/iu.test(report.summary.visualEvidenceStatus)) {
     failures.push("visual QA must not be marked passed while screenshot evidence is missing.");

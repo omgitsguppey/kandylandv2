@@ -74,6 +74,17 @@ Evidence-weighted readiness model:
 - Admin truth/sample evidence: 10
 - Freshness/open-PR/source-commit integrity: 10
 
+Beta health algorithm v2 layers a nuanced health model on top of these legacy-compatible gates:
+
+- source health: source scanners and targeted validator evidence
+- runtime health: formal manual, provider, deployed runtime, and admin sample confidence
+- evidence completeness: required beta-exit artifact completeness
+- freshness: report age, source commit, and current HEAD alignment
+- cost risk: Cloud Run, SQL/Data Connect, Gemini/Cloud Assist, BigQuery, and 4xx readiness
+- regression risk: stale reports, open PR freshness, and high-blast changes after evidence
+
+Missing required evidence blocks launch and reduces confidence, but it does not erase unrelated source health. Source-ready evidence can raise `sourceHealthScore`; it cannot produce `runtimeHealthScore` proof or `launch_ready`. Owner-review cost lanes are partial risk, not passes.
+
 Generated reports are evidence snapshots, not doctrine. Reports older than 24 hours must be regenerated or treated as stale evidence before a readiness claim is trusted.
 
 ## Formal Evidence Artifact Doctrine
@@ -134,6 +145,23 @@ If a finding needs one of those commands, record the escalation reason in the re
 - Safe repairs: `src/lib/agent-score/autofix.ts`
 - CLI entrypoints: `scripts/agent/score-public-beta-readiness.ts`, `scripts/agent/repair-public-beta-safe.ts`, `scripts/agent/validate-public-beta-score.ts`
 - Debug evidence injection: `scripts/agent/inject-debug-evidence.ts`, `scripts/agent/load-debug-evidence-for-audit.ts`, `scripts/agent/precatch-runtime-issues.ts`
+
+## 2026-05-19 Beta Health Algorithm v2
+
+`npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-19T17:16:45.765Z` from current source.
+
+- Score version: `beta_health_v2`.
+- Public beta score: 38.32/100.
+- Health score: 38.32/100.
+- Launch gate status: `owner_review`.
+- Source health: 84.5/100.
+- Runtime health: 0/100.
+- Evidence completeness: 25/100.
+- Freshness: 34.29/100.
+- Cost risk: 52.5/100.
+- Regression risk: 18/100.
+
+This is not beta-exit ready. The model now gives source-ready work partial source credit, but launch remains blocked until formal manual, provider, deployed runtime, and admin truth evidence is attached and fresh.
 
 ## 2026-05-14 Phase 1 Evidence Refresh
 

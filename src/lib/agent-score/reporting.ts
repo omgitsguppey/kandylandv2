@@ -70,6 +70,7 @@ export function readPublicBetaScoreReport(root = process.cwd()) {
 
 export function printPublicBetaScoreSummary(report: PublicBetaScoreReport) {
   console.log(`Public beta score: ${report.overallScore}/100 (${report.readinessStatus}; legacy ${report.overallStatus})`);
+  console.log(`Health v2: ${report.healthScore}/100 (${report.launchGateStatus}) source=${report.sourceHealthScore} runtime=${report.runtimeHealthScore} evidence=${report.evidenceCompletenessScore} freshness=${report.freshnessScore} cost=${report.costRiskScore} regression=${report.regressionRiskScore}`);
   console.log(`Scanner score: ${report.scannerScore}/100 (${report.scannerStatus})`);
   console.log(`Evidence score: ${report.evidenceScore}/100`);
   console.log(`Deduped findings: ${report.dedupedFindingCount}`);

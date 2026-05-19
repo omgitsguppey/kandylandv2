@@ -1,19 +1,124 @@
 {
-  "generatedAt": "2026-05-19T15:40:35.513Z",
-  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
+  "generatedAt": "2026-05-19T17:16:45.765Z",
+  "currentHead": "6c9632549685ea77686f04b7ac29d70c9bab7a88",
+  "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
-  "overallScore": 45,
+  "sourceHealthScore": 84.5,
+  "runtimeHealthScore": 0,
+  "evidenceCompletenessScore": 25,
+  "freshnessScore": 34.29,
+  "costRiskScore": 52.5,
+  "regressionRiskScore": 18,
+  "launchGateStatus": "owner_review",
+  "launchBlockers": [
+    "Visual/manual smoke: Visual QA required",
+    "Runtime/provider smoke: Runtime unverified",
+    "Admin truth/sample evidence: Unknown evidence",
+    "Freshness, PR, and HEAD integrity: Stale evidence"
+  ],
+  "healthScore": 38.32,
+  "healthScoreBreakdown": {
+    "sourceHealth": {
+      "weight": 25,
+      "score": 84.5,
+      "reasons": [
+        "scannerScore=100",
+        "sourceGateCredit=48.33"
+      ]
+    },
+    "runtimeHealth": {
+      "weight": 20,
+      "score": 0,
+      "reasons": [
+        "Visual/manual smoke runtimeCredit=0",
+        "Runtime/provider smoke runtimeCredit=0",
+        "Admin truth/sample evidence runtimeCredit=0"
+      ]
+    },
+    "evidenceCompleteness": {
+      "weight": 20,
+      "score": 25,
+      "reasons": [
+        "Source safety evidenceCredit=100",
+        "Visual/manual smoke evidenceCredit=0",
+        "Runtime/provider smoke evidenceCredit=0",
+        "Admin truth/sample evidence evidenceCredit=0",
+        "Freshness, PR, and HEAD integrity evidenceCredit=25"
+      ]
+    },
+    "freshness": {
+      "weight": 15,
+      "score": 34.29,
+      "reasons": [
+        "Source safety freshness=fresh",
+        "Targeted behavior tests freshness=stale",
+        "Visual/manual smoke freshness=unknown",
+        "Runtime/provider smoke freshness=stale",
+        "Admin truth/sample evidence freshness=stale",
+        "Freshness, PR, and HEAD integrity freshness=stale",
+        "Debug/runtime evidence freshness=missing"
+      ]
+    },
+    "costRisk": {
+      "weight": 10,
+      "score": 52.5,
+      "reasons": [
+        "cloudRunCostReadiness remains owner-review (cost_review_required).",
+        "geminiCloudAssistCostReadiness remains owner-review (cost_review_required)."
+      ]
+    },
+    "regressionRisk": {
+      "weight": 10,
+      "score": 18,
+      "reasons": [
+        "agent/state/evidence-capture-status.generated.json is stale.",
+        "agent/state/gumdrop-economy-accuracy.generated.json is stale.",
+        "agent/state/creator-experience-simplification.generated.json is stale.",
+        "agent/state/post-economy-creator-flow-qa.generated.json is stale.",
+        "agent/state/user-facing-feature-connection-audit.generated.json is stale.",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json is stale.",
+        "Recent high-blast files changed after evidence."
+      ]
+    }
+  },
+  "scoreDeltaDrivers": [
+    "sourceHealthScore=84.5",
+    "runtimeHealthScore=0",
+    "evidenceCompletenessScore=25",
+    "freshnessScore=34.29",
+    "costRiskScore=52.5",
+    "regressionRiskScore=18",
+    "launchBlockers=4"
+  ],
+  "nuancedScoreExplanation": [
+    "Source-ready evidence earns source health credit without becoming runtime proof.",
+    "Formal manual, provider, runtime, and admin truth artifacts remain required for launch readiness.",
+    "Stale or HEAD-mismatched evidence decays freshness and raises regression risk instead of erasing source health.",
+    "Owner-review cost lanes carry partial cost-risk credit and do not become passes."
+  ],
+  "overallScore": 38.32,
   "overallStatus": "beta-risk",
   "readinessStatus": "Stale evidence",
-  "readinessStatusReason": "7 required generated report(s) are older than the freshness window.",
-  "evidenceScore": 45,
+  "readinessStatusReason": "6 required generated report(s) are older than the freshness window.",
+  "evidenceScore": 31.5,
   "evidenceGates": [
     {
       "id": "sourceSafety",
       "label": "Source safety",
       "weight": 25,
       "score": 25,
+      "maxScore": 25,
+      "confidence": "high",
+      "evidenceQuality": "formal_passed",
+      "freshness": "fresh",
+      "sourceCredit": 100,
+      "runtimeCredit": 0,
+      "evidenceCredit": 100,
+      "riskPenalty": 0,
+      "capImpact": 0,
+      "gateRequiredForExit": true,
+      "blocksLaunch": false,
       "status": "Ready",
       "detail": "Deterministic source scanners did not find a critical blocker.",
       "evidence": [
@@ -26,7 +131,19 @@
       "id": "targetedBehaviorTests",
       "label": "Targeted behavior tests",
       "weight": 20,
-      "score": 20,
+      "score": 4,
+      "maxScore": 20,
+      "confidence": "low",
+      "evidenceQuality": "stale",
+      "freshness": "stale",
+      "sourceCredit": 20,
+      "runtimeCredit": 0,
+      "evidenceCredit": 20,
+      "riskPenalty": 80,
+      "capImpact": 0,
+      "gateRequiredForExit": false,
+      "blocksLaunch": false,
+      "partialReason": "Evidence is 123.08h old and outside the 24h freshness window.",
       "status": "Ready",
       "detail": "Focused Phase 1 validators passed from current HEAD. This is targeted behavior evidence only and does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "evidence": [
@@ -45,6 +162,18 @@
       "label": "Visual/manual smoke",
       "weight": 20,
       "score": 0,
+      "maxScore": 20,
+      "confidence": "none",
+      "evidenceQuality": "missing",
+      "freshness": "unknown",
+      "sourceCredit": 0,
+      "runtimeCredit": 0,
+      "evidenceCredit": 0,
+      "riskPenalty": 100,
+      "capImpact": 20,
+      "gateRequiredForExit": true,
+      "blocksLaunch": true,
+      "partialReason": "No valid visual/manual evidence artifact was supplied.",
       "status": "Visual QA required",
       "detail": "No valid visual/manual evidence artifact was supplied.",
       "evidence": [
@@ -64,6 +193,18 @@
       "label": "Runtime/provider smoke",
       "weight": 15,
       "score": 0,
+      "maxScore": 15,
+      "confidence": "none",
+      "evidenceQuality": "missing",
+      "freshness": "stale",
+      "sourceCredit": 0,
+      "runtimeCredit": 0,
+      "evidenceCredit": 0,
+      "riskPenalty": 100,
+      "capImpact": 15,
+      "gateRequiredForExit": true,
+      "blocksLaunch": true,
+      "partialReason": "Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "status": "Runtime unverified",
       "detail": "Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "evidence": [
@@ -96,6 +237,18 @@
       "label": "Admin truth/sample evidence",
       "weight": 10,
       "score": 0,
+      "maxScore": 10,
+      "confidence": "none",
+      "evidenceQuality": "missing",
+      "freshness": "stale",
+      "sourceCredit": 0,
+      "runtimeCredit": 0,
+      "evidenceCredit": 0,
+      "riskPenalty": 100,
+      "capImpact": 10,
+      "gateRequiredForExit": true,
+      "blocksLaunch": true,
+      "partialReason": "Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
       "status": "Unknown evidence",
       "detail": "Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
       "evidence": [
@@ -117,17 +270,28 @@
       "id": "freshnessIntegrity",
       "label": "Freshness, PR, and HEAD integrity",
       "weight": 10,
-      "score": 0,
+      "score": 2.5,
+      "maxScore": 10,
+      "confidence": "low",
+      "evidenceQuality": "stale",
+      "freshness": "stale",
+      "sourceCredit": 25,
+      "runtimeCredit": 0,
+      "evidenceCredit": 25,
+      "riskPenalty": 75,
+      "capImpact": 7.5,
+      "gateRequiredForExit": true,
+      "blocksLaunch": true,
+      "partialReason": "6 required generated report(s) are older than the freshness window.",
       "status": "Stale evidence",
-      "detail": "7 required generated report(s) are older than the freshness window.",
+      "detail": "6 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/evidence-capture-status.generated.json (43.52h old)",
-        "agent/state/gumdrop-economy-accuracy.generated.json (57.19h old)",
-        "agent/state/creator-experience-simplification.generated.json (57.19h old)",
-        "agent/state/post-economy-creator-flow-qa.generated.json (57.19h old)",
-        "agent/state/user-creator-ui-parity.generated.json (38.59h old)",
-        "agent/state/user-facing-feature-connection-audit.generated.json (57.2h old)",
-        "agent/state/creator-dashboard-error-cost-inventory.generated.json (57.21h old)"
+        "agent/state/evidence-capture-status.generated.json (45.12h old)",
+        "agent/state/gumdrop-economy-accuracy.generated.json (58.79h old)",
+        "agent/state/creator-experience-simplification.generated.json (58.79h old)",
+        "agent/state/post-economy-creator-flow-qa.generated.json (58.79h old)",
+        "agent/state/user-facing-feature-connection-audit.generated.json (58.8h old)",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json (58.81h old)"
       ],
       "recommendedAction": "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current."
     },
@@ -136,6 +300,18 @@
       "label": "Debug/runtime evidence",
       "weight": 0,
       "score": 0,
+      "maxScore": 0,
+      "confidence": "none",
+      "evidenceQuality": "missing",
+      "freshness": "missing",
+      "sourceCredit": 0,
+      "runtimeCredit": 0,
+      "evidenceCredit": 0,
+      "riskPenalty": 100,
+      "capImpact": 0,
+      "gateRequiredForExit": false,
+      "blocksLaunch": false,
+      "partialReason": "Debug evidence is empty, so absence of runtime issues is unknown.",
       "status": "Unknown evidence",
       "detail": "Debug evidence is empty, so absence of runtime issues is unknown.",
       "evidence": [],
@@ -153,7 +329,7 @@
     "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
     "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
     "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
-    "Stale evidence: Freshness, PR, and HEAD integrity - 7 required generated report(s) are older than the freshness window.",
+    "Stale evidence: Freshness, PR, and HEAD integrity - 6 required generated report(s) are older than the freshness window.",
     "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
   ],
   "evidenceWeights": {
@@ -166,12 +342,12 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 45/100 is the sum of passed formal evidence gates; missing lanes score zero.",
+    "evidenceScoreMeaning": "Evidence score 31.5/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 38.32/100 currently maps to launch gate owner_review.",
     "missingEvidenceCaps": [
       "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
       "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
-      "Stale evidence: Freshness, PR, and HEAD integrity - 7 required generated report(s) are older than the freshness window.",
+      "Stale evidence: Freshness, PR, and HEAD integrity - 6 required generated report(s) are older than the freshness window.",
       "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
     ],
     "staleReportHandling": "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
@@ -334,7 +510,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 45/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 5 evidence cap(s) applied.",
+  "summary": "Public beta readiness score 38.32/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 5 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.3.0 - 2026-05-19
+- Bug fixes and general improvements
+- Refined Beta health scoring beyond hard pass/fail gates.
+- Separated source readiness, runtime proof, evidence freshness, and cost risk.
+- Kept formal beta exit gates intact while improving score nuance.
+
 ## 1.2.99 - 2026-05-19
 - Bug fixes and general improvements
 - Cleaned up Creator Dashboard and Creator Settings navigation.

@@ -1,0 +1,71 @@
+{
+  "generatedAtUtc": "2026-05-19T17:56:53.635Z",
+  "reportKey": "beta-health-algorithm-v2",
+  "currentHead": "6c9632549685ea77686f04b7ac29d70c9bab7a88",
+  "summary": {
+    "scoreVersion": "beta_health_v2",
+    "binaryEvidenceGatesRemoved": true,
+    "partialCreditEnabled": true,
+    "dimensionScoresEnabled": true,
+    "evidenceFreshnessDecayEnabled": true,
+    "sourceRuntimeSeparated": true,
+    "costRiskScored": true,
+    "regressionRiskScored": true,
+    "launchGatesPreserved": true,
+    "backwardCompatibilityPreserved": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "oldModelFindings": [
+    {
+      "id": "binary-evidence-gates-replaced",
+      "severity": "P1",
+      "status": "fixed",
+      "evidence": [
+        "Previous model awarded many gates full weight or zero.",
+        "V2 gate fields include evidenceQuality, freshness, confidence, partial credit, and launch blocking."
+      ],
+      "nextAction": "Keep source, runtime, evidence, freshness, cost, and regression dimensions separate."
+    }
+  ],
+  "newModelFields": [
+    "scoreVersion",
+    "sourceHealthScore",
+    "runtimeHealthScore",
+    "evidenceCompletenessScore",
+    "freshnessScore",
+    "costRiskScore",
+    "regressionRiskScore",
+    "launchGateStatus",
+    "launchBlockers",
+    "healthScore",
+    "scoreDeltaDrivers",
+    "nuancedScoreExplanation"
+  ],
+  "scoringExamples": [
+    "Fresh formal evidence receives high confidence and can clear its launch gate.",
+    "Source-ready evidence earns source credit but does not become runtime proof.",
+    "Operator-reported provider smoke receives low credit and blocks launch.",
+    "Owner-review cost lanes receive partial cost-risk credit, not pass status.",
+    "Stale evidence decays freshness and regression dimensions."
+  ],
+  "validatorFindings": [],
+  "fixesApplied": [
+    "Added v2 evidence quality resolver.",
+    "Added health dimension weights.",
+    "Extended public beta score report with v2 dimension and launch gate fields.",
+    "Preserved legacy score fields for existing readers."
+  ],
+  "prCleanupActions": [
+    "open_pr_count_start=0",
+    "open_pr_count_end=0"
+  ],
+  "nextFixOrder": [
+    "Attach formal manual screenshot evidence.",
+    "Attach formal provider smoke evidence.",
+    "Attach deployed runtime smoke evidence.",
+    "Attach admin truth sample evidence.",
+    "Resolve owner-review cloud/AI cost lanes with provider evidence."
+  ]
+}

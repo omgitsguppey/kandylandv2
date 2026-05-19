@@ -52,6 +52,35 @@ export const PUBLIC_BETA_EVIDENCE_SCORE_CAPS = {
   blocked: 69,
 } as const;
 
+export const PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS = {
+  sourceHealth: 25,
+  runtimeHealth: 20,
+  evidenceCompleteness: 20,
+  freshness: 15,
+  costRisk: 10,
+  regressionRisk: 10,
+} as const;
+
+export const PUBLIC_BETA_EVIDENCE_QUALITY_SCORES = {
+  formalPassed: 1,
+  formalPartial: 0.7,
+  sourceReady: 0.55,
+  operatorReported: 0.25,
+  ownerReview: 0.4,
+  staleDecayMin: 0.2,
+  missing: 0,
+  failed: 0,
+} as const;
+
+export const PUBLIC_BETA_LAUNCH_GATE_REQUIREMENTS = {
+  manualEvidenceRequiredForExit: true,
+  providerEvidenceRequiredForExit: true,
+  runtimeEvidenceRequiredForExit: true,
+  adminTruthSampleRequiredForExit: true,
+  criticalSourceBlockersMustBeZero: true,
+  currentHeadFreshnessRequired: true,
+} as const;
+
 export const PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS = 24;
 
 export const PUBLIC_BETA_ALLOWED_COMMANDS = [

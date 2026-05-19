@@ -1,11 +1,20 @@
 {
-  "generatedAtUtc": "2026-05-19T15:40:39.776Z",
+  "generatedAtUtc": "2026-05-19T17:55:00.000Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
+  "currentHead": "6c9632549685ea77686f04b7ac29d70c9bab7a88",
   "summary": {
-    "betaVersion": "1.2.95",
-    "betaScore": 45,
+    "betaVersion": "1.3.0",
+    "betaScore": 38.32,
     "betaStatus": "Stale evidence",
+    "scoreVersion": "beta_health_v2",
+    "healthScore": 38.32,
+    "launchGateStatus": "owner_review",
+    "sourceHealthScore": 84.5,
+    "runtimeHealthScore": 0,
+    "evidenceCompletenessScore": 25,
+    "freshnessScore": 34.29,
+    "costRiskScore": 52.5,
+    "regressionRiskScore": 18,
     "sourceCleanupP0": 0,
     "sourceCleanupP1": 0,
     "userCreatorP0": 0,
@@ -30,6 +39,26 @@
     "canStartBetaExitReview": false
   },
   "checksRun": [
+    {
+      "command": "npm run check:beta-health-algorithm-v2",
+      "status": "passed",
+      "evidence": "agent/state/beta-health-algorithm-v2.generated.json"
+    },
+    {
+      "command": "npm run score:beta",
+      "status": "passed",
+      "evidence": "agent/state/public-beta-score.generated.json"
+    },
+    {
+      "command": "npm run check:beta-score",
+      "status": "passed",
+      "evidence": "required final validator for refreshed beta score."
+    },
+    {
+      "command": "npm run check:current-beta-exit-status",
+      "status": "passed",
+      "evidence": "required final validator for refreshed beta exit status."
+    },
     {
       "command": "npm run check:gumdrop-economy-accuracy",
       "status": "passed",
@@ -63,6 +92,7 @@
   ],
   "failedChecks": [],
   "refreshedArtifacts": [
+    "agent/state/beta-health-algorithm-v2.generated.json",
     "agent/state/overnight-beta-readiness-lock.generated.json",
     "agent/state/public-beta-score.generated.json",
     "agent/state/evidence-capture-status.generated.json",
