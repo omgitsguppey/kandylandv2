@@ -1,0 +1,93 @@
+{
+  "generatedAtUtc": "2026-05-19T16:31:19.338Z",
+  "reportKey": "creator-fan-pass-crm-broadcast",
+  "currentHead": "861a9edef5f330c5fe8ea108bd503501cd8e801c",
+  "summary": {
+    "subscriberIdentityHydrated": true,
+    "rawUserIdsHidden": true,
+    "fanPassCrmMobileEnabled": true,
+    "broadcastAudienceExplicit": true,
+    "followersCopyRemoved": true,
+    "subscriptionHydrationBounded": true,
+    "privacyRedactionPreserved": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "sourceFindings": [
+    {
+      "id": "subscriber-identity-hydration",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/api/creator/subscriptions/route.ts",
+      "summary": "Subscriber rows hydrate safe fan identity fields."
+    },
+    {
+      "id": "subscription-hydration-bounded",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/api/creator/subscriptions/route.ts",
+      "summary": "Subscriber identity hydration is bounded and chunked."
+    }
+  ],
+  "uiFindings": [
+    {
+      "id": "raw-user-id-hidden",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Creators/FanPassSubscriberRow.tsx",
+      "summary": "Normal creator UI does not use raw user ids as subscriber labels."
+    },
+    {
+      "id": "mobile-crm-enabled",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Fan Pass CRM renders as a compact mobile module."
+    }
+  ],
+  "broadcastFindings": [
+    {
+      "id": "broadcast-audience-explicit",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/api/creator/broadcasts/route.ts",
+      "summary": "Broadcast route and UI expose an explicit all_fans audience."
+    },
+    {
+      "id": "followers-copy-removed",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator-facing broadcast copy uses Fans instead of followers/blast language."
+    }
+  ],
+  "privacyFindings": [
+    {
+      "id": "privacy-redaction",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/api/creator/subscriptions/route.ts",
+      "summary": "Private email is not exposed and raw user ids are debug/projection-only."
+    }
+  ],
+  "doctrineChanges": [
+    {
+      "id": "crm-broadcast-doctrine",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "docs/agent-truth/creator-fan-pass-crm-broadcast.md",
+      "summary": "Doctrine locks CRM identity, privacy, Fans language, and explicit broadcast audiences."
+    }
+  ],
+  "fixesApplied": [
+    "Hydrated creator subscriber rows with safe fan identity fields.",
+    "Replaced raw subscriber id labels with compact Fan Pass CRM rows.",
+    "Changed creator broadcast semantics to explicit Audience: Fans and rejected unsupported audiences."
+  ],
+  "prCleanupActions": [],
+  "nextFixOrder": [
+    "Attach mobile screenshot evidence for Fan Pass CRM after deployment.",
+    "Add selectable Fan Pass subscriber or segment audiences only after route delivery semantics are implemented."
+  ]
+}

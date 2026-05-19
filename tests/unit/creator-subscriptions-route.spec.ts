@@ -164,6 +164,9 @@ const mockState = vi.hoisted(() => {
                     },
                 };
             },
+            async getAll(...refs: Array<ReturnType<typeof buildDocRef>>) {
+                return Promise.all(refs.map((ref) => ref.get()));
+            },
             async runTransaction<T>(handler: (transaction: { get: (ref: ReturnType<typeof buildDocRef>) => Promise<{ exists: boolean; data: () => Record<string, unknown> | undefined }>; update: (ref: ReturnType<typeof buildDocRef>, value: Record<string, unknown>) => void; set: (ref: ReturnType<typeof buildDocRef>, value: Record<string, unknown>, options?: { merge?: boolean }) => void; }) => Promise<T>) {
                 const transaction = {
                     get: async (ref: ReturnType<typeof buildDocRef>) => ref.get(),
@@ -290,6 +293,7 @@ describe("creator subscriptions route", () => {
     it("returns creator subscriber rows for explicit creatorId when the creator owns the dashboard", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "creator_1" });
         mockState.setDocument("users", "creator_1", { role: "creator" });
+        mockState.setDocument("users", "fan_1", { role: "user", username: "zayfan", displayName: "Zay Fan", photoURL: "/avatars/zayfan.jpg", email: "fan@example.com" });
         mockState.collections.set("creator_subscriptions", [
             { id: "fan_1__creator_1", data: { creatorId: "creator_1", userId: "fan_1", status: "active" } },
             { id: "fan_2__creator_1", data: { creatorId: "creator_1", userId: "fan_2", status: "canceled" } },
@@ -302,7 +306,60 @@ describe("creator subscriptions route", () => {
         expect(response.status).toBe(200);
         expect(body.viewMode).toBe("creator_subscriber_visibility");
         expect(body.subscribers).toHaveLength(2);
+        expect(body.subscribers[0]).toMatchObject({
+            id: "fan_1__creator_1",
+            subscriberId: "fan_1__creator_1",
+            fanUsername: "zayfan",
+            fanDisplayName: "Zay Fan",
+            fanPhotoURL: "/avatars/zayfan.jpg",
+            fanHandle: "@zayfan",
+            fanLabel: "@zayfan",
+            fanIdentitySource: "user_profile",
+        });
+        expect(body.subscribers[0].email).toBeUndefined();
+        expect(body.subscribers[0].userId).toBeUndefined();
+        expect(body.subscribers[1]).toMatchObject({
+            fanLabel: "Fan",
+            fanIdentitySource: "unavailable",
+        });
+        expect(body.crmHydration).toBe("partial");
+        expect(body.crmHydrationMissingCount).toBe(1);
+        expect(body.identityFieldsRedacted).toBe(true);
         expect(body.subscription).toBeUndefined();
+    });
+
+    it("uses subscription snapshot identity before profile hydration and never exposes private email", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "creator_1" });
+        mockState.setDocument("users", "creator_1", { role: "creator" });
+        mockState.collections.set("creator_subscriptions", [
+            {
+                id: "fan_1__creator_1",
+                data: {
+                    creatorId: "creator_1",
+                    userId: "fan_1",
+                    status: "active",
+                    fanUsername: "snapshotfan",
+                    fanDisplayName: "Snapshot Fan",
+                    fanPhotoURL: "/snapshot.jpg",
+                    email: "private@example.com",
+                },
+            },
+        ]);
+
+        const response = await GET(new NextRequest("http://localhost/api/creator/subscriptions?creatorId=creator_1"));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.subscribers[0]).toMatchObject({
+            fanUsername: "snapshotfan",
+            fanDisplayName: "Snapshot Fan",
+            fanPhotoURL: "/snapshot.jpg",
+            fanLabel: "@snapshotfan",
+            fanIdentitySource: "subscription_snapshot",
+        });
+        expect(body.subscribers[0].email).toBeUndefined();
+        expect(body.subscribers[0].userId).toBeUndefined();
+        expect(body.crmHydration).toBe("hydrated");
     });
 
     it("returns projected subscriber visibility for admin view-as headers", async () => {
@@ -326,7 +383,7 @@ describe("creator subscriptions route", () => {
         expect(response.status).toBe(200);
         expect(body.viewMode).toBe("subscriber_visibility_projection");
         expect(body.subscribers).toHaveLength(1);
-        expect(body.subscribers[0]).toMatchObject({ id: "fan_1__creator_1", creatorId: "creator_1" });
+        expect(body.subscribers[0]).toMatchObject({ id: "fan_1__creator_1", creatorId: "creator_1", userIdDebug: "fan_1" });
         expect(body.subscription).toBeUndefined();
     });
 

@@ -53,6 +53,7 @@ describe("CreatorBroadcastManager", () => {
     await waitFor(() => {
       expect(screen.getByText("No broadcasts yet")).toBeTruthy();
       expect(screen.getByRole("button", { name: "Create broadcast" })).toBeTruthy();
+      expect(screen.getByText("Audience: Fans")).toBeTruthy();
     });
   });
 
@@ -126,5 +127,47 @@ describe("CreatorBroadcastManager", () => {
     fireEvent.click(liveUpdateButton!);
     expect(screen.getByText("Delivered 12")).toBeTruthy();
     expect(screen.getByText("Opened 5")).toBeTruthy();
+  });
+
+  it("sends broadcasts with explicit all_fans audience", async () => {
+    mockState.authFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, broadcasts: [] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          broadcast: {
+            id: "broadcast_1",
+            title: "Creator update",
+            message: "New post is live",
+            status: "sent",
+            audience: "all_fans",
+          },
+        }),
+      });
+
+    render(<CreatorBroadcastManager creatorId="creator_1" creatorName="Jessica" />);
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Message your fans")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByPlaceholderText("Message your fans"), {
+      target: { value: "New post is live" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Create broadcast" }));
+
+    await waitFor(() => {
+      expect(mockState.authFetch).toHaveBeenLastCalledWith("/api/creator/broadcasts", expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          title: "",
+          message: "New post is live",
+          audience: "all_fans",
+        }),
+      }));
+    });
   });
 });

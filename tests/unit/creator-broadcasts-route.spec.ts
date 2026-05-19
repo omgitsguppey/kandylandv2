@@ -223,7 +223,7 @@ describe("creator broadcasts route", () => {
       body: JSON.stringify({
         title: "Weekly update",
         message: "New post is live",
-        target: "all_followers",
+        audience: "all_fans",
       }),
       headers: {
         "Content-Type": "application/json",
@@ -236,8 +236,39 @@ describe("creator broadcasts route", () => {
     expect(mockState.batchSet).toHaveBeenCalledWith(expect.objectContaining({ id: "broadcast_1" }), expect.objectContaining({
       creatorId: mockState.callerUser.uid,
       status: "sent",
-      target: "all_followers",
+      target: "all_fans",
+      audience: "all_fans",
+      supportedAudience: "all_fans",
     }));
+    expect(body.broadcast).toMatchObject({
+      audience: "all_fans",
+      supportedAudience: "all_fans",
+      audienceFanCount: expect.any(Number),
+    });
+  });
+
+  it("rejects unsupported broadcast audiences with a human-safe validation error", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/creator/broadcasts", {
+      method: "POST",
+      body: JSON.stringify({
+        title: "Weekly update",
+        message: "New post is live",
+        audience: "fan_pass_subscribers",
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      success: false,
+      code: "unsupported_broadcast_audience",
+      supportedAudience: "all_fans",
+    });
+    expect(body.message).toContain("Fans");
+    expect(mockState.batchSet).not.toHaveBeenCalled();
   });
 
   it("rejects oversized broadcast payloads before parsing JSON", async () => {

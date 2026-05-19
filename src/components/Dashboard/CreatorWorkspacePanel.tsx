@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
+import { FanPassSubscriberRow, type FanPassSubscriberCrmRow } from "@/components/Creators/FanPassSubscriberRow";
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useAuth } from "@/context/AuthContext";
@@ -79,14 +80,7 @@ type CreatorThreadRecord = {
     counterpartPhotoURL?: string | null;
 };
 
-type CreatorSubscriptionRecord = {
-    id: string;
-    userId?: string;
-    status?: string;
-    priceGd?: number;
-    renewAt?: number;
-    autoRenew?: boolean;
-};
+type CreatorSubscriptionRecord = FanPassSubscriberCrmRow;
 
 type ModuleKey =
     | "settings"
@@ -458,7 +452,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             await readUiJson(
                 await authFetch("/api/creator/broadcasts", {
                     method: "POST",
-                    body: JSON.stringify({ message: broadcastDraft.trim() }),
+                    body: JSON.stringify({ message: broadcastDraft.trim(), audience: "all_fans" }),
                 }),
                 { moduleLabel: "creator broadcasts", url: "/api/creator/broadcasts" },
             );
@@ -474,7 +468,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const unreadMessagesCount = threads.reduce((sum, thread) => sum + (thread.unreadCount || 0), 0);
     const actionNeededCount = (creatorStats?.openRequests || 0) + (creatorStats?.bookedCalls || 0) + unreadMessagesCount;
     const cashValueUsd = ((creatorStats?.earningsGd || 0) / 100).toFixed(2);
-    const broadcastSourceReady = Boolean(creatorStats);
+    const broadcastCapabilitySource = moduleState.settings.status === "success" ? "settings_route" : "unavailable";
+    const broadcastSourceReady = Boolean(creatorStats) && broadcastCapabilitySource === "settings_route" && !settingsModuleError;
     const creatorContentCount = creatorStats?.contentCount ?? creatorStats?.liveDropsCount;
     const fanCountSource = creatorStatsEvidence?.fanCountSource ?? "unavailable";
     const overviewStatus = settingsSourceNotice
@@ -666,15 +661,24 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
                         {/* Broadcasts Module */}
                         <div className="flex flex-col gap-2.5 sm:gap-3">
-                            <div className="rounded-2xl border border-white/10 bg-black/40 p-3 sm:rounded-3xl sm:p-4" data-creator-broadcast-mobile-priority={broadcastSourceReady ? "ready" : "deferred"}>
+                            <div
+                                className="rounded-2xl border border-white/10 bg-black/40 p-3 sm:rounded-3xl sm:p-4"
+                                data-creator-broadcast-mobile-priority={broadcastSourceReady ? "ready" : "deferred"}
+                                data-broadcast-audience="all_fans"
+                                data-broadcast-copy-audited="true"
+                                data-broadcast-capability-source={broadcastCapabilitySource}
+                            >
                                 <h3 className="mb-2 flex items-center gap-2 text-xs font-bold text-white sm:mb-3 sm:text-sm"><Megaphone className="h-3.5 w-3.5 text-brand-purple sm:h-4 sm:w-4" /> Quick Broadcast</h3>
                                 {broadcastSourceReady ? (
                                     <>
+                                        <div className="mb-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-300">
+                                            Audience: Fans
+                                        </div>
                                         <textarea
                                             value={broadcastDraft}
                                             onChange={(event) => setBroadcastDraft(event.target.value.slice(0, 280))}
                                             rows={2}
-                                            placeholder="Write a blast to all fans..."
+                                            placeholder="Message your fans..."
                                             className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 focus:border-brand-purple/50 focus:outline-none"
                                         />
                                         <div className="mt-2 flex items-center justify-between">
@@ -687,13 +691,13 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                                 onClick={handleBroadcastSend}
                                                 className="h-8 rounded-full px-4 text-xs font-bold"
                                             >
-                                                <Send className="mr-1 h-3 w-3" /> Blast
+                                                <Send className="mr-1 h-3 w-3" /> Send
                                             </Button>
                                         </div>
                                     </>
                                 ) : (
                                     <div className="rounded-xl border border-dashed border-white/10 bg-white/5 px-3 py-2 text-xs text-gray-300">
-                                        Broadcasts unlock when creator stats finish loading.
+                                        Broadcasts need setup.
                                     </div>
                                 )}
                             </div>
@@ -760,22 +764,17 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     data-testid="creator-workspace-subscriptions-warning"
                                 />
                             ) : (
-                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-3 sm:p-4" data-testid="creator-workspace-subscriptions">
-                                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Subscribers</h3>
+                                <div
+                                    className="rounded-[1.4rem] border border-white/10 bg-black/35 p-3 sm:p-4"
+                                    data-testid="creator-workspace-subscriptions"
+                                    data-fan-pass-crm="mobile_v1"
+                                    data-raw-user-id-hidden="true"
+                                >
+                                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Fan Pass CRM</h3>
                                     {subscriptions.length > 0 ? (
                                         <div className="mt-3 space-y-2">
                                             {subscriptions.slice(0, 4).map((subscription) => (
-                                                <div key={subscription.id} className="rounded-xl bg-white/5 px-3 py-2">
-                                                    <div className="flex items-center justify-between gap-3">
-                                                        <p className="truncate text-sm font-semibold text-white">{subscription.userId || subscription.id}</p>
-                                                        <StatusPill label={formatStatusLabel(subscription.status)} tone={subscription.status === "active" ? "good" : "neutral"} />
-                                                    </div>
-                                                    <p className="mt-1 text-xs text-gray-400">
-                                                        {typeof subscription.priceGd === "number" ? `${subscription.priceGd} GD` : "Price unavailable"}
-                                                        {typeof subscription.renewAt === "number" ? ` • renews ${formatRelativeTime(subscription.renewAt)}` : ""}
-                                                        {subscription.autoRenew === false ? " • auto-renew off" : " • auto-renew on"}
-                                                    </p>
-                                                </div>
+                                                <FanPassSubscriberRow key={subscription.id} subscriber={subscription} />
                                             ))}
                                         </div>
                                     ) : (

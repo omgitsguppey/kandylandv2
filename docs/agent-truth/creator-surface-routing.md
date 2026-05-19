@@ -25,6 +25,8 @@ Creator operations must not detour through user settings or profile pages. User 
 - Both creator surfaces expose compact mobile density markers and bottom-nav-safe spacing.
 - The Creator Dashboard landing stats render inside one compact module with `data-creator-overview-module="compact_v1"` plus `data-creator-dashboard-overview-density="mobile_compact"`.
 - Creator Dashboard content count uses `data-creator-dashboard-content-scope="creator_owned_or_assigned"` and stays separate from public discovery visibility.
+- Creator Dashboard Fan Pass subscriber rows render as compact CRM rows with `data-fan-pass-crm="mobile_v1"` and readable fan identity. Raw user ids are debug/detail-only, never the primary creator-facing label.
+- Creator broadcasts expose an explicit audience marker such as `data-broadcast-audience="all_fans"` and user-facing copy says Fans, not followers.
 - Quick Broadcast is lower priority when creator stats are unavailable and marks that state with `data-creator-broadcast-mobile-priority`.
 - The floating report issue entry must be offset from lower dashboard cards through the `data-report-issue-safe-offset="bottom-nav"` marker.
 - Creator settings load failures must render translated `HumanErrorNotice` copy with a bug CTA when eligible. Raw strings such as `creator settings: Internal server error` are blocked from creator-facing UI.

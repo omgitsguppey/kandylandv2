@@ -28,7 +28,9 @@ type BroadcastRecord = {
   createdAtMs?: number;
   scheduledAtMs?: number | null;
   sentAtMs?: number | null;
-  audienceFollowerCount?: number;
+  audience?: "all_fans" | "fan_pass_subscribers" | "selected_segment" | string;
+  supportedAudience?: "all_fans" | string;
+  audienceFanCount?: number;
   audienceNotificationCount?: number;
   deliveryCount?: number | null;
   openCount?: number | null;
@@ -193,7 +195,7 @@ export function CreatorBroadcastManager({
         body: JSON.stringify({
           title: title.trim(),
           message: message.trim(),
-          target: "all_followers",
+          audience: "all_fans",
         }),
       });
       const body = await response.json().catch(() => ({})) as BroadcastManagerResponse;
@@ -268,7 +270,7 @@ export function CreatorBroadcastManager({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Broadcasts</p>
-          <h2 className="mt-1 text-lg font-black text-white">Manage follower broadcasts</h2>
+          <h2 className="mt-1 text-lg font-black text-white">Manage fan broadcasts</h2>
           <p className="mt-1 text-sm text-gray-400">Review what {creatorName} sent, see delivery status, and send a new update.</p>
         </div>
         <button
@@ -287,6 +289,9 @@ export function CreatorBroadcastManager({
           <Megaphone className="h-4 w-4 text-brand-purple" />
           Create broadcast
         </div>
+        <div className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-300" data-broadcast-audience="all_fans">
+          Audience: Fans
+        </div>
         <div className="mt-3 space-y-2">
           <input
             value={title}
@@ -299,7 +304,7 @@ export function CreatorBroadcastManager({
           <textarea
             value={message}
             onChange={(event) => setMessage(event.target.value.slice(0, 280))}
-            placeholder="Write a real broadcast for followers"
+            placeholder="Message your fans"
             rows={3}
             className="w-full resize-none rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30"
             maxLength={280}
@@ -385,7 +390,7 @@ export function CreatorBroadcastManager({
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-400 sm:grid-cols-3">
                 <div>Created {formatDateTime(broadcast.createdAtMs)}</div>
                 <div>Sent {formatDateTime(broadcast.sentAtMs)}</div>
-                <div>Audience {broadcast.audienceNotificationCount ?? broadcast.audienceFollowerCount ?? "Not tracked yet"}</div>
+                <div>Audience {broadcast.audienceNotificationCount ?? broadcast.audienceFanCount ?? "Not tracked yet"}</div>
               </div>
               {expanded ? (
                 <div className="mt-3 space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-gray-300">

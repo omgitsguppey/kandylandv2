@@ -19,11 +19,13 @@ import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounde
 const CREATOR_BROADCASTS_READ_LIMIT = 100;
 const CREATOR_BROADCAST_RECIPIENT_LIMIT = 1_000;
 const CREATOR_BROADCAST_BODY_LIMIT_BYTES = 32_768;
+const CREATOR_BROADCAST_SUPPORTED_AUDIENCE = "all_fans" as const;
 
 const createBroadcastSchema = z.object({
     title: z.string().trim().min(2).max(80).optional(),
     message: z.string().trim().min(4).max(280),
-    target: z.enum(["all_followers"]).optional(),
+    audience: z.enum(["all_fans", "fan_pass_subscribers", "selected_segment"]).optional(),
+    target: z.enum(["all_fans", "all_followers"]).optional(),
 });
 
 type CreatorBroadcastRecord = Record<string, unknown> & {
@@ -31,6 +33,27 @@ type CreatorBroadcastRecord = Record<string, unknown> & {
     creatorId?: unknown;
     createdAtMs?: unknown;
 };
+
+function buildUnsupportedBroadcastAudienceResponse(audience: string) {
+    return NextResponse.json({
+        success: false,
+        code: "unsupported_broadcast_audience",
+        error: "This broadcast audience is not available yet.",
+        message: "Broadcasts currently support Audience: Fans. Choose Fans and try again.",
+        requestedAudience: audience,
+        supportedAudience: CREATOR_BROADCAST_SUPPORTED_AUDIENCE,
+    }, { status: 400 });
+}
+
+function resolveBroadcastAudience(input: z.infer<typeof createBroadcastSchema>) {
+    if (input.audience) {
+        return input.audience;
+    }
+    if (input.target === "all_followers" || input.target === "all_fans") {
+        return CREATOR_BROADCAST_SUPPORTED_AUDIENCE;
+    }
+    return CREATOR_BROADCAST_SUPPORTED_AUDIENCE;
+}
 
 async function canViewCreatorBroadcasts(callerUid: string, callerRole: unknown, creatorId: string) {
     if (!adminDb) {
@@ -148,14 +171,28 @@ async function POST_handler(request: NextRequest) {
             routeName: "creator/broadcasts",
             allowEmpty: false,
         });
-        const { title, message } = createBroadcastSchema.parse(body);
-        // cost-bound: follower broadcast recipient query is capped by CREATOR_BROADCAST_RECIPIENT_LIMIT.
+        const parsed = createBroadcastSchema.safeParse(body);
+        if (!parsed.success) {
+            return NextResponse.json({
+                success: false,
+                code: "invalid_broadcast_request",
+                error: "Check the broadcast details and try again.",
+                message: "Check the broadcast details and try again.",
+                supportedAudience: CREATOR_BROADCAST_SUPPORTED_AUDIENCE,
+            }, { status: 400 });
+        }
+        const { title, message } = parsed.data;
+        const audience = resolveBroadcastAudience(parsed.data);
+        if (audience !== CREATOR_BROADCAST_SUPPORTED_AUDIENCE) {
+            return buildUnsupportedBroadcastAudienceResponse(audience);
+        }
+        // cost-bound: fan broadcast recipient query is capped by CREATOR_BROADCAST_RECIPIENT_LIMIT.
         const relationshipsSnap = await adminDb.collection(CREATOR_COLLECTIONS.relationships)
             .where("creatorId", "==", caller.uid)
             .limit(CREATOR_BROADCAST_RECIPIENT_LIMIT)
             .get();
 
-        const followerIds: string[] = [];
+        const fanIds: string[] = [];
         const notificationUserIds: string[] = [];
         relationshipsSnap.docs.forEach((doc) => {
             const data = doc.data() as Record<string, unknown>;
@@ -164,7 +201,7 @@ async function POST_handler(request: NextRequest) {
                 return;
             }
 
-            followerIds.push(userId);
+            fanIds.push(userId);
             if (data.notificationsEnabled === true) {
                 notificationUserIds.push(userId);
             }
@@ -175,7 +212,7 @@ async function POST_handler(request: NextRequest) {
             : "Creator";
         const creatorUsername = typeof callerRecord.username === "string" ? callerRecord.username : "";
         const now = Date.now();
-        const target = "all_followers";
+        const target = CREATOR_BROADCAST_SUPPORTED_AUDIENCE;
         const broadcastRef = adminDb.collection(CREATOR_COLLECTIONS.broadcasts).doc();
         const batch = adminDb.batch();
         batch.set(broadcastRef, {
@@ -185,6 +222,8 @@ async function POST_handler(request: NextRequest) {
             title: title?.trim() || `New update from ${creatorDisplayName}`,
             message,
             target,
+            audience,
+            supportedAudience: CREATOR_BROADCAST_SUPPORTED_AUDIENCE,
             status: "sent",
             createdAt: FieldValue.serverTimestamp(),
             createdAtMs: now,
@@ -192,7 +231,7 @@ async function POST_handler(request: NextRequest) {
             deliveryCount: notificationUserIds.length,
             openCount: null,
             failureReason: null,
-            audienceFollowerCount: followerIds.length,
+            audienceFanCount: fanIds.length,
             audienceNotificationCount: notificationUserIds.length,
         });
 
@@ -248,13 +287,15 @@ async function POST_handler(request: NextRequest) {
                 title: title?.trim() || `New update from ${creatorDisplayName}`,
                 message,
                 target,
+                audience,
+                supportedAudience: CREATOR_BROADCAST_SUPPORTED_AUDIENCE,
                 status: "sent",
                 createdAtMs: now,
                 sentAtMs: now,
                 deliveryCount: notificationUserIds.length,
                 openCount: null,
                 failureReason: null,
-                audienceFollowerCount: followerIds.length,
+                audienceFanCount: fanIds.length,
                 audienceNotificationCount: notificationUserIds.length,
             },
         });

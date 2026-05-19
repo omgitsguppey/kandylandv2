@@ -67,6 +67,11 @@ describe("CreatorFanPassManager", () => {
         {
           id: "fan_1234567890__creator_1",
           userId: "fan_1234567890",
+          fanUsername: "zayfan",
+          fanDisplayName: "Zay Fan",
+          fanPhotoURL: "/avatars/zayfan.jpg",
+          fanLabel: "@zayfan",
+          fanIdentitySource: "user_profile",
           status: "active",
           priceGd: 700,
           renewAt: Date.UTC(2026, 5, 15),
@@ -78,12 +83,39 @@ describe("CreatorFanPassManager", () => {
     renderManager();
 
     await waitFor(() => {
+      expect(screen.getByText("@zayfan")).toBeTruthy();
       expect(screen.getByText("active")).toBeTruthy();
       expect(screen.getByText(/700 GD/u)).toBeTruthy();
     });
+    expect(screen.queryByText("fan_1234567890")).toBeNull();
+    expect(screen.getByTestId("creator-fan-pass-manager").dataset.fanPassCrm).toBe("mobile_v1");
     expect(screen.queryByRole("button", { name: "Subscribe" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
     expect(screen.getByTestId("creator-fan-pass-manager").dataset.creatorFanPassReadOnly).toBe("true");
+  });
+
+  it("uses safe Fan fallback when identity is unavailable", async () => {
+    mockState.authFetch.mockResolvedValue(okResponse({
+      success: true,
+      subscribers: [
+        {
+          id: "LLUNBLCOsXSm5qD9jispjgquoF3__creator_1",
+          status: "active",
+          priceGd: 700,
+          fanLabel: "Fan",
+          maskedFanId: "Fan • ending oF3",
+          fanIdentitySource: "unavailable",
+        },
+      ],
+    }));
+
+    renderManager();
+
+    await waitFor(() => {
+      expect(screen.getByText("Fan")).toBeTruthy();
+      expect(screen.getByText("Identity unavailable")).toBeTruthy();
+    });
+    expect(screen.queryByText("LLUNBLCOsXSm5qD9jispjgquoF3")).toBeNull();
   });
 
   it("shows an unavailable warning when the route returns fan subscription status", async () => {

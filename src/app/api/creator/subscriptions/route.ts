@@ -28,6 +28,7 @@ import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounde
 
 const CREATOR_SUBSCRIPTIONS_READ_LIMIT = 500;
 const CREATOR_SUBSCRIPTION_BODY_LIMIT_BYTES = 32_768;
+const SUBSCRIBER_IDENTITY_HYDRATION_CHUNK_SIZE = 100;
 
 const subscriptionActionSchema = z.object({
     creatorId: z.string().trim().min(1),
@@ -128,6 +129,141 @@ function buildSubscriptionSourceTelemetry(debug: unknown) {
     };
 }
 
+function readTrimmedString(value: unknown) {
+    return typeof value === "string" && value.trim().length > 0 ? value.trim() : "";
+}
+
+function normalizeUsername(value: unknown) {
+    return readTrimmedString(value).replace(/^@+/u, "");
+}
+
+function maskFanId(userId: string) {
+    if (!userId) {
+        return undefined;
+    }
+    return `Fan • ending ${userId.slice(-3)}`;
+}
+
+type FanIdentitySource = "user_profile" | "public_profile" | "subscription_snapshot" | "unavailable";
+
+type FanIdentity = {
+    fanUsername?: string;
+    fanDisplayName?: string;
+    fanPhotoURL?: string | null;
+    fanHandle?: string;
+    fanLabel: string;
+    maskedFanId?: string;
+    fanIdentitySource: FanIdentitySource;
+};
+
+function buildFanIdentityFromSource(source: Record<string, unknown>, identitySource: Exclude<FanIdentitySource, "unavailable">): FanIdentity | null {
+    const fanUsername = normalizeUsername(source.fanUsername) || normalizeUsername(source.username);
+    const fanDisplayName = readTrimmedString(source.fanDisplayName) || readTrimmedString(source.displayName);
+    const fanPhotoURL = readTrimmedString(source.fanPhotoURL) || readTrimmedString(source.photoURL);
+
+    if (!fanUsername && !fanDisplayName && !fanPhotoURL) {
+        return null;
+    }
+
+    const fanHandle = fanUsername ? `@${fanUsername}` : undefined;
+    return {
+        fanUsername: fanUsername || undefined,
+        fanDisplayName: fanDisplayName || undefined,
+        fanPhotoURL: fanPhotoURL || null,
+        fanHandle,
+        fanLabel: fanHandle || fanDisplayName || "Fan",
+        fanIdentitySource: identitySource,
+    };
+}
+
+function buildUnavailableFanIdentity(userId: string): FanIdentity {
+    return {
+        fanLabel: "Fan",
+        maskedFanId: maskFanId(userId),
+        fanIdentitySource: "unavailable",
+    };
+}
+
+function buildSubscriberCrmRow(
+    row: Record<string, unknown> & { id: string },
+    identity: FanIdentity,
+    includeDebugUserId: boolean,
+) {
+    const userId = readTrimmedString(row.userId);
+    return {
+        id: row.id,
+        subscriberId: row.id,
+        creatorId: readTrimmedString(row.creatorId) || undefined,
+        status: readTrimmedString(row.status) || undefined,
+        priceGd: toOptionalNumber(row.priceGd),
+        startedAt: toOptionalNumber(row.startedAt),
+        renewAt: toOptionalNumber(row.renewAt),
+        renewedAt: toOptionalNumber(row.renewedAt),
+        gracePeriodEndsAt: typeof row.gracePeriodEndsAt === "number" ? row.gracePeriodEndsAt : null,
+        renewalState: readTrimmedString(row.renewalState) || undefined,
+        autoRenew: typeof row.autoRenew === "boolean" ? row.autoRenew : undefined,
+        userIdDebug: includeDebugUserId ? userId || undefined : undefined,
+        ...identity,
+    };
+}
+
+async function hydrateCreatorSubscriberRows(
+    rows: Array<Record<string, unknown> & { id: string }>,
+    includeDebugUserId: boolean,
+) {
+    const identities = new Map<string, FanIdentity>();
+    const rowsNeedingUserProfile: Array<{ userId: string; row: Record<string, unknown> & { id: string } }> = [];
+
+    for (const row of rows) {
+        const userId = readTrimmedString(row.userId);
+        const snapshotIdentity = buildFanIdentityFromSource(row, "subscription_snapshot");
+        if (snapshotIdentity) {
+            identities.set(row.id, snapshotIdentity);
+            continue;
+        }
+        if (userId) {
+            rowsNeedingUserProfile.push({ userId, row });
+        } else {
+            identities.set(row.id, buildUnavailableFanIdentity(""));
+        }
+    }
+
+    // cost-bound: subscriber CRM hydration is chunked and capped by CREATOR_SUBSCRIPTIONS_READ_LIMIT.
+    for (let index = 0; index < rowsNeedingUserProfile.length; index += SUBSCRIBER_IDENTITY_HYDRATION_CHUNK_SIZE) {
+        const chunk = rowsNeedingUserProfile.slice(index, index + SUBSCRIBER_IDENTITY_HYDRATION_CHUNK_SIZE);
+        const refs = chunk.map((entry) => adminDb!.collection("users").doc(entry.userId));
+        const snaps = refs.length > 0 ? await adminDb!.getAll(...refs) : [];
+        snaps.forEach((snap, snapIndex) => {
+            const row = chunk[snapIndex]?.row;
+            const userId = chunk[snapIndex]?.userId ?? "";
+            if (!row) {
+                return;
+            }
+            const data = snap.exists ? snap.data() as Record<string, unknown> : {};
+            identities.set(row.id, buildFanIdentityFromSource(data, "user_profile") ?? buildUnavailableFanIdentity(userId));
+        });
+    }
+
+    const subscribers = rows.map((row) => buildSubscriberCrmRow(
+        row,
+        identities.get(row.id) ?? buildUnavailableFanIdentity(readTrimmedString(row.userId)),
+        includeDebugUserId,
+    ));
+    const crmHydrationMissingCount = subscribers.filter((subscriber) => subscriber.fanIdentitySource === "unavailable").length;
+    const crmHydration = crmHydrationMissingCount === 0 ? "hydrated" : crmHydrationMissingCount === subscribers.length ? "unavailable" : "partial";
+    return {
+        subscribers,
+        crmHydration,
+        crmHydrationMissingCount,
+        identityFieldsRedacted: true,
+        identityHydrationCostBound: {
+            maxSubscribers: CREATOR_SUBSCRIPTIONS_READ_LIMIT,
+            chunkSize: SUBSCRIBER_IDENTITY_HYDRATION_CHUNK_SIZE,
+            strategy: "snapshot_first_chunked_getAll",
+        },
+    };
+}
+
 async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
@@ -155,11 +291,13 @@ async function GET_handler(request: NextRequest) {
                     .where("creatorId", "==", creatorId)
                     .limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT)
                     .get();
+                const subscriberRows = subscribersSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }));
+                const hydrated = await hydrateCreatorSubscriberRows(subscriberRows, Boolean(projection));
 
                 return NextResponse.json({
                     success: true,
                     viewMode: projection ? "subscriber_visibility_projection" : "creator_subscriber_visibility",
-                    subscribers: subscribersSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) })),
+                    ...hydrated,
                 });
             }
 
@@ -176,12 +314,18 @@ async function GET_handler(request: NextRequest) {
             adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("userId", "==", caller.uid).limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT).get(),
             adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", caller.uid).limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT).get(),
         ]);
-        const inbound = isCreatorOrAdminRole(callerData?.role) ? inboundSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) })) : [];
+        const inboundRows = inboundSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) }));
+        const inbound = isCreatorOrAdminRole(callerData?.role)
+            ? await hydrateCreatorSubscriberRows(inboundRows, callerData?.role === "admin")
+            : { subscribers: [], crmHydration: "hydrated", crmHydrationMissingCount: 0, identityFieldsRedacted: true };
 
         return NextResponse.json({
             success: true,
             subscriptions: outboundSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) })),
-            subscribers: inbound,
+            subscribers: inbound.subscribers,
+            crmHydration: inbound.crmHydration,
+            crmHydrationMissingCount: inbound.crmHydrationMissingCount,
+            identityFieldsRedacted: inbound.identityFieldsRedacted,
         });
     } catch (error) {
         return handleApiError(error, "Creator.Subscriptions.GET");

@@ -1,13 +1,75 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.96",
-  "betaReleaseCounter": 296,
+  "currentVersion": "1.2.97",
+  "betaReleaseCounter": 297,
   "channel": "beta",
-  "generatedAt": "2026-05-19T16:02:57.385Z",
-  "generatedAtUtc": "2026-05-19T16:02:57.385Z",
+  "generatedAt": "2026-05-19T16:30:18.338Z",
+  "generatedAtUtc": "2026-05-19T16:30:18.338Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.2.97",
+      "previousVersion": "1.2.96",
+      "betaReleaseCounter": 297,
+      "previousBetaReleaseCounter": 296,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(creator): improve fan pass crm and broadcasts",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T16:30:18.338Z",
+      "generatedAt": "2026-05-19T16:30:18.338Z",
+      "committedAtUtc": "2026-05-19T16:30:18.338Z",
+      "generatedAtUtc": "2026-05-19T16:30:18.338Z",
+      "updatedAtUtc": "2026-05-19T16:30:18.338Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Made Fan Pass subscribers readable and clarified Creator Broadcast audience language.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Made Fan Pass subscribers readable in Creator Dashboard.",
+        "Added mobile-first Fan Pass CRM rows.",
+        "Clarified Creator Broadcast audience language."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted creator fan pass CRM and broadcast semantics fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator dashboard",
+        "fan pass",
+        "creator broadcasts"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-fan-pass-crm-broadcast.generated.json",
+        "docs/agent-truth/creator-fan-pass-crm-broadcast.md",
+        "docs/agent-truth/creator-settings-source-health.md",
+        "docs/agent-truth/creator-surface-routing.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-fan-pass-crm-broadcast.ts",
+        "scripts/agent/validate-user-creator-visual-confirmation.ts",
+        "src/app/api/creator/broadcasts/route.ts",
+        "src/app/api/creator/subscriptions/route.ts",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "src/components/Creators/CreatorFanPassManager.tsx",
+        "src/components/Creators/FanPassSubscriberRow.tsx",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-broadcast-manager.spec.tsx",
+        "tests/unit/creator-broadcasts-route.spec.ts",
+        "tests/unit/creator-fan-pass-crm-broadcast.spec.ts",
+        "tests/unit/creator-fan-pass-manager.spec.tsx",
+        "tests/unit/creator-subscriptions-route.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.2.96",
       "previousVersion": "1.2.95",

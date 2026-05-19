@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.2.97 - 2026-05-19
+- Bug fixes and general improvements
+- Made Fan Pass subscribers readable in Creator Dashboard.
+- Added mobile-first Fan Pass CRM rows.
+- Clarified Creator Broadcast audience language.
+
 ## 1.2.96 - 2026-05-19
 - Bug fixes and general improvements
 - Combined Creator Dashboard stats into one compact overview.
