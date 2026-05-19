@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-19T17:16:45.765Z",
-  "currentHead": "6c9632549685ea77686f04b7ac29d70c9bab7a88",
+  "generatedAt": "2026-05-19T18:02:51.227Z",
+  "currentHead": "63121e2011e286af8fd1b7bcbfba3b3801aae7fb",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
@@ -143,7 +143,7 @@
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
-      "partialReason": "Evidence is 123.08h old and outside the 24h freshness window.",
+      "partialReason": "Evidence is 123.85h old and outside the 24h freshness window.",
       "status": "Ready",
       "detail": "Focused Phase 1 validators passed from current HEAD. This is targeted behavior evidence only and does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "evidence": [
@@ -286,12 +286,12 @@
       "status": "Stale evidence",
       "detail": "6 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/evidence-capture-status.generated.json (45.12h old)",
-        "agent/state/gumdrop-economy-accuracy.generated.json (58.79h old)",
-        "agent/state/creator-experience-simplification.generated.json (58.79h old)",
-        "agent/state/post-economy-creator-flow-qa.generated.json (58.79h old)",
-        "agent/state/user-facing-feature-connection-audit.generated.json (58.8h old)",
-        "agent/state/creator-dashboard-error-cost-inventory.generated.json (58.81h old)"
+        "agent/state/evidence-capture-status.generated.json (45.89h old)",
+        "agent/state/gumdrop-economy-accuracy.generated.json (59.56h old)",
+        "agent/state/creator-experience-simplification.generated.json (59.56h old)",
+        "agent/state/post-economy-creator-flow-qa.generated.json (59.56h old)",
+        "agent/state/user-facing-feature-connection-audit.generated.json (59.57h old)",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json (59.58h old)"
       ],
       "recommendedAction": "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current."
     },

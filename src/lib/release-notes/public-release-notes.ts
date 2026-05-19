@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.0",
-  "betaReleaseCounter": 300,
+  "currentVersion": "1.3.1",
+  "betaReleaseCounter": 301,
   "channel": "beta",
-  "generatedAt": "2026-05-19T17:55:00.000Z",
-  "generatedAtUtc": "2026-05-19T17:55:00.000Z",
+  "generatedAt": "2026-05-19T18:15:00.000Z",
+  "generatedAtUtc": "2026-05-19T18:15:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.1",
+      "previousVersion": "1.3.0",
+      "betaReleaseCounter": 301,
+      "previousBetaReleaseCounter": 300,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): refresh evidence gap map",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T18:15:00.000Z",
+      "generatedAt": "2026-05-19T18:15:00.000Z",
+      "committedAtUtc": "2026-05-19T18:15:00.000Z",
+      "generatedAtUtc": "2026-05-19T18:15:00.000Z",
+      "updatedAtUtc": "2026-05-19T18:15:00.000Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Refreshed Beta readiness from the latest source state and mapped the remaining evidence gaps.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed Beta readiness from the latest source state.",
+        "Mapped remaining Beta evidence gaps with exact next steps.",
+        "Kept revenue, runtime, and admin proof separate from source-only checks."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted beta evidence truth-refresh pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "beta readiness",
+        "evidence capture",
+        "source truth",
+        "release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/beta-evidence-gap-map.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/beta-evidence-gap-map.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/evidence-capture-status.md",
+        "docs/agent-truth/public-beta-score.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-beta-evidence-gap-map.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/beta-evidence-gap-map.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.0",
       "previousVersion": "1.2.99",

@@ -148,7 +148,7 @@ If a finding needs one of those commands, record the escalation reason in the re
 
 ## 2026-05-19 Beta Health Algorithm v2
 
-`npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-19T17:16:45.765Z` from current source.
+`npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-19T18:02:51.227Z` from current source.
 
 - Score version: `beta_health_v2`.
 - Public beta score: 38.32/100.

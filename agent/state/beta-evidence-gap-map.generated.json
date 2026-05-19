@@ -1,0 +1,189 @@
+{
+  "generatedAtUtc": "2026-05-19T18:14:50.858Z",
+  "reportKey": "beta-evidence-gap-map",
+  "currentHead": "63121e2011e286af8fd1b7bcbfba3b3801aae7fb",
+  "betaScore": 38.32,
+  "betaStatus": "Stale evidence",
+  "launchGateStatus": "owner_review",
+  "canStartBetaExitReview": false,
+  "evidenceLanes": [
+    {
+      "id": "manual_screenshot_qa",
+      "status": "missing",
+      "requiredForExit": true,
+      "currentArtifact": "agent/state/evidence-capture-status.generated.json",
+      "missingFiles": [
+        "agent/evidence/manual-screenshot-qa/*.json"
+      ],
+      "exactFolder": "agent/evidence/manual-screenshot-qa",
+      "exactTemplate": "agent/evidence/manual-screenshot-qa/evidence.template.json",
+      "exactCheckCommand": "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
+      "scoreImpact": "Raises evidence completeness and manual confidence after formal screenshots are attached.",
+      "launchImpact": "Required for beta exit; source-only screenshots do not clear this lane.",
+      "nextAction": "Attach dated manual screenshot QA evidence for user and creator surfaces."
+    },
+    {
+      "id": "provider_smoke",
+      "status": "missing",
+      "requiredForExit": true,
+      "currentArtifact": "agent/state/evidence-capture-status.generated.json",
+      "missingFiles": [
+        "agent/evidence/provider-smoke/*.json"
+      ],
+      "exactFolder": "agent/evidence/provider-smoke",
+      "exactTemplate": "agent/evidence/provider-smoke/evidence.template.json",
+      "exactCheckCommand": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
+      "scoreImpact": "Raises provider/runtime confidence after redacted provider proof is attached.",
+      "launchImpact": "Required for beta exit; operator reports alone remain non-passing.",
+      "nextAction": "Attach redacted provider smoke proof with request/response or screenshot/log evidence."
+    },
+    {
+      "id": "runtime_smoke",
+      "status": "missing",
+      "requiredForExit": true,
+      "currentArtifact": "agent/state/evidence-capture-status.generated.json",
+      "missingFiles": [
+        "agent/evidence/runtime-smoke/*.json"
+      ],
+      "exactFolder": "agent/evidence/runtime-smoke",
+      "exactTemplate": "agent/evidence/runtime-smoke/evidence.template.json",
+      "exactCheckCommand": "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
+      "scoreImpact": "Raises runtime health when deployed route loading and critical flows are proven.",
+      "launchImpact": "Required for beta exit; local static validators are not deployed runtime proof.",
+      "nextAction": "Attach deployed runtime smoke proof for critical user and creator routes."
+    },
+    {
+      "id": "admin_truth_sample",
+      "status": "missing",
+      "requiredForExit": true,
+      "currentArtifact": "agent/state/evidence-capture-status.generated.json",
+      "missingFiles": [
+        "agent/evidence/admin-truth-sample/*.json"
+      ],
+      "exactFolder": "agent/evidence/admin-truth-sample",
+      "exactTemplate": "agent/evidence/admin-truth-sample/evidence.template.json",
+      "exactCheckCommand": "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
+      "scoreImpact": "Raises admin truth confidence when a fresh redacted source sample is attached.",
+      "launchImpact": "Required for beta exit; debug presence without formal sample is not enough.",
+      "nextAction": "Attach a fresh redacted admin truth sample artifact."
+    },
+    {
+      "id": "runtime_watch_time_v2_deployed_proof",
+      "status": "source_ready_runtime_proof_required",
+      "requiredForExit": true,
+      "currentArtifact": "agent/state/runtime-watch-time-v2.generated.json",
+      "missingFiles": [
+        "agent/evidence/runtime-smoke/runtime-watch-time-v2-deployed-proof.json"
+      ],
+      "exactFolder": "agent/evidence/runtime-smoke",
+      "exactTemplate": "agent/evidence/runtime-smoke/evidence.template.json",
+      "exactCheckCommand": "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
+      "scoreImpact": "Keeps analytics/watch-time source health separate from deployed playback proof.",
+      "launchImpact": "Source-ready runtime watch-time does not prove deployed media playback accuracy.",
+      "nextAction": "Attach deployed playback evidence showing runtime watch-time v2 on real media routes."
+    },
+    {
+      "id": "revenue_provider_smoke",
+      "status": "operator_reported_unattached",
+      "requiredForExit": true,
+      "currentArtifact": "agent/state/provider-smoke-evidence.generated.json",
+      "missingFiles": [
+        "agent/evidence/provider-smoke/revenue-provider-smoke.json"
+      ],
+      "exactFolder": "agent/evidence/provider-smoke",
+      "exactTemplate": "agent/evidence/provider-smoke/evidence.template.json",
+      "exactCheckCommand": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
+      "scoreImpact": "Could raise provider and payment confidence after formal redacted revenue proof is attached.",
+      "launchImpact": "Operator-reported revenue is not formal evidence and must not be treated as passed.",
+      "nextAction": "Attach redacted proof for the reported $50 payment/revenue event under provider smoke evidence."
+    },
+    {
+      "id": "final_cost_owner_review",
+      "status": "cloud_sql_runtime_not_detected; cloud_sql_external_billing_observed_owner_review_required",
+      "requiredForExit": false,
+      "currentArtifact": "agent/state/final-cost-audit-lock.generated.json",
+      "missingFiles": [
+        "owner-reviewed cost console evidence"
+      ],
+      "exactFolder": "agent/state",
+      "exactTemplate": "docs/agent-truth/final-cost-audit-lock.md",
+      "exactCheckCommand": "npm run check:final-cost-audit-lock",
+      "scoreImpact": "Keeps cost risk partial until owner-reviewed Cloud Run, SQL, Gemini, and BigQuery evidence exists.",
+      "launchImpact": "Owner-review cost lanes are not passes; they remain visible launch-risk context.",
+      "nextAction": "Attach owner-reviewed cost evidence for external Cloud SQL, Gemini/Cloud Assist, and hosted-runner lanes."
+    },
+    {
+      "id": "speed_security_owner_review",
+      "status": "owner_review_required",
+      "requiredForExit": false,
+      "currentArtifact": "agent/state/speed-security-hardening.generated.json",
+      "missingFiles": [
+        "owner-reviewed speed/security P2 backlog disposition"
+      ],
+      "exactFolder": "agent/state",
+      "exactTemplate": "docs/agent-truth/speed-security-hardening.md",
+      "exactCheckCommand": "npm run check:speed-security",
+      "scoreImpact": "Keeps speed/security P2 backlog visible without pretending it is runtime evidence.",
+      "launchImpact": "P2 backlog is owner-review context unless it escalates to P0/P1.",
+      "nextAction": "Keep speed/security P2 backlog visible and owner-review before beta exit."
+    }
+  ],
+  "sourceReadyLanes": [
+    "runtime_watch_time_v2_deployed_proof"
+  ],
+  "runtimeProofMissingLanes": [
+    "manual_screenshot_qa",
+    "provider_smoke",
+    "runtime_smoke",
+    "admin_truth_sample",
+    "runtime_watch_time_v2_deployed_proof",
+    "revenue_provider_smoke"
+  ],
+  "ownerReviewLanes": [
+    "final_cost_owner_review",
+    "speed_security_owner_review"
+  ],
+  "staleArtifacts": [
+    {
+      "artifact": "agent/state/final-cost-audit-lock.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/beta-health-algorithm-v2.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/analytics-semantics-final-lock.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/runtime-watch-time-v2.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/provider-smoke-evidence.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/runtime-smoke-evidence.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/admin-truth-sample-evidence.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/targeted-behavior-evidence.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    }
+  ],
+  "nextExactSteps": [
+    "1. Attach provider/revenue smoke evidence if the reported $50 payment can be redacted and stored under agent/evidence/provider-smoke/.",
+    "2. Attach manual screenshot QA evidence for the already-tested user and creator surfaces under agent/evidence/manual-screenshot-qa/.",
+    "3. Attach deployed runtime smoke evidence for route loading and critical flows under agent/evidence/runtime-smoke/.",
+    "4. Attach a fresh redacted admin truth sample under agent/evidence/admin-truth-sample/.",
+    "5. Attach deployed runtime watch-time v2 playback proof under runtime smoke evidence.",
+    "6. Attach owner-reviewed Cloud SQL/Gemini/cost console evidence without treating source-only inventory as pass.",
+    "7. Keep speed/security P2 backlog visible for owner review."
+  ]
+}
