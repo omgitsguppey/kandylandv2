@@ -2,16 +2,16 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
-import { CreatorWorkspacePanel } from "@/components/Dashboard/CreatorWorkspacePanel";
-import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useDrops } from "@/hooks/useDrops";
 import { mergeResolvedDropsById } from "@/lib/drop-dashboard";
 import { isDropActiveNow } from "@/lib/drop-status";
+import { CREATOR_DASHBOARD_ROUTE } from "@/lib/creator-profile-routing";
 import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
@@ -37,13 +37,14 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ drops, creatorRailProfiles }: DashboardClientProps) {
     const { userProfile, loading } = useAuth();
-    const { viewAsState } = useAdminViewAs();
+    const router = useRouter();
     const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
     const { drops: liveActiveDrops, nowMs } = useDrops(["active"], initialActiveDrops);
     const visibleDrops = useMemo(
         () => mergeResolvedDropsById(drops, liveActiveDrops, nowMs),
         [drops, liveActiveDrops, nowMs],
     );
+    const isCreatorPrimaryDashboard = userProfile?.role === "creator";
 
     useEffect(() => {
         if (!userProfile) {
@@ -52,6 +53,14 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
 
         trackEvent("dashboard_viewed");
     }, [userProfile]);
+
+    useEffect(() => {
+        if (!isCreatorPrimaryDashboard) {
+            return;
+        }
+
+        router.replace(CREATOR_DASHBOARD_ROUTE);
+    }, [isCreatorPrimaryDashboard, router]);
 
     if (loading || !userProfile) {
         return (
@@ -70,15 +79,25 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
         );
     }
 
+    if (isCreatorPrimaryDashboard) {
+        return (
+            <div
+                className="mx-auto w-full max-w-5xl px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+9rem)] sm:px-4 sm:pt-4"
+                data-dashboard-surface="creator_redirect"
+                data-creator-dashboard-route-boundary="redirect_to_creator_dashboard"
+                data-user-dashboard-modules-rendered="false"
+            >
+                <div className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white">
+                    Opening Creator Dashboard...
+                </div>
+            </div>
+        );
+    }
+
 
 
     return (
-        <div id="dashboard-home" tabIndex={-1} className="scroll-mt-24 mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none" data-onboarding-page="dashboard">
-
-            {(userProfile.role === "creator" || Boolean(userProfile.creatorApplication) || Boolean(viewAsState)) ? (
-                <CreatorWorkspacePanel userProfile={userProfile} />
-            ) : null}
-
+        <div id="dashboard-home" tabIndex={-1} className="scroll-mt-24 mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none" data-onboarding-page="dashboard" data-dashboard-surface="user_dashboard">
             <div className="grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-3">
                 <div className="space-y-6 md:space-y-8">
                     <DailyCheckIn />

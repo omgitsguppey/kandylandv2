@@ -9,6 +9,7 @@ import { useUI } from "@/context/UIContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
+import { CREATOR_DASHBOARD_ROUTE } from "@/lib/creator-profile-routing";
 import { isIosStandalonePwa } from "@/lib/device-layout-contract";
 import {
     USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET,
@@ -68,7 +69,10 @@ function MobileBottomBarInner() {
     }
 
     const isSignedIn = !!user;
-    const navItems = isSignedIn ? AUTHED_NAV_ITEMS : GUEST_NAV_ITEMS;
+    const creatorDashboardHref = userProfile?.role === "creator" ? CREATOR_DASHBOARD_ROUTE : "/dashboard";
+    const navItems = isSignedIn
+        ? AUTHED_NAV_ITEMS.map((item) => item.href === "/dashboard" ? { ...item, href: creatorDashboardHref } : item)
+        : GUEST_NAV_ITEMS;
 
     return (
         <div

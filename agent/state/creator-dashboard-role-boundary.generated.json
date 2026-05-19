@@ -1,0 +1,100 @@
+{
+  "generatedAtUtc": "2026-05-19T16:44:31.188Z",
+  "reportKey": "creator-dashboard-role-boundary",
+  "currentHead": "761a51293acc91ef2c3ef771ef2fbdca51af064e",
+  "summary": {
+    "creatorDashboardRouteScoped": true,
+    "userModulesRemovedFromCreatorDashboard": true,
+    "normalUserDashboardPreserved": true,
+    "creatorCanAccessUserSurfacesExplicitly": true,
+    "bottomNavPreserved": true,
+    "routeLeakSourceIdentified": true,
+    "staleDoctrineRemoved": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "screenshotSymptoms": [
+    {
+      "id": "screenshot-user-modules-after-creator-crm",
+      "severity": "p1",
+      "file": "/dashboard or /dashboard/creator mobile screenshot",
+      "summary": "Mobile screenshot showed user dashboard modules below Creator Dashboard CRM.",
+      "status": "fixed"
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "dashboard-client-stack-leak",
+      "severity": "p1",
+      "file": "src/app/dashboard/DashboardClient.tsx",
+      "summary": "Leak source was /dashboard rendering CreatorWorkspacePanel before the normal user dashboard grid; creator-role /dashboard now redirects to /dashboard/creator.",
+      "status": "fixed"
+    },
+    {
+      "id": "creator-route-scoped",
+      "severity": "p1",
+      "file": "src/app/dashboard/creator/page.tsx",
+      "summary": "/dashboard/creator renders CreatorDashboardLandingRoute only.",
+      "status": "fixed"
+    },
+    {
+      "id": "creator-dashboard-redirect",
+      "severity": "p1",
+      "file": "src/app/dashboard/DashboardClient.tsx",
+      "summary": "Creator-role /dashboard redirects before user modules render.",
+      "status": "fixed"
+    }
+  ],
+  "moduleFindings": [
+    {
+      "id": "creator-boundary-marker",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator dashboard body exposes creator-only and no-user-module markers.",
+      "status": "fixed"
+    },
+    {
+      "id": "normal-user-dashboard-preserved",
+      "severity": "p1",
+      "file": "src/app/dashboard/DashboardClient.tsx",
+      "summary": "Normal user dashboard still renders Daily Check-In, Creator Spotlight, Recent Activity, and CollectionList.",
+      "status": "verified"
+    },
+    {
+      "id": "bottom-nav-preserved",
+      "severity": "p2",
+      "file": "src/components/CoreLayoutWrapper.tsx",
+      "summary": "Shared MobileBottomBar remains mounted for public dashboard routes.",
+      "status": "verified"
+    },
+    {
+      "id": "explicit-user-surface-access",
+      "severity": "p2",
+      "file": "src/lib/creator-profile-routing.ts",
+      "summary": "Creator drop/library access remains explicit through /dashboard/library.",
+      "status": "verified"
+    }
+  ],
+  "doctrineChanges": [
+    {
+      "id": "role-boundary-doctrine",
+      "severity": "p1",
+      "file": "docs/agent-truth/creator-dashboard-role-boundary.md",
+      "summary": "Doctrine locks creator and user dashboard bodies as separate route scopes.",
+      "status": "fixed"
+    }
+  ],
+  "fixesApplied": [
+    "Removed stacked creator and user dashboard rendering from /dashboard.",
+    "Redirected creator-role /dashboard visits to /dashboard/creator before user modules render.",
+    "Added creator-only boundary markers to CreatorWorkspacePanel and the landing route.",
+    "Kept normal user /dashboard rewards, discovery, activity, and collection modules intact.",
+    "Pointed creator-role mobile Dashboard navigation at the Creator Dashboard route."
+  ],
+  "prCleanupActions": [],
+  "nextFixOrder": [
+    "Attach mobile screenshot evidence for /dashboard/creator after deployment.",
+    "If creators need a full user dashboard shortcut later, add an explicit route or role switcher instead of stacking both dashboards."
+  ]
+}

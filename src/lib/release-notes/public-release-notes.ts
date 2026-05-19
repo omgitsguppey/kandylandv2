@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.97",
-  "betaReleaseCounter": 297,
+  "currentVersion": "1.2.98",
+  "betaReleaseCounter": 298,
   "channel": "beta",
-  "generatedAt": "2026-05-19T16:30:18.338Z",
-  "generatedAtUtc": "2026-05-19T16:30:18.338Z",
+  "generatedAt": "2026-05-19T16:45:00.000Z",
+  "generatedAtUtc": "2026-05-19T16:45:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.2.98",
+      "previousVersion": "1.2.97",
+      "betaReleaseCounter": 298,
+      "previousBetaReleaseCounter": 297,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(dashboard): isolate creator dashboard surface",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T16:45:00.000Z",
+      "generatedAt": "2026-05-19T16:45:00.000Z",
+      "committedAtUtc": "2026-05-19T16:45:00.000Z",
+      "generatedAtUtc": "2026-05-19T16:45:00.000Z",
+      "updatedAtUtc": "2026-05-19T16:45:00.000Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Separated Creator Dashboard from the normal user dashboard body while preserving user reward and library sections.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Separated Creator Dashboard from user reward and library sections.",
+        "Kept Daily Rewards and My KandyDrops on the normal user dashboard.",
+        "Cleaned up creator dashboard route boundaries on mobile."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted creator dashboard role-boundary fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator dashboard",
+        "user dashboard",
+        "mobile navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-dashboard-role-boundary.generated.json",
+        "docs/agent-truth/creator-dashboard-role-boundary.md",
+        "docs/agent-truth/creator-surface-routing.md",
+        "docs/agent-truth/user-creator-ui-parity.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-dashboard-role-boundary.ts",
+        "src/app/dashboard/DashboardClient.tsx",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/components/Navigation/MobileBottomBar.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-dashboard-role-boundary.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.2.97",
       "previousVersion": "1.2.96",

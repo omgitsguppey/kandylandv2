@@ -257,6 +257,7 @@
         "check:human-error-surface-wiring": "tsx scripts/agent/validate-human-error-surface-wiring.ts",
         "check:creator-dashboard-overview-stats": "tsx scripts/agent/validate-creator-dashboard-overview-stats.ts",
         "check:creator-fan-pass-crm-broadcast": "tsx scripts/agent/validate-creator-fan-pass-crm-broadcast.ts",
+        "check:creator-dashboard-role-boundary": "tsx scripts/agent/validate-creator-dashboard-role-boundary.ts",
         "check:creator-surface-routing": "tsx scripts/agent/validate-creator-surface-routing.ts",
         "check:creator-settings-source-health": "tsx scripts/agent/validate-creator-settings-source-health.ts",
         "check:creator-landing-dashboard-mobile": "tsx scripts/agent/validate-creator-landing-dashboard-mobile.ts",

@@ -493,10 +493,12 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     return (
         <section
             className="mb-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+9rem)] sm:pt-0 md:mb-8 md:pb-0"
+            data-creator-dashboard-content-boundary="creator_only"
             data-creator-dashboard-landing-density="mobile_compact"
             data-creator-landing-mobile-density="compact_v2"
             data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}
             data-creator-landing-error-language="human"
+            data-user-dashboard-modules-rendered="false"
             data-bottom-nav-safe="true"
             data-report-issue-safe-offset="bottom-nav"
         >
@@ -812,10 +814,12 @@ export function CreatorDashboardLandingRoute() {
         <main
             className="mx-auto w-full max-w-5xl px-3 pt-3 sm:px-4 sm:pt-4"
             data-creator-dashboard-route="landing"
+            data-creator-dashboard-content-boundary="creator_only"
             data-creator-dashboard-landing-density="mobile_compact"
             data-creator-landing-mobile-density="compact_v2"
             data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}
             data-creator-landing-error-language="human"
+            data-user-dashboard-modules-rendered="false"
             data-bottom-nav-safe="true"
             data-report-issue-safe-offset="bottom-nav"
         >

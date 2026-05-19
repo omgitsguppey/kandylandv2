@@ -8,6 +8,7 @@ This lane is scoped to user-facing and creator-facing UI quality only. It must n
 ## Locked Rules
 
 - Creator dashboard managers load only when their section is opened.
+- Creator Dashboard and the normal user dashboard must remain separate route bodies. `/dashboard/creator` renders creator modules only, while `/dashboard` preserves the user reward, spotlight, activity, and library modules for normal users.
 - Creator dashboard card actions must be real routes or section toggles with specific labels.
 - Fan Pass in the Creator Dashboard is subscriber visibility only; fan subscribe/cancel actions stay in public creator flows.
 - Requests and bookings managers expose creator-side management only, not fan-side create flows.
