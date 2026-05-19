@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.13 - 2026-05-19
+- Bug fixes and general improvements
+- Closed telemetry materialization gaps.
+- Mapped Firestore analytics records to event facts and summaries.
+- Separated legacy analytics from current truth.
+
 ## 1.3.12 - 2026-05-19
 - Bug fixes and general improvements
 - Closed behavior tracking event gaps.

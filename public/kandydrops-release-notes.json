@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.3.12",
-  "betaReleaseCounter": 312,
+  "currentVersion": "1.3.13",
+  "betaReleaseCounter": 313,
   "channel": "beta",
-  "generatedAt": "2026-05-19T22:26:12.428Z",
-  "generatedAtUtc": "2026-05-19T22:26:12.428Z",
+  "generatedAt": "2026-05-19T22:38:43.178Z",
+  "generatedAtUtc": "2026-05-19T22:38:43.178Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.13",
+      "previousVersion": "1.3.12",
+      "betaReleaseCounter": 313,
+      "previousBetaReleaseCounter": 312,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): close event fact materializers",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T22:38:43.178Z",
+      "generatedAt": "2026-05-19T22:38:43.178Z",
+      "committedAtUtc": "2026-05-19T22:38:43.178Z",
+      "generatedAtUtc": "2026-05-19T22:38:43.178Z",
+      "updatedAtUtc": "2026-05-19T22:38:43.178Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Closed telemetry materialization gaps by mapping Firestore analytics records into event facts, summaries, and legacy archive lanes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Closed telemetry materialization gaps.",
+        "Mapped Firestore analytics records to event facts and summaries.",
+        "Separated legacy analytics from current truth."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted Firestore event facts and materializer closure fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "admin analytics",
+        "app reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/event-facts-materializer-closure.generated.json",
+        "docs/agent-truth/event-facts-materializer-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-event-facts-materializer-closure.ts",
+        "src/lib/analytics/materialization-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/event-facts-materializer-closure.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.12",
       "previousVersion": "1.3.11",
@@ -1352,67 +1402,6 @@
         "tests/unit/analytics-cost-hot-path-reduction.spec.ts"
       ],
       "sourceCommit": "d8f818a75f5b7e195937878e15058d63a4cc40fd"
-    },
-    {
-      "version": "1.2.88",
-      "previousVersion": "1.2.87",
-      "betaReleaseCounter": 288,
-      "previousBetaReleaseCounter": 287,
-      "commitSha": "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28",
-      "commitTitle": "perf(debug-route): replace O(N^2) array filters with Map lookup (#260)",
-      "commitCount": 5,
-      "commitShas": [
-        "d256354ab2b6c084f84564f328a00befebb727d6",
-        "c70e7c6417831368a46626c646a84ed8e04f441a",
-        "5f5e18886ffce7e16691e12e64c52ad8738386b2",
-        "cb748bbc3495cb35b75b264a2bd741ba1d22aaf8",
-        "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28"
-      ],
-      "committedAt": "2026-05-18T18:19:17.000Z",
-      "generatedAt": "2026-05-18T18:21:17.540Z",
-      "committedAtUtc": "2026-05-18T18:19:17.000Z",
-      "generatedAtUtc": "2026-05-18T18:21:17.540Z",
-      "updatedAtUtc": "2026-05-18T18:21:17.540Z",
-      "category": "Performance",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved admin truth visibility, debug performance, and CI security maintenance.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Kept admin debug panels from showing missing evidence as healthy.",
-        "Reduced duplicate admin analytics and debug lookup work.",
-        "Updated the Scorecard security action and closed out the remaining PR lane."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 5 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "drops-viewer",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        ".github/workflows/openssf-scorecard.yml",
-        ".jules/bolt.md",
-        "CHANGELOG.md",
-        "agent/state/open-pr-final-action.generated.json",
-        "docs/agent-truth/open-pr-final-action.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-open-pr-final-action.ts",
-        "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
-        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
-        "src/app/api/admin/debug/route.ts",
-        "src/lib/admin-debug-summary-cards.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-analytics-historical-viewer.ts",
-        "src/lib/server/admin-page-data-loader.ts",
-        "tests/unit/open-pr-final-action.spec.ts"
-      ],
-      "sourceCommit": "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28"
     }
   ]
 }
