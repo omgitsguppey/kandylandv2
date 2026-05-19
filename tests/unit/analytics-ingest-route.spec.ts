@@ -146,7 +146,10 @@ describe("POST /api/analytics/ingest", () => {
         expect(response.status).toBe(503);
         expect(payload).toEqual({
             success: false,
+            status: "temporary_failure",
+            reason: "temporary_server_failure",
             retryable: true,
+            permanent: false,
         });
         expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
             channel: "analytics",
@@ -203,12 +206,14 @@ describe("POST /api/analytics/ingest", () => {
         expect(response.status).toBe(200);
         expect(payload).toEqual({
             success: true,
+            status: "dropped",
             ignored: true,
             reason: "analytics_consent_denied",
+            retryable: false,
+            permanent: true,
+            diagnosticPolicy: "suppressed_high_volume_consent_path",
         });
-        expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
-            message: "Guest analytics timeline skipped by consent",
-        }));
+        expect(mockState.recordServerDiagnostic).not.toHaveBeenCalled();
     });
 
     it("prefers a valid client anonymous visitor id for canonical guest continuity", () => {
@@ -266,8 +271,12 @@ describe("POST /api/analytics/ingest", () => {
                 clientSessionId: "sess_existing-session",
             }),
         );
-        expect(mockState.materializeUserTrackingIndexes).toHaveBeenCalledWith(expect.objectContaining({
-            anonymousVisitorIds: ["subject_existing-client"],
+        expect(payload.userTrackingMaterialization).toEqual(expect.objectContaining({
+            queued: true,
+            queueMode: "deferred_non_priority",
+            materializer: "analytics_guest_batches_daily",
+            anonymousVisitorId: "subject_existing-client",
+            batchId: "batch_existing-session_123456",
         }));
     });
 
@@ -292,8 +301,15 @@ describe("POST /api/analytics/ingest", () => {
         const response = await POST(request);
         const payload = await response.json();
 
-        expect(response.status).toBe(200);
-        expect(payload).toEqual({ success: true, ignored: true });
+        expect(response.status).toBe(422);
+        expect(payload).toEqual({
+            success: false,
+            status: "rejected",
+            ignored: true,
+            reason: "invalid_analytics_payload",
+            retryable: false,
+            permanent: true,
+        });
         expect(mockState.transactionCreate).not.toHaveBeenCalled();
         expect(mockState.materializeUserTrackingIndexes).not.toHaveBeenCalled();
     });

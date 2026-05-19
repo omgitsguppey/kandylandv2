@@ -10,12 +10,19 @@ import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
-import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId, createAnalyticsStorageKey } from "@/lib/analytics-identifiers";
+import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId } from "@/lib/analytics-identifiers";
 import {
-    ANALYTICS_CANONICAL_COLLECTIONS,
-    ANALYTICS_OPERATIONAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
+import {
+    ANALYTICS_INGEST_COST_POLICY,
+    ANALYTICS_INGEST_EVENT_TYPES,
+    ANALYTICS_INGEST_FIRESTORE_COLLECTIONS,
+    buildAnalyticsIngestDedupeKey,
+    classifyAnalyticsIngestFailure,
+    getAnalyticsIngestContract,
+    type AnalyticsIngestFailureReason,
+} from "@/lib/analytics/ingest-contract";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { normalizeAnonymousRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
@@ -29,12 +36,12 @@ import {
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
 const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
-const MAX_ANALYTICS_BODY_BYTES = 64 * 1024;
+const MAX_ANALYTICS_BODY_BYTES = ANALYTICS_INGEST_COST_POLICY.maxBodyBytes;
 const ANALYTICS_SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 90;
 const ANALYTICS_GUEST_BATCH_TTL_MS = 1000 * 60 * 60 * 24 * 180;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
 const CLIENT_ANALYTICS_ID_PATTERN = /^(?:sess|subject)_[A-Za-z0-9_-]{4,150}$/u;
-const ANALYTICS_INGEST_WARNING_CAP_PER_HOUR = 12;
+const ANALYTICS_INGEST_WARNING_CAP_PER_HOUR = ANALYTICS_INGEST_COST_POLICY.diagnosticsCapPerHour;
 const ANALYTICS_INGEST_FAILURE_CAP_PER_HOUR = 1;
 const analyticsIngestWarningCounts = new Map<string, { hourKey: string; count: number }>();
 const analyticsIngestFailureCounts = new Map<string, { hourKey: string; count: number }>();
@@ -48,7 +55,7 @@ const GuestSemanticEventNameSchema = z.enum([
 ]);
 
 const TelemetryEventSchema = z.object({
-    type: z.enum(["click", "hover", "scroll", "visibility", "page_view", "page_leave"]),
+    type: z.enum(ANALYTICS_INGEST_EVENT_TYPES),
     timestamp: z.number(),
     path: z.string().max(250),
     targetId: z.string().max(100).optional(),
@@ -145,6 +152,21 @@ function shouldRecordAnalyticsIngestDiagnostic(input: {
 
     current.count += 1;
     return current.count <= input.cap;
+}
+
+function buildAnalyticsIngestFailureResponse(reason: AnalyticsIngestFailureReason) {
+    const classification = classifyAnalyticsIngestFailure(reason);
+    return NextResponse.json(
+        {
+            success: false,
+            status: classification.status,
+            ignored: classification.status !== "temporary_failure",
+            reason: classification.reason,
+            retryable: classification.retryable,
+            permanent: classification.permanent,
+        },
+        { status: classification.httpStatus },
+    );
 }
 
 async function reportAnalyticsIngestFailure(error: unknown) {
@@ -247,17 +269,18 @@ async function POST_handler(request: NextRequest) {
 
         const contentLength = Number(request.headers.get("content-length") || 0);
         if (Number.isFinite(contentLength) && contentLength > MAX_ANALYTICS_BODY_BYTES) {
-            return NextResponse.json(
-                { success: false, ignored: true, reason: "payload_too_large", retryable: false },
-                { status: 413 },
-            );
+            return buildAnalyticsIngestFailureResponse("payload_too_large");
         }
 
         if (!requestAllowsAnonymousAnalytics(request)) {
+            const classification = classifyAnalyticsIngestFailure("analytics_consent_denied");
             return NextResponse.json({
                 success: true,
+                status: classification.status,
                 ignored: true,
-                reason: "analytics_consent_denied",
+                reason: classification.reason,
+                retryable: classification.retryable,
+                permanent: classification.permanent,
                 diagnosticPolicy: "suppressed_high_volume_consent_path",
             });
         }
@@ -266,7 +289,8 @@ async function POST_handler(request: NextRequest) {
         try {
             rawPayload = await request.json();
         } catch (parseError) {
-            if (shouldRecordAnalyticsIngestDiagnostic({
+            const classification = classifyAnalyticsIngestFailure("invalid_json");
+            if (classification.diagnosticsAllowed && shouldRecordAnalyticsIngestDiagnostic({
                 map: analyticsIngestWarningCounts,
                 fingerprint: "invalid_json",
                 cap: ANALYTICS_INGEST_WARNING_CAP_PER_HOUR,
@@ -278,16 +302,14 @@ async function POST_handler(request: NextRequest) {
                     { channel: "analytics", detail: { reason: "invalid_json" } },
                 );
             }
-            return NextResponse.json(
-                { success: false, ignored: true, reason: "invalid_json", retryable: false },
-                { status: 400 },
-            );
+            return buildAnalyticsIngestFailureResponse("invalid_json");
         }
         const parsed = PayloadSchema.safeParse(rawPayload);
 
         if (!parsed.success || parsed.data.events.length === 0) {
             const reason = !parsed.success ? "invalid_analytics_payload" : "empty_analytics_payload";
-            if (shouldRecordAnalyticsIngestDiagnostic({
+            const classification = classifyAnalyticsIngestFailure(reason);
+            if (classification.diagnosticsAllowed && shouldRecordAnalyticsIngestDiagnostic({
                 map: analyticsIngestWarningCounts,
                 fingerprint: reason,
                 cap: ANALYTICS_INGEST_WARNING_CAP_PER_HOUR,
@@ -299,10 +321,7 @@ async function POST_handler(request: NextRequest) {
                     { channel: "analytics", detail: { reason } },
                 );
             }
-            return NextResponse.json(
-                { success: false, ignored: true, reason, retryable: false },
-                { status: 422 },
-            );
+            return buildAnalyticsIngestFailureResponse(reason);
         }
 
         const { sessionId, events } = parsed.data;
@@ -340,14 +359,15 @@ async function POST_handler(request: NextRequest) {
         const runtimeDiagnostics = runtimeFactResults
             .map((result) => result.diagnostic)
             .filter((diagnostic): diagnostic is RuntimeFactDiagnostic => Boolean(diagnostic));
+        const eventContracts = sanitizedEvents.map((event) => getAnalyticsIngestContract(event.type));
+        const ingestDestinations = Array.from(new Set(eventContracts.flatMap((contract) => contract.destinationLanes)));
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
         const minuteBucket = timeKeys.minuteKey;
         const docId = `${sessionKey}_${minuteBucket}`;
-        const docRef = adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.guestSessions).doc(docId);
-        const guestBatchRef = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.guestBatches).doc(
-            createAnalyticsStorageKey("guest_batch", sessionKey, batchId),
-        );
+        const dedupeKey = buildAnalyticsIngestDedupeKey({ sessionKey, batchId });
+        const docRef = adminDb.collection(ANALYTICS_INGEST_FIRESTORE_COLLECTIONS.guestSessions).doc(docId);
+        const guestBatchRef = adminDb.collection(ANALYTICS_INGEST_FIRESTORE_COLLECTIONS.guestBatches).doc(dedupeKey);
         const uniquePagePaths = Array.from(new Set(sanitizedEvents.map((event) => event.path)));
         const uniqueInteractionTypes = Array.from(new Set(sanitizedEvents.map((event) => event.type)));
         const batchScrollDepth = sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0);
@@ -423,7 +443,19 @@ async function POST_handler(request: NextRequest) {
         });
 
         if (transactionResult.deduped) {
-            return NextResponse.json({ success: true, deduped: true, processed: 0 });
+            return NextResponse.json({
+                success: true,
+                status: "accepted",
+                deduped: true,
+                processed: 0,
+                acceptedEvents: 0,
+                droppedEvents: 0,
+                rejectedEvents: 0,
+                reason: "duplicate_guest_batch",
+                retryable: false,
+                dedupeKey,
+                destinations: ingestDestinations,
+            });
         }
 
         const behavioralTimelineFacts = await writeGuestBehavioralTimelineFacts({
@@ -441,7 +473,15 @@ async function POST_handler(request: NextRequest) {
 
         const response = NextResponse.json({
             success: true,
+            status: "accepted",
             processed: events.length,
+            acceptedEvents: events.length,
+            droppedEvents: 0,
+            rejectedEvents: 0,
+            retryable: false,
+            dedupeKey,
+            destinations: ingestDestinations,
+            firestoreCollections: ANALYTICS_INGEST_FIRESTORE_COLLECTIONS,
             behavioralTimelineFacts,
             userTrackingMaterialization,
         });
@@ -460,7 +500,14 @@ async function POST_handler(request: NextRequest) {
         return response;
     } catch (error) {
         await reportAnalyticsIngestFailure(error);
-        return NextResponse.json({ success: false, retryable: true }, { status: 503 });
+        const classification = classifyAnalyticsIngestFailure("temporary_server_failure");
+        return NextResponse.json({
+            success: false,
+            status: classification.status,
+            reason: classification.reason,
+            retryable: classification.retryable,
+            permanent: classification.permanent,
+        }, { status: classification.httpStatus });
     }
 }
 

@@ -1,0 +1,130 @@
+{
+  "generatedAtUtc": "2026-05-19T21:59:45.993Z",
+  "reportKey": "analytics-ingest-firestore-closure",
+  "currentHead": "095d87c9b6e1ff125ea98af949480388d52cfacb",
+  "summary": {
+    "ingestContractCreated": true,
+    "acceptedEventsMapped": true,
+    "failureRetryabilityExplicit": true,
+    "firestoreDestinationsCentralized": true,
+    "dedupeRulesCentralized": true,
+    "diagnosticsSampled": true,
+    "telemetryGraphReused": true,
+    "clientTrackingPolicyPresent": false,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "telemetry-graph-reused",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Telemetry dependency graph is present and reused as the upstream lane map."
+    },
+    {
+      "id": "client-tracking-policy-missing",
+      "status": "deferred",
+      "severity": "P2",
+      "detail": "Client tracking policy is not present yet; this ingest pass records the dependency and keeps server-side contract compatibility without duplicating that system."
+    }
+  ],
+  "contractFindings": [
+    {
+      "id": "contract-module-created",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Canonical analytics ingest contract module exists."
+    },
+    {
+      "id": "accepted-events-mapped",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Each accepted anonymous event type maps to identity requirements, destinations, dedupe, and downstream processing."
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "route-uses-contract-event-types",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Ingest route uses the contract's accepted event list instead of a duplicate event enum."
+    },
+    {
+      "id": "route-explicit-statuses",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Ingest responses include explicit accepted, dropped, rejected, or temporary failure status."
+    }
+  ],
+  "firestoreFindings": [
+    {
+      "id": "firestore-collections-centralized",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Firestore collection names for guest batches and sessions are centralized through the ingest contract."
+    },
+    {
+      "id": "dedupe-key-centralized",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Persisted guest batches use the contract dedupe helper."
+    }
+  ],
+  "retryabilityFindings": [
+    {
+      "id": "invalid-payloads-non-retryable",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Invalid JSON, invalid payloads, empty payloads, oversized payloads, and consent-denied drops are permanent non-retryable outcomes."
+    },
+    {
+      "id": "temporary-failures-only-503",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "503 retryable responses are reserved for temporary infrastructure failures."
+    }
+  ],
+  "diagnosticsFindings": [
+    {
+      "id": "diagnostics-sampled",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Diagnostics are capped by fingerprint/hour and consent denial does not create high-volume diagnostics."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "ingest-contract-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added a canonical ingest contract with destination and retryability rules."
+    },
+    {
+      "id": "route-contract-wired",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Refactored ingest route to consume contract collection and dedupe rules."
+    },
+    {
+      "id": "validator-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added a focused validator and generated truth artifact lane."
+    },
+    {
+      "id": "unit-test-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added unit tests for ingest contract closure."
+    }
+  ],
+  "prCleanupActions": [
+    "No open telemetry/analytics ingest/Firestore write path PRs were present at start."
+  ],
+  "nextFixOrder": [
+    "Land the queued client tracking policy pass so client-side consent/toggle decisions use one shared policy before reaching ingest.",
+    "Keep new anonymous event types out of /api/analytics/ingest until they are added to the ingest contract with destinations and dedupe rules.",
+    "If a new Firestore destination is introduced, add it to ANALYTICS_INGEST_FIRESTORE_COLLECTIONS before writing route code."
+  ]
+}

@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.9",
-  "betaReleaseCounter": 309,
+  "currentVersion": "1.3.10",
+  "betaReleaseCounter": 310,
   "channel": "beta",
-  "generatedAt": "2026-05-19T20:49:14.070Z",
-  "generatedAtUtc": "2026-05-19T20:49:14.070Z",
+  "generatedAt": "2026-05-19T21:57:13.630Z",
+  "generatedAtUtc": "2026-05-19T21:57:13.630Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.10",
+      "previousVersion": "1.3.9",
+      "betaReleaseCounter": 310,
+      "previousBetaReleaseCounter": 309,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): harden ingest firestore path",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T21:57:13.630Z",
+      "generatedAt": "2026-05-19T21:57:13.630Z",
+      "committedAtUtc": "2026-05-19T21:57:13.630Z",
+      "generatedAtUtc": "2026-05-19T21:57:13.630Z",
+      "updatedAtUtc": "2026-05-19T21:57:13.630Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Hardened analytics ingest contracts and clarified telemetry Firestore destinations.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Hardened analytics ingest event contracts.",
+        "Clarified Firestore write destinations for telemetry.",
+        "Reduced retry and diagnostic noise for invalid analytics payloads."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted analytics ingest and Firestore write path fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "app reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-ingest-firestore-closure.generated.json",
+        "docs/agent-truth/analytics-ingest-firestore-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-analytics-ingest-firestore-closure.ts",
+        "src/app/api/analytics/ingest/route.ts",
+        "src/lib/analytics/ingest-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/analytics-ingest-firestore-closure.spec.ts",
+        "tests/unit/analytics-ingest-route.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.9",
       "previousVersion": "1.3.8",
@@ -1381,54 +1432,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "CHANGELOG.md"
       ],
       "sourceCommit": "b0ca63c46d97d0f957902d4f37053a4589db489c"
-    },
-    {
-      "version": "1.2.85",
-      "previousVersion": "1.2.84",
-      "betaReleaseCounter": 285,
-      "previousBetaReleaseCounter": 284,
-      "commitSha": "f99dfcd24808078a69f8d77985a2f8d23e556d24",
-      "commitTitle": "docs(analytics): reconcile legacy tracking history",
-      "commitCount": 1,
-      "commitShas": [
-        "f99dfcd24808078a69f8d77985a2f8d23e556d24"
-      ],
-      "committedAt": "2026-05-18T14:33:22.786Z",
-      "generatedAt": "2026-05-18T14:33:22.786Z",
-      "committedAtUtc": "2026-05-18T14:33:22.786Z",
-      "generatedAtUtc": "2026-05-18T14:33:22.786Z",
-      "updatedAtUtc": "2026-05-18T14:33:22.786Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Mapped legacy analytics history without overwriting current truth.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Mapped legacy analytics history without overwriting current truth.",
-        "Added confidence and duplicate-risk checks for recovered history.",
-        "Kept older realtime sources from driving current analytics totals."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/analytics/legacy-history-reconciler.ts",
-        "agent/state/analytics-legacy-history-reconciliation.generated.json",
-        "docs/agent-truth/analytics-legacy-history-reconciliation.md",
-        "scripts/agent/validate-analytics-legacy-history-reconciliation.ts",
-        "tests/unit/analytics-legacy-history-reconciliation.spec.ts",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "f99dfcd24808078a69f8d77985a2f8d23e556d24"
     }
   ]
-} as const satisfies PublicReleaseNotesDocument;
+} satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,

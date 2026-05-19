@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.10 - 2026-05-19
+- Bug fixes and general improvements
+- Hardened analytics ingest event contracts.
+- Clarified Firestore write destinations for telemetry.
+- Reduced retry and diagnostic noise for invalid analytics payloads.
+
 ## 1.3.9 - 2026-05-19
 - Bug fixes and general improvements
 - Mapped telemetry dependencies from client events to analytics evidence.
@@ -147,27 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added runtime-based media watch-time tracking rules.
 - Separated real watch time from page-open time.
 - Locked guest, user, legacy, and watch analytics semantics with cost guards.
-
-## 1.2.85 - 2026-05-18
-- Bug fixes and general improvements
-- Mapped legacy analytics history without overwriting current truth.
-- Added confidence and duplicate-risk checks for recovered history.
-- Kept older realtime sources from driving current analytics totals.
-
-## 1.2.84 - 2026-05-18
-- Bug fixes and general improvements
-- Linked guest analytics history to signed-in users without double-counting.
-- Improved individual user tracking semantics.
-- Kept identity transfer idempotent and low-cost.
-
-## 1.2.83 - 2026-05-18
-- Bug fixes and general improvements
-- Moved non-priority analytics checks toward a daily cadence.
-- Added cost guards for analytics exports and evidence refreshes.
-- Kept live tracking separate from lower-priority evidence work.
-
-## 1.2.82 - 2026-05-18
-- Bug fixes and general improvements
-- Mapped analytics cost and runtime tracking surfaces.
-- Added Cloud Run, Cloud SQL, BigQuery, and Gemini cost inventories.
-- Prepared focused follow-ups for 4xx, retry, and analytics cadence cleanup.
