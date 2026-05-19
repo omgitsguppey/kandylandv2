@@ -7,7 +7,8 @@ import { createAnalyticsBatchId } from "@/lib/analytics-identifiers";
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
-import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
+import { buildClientTrackingDecision } from "@/lib/analytics/client-tracking-policy";
+import { readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
 import { trackEvent } from "@/lib/telemetry";
 import {
     CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS,
@@ -83,6 +84,14 @@ type VisibilitySummaryState = {
     lastState: "visible" | "hidden";
     lastTransitionAt: number;
 };
+
+function canCaptureAnonymousBehavior() {
+    return buildClientTrackingDecision({
+        eventName: "semantic_page_viewed",
+        eventType: "page_view",
+        privacySettings: readPrivacySettingsSnapshot(),
+    }).mayPersist;
+}
 
 export type StableGuestAnalyticsBatch = {
     signature: string;
@@ -288,7 +297,7 @@ function readTelemetryContext() {
 
 export function DeepTracker() {
     const pathname = usePathname();
-    const [trackingAllowed, setTrackingAllowed] = useState(() => canUseAnonymousAnalytics(readPrivacySettingsSnapshot()));
+    const [trackingAllowed, setTrackingAllowed] = useState(canCaptureAnonymousBehavior);
     const eventQueue = useRef<TelemetryEvent[]>([]);
     const guestQueueHydratedRef = useRef(false);
     const guestFlushInFlightRef = useRef<Promise<void> | null>(null);
@@ -308,7 +317,7 @@ export function DeepTracker() {
 
     useEffect(() => {
         return subscribeToPrivacySettings(() => {
-            setTrackingAllowed(canUseAnonymousAnalytics(readPrivacySettingsSnapshot()));
+            setTrackingAllowed(canCaptureAnonymousBehavior());
         });
     }, []);
 
@@ -444,6 +453,15 @@ export function DeepTracker() {
 
         const pushEvent = (event: TelemetryEvent) => {
             if (!trackingAllowed || !shouldCaptureAnonymousBatch) {
+                return;
+            }
+
+            const trackingDecision = buildClientTrackingDecision({
+                eventName: event.semanticEventName ?? event.type,
+                eventType: event.type,
+                privacySettings: readPrivacySettingsSnapshot(),
+            });
+            if (!trackingDecision.mayQueue || !trackingDecision.mayPersist) {
                 return;
             }
 

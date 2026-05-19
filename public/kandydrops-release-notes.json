@@ -1,11 +1,63 @@
 {
-  "currentVersion": "1.3.11",
-  "betaReleaseCounter": 311,
+  "currentVersion": "1.3.12",
+  "betaReleaseCounter": 312,
   "channel": "beta",
-  "generatedAt": "2026-05-19T22:10:08.039Z",
-  "generatedAtUtc": "2026-05-19T22:10:08.039Z",
+  "generatedAt": "2026-05-19T22:26:12.428Z",
+  "generatedAtUtc": "2026-05-19T22:26:12.428Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.12",
+      "previousVersion": "1.3.11",
+      "betaReleaseCounter": 312,
+      "previousBetaReleaseCounter": 311,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): close behavior tracking semantics",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T22:26:12.428Z",
+      "generatedAt": "2026-05-19T22:26:12.428Z",
+      "committedAtUtc": "2026-05-19T22:26:12.428Z",
+      "generatedAtUtc": "2026-05-19T22:26:12.428Z",
+      "updatedAtUtc": "2026-05-19T22:26:12.428Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Closed behavior tracking event gaps while keeping watch time separate from passive page activity.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Closed behavior tracking event gaps.",
+        "Aligned behavior telemetry with tracking toggles.",
+        "Kept watch time separate from passive page activity."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted behavioral tracking semantics and toggle coverage fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "app reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/behavioral-tracking-semantics-closure.generated.json",
+        "docs/agent-truth/behavioral-tracking-semantics-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-behavioral-tracking-semantics-closure.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/client-tracking-policy.ts",
+        "src/lib/behavioral/tracking-surface-map.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry.ts",
+        "tests/unit/behavioral-tracking-semantics-closure.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.11",
       "previousVersion": "1.3.10",
@@ -1361,76 +1413,6 @@
         "tests/unit/open-pr-final-action.spec.ts"
       ],
       "sourceCommit": "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28"
-    },
-    {
-      "version": "1.2.87",
-      "previousVersion": "1.2.86",
-      "betaReleaseCounter": 287,
-      "previousBetaReleaseCounter": 286,
-      "commitSha": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d",
-      "commitTitle": "🎨 Palette: Add aria-busy to Button component for loading states (#233)",
-      "commitCount": 3,
-      "commitShas": [
-        "c834dbec9299590a5a280bc08754eee9d33180d4",
-        "60316496565107ef446e38dd81503ff0cd78f079",
-        "cd6c02ef2f85095907a2a1aaf95c1833afe3447d"
-      ],
-      "committedAt": "2026-05-18T18:10:01.000Z",
-      "generatedAt": "2026-05-18T18:11:22.425Z",
-      "committedAtUtc": "2026-05-18T18:10:01.000Z",
-      "generatedAtUtc": "2026-05-18T18:11:22.425Z",
-      "updatedAtUtc": "2026-05-18T18:11:22.425Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved loading state accessibility and finalized PR cleanup evidence.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved loading state accessibility for buttons.",
-        "Kept remaining risky PRs out of the beta cleanup lane.",
-        "Recorded final open PR owner-review actions."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 3 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        ".Jules/palette.md",
-        "CHANGELOG.md",
-        "agent/state/analytics-cadence-cost-policy.generated.json",
-        "agent/state/analytics-legacy-history-reconciliation.generated.json",
-        "agent/state/analytics-semantics-final-lock.generated.json",
-        "agent/state/guest-user-identity-transfer.generated.json",
-        "agent/state/pr-cleanup-final.generated.json",
-        "agent/state/runtime-watch-time-v2.generated.json",
-        "docs/agent-truth/analytics-cadence-cost-policy.md",
-        "docs/agent-truth/analytics-legacy-history-reconciliation.md",
-        "docs/agent-truth/analytics-semantics-final-lock.md",
-        "docs/agent-truth/guest-user-identity-transfer.md",
-        "docs/agent-truth/pr-cleanup-final.md",
-        "docs/agent-truth/runtime-watch-time-v2.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-analytics-semantics-final-lock.ts",
-        "scripts/agent/validate-pr-cleanup-final.ts",
-        "scripts/agent/validate-runtime-watch-time-v2.ts",
-        "src/components/Analytics/RuntimeWatchTracker.tsx",
-        "src/components/ui/Button.tsx",
-        "src/lib/analytics/analytics-event-contract.ts",
-        "src/lib/analytics/runtime-watch-time-v2.ts",
-        "src/lib/analytics/watch-time-v2.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/analytics-semantics-final-lock.spec.ts",
-        "tests/unit/pr-cleanup-final.spec.ts",
-        "tests/unit/runtime-watch-time-v2.spec.ts",
-        "tests/unit/runtime-watch-tracker.spec.tsx"
-      ],
-      "sourceCommit": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d"
     }
   ]
 }

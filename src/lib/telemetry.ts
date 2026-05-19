@@ -1,6 +1,7 @@
 import { auth } from "./firebase";
 import { prepareAnalyticsEvent } from "./analytics-client-engine";
 import { createAnalyticsEventId } from "./analytics-identifiers";
+import { buildClientTrackingDecision } from "./analytics/client-tracking-policy";
 import destr from "destr";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { buildClientIdentityLinkRecord, getClientSessionId, rememberClientIdentityLink } from "./client-session";
@@ -417,12 +418,15 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     const privacySettings = readPrivacySettingsSnapshot();
     const allowAnonymousAnalytics = canUseAnonymousAnalytics(privacySettings);
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
-    const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
     const preparedEvent = prepareAnalyticsEvent(eventName, eventParams);
     const shouldSyncTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(preparedEvent.canonicalEventName);
     const eventNameForDispatch = preparedEvent.isKnownEvent ? preparedEvent.canonicalEventName : eventName;
+    const trackingDecision = buildClientTrackingDecision({
+        eventName: eventNameForDispatch,
+        privacySettings,
+    });
 
-    if (!allowAnonymousAnalytics && !allowIdentifiedAnalytics && !shouldSyncTaskProgress) {
+    if (!trackingDecision.mayQueue && !shouldSyncTaskProgress) {
         return;
     }
 
@@ -441,12 +445,16 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         ? enrichedParams.event_timestamp_ms
         : Date.now();
 
-    if (allowAnonymousAnalytics && typeof window !== "undefined" && typeof window.gtag === "function") {
+    if (allowAnonymousAnalytics && trackingDecision.maySendExternal && typeof window !== "undefined" && typeof window.gtag === "function") {
         window.gtag("event", eventNameForDispatch, gaDispatchParams);
         dispatchGaCompanionEvent(eventNameForDispatch, enrichedParams);
     }
 
-    if (!preparedEvent.isKnownEvent || !auth?.currentUser || (!allowIdentifiedAnalytics && !shouldSyncTaskProgress)) {
+    if (
+        !preparedEvent.isKnownEvent
+        || !auth?.currentUser
+        || (!trackingDecision.mayPersist && !allowIdentifiedAnalytics && !shouldSyncTaskProgress)
+    ) {
         return;
     }
 

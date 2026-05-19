@@ -1,0 +1,149 @@
+{
+  "generatedAtUtc": "2026-05-19T22:27:56.845Z",
+  "reportKey": "behavioral-tracking-semantics-closure",
+  "currentHead": "f7d4e85722a5dfff817b9dc0de406729bd4845a0",
+  "summary": {
+    "trackingSurfaceMapCreated": true,
+    "clientTrackingPolicyCreated": true,
+    "disabledBehaviorSuppressed": true,
+    "enabledBehaviorBounded": true,
+    "clientIngestEventsAligned": true,
+    "watchTimeRuntimeOnly": true,
+    "hardcodedBehaviorScoresBlocked": true,
+    "telemetryGraphPresent": true,
+    "ingestContractPresent": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "client-tracking-policy-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Canonical client tracking policy exists."
+    },
+    {
+      "id": "telemetry-graph-present",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Telemetry dependency graph is present and reused."
+    },
+    {
+      "id": "ingest-contract-present",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Analytics ingest contract is present and reused."
+    }
+  ],
+  "behaviorSurfaceFindings": [
+    {
+      "id": "required-surfaces-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Required behavioral surfaces are represented in the tracking surface map."
+    },
+    {
+      "id": "surface-map-validates",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Tracking surface map validates against anonymous ingest event types."
+    }
+  ],
+  "toggleFindings": [
+    {
+      "id": "policy-defines-disabled-state",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Policy distinguishes disabled tracking from consent denied."
+    },
+    {
+      "id": "disabled-behavior-suppressed",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Disabled behavior analytics suppress page, hover, scroll, visibility, click, creator interaction, drop, and watch-time behavior events."
+    },
+    {
+      "id": "enabled-behavior-bounded",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Enabled behavior remains bounded and diagnostics are sampled."
+    },
+    {
+      "id": "telemetry-uses-policy",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Identified telemetry and GA companion dispatch consult the same client tracking policy."
+    }
+  ],
+  "ingestAlignmentFindings": [
+    {
+      "id": "client-ingest-events-aligned",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "DeepTracker anonymous event types match the ingest contract and tracking surface map."
+    }
+  ],
+  "watchTimeFindings": [
+    {
+      "id": "watch-time-runtime-only",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Runtime watch-time uses runtime media/session events and is not computed from page view or visibility alone."
+    }
+  ],
+  "staleBehaviorFindings": [
+    {
+      "id": "hardcoded-behavior-scores-blocked",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "No hardcoded behavior score shortcuts are reachable in the behavioral tracking closure files."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "client-policy-created",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added canonical client tracking policy with event kind decisions."
+    },
+    {
+      "id": "surface-map-refined",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Refined the tracking surface map with persistence, aggregation, UI, admin, identity, and disabled behavior semantics."
+    },
+    {
+      "id": "deeptracker-wired",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Wired DeepTracker to the client tracking policy before queueing anonymous behavior events."
+    },
+    {
+      "id": "telemetry-wired",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Wired trackEvent to the client tracking policy for identified and external companion dispatch."
+    },
+    {
+      "id": "validator-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added the behavioral tracking semantics validator and generated truth artifact lane."
+    },
+    {
+      "id": "unit-test-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added unit tests for tracking toggle and surface semantics."
+    }
+  ],
+  "prCleanupActions": [
+    "No open behavioral tracking/toggle/analytics PRs were present at start."
+  ],
+  "nextFixOrder": [
+    "When adding new behavior events, add them to the tracking surface map and ingest contract before emitting them from a client component.",
+    "Keep runtime watch-time sourced from media/session events only; do not derive it from page duration, page views, or visibility summaries.",
+    "Keep disabled behavior analytics quiet while preserving required account, security, and product integrity events through the policy."
+  ]
+}
