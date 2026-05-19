@@ -147,7 +147,7 @@ function SectionCard({
       data-creator-earnings-source={creatorEarningsSource}
       data-creator-earnings-attribution={creatorEarningsAttribution}
     >
-      <button type="button" onClick={onToggle} aria-expanded={expanded} className="flex w-full items-start justify-between gap-3 text-left">
+      <button type="button" onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
         <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
           <div className={cn("mt-0.5 rounded-xl border p-1.5 sm:rounded-2xl sm:p-2", sectionTone(state))}>{icon}</div>
           <div className="min-w-0">
