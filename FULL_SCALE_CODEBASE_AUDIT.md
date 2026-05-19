@@ -13871,3 +13871,35 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [Blocked Deliverable] Reduce monolith file risk and clarify responsibility boundaries
+
+### Candidate Files & Classification Labels
+- `src/app/api/admin/debug/route.ts` (6576 lines) - **God-file risk**
+- `src/components/Chat/ChatExperience.tsx` (3522 lines) - **God-file risk**
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (3205 lines) - **Needs split for stability**
+- `src/app/api/admin/users/route.ts` (3152 lines) - **God-file risk**
+- `src/lib/server/ai-drop-covers.ts` (2873 lines) - **Mixed responsibility drift**
+- `src/app/api/admin/analytics/historical/route.ts` (2078 lines) - **Needs split for stability**
+
+### Blocker Identification
+These monolithic files significantly exceed the 2000-line safety threshold for automated scripting and refactoring. They mix view rendering, complex state orchestration, data fetching, API logic, and telemetry inside massive multi-responsibility blocks. Attempting an automated split of these god-files poses an unacceptably high risk of introducing runtime errors or logic regressions in protected platform boundaries.
+
+### Affected Components
+- Admin Debug API, Admin Analytics State, Admin Users routing, Admin Historical routing
+- `ChatExperience.tsx` (realtime sync, view UI, attachment handling, orchestration)
+- AI Drop Covers (server coordination and generation)
+
+### Precise Codex Prompt for Future Manual Decomposition
+```text
+You are an expert engineer tasked with reducing God-file risk in the KandyDrops repository. We have identified several critical oversized files (>2000 lines) that violate structural maintainability and need careful manual decomposition.
+
+Target File: `src/components/Chat/ChatExperience.tsx` (or another listed candidate file).
+
+Your task:
+1. Analyze the targeted oversized file to map out its responsibility boundaries (e.g., view rendering, data fetching/mutations, realtime listeners, telemetry, modal/state orchestration).
+2. Devise a step-by-step split plan. Extract generic UI components into files of ~300 lines or less, and state orchestration/hooks into ~500 lines or less.
+3. Ensure boundaries clearly separate view logic from hook/adapter logic.
+4. DO NOT change core product behavior, economy internals, or database rules.
+5. Provide the refactored code blocks and their target paths, ensuring all types and telemetry payloads remain intact. Verify that the decomposed structure improves debugging surface and prevents future mixed responsibility drift.
+```
