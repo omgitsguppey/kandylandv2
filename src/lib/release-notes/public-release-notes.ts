@@ -1,13 +1,68 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.7",
-  "betaReleaseCounter": 307,
+  "currentVersion": "1.3.8",
+  "betaReleaseCounter": 308,
   "channel": "beta",
-  "generatedAt": "2026-05-19T20:20:38.232Z",
-  "generatedAtUtc": "2026-05-19T20:20:38.232Z",
+  "generatedAt": "2026-05-19T20:37:09.392Z",
+  "generatedAtUtc": "2026-05-19T20:37:09.392Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.8",
+      "previousVersion": "1.3.7",
+      "betaReleaseCounter": 308,
+      "previousBetaReleaseCounter": 307,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): clarify ga4 evidence truth",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T20:37:09.392Z",
+      "generatedAt": "2026-05-19T20:37:09.392Z",
+      "committedAtUtc": "2026-05-19T20:37:09.392Z",
+      "generatedAtUtc": "2026-05-19T20:37:09.392Z",
+      "updatedAtUtc": "2026-05-19T20:37:09.392Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Clarified Google Analytics evidence status while keeping KandyDrops analytics truth separate.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified Google Analytics evidence status.",
+        "Kept first-party analytics as product truth.",
+        "Prevented missing GA4 data from showing as zero traffic."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted GA4 recovery and analytics fallback truth fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "admin analytics",
+        "app reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/ga4-recovery-truth.generated.json",
+        "docs/agent-truth/ga4-recovery-truth.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-ga4-recovery-truth.ts",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/layout.tsx",
+        "src/components/Analytics/Ga4EvidenceTracker.tsx",
+        "src/lib/analytics/ga4-truth.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-analytics-data.ts",
+        "src/lib/server/admin-analytics/ga4-evidence.ts",
+        "tests/unit/ga4-recovery-truth.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.7",
       "previousVersion": "1.3.6",
@@ -1365,55 +1420,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "CHANGELOG.md"
       ],
       "sourceCommit": "fa8d18a61c85cfcc97a17def243b70c743731984"
-    },
-    {
-      "version": "1.2.83",
-      "previousVersion": "1.2.82",
-      "betaReleaseCounter": 283,
-      "previousBetaReleaseCounter": 282,
-      "commitSha": "9aa5fdd94d740986306b3f4555225c9ede1d644d",
-      "commitTitle": "fix(analytics): reduce non priority cadence cost",
-      "commitCount": 1,
-      "commitShas": [
-        "9aa5fdd94d740986306b3f4555225c9ede1d644d"
-      ],
-      "committedAt": "2026-05-18T14:16:03.043Z",
-      "generatedAt": "2026-05-18T14:16:03.043Z",
-      "committedAtUtc": "2026-05-18T14:16:03.043Z",
-      "generatedAtUtc": "2026-05-18T14:16:03.043Z",
-      "updatedAtUtc": "2026-05-18T14:16:03.043Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Moved non-priority analytics checks toward a daily cadence.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Moved non-priority analytics checks toward a daily cadence.",
-        "Added cost guards for analytics exports and evidence refreshes.",
-        "Kept live tracking separate from lower-priority evidence work."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/analytics/analytics-cadence-policy.ts",
-        "src/lib/server/admin-analytics-data.ts",
-        "functions/src/analytics-bigquery-export.ts",
-        "agent/state/analytics-cadence-cost-policy.generated.json",
-        "docs/agent-truth/analytics-cadence-cost-policy.md",
-        "scripts/agent/validate-analytics-cadence-cost-policy.ts",
-        "tests/unit/analytics-cadence-cost-policy.spec.ts",
-        "agent/state/analytics-cost-runtime-inventory.generated.json",
-        "docs/agent-truth/analytics-cost-runtime-inventory.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "9aa5fdd94d740986306b3f4555225c9ede1d644d"
     }
   ]
 } as const satisfies PublicReleaseNotesDocument;

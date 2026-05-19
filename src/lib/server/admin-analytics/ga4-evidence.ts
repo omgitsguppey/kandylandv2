@@ -2,6 +2,10 @@ import "server-only";
 
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 
+import {
+  buildGa4EvidenceState,
+  shouldRunGa4AdminRefresh,
+} from "@/lib/analytics/ga4-truth";
 import { safeRunReport, type AnalyticsReportResponse } from "../admin-analytics-shared";
 
 export type AdminAnalyticsDataClient = BetaAnalyticsDataClient;
@@ -17,16 +21,27 @@ export function classifyAdminAnalyticsGa4State(input: {
   propertyId: string;
   allowVendorReports: boolean;
 }): AdminAnalyticsGa4State {
-  if (!input.propertyId) {
+  const evidenceState = buildGa4EvidenceState({
+    propertyId: input.propertyId,
+    measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || process.env.GA_MEASUREMENT_ID,
+    apiSecretPresent: Boolean(process.env.GA_API_SECRET),
+    clientCodePresent: true,
+    serverDataApiDependencyPresent: true,
+  });
+
+  if (evidenceState.status === "config_missing") {
     return {
       status: "ga4_config_missing",
       truthState: "unavailable",
       sourceRole: "external_evidence_only",
-      reason: "GA4 property configuration is missing; admin analytics must use first-party snapshots and mark GA4 unavailable.",
+      reason: evidenceState.reason,
     };
   }
 
-  if (!input.allowVendorReports) {
+  if (!shouldRunGa4AdminRefresh({
+    explicitRefresh: input.allowVendorReports,
+    propertyId: input.propertyId,
+  })) {
     return {
       status: "ga4_client_unused",
       truthState: "deferred",
@@ -59,7 +74,14 @@ export function runVendorReportWhenAllowed(input: {
   label: string;
   issues: string[];
 }) {
-  if (!input.allowVendorReports) {
+  const propertyId = typeof input.requestConfig?.property === "string"
+    ? input.requestConfig.property.replace(/^properties\//u, "")
+    : "";
+
+  if (!shouldRunGa4AdminRefresh({
+    explicitRefresh: input.allowVendorReports,
+    propertyId,
+  })) {
     return Promise.resolve(buildSkippedVendorReport(input.label, input.issues));
   }
 

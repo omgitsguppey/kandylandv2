@@ -11,6 +11,7 @@ import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 import { UIDebug } from "@/components/UIDebug";
 import { CSPostHogProvider } from "@/components/Analytics/CSPostHogProvider";
+import { Ga4EvidenceTracker } from "@/components/Analytics/Ga4EvidenceTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -85,6 +86,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-purple selection:text-white flex flex-col">
         <UIDebug />
+        <Ga4EvidenceTracker />
         <CSPostHogProvider>
           <AuthProvider>
             <AdminViewAsProvider>

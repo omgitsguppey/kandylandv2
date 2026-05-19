@@ -1,0 +1,121 @@
+{
+  "generatedAtUtc": "2026-05-19T20:37:23.516Z",
+  "reportKey": "ga4-recovery-truth",
+  "currentHead": "a0ae42237439f514e5399a5a021e8ad5bd83d648",
+  "summary": {
+    "ga4Status": "config_missing",
+    "clientGa4Configured": false,
+    "serverDataApiConfigured": false,
+    "firstPartyAnalyticsPrimary": true,
+    "ga4EvidenceOnly": true,
+    "ga4UnavailableNotZero": true,
+    "defaultDataApiCallsBlocked": true,
+    "consentGateRespected": true,
+    "retryCostGuarded": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "inventory": [
+    {
+      "id": "ga4-client-support-present",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Client GA4 support exists through a consent-gated evidence tracker."
+    },
+    {
+      "id": "ga4-server-data-api-present",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Server Data API dependency exists but is classified as external evidence."
+    },
+    {
+      "id": "first-party-analytics-primary",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Analytics source hierarchy keeps first-party event facts and rollups as product truth."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "ga4-truth-helper",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added shared GA4 truth and cost-guard helper."
+    },
+    {
+      "id": "ga4-client-tracker",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added consent-gated GA4 evidence tracker."
+    },
+    {
+      "id": "ga4-admin-fallback",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Admin historical analytics records GA4 evidence state without blocking first-party fallback."
+    }
+  ],
+  "adminIntegrationFindings": [
+    {
+      "id": "ga4-missing-config-not-blocking",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Missing GA4 config no longer blocks the historical admin analytics route."
+    },
+    {
+      "id": "ga4-unavailable-not-zero",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Missing GA4 evidence is displayed as unavailable and never as zero traffic."
+    },
+    {
+      "id": "ga4-not-product-truth",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Admin historical analytics keeps first-party sources canonical and GA4 as external evidence."
+    }
+  ],
+  "clientIntegrationFindings": [
+    {
+      "id": "client-env-gated",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Client GA4 cannot load without a public measurement ID."
+    },
+    {
+      "id": "client-consent-gated",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Client GA4 respects the existing analytics consent gate."
+    },
+    {
+      "id": "client-mounted-once",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Root layout mounts the GA4 evidence tracker once without replacing first-party DeepTracker."
+    }
+  ],
+  "costFindings": [
+    {
+      "id": "default-data-api-blocked",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Default admin analytics load does not call GA4 Data API."
+    },
+    {
+      "id": "explicit-refresh-ttl-guarded",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA4 evidence refresh requires explicit refresh and respects the retry TTL."
+    }
+  ],
+  "prCleanupActions": [
+    "No open GA4, analytics, PostHog, admin analytics, script/env PRs found at start."
+  ],
+  "nextFixOrder": [
+    "If owner-approved GA4 evidence is needed, add measurement/property configuration and run only explicit refreshes.",
+    "Keep first-party analytics event facts and rollups as product truth for admin totals.",
+    "Use GA4 snapshots as external comparison evidence, not live totals."
+  ]
+}

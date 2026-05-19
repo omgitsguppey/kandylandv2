@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.8 - 2026-05-19
+- Bug fixes and general improvements
+- Clarified Google Analytics evidence status.
+- Kept first-party analytics as product truth.
+- Prevented missing GA4 data from showing as zero traffic.
+
 ## 1.3.7 - 2026-05-19
 - Bug fixes and general improvements
 - Split large Admin Analytics and Debug logic into focused modules.

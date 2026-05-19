@@ -12,6 +12,7 @@ import {
   runVendorReportWhenAllowed,
   type AdminAnalyticsDataClient,
 } from "./admin-analytics/ga4-evidence";
+import { shouldRunGa4AdminRefresh } from "@/lib/analytics/ga4-truth";
 import { ADMIN_TELEMETRY_LOG_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES } from "@/lib/telemetry-catalog";
 import { ANALYTICS_NON_PRIORITY_TTL_MS } from "@/lib/analytics/analytics-cadence-policy";
 
@@ -51,6 +52,10 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       const trafficDimensionName = timelineBucket === "hour" ? "dateHour" : "date";
       const issues: string[] = [];
       const ga4State = classifyAdminAnalyticsGa4State({ propertyId, allowVendorReports });
+      const allowGa4VendorReports = shouldRunGa4AdminRefresh({
+        explicitRefresh: allowVendorReports,
+        propertyId,
+      });
       issues.push(ga4State.reason);
 
       const [
@@ -81,7 +86,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
           watchAssetsSnapshot,
     ] = await Promise.all([
     runVendorReportWhenAllowed({
-      allowVendorReports,
+      allowVendorReports: allowGa4VendorReports,
       analyticsClient,
       label: "traffic overview",
       issues,
@@ -103,7 +108,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       }],
     }}),
     runVendorReportWhenAllowed({
-      allowVendorReports,
+      allowVendorReports: allowGa4VendorReports,
       analyticsClient,
       label: "event mix",
       issues,
@@ -122,7 +127,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       },
     }}),
     runVendorReportWhenAllowed({
-      allowVendorReports,
+      allowVendorReports: allowGa4VendorReports,
       analyticsClient,
       label: "geo active users",
       issues,
@@ -135,7 +140,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       limit: 15,
     }}),
     runVendorReportWhenAllowed({
-      allowVendorReports,
+      allowVendorReports: allowGa4VendorReports,
       analyticsClient,
       label: "geo path demand",
       issues,
@@ -148,7 +153,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       limit: 250,
     }}),
     runVendorReportWhenAllowed({
-      allowVendorReports,
+      allowVendorReports: allowGa4VendorReports,
       analyticsClient,
       label: "top pages",
       issues,
@@ -161,7 +166,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       limit: 25,
     }}),
     runVendorReportWhenAllowed({
-      allowVendorReports,
+      allowVendorReports: allowGa4VendorReports,
       analyticsClient,
       label: "device mix",
       issues,
@@ -178,7 +183,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       limit: 3,
     }}),
     runVendorReportWhenAllowed({
-      allowVendorReports,
+      allowVendorReports: allowGa4VendorReports,
       analyticsClient,
       label: "guided onboarding duration",
       issues,

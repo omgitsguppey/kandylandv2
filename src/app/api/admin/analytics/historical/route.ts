@@ -69,6 +69,7 @@ import {
     type StaleWhileRevalidateCacheResult,
 } from "@/lib/server/ephemeral-route-cache";
 import { ANALYTICS_NON_PRIORITY_TTL_MS } from "@/lib/analytics/analytics-cadence-policy";
+import { buildGa4EvidenceState } from "@/lib/analytics/ga4-truth";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
 const propertyId = getAdminAnalyticsPropertyId();
@@ -917,6 +918,13 @@ async function GET_handler(request: NextRequest) {
         const section = searchParams.get("section")?.trim() || null;
         const forceRefresh = searchParams.get("refresh") === "1" || searchParams.get("forceRefresh") === "1";
         const snapshotAuthorityTarget = resolveHistoricalSnapshotAuthorityTarget(section, period);
+        const ga4EvidenceState = buildGa4EvidenceState({
+            propertyId,
+            measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || process.env.GA_MEASUREMENT_ID,
+            apiSecretPresent: Boolean(process.env.GA_API_SECRET),
+            clientCodePresent: true,
+            serverDataApiDependencyPresent: true,
+        });
 
         if (snapshotAuthorityTarget && !viewerUser && !forceRefresh) {
             const snapshotAuthorityResult = await readHistoricalSnapshotAuthorityPayload(snapshotAuthorityTarget);
@@ -924,10 +932,14 @@ async function GET_handler(request: NextRequest) {
         }
 
         if (!propertyId) {
-            return NextResponse.json({
-                error: "GA_PROPERTY_ID is missing from environment variables.",
-                requiresSetup: true
-            }, { status: 400 });
+            recordAnalyticsRuntimeWarning({
+                surface: "admin/analytics/historical",
+                routeName: "admin/analytics/historical",
+                truthLabel: "partial",
+                sourceLabel: "ga4_external_evidence",
+                issues: [ga4EvidenceState.reason],
+                moduleKey: "ga4",
+            }).catch(() => undefined);
         }
 
         // Removed old !analyticsClient check since ADC is supported on App Hosting
@@ -2056,8 +2068,8 @@ async function GET_handler(request: NextRequest) {
                 issues,
                 verification: buildServerAdminModuleVerification({
                     module: "admin_analytics_historical",
-                    canonicalSource: "ga4+analytics_event_facts+analytics_rollups_daily",
-                    fallbackSource: issues.length > 0 ? "first_party_firestore_rollups" : null,
+                    canonicalSource: "analytics_event_facts+analytics_rollups_daily",
+                    fallbackSource: issues.length > 0 ? "first_party_firestore_rollups+ga4_external_evidence" : "ga4_external_evidence",
                     freshnessTimestamp: Date.now(),
                     status: analyticsTruth.fail > 0 ? "failed" : analyticsTruth.warn > 0 ? "degraded" : "live",
                     degradedReason: issues[0] ?? null,
