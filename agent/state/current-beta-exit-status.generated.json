@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-19T14:48:46.373Z",
+  "generatedAtUtc": "2026-05-19T15:25:05.684Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "83d085481f237358a857f16ca55c99b662ecbed5",
+  "currentHead": "f0bde91b407eac578e3d8e948437bdb8cb575e85",
   "summary": {
-    "betaVersion": "1.2.82",
+    "betaVersion": "1.2.94",
     "betaScore": 45,
     "betaStatus": "Stale evidence",
     "sourceCleanupP0": 0,
@@ -16,18 +16,18 @@
     "providerSmokeStatus": "missing_formal_evidence",
     "runtimeSmokeStatus": "runtime_unverified",
     "adminTruthSampleStatus": "missing_or_unknown",
-    "cloudRunCostReadiness": "repo_detected_external_billing_observed_operator_context_cost_review_required",
-    "cloudSqlCostReadiness": "repo_detected_agent_context_mirror_external_billing_observed_operator_context_owner_review_required",
-    "geminiCloudAssistCostReadiness": "repo_detected_admin_ai_external_billing_observed_operator_context_cost_review_required",
-    "route4xxReadiness": "source_inventory_complete_retry_review_required",
+    "cloudRunCostReadiness": "cost_review_required",
+    "cloudSqlCostReadiness": "not_detected_in_repo",
+    "geminiCloudAssistCostReadiness": "cost_review_required",
+    "route4xxReadiness": "source_inventory_complete",
     "errorHandlingSourceStatus": "error_handling_source_complete",
+    "analyticsSemanticsSourceStatus": "analytics_semantics_source_ready_runtime_proof_required",
     "speedSecurityStatus": "51/beta-risk; findings=90; critical=0; p2BacklogVisible=true",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,
     "canStartProviderSmoke": true,
     "canStartRuntimeSmoke": true,
-    "canStartBetaExitReview": false,
-    "analyticsSemanticsSourceStatus": "analytics_semantics_source_ready_runtime_proof_required"
+    "canStartBetaExitReview": false
   },
   "checksRun": [
     {
@@ -59,36 +59,6 @@
       "command": "npm run check:overnight-beta-readiness-lock",
       "status": "passed",
       "evidence": "agent/state/overnight-beta-readiness-lock.generated.json"
-    },
-    {
-      "command": "npm run check:analytics-identity-transfer-inventory",
-      "status": "passed",
-      "evidence": "represented in analytics semantics final lock source evidence."
-    },
-    {
-      "command": "npm run check:guest-user-identity-transfer",
-      "status": "passed",
-      "evidence": "represented in analytics semantics final lock source evidence."
-    },
-    {
-      "command": "npm run check:analytics-legacy-recovery-reconciliation",
-      "status": "passed",
-      "evidence": "represented in analytics semantics final lock source evidence."
-    },
-    {
-      "command": "npm run check:runtime-watch-time-v2",
-      "status": "passed",
-      "evidence": "represented in analytics semantics final lock source evidence."
-    },
-    {
-      "command": "npm run check:analytics-semantics-final-lock",
-      "status": "passed",
-      "evidence": "represented in analytics semantics final lock source evidence."
-    },
-    {
-      "command": "npm run check:analytics-cost-runtime-inventory",
-      "status": "passed",
-      "evidence": "agent/state/analytics-cost-runtime-inventory.generated.json"
     }
   ],
   "failedChecks": [],
@@ -98,9 +68,7 @@
     "agent/state/evidence-capture-status.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/cost-4xx-reduction.generated.json",
-    "agent/state/speed-security-hardening.generated.json",
-    "agent/state/analytics-semantics-final-lock.generated.json",
-    "agent/state/analytics-cost-runtime-inventory.generated.json"
+    "agent/state/speed-security-hardening.generated.json"
   ],
   "remainingBlockers": [
     {
@@ -144,18 +112,9 @@
       "severity": "P2",
       "status": "owner_review",
       "evidence": [
-        "speed/security score=51 beta-risk; findings=90; analytics cost runtime inventory source-only lanes added."
+        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
       "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
-    },
-    {
-      "id": "runtime_watch_time_v2_runtime_proof_missing",
-      "severity": "P1",
-      "status": "runtime_evidence_required",
-      "evidence": [
-        "Runtime watch-time v2 is source-ready, but deployed media playback evidence is not attached."
-      ],
-      "nextAction": "Attach deployed runtime watch-time evidence before claiming live analytics accuracy."
     }
   ],
   "deferredOwnerReview": [
@@ -173,7 +132,6 @@
     }
   ],
   "nextExactSteps": [
-    "Analytics semantics are source-ready; runtime watch-time accuracy still needs deployed media evidence.",
     "First evidence lane: manual product-behavior screenshot QA. Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.",
     "Manual route/flow checklist: /, /drops, /drops/[id]/preview locked state, /dashboard, /dashboard/creator, /dashboard/profile, /dashboard/settings, /dashboard/library, /dashboard/chat shell only, /creators/[username], wallet / GumDrop purchase modal, creator profile Fan Pass, creator profile requests, creator profile booking slots, creator owner profile mode, Beta release notes drawer, mobile nav/sidebar/profile dropdown.",
     "Manual artifact needed: copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated non-template JSON, set status complete only with real screenshots, and place screenshots under agent/evidence/manual-screenshot-qa/screenshots/.",

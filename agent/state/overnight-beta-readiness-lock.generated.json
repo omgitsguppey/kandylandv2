@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-17T19:47:05.179Z",
-  "currentHead": "a7df39a9c112dda604f362f84e98fa60689dc2d1",
-  "betaScore": 55,
-  "betaStatus": "Unknown evidence",
+  "generatedAtUtc": "2026-05-19T15:25:05.684Z",
+  "currentHead": "f0bde91b407eac578e3d8e948437bdb8cb575e85",
+  "betaScore": 45,
+  "betaStatus": "Stale evidence",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
   "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",
   "cost4xxStatus": "passed; p0=0; p1=0; p2=7; route4xx=3",
@@ -10,7 +10,7 @@
   "cloudSqlCostStatus": "not_detected_in_repo",
   "geminiCloudAssistCostStatus": "cost_review_required",
   "evidenceStatus": "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0",
-  "speedSecurityStatus": "51/beta-risk; findings=89; critical=0; p2BacklogVisible=true",
+  "speedSecurityStatus": "51/beta-risk; findings=90; critical=0; p2BacklogVisible=true",
   "remainingBlockers": [
     {
       "id": "manual_screenshot_evidence_missing",

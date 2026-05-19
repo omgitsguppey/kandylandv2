@@ -48,12 +48,12 @@ export const refreshAdminAnalyticsRealtimeSummary = onSchedule({
 });
 ```
 
-Firebase SQL Connect checks:
+Firebase SQL Connect / Cloud SQL owner-review checks are manual-only. Agents must not run these during source-only cost lanes:
 
 ```bash
+# owner-operated only after auth and billing review
 firebase dataconnect:services:list
 firebase dataconnect:sql:diff
-firebase deploy --only dataconnect
 ```
 
 ## Data Connect Agent Mirror Boundary
@@ -65,9 +65,11 @@ Allowed files are `dataconnect/dataconnect.yaml`, `dataconnect/schema/*.gql`, `d
 Rules:
 - Data Connect is forbidden for user, payment, Drop, chat, support, or creator runtime flows unless an explicit owner-approved SQL/Data Connect route contract exists.
 - Data Connect is forbidden inside `src/app/api` runtime routes unless the route has an `ApiCostContract` with SQL/Data Connect classification.
-- `agent:sync-sql` must not run automatically during user-facing builds or deploys.
+- `agent:sync-sql` must not run automatically during user-facing builds, deploys, CI, or `agent:refresh`.
+- SQL mirror sync must fail closed unless `ALLOW_SQL_MIRROR_SYNC=1`, `SQL_MIRROR_SYNC_REASON` is non-empty, and `SQL_MIRROR_SYNC_ENV=local|staging|manual`.
+- `SQL_MIRROR_DRY_RUN=1` is the default verification posture for local checks because it must not write mirror artifacts or make provider calls.
 - New Data Connect operations must declare purpose, table/type touched, expected rows, max execution frequency, allowed environments, whether user/runtime data can be touched, and estimated billing risk.
-- Source config does not prove provider billing state. The current billing state for `kandydrops-db` is `source_configured_provider_state_unverified` until confirmed by an owner.
+- Source config does not prove provider billing state. External Cloud SQL billing remains `cloud_sql_external_billing_observed_owner_review_required` until an owner maps instance/process usage in GCP.
 
 ## Cloud Cost And Pipeline Guardrails
 
@@ -97,7 +99,7 @@ npm run check:telemetry
 npm run check:analytics:continuity
 npm run check:admin-truth
 npm --prefix functions run check
-firebase dataconnect:sql:diff
+npm run check:cloud-sql-gemini-cost-guards
 ```
 
 If any Google/cloud service is not locally authenticated, record that as `[unavailable]` or `[degraded]`; do not mark the admin surface healthy from configuration guesses.

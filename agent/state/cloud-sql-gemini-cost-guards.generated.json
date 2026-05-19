@@ -1,0 +1,174 @@
+{
+  "generatedAtUtc": "2026-05-19T15:23:34.612Z",
+  "reportKey": "cloud-sql-gemini-cost-guards",
+  "currentHead": "f0bde91b407eac578e3d8e948437bdb8cb575e85",
+  "summary": {
+    "cloudSqlRuntimeDetected": false,
+    "cloudSqlExternalBillingObserved": true,
+    "sqlMirrorScriptsGuarded": true,
+    "sqlMirrorRequiresExplicitApproval": true,
+    "dataConnectRuntimeDetected": false,
+    "geminiRuntimeDetected": true,
+    "geminiExternalBillingObserved": true,
+    "aiCallsRequireExplicitAction": true,
+    "aiCallsHaveRateOrCacheGuard": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "sqlFindings": [
+    {
+      "id": "cloud_sql_runtime_detection",
+      "status": "cloud_sql_runtime_not_detected",
+      "severity": "P2",
+      "evidence": [
+        "No runtime SQL client imports were detected in src or functions/src."
+      ],
+      "nextAction": "Keep Cloud SQL as owner-review until runtime source proves app usage."
+    },
+    {
+      "id": "cloud_sql_external_billing",
+      "status": "cloud_sql_external_billing_observed_owner_review_required",
+      "severity": "P1",
+      "evidence": [
+        "External billing was operator-provided context and remains separate from source-proven runtime SQL."
+      ],
+      "nextAction": "Review GCP Cloud SQL instance/process externally; do not invent repo pooling code without runtime SQL source."
+    },
+    {
+      "id": "sql_mirror_manual_guard",
+      "status": "sql_mirror_scripts_guarded_manual_only",
+      "severity": "P1",
+      "evidence": [
+        "scripts/agent/sync-sql.ts requires ALLOW_SQL_MIRROR_SYNC, SQL_MIRROR_SYNC_REASON, SQL_MIRROR_SYNC_ENV, and supports SQL_MIRROR_DRY_RUN."
+      ],
+      "nextAction": "Run SQL mirror sync only with explicit local/staging/manual approval and a reason."
+    }
+  ],
+  "dataConnectFindings": [
+    {
+      "id": "dataconnect_agent_context_mirror",
+      "status": "dataconnect_agent_context_mirror_runtime_not_detected",
+      "severity": "P2",
+      "evidence": [
+        "dataconnect/dataconnect.yaml exists as an agent-context mirror.",
+        "No Data Connect runtime imports were detected."
+      ],
+      "nextAction": "Keep Data Connect classified as repo intelligence mirror unless explicitly promoted with a runtime ApiCostContract."
+    },
+    {
+      "id": "dataconnect_doctrine_manual_only",
+      "status": "dataconnect_doctrine_manual_only",
+      "severity": "P2",
+      "evidence": [
+        "Cloud analytics doctrine documents manual SQL/Data Connect mirror guardrails."
+      ],
+      "nextAction": "Keep doctrine and package scripts aligned when SQL mirror tooling changes."
+    }
+  ],
+  "geminiFindings": [
+    {
+      "id": "gemini_runtime_detection",
+      "status": "gemini_vertex_admin_ai_runtime_detected",
+      "severity": "P1",
+      "evidence": [
+        "src/lib/server/ai-drop-covers.ts",
+        "src/lib/server/ai-drop-descriptions.ts",
+        "src/lib/server/ai-debug-assistant.ts"
+      ],
+      "nextAction": "Keep runtime AI behind explicit admin action, settings, rate limit, timeout, and owner-review cost lanes."
+    },
+    {
+      "id": "gemini_explicit_action",
+      "status": "gemini_vertex_calls_require_explicit_admin_action",
+      "severity": "P1",
+      "evidence": [
+        "src/app/api/admin/ai/drop-covers/generate/route.ts",
+        "src/app/api/admin/ai/drop-descriptions/generate/route.ts",
+        "src/app/api/admin/debug/assistant/route.ts"
+      ],
+      "nextAction": "Do not add background AI calls; GET/default views must use saved/deterministic output."
+    },
+    {
+      "id": "gemini_rate_cache_guard",
+      "status": "gemini_vertex_calls_have_rate_timeout_budget_guard",
+      "severity": "P1",
+      "evidence": [
+        "Admin AI routes use rate limits; libraries include settings gates, timeout/token or cost-budget evidence."
+      ],
+      "nextAction": "Add cache/idempotency before any new repeated same-prompt AI lane."
+    },
+    {
+      "id": "gemini_external_billing",
+      "status": "gemini_cloud_assist_external_billing_observed_owner_review_required",
+      "severity": "P1",
+      "evidence": [
+        "External Gemini/Vertex billing was operator-provided context and is not a repo-local pass state."
+      ],
+      "nextAction": "Review Google Cloud billing/Vertex usage externally and map service account/job owners."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "sql_mirror_manual_guard",
+      "status": "sql_mirror_scripts_guarded_manual_only",
+      "severity": "P1",
+      "evidence": [
+        "scripts/agent/sync-sql.ts requires ALLOW_SQL_MIRROR_SYNC, SQL_MIRROR_SYNC_REASON, SQL_MIRROR_SYNC_ENV, and supports SQL_MIRROR_DRY_RUN."
+      ],
+      "nextAction": "Run SQL mirror sync only with explicit local/staging/manual approval and a reason."
+    },
+    {
+      "id": "dataconnect_doctrine_manual_only",
+      "status": "dataconnect_doctrine_manual_only",
+      "severity": "P2",
+      "evidence": [
+        "Cloud analytics doctrine documents manual SQL/Data Connect mirror guardrails."
+      ],
+      "nextAction": "Keep doctrine and package scripts aligned when SQL mirror tooling changes."
+    }
+  ],
+  "deferredOwnerReview": [
+    {
+      "id": "cloud_sql_external_billing",
+      "status": "cloud_sql_external_billing_observed_owner_review_required",
+      "severity": "P1",
+      "evidence": [
+        "External billing was operator-provided context and remains separate from source-proven runtime SQL."
+      ],
+      "nextAction": "Review GCP Cloud SQL instance/process externally; do not invent repo pooling code without runtime SQL source."
+    },
+    {
+      "id": "gemini_external_billing",
+      "status": "gemini_cloud_assist_external_billing_observed_owner_review_required",
+      "severity": "P1",
+      "evidence": [
+        "External Gemini/Vertex billing was operator-provided context and is not a repo-local pass state."
+      ],
+      "nextAction": "Review Google Cloud billing/Vertex usage externally and map service account/job owners."
+    }
+  ],
+  "prCleanupActions": [
+    {
+      "number": 271,
+      "action": "not_relevant",
+      "reason": "Monolith responsibility PR is not a SQL/Data Connect/Gemini cost guard change."
+    },
+    {
+      "number": 272,
+      "action": "not_relevant",
+      "reason": "Creator dashboard aria-expanded PR is UI accessibility work, outside this cost guard lane."
+    },
+    {
+      "number": 273,
+      "action": "not_relevant",
+      "reason": "Admin Debug Map optimization is separate from SQL/Data Connect/Gemini provider cost guards."
+    }
+  ],
+  "nextFixOrder": [
+    "Owner-review Cloud SQL billing in GCP to identify whether Data Connect mirror, App Hosting, or another external process owns spend.",
+    "Owner-review Vertex/Gemini billing in GCP and map service accounts to the admin AI routes or Cloud Assist usage.",
+    "Keep SQL mirror sync manual-only; require approval env, reason, and dry-run for local verification.",
+    "Add cache/idempotency before any future repeated same-prompt Gemini or Vertex lane."
+  ]
+}

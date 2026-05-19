@@ -13,6 +13,51 @@ type SqlMirrorArtifact = {
   rowCount: number;
 };
 
+export type SqlMirrorSyncEnvironment = Record<string, string | undefined>;
+
+export type SqlMirrorSyncGuard = {
+  allowed: true;
+  dryRun: boolean;
+  reason: string;
+  syncEnv: "local" | "staging" | "manual";
+  providerExecution: "blocked_local_dry_run" | "local_artifact_write_only";
+  ciBlockedByDefault: boolean;
+};
+
+const SQL_MIRROR_SYNC_ENVIRONMENTS = new Set(["local", "staging", "manual"]);
+
+export function assertSqlMirrorSyncAllowed(env: SqlMirrorSyncEnvironment = process.env): SqlMirrorSyncGuard {
+  if (env.ALLOW_SQL_MIRROR_SYNC !== "1") {
+    throw new Error(
+      "SQL mirror sync is manual-only. Set ALLOW_SQL_MIRROR_SYNC=1, SQL_MIRROR_SYNC_REASON, and SQL_MIRROR_SYNC_ENV=local|staging|manual to run it.",
+    );
+  }
+
+  const reason = (env.SQL_MIRROR_SYNC_REASON || "").trim();
+  if (!reason) {
+    throw new Error("SQL_MIRROR_SYNC_REASON is required before agent SQL mirror sync can run.");
+  }
+
+  const syncEnv = (env.SQL_MIRROR_SYNC_ENV || "").trim();
+  if (!SQL_MIRROR_SYNC_ENVIRONMENTS.has(syncEnv)) {
+    throw new Error("SQL_MIRROR_SYNC_ENV must be one of local, staging, or manual before agent SQL mirror sync can run.");
+  }
+
+  if (env.CI === "true" && syncEnv !== "manual") {
+    throw new Error("SQL mirror sync is blocked in CI unless SQL_MIRROR_SYNC_ENV=manual is explicitly set with approval.");
+  }
+
+  const dryRun = env.SQL_MIRROR_DRY_RUN === "1";
+  return {
+    allowed: true,
+    dryRun,
+    reason,
+    syncEnv: syncEnv as SqlMirrorSyncGuard["syncEnv"],
+    providerExecution: dryRun ? "blocked_local_dry_run" : "local_artifact_write_only",
+    ciBlockedByDefault: true,
+  };
+}
+
 function hashValue(value: unknown) {
   return createHash("sha1").update(JSON.stringify(value)).digest("hex").slice(0, 12);
 }
@@ -82,12 +127,65 @@ function buildMirrorRows(syncRevision: string) {
   };
 }
 
-export function syncAgentSqlMirror() {
+export function syncAgentSqlMirror(options: {
+  env?: SqlMirrorSyncEnvironment;
+  now?: () => string;
+} = {}) {
+  const guard = assertSqlMirrorSyncAllowed(options.env || process.env);
+  const generatedAt = options.now?.() || nowIso();
+  const syncRevision = `${generatedAt.slice(0, 10)}-${Date.now()}`;
+
+  if (guard.dryRun) {
+    const payload = {
+      ...createMetadata([
+        "agent/index/*.json",
+        "firebase.json",
+        ".firebase/.graphqlrc",
+        "dataconnect/schema/agent-context.gql",
+      ]),
+      stable_id: toStableId("sqlsync", `dry-run-${syncRevision}`),
+      mirrorKind: "sql_dataconnect_agent_context_mirror",
+      costClass: "sql_dataconnect_agent_context_mirror",
+      mirrorMode: fileExists("dataconnect/schema/agent-context.gql") ? "wired_dataconnect_schema" : "local_only",
+      repoTruthPrecedence: "repo_truth_wins_over_sql_mirror",
+      allowedUse: "agent_repo_intelligence_mirror_only",
+      runtimeUseForbidden: true,
+      analyticsEvidenceOnly: true,
+      runtimeImportBlocked: true,
+      generatedAt,
+      syncedAt: generatedAt,
+      syncRevision,
+      approval: guard,
+      dryRun: true,
+      writesSkipped: true,
+      providerExecution: guard.providerExecution,
+      artifacts: [],
+      staleArtifacts: [],
+    };
+    const status = {
+      ...createMetadata(["agent/state/sql-sync.payload.generated.json"]),
+      stable_id: toStableId("sqlstatus", `dry-run-${syncRevision}`),
+      generatedAt,
+      syncRevision,
+      mirrorKind: payload.mirrorKind,
+      costClass: payload.costClass,
+      healthy: true,
+      allowedUse: payload.allowedUse,
+      runtimeUseForbidden: payload.runtimeUseForbidden,
+      analyticsEvidenceOnly: payload.analyticsEvidenceOnly,
+      runtimeImportBlocked: payload.runtimeImportBlocked,
+      approval: guard,
+      dryRun: true,
+      writesSkipped: true,
+      providerExecution: guard.providerExecution,
+    };
+
+    return { payload, status, guard, writesSkipped: true };
+  }
+
   buildAgentIndexes();
 
-  const syncRevision = `${new Date().toISOString().slice(0, 10)}-${Date.now()}`;
   const mirror = buildMirrorRows(syncRevision);
-  const generatedAt = nowIso();
   const dataconnectDocuments = compact([
     fileExists("dataconnect/schema/agent-context.gql") ? "dataconnect/schema/agent-context.gql" : null,
     fileExists("dataconnect/example/agent-context.gql") ? "dataconnect/example/agent-context.gql" : null,
@@ -126,6 +224,9 @@ export function syncAgentSqlMirror() {
     generatedAt,
     syncedAt: generatedAt,
     syncRevision,
+    approval: guard,
+    dryRun: false,
+    providerExecution: guard.providerExecution,
     dataconnectSchemaFiles: dataconnectDocuments,
     artifacts: mirror.rows,
     staleArtifacts: mirror.rows.filter((row) => row.stale).map((row) => row.source_path),
@@ -148,16 +249,30 @@ export function syncAgentSqlMirror() {
     canonicalFactImportTargets: payload.canonicalFactImportTargets,
     forbiddenRuntimeMutationSurfaces: payload.forbiddenRuntimeMutationSurfaces,
     cloudSql: payload.cloudSql,
+    approval: guard,
+    dryRun: false,
+    providerExecution: guard.providerExecution,
     artifacts: mirror.artifactStatus,
   };
 
   writeJsonFile("agent/state/sql-sync.payload.generated.json", payload);
   writeJsonFile("agent/state/sql-mirror-status.generated.json", status);
-  return { payload, status };
+  return { payload, status, guard, writesSkipped: false };
 }
 
 if (require.main === module) {
-  const { payload } = syncAgentSqlMirror();
-  validateWithSchema("agent/schemas/retrieval-index.schema.json", readJsonFile("agent/index/retrieval-index.json"));
-  console.log(`Agent SQL mirror payload generated for ${payload.artifacts.length} artifacts.`);
+  try {
+    const { payload, guard } = syncAgentSqlMirror();
+    if (!guard.dryRun) {
+      validateWithSchema("agent/schemas/retrieval-index.schema.json", readJsonFile("agent/index/retrieval-index.json"));
+    }
+    console.log(
+      guard.dryRun
+        ? "Agent SQL mirror dry run passed. No provider calls or artifact writes were performed."
+        : `Agent SQL mirror payload generated for ${payload.artifacts.length} artifacts.`,
+    );
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
 }

@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.93",
-  "betaReleaseCounter": 293,
+  "currentVersion": "1.2.94",
+  "betaReleaseCounter": 294,
   "channel": "beta",
-  "generatedAt": "2026-05-19T15:04:59.522Z",
-  "generatedAtUtc": "2026-05-19T15:04:59.522Z",
+  "generatedAt": "2026-05-19T15:23:15.848Z",
+  "generatedAtUtc": "2026-05-19T15:23:15.848Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.2.94",
+      "previousVersion": "1.2.93",
+      "betaReleaseCounter": 294,
+      "previousBetaReleaseCounter": 293,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(cost): guard sql and ai cost paths",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T15:23:15.848Z",
+      "generatedAt": "2026-05-19T15:23:15.848Z",
+      "committedAtUtc": "2026-05-19T15:23:15.848Z",
+      "generatedAtUtc": "2026-05-19T15:23:15.848Z",
+      "updatedAtUtc": "2026-05-19T15:23:15.848Z",
+      "category": "Performance",
+      "title": "Bug fixes and general improvements",
+      "summary": "Guarded SQL mirror and Data Connect paths while keeping Cloud SQL and Gemini cost owner-review lanes visible.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Guarded SQL mirror and Data Connect cost paths.",
+        "Clarified Cloud SQL and Gemini cost owner-review lanes.",
+        "Blocked accidental background AI or SQL cost work."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted SQL and AI cost guard patch into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "agent tooling",
+        "cloud cost guards",
+        "admin AI"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+        "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+        "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/sync-sql.ts",
+        "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/cloud-sql-gemini-cost-guards.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.2.93",
       "previousVersion": "1.2.92",

@@ -1,13 +1,13 @@
 # Overnight Beta Readiness Lock
 
-Generated: 2026-05-17T19:47:05.179Z
+Generated: 2026-05-19T15:25:05.684Z
 
-Current HEAD: a7df39a9c112dda604f362f84e98fa60689dc2d1
+Current HEAD: f0bde91b407eac578e3d8e948437bdb8cb575e85
 
 ## Status
 
-- Beta score: 55
-- Beta status: Unknown evidence
+- Beta score: 45
+- Beta status: Stale evidence
 - Creator dashboard error status: passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2
 - Source truth status: passed; active=12; supporting=6; retiredLaunchArtifacts=3
 - Cost/4xx status: passed; p0=0; p1=0; p2=7; route4xx=3
@@ -15,7 +15,7 @@ Current HEAD: a7df39a9c112dda604f362f84e98fa60689dc2d1
 - Cloud SQL cost status: not_detected_in_repo
 - Gemini/Cloud Assist cost status: cost_review_required
 - Evidence status: manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0
-- Speed/security status: 51/beta-risk; findings=89; critical=0; p2BacklogVisible=true
+- Speed/security status: 51/beta-risk; findings=90; critical=0; p2BacklogVisible=true
 
 ## Start Gates
 

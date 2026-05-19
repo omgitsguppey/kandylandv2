@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.2.94 - 2026-05-19
+- Bug fixes and general improvements
+- Guarded SQL mirror and Data Connect cost paths.
+- Clarified Cloud SQL and Gemini cost owner-review lanes.
+- Blocked accidental background AI or SQL cost work.
+
 ## 1.2.93 - 2026-05-19
 - Bug fixes and general improvements
 - Reduced scheduled analytics and runtime scan costs.
