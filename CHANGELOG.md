@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.2.93 - 2026-05-19
+- Bug fixes and general improvements
+- Reduced scheduled analytics and runtime scan costs.
+- Moved recurring jobs toward due-only and incremental work.
+- Kept subscription, notification, and queue correctness intact.
+
 ## 1.2.92 - 2026-05-19
 - Bug fixes and general improvements
 - Reduced default Admin Analytics and Debug read costs.

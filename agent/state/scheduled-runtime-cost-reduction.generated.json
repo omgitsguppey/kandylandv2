@@ -1,0 +1,127 @@
+{
+  "generatedAtUtc": "2026-05-19T15:08:15.096Z",
+  "reportKey": "scheduled-runtime-cost-reduction",
+  "currentHead": "00c34ff6291819ecdaa12542ae2b0d1a42915d3d",
+  "summary": {
+    "realtimeSummaryCadenceMinutes": 5,
+    "analyticsTruthUsesIncrementalCursor": true,
+    "behavioralIntelligenceUsesChangedSources": true,
+    "behavioralProfileWritesDiffOnly": true,
+    "queueLifecycleDueOnly": true,
+    "activeDropNotificationsDueOnly": true,
+    "creatorSubscriptionsDueOnly": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "auditItemsAddressed": [
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50
+  ],
+  "fixesApplied": [
+    {
+      "id": "realtimeSummaryCadenceMinutes",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Non-critical analytics realtime summary is guarded at a five-minute minimum cadence."
+    },
+    {
+      "id": "analyticsTruthUsesIncrementalCursor",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Analytics truth runtime defaults to cursor/bootstrap windows; 45-day rebuild requires explicit fullRebuild."
+    },
+    {
+      "id": "behavioralIntelligenceUsesChangedSources",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Behavioral intelligence reads changed/updated sources instead of full drops and relationships by default."
+    },
+    {
+      "id": "behavioralProfileWritesDiffOnly",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Behavioral profile writes are guarded by changed hashes so unchanged profiles skip writes."
+    },
+    {
+      "id": "queueLifecycleDueOnly",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Queue lifecycle and active-drop notification scans fetch due transitions instead of all scheduled/active drops."
+    },
+    {
+      "id": "activeDropNotificationsDueOnly",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Active drop notifications remain due-only and idempotent by activation key."
+    },
+    {
+      "id": "creatorSubscriptionsDueOnly",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Creator subscription cron reads due renewals and warning-window subscriptions instead of scanning 1000 active subscriptions."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "external-schedule-verification",
+      "status": "deferred",
+      "severity": "P2",
+      "detail": "No deploy/provider checks were run. After deployment, verify Cloud Scheduler entries match the source cadence and that no old one-minute trigger remains active."
+    }
+  ],
+  "costSavingsModel": [
+    {
+      "lane": "analytics_realtime_summary",
+      "formula": "invocationReduction = 1 - (1 / 5)",
+      "estimatedReduction": "up to 80% fewer non-critical realtime-summary executions versus one-minute cadence"
+    },
+    {
+      "lane": "analytics_truth_runtime",
+      "formula": "readReduction = 45dayWindowReads - cursorWindowReads",
+      "estimatedReduction": "typically 80-98% fewer runtime truth source reads after cursor bootstrap"
+    },
+    {
+      "lane": "behavioral_intelligence",
+      "formula": "writeReduction = unchangedProfiles - changedProfiles",
+      "estimatedReduction": "60-95% fewer profile writes when source hashes are unchanged"
+    },
+    {
+      "lane": "queue_and_notifications",
+      "formula": "scanReduction = allScheduledActiveDrops - dueTransitionDrops",
+      "estimatedReduction": "70-99% fewer default drop transition reads on quiet intervals"
+    },
+    {
+      "lane": "creator_subscription_cron",
+      "formula": "scanReduction = activeSubscriptions - dueRenewalsAndWarnings",
+      "estimatedReduction": "70-99% fewer subscription docs read on non-renewal windows"
+    }
+  ],
+  "prCleanupActions": [
+    {
+      "number": 273,
+      "action": "not_relevant",
+      "reason": "Open Admin Debug Map-lookup optimization PR does not touch scheduled runtime job cost lanes."
+    },
+    {
+      "number": 271,
+      "action": "not_relevant",
+      "reason": "Open monolith-boundary PR does not touch scheduled runtime job cost lanes."
+    },
+    {
+      "number": 272,
+      "action": "not_relevant",
+      "reason": "Open creator dashboard accessibility PR does not touch scheduled runtime job cost lanes."
+    }
+  ],
+  "nextFixOrder": [
+    "Verify deployed Cloud Scheduler cadence after the next deployment without running provider calls from this pass.",
+    "Add persisted recipient summary documents for active-drop notifications to further reduce owner exclusion lookups.",
+    "Add operator-triggered full rebuild controls for analytics truth and behavioral intelligence recovery runs."
+  ]
+}

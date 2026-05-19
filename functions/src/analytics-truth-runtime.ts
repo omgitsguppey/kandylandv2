@@ -25,6 +25,18 @@ type WatchSessionRecord = Record<string, unknown>
 type WatchAssetRecord = Record<string, unknown>
 type WatchObservationRecord = Record<string, unknown>
 
+const ANALYTICS_TRUTH_INCREMENTAL_CURSOR_COLLECTION = "analytics_truth_runtime_cursors"
+const ANALYTICS_TRUTH_RUNTIME_CURSOR_ID = "default"
+const ANALYTICS_TRUTH_BOOTSTRAP_WINDOW_MS = 24 * 60 * 60 * 1000
+const ANALYTICS_TRUTH_CURSOR_OVERLAP_MS = 5 * 60 * 1000
+
+type AnalyticsTruthRuntimeWindow = {
+  windowStartMs: number
+  windowMode: "cursor" | "bootstrap" | "full_rebuild"
+  lastSuccessfulRunAtMs: number
+  fullRebuild: boolean
+}
+
 type CounterBucket = {
   rawViewCount: number
   rawPreviewCount: number
@@ -272,8 +284,51 @@ function applyToAllScopes(input: {
   }
 }
 
-async function readTruthSources(nowMs: number) {
-  const windowStartMs = nowMs - ANALYTICS_TRUTH_WINDOW_MS
+async function resolveAnalyticsTruthRuntimeWindow(input: {
+  nowMs: number
+  fullRebuild?: boolean
+}): Promise<AnalyticsTruthRuntimeWindow> {
+  if (input.fullRebuild === true) {
+    return {
+      windowStartMs: input.nowMs - ANALYTICS_TRUTH_WINDOW_MS,
+      windowMode: "full_rebuild",
+      lastSuccessfulRunAtMs: 0,
+      fullRebuild: true,
+    }
+  }
+
+  const cursorSnap = await db.collection(ANALYTICS_TRUTH_INCREMENTAL_CURSOR_COLLECTION)
+    .doc(ANALYTICS_TRUTH_RUNTIME_CURSOR_ID)
+    .get()
+  const cursorData = cursorSnap.exists ? cursorSnap.data() || {} : {}
+  const lastSuccessfulRunAtMs = readNumber(cursorData.lastSuccessfulRunAtMs)
+
+  if (lastSuccessfulRunAtMs > 0) {
+    return {
+      windowStartMs: Math.max(
+        input.nowMs - ANALYTICS_TRUTH_WINDOW_MS,
+        lastSuccessfulRunAtMs - ANALYTICS_TRUTH_CURSOR_OVERLAP_MS,
+      ),
+      windowMode: "cursor",
+      lastSuccessfulRunAtMs,
+      fullRebuild: false,
+    }
+  }
+
+  return {
+    windowStartMs: input.nowMs - ANALYTICS_TRUTH_BOOTSTRAP_WINDOW_MS,
+    windowMode: "bootstrap",
+    lastSuccessfulRunAtMs: 0,
+    fullRebuild: false,
+  }
+}
+
+async function readTruthSources(nowMs: number, options: {fullRebuild?: boolean} = {}) {
+  const runtimeWindow = await resolveAnalyticsTruthRuntimeWindow({
+    nowMs,
+    fullRebuild: options.fullRebuild,
+  })
+  const {windowStartMs} = runtimeWindow
 
   const [
     eventFactsSnapshot,
@@ -305,6 +360,9 @@ async function readTruthSources(nowMs: number) {
 
   return {
     windowStartMs,
+    windowMode: runtimeWindow.windowMode,
+    fullRebuild: runtimeWindow.fullRebuild,
+    lastSuccessfulRunAtMs: runtimeWindow.lastSuccessfulRunAtMs,
     eventFacts: eventFactsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     watchSessions: watchSessionsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     watchAssets: watchAssetsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
@@ -930,15 +988,35 @@ async function writeAnalyticsTruthDocs(input: ReturnType<typeof buildAnalyticsTr
   await commitIfNeeded()
 }
 
-export async function rebuildAnalyticsTruthLayers() {
+async function writeAnalyticsTruthRuntimeCursor(input: {
+  sources: Awaited<ReturnType<typeof readTruthSources>>
+  nowMs: number
+}) {
+  await db.collection(ANALYTICS_TRUTH_INCREMENTAL_CURSOR_COLLECTION)
+    .doc(ANALYTICS_TRUTH_RUNTIME_CURSOR_ID)
+    .set({
+      lastSuccessfulRunAtMs: input.nowMs,
+      lastWindowStartMs: input.sources.windowStartMs,
+      lastWindowMode: input.sources.windowMode,
+      fullRebuild: input.sources.fullRebuild,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, {merge: true})
+}
+
+export async function rebuildAnalyticsTruthLayers(options: {fullRebuild?: boolean} = {}) {
   const nowMs = Date.now()
-  const sources = await readTruthSources(nowMs)
+  const sources = await readTruthSources(nowMs, {
+    fullRebuild: options.fullRebuild === true,
+  })
   const docs = buildAnalyticsTruthDocs(sources, nowMs)
   await writeAnalyticsTruthDocs(docs)
+  await writeAnalyticsTruthRuntimeCursor({sources, nowMs})
   logger.info("analytics truth layers rebuilt", {
     dropDocs: docs.dropDocs.length,
     userDocs: docs.userDocs.length,
     sessionDocs: docs.sessionWriteDocs.length,
     repairs: docs.repairDocs.length,
+    sourceWindowStartMs: sources.windowStartMs,
+    windowMode: sources.windowMode,
   })
 }

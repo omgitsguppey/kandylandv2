@@ -1,3 +1,5 @@
+import {createHash} from "node:crypto"
+
 import {FieldValue} from "firebase-admin/firestore"
 import {logger} from "firebase-functions"
 
@@ -8,8 +10,12 @@ const USER_PROFILE_COLLECTION = "behavioral_user_profiles"
 const GUEST_PROFILE_COLLECTION = "behavioral_guest_profiles"
 const DROP_INTELLIGENCE_COLLECTION = "behavioral_drop_intelligence"
 const SNAPSHOT_STATUS_COLLECTION = "behavioral_intelligence_status"
+const BEHAVIORAL_INTELLIGENCE_CURSOR_COLLECTION = "behavioral_intelligence_runtime_cursors"
+const BEHAVIORAL_INTELLIGENCE_CURSOR_ID = "default"
 
 const WINDOW_MS = 45 * 24 * 60 * 60 * 1000
+const BEHAVIORAL_INTELLIGENCE_BOOTSTRAP_WINDOW_MS = 24 * 60 * 60 * 1000
+const BEHAVIORAL_INTELLIGENCE_CURSOR_OVERLAP_MS = 5 * 60 * 1000
 const STALE_AFTER_MS = 24 * 60 * 60 * 1000
 const RECENT_EVENT_LIMIT = 5000
 const RECENT_WATCH_LIMIT = 3000
@@ -52,6 +58,13 @@ type FeedbackRecord = Record<string, unknown>
 type RelationshipRecord = Record<string, unknown>
 type UserRecord = Record<string, unknown>
 type BuiltUserProfileDoc = ReturnType<typeof buildUserProfileDoc>
+
+type BehavioralIntelligenceRuntimeWindow = {
+  windowStartMs: number
+  windowMode: "cursor" | "bootstrap" | "full_rebuild"
+  lastSuccessfulRunAtMs: number
+  fullRebuild: boolean
+}
 
 type SatisfactionAggregateRecord = {
   positiveCount: number
@@ -1056,18 +1069,101 @@ function resolveMaterializerFreshnessState(input: {
   return "live"
 }
 
-async function readRecentCollections(nowMs: number) {
-  const windowStartMs = nowMs - WINDOW_MS
+async function resolveBehavioralIntelligenceRuntimeWindow(input: {
+  nowMs: number
+  fullRebuild?: boolean
+}): Promise<BehavioralIntelligenceRuntimeWindow> {
+  if (input.fullRebuild === true) {
+    return {
+      windowStartMs: input.nowMs - WINDOW_MS,
+      windowMode: "full_rebuild",
+      lastSuccessfulRunAtMs: 0,
+      fullRebuild: true,
+    }
+  }
+
+  const cursorSnap = await db.collection(BEHAVIORAL_INTELLIGENCE_CURSOR_COLLECTION)
+    .doc(BEHAVIORAL_INTELLIGENCE_CURSOR_ID)
+    .get()
+  const cursorData = cursorSnap.exists ? cursorSnap.data() || {} : {}
+  const lastSuccessfulRunAtMs = readNumber(cursorData.lastSuccessfulRunAtMs)
+
+  if (lastSuccessfulRunAtMs > 0) {
+    return {
+      windowStartMs: Math.max(
+        input.nowMs - WINDOW_MS,
+        lastSuccessfulRunAtMs - BEHAVIORAL_INTELLIGENCE_CURSOR_OVERLAP_MS,
+      ),
+      windowMode: "cursor",
+      lastSuccessfulRunAtMs,
+      fullRebuild: false,
+    }
+  }
+
+  return {
+    windowStartMs: input.nowMs - BEHAVIORAL_INTELLIGENCE_BOOTSTRAP_WINDOW_MS,
+    windowMode: "bootstrap",
+    lastSuccessfulRunAtMs: 0,
+    fullRebuild: false,
+  }
+}
+
+async function readChangedSupportingCollections(input: {
+  windowStartMs: number
+  nowMs: number
+  fullRebuild: boolean
+}) {
+  if (input.fullRebuild) {
+    const [dropsSnapshot, relationshipsSnapshot] = await Promise.all([
+      db.collection("drops")
+        .orderBy("validFrom", "desc")
+        .limit(MAX_DROP_PROFILE_WRITES)
+        .get(),
+      db.collection("creator_relationships")
+        .orderBy("updatedAt", "desc")
+        .limit(MAX_USER_PROFILE_WRITES)
+        .get(),
+    ])
+
+    return {
+      drops: dropsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+      relationships: relationshipsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+    }
+  }
+
+  const [dropsSnapshot, relationshipsSnapshot] = await Promise.all([
+    db.collection("drops")
+      .where("validFrom", ">=", input.windowStartMs)
+      .orderBy("validFrom", "desc")
+      .limit(MAX_DROP_PROFILE_WRITES)
+      .get(),
+    db.collection("creator_relationships")
+      .where("updatedAt", ">=", new Date(input.windowStartMs))
+      .orderBy("updatedAt", "desc")
+      .limit(MAX_USER_PROFILE_WRITES)
+      .get(),
+  ])
+
+  return {
+    drops: dropsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+    relationships: relationshipsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+  }
+}
+
+async function readRecentCollections(nowMs: number, options: {fullRebuild?: boolean} = {}) {
+  const runtimeWindow = await resolveBehavioralIntelligenceRuntimeWindow({
+    nowMs,
+    fullRebuild: options.fullRebuild,
+  })
+  const windowStartMs = runtimeWindow.windowStartMs
 
   const [
-    dropsSnapshot,
     eventFactsSnapshot,
     watchSessionsSnapshot,
     guestBatchesSnapshot,
     feedbackSnapshot,
-    relationshipsSnapshot,
+    supportingCollections,
   ] = await Promise.all([
-    db.collection("drops").get(),
     db.collection("analytics_event_facts")
       .where("timestamp", ">=", windowStartMs)
       .orderBy("timestamp", "desc")
@@ -1087,17 +1183,24 @@ async function readRecentCollections(nowMs: number) {
       .orderBy("createdAt", "desc")
       .limit(RECENT_FEEDBACK_LIMIT)
       .get(),
-    db.collection("creator_relationships").get(),
+    readChangedSupportingCollections({
+      windowStartMs,
+      nowMs,
+      fullRebuild: runtimeWindow.fullRebuild,
+    }),
   ])
 
   return {
     windowStartMs,
-    drops: dropsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+    windowMode: runtimeWindow.windowMode,
+    fullRebuild: runtimeWindow.fullRebuild,
+    lastSuccessfulRunAtMs: runtimeWindow.lastSuccessfulRunAtMs,
+    drops: supportingCollections.drops,
     eventFacts: eventFactsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     watchSessions: watchSessionsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     guestBatches: guestBatchesSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     feedbacks: feedbackSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
-    relationships: relationshipsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+    relationships: supportingCollections.relationships,
     metricFacts: buildCanonicalMetricFacts({
       eventFacts: eventFactsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
       watchSessions: watchSessionsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
@@ -2247,6 +2350,34 @@ function applyLookalikeRecommendationSignals(userDocs: BuiltUserProfileDoc[]) {
   })
 }
 
+function stableBehavioralValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => stableBehavioralValue(entry))
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>
+    return Object.fromEntries(
+      Object.keys(record)
+        .filter((key) => ![
+          "generatedAt",
+          "updatedAt",
+          "updatedAtMs",
+          "freshnessLabel",
+          "sourceWindowStartMs",
+        ].includes(key))
+        .sort()
+        .map((key) => [key, stableBehavioralValue(record[key])]),
+    )
+  }
+  return value
+}
+
+function buildBehavioralProfileChangedHash(doc: Record<string, unknown>) {
+  return createHash("sha256")
+    .update(JSON.stringify(stableBehavioralValue(doc)))
+    .digest("hex")
+}
+
 async function writeSnapshotDocs(input: {
   userDocs: ReturnType<typeof buildUserProfileDoc>[]
   guestDocs: ReturnType<typeof buildGuestProfileDoc>[]
@@ -2256,6 +2387,8 @@ async function writeSnapshotDocs(input: {
 }) {
   let batch = db.batch()
   let operationCount = 0
+  let changedProfileWrites = 0
+  let unchangedProfileWritesSkipped = 0
 
   const commitIfNeeded = async () => {
     if (operationCount === 0) {
@@ -2266,37 +2399,41 @@ async function writeSnapshotDocs(input: {
     operationCount = 0
   }
 
-  for (const doc of input.userDocs.slice(0, MAX_USER_PROFILE_WRITES)) {
-    batch.set(db.collection(USER_PROFILE_COLLECTION).doc(doc.userId), {
+  const writeChangedBehavioralProfileDoc = async (
+    collection: string,
+    id: string,
+    doc: Record<string, unknown>,
+  ) => {
+    const changedHash = buildBehavioralProfileChangedHash(doc)
+    const ref = db.collection(collection).doc(id)
+    const existing = await ref.get()
+    if (existing.exists && readString(existing.data()?.changedHash) === changedHash) {
+      unchangedProfileWritesSkipped += 1
+      return
+    }
+
+    batch.set(ref, {
       ...doc,
+      changedHash,
       updatedAt: FieldValue.serverTimestamp(),
     }, {merge: true})
     operationCount += 1
+    changedProfileWrites += 1
     if (operationCount >= 400) {
       await commitIfNeeded()
     }
+  }
+
+  for (const doc of input.userDocs.slice(0, MAX_USER_PROFILE_WRITES)) {
+    await writeChangedBehavioralProfileDoc(USER_PROFILE_COLLECTION, doc.userId, doc)
   }
 
   for (const doc of input.guestDocs.slice(0, MAX_GUEST_PROFILE_WRITES)) {
-    batch.set(db.collection(GUEST_PROFILE_COLLECTION).doc(doc.sessionKey), {
-      ...doc,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, {merge: true})
-    operationCount += 1
-    if (operationCount >= 400) {
-      await commitIfNeeded()
-    }
+    await writeChangedBehavioralProfileDoc(GUEST_PROFILE_COLLECTION, doc.sessionKey, doc)
   }
 
   for (const doc of input.dropDocs.slice(0, MAX_DROP_PROFILE_WRITES)) {
-    batch.set(db.collection(DROP_INTELLIGENCE_COLLECTION).doc(doc.dropId), {
-      ...doc,
-      updatedAt: FieldValue.serverTimestamp(),
-    }, {merge: true})
-    operationCount += 1
-    if (operationCount >= 400) {
-      await commitIfNeeded()
-    }
+    await writeChangedBehavioralProfileDoc(DROP_INTELLIGENCE_COLLECTION, doc.dropId, doc)
   }
 
   batch.set(db.collection(SNAPSHOT_STATUS_COLLECTION).doc("summary"), {
@@ -2313,6 +2450,8 @@ async function writeSnapshotDocs(input: {
     userProfileCount: input.userDocs.length,
     guestProfileCount: input.guestDocs.length,
     dropProfileCount: input.dropDocs.length,
+    changedProfileWrites,
+    unchangedProfileWritesSkipped,
     ownership: {
       canonicalEventIngest: "analytics_event_facts",
       guestIngest: "analytics_guest_batches",
@@ -2328,11 +2467,37 @@ async function writeSnapshotDocs(input: {
   }, {merge: true})
   operationCount += 1
   await commitIfNeeded()
+
+  return {
+    changedProfileWrites,
+    unchangedProfileWritesSkipped,
+  }
 }
 
-export async function rebuildBehavioralIntelligenceSnapshots() {
+async function writeBehavioralIntelligenceRuntimeCursor(input: {
+  recent: Awaited<ReturnType<typeof readRecentCollections>>
+  nowMs: number
+  changedProfileWrites: number
+  unchangedProfileWritesSkipped: number
+}) {
+  await db.collection(BEHAVIORAL_INTELLIGENCE_CURSOR_COLLECTION)
+    .doc(BEHAVIORAL_INTELLIGENCE_CURSOR_ID)
+    .set({
+      lastSuccessfulRunAtMs: input.nowMs,
+      lastWindowStartMs: input.recent.windowStartMs,
+      lastWindowMode: input.recent.windowMode,
+      fullRebuild: input.recent.fullRebuild,
+      changedProfileWrites: input.changedProfileWrites,
+      unchangedProfileWritesSkipped: input.unchangedProfileWritesSkipped,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, {merge: true})
+}
+
+export async function rebuildBehavioralIntelligenceSnapshots(options: {fullRebuild?: boolean} = {}) {
   const nowMs = Date.now()
-  const recent = await readRecentCollections(nowMs)
+  const recent = await readRecentCollections(nowMs, {
+    fullRebuild: options.fullRebuild === true,
+  })
   const aggregates = buildAggregates(recent, nowMs)
   const userIds = Array.from(aggregates.userAggregates.keys())
   const userRecords = await readUserRecords(userIds)
@@ -2351,19 +2516,28 @@ export async function rebuildBehavioralIntelligenceSnapshots() {
     .map((aggregate) => buildDropDoc(aggregate, nowMs, recent.windowStartMs))
     .sort((left, right) => right.viewerOpens - left.viewerOpens || right.previewOpens - left.previewOpens)
 
-  await writeSnapshotDocs({
+  const writeResult = await writeSnapshotDocs({
     userDocs,
     guestDocs,
     dropDocs,
     nowMs,
     windowStartMs: recent.windowStartMs,
   })
+  await writeBehavioralIntelligenceRuntimeCursor({
+    recent,
+    nowMs,
+    changedProfileWrites: writeResult.changedProfileWrites,
+    unchangedProfileWritesSkipped: writeResult.unchangedProfileWritesSkipped,
+  })
 
   const summary = {
     userProfiles: userDocs.length,
     guestProfiles: guestDocs.length,
     dropIntelligenceRows: dropDocs.length,
+    changedProfileWrites: writeResult.changedProfileWrites,
+    unchangedProfileWritesSkipped: writeResult.unchangedProfileWritesSkipped,
     sourceWindowStartMs: recent.windowStartMs,
+    windowMode: recent.windowMode,
     updatedAtMs: nowMs,
     generatedAt: new Date(nowMs).toISOString(),
     freshnessState: "live",

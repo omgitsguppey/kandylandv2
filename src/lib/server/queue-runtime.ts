@@ -25,9 +25,10 @@ import {
   recordRuntimeWarning,
 } from "@/lib/server/runtime-warning-store";
 
-const DROP_LIFECYCLE_SCAN_LIMIT = 1_000;
+const DROP_LIFECYCLE_DUE_LIMIT = 250;
 const DROP_OWNER_EXCLUSION_SCAN_LIMIT = 5_000;
 const DROP_OWNER_LOOKUP_CONCURRENCY = 8;
+const dueNotificationRecipientMode = "due_only_idempotent_activation_key";
 
 async function recordInvariantWarnings(input: {
   invariants: Array<{ code: string; severity: "warn" | "error"; message: string; dropId?: string; detail?: Record<string, unknown> }>;
@@ -224,8 +225,18 @@ export async function notifyActiveDropsRuntime(input: {
     const now = Date.now();
     const dropsRef = adminDb.collection("drops");
     const [scheduledSnap, activeSnap] = await Promise.all([
-      dropsRef.where("status", "==", "scheduled").limit(DROP_LIFECYCLE_SCAN_LIMIT).get(),
-      dropsRef.where("status", "==", "active").limit(DROP_LIFECYCLE_SCAN_LIMIT).get(),
+      dropsRef
+        .where("status", "==", "scheduled")
+        .where("validFrom", "<=", now)
+        .orderBy("validFrom", "asc")
+        .limit(DROP_LIFECYCLE_DUE_LIMIT)
+        .get(),
+      dropsRef
+        .where("status", "==", "active")
+        .where("validUntil", "<=", now)
+        .orderBy("validUntil", "asc")
+        .limit(DROP_LIFECYCLE_DUE_LIMIT)
+        .get(),
     ]);
 
     const toRuntimeDrop = (
@@ -312,6 +323,7 @@ export async function notifyActiveDropsRuntime(input: {
           status: "degraded",
           detail: {
             activationKey: notification.activationKey,
+            dueNotificationRecipientMode,
             message: lookup.error instanceof Error ? lookup.error.message : String(lookup.error),
           },
         });
@@ -337,6 +349,7 @@ export async function notifyActiveDropsRuntime(input: {
           status: "failed",
           detail: {
             activationKey: notification.activationKey,
+            dueNotificationRecipientMode,
           },
         });
         await recordNotificationDispatchOutcome({

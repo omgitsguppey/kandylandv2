@@ -26,7 +26,8 @@ const SUBSCRIPTION_TERM_MS = 30 * 24 * 60 * 60 * 1000;
 const WARNING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const USER_PREFETCH_CHUNK_SIZE = 100;
 const USER_PREFETCH_CONCURRENCY = 3;
-const ACTIVE_SUBSCRIPTION_SCAN_LIMIT = 1_000;
+const CREATOR_SUBSCRIPTION_DUE_RENEWAL_LIMIT = 250;
+const CREATOR_SUBSCRIPTION_WARNING_LIMIT = 250;
 
 type RenewalOutcome =
     | { status: "warned"; creatorId: string; userId: string }
@@ -56,16 +57,32 @@ async function GET_handler(request: NextRequest) {
         }
 
         const now = Date.now();
-        const subscriptionsSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions)
-            .where("status", "==", "active")
-            .limit(ACTIVE_SUBSCRIPTION_SCAN_LIMIT)
-            .get();
+        const warningCutoffMs = now + WARNING_WINDOW_MS;
+        const [renewalsSnap, warningsSnap] = await Promise.all([
+            adminDb.collection(CREATOR_COLLECTIONS.subscriptions)
+                .where("status", "==", "active")
+                .where("renewAt", "<=", now)
+                .orderBy("renewAt", "asc")
+                .limit(CREATOR_SUBSCRIPTION_DUE_RENEWAL_LIMIT)
+                .get(),
+            adminDb.collection(CREATOR_COLLECTIONS.subscriptions)
+                .where("status", "==", "active")
+                .where("renewAt", ">", now)
+                .where("renewAt", "<=", warningCutoffMs)
+                .orderBy("renewAt", "asc")
+                .limit(CREATOR_SUBSCRIPTION_WARNING_LIMIT)
+                .get(),
+        ]);
+        const subscriptionDocsById = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
+        for (const doc of [...renewalsSnap.docs, ...warningsSnap.docs]) {
+            subscriptionDocsById.set(doc.id, doc);
+        }
 
         const outcomes: RenewalOutcome[] = [];
 
         // Pre-fetch users for warnings to avoid N+1 queries
         const userIdsToFetch = new Set<string>();
-        for (const subscriptionDoc of subscriptionsSnap.docs) {
+        for (const subscriptionDoc of subscriptionDocsById.values()) {
             const subscriptionData = subscriptionDoc.data() as Record<string, unknown>;
             const creatorId = typeof subscriptionData.creatorId === "string" ? subscriptionData.creatorId : "";
             const userId = typeof subscriptionData.userId === "string" ? subscriptionData.userId : "";
@@ -106,7 +123,7 @@ async function GET_handler(request: NextRequest) {
             }
         }
 
-        const docsArray = subscriptionsSnap.docs;
+        const docsArray = Array.from(subscriptionDocsById.values());
         const chunkSize = 20;
 
         for (let i = 0; i < docsArray.length; i += chunkSize) {
