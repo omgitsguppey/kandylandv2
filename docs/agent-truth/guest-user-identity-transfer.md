@@ -1,7 +1,7 @@
 # Guest-to-User Identity Transfer
 
-Generated: 2026-05-19T15:33:51.685Z
-Current head: 785975ca9f5f371e9731a73c6ae32439df52dfff
+Generated: 2026-05-19T22:11:50.182Z
+Current head: a13bf80ac8d08d88089b3e7aba9167f2da5a0d87
 
 ## Summary
 

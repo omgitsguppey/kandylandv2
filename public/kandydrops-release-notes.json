@@ -1,11 +1,64 @@
 {
-  "currentVersion": "1.3.10",
-  "betaReleaseCounter": 310,
+  "currentVersion": "1.3.11",
+  "betaReleaseCounter": 311,
   "channel": "beta",
-  "generatedAt": "2026-05-19T21:57:13.630Z",
-  "generatedAtUtc": "2026-05-19T21:57:13.630Z",
+  "generatedAt": "2026-05-19T22:10:08.039Z",
+  "generatedAtUtc": "2026-05-19T22:10:08.039Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.11",
+      "previousVersion": "1.3.10",
+      "betaReleaseCounter": 311,
+      "previousBetaReleaseCounter": 310,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): close identity transfer telemetry",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T22:10:08.039Z",
+      "generatedAt": "2026-05-19T22:10:08.039Z",
+      "committedAtUtc": "2026-05-19T22:10:08.039Z",
+      "generatedAtUtc": "2026-05-19T22:10:08.039Z",
+      "updatedAtUtc": "2026-05-19T22:10:08.039Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Closed guest-to-user telemetry continuity gaps and linked-user counting rules.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Closed guest-to-user telemetry transfer gaps.",
+        "Improved individual user tracking continuity.",
+        "Prevented linked guest history from double-counting users."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted identity transfer telemetry closure fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "app reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/identity-transfer-telemetry-closure.generated.json",
+        "docs/agent-truth/identity-transfer-telemetry-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-identity-transfer-telemetry-closure.ts",
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "src/lib/analytics/analytics-event-contract.ts",
+        "src/lib/analytics/analytics-identity-link.ts",
+        "src/lib/analytics/identity-transfer.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/analytics-identity-linking.ts",
+        "tests/unit/identity-transfer-telemetry-closure.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.10",
       "previousVersion": "1.3.9",
@@ -1378,58 +1431,6 @@
         "tests/unit/runtime-watch-tracker.spec.tsx"
       ],
       "sourceCommit": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d"
-    },
-    {
-      "version": "1.2.86",
-      "previousVersion": "1.2.85",
-      "betaReleaseCounter": 286,
-      "previousBetaReleaseCounter": 285,
-      "commitSha": "b0ca63c46d97d0f957902d4f37053a4589db489c",
-      "commitTitle": "fix(analytics): lock runtime watch time semantics",
-      "commitCount": 1,
-      "commitShas": [
-        "b0ca63c46d97d0f957902d4f37053a4589db489c"
-      ],
-      "committedAt": "2026-05-18T14:43:13.248Z",
-      "generatedAt": "2026-05-18T14:43:13.248Z",
-      "committedAtUtc": "2026-05-18T14:43:13.248Z",
-      "generatedAtUtc": "2026-05-18T14:43:13.248Z",
-      "updatedAtUtc": "2026-05-18T14:43:13.248Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added runtime-based media watch-time tracking rules.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added runtime-based media watch-time tracking rules.",
-        "Separated real watch time from page-open time.",
-        "Locked guest, user, legacy, and watch analytics semantics with cost guards."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/analytics/runtime-watch-time-v2.ts",
-        "src/lib/analytics/watch-time-v2.ts",
-        "src/components/Analytics/RuntimeWatchTracker.tsx",
-        "src/lib/analytics/analytics-event-contract.ts",
-        "agent/state/runtime-watch-time-v2.generated.json",
-        "docs/agent-truth/runtime-watch-time-v2.md",
-        "scripts/agent/validate-runtime-watch-time-v2.ts",
-        "agent/state/analytics-semantics-final-lock.generated.json",
-        "docs/agent-truth/analytics-semantics-final-lock.md",
-        "scripts/agent/validate-analytics-semantics-final-lock.ts",
-        "tests/unit/runtime-watch-time-v2.spec.ts",
-        "tests/unit/runtime-watch-tracker.spec.tsx",
-        "tests/unit/analytics-semantics-final-lock.spec.ts",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "b0ca63c46d97d0f957902d4f37053a4589db489c"
     }
   ]
 }

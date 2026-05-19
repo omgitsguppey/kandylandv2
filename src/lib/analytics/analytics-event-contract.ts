@@ -10,6 +10,8 @@ export const ANALYTICS_IDENTITY_STATES = [
   "guest_only",
   "user_only",
   "guest_linked_to_user",
+  "creator_user",
+  "admin_projection",
   "unknown_legacy",
 ] as const;
 export type AnalyticsIdentityState = (typeof ANALYTICS_IDENTITY_STATES)[number];
@@ -322,26 +324,38 @@ export function normalizeLegacyMappingConfidence(value: unknown): LegacyMappingC
   return isOneOf(value, LEGACY_MAPPING_CONFIDENCE_LEVELS) ? value : "unknown";
 }
 
-export function resolveAnalyticsIdentityState(input: Pick<AnalyticsActorClassificationInput, "anonymousVisitorId" | "sessionId" | "userId" | "actorUserId" | "identityLinkId" | "identityState">): AnalyticsIdentityState {
+export function resolveAnalyticsIdentityState(input: AnalyticsActorClassificationInput): AnalyticsIdentityState {
   const explicit = normalizeAnalyticsIdentityState(input.identityState);
   if (explicit) {
     return explicit;
   }
 
   const hasUser = Boolean(stringOrNull(input.userId) ?? stringOrNull(input.actorUserId));
+  const hasCreator = normalizeAnalyticsActorType(input.actorType) === "creator"
+    || Boolean(stringOrNull(input.creatorId) ?? stringOrNull(input.actorCreatorId));
+  const hasAdminProjection = normalizeAnalyticsActorType(input.actorType) === "admin"
+    || normalizeAnalyticsActorType(input.actorType) === "owner_admin"
+    || Boolean(stringOrNull(input.adminId) ?? stringOrNull(input.actorAdminId))
+    || isAdminProjectionInput(input)
+    || isAdminPerformedAs(input.performedAs);
   const hasGuestLineage = Boolean(
     stringOrNull(input.identityLinkId)
-    ?? stringOrNull(input.anonymousVisitorId)
-    ?? stringOrNull(input.sessionId),
+    ?? stringOrNull(input.anonymousVisitorId),
   );
 
+  if (hasAdminProjection) {
+    return "admin_projection";
+  }
+  if (hasCreator) {
+    return "creator_user";
+  }
   if (hasUser && hasGuestLineage) {
     return "guest_linked_to_user";
   }
   if (hasUser) {
     return "user_only";
   }
-  if (hasGuestLineage) {
+  if (hasGuestLineage || stringOrNull(input.sessionId)) {
     return "guest_only";
   }
   return "unknown_legacy";

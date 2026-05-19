@@ -89,7 +89,7 @@ function main() {
     "serverSessionKey: sessionKey",
     "anonymousVisitorId: canonicalAnonymousVisitorId",
     "clientSessionId: sessionId || null",
-    "createAnalyticsStorageKey(\"guest_batch\", sessionKey, batchId)",
+    "buildAnalyticsIngestDedupeKey({ sessionKey, batchId })",
     "transaction.get(guestBatchRef)",
     "return { deduped: true }",
     "materializeUserTrackingIndexes",

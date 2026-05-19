@@ -9,6 +9,8 @@ export const ANALYTICS_IDENTITY_STATES = [
   "guest_only",
   "user_only",
   "guest_linked_to_user",
+  "creator_user",
+  "admin_projection",
   "unknown_legacy",
 ] as const;
 export type AnalyticsIdentityState = (typeof ANALYTICS_IDENTITY_STATES)[number];
@@ -64,8 +66,113 @@ function stableHash(input: string) {
   return (hash >>> 0).toString(36).padStart(7, "0");
 }
 
+function stringOrNull(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
+function isOneOf<T extends readonly string[]>(value: unknown, values: T): value is T[number] {
+  return typeof value === "string" && values.includes(value);
+}
+
 function normalizeReason(value: string | null | undefined): GuestUserIdentityLinkReason {
   return value === "signup" || value === "session_restore" ? value : "login";
+}
+
+export function normalizeIdentityTransferState(value: unknown): AnalyticsIdentityState | null {
+  return isOneOf(value, ANALYTICS_IDENTITY_STATES) ? value : null;
+}
+
+export function buildGuestUserIdentityLinkId(input: {
+  guestId: string;
+  userId: string;
+  sessionId: string;
+}) {
+  const guestId = input.guestId.trim();
+  const sessionId = input.sessionId.trim();
+  const userId = input.userId.trim();
+  return `identity_link_${stableHash(`${guestId}|${sessionId}|${userId}`)}`;
+}
+
+export function resolveIdentityTransferTelemetryState(input: {
+  actorType?: string | null;
+  anonymousVisitorId?: string | null;
+  guestId?: string | null;
+  sessionId?: string | null;
+  identityLinkId?: string | null;
+  identityState?: string | null;
+  userId?: string | null;
+  actorUserId?: string | null;
+  creatorId?: string | null;
+  actorCreatorId?: string | null;
+  adminId?: string | null;
+  actorAdminId?: string | null;
+  performedAs?: string | null;
+  projectionMode?: string | null;
+  sourceTruth?: string | null;
+}) {
+  const explicit = normalizeIdentityTransferState(input.identityState);
+  if (explicit) {
+    return explicit;
+  }
+
+  const actorType = stringOrNull(input.actorType)?.toLowerCase() ?? "";
+  const performedAs = stringOrNull(input.performedAs)?.toLowerCase() ?? "";
+  const projectionMode = stringOrNull(input.projectionMode)?.toLowerCase() ?? "";
+  const sourceTruth = stringOrNull(input.sourceTruth)?.toLowerCase() ?? "";
+  const hasUser = Boolean(stringOrNull(input.userId) ?? stringOrNull(input.actorUserId));
+  const hasCreator = actorType === "creator" || Boolean(stringOrNull(input.creatorId) ?? stringOrNull(input.actorCreatorId));
+  const hasAdminProjection = actorType === "admin"
+    || actorType === "owner_admin"
+    || Boolean(stringOrNull(input.adminId) ?? stringOrNull(input.actorAdminId))
+    || performedAs === "admin_view_as_creator"
+    || performedAs === "admin_on_behalf"
+    || performedAs === "owner_override"
+    || projectionMode.includes("projection")
+    || sourceTruth === "local_projection";
+  const hasLinkedGuest = Boolean(
+    stringOrNull(input.identityLinkId)
+      ?? stringOrNull(input.anonymousVisitorId)
+      ?? stringOrNull(input.guestId),
+  );
+  const hasGuestSession = Boolean(stringOrNull(input.sessionId));
+
+  if (hasAdminProjection) {
+    return "admin_projection";
+  }
+  if (hasCreator) {
+    return "creator_user";
+  }
+  if (hasUser && hasLinkedGuest) {
+    return "guest_linked_to_user";
+  }
+  if (hasUser) {
+    return "user_only";
+  }
+  if (hasLinkedGuest || hasGuestSession) {
+    return "guest_only";
+  }
+  return "unknown_legacy";
+}
+
+export function buildIdentityTransferCountingKeys(input: Parameters<typeof resolveIdentityTransferTelemetryState>[0]) {
+  const identityState = resolveIdentityTransferTelemetryState(input);
+  const knownUserCountKey = identityState === "user_only" || identityState === "guest_linked_to_user"
+    ? stringOrNull(input.userId) ?? stringOrNull(input.actorUserId)
+    : null;
+  const linkedGuestCountKey = identityState === "guest_linked_to_user"
+    ? stringOrNull(input.anonymousVisitorId) ?? stringOrNull(input.guestId)
+    : null;
+
+  return {
+    identityState,
+    knownUserCountKey,
+    linkedGuestCountKey,
+    identityLinkId: stringOrNull(input.identityLinkId),
+    countAsKnownUser: Boolean(knownUserCountKey),
+    countAsGuest: identityState === "guest_only",
+    countAsAdditionalKnownUser: false,
+    countAsUnknownLegacy: identityState === "unknown_legacy",
+  };
 }
 
 export function buildIdentityLink(input: {
@@ -80,7 +187,6 @@ export function buildIdentityLink(input: {
   const sessionId = input.sessionId.trim();
   const reason = normalizeReason(input.reason);
   const linkedAt = input.linkedAt?.trim() || new Date().toISOString();
-  const stableSource = `${guestId}|${sessionId}|${userId}`;
 
   return {
     guestId,
@@ -88,7 +194,7 @@ export function buildIdentityLink(input: {
     sessionId,
     linkedAt,
     reason,
-    identityLinkId: `identity_link_${stableHash(stableSource)}`,
+    identityLinkId: buildGuestUserIdentityLinkId({ guestId, sessionId, userId }),
     authTransitionId: `auth_transition_${reason}_${cleanIdentityPart(guestId)}_${cleanIdentityPart(sessionId)}_${cleanIdentityPart(userId)}`,
     actorType: "authenticated_user",
     identityState: "guest_linked_to_user",

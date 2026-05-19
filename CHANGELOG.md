@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.11 - 2026-05-19
+- Bug fixes and general improvements
+- Closed guest-to-user telemetry transfer gaps.
+- Improved individual user tracking continuity.
+- Prevented linked guest history from double-counting users.
+
 ## 1.3.10 - 2026-05-19
 - Bug fixes and general improvements
 - Hardened analytics ingest event contracts.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Improved loading state accessibility for buttons.
 - Kept remaining risky PRs out of the beta cleanup lane.
 - Recorded final open PR owner-review actions.
-
-## 1.2.86 - 2026-05-18
-- Bug fixes and general improvements
-- Added runtime-based media watch-time tracking rules.
-- Separated real watch time from page-open time.
-- Locked guest, user, legacy, and watch analytics semantics with cost guards.

@@ -18,6 +18,7 @@ import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-
 import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
 import { materializeUserTrackingIndexes } from "@/lib/server/user-index-materializer";
+import { resolveIdentityTransferTelemetryState } from "@/lib/analytics/identity-transfer";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 
 export const dynamic = "force-dynamic";
@@ -287,11 +288,12 @@ async function POST_handler(request: NextRequest) {
             const identityLinkId = readStringParam(enrichedParams, "identity_link_id", "identityLinkId");
             const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
             const sessionId = readStringParam(enrichedParams, "session_id", "sessionId");
-            const identityState = caller.uid && (identityLinkId || anonymousVisitorId || sessionId)
-                ? "guest_linked_to_user"
-                : caller.uid
-                    ? "user_only"
-                    : "unknown_legacy";
+            const identityState = resolveIdentityTransferTelemetryState({
+                userId: caller.uid,
+                anonymousVisitorId,
+                sessionId,
+                identityLinkId,
+            });
             const eventFactDocument = {
                 ...finalEvent,
                 identityLinkId: identityLinkId || null,

@@ -186,6 +186,7 @@
         "check:ga4-recovery-truth": "tsx scripts/agent/validate-ga4-recovery-truth.ts",
         "check:telemetry-dependency-graph": "tsx scripts/agent/validate-telemetry-dependency-graph.ts",
         "check:analytics-ingest-firestore-closure": "tsx scripts/agent/validate-analytics-ingest-firestore-closure.ts",
+        "check:identity-transfer-telemetry-closure": "tsx scripts/agent/validate-identity-transfer-telemetry-closure.ts",
         "check:analytics-identity-transfer-inventory": "tsx scripts/agent/validate-analytics-identity-transfer-inventory.ts",
         "check:analytics-legacy-recovery-reconciliation": "tsx scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts",
         "check:analytics-legacy-history-reconciliation": "tsx scripts/agent/validate-analytics-legacy-history-reconciliation.ts",

@@ -1,0 +1,105 @@
+{
+  "generatedAtUtc": "2026-05-19T22:11:40.418Z",
+  "reportKey": "identity-transfer-telemetry-closure",
+  "currentHead": "a13bf80ac8d08d88089b3e7aba9167f2da5a0d87",
+  "summary": {
+    "identityStatesClosed": true,
+    "identityLinkRoutePresent": true,
+    "deterministicLinkIdShared": true,
+    "clientSubmitIdempotent": true,
+    "broadGuestReadsBlocked": true,
+    "individualUserSessionContinuity": true,
+    "linkedGuestNoDoubleCount": true,
+    "unknownLegacySeparated": true,
+    "creatorAdminProjectionSeparated": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 6
+  },
+  "identityStates": [
+    "guest_only",
+    "user_only",
+    "guest_linked_to_user",
+    "creator_user",
+    "admin_projection",
+    "unknown_legacy"
+  ],
+  "transferFindings": [
+    {
+      "id": "link-first-idempotent-transfer",
+      "severity": "p2",
+      "status": "closed",
+      "evidence": [
+        "src/lib/analytics/analytics-identity-link.ts",
+        "src/app/api/analytics/identity-link/route.ts",
+        "src/context/AuthContext.tsx"
+      ],
+      "action": "Auth transitions submit one bounded link association instead of scanning or rewriting guest history."
+    },
+    {
+      "id": "shared-deterministic-link-id",
+      "severity": "p2",
+      "status": "closed",
+      "evidence": [
+        "buildGuestUserIdentityLinkId",
+        "src/lib/server/analytics-identity-linking.ts"
+      ],
+      "action": "Client and server use the same deterministic identity link id source."
+    },
+    {
+      "id": "creator-admin-identity-separation",
+      "severity": "p2",
+      "status": "closed",
+      "evidence": [
+        "creator_user",
+        "admin_projection",
+        "resolveAnalyticsIdentityState"
+      ],
+      "action": "Creator and admin projection telemetry no longer collapses into normal user identity states."
+    }
+  ],
+  "continuityFindings": [
+    {
+      "id": "individual-user-session-continuity",
+      "severity": "p2",
+      "status": "closed",
+      "evidence": [
+        "sourceIdentity.sessionId",
+        "sourceIdentity.userId",
+        "resolveIdentityTransferTelemetryState"
+      ],
+      "action": "Signed-in user facts keep session continuity and only carry guest lineage when an anonymous/link id exists."
+    },
+    {
+      "id": "linked-guest-no-double-count",
+      "severity": "p2",
+      "status": "closed",
+      "evidence": [
+        "buildIdentityTransferCountingKeys",
+        "countAsAdditionalKnownUser: false"
+      ],
+      "action": "Linked guest history can be attributed through lineage without becoming a second known-user count."
+    },
+    {
+      "id": "unknown-legacy-not-clean-user",
+      "severity": "p2",
+      "status": "closed",
+      "evidence": [
+        "unknown_legacy",
+        "countAsUnknownLegacy"
+      ],
+      "action": "Incomplete old records stay unknown instead of being treated as clean known users."
+    }
+  ],
+  "fixesApplied": [
+    "Expanded analytics identity states for creator users and admin projections.",
+    "Shared deterministic identity link id generation across client and server upsert paths.",
+    "Added counting semantics that prevent linked guest lineage from becoming a second known user.",
+    "Updated identified ingest identity classification to distinguish user-only session continuity from linked guest lineage."
+  ],
+  "nextFixOrder": [
+    "Use identity_lineage_indexes in admin user analytics consumers when a bounded linked-history view is needed.",
+    "Keep legacy unknown identity rows explicit until a source-backed migration plan exists.",
+    "Continue treating provider/warehouse exports as supporting evidence, not primary identity truth."
+  ]
+}
