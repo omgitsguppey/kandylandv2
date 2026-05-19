@@ -5,9 +5,10 @@ Generated source: `agent/state/creator-landing-dashboard-mobile.generated.json`
 ## Route Result
 
 - `/dashboard/creator` remains the Creator Dashboard landing surface.
-- No creator create-drop route exists in the current source tree.
-- The landing CTA therefore uses `Manage drops`, points to `/dashboard/library`, and marks `data-create-drop-route-state="manage_only"`.
+- The creator drop submission manager exists at `/dashboard/creator/drops`.
+- The landing CTA uses `Manage drops`, points to `/dashboard/creator/drops`, and marks `data-create-drop-route-state="creator_submission"`.
 - `/dashboard/drops` must not be used unless that route exists and renders a real create/manage surface.
+- The user My KandyDrops library remains a separate user-owned route, not the creator Manage drops destination.
 
 ## Mobile Density
 
@@ -36,4 +37,4 @@ Run:
 npm run check:creator-landing-dashboard-mobile
 ```
 
-The validator fails if the landing CTA points to a missing create-drop route, compact_v2 markers are missing, the compact overview regresses back into standalone stat cards, raw module errors can render, or bottom-nav/report issue spacing markers are absent.
+The validator fails if the landing CTA points to the user library or a missing create-drop route, compact_v2 markers are missing, the compact overview regresses back into standalone stat cards, raw module errors can render, or bottom-nav/report issue spacing markers are absent.

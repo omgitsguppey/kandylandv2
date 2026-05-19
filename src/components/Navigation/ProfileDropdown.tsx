@@ -7,7 +7,7 @@ import { LogOut, LayoutDashboard, Library, Settings, ChevronDown, CircleHelp, Li
 
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
-import { CREATOR_DASHBOARD_ROUTE, CREATOR_SETTINGS_ROUTE, USER_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
+import { CREATOR_DASHBOARD_ROUTE, CREATOR_SETTINGS_ROUTE, USER_LIBRARY_ROUTE, USER_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 
@@ -107,7 +107,7 @@ export function ProfileDropdown() {
                                 )}
                             </div>
                         } label="Chat" onClick={() => setIsOpen(false)} />
-                        <DropdownItem href="/dashboard/library" icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
+                        <DropdownItem href={USER_LIBRARY_ROUTE} icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
                         {isCreatorAccount ? (
                             <>
                                 <DropdownItem href={CREATOR_DASHBOARD_ROUTE} icon={<Sparkles className="w-4 h-4" />} label="Creator Dashboard" onClick={() => setIsOpen(false)} />

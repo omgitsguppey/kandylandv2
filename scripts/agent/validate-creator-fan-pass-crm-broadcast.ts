@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = process.cwd();
@@ -43,6 +43,21 @@ function read(path: string) {
   return readFileSync(join(ROOT, path), "utf8");
 }
 
+function readIfExists(path: string) {
+  const fullPath = join(ROOT, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function readCreatorWorkspaceModules() {
+  const folder = join(ROOT, "src/components/Dashboard/creator-workspace");
+  if (!existsSync(folder)) return "";
+  return readdirSync(folder)
+    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .sort()
+    .map((name) => readIfExists(`src/components/Dashboard/creator-workspace/${name}`))
+    .join("\n");
+}
+
 function currentHead() {
   return execSync("git rev-parse HEAD", { cwd: ROOT, encoding: "utf8" }).trim();
 }
@@ -56,7 +71,8 @@ function finding(id: string, severity: Finding["severity"], file: string, summar
 }
 
 export function buildCreatorFanPassCrmBroadcastReport(): CreatorFanPassCrmBroadcastReport {
-  const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+  const workspaceShell = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+  const workspace = `${workspaceShell}\n${readCreatorWorkspaceModules()}`;
   const fanPassManager = read("src/components/Creators/CreatorFanPassManager.tsx");
   const broadcastManager = read("src/components/Creators/CreatorBroadcastManager.tsx");
   const subscriberRow = read("src/components/Creators/FanPassSubscriberRow.tsx");

@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = process.cwd();
@@ -45,6 +45,21 @@ function read(path: string) {
   return readFileSync(join(ROOT, path), "utf8");
 }
 
+function readIfExists(path: string) {
+  const fullPath = join(ROOT, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function readCreatorWorkspaceModules() {
+  const folder = join(ROOT, "src/components/Dashboard/creator-workspace");
+  if (!existsSync(folder)) return "";
+  return readdirSync(folder)
+    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .sort()
+    .map((name) => readIfExists(`src/components/Dashboard/creator-workspace/${name}`))
+    .join("\n");
+}
+
 function currentHead() {
   return execSync("git rev-parse HEAD", { cwd: ROOT, encoding: "utf8" }).trim();
 }
@@ -58,7 +73,8 @@ function finding(id: string, severity: Finding["severity"], file: string, summar
 }
 
 export function buildCreatorDashboardOverviewStatsReport(): CreatorDashboardOverviewStatsReport {
-  const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+  const landingShell = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+  const landing = `${landingShell}\n${readCreatorWorkspaceModules()}`;
   const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
   const settingsRoute = read("src/app/api/creator/settings/route.ts");
   const dropScope = read("src/lib/server/creator-drop-scope.ts");

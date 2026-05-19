@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = process.cwd();
@@ -19,7 +19,7 @@ export type CreatorLandingDashboardMobileReport = {
   currentHead: string;
   summary: {
     landingRoute: "/dashboard/creator";
-    createDropRouteState: "valid" | "manage_only" | "unavailable";
+    createDropRouteState: "creator_submission" | "valid" | "unavailable";
     createDropHref: string;
     rawModuleErrorLeaks: number;
     mobileLayoutFixes: number;
@@ -40,6 +40,21 @@ function read(path: string) {
   return readFileSync(join(ROOT, path), "utf8");
 }
 
+function readIfExists(path: string) {
+  const fullPath = join(ROOT, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function readCreatorWorkspaceModules() {
+  const folder = join(ROOT, "src/components/Dashboard/creator-workspace");
+  if (!existsSync(folder)) return "";
+  return readdirSync(folder)
+    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .sort()
+    .map((name) => readIfExists(`src/components/Dashboard/creator-workspace/${name}`))
+    .join("\n");
+}
+
 function has(path: string) {
   return existsSync(join(ROOT, path));
 }
@@ -55,10 +70,12 @@ function includesAll(source: string, snippets: string[]) {
 export function buildCreatorLandingDashboardMobileReport(): CreatorLandingDashboardMobileReport {
   const landingPath = "src/components/Dashboard/CreatorWorkspacePanel.tsx";
   const routingPath = "src/lib/creator-profile-routing.ts";
-  const landing = read(landingPath);
+  const landingShell = read(landingPath);
+  const landing = `${landingShell}\n${readCreatorWorkspaceModules()}`;
   const routing = read(routingPath);
   const dashboardPage = read("src/app/dashboard/creator/page.tsx");
   const dashboardDropsExists = has("src/app/dashboard/drops/page.tsx") || has("src/app/dashboard/drops");
+  const creatorDropManagerExists = has("src/app/dashboard/creator/drops/page.tsx") || has("src/app/dashboard/creator/drops");
 
   const failures: Finding[] = [];
   const routeFindings: Finding[] = [];
@@ -101,9 +118,11 @@ export function buildCreatorLandingDashboardMobileReport(): CreatorLandingDashbo
     status: "fixed",
     severity: "p1",
     file: landingPath,
-    summary: "Because no creator create-drop route exists, the CTA is labeled Manage drops and routes to the existing library surface.",
+    summary: "The creator Manage drops CTA routes to the creator submission manager, not the user My KandyDrops library.",
   }, includesAll(landing, ["Manage drops", "href={CREATOR_DROP_MANAGE_ROUTE}", 'data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}'])
-    && includesAll(routing, ['CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library"', 'CREATOR_DROP_ROUTE_STATE = "manage_only"'])
+    && creatorDropManagerExists
+    && includesAll(routing, ['CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"', 'CREATOR_DROP_ROUTE_STATE = "creator_submission"', 'USER_LIBRARY_ROUTE = "/dashboard/library"'])
+    && !landing.includes('href="/dashboard/library"')
     && !/Create drop/u.test(landing));
 
   add(mobileFindings, {
@@ -184,8 +203,8 @@ export function buildCreatorLandingDashboardMobileReport(): CreatorLandingDashbo
     currentHead: currentHead(),
     summary: {
       landingRoute: "/dashboard/creator",
-      createDropRouteState: "manage_only",
-      createDropHref: "/dashboard/library",
+      createDropRouteState: "creator_submission",
+      createDropHref: "/dashboard/creator/drops",
       rawModuleErrorLeaks,
       mobileLayoutFixes: mobileFindings.length,
       bottomNavSafe: landing.includes('data-bottom-nav-safe="true"'),
@@ -198,13 +217,13 @@ export function buildCreatorLandingDashboardMobileReport(): CreatorLandingDashbo
     mobileFindings,
     errorFindings,
     fixesApplied: [
-      "Replaced the missing /dashboard/drops create route with a manage-only /dashboard/library CTA.",
+      "Routed the creator Manage drops CTA to the creator submission manager.",
       "Added compact_v2 creator landing density markers and tightened mobile card sizing.",
       "Added top and bottom safe-area spacing markers for the creator landing route.",
       "Replaced raw module warning bodies with human fallback copy.",
     ],
     nextFixOrder: [
-      "When a creator-owned create-drop flow exists, update CREATOR_DROP_ROUTE_STATE to valid and route the CTA there.",
+      "Keep creator drop submission review evidence attached to the creator drop manager lane.",
       "Attach manual mobile screenshots for /dashboard/creator and /dashboard/creator/settings.",
     ],
   };
@@ -215,8 +234,8 @@ export function validateCreatorLandingDashboardMobileReport(report: CreatorLandi
   if (report.reportKey !== "creator-landing-dashboard-mobile") failures.push("reportKey must be creator-landing-dashboard-mobile");
   if (report.currentHead !== currentHead()) failures.push("currentHead must match git HEAD");
   if (report.summary.landingRoute !== "/dashboard/creator") failures.push("landingRoute must be /dashboard/creator");
-  if (report.summary.createDropRouteState !== "manage_only") failures.push("createDropRouteState must remain manage_only until a real create route exists");
-  if (report.summary.createDropHref !== "/dashboard/library") failures.push("manage-only create-drop fallback must point to /dashboard/library");
+  if (report.summary.createDropRouteState !== "creator_submission") failures.push("createDropRouteState must point to the creator submission manager");
+  if (report.summary.createDropHref !== "/dashboard/creator/drops") failures.push("creator Manage drops must point to /dashboard/creator/drops");
   if (report.summary.rawModuleErrorLeaks !== 0) failures.push("raw module error leaks remain");
   if (report.summary.mobileLayoutFixes < 4) failures.push("mobile layout fixes must cover markers, cards, broadcast, and safe spacing");
   if (!report.summary.bottomNavSafe) failures.push("bottom nav safe marker missing");

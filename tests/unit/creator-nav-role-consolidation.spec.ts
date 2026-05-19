@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -13,6 +13,20 @@ const root = process.cwd();
 
 function read(path: string) {
   return readFileSync(join(root, path), "utf8");
+}
+
+function readIfExists(path: string) {
+  const fullPath = join(root, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function readCreatorWorkspaceModules() {
+  const folder = join(root, "src/components/Dashboard/creator-workspace");
+  return readdirSync(folder)
+    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .sort()
+    .map((name) => readIfExists(`src/components/Dashboard/creator-workspace/${name}`))
+    .join("\n");
 }
 
 describe("creator nav and role consolidation", () => {
@@ -39,7 +53,7 @@ describe("creator nav and role consolidation", () => {
     const dashboard = read("src/app/dashboard/DashboardClient.tsx");
     const creatorPage = read("src/app/dashboard/creator/page.tsx");
     const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
-    const creatorSurface = `${creatorPage}\n${workspace}`;
+    const creatorSurface = `${creatorPage}\n${workspace}\n${readCreatorWorkspaceModules()}`;
 
     expect(creatorSurface).toContain('data-dashboard-surface="creator_dashboard"');
     expect(creatorSurface).toContain('data-creator-dashboard-content-boundary="creator_only"');
@@ -57,25 +71,26 @@ describe("creator nav and role consolidation", () => {
 
   it("keeps Fan Pass CRM and broadcasts on readable Fans semantics", () => {
     const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const workspaceModules = readCreatorWorkspaceModules();
     const fanPassManager = read("src/components/Creators/CreatorFanPassManager.tsx");
     const subscriberRow = read("src/components/Creators/FanPassSubscriberRow.tsx");
     const broadcastManager = read("src/components/Creators/CreatorBroadcastManager.tsx");
     const profileCreatorTools = read("src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx");
     const profileState = read("src/app/dashboard/profile/hooks/useProfileState.tsx");
-    const combinedCreatorUi = `${workspace}\n${fanPassManager}\n${subscriberRow}\n${broadcastManager}\n${profileCreatorTools}\n${profileState}`;
+    const combinedCreatorUi = `${workspace}\n${workspaceModules}\n${fanPassManager}\n${subscriberRow}\n${broadcastManager}\n${profileCreatorTools}\n${profileState}`;
 
-    expect(workspace).toContain('data-fan-pass-crm="mobile_v1"');
+    expect(combinedCreatorUi).toContain('data-fan-pass-crm="mobile_v1"');
     expect(fanPassManager).toContain('data-fan-pass-crm="mobile_v1"');
     expect(subscriberRow).toContain('data-raw-user-id-hidden="true"');
     expect(combinedCreatorUi).not.toContain("subscription.userId || subscription.id");
     expect(combinedCreatorUi).not.toMatch(/all followers|Tell followers|Broadcast sent to followers|for followers/iu);
-    expect(workspace).toContain('data-broadcast-audience="all_fans"');
+    expect(combinedCreatorUi).toContain('data-broadcast-audience="all_fans"');
     expect(broadcastManager).toContain('data-broadcast-audience="all_fans"');
-    expect(workspace).toContain("Audience: Fans");
+    expect(combinedCreatorUi).toContain("Audience: Fans");
   });
 
   it("keeps the compact overview and removes old standalone metric grids", () => {
-    const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const workspace = `${read("src/components/Dashboard/CreatorWorkspacePanel.tsx")}\n${readCreatorWorkspaceModules()}`;
 
     expect(workspace).toContain('data-creator-overview-module="compact_v1"');
     expect(workspace).toContain('data-creator-dashboard-overview-density="mobile_compact"');

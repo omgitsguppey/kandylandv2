@@ -239,6 +239,7 @@
         "check:user-facing-feature-connection-audit": "tsx scripts/agent/validate-user-facing-feature-connection-audit.ts",
         "check:product-surface-integrity": "tsx scripts/agent/validate-product-surface-integrity.ts",
         "check:user-creator-ui-parity": "tsx scripts/agent/validate-user-creator-ui-parity.ts",
+        "check:user-creator-logic-cleanup": "tsx scripts/agent/validate-user-creator-logic-cleanup.ts",
         "check:user-creator-visual-confirmation": "tsx scripts/agent/validate-user-creator-visual-confirmation.ts",
         "check:final-phase-cleanup-lock": "tsx scripts/agent/validate-final-phase-cleanup-lock.ts",
         "check:mobile-shell-safe-area": "tsx scripts/agent/validate-mobile-shell-safe-area.ts",

@@ -1,0 +1,120 @@
+{
+  "generatedAtUtc": "2026-05-19T20:07:34.806Z",
+  "reportKey": "user-creator-logic-cleanup",
+  "currentHead": "dc3ae97ac8edaba50669b0188a12e9f7fa4774f6",
+  "summary": {
+    "conflictsFound": 2,
+    "conflictsFixed": 9,
+    "monolithsSplit": 1,
+    "routeConstantsConsolidated": true,
+    "surfaceGatesNormalized": true,
+    "fanPassCrmConsolidated": true,
+    "broadcastAudienceConsolidated": true,
+    "userDashboardPreserved": true,
+    "creatorDashboardPreserved": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "conflictFindings": [
+    {
+      "id": "creator-workspace-monolith",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "CreatorWorkspacePanel mixed route shell, overview, actions, broadcasts, queues, CRM, and source notices before this split.",
+      "status": "verified"
+    },
+    {
+      "id": "stale-creator-landing-route-contract",
+      "severity": "p1",
+      "file": "scripts/agent/validate-creator-landing-dashboard-mobile.ts",
+      "summary": "Older creator landing validator still pointed Manage drops at My KandyDrops before this cleanup.",
+      "status": "verified"
+    }
+  ],
+  "splitFindings": [
+    {
+      "id": "creator-workspace-split",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator workspace rendering is split into focused modules and the orchestration file is below 500 lines.",
+      "status": "fixed"
+    }
+  ],
+  "staleLogicRemoved": [
+    {
+      "id": "stale-landing-manage-only-route-removed",
+      "severity": "p1",
+      "file": "tests/unit/creator-landing-dashboard-mobile.spec.ts",
+      "summary": "Stale Manage drops to My KandyDrops expectations were replaced with creator submission route truth.",
+      "status": "fixed"
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "route-constants-consolidated",
+      "severity": "p1",
+      "file": "src/lib/creator-profile-routing.ts",
+      "summary": "Creator and user route constants have one source of truth, including USER_LIBRARY_ROUTE.",
+      "status": "fixed"
+    },
+    {
+      "id": "surface-gates-normalized",
+      "severity": "p1",
+      "file": "src/app/dashboard",
+      "summary": "Creator and user dashboard route bodies remain separated.",
+      "status": "fixed"
+    },
+    {
+      "id": "user-dashboard-preserved",
+      "severity": "p1",
+      "file": "src/app/dashboard/DashboardClient.tsx",
+      "summary": "Normal user dashboard modules remain on /dashboard.",
+      "status": "fixed"
+    },
+    {
+      "id": "creator-dashboard-preserved",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator dashboard modules remain on /dashboard/creator without user dashboard leakage.",
+      "status": "fixed"
+    },
+    {
+      "id": "duplicate-inline-dashboard-routes-removed",
+      "severity": "p2",
+      "file": "src/components/Navigation",
+      "summary": "Navigation uses route constants instead of duplicated dashboard/settings literals.",
+      "status": "fixed"
+    }
+  ],
+  "crmFindings": [
+    {
+      "id": "fan-pass-crm-consolidated",
+      "severity": "p1",
+      "file": "src/components/Dashboard/creator-workspace/CreatorFanPassCrmPanel.tsx",
+      "summary": "Fan Pass CRM uses the shared readable subscriber row.",
+      "status": "fixed"
+    },
+    {
+      "id": "broadcast-audience-consolidated",
+      "severity": "p1",
+      "file": "src/components/Dashboard/creator-workspace/CreatorBroadcastCard.tsx",
+      "summary": "Broadcast audience copy and marker stay explicit as Fans/all_fans.",
+      "status": "fixed"
+    }
+  ],
+  "fixesApplied": [
+    "Split CreatorWorkspacePanel rendering into focused creator dashboard modules while keeping the route export stable.",
+    "Consolidated creator/user route constants and added USER_LIBRARY_ROUTE for the user-owned My KandyDrops surface.",
+    "Updated stale creator landing route checks from manage-only library fallback to the creator drop submission route.",
+    "Kept Fan Pass CRM row rendering and broadcast audience copy in single focused creator modules."
+  ],
+  "prCleanupActions": [
+    "No open PRs were present at start of cleanup."
+  ],
+  "nextFixOrder": [
+    "Keep future creator dashboard additions inside focused creator-workspace modules instead of growing CreatorWorkspacePanel.",
+    "Handle admin analytics/debug monolith cleanup in a separate admin-scoped pass.",
+    "Attach mobile screenshot evidence for creator and user dashboard route boundaries after deployment."
+  ]
+}

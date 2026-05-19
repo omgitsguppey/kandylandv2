@@ -1,13 +1,72 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.5",
-  "betaReleaseCounter": 305,
+  "currentVersion": "1.3.6",
+  "betaReleaseCounter": 306,
   "channel": "beta",
-  "generatedAt": "2026-05-19T19:41:55.000Z",
-  "generatedAtUtc": "2026-05-19T19:41:55.000Z",
+  "generatedAt": "2026-05-19T20:05:36.000Z",
+  "generatedAtUtc": "2026-05-19T20:05:36.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.6",
+      "previousVersion": "1.3.5",
+      "betaReleaseCounter": 306,
+      "previousBetaReleaseCounter": 305,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(dashboard): clean user creator logic",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T20:05:36.000Z",
+      "generatedAt": "2026-05-19T20:05:36.000Z",
+      "committedAtUtc": "2026-05-19T20:05:36.000Z",
+      "generatedAtUtc": "2026-05-19T20:05:36.000Z",
+      "updatedAtUtc": "2026-05-19T20:05:36.000Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Cleaned up creator and user dashboard routing and stale dashboard logic.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Navigation",
+      "bullets": [
+        "Cleaned up creator and user dashboard logic.",
+        "Consolidated creator navigation and dashboard surface rules.",
+        "Reduced stale duplicated dashboard logic."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted user/creator dashboard logic cleanup into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator dashboard",
+        "user dashboard",
+        "navigation",
+        "release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/user-creator-logic-cleanup.generated.json",
+        "docs/agent-truth/user-creator-logic-cleanup.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-user-creator-logic-cleanup.ts",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/components/Dashboard/creator-workspace/CreatorActionQueuePanel.tsx",
+        "src/components/Dashboard/creator-workspace/CreatorBroadcastCard.tsx",
+        "src/components/Dashboard/creator-workspace/CreatorDashboardOverviewModule.tsx",
+        "src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx",
+        "src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx",
+        "src/components/Dashboard/creator-workspace/CreatorFanPassCrmPanel.tsx",
+        "src/components/Dashboard/creator-workspace/types.ts",
+        "src/lib/creator-profile-routing.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/user-creator-logic-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.5",
       "previousVersion": "1.3.4",
@@ -1347,55 +1406,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "CHANGELOG.md"
       ],
       "sourceCommit": "1ae808dd4f8d569aacd1eb6c8148762261c9976f"
-    },
-    {
-      "version": "1.2.81",
-      "previousVersion": "1.2.80",
-      "betaReleaseCounter": 281,
-      "previousBetaReleaseCounter": 280,
-      "commitSha": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
-      "commitTitle": "docs(analytics): lock tracking semantics readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "c015ed78b1220ed718e2691394e3336d0fe64a3e"
-      ],
-      "committedAt": "2026-05-18T13:56:43.998Z",
-      "generatedAt": "2026-05-18T13:56:43.998Z",
-      "committedAtUtc": "2026-05-18T13:56:43.998Z",
-      "generatedAtUtc": "2026-05-18T13:56:43.998Z",
-      "updatedAtUtc": "2026-05-18T13:56:43.998Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Locked guest, user, legacy, and watch-time analytics semantics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked guest, user, legacy, and watch-time analytics semantics.",
-        "Updated Beta evidence to recognize analytics source readiness.",
-        "Kept runtime proof and cost review blockers visible."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-semantics-final-lock.generated.json",
-        "docs/agent-truth/analytics-semantics-final-lock.md",
-        "scripts/agent/validate-analytics-semantics-final-lock.ts",
-        "tests/unit/analytics-semantics-final-lock.spec.ts",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "scripts/agent/validate-current-beta-exit-status.ts",
-        "tests/unit/current-beta-exit-status.spec.ts",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "c015ed78b1220ed718e2691394e3336d0fe64a3e"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

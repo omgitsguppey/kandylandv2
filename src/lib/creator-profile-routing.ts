@@ -10,6 +10,7 @@ export const CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops";
 export const CREATOR_DROP_ROUTE_STATE = "creator_submission";
 export const USER_SETTINGS_ROUTE = "/dashboard/settings";
 export const USER_PROFILE_ROUTE = "/dashboard/profile";
+export const USER_LIBRARY_ROUTE = "/dashboard/library";
 
 export type CreatorProfileRouteSource =
     | "admin_roster"

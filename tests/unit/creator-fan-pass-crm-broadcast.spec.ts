@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -15,9 +15,24 @@ function read(path: string) {
   return readFileSync(join(root, path), "utf8");
 }
 
+function readIfExists(path: string) {
+  const fullPath = join(root, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function readCreatorWorkspaceSurface() {
+  const folder = join(root, "src/components/Dashboard/creator-workspace");
+  const modules = readdirSync(folder)
+    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .sort()
+    .map((name) => readIfExists(`src/components/Dashboard/creator-workspace/${name}`))
+    .join("\n");
+  return `${read("src/components/Dashboard/CreatorWorkspacePanel.tsx")}\n${modules}`;
+}
+
 describe("creator Fan Pass CRM and broadcast semantics", () => {
   it("keeps raw subscriber user ids out of normal creator-facing labels", () => {
-    const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const workspace = readCreatorWorkspaceSurface();
     const manager = read("src/components/Creators/CreatorFanPassManager.tsx");
     const row = read("src/components/Creators/FanPassSubscriberRow.tsx");
 
@@ -29,7 +44,7 @@ describe("creator Fan Pass CRM and broadcast semantics", () => {
   });
 
   it("adds mobile Fan Pass CRM markers and readable identity fields", () => {
-    const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const workspace = readCreatorWorkspaceSurface();
     const manager = read("src/components/Creators/CreatorFanPassManager.tsx");
     const route = read("src/app/api/creator/subscriptions/route.ts");
 
@@ -43,7 +58,7 @@ describe("creator Fan Pass CRM and broadcast semantics", () => {
   });
 
   it("makes broadcast audience explicit and removes follower copy from creator broadcast UI", () => {
-    const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const workspace = readCreatorWorkspaceSurface();
     const manager = read("src/components/Creators/CreatorBroadcastManager.tsx");
     const broadcastsRoute = read("src/app/api/creator/broadcasts/route.ts");
     const combinedUi = `${workspace}\n${manager}`;

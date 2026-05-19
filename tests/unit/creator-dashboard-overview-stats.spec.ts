@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -15,9 +15,24 @@ function read(path: string) {
   return readFileSync(join(root, path), "utf8");
 }
 
+function readIfExists(path: string) {
+  const fullPath = join(root, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function readCreatorWorkspaceSurface() {
+  const folder = join(root, "src/components/Dashboard/creator-workspace");
+  const modules = readdirSync(folder)
+    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .sort()
+    .map((name) => readIfExists(`src/components/Dashboard/creator-workspace/${name}`))
+    .join("\n");
+  return `${read("src/components/Dashboard/CreatorWorkspacePanel.tsx")}\n${modules}`;
+}
+
 describe("creator dashboard overview stats", () => {
   it("renders one compact Creator Overview module instead of standalone mobile stat cards", () => {
-    const source = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const source = readCreatorWorkspaceSurface();
 
     expect(source).toContain("Creator Overview");
     expect(source).toContain('data-creator-overview-module="compact_v1"');
@@ -28,7 +43,7 @@ describe("creator dashboard overview stats", () => {
   });
 
   it("uses Followers language for the overview relationship metric and keeps content views separate from content count", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landing = readCreatorWorkspaceSurface();
     const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
     const combined = `${landing}\n${settingsHub}`;
 
@@ -45,7 +60,7 @@ describe("creator dashboard overview stats", () => {
   });
 
   it("keeps the overview grid in a denser mobile-first mode", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landing = readCreatorWorkspaceSurface();
 
     expect(landing).toContain('data-creator-dashboard-overview-density="mobile_compact"');
     expect(landing).toContain('data-creator-dashboard-overview-grid-density="mobile_4x4_compact"');
@@ -56,7 +71,7 @@ describe("creator dashboard overview stats", () => {
   });
 
   it("keeps source metadata for fans and creator-owned content scope", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landing = readCreatorWorkspaceSurface();
     const route = read("src/app/api/creator/settings/route.ts");
 
     expect(landing).toContain("data-creator-dashboard-fans-source");

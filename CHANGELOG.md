@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 16 public updates in pages of 5.
+Showing the last 25 public updates in pages of 5.
+
+## 1.3.6 - 2026-05-19
+- Bug fixes and general improvements
+- Cleaned up creator and user dashboard logic.
+- Consolidated creator navigation and dashboard surface rules.
+- Reduced stale duplicated dashboard logic.
 
 ## 1.3.5 - 2026-05-19
 - Bug fixes and general improvements
@@ -99,3 +105,51 @@ Showing the last 16 public updates in pages of 5.
 - Reduced hot-path analytics ingest and export cost risks.
 - Moved low-priority analytics work toward batched lanes.
 - Kept priority tracking accuracy intact while cutting retry and export churn.
+
+## 1.2.89 - 2026-05-19
+- Bug fixes and general improvements
+- Reduced hot-path analytics and export cost risks.
+- Moved non-priority analytics work toward batched and cached lanes.
+- Kept priority tracking accuracy intact while reducing retry and export churn.
+
+## 1.2.88 - 2026-05-18
+- Bug fixes and general improvements
+- Kept admin debug panels from showing missing evidence as healthy.
+- Reduced duplicate admin analytics and debug lookup work.
+- Updated the Scorecard security action and closed out the remaining PR lane.
+
+## 1.2.87 - 2026-05-18
+- Bug fixes and general improvements
+- Improved loading state accessibility for buttons.
+- Kept remaining risky PRs out of the beta cleanup lane.
+- Recorded final open PR owner-review actions.
+
+## 1.2.86 - 2026-05-18
+- Bug fixes and general improvements
+- Added runtime-based media watch-time tracking rules.
+- Separated real watch time from page-open time.
+- Locked guest, user, legacy, and watch analytics semantics with cost guards.
+
+## 1.2.85 - 2026-05-18
+- Bug fixes and general improvements
+- Mapped legacy analytics history without overwriting current truth.
+- Added confidence and duplicate-risk checks for recovered history.
+- Kept older realtime sources from driving current analytics totals.
+
+## 1.2.84 - 2026-05-18
+- Bug fixes and general improvements
+- Linked guest analytics history to signed-in users without double-counting.
+- Improved individual user tracking semantics.
+- Kept identity transfer idempotent and low-cost.
+
+## 1.2.83 - 2026-05-18
+- Bug fixes and general improvements
+- Moved non-priority analytics checks toward a daily cadence.
+- Added cost guards for analytics exports and evidence refreshes.
+- Kept live tracking separate from lower-priority evidence work.
+
+## 1.2.82 - 2026-05-18
+- Bug fixes and general improvements
+- Mapped analytics cost and runtime tracking surfaces.
+- Added Cloud Run, Cloud SQL, BigQuery, and Gemini cost inventories.
+- Prepared focused follow-ups for 4xx, retry, and analytics cadence cleanup.

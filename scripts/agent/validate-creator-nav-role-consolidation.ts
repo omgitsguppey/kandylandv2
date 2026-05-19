@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -55,6 +55,16 @@ function read(relativePath: string) {
   return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
 }
 
+function readCreatorWorkspaceModules() {
+  const folder = join(repoRoot, "src/components/Dashboard/creator-workspace");
+  if (!existsSync(folder)) return "";
+  return readdirSync(folder)
+    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .sort()
+    .map((name) => read(`src/components/Dashboard/creator-workspace/${name}`))
+    .join("\n");
+}
+
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 }
@@ -91,6 +101,7 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
   const dashboardClient = read("src/app/dashboard/DashboardClient.tsx");
   const creatorPage = read("src/app/dashboard/creator/page.tsx");
   const workspace = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+  const workspaceModules = readCreatorWorkspaceModules();
   const fanPassManager = read("src/components/Creators/CreatorFanPassManager.tsx");
   const subscriberRow = read("src/components/Creators/FanPassSubscriberRow.tsx");
   const broadcastManager = read("src/components/Creators/CreatorBroadcastManager.tsx");
@@ -108,8 +119,8 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
     read("docs/agent-truth/user-creator-ui-parity.md"),
     read("docs/agent-truth/creator-settings-source-health.md"),
   ].join("\n");
-  const creatorSurface = `${creatorPage}\n${workspace}`;
-  const creatorUi = `${workspace}\n${fanPassManager}\n${subscriberRow}\n${broadcastManager}\n${profileCreatorTools}\n${profileState}`;
+  const creatorSurface = `${creatorPage}\n${workspace}\n${workspaceModules}`;
+  const creatorUi = `${workspace}\n${workspaceModules}\n${fanPassManager}\n${subscriberRow}\n${broadcastManager}\n${profileCreatorTools}\n${profileState}`;
   const nav = `${sidebar}\n${dropdown}\n${bottomNav}`;
   const userModuleNeedles = ["<DailyCheckIn", "<CreatorDiscoveryRail", "<RecentActivityFeed", "<CollectionList", "Owned / Locked", 'data-library-tabs="owned_locked"'];
 
@@ -150,17 +161,17 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
     "<CollectionList",
     "router.replace(CREATOR_DASHBOARD_ROUTE)",
   ]) && !dashboardClient.includes("CreatorWorkspacePanel");
-  const fanPassCrmUsesReadableIdentity = includesAll(`${workspace}\n${fanPassManager}`, ["FanPassSubscriberRow", 'data-fan-pass-crm="mobile_v1"'])
+  const fanPassCrmUsesReadableIdentity = includesAll(`${workspace}\n${workspaceModules}\n${fanPassManager}`, ["FanPassSubscriberRow", 'data-fan-pass-crm="mobile_v1"'])
     && includesAll(subscriberRow, ["fanLabel", "fanHandle", "fanDisplayName", 'data-raw-user-id-hidden="true"'])
     && includesAll(subscriptionsRoute, ["fanUsername", "fanDisplayName", "fanIdentitySource"])
     && !creatorUi.includes("subscription.userId || subscription.id")
     && !fanPassManager.includes("shortUserId(subscriber.userId)");
-  const broadcastAudienceExplicit = includesAll(`${workspace}\n${broadcastManager}`, ['data-broadcast-audience="all_fans"', "Audience: Fans"])
+  const broadcastAudienceExplicit = includesAll(`${workspace}\n${workspaceModules}\n${broadcastManager}`, ['data-broadcast-audience="all_fans"', "Audience: Fans"])
     && includesAll(broadcastsRoute, ["CREATOR_BROADCAST_SUPPORTED_AUDIENCE", "supportedAudience", "all_fans"]);
   const oldFollowersCopyRemoved = !creatorFacingFollowersCopyExists(creatorUi);
-  const oldMetricGridRemoved = workspace.includes('data-creator-overview-module="compact_v1"')
-    && workspace.includes('data-creator-dashboard-overview-density="mobile_compact"')
-    && !workspace.includes('data-creator-landing-metric-card="compact_v2"');
+  const oldMetricGridRemoved = creatorSurface.includes('data-creator-overview-module="compact_v1"')
+    && creatorSurface.includes('data-creator-dashboard-overview-density="mobile_compact"')
+    && !creatorSurface.includes('data-creator-landing-metric-card="compact_v2"');
 
   const doctrineFindings = [
     blockedUnless(routeMatrixCanonical, "route-matrix-doc", "p1", "docs/agent-truth/creator-nav-role-consolidation.md", "Canonical creator/user route matrix is documented."),

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -15,6 +15,21 @@ function read(path: string) {
   return readFileSync(join(root, path), "utf8");
 }
 
+function readIfExists(path: string) {
+  const fullPath = join(root, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function readCreatorWorkspaceSurface() {
+  const folder = join(root, "src/components/Dashboard/creator-workspace");
+  const modules = readdirSync(folder)
+    .filter((name) => /\.(ts|tsx)$/u.test(name))
+    .sort()
+    .map((name) => readIfExists(`src/components/Dashboard/creator-workspace/${name}`))
+    .join("\n");
+  return `${read("src/components/Dashboard/CreatorWorkspacePanel.tsx")}\n${modules}`;
+}
+
 describe("creator landing dashboard mobile", () => {
   it("keeps /dashboard/creator as the landing route", () => {
     const page = read("src/app/dashboard/creator/page.tsx");
@@ -23,21 +38,23 @@ describe("creator landing dashboard mobile", () => {
     expect(page).not.toContain("CreatorDashboardSettingsHub");
   });
 
-  it("uses a truthful manage-only drop CTA instead of the missing create route", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+  it("uses the creator submission drop manager instead of the user library", () => {
+    const landing = readCreatorWorkspaceSurface();
     const routing = read("src/lib/creator-profile-routing.ts");
 
-    expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library"');
-    expect(routing).toContain('CREATOR_DROP_ROUTE_STATE = "manage_only"');
+    expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"');
+    expect(routing).toContain('CREATOR_DROP_ROUTE_STATE = "creator_submission"');
+    expect(routing).toContain('USER_LIBRARY_ROUTE = "/dashboard/library"');
     expect(landing).toContain("Manage drops");
     expect(landing).toContain("href={CREATOR_DROP_MANAGE_ROUTE}");
     expect(landing).toContain("data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}");
+    expect(landing).not.toContain('href="/dashboard/library"');
     expect(landing).not.toContain('href="/dashboard/drops"');
     expect(landing).not.toMatch(/Create drop/u);
   });
 
   it("marks compact overview density, unavailable values, quick actions, and safe spacing", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landing = readCreatorWorkspaceSurface();
 
     expect(landing).toContain('data-creator-landing-mobile-density="compact_v2"');
     expect(landing).toContain('data-creator-landing-quick-actions="compact_v2"');
@@ -56,7 +73,7 @@ describe("creator landing dashboard mobile", () => {
   });
 
   it("keeps Quick Broadcast lower priority while creator stats are unavailable", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landing = readCreatorWorkspaceSurface();
 
     expect(landing).toContain("broadcastSourceReady");
     expect(landing).toContain("data-creator-broadcast-mobile-priority");
@@ -64,7 +81,7 @@ describe("creator landing dashboard mobile", () => {
   });
 
   it("uses human module warning copy instead of raw module errors", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landing = readCreatorWorkspaceSurface();
 
     expect(landing).toContain('data-creator-landing-error-language="human"');
     expect(landing).toContain("HumanErrorNotice");
@@ -82,8 +99,8 @@ describe("creator landing dashboard mobile", () => {
 
     expect(failures).toEqual([]);
     expect(report.summary.landingRoute).toBe("/dashboard/creator");
-    expect(report.summary.createDropRouteState).toBe("manage_only");
-    expect(report.summary.createDropHref).toBe("/dashboard/library");
+    expect(report.summary.createDropRouteState).toBe("creator_submission");
+    expect(report.summary.createDropHref).toBe("/dashboard/creator/drops");
     expect(report.summary.rawModuleErrorLeaks).toBe(0);
   });
 
