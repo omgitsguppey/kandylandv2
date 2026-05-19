@@ -12,7 +12,7 @@ Generated source: `agent/state/creator-landing-dashboard-mobile.generated.json`
 ## Mobile Density
 
 - The landing dashboard exposes `data-creator-landing-mobile-density="compact_v2"`.
-- Creator stats render inside one compact Creator Overview module with `data-creator-overview-module="compact_v1"`, compact rows, and `data-creator-dashboard-overview-density="mobile_compact"`.
+- Creator stats render inside one compact Creator Overview module with `data-creator-overview-module="compact_v1"`, compact rows, `data-creator-dashboard-overview-density="mobile_compact"`, and `data-creator-dashboard-overview-grid-density="mobile_4x4_compact"`.
 - The overview module uses `data-creator-dashboard-content-scope="creator_owned_or_assigned"` so creator-owned content counts remain separate from public drop discovery.
 - Quick actions use compact pill sizing and stay horizontally scrollable without forcing tall layout.
 - Quick Broadcast is deferred while creator stats are unavailable through `data-creator-broadcast-mobile-priority`.

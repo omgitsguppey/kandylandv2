@@ -27,18 +27,32 @@ describe("creator dashboard overview stats", () => {
     expect(source).not.toContain('data-creator-landing-metric-card="compact_v2"');
   });
 
-  it("uses Fans language and keeps content views separate from content count", () => {
+  it("uses Followers language for the overview relationship metric and keeps content views separate from content count", () => {
     const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
     const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
     const combined = `${landing}\n${settingsHub}`;
 
-    expect(combined).toContain("Fans");
-    expect(combined).not.toMatch(/>\s*Followers\s*</u);
+    expect(landing).toContain('label: "Followers"');
+    expect(landing).not.toContain('label: "Fans"');
+    expect(landing).toContain("formatFollowerSourceDetail(fanCountSource)");
+    expect(landing).not.toContain('detail: fanCountSource.replaceAll("_", " ")');
+    expect(combined).not.toMatch(/relationship count/iu);
     expect(combined).not.toMatch(/followers \|/u);
     expect(landing).toContain("Content views");
     expect(landing).toContain("Content");
     expect(landing).toContain("contentCount");
     expect(landing).not.toContain("formatDashboardMetric(creatorStats?.liveDropsCount)</p>");
+  });
+
+  it("keeps the overview grid in a denser mobile-first mode", () => {
+    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+
+    expect(landing).toContain('data-creator-dashboard-overview-density="mobile_compact"');
+    expect(landing).toContain('data-creator-dashboard-overview-grid-density="mobile_4x4_compact"');
+    expect(landing).toContain("grid grid-cols-2 gap-1.5");
+    expect(landing).toContain("min-h-[3.25rem]");
+    expect(landing).toContain("px-2 py-1.5");
+    expect(landing).not.toContain("min-h-[86px]");
   });
 
   it("keeps source metadata for fans and creator-owned content scope", () => {
@@ -67,7 +81,8 @@ describe("creator dashboard overview stats", () => {
     expect(failures).toEqual([]);
     expect(report.reportKey).toBe("creator-dashboard-overview-stats");
     expect(report.summary.overviewModuleEnabled).toBe(true);
-    expect(report.summary.followerSourceMappedToFans).toBe(true);
+    expect(report.summary.followersOverviewLabelUsed).toBe(true);
+    expect(report.summary.followerSourcePreserved).toBe(true);
     expect(report.summary.contentCountIncludesCreatorExpiredDrops).toBe(true);
     expect(report.nextFixOrder.length).toBeGreaterThan(0);
   });

@@ -1,11 +1,68 @@
 {
-  "currentVersion": "1.3.2",
-  "betaReleaseCounter": 302,
+  "currentVersion": "1.3.3",
+  "betaReleaseCounter": 303,
   "channel": "beta",
-  "generatedAt": "2026-05-19T18:40:00.000Z",
-  "generatedAtUtc": "2026-05-19T18:40:00.000Z",
+  "generatedAt": "2026-05-19T19:05:00.000Z",
+  "generatedAtUtc": "2026-05-19T19:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.3",
+      "previousVersion": "1.3.2",
+      "betaReleaseCounter": 303,
+      "previousBetaReleaseCounter": 302,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(creator): tighten overview grid and follower labeling",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T19:05:00.000Z",
+      "generatedAt": "2026-05-19T19:05:00.000Z",
+      "committedAtUtc": "2026-05-19T19:05:00.000Z",
+      "generatedAtUtc": "2026-05-19T19:05:00.000Z",
+      "updatedAtUtc": "2026-05-19T19:05:00.000Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Refined the Creator Dashboard mobile overview layout and follower metric labeling.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Refined creator dashboard mobile overview layout.",
+        "Changed creator overview Fans label to Followers.",
+        "Reduced creator overview grid density for a more compact mobile fit."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted creator dashboard mobile overview polish into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator dashboard",
+        "creator overview",
+        "mobile layout",
+        "release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-dashboard-overview-stats.generated.json",
+        "agent/state/creator-fan-pass-crm-broadcast.generated.json",
+        "agent/state/creator-landing-dashboard-mobile.generated.json",
+        "docs/agent-truth/creator-dashboard-overview-stats.md",
+        "docs/agent-truth/creator-fan-pass-crm-broadcast.md",
+        "docs/agent-truth/creator-landing-dashboard-mobile.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-dashboard-overview-stats.ts",
+        "scripts/agent/validate-creator-fan-pass-crm-broadcast.ts",
+        "scripts/agent/validate-creator-landing-dashboard-mobile.ts",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-dashboard-overview-stats.spec.ts",
+        "tests/unit/creator-landing-dashboard-mobile.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.2",
       "previousVersion": "1.3.1",

@@ -4,7 +4,9 @@ Creator Dashboard is a creator-owned operational surface. Creator Dashboard stat
 
 Public fans may only see public/available/eligible drops. Creator Dashboard content counts drops owned or explicitly assigned to that creator, including expired, archived, and unlisted states when the creator owns or is assigned to them. The dashboard must never count or show another creator's drops.
 
-Followers may exist as an internal source name, but product-facing Creator Dashboard language is Fans. Fan count source order is relationship/follow records where `creatorId` matches, then source-backed creator profile follower count, then creator settings or relationship snapshot only when marked as partial evidence. Missing fan evidence is partial or unavailable, not a canonical zero.
+Creator Dashboard overview uses a follower-style relationship metric. The product-facing overview label is Followers, and the metric still comes from relationship/follow records where `creatorId` matches, then source-backed creator profile follower count, then creator settings or relationship snapshot only when marked as partial evidence. Missing follower evidence is partial or unavailable, not a canonical zero.
+
+The Creator Overview remains one compact wrapper module. Its inner metric grid stays two columns on mobile and uses the `mobile_4x4_compact` grid density marker so the overview reads as a tight operational summary instead of a stack of large standalone cards.
 
 Drops for all creators is not the same as owned by every creator. A global/all-creator drop counts for one creator only when the source explicitly assigns, links, or scopes that creator to the drop.
 

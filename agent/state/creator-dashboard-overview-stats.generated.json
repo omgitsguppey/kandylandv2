@@ -1,12 +1,13 @@
 {
-  "generatedAtUtc": "2026-05-19T16:58:27.718Z",
+  "generatedAtUtc": "2026-05-19T19:03:35.108Z",
   "reportKey": "creator-dashboard-overview-stats",
-  "currentHead": "05473469a47db2b21a9206e1edccc81b4f30c8dc",
+  "currentHead": "5d7a9e1c36d0d1b6ed9e6095e97a63d54fc458b3",
   "summary": {
     "overviewModuleEnabled": true,
     "oldSeparateStatCardsRemoved": true,
-    "fansLabelUsed": true,
-    "followerSourceMappedToFans": true,
+    "followersOverviewLabelUsed": true,
+    "followerSourcePreserved": true,
+    "overviewGridCompact": true,
     "contentCountIncludesCreatorExpiredDrops": true,
     "publicDiscoverySeparated": true,
     "creatorOwnDropsOnly": true,
@@ -18,11 +19,11 @@
   },
   "sourceFindings": [
     {
-      "id": "fan-source-order",
+      "id": "follower-source-order",
       "status": "fixed",
       "severity": "p1",
       "file": "src/app/api/creator/settings/route.ts",
-      "summary": "Fan count reads relationship/follow evidence before partial fallbacks."
+      "summary": "Follower count reads relationship/follow evidence before partial fallbacks."
     },
     {
       "id": "content-count-scope",
@@ -48,11 +49,18 @@
       "summary": "Standalone mobile metric card grid was removed."
     },
     {
-      "id": "fans-label",
+      "id": "followers-overview-label",
       "status": "fixed",
       "severity": "p1",
       "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "Creator-facing dashboard copy says Fans, not Followers."
+      "summary": "Creator Overview relationship metric says Followers."
+    },
+    {
+      "id": "overview-grid-compact",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator Overview mobile metric grid uses denser 4x4 compact spacing."
     },
     {
       "id": "compact-source-notice",
@@ -96,7 +104,8 @@
   ],
   "fixesApplied": [
     "Consolidated Creator Dashboard mobile stats into one compact Creator Overview module.",
-    "Mapped relationship/follow evidence to user-facing Fans while preserving partial/unavailable source labels.",
+    "Mapped relationship/follow evidence to the Creator Overview Followers metric while preserving partial/unavailable source labels.",
+    "Reduced Creator Overview mobile stat tile spacing, height, and typography with a 2-column compact grid.",
     "Added creator dashboard drop scope helpers so owned/assigned expired content counts separately from public discovery."
   ],
   "prCleanupActions": [],

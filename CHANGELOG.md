@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.3.3 - 2026-05-19
+- Bug fixes and general improvements
+- Refined creator dashboard mobile overview layout.
+- Changed creator overview Fans label to Followers.
+- Reduced creator overview grid density for a more compact mobile fit.
+
 ## 1.3.2 - 2026-05-19
 - Bug fixes and general improvements
 - Made Beta readiness freshness messages easier to understand.

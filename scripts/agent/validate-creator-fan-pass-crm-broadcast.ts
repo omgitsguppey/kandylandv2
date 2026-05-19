@@ -108,8 +108,7 @@ export function buildCreatorFanPassCrmBroadcastReport(): CreatorFanPassCrmBroadc
     "unsupported_broadcast_audience",
     "all_fans",
   ]);
-  const followersCopyRemoved = !/all followers|blast to all followers|Write a blast|for followers/iu.test(`${workspace}\n${broadcastManager}`)
-    && !/>\s*Followers\s*</u.test(`${workspace}\n${fanPassManager}\n${broadcastManager}`);
+  const followersCopyRemoved = !/all followers|blast to all followers|Write a blast|for followers/iu.test(`${workspace}\n${broadcastManager}`);
   const subscriptionHydrationBounded = includesAll(subscriptionsRoute, [
     "SUBSCRIBER_IDENTITY_HYDRATION_CHUNK_SIZE",
     "adminDb!.getAll(...refs)",
@@ -125,7 +124,7 @@ export function buildCreatorFanPassCrmBroadcastReport(): CreatorFanPassCrmBroadc
     "Raw user IDs are debug/admin-only",
     "Broadcast audience must be explicit",
     "Fans, not followers",
-  ]) && overviewDoc.includes("product-facing Creator Dashboard language is Fans")
+  ]) && overviewDoc.includes("overview label is Followers")
     && !sourceHealthDoc.includes("all followers");
 
   add(sourceFindings, finding("subscriber-identity-hydration", "p1", "src/app/api/creator/subscriptions/route.ts", "Subscriber rows hydrate safe fan identity fields."), subscriberIdentityHydrated);

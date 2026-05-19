@@ -43,11 +43,13 @@ describe("creator landing dashboard mobile", () => {
     expect(landing).toContain('data-creator-landing-quick-actions="compact_v2"');
     expect(landing).toContain('data-creator-overview-module="compact_v1"');
     expect(landing).toContain('data-creator-dashboard-overview-density="mobile_compact"');
+    expect(landing).toContain('data-creator-dashboard-overview-grid-density="mobile_4x4_compact"');
     expect(landing).toContain('data-creator-dashboard-content-scope="creator_owned_or_assigned"');
     expect(landing).not.toContain('data-creator-landing-metric-card="compact_v2"');
     expect(landing).toContain('data-creator-landing-unavailable-density="compact"');
     expect(landing).toContain("Creator Overview");
-    expect(landing).toContain("grid grid-cols-2 gap-2");
+    expect(landing).toContain("grid grid-cols-2 gap-1.5");
+    expect(landing).toContain("min-h-[3.25rem]");
     expect(landing).not.toContain("min-h-[86px]");
     expect(landing).toContain("pb-[calc(env(safe-area-inset-bottom)+9rem)]");
     expect(landing).toContain('data-report-issue-safe-offset="bottom-nav"');
@@ -58,7 +60,7 @@ describe("creator landing dashboard mobile", () => {
 
     expect(landing).toContain("broadcastSourceReady");
     expect(landing).toContain("data-creator-broadcast-mobile-priority");
-    expect(landing).toContain("Broadcasts unlock when creator stats finish loading.");
+    expect(landing).toContain("Broadcasts need setup.");
   });
 
   it("uses human module warning copy instead of raw module errors", () => {

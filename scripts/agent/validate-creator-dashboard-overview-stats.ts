@@ -20,8 +20,9 @@ export type CreatorDashboardOverviewStatsReport = {
   summary: {
     overviewModuleEnabled: boolean;
     oldSeparateStatCardsRemoved: boolean;
-    fansLabelUsed: boolean;
-    followerSourceMappedToFans: boolean;
+    followersOverviewLabelUsed: boolean;
+    followerSourcePreserved: boolean;
+    overviewGridCompact: boolean;
     contentCountIncludesCreatorExpiredDrops: boolean;
     publicDiscoverySeparated: boolean;
     creatorOwnDropsOnly: boolean;
@@ -85,17 +86,23 @@ export function buildCreatorDashboardOverviewStatsReport(): CreatorDashboardOver
   ]);
   const oldSeparateStatCardsRemoved = !landing.includes('data-creator-landing-metric-card="compact_v2"')
     && !landing.includes("3x3 Metrics Grid");
-  const fansLabelUsed = landing.includes("Fans")
-    && settingsHub.includes("Fans")
-    && !/>\s*Followers\s*</u.test(`${landing}\n${settingsHub}`)
-    && !/followers \|/u.test(settingsHub);
-  const followerSourceMappedToFans = includesAll(settingsRoute, [
+  const followersOverviewLabelUsed = landing.includes('label: "Followers"')
+    && !landing.includes('label: "Fans"')
+    && landing.includes("formatFollowerSourceDetail(fanCountSource)")
+    && !/relationship count/iu.test(`${landing}\n${settingsHub}`);
+  const followerSourcePreserved = includesAll(settingsRoute, [
     "readCreatorFanCountSource",
     "creator_relationships",
     "fanCountSource",
     "profile_follower_count",
     "fans_source_unavailable",
   ]);
+  const overviewGridCompact = includesAll(landing, [
+    'data-creator-dashboard-overview-grid-density="mobile_4x4_compact"',
+    "grid grid-cols-2 gap-1.5",
+    "min-h-[3.25rem]",
+    "px-2 py-1.5",
+  ]) && !landing.includes("min-h-[86px]");
   const contentCountIncludesCreatorExpiredDrops = includesAll(settingsRoute, [
     "readCreatorDashboardDropCounts",
     "contentCount",
@@ -126,8 +133,9 @@ export function buildCreatorDashboardOverviewStatsReport(): CreatorDashboardOver
 
   add(uiFindings, finding("compact-overview-module", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Creator Dashboard stats render as one compact Creator Overview module."), overviewModuleEnabled);
   add(uiFindings, finding("old-stat-card-grid-removed", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Standalone mobile metric card grid was removed."), oldSeparateStatCardsRemoved);
-  add(uiFindings, finding("fans-label", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Creator-facing dashboard copy says Fans, not Followers."), fansLabelUsed);
-  add(sourceFindings, finding("fan-source-order", "p1", "src/app/api/creator/settings/route.ts", "Fan count reads relationship/follow evidence before partial fallbacks."), followerSourceMappedToFans);
+  add(uiFindings, finding("followers-overview-label", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Creator Overview relationship metric says Followers."), followersOverviewLabelUsed);
+  add(uiFindings, finding("overview-grid-compact", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Creator Overview mobile metric grid uses denser 4x4 compact spacing."), overviewGridCompact);
+  add(sourceFindings, finding("follower-source-order", "p1", "src/app/api/creator/settings/route.ts", "Follower count reads relationship/follow evidence before partial fallbacks."), followerSourcePreserved);
   add(sourceFindings, finding("content-count-scope", "p1", "src/app/api/creator/settings/route.ts", "Dashboard content count uses creator-owned-or-assigned scope and includes expired states."), contentCountIncludesCreatorExpiredDrops);
   add(visibilityFindings, finding("public-discovery-separated", "p1", "src/lib/server/creator-drop-scope.ts", "Public discovery filtering is separate from creator dashboard content counting."), publicDiscoverySeparated);
   add(visibilityFindings, finding("own-drops-only", "p1", "src/lib/server/creator-drop-scope.ts", "Creator dashboard count requires creator ownership or explicit assignment."), creatorOwnDropsOnly);
@@ -146,8 +154,9 @@ export function buildCreatorDashboardOverviewStatsReport(): CreatorDashboardOver
     summary: {
       overviewModuleEnabled,
       oldSeparateStatCardsRemoved,
-      fansLabelUsed,
-      followerSourceMappedToFans,
+      followersOverviewLabelUsed,
+      followerSourcePreserved,
+      overviewGridCompact,
       contentCountIncludesCreatorExpiredDrops,
       publicDiscoverySeparated,
       creatorOwnDropsOnly,
@@ -163,7 +172,8 @@ export function buildCreatorDashboardOverviewStatsReport(): CreatorDashboardOver
     doctrineChanges,
     fixesApplied: [
       "Consolidated Creator Dashboard mobile stats into one compact Creator Overview module.",
-      "Mapped relationship/follow evidence to user-facing Fans while preserving partial/unavailable source labels.",
+      "Mapped relationship/follow evidence to the Creator Overview Followers metric while preserving partial/unavailable source labels.",
+      "Reduced Creator Overview mobile stat tile spacing, height, and typography with a 2-column compact grid.",
       "Added creator dashboard drop scope helpers so owned/assigned expired content counts separately from public discovery.",
     ],
     prCleanupActions: [],
@@ -180,8 +190,9 @@ export function validateCreatorDashboardOverviewStatsReport(report: CreatorDashb
   if (report.currentHead !== currentHead()) failures.push("currentHead must match git HEAD");
   if (!report.summary.overviewModuleEnabled) failures.push("compact Creator Overview module missing");
   if (!report.summary.oldSeparateStatCardsRemoved) failures.push("old separate standalone metric cards remain");
-  if (!report.summary.fansLabelUsed) failures.push("creator dashboard must use Fans label");
-  if (!report.summary.followerSourceMappedToFans) failures.push("follower/relationship source is not mapped to Fans");
+  if (!report.summary.followersOverviewLabelUsed) failures.push("creator overview relationship metric must use Followers label");
+  if (!report.summary.followerSourcePreserved) failures.push("follower/relationship source is not preserved");
+  if (!report.summary.overviewGridCompact) failures.push("creator overview mobile grid is not compact enough");
   if (!report.summary.contentCountIncludesCreatorExpiredDrops) failures.push("content count does not include creator-owned expired drops");
   if (!report.summary.publicDiscoverySeparated) failures.push("public discovery and dashboard drop scope are not separated");
   if (!report.summary.creatorOwnDropsOnly) failures.push("creator dashboard drop count is not scoped to own/assigned drops");

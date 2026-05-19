@@ -46,6 +46,8 @@ type CreatorSettingsSourceSummary = {
     } | null;
 };
 
+type CreatorFanCountSource = NonNullable<NonNullable<CreatorSettingsSourceSummary["statsEvidence"]>["fanCountSource"]>;
+
 type CreatorRequestRecord = {
     id: string;
     categoryLabel?: string;
@@ -158,6 +160,19 @@ function StatusPill({ label, tone = "neutral" }: { label: string; tone?: "good" 
 
 function formatDashboardMetric(value: number | null | undefined) {
     return typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "Unavailable";
+}
+
+function formatFollowerSourceDetail(source: CreatorFanCountSource | "unavailable") {
+    switch (source) {
+        case "relationship_count":
+            return "Follower count";
+        case "profile_follower_count":
+            return "Profile follower count";
+        case "settings_snapshot":
+            return "Settings snapshot";
+        default:
+            return "Source unavailable";
+    }
 }
 
 export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfile }) {
@@ -478,7 +493,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const overviewMetrics = [
         { label: "Balance", value: creatorStats ? `${formatDashboardMetric(creatorStats.earningsGd)} GD` : "Unavailable", detail: creatorStats ? `$${cashValueUsd} value` : "Value unavailable", tone: "brand" },
         { label: "Action needed", value: creatorStats ? formatDashboardMetric(actionNeededCount) : "Unavailable", detail: "Requests, bookings, messages", tone: "action" },
-        { label: "Fans", value: formatDashboardMetric(creatorStats?.followerCount), detail: fanCountSource.replaceAll("_", " "), tone: "neutral" },
+        { label: "Followers", value: formatDashboardMetric(creatorStats?.followerCount), detail: formatFollowerSourceDetail(fanCountSource), tone: "neutral" },
         { label: "Content views", value: formatDashboardMetric(creatorStats?.profileViewsCount), detail: "Views tracked separately", tone: "muted" },
         { label: "Content", value: formatDashboardMetric(creatorContentCount), detail: "Owned or assigned drops", tone: "neutral" },
         { label: "Messages", value: formatDashboardMetric(unreadMessagesCount), detail: "Unread", tone: "muted" },
@@ -627,35 +642,36 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
                     <div className="grid gap-2 sm:gap-4 xl:grid-cols-[1fr_280px]">
                         <div
-                            className="rounded-2xl border border-white/10 bg-black/45 p-3 sm:rounded-3xl sm:p-4"
+                            className="rounded-2xl border border-white/10 bg-black/45 p-2.5 sm:rounded-3xl sm:p-4"
                             data-creator-overview-module="compact_v1"
                             data-creator-dashboard-fans-source={fanCountSource}
                             data-creator-dashboard-content-scope="creator_owned_or_assigned"
                             data-creator-dashboard-public-visibility-separated="true"
                             data-creator-dashboard-overview-density="mobile_compact"
+                            data-creator-dashboard-overview-grid-density="mobile_4x4_compact"
                         >
-                            <div className="mb-2 flex items-center justify-between gap-3">
-                                <h3 className="flex items-center gap-2 text-sm font-black text-white">
-                                    <Activity className="h-4 w-4 text-brand-purple" />
+                            <div className="mb-1.5 flex items-center justify-between gap-2">
+                                <h3 className="flex items-center gap-1.5 text-[13px] font-black text-white sm:text-sm">
+                                    <Activity className="h-3.5 w-3.5 text-brand-purple sm:h-4 sm:w-4" />
                                     Creator Overview
                                 </h3>
-                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                                <span className="rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-gray-200 sm:px-2 sm:py-1 sm:text-[10px]">
                                     {overviewStatus}
                                 </span>
                             </div>
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2">
                                 {overviewMetrics.map((metric) => (
                                     <div
                                         key={metric.label}
-                                        className="min-h-10 rounded-xl border border-white/5 bg-white/[0.04] px-2.5 py-2"
+                                        className="min-h-[3.25rem] rounded-lg border border-white/5 bg-white/[0.04] px-2 py-1.5 sm:rounded-xl sm:px-2.5 sm:py-2"
                                         data-creator-overview-metric={metric.label.toLowerCase().replaceAll(" ", "_")}
                                     >
-                                        <div className="flex items-center justify-between gap-2">
-                                            <p className="truncate text-[11px] font-semibold text-gray-400">{metric.label}</p>
+                                        <div className="flex items-center justify-between gap-1.5">
+                                            <p className="truncate text-[10px] font-semibold leading-3 text-gray-400 sm:text-[11px]">{metric.label}</p>
                                             {metric.tone === "action" ? <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> : null}
                                         </div>
-                                        <p className="mt-0.5 truncate text-sm font-black text-white sm:text-base" data-creator-landing-unavailable-density="compact">{metric.value}</p>
-                                        <p className="truncate text-[10px] text-gray-500">{metric.detail}</p>
+                                        <p className="truncate text-[13px] font-black leading-4 text-white sm:mt-0.5 sm:text-base" data-creator-landing-unavailable-density="compact">{metric.value}</p>
+                                        <p className="truncate text-[9px] leading-3 text-gray-500 sm:text-[10px]">{metric.detail}</p>
                                     </div>
                                 ))}
                             </div>

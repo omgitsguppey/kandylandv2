@@ -129,9 +129,11 @@ export function buildCreatorLandingDashboardMobileReport(): CreatorLandingDashbo
     "Creator Overview",
     'data-creator-overview-module="compact_v1"',
     'data-creator-dashboard-overview-density="mobile_compact"',
+    'data-creator-dashboard-overview-grid-density="mobile_4x4_compact"',
     'data-creator-dashboard-content-scope="creator_owned_or_assigned"',
     'data-creator-landing-unavailable-density="compact"',
-    "grid grid-cols-2 gap-2",
+    "grid grid-cols-2 gap-1.5",
+    "min-h-[3.25rem]",
   ]) && !landing.includes('data-creator-landing-metric-card="compact_v2"'));
 
   add(mobileFindings, {
@@ -143,7 +145,7 @@ export function buildCreatorLandingDashboardMobileReport(): CreatorLandingDashbo
   }, includesAll(landing, [
     "broadcastSourceReady",
     "data-creator-broadcast-mobile-priority",
-    "Broadcasts unlock when creator stats finish loading.",
+    "Broadcasts need setup.",
   ]));
 
   add(mobileFindings, {
