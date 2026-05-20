@@ -1,13 +1,73 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.30",
-  "betaReleaseCounter": 330,
+  "currentVersion": "1.3.31",
+  "betaReleaseCounter": 331,
   "channel": "beta",
-  "generatedAt": "2026-05-20T06:06:29.425Z",
-  "generatedAtUtc": "2026-05-20T06:06:29.425Z",
+  "generatedAt": "2026-05-20T06:19:43.984Z",
+  "generatedAtUtc": "2026-05-20T06:19:43.984Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.31",
+      "previousVersion": "1.3.30",
+      "betaReleaseCounter": 331,
+      "previousBetaReleaseCounter": 330,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(creator): show drop status metrics",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T06:19:43.984Z",
+      "generatedAt": "2026-05-20T06:19:43.984Z",
+      "committedAtUtc": "2026-05-20T06:19:43.984Z",
+      "generatedAtUtc": "2026-05-20T06:19:43.984Z",
+      "updatedAtUtc": "2026-05-20T06:19:43.984Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added creator-facing drop status and expiry labels.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Added creator-facing drop status and expiry labels.",
+        "Showed drop views, clicks, and unwraps inline when available.",
+        "Kept admin-only drop controls hidden from creators."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted creator drop status and inline metrics pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator drop manager",
+        "creator dashboard",
+        "Drops",
+        "creator metrics"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-drop-management-approval.generated.json",
+        "agent/state/creator-drop-manager-mobile-refinement.generated.json",
+        "agent/state/creator-drop-status-metrics.generated.json",
+        "agent/state/event-facts-materializer-closure.generated.json",
+        "docs/agent-truth/creator-drop-management-approval.md",
+        "docs/agent-truth/creator-drop-status-metrics.md",
+        "docs/agent-truth/event-facts-materializer-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-drop-management-approval.ts",
+        "scripts/agent/validate-creator-drop-status-metrics.ts",
+        "src/app/api/creator/drops/route.ts",
+        "src/components/Creators/CreatorDropManager.tsx",
+        "src/lib/drops/drop-metrics-resolver.ts",
+        "src/lib/drops/drop-status-resolver.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-drop-status-metrics.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.30",
       "previousVersion": "1.3.29",
@@ -1306,65 +1366,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/server/admin-debug/summary.ts",
         "src/lib/server/admin-debug/truth-state.ts",
         "tests/unit/admin-analytics-monolith-cleanup.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.6",
-      "previousVersion": "1.3.5",
-      "betaReleaseCounter": 306,
-      "previousBetaReleaseCounter": 305,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(dashboard): clean user creator logic",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T20:05:36.000Z",
-      "generatedAt": "2026-05-19T20:05:36.000Z",
-      "committedAtUtc": "2026-05-19T20:05:36.000Z",
-      "generatedAtUtc": "2026-05-19T20:05:36.000Z",
-      "updatedAtUtc": "2026-05-19T20:05:36.000Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Cleaned up creator and user dashboard routing and stale dashboard logic.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Navigation",
-      "bullets": [
-        "Cleaned up creator and user dashboard logic.",
-        "Consolidated creator navigation and dashboard surface rules.",
-        "Reduced stale duplicated dashboard logic."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted user/creator dashboard logic cleanup into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator dashboard",
-        "user dashboard",
-        "navigation",
-        "release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/user-creator-logic-cleanup.generated.json",
-        "docs/agent-truth/user-creator-logic-cleanup.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-user-creator-logic-cleanup.ts",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/components/Dashboard/creator-workspace/CreatorActionQueuePanel.tsx",
-        "src/components/Dashboard/creator-workspace/CreatorBroadcastCard.tsx",
-        "src/components/Dashboard/creator-workspace/CreatorDashboardOverviewModule.tsx",
-        "src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx",
-        "src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx",
-        "src/components/Dashboard/creator-workspace/CreatorFanPassCrmPanel.tsx",
-        "src/components/Dashboard/creator-workspace/types.ts",
-        "src/lib/creator-profile-routing.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/user-creator-logic-cleanup.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

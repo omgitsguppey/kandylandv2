@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { isCreatorRole } from "@/lib/creator-experiences";
+import { resolveCreatorDropMetrics } from "@/lib/drops/drop-metrics-resolver";
 import { buildCreatorPendingDropPayload, sanitizeCreatorDropSubmission } from "@/lib/drops/drop-submission-contract";
+import { resolveDropStatus } from "@/lib/drops/drop-status-resolver";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { handleApiError } from "@/lib/server/auth";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -37,6 +39,8 @@ function readPositiveLimit(request: NextRequest) {
 }
 
 function serializeCreatorDrop(id: string, data: Record<string, unknown>) {
+    const status = resolveDropStatus(data);
+    const metrics = resolveCreatorDropMetrics(data);
     return {
         id,
         title: typeof data.title === "string" ? data.title : "Untitled Drop",
@@ -48,8 +52,17 @@ function serializeCreatorDrop(id: string, data: Record<string, unknown>) {
         creatorId: typeof data.creatorId === "string" ? data.creatorId : "",
         submittedByCreatorId: typeof data.submittedByCreatorId === "string" ? data.submittedByCreatorId : "",
         submittedByUserId: typeof data.submittedByUserId === "string" ? data.submittedByUserId : "",
+        createdByRole: typeof data.createdByRole === "string" ? data.createdByRole : "",
+        assignedCreatorIds: Array.isArray(data.assignedCreatorIds) ? data.assignedCreatorIds.filter((entry) => typeof entry === "string") : [],
         publicDiscovery: data.publicDiscovery === true,
         rotationEligibility: data.rotationEligibility === true,
+        validUntil: typeof data.validUntil === "number" ? data.validUntil : null,
+        expiresAt: typeof data.expiresAt === "number" ? data.expiresAt : null,
+        totalViews: typeof data.totalViews === "number" ? data.totalViews : null,
+        totalClicks: typeof data.totalClicks === "number" ? data.totalClicks : null,
+        totalUnlocks: typeof data.totalUnlocks === "number" ? data.totalUnlocks : null,
+        metrics: metrics.serialized,
+        statusResolution: status,
         sourceTruth: typeof data.sourceTruth === "string" ? data.sourceTruth : "",
     };
 }

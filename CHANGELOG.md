@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.31 - 2026-05-20
+- Bug fixes and general improvements
+- Added creator-facing drop status and expiry labels.
+- Showed drop views, clicks, and unwraps inline when available.
+- Kept admin-only drop controls hidden from creators.
+
 ## 1.3.30 - 2026-05-20
 - Bug fixes and general improvements
 - Improved user dashboard and wallet loading on mobile.

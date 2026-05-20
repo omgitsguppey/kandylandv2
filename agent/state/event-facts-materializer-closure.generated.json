@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T23:31:23.585Z",
+  "generatedAtUtc": "2026-05-20T06:22:50.251Z",
   "reportKey": "event-facts-materializer-closure",
-  "currentHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
+  "currentHead": "f7dca270d0e4e2e73a8ce94418a090b0d745e529",
   "summary": {
     "materializationContractCreated": true,
     "persistedCollectionsClassified": true,

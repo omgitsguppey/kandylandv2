@@ -121,6 +121,7 @@ function writeDoc(report: Report) {
 export function buildCreatorDropManagementApprovalReport(): Report {
   const routing = read("src/lib/creator-profile-routing.ts");
   const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+  const quickActions = read("src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx");
   const adminRoute = read("src/app/api/admin/drops/route.ts");
   const creatorRoute = read("src/app/api/creator/drops/route.ts");
   const formContract = read("src/lib/drops/drop-form-contract.ts");
@@ -144,7 +145,7 @@ export function buildCreatorDropManagementApprovalReport(): Report {
   const manageDropsRouteFixed = includesAll(routing, [
     'CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"',
     'CREATOR_DROP_ROUTE_STATE = "creator_submission"',
-  ]) && landing.includes("href={CREATOR_DROP_MANAGE_ROUTE}");
+  ]) && (landing.includes("href={CREATOR_DROP_MANAGE_ROUTE}") || quickActions.includes("href={CREATOR_DROP_MANAGE_ROUTE}"));
   const creatorSubmissionApiCreated = includesAll(creatorRoute, ["export let GET", "export let POST", "export let PUT", "buildCreatorPendingDropPayload"]);
   const creatorAdminOnlyFieldsBlocked = includesAll(submissionContract, [
     "assertCreatorDropSubmissionSafe",

@@ -1,0 +1,122 @@
+{
+  "generatedAtUtc": "2026-05-20T06:22:22.512Z",
+  "reportKey": "creator-drop-status-metrics",
+  "currentHead": "f7dca270d0e4e2e73a8ce94418a090b0d745e529",
+  "summary": {
+    "dependencyPresent": true,
+    "statusResolverReady": true,
+    "metricsResolverReady": true,
+    "creatorApiSafeFieldsReady": true,
+    "creatorCardStatusChipReady": true,
+    "inlineMetricsReady": true,
+    "metricsUnavailableNotZero": true,
+    "adminOnlyControlsHidden": true,
+    "mobileDensityCompact": true,
+    "protectedNavChatUntouched": true,
+    "openPrsClassified": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "dependency-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Creator drop manager, API, and package script are present."
+    }
+  ],
+  "statusFindings": [
+    {
+      "id": "status-resolver-ready",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Shared drop status resolver covers creator/admin/public lifecycle labels."
+    },
+    {
+      "id": "creator-card-status-chip",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Creator drop cards render status chips and expired markers."
+    }
+  ],
+  "metricsFindings": [
+    {
+      "id": "metrics-resolver-ready",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Shared metrics resolver covers views, clicks, unwraps, source, freshness, and proven zero."
+    },
+    {
+      "id": "metrics-unavailable-not-zero",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Missing metrics display as collecting/unavailable instead of zero."
+    },
+    {
+      "id": "inline-metrics-ready",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Creator drop cards show compact inline metrics with source markers."
+    }
+  ],
+  "apiFindings": [
+    {
+      "id": "creator-api-safe-fields",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Creator drops API returns safe lifecycle and metrics read fields."
+    }
+  ],
+  "uiFindings": [
+    {
+      "id": "admin-only-controls-hidden",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Creator manager does not expose admin-only publish/approval/rotation controls."
+    },
+    {
+      "id": "mobile-density-compact",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Creator drop cards use compact mobile density without large card tokens."
+    }
+  ],
+  "protectedSurfaceFindings": [
+    {
+      "id": "protected-nav-chat-untouched",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Chat and navigation files were not changed."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "open-prs-classified",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Relevant open PRs were classified."
+    },
+    {
+      "id": "unit-test-covers-missing-metrics",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Unit tests cover missing metrics not displaying as zero."
+    },
+    {
+      "id": "unit-test-covers-expired",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Unit tests cover expired creator drop status."
+    }
+  ],
+  "prCleanupActions": [
+    "Preserved PR #274: broad monolith governance doc PR outside creator drop status/metrics scope.",
+    "Preserved PR #275: admin analytics aggregation optimization outside creator drop status/metrics scope."
+  ],
+  "nextFixOrder": [
+    "Wire materialized event-fact summaries into creator drop metrics when that source is available.",
+    "Add creator-safe drilldown for metric freshness after admin analytics exposes a bounded drop metric read model.",
+    "Keep creator drop mutations approval-gated; only admin routes may publish, approve, rotate, or make drops public."
+  ]
+}

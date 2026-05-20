@@ -8,6 +8,8 @@ import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { MarqueeText } from "@/components/ui/MarqueeText";
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
+import { resolveCreatorDropMetrics, type CreatorDropMetricsResolution } from "@/lib/drops/drop-metrics-resolver";
+import { resolveDropStatus, type DropStatusResolution } from "@/lib/drops/drop-status-resolver";
 import { trackEvent } from "@/lib/telemetry";
 import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
 import { createStaleRequestGuard, getMobileSkeletonClass, getModuleLoadingState } from "@/lib/ui/loading-state-contract";
@@ -25,8 +27,17 @@ type CreatorDropRow = {
     reviewStatus?: string;
     publicDiscovery?: boolean;
     rotationEligibility?: boolean;
+    createdByRole?: string;
+    submittedByCreatorId?: string;
+    assignedCreatorIds?: string[];
     unlockCost?: number;
     validUntil?: number | null;
+    expiresAt?: number | null;
+    totalViews?: number | null;
+    totalClicks?: number | null;
+    totalUnlocks?: number | null;
+    metrics?: CreatorDropMetricsResolution["serialized"];
+    statusResolution?: DropStatusResolution;
     updatedAt?: number | string | null;
 };
 
@@ -55,11 +66,25 @@ const creatorManagerModuleClassName = getMobileModuleClassNames("creator", "mana
 const creatorDropListSkeletonClassName = getMobileSkeletonClass("creator", "list");
 
 function classifyDrop(drop: CreatorDropRow): CreatorDropReviewStatus {
-    if (drop.reviewStatus === "needs_changes") return "needs_changes";
-    if (drop.reviewStatus === "rejected" || drop.approvalStatus === "rejected") return "rejected";
-    if (drop.reviewStatus === "approved" || drop.approvalStatus === "approved") return "approved";
-    if (drop.reviewStatus === "pending_admin_approval" || drop.approvalStatus === "pending_review") return "pending_admin_approval";
+    const status = drop.statusResolution ?? resolveDropStatus(drop);
+    if (status.creatorStatusKey === "needs_changes") return "needs_changes";
+    if (status.creatorStatusKey === "rejected") return "rejected";
+    if (status.creatorStatusKey === "approved_live" || status.creatorStatusKey === "admin_created" || status.creatorStatusKey === "expired") return "approved";
+    if (status.creatorStatusKey === "pending_review" || status.creatorStatusKey === "creator_submitted") return "pending_admin_approval";
     return "draft";
+}
+
+function statusToneClassName(tone: DropStatusResolution["statusTone"]) {
+    if (tone === "success") return "border-emerald-400/30 bg-emerald-400/10 text-emerald-100";
+    if (tone === "warning") return "border-amber-300/30 bg-amber-300/10 text-amber-100";
+    if (tone === "danger") return "border-red-400/30 bg-red-400/10 text-red-100";
+    if (tone === "info") return "border-sky-300/30 bg-sky-300/10 text-sky-100";
+    if (tone === "muted") return "border-white/10 bg-white/[0.035] text-gray-400";
+    return "border-white/10 bg-white/5 text-gray-300";
+}
+
+function renderMetric(metric: CreatorDropMetricsResolution["views"]) {
+    return metric.displayValue;
 }
 
 export function CreatorDropManager() {
@@ -226,37 +251,55 @@ export function CreatorDropManager() {
                         </div>
                     ) : (
                         <div className="grid gap-2">
-                            {visibleDrops.map((drop) => (
-                                <article key={drop.id} className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-2.5">
-                                    {drop.imageUrl ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={drop.imageUrl} alt="" className="h-14 w-14 rounded-lg object-cover" />
-                                    ) : (
-                                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white/5">
-                                            <Package className="h-5 w-5 text-gray-400" />
+                            {visibleDrops.map((drop) => {
+                                const status = drop.statusResolution ?? resolveDropStatus(drop);
+                                const metrics = drop.metrics ?? resolveCreatorDropMetrics(drop).serialized;
+                                return (
+                                    <article
+                                        key={drop.id}
+                                        className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-2.5"
+                                        data-creator-drop-card-status={status.creatorStatusKey}
+                                        data-creator-drop-metrics-source={metrics.source}
+                                        data-creator-drop-expired={String(status.isExpired)}
+                                        data-creator-drop-mobile-density="compact"
+                                    >
+                                        {drop.imageUrl ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img src={drop.imageUrl} alt="" className="h-14 w-14 rounded-lg object-cover" />
+                                        ) : (
+                                            <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white/5">
+                                                <Package className="h-5 w-5 text-gray-400" />
+                                            </div>
+                                        )}
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex min-w-0 items-start justify-between gap-2">
+                                                <MarqueeText
+                                                    as="h2"
+                                                    title={drop.title}
+                                                    className="text-sm font-black text-white"
+                                                    ariaLabel={drop.title}
+                                                />
+                                                <span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${statusToneClassName(status.statusTone)}`}>
+                                                    {status.creatorStatusLabel}
+                                                </span>
+                                            </div>
+                                            <p className="mt-1 truncate text-xs leading-5 text-gray-400">{drop.description || "No description provided."}</p>
+                                            <div className="mt-1.5 flex flex-wrap gap-2 text-[11px] font-semibold text-gray-400">
+                                                <span>{status.isAdminCreated ? "Added by admin" : status.isCreatorSubmitted ? "Submitted" : REVIEW_STATUS_LABELS[classifyDrop(drop)]}</span>
+                                                <span aria-hidden="true">|</span>
+                                                <span>{status.publicVisibilityLabel}</span>
+                                                <span aria-hidden="true">|</span>
+                                                <span>{typeof drop.unlockCost === "number" ? `${drop.unlockCost} GumDrops` : "Cost unset"}</span>
+                                            </div>
+                                            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-400">
+                                                <span className="rounded-full border border-white/10 bg-white/[0.035] px-2 py-1">Views {renderMetric(metrics.views)}</span>
+                                                <span className="rounded-full border border-white/10 bg-white/[0.035] px-2 py-1">Clicks {renderMetric(metrics.clicks)}</span>
+                                                <span className="rounded-full border border-white/10 bg-white/[0.035] px-2 py-1">Unwraps {renderMetric(metrics.unwraps)}</span>
+                                            </div>
                                         </div>
-                                    )}
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex min-w-0 items-start justify-between gap-2">
-                                            <MarqueeText
-                                                as="h2"
-                                                title={drop.title}
-                                                className="text-sm font-black text-white"
-                                                ariaLabel={drop.title}
-                                            />
-                                            <span className="shrink-0 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
-                                                {REVIEW_STATUS_LABELS[classifyDrop(drop)]}
-                                            </span>
-                                        </div>
-                                        <p className="mt-1 truncate text-xs leading-5 text-gray-400">{drop.description || "No description provided."}</p>
-                                        <div className="mt-1.5 flex flex-wrap gap-2 text-[11px] font-semibold text-gray-400">
-                                            <span>{typeof drop.unlockCost === "number" ? `${drop.unlockCost} GumDrops` : "Cost unset"}</span>
-                                            <span aria-hidden="true">|</span>
-                                            <span>{drop.validUntil ? "Expires set" : "No expiry"}</span>
-                                        </div>
-                                    </div>
-                                </article>
-                            ))}
+                                    </article>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
