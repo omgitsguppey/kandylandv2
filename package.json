@@ -285,6 +285,7 @@
         "check:creator-settings-control-plane": "tsx scripts/agent/validate-creator-settings-control-plane.ts",
         "check:creator-pricing-wiring": "tsx scripts/agent/validate-creator-pricing-wiring.ts",
         "check:creator-broadcast-timeline-prep": "tsx scripts/agent/validate-creator-broadcast-timeline-prep.ts",
+        "check:creator-profile-mobile-timeline": "tsx scripts/agent/validate-creator-profile-mobile-timeline.ts",
         "check:creator-landing-dashboard-mobile": "tsx scripts/agent/validate-creator-landing-dashboard-mobile.ts",
         "check:error-truth-debug-visibility": "tsx scripts/agent/validate-error-truth-debug-visibility.ts",
         "check:error-handling-final-readiness": "tsx scripts/agent/validate-error-handling-final-readiness.ts",

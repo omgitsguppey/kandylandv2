@@ -45,6 +45,9 @@ const timelineContract = has("src/lib/creator-profile/timeline-contract.ts")
 const profileRoute = read("src/app/api/creators/[username]/route.ts");
 const profileClient = read("src/app/creators/[username]/CreatorProfileClient.tsx");
 const updatesFeed = read("src/components/Creators/CreatorUpdatesFeed.tsx");
+const timelineFeed = has("src/components/Creators/CreatorProfileTimelineFeed.tsx")
+  ? read("src/components/Creators/CreatorProfileTimelineFeed.tsx")
+  : "";
 const packageJson = read("package.json");
 const telemetryCatalog = read("src/lib/telemetry-catalog.ts");
 const changedFiles = gitOutput("git diff --name-only HEAD").split(/\r?\n/u).filter(Boolean);
@@ -87,8 +90,11 @@ const summary = {
   profileRouteExposesTimeline: profileRoute.includes("buildCreatorProfileTimeline")
     && profileRoute.includes("timeline")
     && profileRoute.includes("CREATOR_PROFILE_BROADCAST_LIMIT"),
-  mobilePreviewHookPresent: profileClient.includes("timelineBroadcasts")
-    && updatesFeed.includes("data-creator-profile-timeline-preview"),
+  mobilePreviewHookPresent: (profileClient.includes("timelineItems")
+    && profileClient.includes("CreatorProfileTimelineFeed")
+    && timelineFeed.includes("data-creator-profile-timeline-feed=\"true\""))
+    || (profileClient.includes("timelineBroadcasts")
+      && updatesFeed.includes("data-creator-profile-timeline-preview")),
   telemetryPresent: route.includes("trackServerEvent(\"creator_broadcast_created\"")
     && route.includes("notification_enqueue_count")
     && telemetryCatalog.includes("creator_broadcast_created"),

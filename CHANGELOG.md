@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.26 - 2026-05-20
+- Bug fixes and general improvements
+- Reduced creator profile header scale on mobile.
+- Prepared creator profiles for drop and broadcast timelines.
+- Kept private and pending creator content hidden from public profiles.
+
 ## 1.3.25 - 2026-05-20
 - Bug fixes and general improvements
 - Prepared creator broadcasts for follower notifications.

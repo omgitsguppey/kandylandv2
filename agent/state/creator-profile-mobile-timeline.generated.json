@@ -1,0 +1,128 @@
+{
+  "generatedAtUtc": "2026-05-20T05:01:57.863Z",
+  "reportKey": "creator-profile-mobile-timeline",
+  "currentHead": "a3d55687b2e8d468607298d75b838b79004299bd",
+  "summary": {
+    "broadcastTimelinePrepDetected": true,
+    "timelineContractDetected": true,
+    "creatorDropContractDetected": true,
+    "mobileHeaderCompact": true,
+    "profileCountDensityCompact": true,
+    "compactButtonsPresent": true,
+    "timelineFeedRendered": true,
+    "timelineUsesSharedContract": true,
+    "pendingDraftExcluded": true,
+    "duplicateDropCardAvoided": true,
+    "protectedNavChatUntouched": true,
+    "releaseNotesUpdated": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "broadcast-timeline-prep",
+      "severity": "P2",
+      "status": "pass",
+      "file": "agent/state/creator-broadcast-timeline-prep.generated.json",
+      "summary": "Broadcast timeline prep artifact is present and reports timeline contract readiness."
+    },
+    {
+      "id": "timeline-contract",
+      "severity": "P0",
+      "status": "pass",
+      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "summary": "Creator profile timeline contract exists and filters broadcast visibility."
+    },
+    {
+      "id": "creator-drop-contract",
+      "severity": "P1",
+      "status": "pass",
+      "file": "src/app/api/creators/[username]/route.ts",
+      "summary": "Public profile keeps approved public drops sanitized through existing drop contract/read model."
+    }
+  ],
+  "uiFindings": [
+    {
+      "id": "mobile-header-compact",
+      "severity": "P1",
+      "status": "pass",
+      "file": "src/components/Creators/CreatorProfileHeader.tsx",
+      "summary": "Creator profile header uses compact mobile scale markers and smaller mobile avatar/title."
+    },
+    {
+      "id": "count-density-compact",
+      "severity": "P1",
+      "status": "pass",
+      "file": "src/components/Creators/CreatorProfileHeader.tsx",
+      "summary": "Follower and Drop counts use compact mobile font sizes."
+    },
+    {
+      "id": "compact-buttons",
+      "severity": "P2",
+      "status": "pass",
+      "file": "src/components/Creators/CreatorProfileHeader.tsx",
+      "summary": "Follow, message, and alerts actions keep touch targets while reducing mobile visual weight."
+    },
+    {
+      "id": "protected-nav-chat",
+      "severity": "P0",
+      "status": "pass",
+      "summary": "Top nav, bottom nav, and chat files are untouched."
+    }
+  ],
+  "timelineFindings": [
+    {
+      "id": "timeline-feed-rendered",
+      "severity": "P0",
+      "status": "pass",
+      "file": "src/components/Creators/CreatorProfileTimelineFeed.tsx",
+      "summary": "Public profile renders a compact mixed timeline feed from the existing profile data."
+    },
+    {
+      "id": "timeline-contract-used",
+      "severity": "P0",
+      "status": "pass",
+      "file": "src/components/Creators/CreatorProfileTimelineFeed.tsx",
+      "summary": "Timeline feed uses the shared creator profile timeline contract type/source marker."
+    },
+    {
+      "id": "pending-draft-excluded",
+      "severity": "P0",
+      "status": "pass",
+      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "summary": "Timeline contract excludes pending drops and draft or ineligible broadcasts."
+    },
+    {
+      "id": "duplicate-drop-card-avoided",
+      "severity": "P1",
+      "status": "pass",
+      "file": "src/components/Creators/CreatorProfileTimelineFeed.tsx",
+      "summary": "Profile timeline does not add a duplicate Drop card component."
+    },
+    {
+      "id": "package-script",
+      "severity": "P1",
+      "status": "pass",
+      "file": "package.json",
+      "summary": "Package check script is wired."
+    },
+    {
+      "id": "release-notes",
+      "severity": "P2",
+      "status": "pass",
+      "file": "public/kandydrops-release-notes.json",
+      "summary": "Same-commit public beta release note bullets are present."
+    }
+  ],
+  "protectedFileDiffs": [],
+  "fixesApplied": [
+    "Reduced creator public profile header/avatar/count/button scale on mobile.",
+    "Rendered a compact mixed profile timeline from the existing creator profile timeline contract.",
+    "Kept pending drops and draft broadcasts filtered through the shared timeline contract."
+  ],
+  "nextFixOrder": [
+    "Add richer media previews to timeline cards after a shared compact Drop card variant exists.",
+    "Add browser screenshot evidence for the creator profile mobile timeline in a separate visual QA pass."
+  ]
+}

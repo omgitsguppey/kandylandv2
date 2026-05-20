@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { DropGrid } from "@/components/DropGrid";
 import { CreatorExperiencesPanel } from "@/components/Creators/CreatorExperiencesPanel";
 import { CreatorProfileHeader } from "@/components/Creators/CreatorProfileHeader";
-import { CreatorUpdatesFeed } from "@/components/Creators/CreatorUpdatesFeed";
+import { CreatorProfileTimelineFeed } from "@/components/Creators/CreatorProfileTimelineFeed";
 import { NotFoundSurface } from "@/components/ui/NotFoundSurface";
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import { useAuth } from "@/context/AuthContext";
@@ -24,6 +24,7 @@ import {
 } from "@/lib/creator-experiences";
 import { getCreatorBookingProblemCopy, getCreatorRequestProblemCopy, getCreatorSubscriptionProblemCopy } from "@/lib/problem-state-copy";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
+import type { CreatorProfileTimelineItem } from "@/lib/creator-profile/timeline-contract";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
 import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
@@ -94,7 +95,7 @@ export default function CreatorProfileClient() {
     const [creatingRequest, setCreatingRequest] = useState(false);
     const [bookings, setBookings] = useState<Array<Record<string, unknown>>>([]);
     const [broadcasts, setBroadcasts] = useState<Array<Record<string, unknown>>>([]);
-    const [timelineBroadcasts, setTimelineBroadcasts] = useState<Array<Record<string, unknown>>>([]);
+    const [timelineItems, setTimelineItems] = useState<CreatorProfileTimelineItem[]>([]);
     const [bookingStartAt, setBookingStartAt] = useState("");
     const [bookingDurationMinutes, setBookingDurationMinutes] = useState(CREATOR_BOOKING_MIN_MINUTES);
     const [bookingServiceType, setBookingServiceType] = useState<"phone" | "video">("phone");
@@ -105,6 +106,9 @@ export default function CreatorProfileClient() {
     const lastTrackedBroadcastKeyRef = useRef<string>("");
     const handleCreatorDropPreview = useCallback((drop: Drop) => {
         router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=creator_profile_drop_grid`);
+    }, [router]);
+    const handleCreatorTimelineDrop = useCallback((drop: Drop) => {
+        router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=creator_profile_timeline`);
     }, [router]);
 
     useEffect(() => {
@@ -122,7 +126,7 @@ export default function CreatorProfileClient() {
                     creator?: UserProfile & { followerCount?: number };
                     drops?: Drop[];
                     timeline?: {
-                        items?: Array<Record<string, unknown> & { type?: string }>;
+                        items?: CreatorProfileTimelineItem[];
                         sourceTruth?: string;
                         state?: string;
                     };
@@ -135,12 +139,7 @@ export default function CreatorProfileClient() {
 
                 setCreator(result.creator);
                 setDrops(result.drops || []);
-                setTimelineBroadcasts((result.timeline?.items || [])
-                    .filter((item) => item.type === "broadcast")
-                    .map((item) => ({
-                        ...item,
-                        message: typeof item.body === "string" ? item.body : item.message,
-                    })));
+                setTimelineItems(Array.isArray(result.timeline?.items) ? result.timeline.items : []);
             } catch (error) {
                 reportClientIssue({
                     channel: "network",
@@ -898,8 +897,16 @@ export default function CreatorProfileClient() {
     const profileTimelineVisible = creatorSettings.profileTimelineEnabled !== false;
     const profileDropsVisible = profileTimelineVisible && creatorSettings.showApprovedDropsOnTimeline !== false;
     const profileBroadcastsVisible = profileTimelineVisible && creatorSettings.showBroadcastsOnTimeline !== false;
-    const visibleBroadcasts = profileBroadcastsVisible
-        ? (broadcasts.length > 0 ? broadcasts : timelineBroadcasts).slice(0, 4)
+    const visibleTimelineItems = profileTimelineVisible
+        ? timelineItems.filter((item) => {
+            if (item.type === "drop") {
+                return profileDropsVisible;
+            }
+            if (item.type === "broadcast") {
+                return profileBroadcastsVisible;
+            }
+            return false;
+        })
         : [];
     const experienceWarnings = [
         moduleState.subscriptions.warning ? { key: "subscriptions", label: "Subscriptions", message: moduleState.subscriptions.warning } : null,
@@ -1028,7 +1035,11 @@ export default function CreatorProfileClient() {
                                     data-testid="creator-profile-module-warning"
                                 />
                             ) : null}
-                            <CreatorUpdatesFeed broadcasts={visibleBroadcasts} />
+                            <CreatorProfileTimelineFeed
+                                drops={drops}
+                                items={visibleTimelineItems}
+                                onOpenDrop={handleCreatorTimelineDrop}
+                            />
 
                             <section
                                 data-drop-visibility-scope="creator_profile"
