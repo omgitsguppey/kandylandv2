@@ -1,5 +1,49 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+
+## [2026-05-15 #174] Blocked Deliverable: Monolith File Structural Audit
+
+### 1. Candidate Files
+- `src/components/Chat/ChatExperience.tsx` (3522 lines)
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (3205 lines)
+- `src/app/api/admin/users/route.ts` (3162 lines)
+- `src/lib/server/ai-drop-covers.ts` (2873 lines)
+- `src/app/api/admin/analytics/historical/route.ts` (2108 lines)
+
+### 2. Classification Labels
+- `src/components/Chat/ChatExperience.tsx`: **God-file risk**
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: **God-file risk**
+- `src/app/api/admin/users/route.ts`: **God-file risk**
+- `src/lib/server/ai-drop-covers.ts`: **God-file risk**
+- `src/app/api/admin/analytics/historical/route.ts`: **God-file risk**
+
+### 3. Exact Blocker
+Refactoring these extremely large monolithic files (>2000 lines) is too risky for a single automated scripting pass. These files heavily mix view rendering, data fetching, transformation logic, telemetry, and fallback/skeleton states. Proceeding with automated decomposition risks causing severe regressions in critical app domains, including chat internals, admin ops/analytics logic, and AI runtime paths.
+
+### 4. Affected Components
+- Chat view and messaging internals (`ChatExperience`, `ChatRouteShell`)
+- Admin Analytics dashboards and internal hooks (`useAdminAnalyticsState`, historical route)
+- Server AI cover generation utilities
+- Admin User lookup and modification API routes
+
+### 5. Precise Codex Prompt for Blocked Remainder
+```text
+Role: Maintainability and Stability Boundary Expert
+Task: Manually decompose the following files to enforce clear responsibility boundaries. Your goal is to separate view rendering, fetch logic, transformation logic, and telemetry into smaller, focused files without changing product behavior.
+
+Candidate Files to Split:
+1. src/components/Chat/ChatExperience.tsx - Extract message rendering, input state orchestration, attachment handling, and Firebase listeners into smaller subcomponents/hooks (< 300 lines each).
+2. src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx - Decompose the monolithic useAdminAnalyticsState into focused hooks (e.g., useCommerceMetrics, useAudienceMetrics) while preserving all SWR states and AdminSurfaceState truth state rules.
+3. src/app/api/admin/users/route.ts - Split route handler from request validation, DB operations, and payload formatters.
+4. src/lib/server/ai-drop-covers.ts - Extract generation logic, API interactions, and storage steps.
+5. src/app/api/admin/analytics/historical/route.ts - Extract query aggregations and response mappings.
+
+Constraints:
+- Use strict classification labels: 'Healthy boundary', 'Oversized but tolerable', 'God-file risk', 'Mixed responsibility drift', 'Needs split for stability', 'Unknown / not provable yet' when documenting your progress.
+- Do NOT alter any runtime product behavior, payment internals, or economy logic.
+- Verify that build, lint, and unit tests continue to pass after decomposition.
+```
+
 ## [2026-05-14 #173] Repo Doctrine Reset + Source-of-Truth Cleanup
 
 Scope started:
