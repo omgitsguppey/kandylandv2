@@ -1,0 +1,88 @@
+{
+  "generatedAtUtc": "2026-05-20T23:49:30.533Z",
+  "reportKey": "source-backed-runtime-confidence",
+  "currentHead": "94aa3b26e38df8a77ce0c38f5143b2e75a94c805",
+  "sourceCommit": "94aa3b26e38df8a77ce0c38f5143b2e75a94c805",
+  "status": "source_ready_runtime_confidence",
+  "passed": true,
+  "runtimeContractsPresent": true,
+  "deployedSmokePresent": false,
+  "watchTimeRuntimeSourceReady": true,
+  "telemetryPipelineSourceReady": true,
+  "walletLoadingSourceReady": true,
+  "creatorDropStatusRuntimeSourceReady": true,
+  "operatorRevenueSmokeSourceSignal": true,
+  "runtimeConfidenceScore": 100,
+  "launchGateImpact": "does_not_clear_runtime_smoke",
+  "formalEvidenceImpact": "source_runtime_confidence_only",
+  "doesNotClear": [
+    "runtime_smoke",
+    "provider_smoke",
+    "manual_screenshot",
+    "admin_truth_sample"
+  ],
+  "scoringModelSupportsRuntimePartialCredit": true,
+  "validatorResults": [
+    {
+      "command": "npm run check:runtime-watch-time-v2",
+      "status": "pass",
+      "artifactPath": "agent/state/runtime-watch-time-v2.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    },
+    {
+      "command": "npm run check:final-telemetry-closure-lock",
+      "status": "pass",
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    },
+    {
+      "command": "npm run check:telemetry-admin-debug-truth",
+      "status": "pass",
+      "artifactPath": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    },
+    {
+      "command": "npm run check:mobile-loading-hydration-stability",
+      "status": "pass",
+      "artifactPath": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    },
+    {
+      "command": "npm run check:user-loading-wallet-mobile-refinement",
+      "status": "pass",
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    },
+    {
+      "command": "npm run check:creator-drop-status-metrics",
+      "status": "pass",
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    },
+    {
+      "command": "npm run check:operator-revenue-smoke",
+      "status": "pass",
+      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    }
+  ],
+  "evidence": [
+    "runtimeContractsPresent=true",
+    "deployedSmokePresent=false",
+    "watchTimeRuntimeSourceReady=true",
+    "telemetryPipelineSourceReady=true",
+    "walletLoadingSourceReady=true",
+    "creatorDropStatusRuntimeSourceReady=true",
+    "operatorRevenueSmokeSourceSignal=true",
+    "runtimeConfidenceScore=100",
+    "launchGateImpact=does_not_clear_runtime_smoke"
+  ],
+  "nextAction": "Attach deployed runtime smoke before clearing runtime evidence gates.",
+  "summary": {
+    "runtimeContractsPresent": true,
+    "deployedSmokePresent": false,
+    "runtimeConfidenceScore": 100,
+    "launchGateImpact": "does_not_clear_runtime_smoke",
+    "formalRuntimeSmokeStillRequired": true
+  }
+}

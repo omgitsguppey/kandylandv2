@@ -133,6 +133,7 @@ export type PublicBetaEvidenceInput = {
   requiredReports?: PublicBetaGeneratedReportEvidence[];
   debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
   targetedBehaviorEvidence?: PublicBetaEvidenceArtifact;
+  sourceBackedRuntimeConfidenceEvidence?: PublicBetaEvidenceArtifact;
   visualManualEvidence?: PublicBetaEvidenceArtifact;
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
   runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
@@ -663,6 +664,38 @@ export function buildPublicBetaEvidenceGates(input: {
     ...evidenceArtifactEvidence(evidence.providerSmokeEvidence),
     ...evidenceArtifactEvidence(evidence.runtimeSmokeEvidence),
   ]));
+  const sourceBackedRuntimeConfidenceStatus = String(evidenceArtifactStatus(
+    evidence.sourceBackedRuntimeConfidenceEvidence,
+    "missing_or_unknown",
+  ));
+  const sourceBackedRuntimeConfidenceQuality = resolveEvidenceQuality({
+    artifact: evidence.sourceBackedRuntimeConfidenceEvidence,
+    context: {
+      currentHead,
+      lane: "source_backed_runtime_confidence",
+      requiredForExit: false,
+      requiresRuntimeProof: true,
+    },
+  });
+  const sourceBackedRuntimeConfidenceCredit = sourceBackedRuntimeConfidenceQuality.quality === "source_ready"
+    && sourceBackedRuntimeConfidenceStatus.includes("source_ready")
+    ? sourceBackedRuntimeConfidenceQuality.partialCredit * 100
+    : 0;
+  const runtimeProviderRuntimeCredit = runtimeProviderSmokePassed
+    ? 100
+    : sourceBackedRuntimeConfidenceCredit;
+  const runtimeProviderEvidenceWithSourceConfidence = Array.from(new Set([
+    ...runtimeProviderSmokeEvidence,
+    ...(
+      evidence.sourceBackedRuntimeConfidenceEvidence
+        ? [
+            `sourceBackedRuntimeConfidenceStatus=${sourceBackedRuntimeConfidenceStatus}`,
+            `sourceBackedRuntimeConfidenceCredit=${roundScore(sourceBackedRuntimeConfidenceCredit)}`,
+            ...evidenceArtifactEvidence(evidence.sourceBackedRuntimeConfidenceEvidence),
+          ]
+        : []
+    ),
+  ]));
   const providerQuality = resolveEvidenceQuality({
     artifact: evidence.providerSmokeEvidence,
     context: {
@@ -809,12 +842,12 @@ export function buildPublicBetaEvidenceGates(input: {
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.runtimeProviderSmoke,
       status: runtimeProviderSmokeStatus,
       detail: runtimeProviderSmokeDetail,
-      evidence: runtimeProviderSmokeEvidence,
+      evidence: runtimeProviderEvidenceWithSourceConfidence,
       recommendedAction: "Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
       quality: runtimeProviderQuality,
       gateRequiredForExit: true,
       sourceCredit: runtimeQuality.quality === "source_ready" ? runtimeQuality.partialCredit * 100 : runtimeProviderQuality.partialCredit * 100,
-      runtimeCredit: runtimeProviderSmokePassed ? 100 : 0,
+      runtimeCredit: runtimeProviderRuntimeCredit,
     }),
     buildEvidenceGate({
       id: "adminTruthSamples",

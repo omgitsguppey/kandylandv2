@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.40 - 2026-05-20
+- Bug fixes and general improvements
+- Added source-backed runtime confidence without faking deployed smoke.
+- Recognized runtime contracts while keeping runtime evidence gates honest.
+- Kept operator-confirmed revenue separate from formal provider proof.
+
 ## 1.3.39 - 2026-05-20
 - Bug fixes and general improvements
 - Rebuilt targeted behavior evidence from current validators.
