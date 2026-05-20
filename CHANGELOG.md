@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.27 - 2026-05-20
+- Bug fixes and general improvements
+- Reused marquee behavior for long truncated titles.
+- Improved readability for long creator, drop, and admin labels.
+- Respected reduced-motion preferences for title animations.
+
 ## 1.3.26 - 2026-05-20
 - Bug fixes and general improvements
 - Reduced creator profile header scale on mobile.

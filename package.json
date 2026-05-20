@@ -187,6 +187,7 @@
         "check:mobile-loading-hydration-stability": "tsx scripts/agent/validate-mobile-loading-hydration-stability.ts",
         "check:mobile-surface-organization": "tsx scripts/agent/validate-mobile-surface-organization.ts",
         "check:mobile-ui-final-lock": "tsx scripts/agent/validate-mobile-ui-final-lock.ts",
+        "check:global-marquee-truncated-titles": "tsx scripts/agent/validate-global-marquee-truncated-titles.ts",
         "check:analytics-truth-layer-v2": "tsx scripts/agent/validate-analytics-truth-layer-v2.ts",
         "check:ga4-recovery-truth": "tsx scripts/agent/validate-ga4-recovery-truth.ts",
         "check:external-analytics-truth-closure": "tsx scripts/agent/validate-external-analytics-truth-closure.ts",

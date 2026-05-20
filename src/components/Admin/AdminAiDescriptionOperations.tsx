@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { Button } from "@/components/ui/Button";
+import { MarqueeText } from "@/components/ui/MarqueeText";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import {
     ADMIN_AI_DROP_DESCRIPTION_ACTIVE_POLL_INTERVAL_MS,
@@ -539,7 +540,11 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                                         <article key={job.id} className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
                                             <div className="flex flex-wrap items-start justify-between gap-3">
                                                 <div className="min-w-0">
-                                                    <div className="truncate text-sm font-semibold text-white">{job.title}</div>
+                                                    <MarqueeText
+                                                        title={job.title}
+                                                        className="text-sm font-semibold text-white"
+                                                        ariaLabel={job.title}
+                                                    />
                                                     <div className="mt-1 text-xs text-gray-400">
                                                         {job.model}{job.resolvedModel ? ` -> ${job.resolvedModel}` : " -> runtime version not exposed"} | {job.latencyMs ? `${job.latencyMs} ms` : "Pending"} | {formatAdminAiUsd(job.estimatedCostUsd || 0)}
                                                     </div>
@@ -601,7 +606,11 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                                     <article key={item.id} className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
                                         <div className="flex flex-wrap items-start justify-between gap-3">
                                             <div className="min-w-0">
-                                                <div className="truncate text-sm font-semibold text-white">{item.title}</div>
+                                                <MarqueeText
+                                                    title={item.title}
+                                                    className="text-sm font-semibold text-white"
+                                                    ariaLabel={item.title}
+                                                />
                                                 <div className="mt-1 text-xs text-gray-400">{item.model} | {formatTimestamp(item.requestedAtMs)}</div>
                                             </div>
                                             <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold", item.status === "failed" ? "border-red-400/20 bg-red-500/10 text-red-100" : item.accepted ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100" : "border-white/10 bg-white/5 text-gray-200")}>

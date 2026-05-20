@@ -91,8 +91,12 @@ body {
   will-change: transform;
   display: inline-block;
 }
+.title-marquee-paused:hover .title-marquee-active {
+  animation-play-state: paused;
+}
 @media (prefers-reduced-motion: reduce) {
   .title-marquee-active {
     animation: none;
+    transform: none;
   }
 }

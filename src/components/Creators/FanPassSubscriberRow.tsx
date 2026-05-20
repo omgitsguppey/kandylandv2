@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 
+import { MarqueeText } from "@/components/ui/MarqueeText";
+
 type FanIdentitySource = "user_profile" | "public_profile" | "subscription_snapshot" | "unavailable" | string;
 
 export type FanPassSubscriberCrmRow = {
@@ -109,7 +111,12 @@ export function FanPassSubscriberRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="truncate text-sm font-bold text-white">{fanLabel}</h3>
+              <MarqueeText
+                as="h3"
+                title={fanLabel}
+                className="text-sm font-bold text-white"
+                ariaLabel={fanLabel}
+              />
               <p className="truncate text-[11px] text-gray-400">{secondaryLabel}</p>
             </div>
             <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] ${statusTone(status)}`}>

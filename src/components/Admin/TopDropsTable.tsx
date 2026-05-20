@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
+import { MarqueeText } from "@/components/ui/MarqueeText";
 import type { Drop } from "@/types/db";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -231,7 +232,12 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
                                     )}
                                 </div>
                                 {/* Title */}
-                                <p className="truncate text-[11px] font-semibold text-white">{drop.title}</p>
+                                <MarqueeText
+                                    as="p"
+                                    title={drop.title}
+                                    className="text-[11px] font-semibold text-white"
+                                    ariaLabel={drop.title}
+                                />
                                 {/* Status */}
                                 <span className={`rounded-full border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] ${pillStyle}`}>
                                     {statusLabel}

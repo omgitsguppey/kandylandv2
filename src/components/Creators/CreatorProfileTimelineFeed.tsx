@@ -2,6 +2,7 @@
 
 import { Megaphone, Sparkles } from "lucide-react";
 
+import { MarqueeText } from "@/components/ui/MarqueeText";
 import type { CreatorProfileTimelineItem } from "@/lib/creator-profile/timeline-contract";
 import { cn } from "@/lib/utils";
 import type { Drop } from "@/types/db";
@@ -68,15 +69,19 @@ export function CreatorProfileTimelineFeed({
                                 >
                                     {isDrop ? <Sparkles className="h-4 w-4" /> : <Megaphone className="h-4 w-4" />}
                                 </span>
-                                <span className="min-w-0 flex-1">
-                                    <span className="flex items-center gap-2">
-                                        <span className="truncate text-sm font-black text-white">{item.title}</span>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <MarqueeText
+                                            title={item.title}
+                                            className="text-sm font-black text-white"
+                                            ariaLabel={item.title}
+                                        />
                                         <span className="shrink-0 text-[11px] font-semibold text-gray-500">{formatTimelineDate(item.createdAtMs)}</span>
-                                    </span>
+                                    </div>
                                     <span className="mt-1 line-clamp-2 text-xs leading-5 text-gray-400">
                                         {itemBody || (isDrop ? "Drop available now." : "Creator update.")}
                                     </span>
-                                </span>
+                                </div>
                             </>
                         );
 

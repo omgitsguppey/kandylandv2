@@ -1,7 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { MarqueeText } from "@/components/ui/MarqueeText";
 
 interface TitleMarqueeProps {
     title: string;
@@ -14,81 +13,14 @@ export function TitleMarquee({
     delaySeed,
     className,
 }: TitleMarqueeProps) {
-    const frameRef = useRef<HTMLDivElement | null>(null);
-    const textRef = useRef<HTMLParagraphElement | null>(null);
-    const overflowRef = useRef(0);
-    const [overflowPx, setOverflowPx] = useState(0);
-
-    const marqueeStyle = overflowPx > 0 ? ({
-        ["--title-shift" as string]: `-${overflowPx}px`,
-        animationDelay: `${delaySeed * 0.75}s`,
-    } satisfies CSSProperties) : undefined;
-
-    useEffect(() => {
-        let frameId: number | null = null;
-        const measure = () => {
-            const frame = frameRef.current;
-            const text = textRef.current;
-            if (!frame || !text) {
-                return;
-            }
-
-            const nextOverflow = Math.ceil(text.scrollWidth - frame.clientWidth);
-            const normalizedOverflow = nextOverflow > 20 ? nextOverflow : 0;
-            if (overflowRef.current !== normalizedOverflow) {
-                overflowRef.current = normalizedOverflow;
-                setOverflowPx(normalizedOverflow);
-            }
-        };
-        const scheduleMeasure = () => {
-            if (frameId !== null) {
-                return;
-            }
-
-            frameId = window.requestAnimationFrame(() => {
-                frameId = null;
-                measure();
-            });
-        };
-
-        scheduleMeasure();
-
-        if (typeof ResizeObserver === "undefined") {
-            window.addEventListener("resize", scheduleMeasure);
-            return () => {
-                if (frameId !== null) {
-                    window.cancelAnimationFrame(frameId);
-                }
-                window.removeEventListener("resize", scheduleMeasure);
-            };
-        }
-
-        const observer = new ResizeObserver(() => scheduleMeasure());
-        if (frameRef.current) {
-            observer.observe(frameRef.current);
-        }
-
-        return () => {
-            if (frameId !== null) {
-                window.cancelAnimationFrame(frameId);
-            }
-            observer.disconnect();
-        };
-    }, [title]);
-
     return (
-        <div ref={frameRef} className="overflow-hidden relative" data-title-marquee-speed="public-beta-fast">
-            <p
-                ref={textRef}
-                className={cn(
-                    "block whitespace-nowrap",
-                    overflowPx > 0 ? "title-marquee-active" : "truncate",
-                    className,
-                )}
-                style={marqueeStyle}
-            >
-                {title}
-            </p>
-        </div>
+        <MarqueeText
+            as="p"
+            title={title}
+            delaySeed={delaySeed}
+            className={className}
+            speed="public-beta-fast"
+            ariaLabel={title}
+        />
     );
 }

@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle2, Clock3, Package, Plus, RefreshCw, XCircle } 
 import { toast } from "sonner";
 
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
+import { MarqueeText } from "@/components/ui/MarqueeText";
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
@@ -237,7 +238,12 @@ export function CreatorDropManager() {
                                     )}
                                     <div className="min-w-0 flex-1">
                                         <div className="flex min-w-0 items-start justify-between gap-2">
-                                            <h2 className="truncate text-sm font-black text-white">{drop.title}</h2>
+                                            <MarqueeText
+                                                as="h2"
+                                                title={drop.title}
+                                                className="text-sm font-black text-white"
+                                                ariaLabel={drop.title}
+                                            />
                                             <span className="shrink-0 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
                                                 {REVIEW_STATUS_LABELS[classifyDrop(drop)]}
                                             </span>
