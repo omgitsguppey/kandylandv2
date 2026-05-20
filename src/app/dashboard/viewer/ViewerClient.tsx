@@ -11,6 +11,7 @@ import { useViewerTelemetry } from "./adapters/ViewerTelemetryAdapter";
 import { useViewerState } from "./hooks/useViewerState";
 import { useViewerSecurity } from "./hooks/useViewerSecurity";
 import { useViewerFeedback } from "./hooks/useViewerFeedback";
+import { USER_LIBRARY_ROUTE } from "@/lib/creator-profile-routing";
 
 import { ViewerSkeleton } from "./components/ViewerSkeleton";
 import { MediaViewer } from "./components/MediaViewer";
@@ -165,7 +166,7 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
             <section className="bg-black border-b border-white/5 relative z-10 sticky top-0 md:top-auto">
                 <div className="flex items-center justify-between px-4 py-3 md:py-4">
                     <Link
-                        href="/dashboard/library"
+                        href={USER_LIBRARY_ROUTE}
                         onClick={() => telemetry.flushSessionTelemetry()}
                         className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors py-2 group"
                     >

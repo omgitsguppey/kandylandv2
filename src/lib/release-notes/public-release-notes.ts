@@ -1,13 +1,65 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.27",
-  "betaReleaseCounter": 327,
+  "currentVersion": "1.3.28",
+  "betaReleaseCounter": 328,
   "channel": "beta",
-  "generatedAt": "2026-05-20T05:15:18.773Z",
-  "generatedAtUtc": "2026-05-20T05:15:18.773Z",
+  "generatedAt": "2026-05-20T05:30:40.497Z",
+  "generatedAtUtc": "2026-05-20T05:30:40.497Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.28",
+      "previousVersion": "1.3.27",
+      "betaReleaseCounter": 328,
+      "previousBetaReleaseCounter": 327,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(repo): close overnight wiring gaps",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T05:30:40.497Z",
+      "generatedAt": "2026-05-20T05:30:40.497Z",
+      "committedAtUtc": "2026-05-20T05:30:40.497Z",
+      "generatedAtUtc": "2026-05-20T05:30:40.497Z",
+      "updatedAtUtc": "2026-05-20T05:30:40.497Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Checked recent creator, UI, and telemetry wiring for stale or orphaned logic.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Checked recent creator, UI, and telemetry wiring for stale or orphaned logic.",
+        "Cleaned up disconnected routes, telemetry lanes, and parity conflicts.",
+        "Kept chat unchanged while tightening product surface wiring."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted overnight wiring integrity pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Creator tools",
+        "Admin tools",
+        "Analytics",
+        "My KandyDrops"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/overnight-wiring-integrity.generated.json",
+        "docs/agent-truth/overnight-wiring-integrity.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-overnight-wiring-integrity.ts",
+        "src/app/dashboard/viewer/ViewerClient.tsx",
+        "src/components/Dashboard/DailyTasksModule.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/overnight-wiring-integrity.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.27",
       "previousVersion": "1.3.26",
@@ -1323,132 +1375,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/creator-dashboard-role-boundary.spec.ts",
         "tests/unit/creator-drop-management-approval.spec.ts",
         "tests/unit/creator-surface-routing.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.3",
-      "previousVersion": "1.3.2",
-      "betaReleaseCounter": 303,
-      "previousBetaReleaseCounter": 302,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(creator): tighten overview grid and follower labeling",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T19:05:00.000Z",
-      "generatedAt": "2026-05-19T19:05:00.000Z",
-      "committedAtUtc": "2026-05-19T19:05:00.000Z",
-      "generatedAtUtc": "2026-05-19T19:05:00.000Z",
-      "updatedAtUtc": "2026-05-19T19:05:00.000Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Refined the Creator Dashboard mobile overview layout and follower metric labeling.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Refined creator dashboard mobile overview layout.",
-        "Changed creator overview Fans label to Followers.",
-        "Reduced creator overview grid density for a more compact mobile fit."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted creator dashboard mobile overview polish into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator dashboard",
-        "creator overview",
-        "mobile layout",
-        "release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-dashboard-overview-stats.generated.json",
-        "agent/state/creator-fan-pass-crm-broadcast.generated.json",
-        "agent/state/creator-landing-dashboard-mobile.generated.json",
-        "docs/agent-truth/creator-dashboard-overview-stats.md",
-        "docs/agent-truth/creator-fan-pass-crm-broadcast.md",
-        "docs/agent-truth/creator-landing-dashboard-mobile.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-dashboard-overview-stats.ts",
-        "scripts/agent/validate-creator-fan-pass-crm-broadcast.ts",
-        "scripts/agent/validate-creator-landing-dashboard-mobile.ts",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/creator-dashboard-overview-stats.spec.ts",
-        "tests/unit/creator-landing-dashboard-mobile.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.2",
-      "previousVersion": "1.3.1",
-      "betaReleaseCounter": 302,
-      "previousBetaReleaseCounter": 301,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): translate freshness jargon",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T18:40:00.000Z",
-      "generatedAt": "2026-05-19T18:40:00.000Z",
-      "committedAtUtc": "2026-05-19T18:40:00.000Z",
-      "generatedAtUtc": "2026-05-19T18:40:00.000Z",
-      "updatedAtUtc": "2026-05-19T18:40:00.000Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Made Beta readiness freshness messages clearer while preserving strict internal freshness checks.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Made Beta readiness freshness messages easier to understand.",
-        "Replaced Git jargon with plain refresh guidance.",
-        "Kept internal freshness checks strict while improving operator copy."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted beta freshness language cleanup into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "beta readiness",
-        "evidence freshness",
-        "operator reports",
-        "release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/beta-evidence-gap-map.generated.json",
-        "agent/state/beta-freshness-language.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/beta-evidence-gap-map.md",
-        "docs/agent-truth/beta-freshness-language.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/evidence-capture-status.md",
-        "docs/agent-truth/public-beta-score.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-beta-evidence-gap-map.ts",
-        "scripts/agent/validate-beta-freshness-language.ts",
-        "scripts/agent/validate-evidence-capture-status.ts",
-        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/freshness-actions.ts",
-        "src/lib/agent-score/freshness-language.ts",
-        "src/lib/agent-score/reporting.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/beta-freshness-language.spec.ts",
-        "tests/unit/beta-health-algorithm-v2.spec.ts",
-        "tests/unit/current-beta-exit-status.spec.ts",
-        "tests/unit/public-beta-score-v2.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

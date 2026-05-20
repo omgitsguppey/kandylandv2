@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.28 - 2026-05-20
+- Bug fixes and general improvements
+- Checked recent creator, UI, and telemetry wiring for stale or orphaned logic.
+- Cleaned up disconnected routes, telemetry lanes, and parity conflicts.
+- Kept chat unchanged while tightening product surface wiring.
+
 ## 1.3.27 - 2026-05-20
 - Bug fixes and general improvements
 - Reused marquee behavior for long truncated titles.

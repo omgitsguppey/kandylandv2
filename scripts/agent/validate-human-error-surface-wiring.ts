@@ -53,7 +53,9 @@ if (typeof report.currentHead !== "string" || !/^[0-9a-f]{40}$/u.test(report.cur
 }
 
 for (const path of wiredSurfaces) {
-  const source = read(path);
+  const source = path === "src/components/Dashboard/CreatorWorkspacePanel.tsx"
+    ? `${read(path)}\n${read("src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx")}`
+    : read(path);
   if (!source.includes("HumanErrorNotice")) fail(`${path} does not use HumanErrorNotice`);
   if (!source.includes("resolveClientActionError")) fail(`${path} does not use resolveClientActionError`);
   if (/toast\.error\([^)]*error\.message/u.test(source)) fail(`${path} can toast raw error.message`);

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T15:44:50.455Z",
+  "generatedAtUtc": "2026-05-20T05:33:59.473Z",
   "reportKey": "error-language-contract",
-  "currentHead": "b20f5b447f2a33afa6bce602b36d7dd216e96746",
+  "currentHead": "44556013b9dba08ec65eee7ed0e9549762f1ca8b",
   "summary": {
     "dictionaryEntries": 41,
     "rawErrorPatternsBlocked": 9,
@@ -21,10 +21,10 @@
     ],
     "bugReportEligibleCount": 15,
     "rewardEligibleCount": 1,
-    "unresolvedRawErrorSources": 6,
+    "unresolvedRawErrorSources": 3,
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 6
+    "p2Count": 3
   },
   "entries": [
     {
@@ -441,21 +441,6 @@
   "rawErrorFindings": [
     {
       "path": "src/lib/server/auth.ts",
-      "status": "deferred_phase_two_wiring",
-      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
-    },
-    {
-      "path": "src/components/Creators/CreatorRequestsManager.tsx",
-      "status": "deferred_phase_two_wiring",
-      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
-    },
-    {
-      "path": "src/components/Creators/CreatorBookingsManager.tsx",
-      "status": "deferred_phase_two_wiring",
-      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
-    },
-    {
-      "path": "src/components/Creators/CreatorFanPassManager.tsx",
       "status": "deferred_phase_two_wiring",
       "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
     },

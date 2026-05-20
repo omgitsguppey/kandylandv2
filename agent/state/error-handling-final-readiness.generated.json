@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T21:05:00.000Z",
+  "generatedAtUtc": "2026-05-20T05:33:44.550Z",
   "reportKey": "error-handling-final-readiness",
-  "currentHead": "8241f31557d2340f691695affc3d2851af3b8fa0",
+  "currentHead": "44556013b9dba08ec65eee7ed0e9549762f1ca8b",
   "summary": {
     "phase1LanguageContract": "pass",
     "phase2BugReportReward": "pass",

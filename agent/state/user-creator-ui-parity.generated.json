@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-20T00:38:05.177Z",
+  "generatedAtUtc": "2026-05-20T05:31:20.085Z",
   "reportKey": "user-creator-ui-parity",
-  "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+  "currentHead": "44556013b9dba08ec65eee7ed0e9549762f1ca8b",
   "summary": {
-    "surfacesScanned": 75,
+    "surfacesScanned": 76,
     "fakeActionsFound": 0,
     "fakeActionsFixed": 1,
     "mobileParityRisks": 0,
@@ -611,6 +611,16 @@
     },
     {
       "path": "src/components/Creators/CreatorProfileHeader.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorProfileTimelineFeed.tsx",
       "classification": "creator_ui",
       "checks": [
         "route-action-truth",

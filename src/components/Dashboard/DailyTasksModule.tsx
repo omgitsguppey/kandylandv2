@@ -52,6 +52,7 @@ import {
 } from "@/lib/task-guidance";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { USER_LIBRARY_ROUTE } from "@/lib/creator-profile-routing";
 
 type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
 
@@ -670,11 +671,11 @@ export function DailyTasksModule() {
               type="button"
               onClick={() => {
                 trackEvent("navigation_click", {
-                  destination: "/dashboard/library",
+                  destination: USER_LIBRARY_ROUTE,
                   source: "daily_tasks_empty",
                   source_component: "daily_tasks_module",
                 });
-                router.push("/dashboard/library");
+                router.push(USER_LIBRARY_ROUTE);
               }}
               className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
             >
@@ -715,11 +716,11 @@ export function DailyTasksModule() {
                 type="button"
                 onClick={() => {
                   trackEvent("navigation_click", {
-                    destination: "/dashboard/library",
+                    destination: USER_LIBRARY_ROUTE,
                     source: "daily_tasks_complete",
                     source_component: "daily_tasks_module",
                   });
-                  router.push("/dashboard/library");
+                  router.push(USER_LIBRARY_ROUTE);
                 }}
                 className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
               >

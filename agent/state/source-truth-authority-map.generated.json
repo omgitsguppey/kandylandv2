@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T00:38:05.066Z",
+  "generatedAtUtc": "2026-05-20T05:31:25.441Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+  "currentHead": "44556013b9dba08ec65eee7ed0e9549762f1ca8b",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -324,20 +324,20 @@
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
       "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
       "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
       "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/final-phase-cleanup-lock.generated.json",
@@ -353,19 +353,19 @@
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+      "currentHead": "44556013b9dba08ec65eee7ed0e9549762f1ca8b",
       "status": "current",
       "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+      "currentHead": "65156c93fe2a901b9e5c7dde3ad179a0efbd2e94",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/creator-experience-simplification.generated.json",
-      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+      "currentHead": "65156c93fe2a901b9e5c7dde3ad179a0efbd2e94",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },

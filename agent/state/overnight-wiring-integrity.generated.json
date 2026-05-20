@@ -1,0 +1,319 @@
+{
+  "generatedAtUtc": "2026-05-20T05:35:44.098Z",
+  "reportKey": "overnight-wiring-integrity",
+  "currentHead": "44556013b9dba08ec65eee7ed0e9549762f1ca8b",
+  "summary": {
+    "lanesWired": 11,
+    "lanesPartial": 0,
+    "lanesMissingDependency": 0,
+    "lanesStale": 1,
+    "lanesBrokenOrOrphaned": 0,
+    "orphanedTelemetryFixed": 0,
+    "parityConflictsFixed": 1,
+    "routeConstantsConsolidated": true,
+    "creatorDropRouteSeparated": true,
+    "creatorSettingsSetupMapped": true,
+    "telemetryContractsCovered": true,
+    "globalMarqueeShared": true,
+    "protectedChatUntouched": true,
+    "openPrsClassified": true,
+    "dirtyFilesClassified": true,
+    "betaExitReadyMarked": false,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 1
+  },
+  "lanes": [
+    {
+      "lane": "creator_settings_control_plane",
+      "expectedUi": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "expectedRoute": "src/app/api/creator/settings/route.ts",
+      "expectedContract": "src/lib/creator-settings/creator-settings-contract.ts",
+      "expectedValidator": "scripts/agent/validate-creator-settings-control-plane.ts",
+      "expectedTelemetry": "creator_settings_updated",
+      "expectedArtifact": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "creator_pricing_wiring",
+      "expectedUi": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "expectedRoute": "src/app/api/creator/subscriptions/route.ts; src/app/api/creator/requests/route.ts; src/app/api/creator/bookings/route.ts",
+      "expectedContract": "src/lib/creator-settings/creator-pricing-resolver.ts",
+      "expectedValidator": "scripts/agent/validate-creator-pricing-wiring.ts",
+      "expectedTelemetry": "creator_subscription and creator_experience lanes",
+      "expectedArtifact": "agent/state/creator-pricing-wiring.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "creator_broadcast_notifications",
+      "expectedUi": "src/components/Creators/CreatorBroadcastManager.tsx",
+      "expectedRoute": "src/app/api/creator/broadcasts/route.ts",
+      "expectedContract": "src/lib/creator-broadcasts/broadcast-contract.ts; src/lib/notifications/creator-broadcast-notifications.ts",
+      "expectedValidator": "scripts/agent/validate-creator-broadcast-timeline-prep.ts",
+      "expectedTelemetry": "creator_broadcast_created",
+      "expectedArtifact": "agent/state/creator-broadcast-timeline-prep.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "creator_profile_timeline",
+      "expectedUi": "src/components/Creators/CreatorProfileTimelineFeed.tsx",
+      "expectedRoute": "src/app/creators/[username]/page.tsx",
+      "expectedContract": "src/lib/creator-profile/timeline-contract.ts",
+      "expectedValidator": "scripts/agent/validate-creator-profile-mobile-timeline.ts",
+      "expectedTelemetry": "creator profile and timeline source markers",
+      "expectedArtifact": "agent/state/creator-profile-mobile-timeline.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "global_marquee_titles",
+      "expectedUi": "src/components/ui/MarqueeText.tsx; src/components/ui/TitleMarquee.tsx",
+      "expectedRoute": "not applicable",
+      "expectedContract": "shared title marquee component contract",
+      "expectedValidator": "scripts/agent/validate-global-marquee-truncated-titles.ts",
+      "expectedTelemetry": "none",
+      "expectedArtifact": "agent/state/global-marquee-truncated-titles.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "creator_drop_management",
+      "expectedUi": "src/app/dashboard/creator/drops/page.tsx; src/components/Creators/CreatorDropManager.tsx",
+      "expectedRoute": "src/app/api/creator/drops/route.ts",
+      "expectedContract": "src/lib/drops/drop-form-contract.ts; src/lib/drops/drop-submission-contract.ts",
+      "expectedValidator": "scripts/agent/validate-creator-drop-management-approval.ts",
+      "expectedTelemetry": "creator_drop_submitted; creator_drop_updated",
+      "expectedArtifact": "agent/state/creator-drop-management-approval.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "creator_drop_manager_mobile",
+      "expectedUi": "src/components/Creators/CreatorDropManager.tsx",
+      "expectedRoute": "src/app/dashboard/creator/drops/page.tsx",
+      "expectedContract": "src/lib/drops/drop-form-contract.ts",
+      "expectedValidator": "scripts/agent/validate-creator-drop-manager-mobile-refinement.ts",
+      "expectedTelemetry": "creator_drop_manager_opened; creator_drop_submission_started",
+      "expectedArtifact": "agent/state/creator-drop-manager-mobile-refinement.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "mobile_ui_final_lock",
+      "expectedUi": "admin/user/creator source-readiness artifacts",
+      "expectedRoute": "not applicable",
+      "expectedContract": "docs/agent-truth/mobile-ui-final-lock.md",
+      "expectedValidator": "scripts/agent/validate-mobile-ui-final-lock.ts",
+      "expectedTelemetry": "not applicable",
+      "expectedArtifact": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "telemetry_final_lock",
+      "expectedUi": "admin telemetry/source truth artifacts",
+      "expectedRoute": "telemetry ingest, identity, materializer, GA4, BigQuery lanes",
+      "expectedContract": "src/lib/analytics/telemetry-dependency-graph.ts",
+      "expectedValidator": "scripts/agent/validate-final-telemetry-closure-lock.ts",
+      "expectedTelemetry": "all priority telemetry lanes",
+      "expectedArtifact": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "ga4_external_truth",
+      "expectedUi": "admin external analytics evidence status",
+      "expectedRoute": "explicit refresh only when configured",
+      "expectedContract": "src/lib/analytics/external-analytics-truth.ts",
+      "expectedValidator": "scripts/agent/validate-external-analytics-truth-closure.ts",
+      "expectedTelemetry": "external_ga4_evidence",
+      "expectedArtifact": "agent/state/external-analytics-truth-closure.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "bigquery_pipeline",
+      "expectedUi": "admin export evidence status",
+      "expectedRoute": "batch/window export contract only",
+      "expectedContract": "src/lib/analytics/bigquery-export-contract.ts",
+      "expectedValidator": "scripts/agent/validate-bigquery-cloud-pipeline-closure.ts",
+      "expectedTelemetry": "BigQuery export eligibility from event facts",
+      "expectedArtifact": "agent/state/bigquery-cloud-pipeline-closure.generated.json",
+      "status": "wired",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Keep validator coverage current with future changes."
+    },
+    {
+      "lane": "beta_health_scoring",
+      "expectedUi": "public beta score and current beta exit status artifacts",
+      "expectedRoute": "scripts/agent/score-public-beta-readiness.ts",
+      "expectedContract": "beta score must keep missing evidence separate from zero and never mark beta exit ready here",
+      "expectedValidator": "scripts/agent/validate-public-beta-score.ts; scripts/agent/validate-current-beta-exit-status.ts",
+      "expectedTelemetry": "beta evidence only",
+      "expectedArtifact": "agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json",
+      "status": "stale",
+      "fixApplied": "Validated existing source wiring; no duplicate system added.",
+      "nextAction": "Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready."
+    }
+  ],
+  "orphanedTelemetryFindings": [],
+  "parityFindings": [],
+  "routeFindings": [],
+  "staleArtifactFindings": [
+    {
+      "severity": "p2",
+      "file": "agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json",
+      "detail": "beta_health_scoring artifact is stale relative to current HEAD but has an explicit next action."
+    }
+  ],
+  "dirtyFileClassifications": [
+    {
+      "file": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "file": "agent/state/bug-report-reward-flow.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/error-handling-final-readiness.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/error-language-contract.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/error-truth-debug-visibility.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/user-creator-ui-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/bug-report-reward-flow.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/error-handling-final-readiness.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/error-language-contract.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/error-truth-debug-visibility.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/source-truth-authority-map.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "scripts/agent/validate-human-error-surface-wiring.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "src/app/dashboard/viewer/ViewerClient.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "src/components/Dashboard/DailyTasksModule.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/overnight-wiring-integrity.md",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "scripts/agent/validate-overnight-wiring-integrity.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "tests/unit/overnight-wiring-integrity.spec.ts",
+      "classification": "real_source_change_needs_review"
+    }
+  ],
+  "prCleanupActions": [
+    "PR #274 classified as preserved_broad_governance_doc_outside_overnight_allowed_files."
+  ],
+  "openPrs": [
+    {
+      "headRefName": "structural-audit-monoliths-18102144203164477076",
+      "mergeStateStatus": "CLEAN",
+      "number": 274,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/274",
+      "classification": "preserved_broad_governance_doc_outside_overnight_allowed_files"
+    }
+  ],
+  "fixesApplied": [
+    "Added an overnight wiring integrity map covering creator, UI, telemetry, external analytics, BigQuery, and beta health lanes.",
+    "Classified stale beta/mobile/telemetry artifacts as source-readiness evidence that must not mark beta exit ready.",
+    "Guarded creator drop management against routing back to the user My KandyDrops library.",
+    "Kept chat and protected navigation out of this cleanup pass."
+  ],
+  "nextFixOrder": [
+    "beta_health_scoring: Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready.",
+    "Keep future telemetry claims tied to TELEMETRY_DEPENDENCY_GRAPH or analytics-event-contract before UI labels say tracked."
+  ]
+}
