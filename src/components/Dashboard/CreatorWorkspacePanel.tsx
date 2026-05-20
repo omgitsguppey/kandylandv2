@@ -318,7 +318,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             await readUiJson(
                 await authFetch("/api/creator/broadcasts", {
                     method: "POST",
-                    body: JSON.stringify({ message: broadcastDraft.trim(), audience: "all_fans" }),
+                    body: JSON.stringify({ message: broadcastDraft.trim(), audience: "followers" }),
                 }),
                 { moduleLabel: "creator broadcasts", url: "/api/creator/broadcasts" },
             );

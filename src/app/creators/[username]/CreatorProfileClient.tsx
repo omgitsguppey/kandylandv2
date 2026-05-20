@@ -94,6 +94,7 @@ export default function CreatorProfileClient() {
     const [creatingRequest, setCreatingRequest] = useState(false);
     const [bookings, setBookings] = useState<Array<Record<string, unknown>>>([]);
     const [broadcasts, setBroadcasts] = useState<Array<Record<string, unknown>>>([]);
+    const [timelineBroadcasts, setTimelineBroadcasts] = useState<Array<Record<string, unknown>>>([]);
     const [bookingStartAt, setBookingStartAt] = useState("");
     const [bookingDurationMinutes, setBookingDurationMinutes] = useState(CREATOR_BOOKING_MIN_MINUTES);
     const [bookingServiceType, setBookingServiceType] = useState<"phone" | "video">("phone");
@@ -120,6 +121,11 @@ export default function CreatorProfileClient() {
                     success?: boolean;
                     creator?: UserProfile & { followerCount?: number };
                     drops?: Drop[];
+                    timeline?: {
+                        items?: Array<Record<string, unknown> & { type?: string }>;
+                        sourceTruth?: string;
+                        state?: string;
+                    };
                 };
 
                 if (!response.ok || !result.success || !result.creator) {
@@ -129,6 +135,12 @@ export default function CreatorProfileClient() {
 
                 setCreator(result.creator);
                 setDrops(result.drops || []);
+                setTimelineBroadcasts((result.timeline?.items || [])
+                    .filter((item) => item.type === "broadcast")
+                    .map((item) => ({
+                        ...item,
+                        message: typeof item.body === "string" ? item.body : item.message,
+                    })));
             } catch (error) {
                 reportClientIssue({
                     channel: "network",
@@ -886,7 +898,9 @@ export default function CreatorProfileClient() {
     const profileTimelineVisible = creatorSettings.profileTimelineEnabled !== false;
     const profileDropsVisible = profileTimelineVisible && creatorSettings.showApprovedDropsOnTimeline !== false;
     const profileBroadcastsVisible = profileTimelineVisible && creatorSettings.showBroadcastsOnTimeline !== false;
-    const visibleBroadcasts = profileBroadcastsVisible ? broadcasts.slice(0, 4) : [];
+    const visibleBroadcasts = profileBroadcastsVisible
+        ? (broadcasts.length > 0 ? broadcasts : timelineBroadcasts).slice(0, 4)
+        : [];
     const experienceWarnings = [
         moduleState.subscriptions.warning ? { key: "subscriptions", label: "Subscriptions", message: moduleState.subscriptions.warning } : null,
         moduleState.bookings.warning ? { key: "bookings", label: "Bookings", message: moduleState.bookings.warning } : null,

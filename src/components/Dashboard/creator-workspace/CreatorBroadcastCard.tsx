@@ -23,7 +23,7 @@ export function CreatorBroadcastCard({
         <div
             className="rounded-2xl border border-white/10 bg-black/40 p-3 sm:rounded-3xl sm:p-4"
             data-creator-broadcast-mobile-priority={broadcastSourceReady ? "ready" : "deferred"}
-            data-broadcast-audience="all_fans"
+            data-broadcast-audience="followers"
             data-broadcast-copy-audited="true"
             data-broadcast-capability-source={broadcastCapabilitySource}
         >
@@ -34,13 +34,13 @@ export function CreatorBroadcastCard({
             {broadcastSourceReady ? (
                 <>
                     <div className="mb-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-300">
-                        Audience: Fans
+                        Audience: Followers
                     </div>
                     <textarea
                         value={broadcastDraft}
                         onChange={(event) => onDraftChange(event.target.value.slice(0, 280))}
                         rows={2}
-                        placeholder="Message your fans..."
+                        placeholder="Message your followers..."
                         className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 focus:border-brand-purple/50 focus:outline-none"
                     />
                     <div className="mt-2 flex items-center justify-between">

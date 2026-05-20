@@ -1,13 +1,71 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.24",
-  "betaReleaseCounter": 324,
+  "currentVersion": "1.3.25",
+  "betaReleaseCounter": 325,
   "channel": "beta",
-  "generatedAt": "2026-05-20T04:26:48.686Z",
-  "generatedAtUtc": "2026-05-20T04:26:48.686Z",
+  "generatedAt": "2026-05-20T04:46:02.326Z",
+  "generatedAtUtc": "2026-05-20T04:46:02.326Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.25",
+      "previousVersion": "1.3.24",
+      "betaReleaseCounter": 325,
+      "previousBetaReleaseCounter": 324,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "feat(creator): prep broadcast timeline notifications",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T04:46:02.326Z",
+      "generatedAt": "2026-05-20T04:46:02.326Z",
+      "committedAtUtc": "2026-05-20T04:46:02.326Z",
+      "generatedAtUtc": "2026-05-20T04:46:02.326Z",
+      "updatedAtUtc": "2026-05-20T04:46:02.326Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Prepared creator broadcasts for follower notifications.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Prepared creator broadcasts for follower notifications.",
+        "Added timeline-ready broadcast and drop source contracts.",
+        "Kept broadcast fanout bounded and idempotent."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted creator broadcast timeline prep pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator broadcasts",
+        "creator profile",
+        "notifications",
+        "creator timeline"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-broadcast-timeline-prep.generated.json",
+        "docs/agent-truth/creator-broadcast-timeline-prep.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-broadcast-timeline-prep.ts",
+        "src/app/api/creator/broadcasts/route.ts",
+        "src/app/api/creators/[username]/route.ts",
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "src/components/Creators/CreatorUpdatesFeed.tsx",
+        "src/lib/creator-broadcasts/broadcast-contract.ts",
+        "src/lib/creator-profile/timeline-contract.ts",
+        "src/lib/notifications/creator-broadcast-notifications.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-broadcast-timeline-prep.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.24",
       "previousVersion": "1.3.23",
@@ -1337,68 +1395,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/beta-evidence-gap-map.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.0",
-      "previousVersion": "1.2.99",
-      "betaReleaseCounter": 300,
-      "previousBetaReleaseCounter": 299,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): refine health scoring algorithm",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T17:55:00.000Z",
-      "generatedAt": "2026-05-19T17:55:00.000Z",
-      "committedAtUtc": "2026-05-19T17:55:00.000Z",
-      "generatedAtUtc": "2026-05-19T17:55:00.000Z",
-      "updatedAtUtc": "2026-05-19T17:55:00.000Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Refined Beta health scoring beyond hard pass/fail gates while keeping formal launch proof required.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refined Beta health scoring beyond hard pass/fail gates.",
-        "Separated source readiness, runtime proof, evidence freshness, and cost risk.",
-        "Kept formal beta exit gates intact while improving score nuance."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted beta health scoring refactor into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "beta readiness",
-        "evidence scoring",
-        "cost readiness",
-        "admin reports"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/beta-health-algorithm-v2.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/beta-health-algorithm-v2.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/public-beta-score.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-beta-health-algorithm-v2.ts",
-        "scripts/agent/validate-current-beta-exit-status.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/reporting.ts",
-        "src/lib/agent-score/weights.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/beta-health-algorithm-v2.spec.ts",
-        "tests/unit/current-beta-exit-status.spec.ts",
-        "tests/unit/public-beta-score-v2.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

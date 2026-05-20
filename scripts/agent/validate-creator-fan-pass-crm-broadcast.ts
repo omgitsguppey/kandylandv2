@@ -113,16 +113,16 @@ export function buildCreatorFanPassCrmBroadcastReport(): CreatorFanPassCrmBroadc
     && workspace.includes("Fan Pass CRM")
     && fanPassManager.includes("Fan Pass CRM");
   const broadcastAudienceExplicit = includesAll(workspace, [
-    'data-broadcast-audience="all_fans"',
+    'data-broadcast-audience="followers"',
     'data-broadcast-copy-audited="true"',
-    "Audience: Fans",
-    "Message your fans...",
+    "Audience: Followers",
+    "Message your followers...",
     "data-broadcast-capability-source",
   ]) && includesAll(broadcastsRoute, [
-    "CREATOR_BROADCAST_SUPPORTED_AUDIENCE",
-    "supportedAudience",
+    "resolveCreatorBroadcastAudience",
+    "supportedAudiences",
     "unsupported_broadcast_audience",
-    "all_fans",
+    "followers",
   ]);
   const followersCopyRemoved = !/all followers|blast to all followers|Write a blast|for followers/iu.test(`${workspace}\n${broadcastManager}`);
   const subscriptionHydrationBounded = includesAll(subscriptionsRoute, [
@@ -139,15 +139,15 @@ export function buildCreatorFanPassCrmBroadcastReport(): CreatorFanPassCrmBroadc
     "Creator Dashboard subscriber rows are CRM rows",
     "Raw user IDs are debug/admin-only",
     "Broadcast audience must be explicit",
-    "Fans, not followers",
+    "Followers, not legacy all_fans",
   ]) && overviewDoc.includes("overview label is Followers")
     && !sourceHealthDoc.includes("all followers");
 
   add(sourceFindings, finding("subscriber-identity-hydration", "p1", "src/app/api/creator/subscriptions/route.ts", "Subscriber rows hydrate safe fan identity fields."), subscriberIdentityHydrated);
   add(uiFindings, finding("raw-user-id-hidden", "p1", "src/components/Creators/FanPassSubscriberRow.tsx", "Normal creator UI does not use raw user ids as subscriber labels."), rawUserIdsHidden);
   add(uiFindings, finding("mobile-crm-enabled", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Fan Pass CRM renders as a compact mobile module."), fanPassCrmMobileEnabled);
-  add(broadcastFindings, finding("broadcast-audience-explicit", "p1", "src/app/api/creator/broadcasts/route.ts", "Broadcast route and UI expose an explicit all_fans audience."), broadcastAudienceExplicit);
-  add(broadcastFindings, finding("followers-copy-removed", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Creator-facing broadcast copy uses Fans instead of followers/blast language."), followersCopyRemoved);
+  add(broadcastFindings, finding("broadcast-audience-explicit", "p1", "src/app/api/creator/broadcasts/route.ts", "Broadcast route and UI expose an explicit followers audience."), broadcastAudienceExplicit);
+  add(broadcastFindings, finding("followers-copy-removed", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Creator-facing broadcast copy avoids legacy all_fans/blast language."), followersCopyRemoved);
   add(sourceFindings, finding("subscription-hydration-bounded", "p1", "src/app/api/creator/subscriptions/route.ts", "Subscriber identity hydration is bounded and chunked."), subscriptionHydrationBounded);
   add(privacyFindings, finding("privacy-redaction", "p1", "src/app/api/creator/subscriptions/route.ts", "Private email is not exposed and raw user ids are debug/projection-only."), privacyRedactionPreserved);
   add(doctrineChanges, finding("crm-broadcast-doctrine", "p1", "docs/agent-truth/creator-fan-pass-crm-broadcast.md", "Doctrine locks CRM identity, privacy, Fans language, and explicit broadcast audiences."), doctrineConflictFree);
@@ -180,7 +180,7 @@ export function buildCreatorFanPassCrmBroadcastReport(): CreatorFanPassCrmBroadc
     fixesApplied: [
       "Hydrated creator subscriber rows with safe fan identity fields.",
       "Replaced raw subscriber id labels with compact Fan Pass CRM rows.",
-      "Changed creator broadcast semantics to explicit Audience: Fans and rejected unsupported audiences.",
+      "Changed creator broadcast semantics to explicit Audience: Followers and rejected unsupported audiences.",
     ],
     prCleanupActions: [],
     nextFixOrder: [

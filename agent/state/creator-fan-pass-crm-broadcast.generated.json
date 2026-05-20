@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T04:13:46.680Z",
+  "generatedAtUtc": "2026-05-20T04:50:54.124Z",
   "reportKey": "creator-fan-pass-crm-broadcast",
-  "currentHead": "984b3d538b7f19013e297257f62ada0420044e14",
+  "currentHead": "7c61feaf8898924149f1cde5dc11278782ef8b9d",
   "summary": {
     "subscriberIdentityHydrated": true,
     "rawUserIdsHidden": true,
@@ -52,14 +52,14 @@
       "status": "fixed",
       "severity": "p1",
       "file": "src/app/api/creator/broadcasts/route.ts",
-      "summary": "Broadcast route and UI expose an explicit all_fans audience."
+      "summary": "Broadcast route and UI expose an explicit followers audience."
     },
     {
       "id": "followers-copy-removed",
       "status": "fixed",
       "severity": "p1",
       "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "Creator-facing broadcast copy uses Fans instead of followers/blast language."
+      "summary": "Creator-facing broadcast copy avoids legacy all_fans/blast language."
     }
   ],
   "privacyFindings": [
@@ -83,7 +83,7 @@
   "fixesApplied": [
     "Hydrated creator subscriber rows with safe fan identity fields.",
     "Replaced raw subscriber id labels with compact Fan Pass CRM rows.",
-    "Changed creator broadcast semantics to explicit Audience: Fans and rejected unsupported audiences."
+    "Changed creator broadcast semantics to explicit Audience: Followers and rejected unsupported audiences."
   ],
   "prCleanupActions": [],
   "nextFixOrder": [

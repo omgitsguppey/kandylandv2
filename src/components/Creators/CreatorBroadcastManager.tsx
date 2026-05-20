@@ -18,7 +18,7 @@ import {
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 
-type BroadcastStatus = "draft" | "scheduled" | "sent" | "failed" | "canceled";
+type BroadcastStatus = "draft" | "scheduled" | "sent" | "published" | "failed" | "canceled";
 
 type BroadcastRecord = {
   id: string;
@@ -28,8 +28,7 @@ type BroadcastRecord = {
   createdAtMs?: number;
   scheduledAtMs?: number | null;
   sentAtMs?: number | null;
-  audience?: "all_fans" | "fan_pass_subscribers" | "selected_segment" | string;
-  supportedAudience?: "all_fans" | string;
+  audience?: "followers" | "fan_pass_subscribers" | "followers_and_subscribers" | string;
   audienceFanCount?: number;
   audienceNotificationCount?: number;
   deliveryCount?: number | null;
@@ -60,6 +59,7 @@ function formatDateTime(value?: number | null) {
 function getStatusTone(status: string) {
   switch (status) {
     case "sent":
+    case "published":
       return "bg-emerald-500/15 text-emerald-200 border-emerald-400/20";
     case "scheduled":
       return "bg-amber-500/15 text-amber-100 border-amber-400/20";
@@ -195,7 +195,7 @@ export function CreatorBroadcastManager({
         body: JSON.stringify({
           title: title.trim(),
           message: message.trim(),
-          audience: "all_fans",
+          audience: "followers",
         }),
       });
       const body = await response.json().catch(() => ({})) as BroadcastManagerResponse;
@@ -289,8 +289,8 @@ export function CreatorBroadcastManager({
           <Megaphone className="h-4 w-4 text-brand-purple" />
           Create broadcast
         </div>
-        <div className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-300" data-broadcast-audience="all_fans">
-          Audience: Fans
+        <div className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-300" data-broadcast-audience="followers">
+          Audience: Followers
         </div>
         <div className="mt-3 space-y-2">
           <input

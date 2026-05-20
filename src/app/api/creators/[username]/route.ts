@@ -7,11 +7,13 @@ import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
-import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { CREATOR_COLLECTIONS, isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { sanitizeDropForClient } from "@/lib/server/drops";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildCreatorProfileTimeline } from "@/lib/creator-profile/timeline-contract";
 
 const CREATOR_PROFILE_DROP_LIMIT = 40;
+const CREATOR_PROFILE_BROADCAST_LIMIT = 20;
 const CREATOR_PROFILE_CACHE_CONTROL = "public, max-age=60, s-maxage=300, stale-while-revalidate=900";
 
 async function GET_handler(
@@ -61,6 +63,7 @@ async function GET_handler(
             .get();
         const followerCount = followersSnapshot.data().count;
 
+        const creatorSettings = normalizeCreatorSettings(creatorRaw.creatorSettings);
         const creator = {
             uid: creatorDoc.id,
             displayName: typeof creatorRaw.displayName === "string" ? creatorRaw.displayName : "Creator",
@@ -70,7 +73,7 @@ async function GET_handler(
             bio: typeof creatorRaw.bio === "string" ? creatorRaw.bio : undefined,
             isVerified: creatorRaw.isVerified === true,
             followerCount,
-            creatorSettings: normalizeCreatorSettings(creatorRaw.creatorSettings),
+            creatorSettings,
         };
 
         const dropsSnapshot = await adminDb.collection("drops")
@@ -84,6 +87,20 @@ async function GET_handler(
                 ? [sanitizeDropForClient(normalized)]
                 : [];
         }).sort((left, right) => right.validFrom - left.validFrom);
+        const broadcastsSnapshot = creatorSettings.profileTimelineEnabled !== false && creatorSettings.showBroadcastsOnTimeline !== false
+            ? await adminDb.collection(CREATOR_COLLECTIONS.broadcasts)
+                .where("creatorId", "==", creator.uid)
+                .limit(CREATOR_PROFILE_BROADCAST_LIMIT)
+                .get()
+            : null;
+        const timeline = buildCreatorProfileTimeline({
+            settings: creatorSettings,
+            drops: drops as unknown as Array<Record<string, unknown>>,
+            broadcasts: broadcastsSnapshot?.docs.map((doc) => ({
+                id: doc.id,
+                ...(doc.data() as Record<string, unknown>),
+            })) ?? [],
+        });
 
         // Intentionally decouple and swallow the view-count increment to prevent blocking or failing the read path.
         const { FieldValue } = await import("firebase-admin/firestore");
@@ -96,7 +113,7 @@ async function GET_handler(
             });
         });
 
-        return NextResponse.json({ success: true, creator, drops }, {
+        return NextResponse.json({ success: true, creator, drops, timeline }, {
             headers: {
                 "Cache-Control": CREATOR_PROFILE_CACHE_CONTROL,
             },

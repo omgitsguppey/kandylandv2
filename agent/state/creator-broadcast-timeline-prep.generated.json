@@ -1,0 +1,152 @@
+{
+  "generatedAtUtc": "2026-05-20T04:50:54.320Z",
+  "reportKey": "creator-broadcast-timeline-prep",
+  "currentHead": "7c61feaf8898924149f1cde5dc11278782ef8b9d",
+  "summary": {
+    "settingsControlPlanePresent": true,
+    "telemetryClosurePresent": true,
+    "broadcastContractCreated": true,
+    "broadcastRoutePersistsSourceRecord": true,
+    "boundedNotificationFanout": true,
+    "canonicalFollowerRecipientSource": true,
+    "fanPassRecipientSource": true,
+    "notificationIdempotencyPresent": true,
+    "audienceContractClear": true,
+    "timelineContractCreated": true,
+    "timelineExcludesDraftPending": true,
+    "timelineMissingNotZero": true,
+    "profileRouteExposesTimeline": true,
+    "mobilePreviewHookPresent": true,
+    "telemetryPresent": true,
+    "packageScriptPresent": true,
+    "protectedNavChatUntouched": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "control-plane-dependency",
+      "severity": "p2",
+      "file": "src/lib/creator-settings/creator-settings-contract.ts",
+      "summary": "Creator settings control plane is present and reused.",
+      "status": "pass"
+    },
+    {
+      "id": "telemetry-closure-dependency",
+      "severity": "p2",
+      "file": "src/lib/analytics/telemetry-dependency-graph.ts",
+      "summary": "Telemetry dependency graph exists for this source-truth lane.",
+      "status": "pass"
+    }
+  ],
+  "broadcastFindings": [
+    {
+      "id": "broadcast-contract",
+      "severity": "p1",
+      "file": "src/lib/creator-broadcasts/broadcast-contract.ts",
+      "summary": "Creator broadcast source contract defines audience/status/timeline/source truth.",
+      "status": "pass"
+    },
+    {
+      "id": "source-record",
+      "severity": "p1",
+      "file": "src/app/api/creator/broadcasts/route.ts",
+      "summary": "Broadcast route persists creator_broadcasts source records.",
+      "status": "pass"
+    },
+    {
+      "id": "audience",
+      "severity": "p1",
+      "file": "src/lib/creator-broadcasts/broadcast-contract.ts",
+      "summary": "Broadcast audiences use followers/subscribers terminology instead of legacy all_fans.",
+      "status": "pass"
+    }
+  ],
+  "notificationFindings": [
+    {
+      "id": "bounded-fanout",
+      "severity": "p1",
+      "file": "src/lib/notifications/creator-broadcast-notifications.ts",
+      "summary": "Follower notification fanout is bounded and not aggregate/unbounded.",
+      "status": "pass"
+    },
+    {
+      "id": "follower-source",
+      "severity": "p1",
+      "file": "src/lib/notifications/creator-broadcast-notifications.ts",
+      "summary": "Recipients resolve from canonical follower relationships with notification opt-in.",
+      "status": "pass"
+    },
+    {
+      "id": "subscriber-source",
+      "severity": "p2",
+      "file": "src/lib/notifications/creator-broadcast-notifications.ts",
+      "summary": "Fan Pass subscriber audience resolves from active creator subscriptions.",
+      "status": "pass"
+    },
+    {
+      "id": "idempotency",
+      "severity": "p1",
+      "file": "src/lib/notifications/creator-broadcast-notifications.ts",
+      "summary": "Per-recipient notification idempotency keys and deterministic document ids exist.",
+      "status": "pass"
+    }
+  ],
+  "timelineFindings": [
+    {
+      "id": "timeline-contract",
+      "severity": "p1",
+      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "summary": "Creator profile timeline contract exists for drops and broadcasts.",
+      "status": "pass"
+    },
+    {
+      "id": "timeline-filtering",
+      "severity": "p1",
+      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "summary": "Timeline excludes draft broadcasts and non-active/pending drops.",
+      "status": "pass"
+    },
+    {
+      "id": "timeline-state",
+      "severity": "p1",
+      "file": "src/lib/creator-profile/timeline-contract.ts",
+      "summary": "Timeline exposes source/empty/disabled states instead of treating missing data as zero.",
+      "status": "pass"
+    },
+    {
+      "id": "profile-route",
+      "severity": "p2",
+      "file": "src/app/api/creators/[username]/route.ts",
+      "summary": "Public creator profile route returns timeline source data.",
+      "status": "pass"
+    },
+    {
+      "id": "mobile-preview",
+      "severity": "p2",
+      "file": "src/components/Creators/CreatorUpdatesFeed.tsx",
+      "summary": "Creator profile has compact broadcast timeline preview hooks.",
+      "status": "pass"
+    }
+  ],
+  "telemetryFindings": [
+    {
+      "id": "telemetry",
+      "severity": "p1",
+      "file": "src/app/api/creator/broadcasts/route.ts",
+      "summary": "Broadcast creation and notification enqueue count are tracked.",
+      "status": "pass"
+    }
+  ],
+  "fixesApplied": [
+    "Created a creator broadcast source contract with follower/subscriber audience normalization.",
+    "Moved follower notification recipient selection and per-recipient idempotency into a shared helper.",
+    "Prepared creator profile timeline data for approved drops and published broadcasts."
+  ],
+  "prCleanupActions": [],
+  "nextFixOrder": [
+    "Add the final creator profile timeline UI once product approves feed composition.",
+    "Promote notification queue processing if fanout grows beyond the bounded in-app batch limit."
+  ]
+}

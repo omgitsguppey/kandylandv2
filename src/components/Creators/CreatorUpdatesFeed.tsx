@@ -10,7 +10,11 @@ export function CreatorUpdatesFeed({ broadcasts }: CreatorUpdatesFeedProps) {
     }
 
     return (
-        <section className="space-y-3">
+        <section
+            className="space-y-3"
+            data-creator-profile-timeline-preview="broadcasts"
+            data-mobile-timeline-preview="compact"
+        >
             <h2 className="text-sm font-black uppercase tracking-[0.18em] text-white">Updates</h2>
             <div className="space-y-2">
                 {broadcasts.map((broadcast) => {

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.25 - 2026-05-20
+- Bug fixes and general improvements
+- Prepared creator broadcasts for follower notifications.
+- Added timeline-ready broadcast and drop source contracts.
+- Kept broadcast fanout bounded and idempotent.
+
 ## 1.3.24 - 2026-05-20
 - Bug fixes and general improvements
 - Connected creator Fan Pass pricing to user-facing flows.
@@ -147,27 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Refreshed Beta readiness from the latest source state.
 - Mapped remaining Beta evidence gaps with exact next steps.
 - Kept revenue, runtime, and admin proof separate from source-only checks.
-
-## 1.3.0 - 2026-05-19
-- Bug fixes and general improvements
-- Refined Beta health scoring beyond hard pass/fail gates.
-- Separated source readiness, runtime proof, evidence freshness, and cost risk.
-- Kept formal beta exit gates intact while improving score nuance.
-
-## 1.2.99 - 2026-05-19
-- Bug fixes and general improvements
-- Cleaned up Creator Dashboard and Creator Settings navigation.
-- Removed stale creator/user dashboard stacking rules.
-- Locked readable Fan Pass CRM and broadcast audience behavior.
-
-## 1.2.98 - 2026-05-19
-- Bug fixes and general improvements
-- Separated Creator Dashboard from user reward and library sections.
-- Kept Daily Rewards and My KandyDrops on the normal user dashboard.
-- Cleaned up creator dashboard route boundaries on mobile.
-
-## 1.2.97 - 2026-05-19
-- Bug fixes and general improvements
-- Made Fan Pass subscribers readable in Creator Dashboard.
-- Added mobile-first Fan Pass CRM rows.
-- Clarified Creator Broadcast audience language.
