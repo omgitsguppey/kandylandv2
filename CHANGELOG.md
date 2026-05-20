@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.30 - 2026-05-20
+- Bug fixes and general improvements
+- Improved user dashboard and wallet loading on mobile.
+- Reduced wallet module scale without changing payment logic.
+- Kept chat and navigation unchanged.
+
 ## 1.3.29 - 2026-05-20
 - Bug fixes and general improvements
 - Refined existing scoring, telemetry, layout, pricing, and drop-status algorithms.

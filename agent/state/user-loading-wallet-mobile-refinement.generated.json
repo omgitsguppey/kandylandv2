@@ -1,0 +1,119 @@
+{
+  "generatedAtUtc": "2026-05-20T06:06:43.519Z",
+  "reportKey": "user-loading-wallet-mobile-refinement",
+  "currentHead": "ff13edd69832efd0776612e474ddc586b6345965",
+  "summary": {
+    "mobileDependenciesPresent": true,
+    "protectedNavChatUntouched": true,
+    "walletRuntimeLogicUnchanged": true,
+    "walletMobileDensityCompact": true,
+    "walletLoadingStable": true,
+    "userDashboardStagedLoading": true,
+    "userDashboardModulesPreserved": true,
+    "userLibraryLoadingStable": true,
+    "dropLoadingCompact": true,
+    "largeSkeletonsRemoved": true,
+    "openPrsClassified": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "mobile-dependencies-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Existing mobile doctrine, loading contract, scale contract, and package script are present."
+    }
+  ],
+  "protectedSurfaceFindings": [
+    {
+      "id": "protected-nav-chat-untouched",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Protected nav/chat files were not changed."
+    },
+    {
+      "id": "wallet-runtime-files-untouched",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Payment, GumDrop math, Firebase, and wallet server runtime files were not changed."
+    }
+  ],
+  "walletFindings": [
+    {
+      "id": "wallet-runtime-logic-marker",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Wallet modal keeps PayPal runtime markers and declares runtime logic unchanged."
+    },
+    {
+      "id": "wallet-mobile-density-compact",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Wallet modal uses compact mobile density and avoids oversized wallet tokens."
+    },
+    {
+      "id": "wallet-loading-stable",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Wallet package metadata loading uses stale-request and abort protection."
+    }
+  ],
+  "loadingFindings": [
+    {
+      "id": "drops-loading-compact",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Drops route skeleton is compact on mobile."
+    },
+    {
+      "id": "preview-loading-compact",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Drop preview skeleton is compact on mobile."
+    }
+  ],
+  "userDashboardFindings": [
+    {
+      "id": "dashboard-staged-loading",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "User dashboard declares staged loading instead of optional-module blocking."
+    },
+    {
+      "id": "dashboard-modules-preserved",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Daily Rewards, My KandyDrops collection, Recent Activity, and Creator Spotlight modules remain source-visible."
+    },
+    {
+      "id": "library-loading-stable",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "My KandyDrops library loading is compact and stable."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "open-prs-classified",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Relevant open PRs were classified for this pass."
+    },
+    {
+      "id": "release-note-script-ready",
+      "status": "fixed",
+      "severity": "P2",
+      "detail": "Release note validator remains available for same-commit notes."
+    }
+  ],
+  "prCleanupActions": [
+    "Preserved PR #274: broad monolith governance doc PR outside this scoped wallet/mobile pass and mentions protected chat."
+  ],
+  "nextFixOrder": [
+    "Apply the compact wallet markers to any future wallet entrypoints that reuse PurchaseModal.",
+    "Keep route loading placeholders close to final module size before escalating to screenshot QA.",
+    "Continue moving optional dashboard modules to staged dynamic loading when they become source-heavy."
+  ]
+}

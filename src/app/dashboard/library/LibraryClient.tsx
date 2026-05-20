@@ -106,12 +106,13 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                 data-mobile-organization="summary-first"
                 data-mobile-drilldown="true"
                 data-user-library-surface="my-kandydrops"
+                data-user-library-loading-stable="true"
             >
-                <div className="mb-4">
-                    <div className="h-10 w-64 bg-white/10 rounded mb-2" />
-                    <div className="h-5 w-72 bg-white/5 rounded" />
+                <div className="mb-3">
+                    <div className="h-7 w-44 bg-white/10 rounded mb-2" />
+                    <div className="h-4 w-56 max-w-full bg-white/5 rounded" />
                 </div>
-                <div className="grid grid-cols-6 gap-3">
+                <div className="grid grid-cols-6 gap-2 md:gap-3">
                     {[1, 2, 3, 4].map((i) => (
                         <div key={i} className={`col-span-3 ${userLibrarySkeletonClassName}`} />
                     ))}

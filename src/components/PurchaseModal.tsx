@@ -22,6 +22,7 @@ import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { formatCompactGd, resolveWalletBalanceSplit } from "@/lib/gumdrop-formatting";
+import { createStaleRequestGuard } from "@/lib/ui/loading-state-contract";
 import {
   buildBugReportContext,
   getSafePreviousRoute,
@@ -69,6 +70,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const hasTrackedOpenRef = useRef(false);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const packagesRequestGuardRef = useRef(createStaleRequestGuard());
 
   useEffect(() => {
     setNetworkOnline(navigator.onLine);
@@ -84,9 +86,12 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
 
   useEffect(() => {
     if (!isOpen || packagesLoaded) return;
-    fetch('/api/wallet/packages')
+    const requestId = packagesRequestGuardRef.current.next();
+    const controller = new AbortController();
+    fetch('/api/wallet/packages', { signal: controller.signal })
       .then(res => res.json())
       .then(data => {
+         if (!packagesRequestGuardRef.current.isFresh(requestId)) return;
          if (data.packages && Array.isArray(data.packages)) {
              const loaded = data.packages.map((entry: any) => ({
                  drops: entry.drops,
@@ -99,14 +104,22 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
              }
          }
       })
-      .catch((err) => reportClientIssue({
-        channel: "payments",
-        severity: "warn",
-        message: "Failed to load dynamic wallet packages",
-        error: err,
-        consoleLabel: "[Wallet] Failed to load dynamic packages",
-      }))
-      .finally(() => setPackagesLoaded(true));
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        reportClientIssue({
+          channel: "payments",
+          severity: "warn",
+          message: "Failed to load dynamic wallet packages",
+          error: err,
+          consoleLabel: "[Wallet] Failed to load dynamic packages",
+        });
+      })
+      .finally(() => {
+        if (packagesRequestGuardRef.current.isFresh(requestId)) {
+          setPackagesLoaded(true);
+        }
+      });
+    return () => controller.abort();
   }, [isOpen, packagesLoaded, selectedPackage.drops]);
   const isBundleSelected = selectedPackage.label === "King Size Bundle";
   const canDecreaseBundle = customDrops > 5000;
@@ -476,7 +489,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 data-wallet-balance-chip="split-source"
                 data-wallet-package-subcopy="removed"
                 data-wallet-bonus-chip-theme="brand-purple"
-                className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-4 sm:p-5 md:p-5 shadow-2xl border border-white/10 pointer-events-auto"
+                data-wallet-mobile-density="compact"
+                data-wallet-loading-stable="true"
+                data-wallet-runtime-logic-unchanged="true"
+                className="relative w-full max-w-[23rem] bg-black/45 backdrop-blur-xl rounded-[1.35rem] p-3.5 shadow-2xl border border-white/10 pointer-events-auto sm:max-w-md sm:rounded-[1.6rem] sm:p-4 md:p-5"
               >
                 <button ref={closeButtonRef} aria-label="Close modal" onClick={() => closeModal("wallet_close_button")} className="absolute top-3 right-3 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition-colors z-30">
                   <X className="w-5 h-5" />
@@ -488,15 +504,16 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 >
                   {!success ? (
                     <div>
-                      <div className="text-center mb-4 pt-1">
-                        <div className="w-12 h-12 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-2xl mx-auto mb-2 flex items-center justify-center shadow-lg shadow-brand-purple/20">
-                          <Candy className="w-6 h-6 text-white drop-shadow-md" />
+                      <div className="text-center mb-3 pt-1" data-wallet-mobile-density="compact">
+                        <div className="w-10 h-10 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-[1rem] mx-auto mb-2 flex items-center justify-center shadow-lg shadow-brand-purple/20 sm:h-12 sm:w-12 sm:rounded-2xl">
+                          <Candy className="w-5 h-5 text-white drop-shadow-md sm:h-6 sm:w-6" />
                         </div>
                         <h2 id="purchase-wallet-title" className="text-xl font-bold text-white mb-0.5 tracking-tight">Kandy Shop Wallet</h2>
-                        <p className="text-gray-400 text-xs font-medium mb-2 leading-snug">Get more GumDrops to Unwrap more!</p>
+                        <p className="text-gray-400 text-xs font-medium mb-2 leading-snug">Refill GumDrops for your next unwrap.</p>
                         {userProfile && (
                           <div
                             className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full"
+                            data-wallet-mobile-density="compact"
                             aria-label={`Wallet balance: ${formatCompactGd(walletBalanceSplit.freeGd)} free GD, ${formatCompactGd(walletBalanceSplit.paidGd)} paid GD`}
                           >
                             <Candy className="w-3.5 h-3.5 text-brand-purple" />
@@ -507,7 +524,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         )}
                       </div>
 
-                      <div className="flex flex-col gap-2 mb-4">
+                      <div className="flex flex-col gap-2 mb-3" data-wallet-mobile-density="compact">
                         {packagesList.map((pkg, index) => {
                           const isSelected = selectedPackage.drops === pkg.drops;
                           const pkgEconomics = deriveGumdropEconomics(pkg.drops, pkg.price);
@@ -528,6 +545,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 });
                               }}
                               aria-pressed={isSelected}
+                              data-wallet-mobile-density="compact"
                               className={cn(
                                 "relative flex items-center justify-between rounded-xl border px-3 py-2.5 w-full transition-all text-left",
                                 isSelected
@@ -565,6 +583,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         tabIndex={0}
                         aria-pressed={isBundleSelected}
                         aria-label={`Select King Size Bundle with ${customDrops.toLocaleString()} Gum Drops`}
+                        data-wallet-mobile-density="compact"
                         onClick={() => {
                           selectBundlePackage(customDrops);
                         }}
@@ -818,16 +837,16 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       ) : null}
                     </div>
                   ) : (
-                    <div className="text-center py-10 pt-4">
-                      <div className="w-20 h-20 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(164,118,255,0.35)]">
-                        <Candy className="w-10 h-10 text-brand-purple drop-shadow-md" />
+                    <div className="text-center py-6 pt-3" data-wallet-mobile-density="compact">
+                      <div className="w-14 h-14 bg-brand-purple/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_24px_rgba(164,118,255,0.28)] sm:h-16 sm:w-16">
+                        <Candy className="w-7 h-7 text-brand-purple drop-shadow-md sm:h-8 sm:w-8" />
                       </div>
                       <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">Wallet refilled</p>
-                      <h3 className="mt-2 text-3xl font-bold text-white tracking-tight">Your Gum Drops are ready</h3>
-                        <p className="mt-3 text-gray-300 max-w-[280px] mx-auto leading-6">
+                      <h3 className="mt-2 text-xl font-bold text-white tracking-tight sm:text-2xl">Your Gum Drops are ready</h3>
+                        <p className="mt-2 text-sm text-gray-300 max-w-[260px] mx-auto leading-5">
                           You just added <strong>{creditedDropsValue} Gum Drops</strong>. Your next unwrap is one tap away.
                         </p>
-                        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
                           <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
                             +{selectedEconomics.paidGumDrops} GD
                           </span>
@@ -840,16 +859,16 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           ${selectedPackage.price.toFixed(2)} secured
                         </span>
                       </div>
-                      <div className="mt-6 grid gap-2">
+                      <div className="mt-5 grid gap-2">
                         <button
                           onClick={() => continueFromSuccess("/drops", "wallet_success_unwrap")}
-                          className="w-full rounded-2xl border border-brand-purple bg-brand-purple px-4 py-3 font-bold text-white transition-opacity hover:opacity-90"
+                          className="w-full rounded-xl border border-brand-purple bg-brand-purple px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
                         >
                           Unwrap now
                         </button>
                         <button
                           onClick={() => continueFromSuccess("/experiences", "wallet_success_experiences")}
-                          className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-bold text-white transition-colors hover:bg-white/10"
+                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
                         >
                           Keep the streak going
                         </button>

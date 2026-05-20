@@ -187,6 +187,7 @@
         "check:mobile-loading-hydration-stability": "tsx scripts/agent/validate-mobile-loading-hydration-stability.ts",
         "check:mobile-surface-organization": "tsx scripts/agent/validate-mobile-surface-organization.ts",
         "check:mobile-ui-final-lock": "tsx scripts/agent/validate-mobile-ui-final-lock.ts",
+        "check:user-loading-wallet-mobile-refinement": "tsx scripts/agent/validate-user-loading-wallet-mobile-refinement.ts",
         "check:global-marquee-truncated-titles": "tsx scripts/agent/validate-global-marquee-truncated-titles.ts",
         "check:overnight-wiring-integrity": "tsx scripts/agent/validate-overnight-wiring-integrity.ts",
         "check:existing-algorithm-refinement": "tsx scripts/agent/validate-existing-algorithm-refinement.ts",

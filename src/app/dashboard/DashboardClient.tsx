@@ -81,6 +81,7 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
                 data-mobile-organization="summary-first"
                 data-mobile-drilldown="true"
                 data-desktop-flow-collapsed="true"
+                data-user-dashboard-loading-staged="true"
             >
 
                 <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
@@ -89,7 +90,10 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
                         <div className={userListSkeletonClassName} data-mobile-skeleton="user-dashboard-list" />
                     </div>
                     <div className="lg:col-span-2">
-                        <div className="h-56 rounded-[1.35rem] border border-white/10 bg-white/[0.04] sm:h-72" />
+                        <div
+                            className={`${userListSkeletonClassName} min-h-[13rem]`}
+                            data-mobile-skeleton="user-dashboard-collection"
+                        />
                     </div>
                 </div>
             </div>
@@ -125,6 +129,7 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
             data-mobile-organization="summary-first"
             data-mobile-drilldown="true"
             data-desktop-flow-collapsed="true"
+            data-user-dashboard-loading-staged="true"
         >
             <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
                 <div className="space-y-3 md:space-y-5">
