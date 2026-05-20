@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.32 - 2026-05-20
+- Bug fixes and general improvements
+- Locked overnight wiring, telemetry, and mobile scale cleanup.
+- Verified creator drop statuses and wallet mobile density where available.
+- Kept chat and navigation unchanged.
+
 ## 1.3.31 - 2026-05-20
 - Bug fixes and general improvements
 - Added creator-facing drop status and expiry labels.

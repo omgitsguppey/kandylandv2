@@ -1,7 +1,7 @@
 # Existing Algorithm Refinement
 
-Generated: 2026-05-20T05:53:57.903Z
-Current code version: 379b9e92ab1faf8bcefd2d87f8036b50820c4e56
+Generated: 2026-05-20T06:27:34.933Z
+Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 
 ## Summary
 
@@ -147,28 +147,13 @@ Current code version: 379b9e92ab1faf8bcefd2d87f8036b50820c4e56
 
 ## Dirty File Classifications
 
-- CHANGELOG.md: release_artifact_expected
-- agent/state/beta-health-algorithm-v2.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-pricing-wiring.generated.json: current_generated_artifact_to_commit
-- agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/creator-pricing-wiring.md: current_generated_artifact_to_commit
-- docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
-- docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
-- package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- src/lib/creator-public-pages.ts: real_source_change_needs_review
-- src/lib/drop-status.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/ui/mobile-scale-contract.ts: real_source_change_needs_review
-- agent/state/existing-algorithm-refinement.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/existing-algorithm-refinement.md: current_generated_artifact_to_commit
-- scripts/agent/validate-existing-algorithm-refinement.ts: real_source_change_needs_review
-- tests/unit/existing-algorithm-refinement.spec.ts: real_source_change_needs_review
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/overnight-wiring-integrity.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/overnight-wiring-integrity.md: current_generated_artifact_to_commit
 
 ## PR Cleanup Actions
 
+- PR #275 classified as unrelated_preserved.
 - PR #274 classified as preserved_broad_governance_doc_outside_algorithm_scope.
 
 ## Next Fix Order

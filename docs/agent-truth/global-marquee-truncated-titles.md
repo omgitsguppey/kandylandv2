@@ -1,7 +1,7 @@
 # Global Marquee Truncated Titles
 
-Generated: 2026-05-20T05:17:32.274Z
-Current code version: d0dc5b88ff59b010da89232024c34fe0fd550a5f
+Generated: 2026-05-20T06:28:39.231Z
+Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 
 ## Summary
 

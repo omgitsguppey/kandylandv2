@@ -285,6 +285,7 @@
         "check:creator-drop-management-approval": "tsx scripts/agent/validate-creator-drop-management-approval.ts",
         "check:creator-drop-manager-mobile-refinement": "tsx scripts/agent/validate-creator-drop-manager-mobile-refinement.ts",
         "check:creator-drop-status-metrics": "tsx scripts/agent/validate-creator-drop-status-metrics.ts",
+        "check:overnight-final-integration-lock": "tsx scripts/agent/validate-overnight-final-integration-lock.ts",
         "check:creator-surface-routing": "tsx scripts/agent/validate-creator-surface-routing.ts",
         "check:creator-settings-source-health": "tsx scripts/agent/validate-creator-settings-source-health.ts",
         "check:creator-settings-control-plane": "tsx scripts/agent/validate-creator-settings-control-plane.ts",

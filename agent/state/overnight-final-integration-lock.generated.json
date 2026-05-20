@@ -1,0 +1,216 @@
+{
+  "generatedAtUtc": "2026-05-20T06:42:43.563Z",
+  "reportKey": "overnight-final-integration-lock",
+  "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
+  "summary": {
+    "wiringIntegrityStatus": "passed",
+    "telemetryOrphanStatus": "passed",
+    "parityStatus": "passed",
+    "algorithmRefinementStatus": "passed",
+    "userLoadingStatus": "passed",
+    "walletMobileScaleStatus": "passed",
+    "creatorDropStatusMetricsStatus": "passed",
+    "mobileScaleSweepStatus": "source_sweep_complete_residuals_recorded",
+    "chatUntouched": true,
+    "navUntouched": true,
+    "openPrCount": 2,
+    "dirtyFileStatus": "classified",
+    "betaScore": 41.92,
+    "betaStatus": "Stale evidence",
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 1
+  },
+  "dependencyStatus": [
+    {
+      "id": "overnight-wiring-integrity",
+      "status": "passed",
+      "required": true,
+      "detail": "agent/state/overnight-wiring-integrity.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "existing-algorithm-refinement",
+      "status": "passed",
+      "required": true,
+      "detail": "agent/state/existing-algorithm-refinement.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "user-loading-wallet-mobile-refinement",
+      "status": "passed",
+      "required": true,
+      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "creator-drop-status-metrics",
+      "status": "passed",
+      "required": true,
+      "detail": "agent/state/creator-drop-status-metrics.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "mobile-ui-final-lock",
+      "status": "passed",
+      "required": true,
+      "detail": "agent/state/mobile-ui-final-lock.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "final-telemetry-closure-lock",
+      "status": "passed",
+      "required": true,
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "creator-settings-control-plane",
+      "status": "passed",
+      "required": false,
+      "detail": "agent/state/creator-settings-control-plane.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "creator-pricing-wiring",
+      "status": "passed",
+      "required": false,
+      "detail": "agent/state/creator-pricing-wiring.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "creator-broadcast-timeline-prep",
+      "status": "passed",
+      "required": false,
+      "detail": "agent/state/creator-broadcast-timeline-prep.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "creator-profile-mobile-timeline",
+      "status": "passed",
+      "required": false,
+      "detail": "agent/state/creator-profile-mobile-timeline.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "global-marquee-truncated-titles",
+      "status": "passed",
+      "required": false,
+      "detail": "agent/state/global-marquee-truncated-titles.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "public-beta-score",
+      "status": "passed",
+      "required": true,
+      "detail": "agent/state/public-beta-score.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    },
+    {
+      "id": "current-beta-exit-status",
+      "status": "passed",
+      "required": true,
+      "detail": "agent/state/current-beta-exit-status.generated.json is current.",
+      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+    }
+  ],
+  "fixesApplied": [],
+  "smallScaleFixes": [],
+  "remainingRisks": [
+    {
+      "severity": "P2",
+      "id": "mobile_scale_residuals",
+      "detail": "24 non-chat mobile scale patterns remain from the source sweep; no broad refactor was attempted in this final lock.",
+      "nextAction": "Handle only owner-scoped surface fixes in future passes with screenshots/manual evidence."
+    }
+  ],
+  "missingEvidence": [
+    "manual screenshot QA evidence remains required before beta exit.",
+    "provider smoke evidence remains required before beta exit.",
+    "runtime smoke evidence remains required before beta exit.",
+    "admin truth sample evidence remains required before beta exit."
+  ],
+  "prCleanupActions": [
+    "Preserved PR #275: preserved_unrelated_admin_analytics_optimization_outside_final_lock_scope.",
+    "Preserved PR #274: preserved_high_risk_broad_governance_doc_outside_final_lock_scope."
+  ],
+  "nextExactSteps": [
+    "Do not mark beta exit ready until formal manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence are attached.",
+    "Keep PR #274 and #275 preserved unless a human explicitly promotes those unrelated admin/governance changes.",
+    "For future mobile scale work, fix one owner-scoped surface at a time and keep chat/navigation protected.",
+    "Run npm run check:overnight-final-integration-lock after any follow-up lock refresh."
+  ],
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/creator-broadcast-timeline-prep.generated.json",
+    "agent/state/creator-drop-status-metrics.generated.json",
+    "agent/state/creator-pricing-wiring.generated.json",
+    "agent/state/creator-profile-mobile-timeline.generated.json",
+    "agent/state/creator-settings-control-plane.generated.json",
+    "agent/state/current-beta-exit-status.generated.json",
+    "agent/state/existing-algorithm-refinement.generated.json",
+    "agent/state/final-telemetry-closure-lock.generated.json",
+    "agent/state/global-marquee-truncated-titles.generated.json",
+    "agent/state/mobile-ui-final-lock.generated.json",
+    "agent/state/overnight-beta-readiness-lock.generated.json",
+    "agent/state/overnight-wiring-integrity.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/source-truth-authority-map.generated.json",
+    "agent/state/user-creator-ui-parity.generated.json",
+    "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+    "docs/agent-truth/creator-broadcast-timeline-prep.md",
+    "docs/agent-truth/creator-drop-status-metrics.md",
+    "docs/agent-truth/creator-pricing-wiring.md",
+    "docs/agent-truth/creator-profile-mobile-timeline.md",
+    "docs/agent-truth/creator-settings-control-plane.md",
+    "docs/agent-truth/current-beta-exit-status.md",
+    "docs/agent-truth/existing-algorithm-refinement.md",
+    "docs/agent-truth/final-telemetry-closure-lock.md",
+    "docs/agent-truth/global-marquee-truncated-titles.md",
+    "docs/agent-truth/mobile-ui-final-lock.md",
+    "docs/agent-truth/overnight-beta-readiness-lock.md",
+    "docs/agent-truth/overnight-wiring-integrity.md",
+    "docs/agent-truth/source-truth-authority-map.md",
+    "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts"
+  ],
+  "untrackedFiles": [
+    "agent/state/overnight-final-integration-lock.generated.json",
+    "docs/agent-truth/overnight-final-integration-lock.md",
+    "scripts/agent/validate-overnight-final-integration-lock.ts",
+    "tests/unit/overnight-final-integration-lock.spec.ts"
+  ],
+  "openPrs": [
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "mergeStateStatus": "CLEAN",
+      "number": 275,
+      "title": "Reduce duplicate computation in high-ROI aggregation hotspot",
+      "updatedAt": "2026-05-20T06:08:37Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/275",
+      "classification": "preserved_unrelated_admin_analytics_optimization_outside_final_lock_scope"
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "mergeStateStatus": "CLEAN",
+      "number": 274,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "updatedAt": "2026-05-20T05:30:14Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/274",
+      "classification": "preserved_high_risk_broad_governance_doc_outside_final_lock_scope"
+    }
+  ]
+}
