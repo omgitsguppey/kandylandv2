@@ -7,6 +7,13 @@ import { evaluateAdminTruthSampleEvidence } from "./validate-admin-truth-sample-
 import { evaluateManualScreenshotEvidence } from "./validate-manual-screenshot-evidence";
 import { evaluateProviderSmokeEvidence } from "./validate-provider-smoke-evidence";
 import { evaluateRuntimeSmokeEvidence } from "./validate-runtime-smoke-evidence";
+import {
+  buildRefreshPlan,
+  staleArtifactsFromPlan,
+  uniqueRefreshCommands,
+  type ArtifactRefreshStatus,
+  type RefreshArtifactInput,
+} from "../../src/lib/agent-score/refresh-safeguards";
 
 type EvidenceStatus = "missing" | "incomplete" | "complete";
 
@@ -57,6 +64,9 @@ export type EvidenceCaptureStatusReport = {
   missingEvidence: string[];
   completeEvidence: string[];
   nextExactSteps: string[];
+  refreshPlan: ArtifactRefreshStatus[];
+  staleArtifacts: ReturnType<typeof staleArtifactsFromPlan>;
+  exactRefreshCommands: string[];
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -121,6 +131,35 @@ function readOperatorRevenueSmoke(): OperatorRevenueSmokeSummary {
   };
 }
 
+function readArtifactInput(relativePath: string, head: string, generatedAtUtc: string): RefreshArtifactInput {
+  if (relativePath === reportRelativePath) {
+    return {
+      artifactPath: relativePath,
+      generatedAtUtc,
+      sourceCommit: head,
+      currentCodeVersion: head,
+      exists: true,
+    };
+  }
+  const fullPath = join(repoRoot, relativePath);
+  if (!existsSync(fullPath)) {
+    return {
+      artifactPath: relativePath,
+      currentCodeVersion: head,
+      exists: false,
+    };
+  }
+  const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
+  const readString = (value: unknown) => typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+  return {
+    artifactPath: relativePath,
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    currentCodeVersion: head,
+    exists: true,
+  };
+}
+
 export function buildEvidenceCaptureStatusReport(options: BuildOptions): EvidenceCaptureStatusReport {
   const canStartBetaExitReview = allLanesComplete(options.laneStatuses) && options.currentBetaExitCanStart;
   const missingEvidence = (Object.entries(options.laneStatuses) as Array<[keyof EvidenceLaneStatuses, EvidenceStatus]>)
@@ -129,6 +168,20 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
   const completeEvidence = (Object.entries(options.laneStatuses) as Array<[keyof EvidenceLaneStatuses, EvidenceStatus]>)
     .filter(([, status]) => status === "complete")
     .map(([lane]) => `${laneLabels[lane]} is complete.`);
+  const refreshPlan = buildRefreshPlan([
+    reportRelativePath,
+    "agent/state/current-beta-exit-status.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/beta-evidence-gap-map.generated.json",
+    "agent/state/operator-revenue-smoke.generated.json",
+    "agent/state/final-telemetry-closure-lock.generated.json",
+    "agent/state/mobile-ui-final-lock.generated.json",
+    "agent/state/creator-settings-control-plane.generated.json",
+    "agent/state/creator-drop-status-metrics.generated.json",
+  ].map((artifactPath) => readArtifactInput(artifactPath, options.currentHead, options.generatedAtUtc)), {
+    currentCodeVersion: options.currentHead,
+    nowUtc: options.generatedAtUtc,
+  });
 
   return {
     generatedAtUtc: options.generatedAtUtc,
@@ -179,7 +232,11 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
       "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.",
+      ...uniqueRefreshCommands(refreshPlan).map((command) => `Refresh generated status with ${command}.`),
     ],
+    refreshPlan,
+    staleArtifacts: staleArtifactsFromPlan(refreshPlan),
+    exactRefreshCommands: uniqueRefreshCommands(refreshPlan),
   };
 }
 
@@ -233,6 +290,17 @@ export function validateEvidenceCaptureStatusReport(
   }
   if ((report.nextExactSteps?.length ?? 0) === 0) {
     failures.push("nextExactSteps must not be empty.");
+  }
+  if (!Array.isArray(report.refreshPlan) || report.refreshPlan.length === 0) {
+    failures.push("refreshPlan must exist.");
+  }
+  if (!Array.isArray(report.staleArtifacts)) {
+    failures.push("staleArtifacts must exist.");
+  } else if (report.staleArtifacts.some((entry) => !entry.nextAction || !entry.refreshCommand)) {
+    failures.push("staleArtifacts must include nextAction and refreshCommand.");
+  }
+  if (!Array.isArray(report.exactRefreshCommands) || !report.exactRefreshCommands.includes("npm run check:evidence-capture-status")) {
+    failures.push("exactRefreshCommands must include evidence capture refresh command.");
   }
   for (const folder of [
     "agent/evidence/manual-screenshot-qa",
@@ -313,6 +381,10 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     "## Missing Evidence",
     "",
     ...(report.missingEvidence.length > 0 ? report.missingEvidence.map((item) => `- ${item}`) : ["- None."]),
+    "",
+    "## Refresh Plan",
+    "",
+    ...report.refreshPlan.map((entry) => `- ${entry.artifactPath}: ${entry.message} Command: \`${entry.refreshCommand ?? "register a refresh command"}\`.`),
     "",
     "## Next Exact Steps",
     "",

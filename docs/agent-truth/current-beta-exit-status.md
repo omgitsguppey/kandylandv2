@@ -1,8 +1,8 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-20T21:21:05.224Z
+Generated: 2026-05-20T21:37:49.220Z
 
-Latest code version: 2e202554ff3cfd0821fc9d120b689dac3f41e29b
+Latest code version: 458bfd51d0bf4922b146928a458d45f32f74058b
 
 ## Summary
 
@@ -30,6 +30,19 @@ Latest code version: 2e202554ff3cfd0821fc9d120b689dac3f41e29b
 - Runtime smoke can start: true
 - Beta exit review can start: false
 
+## Refresh Plan
+
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
+- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
+- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
+- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
+- agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-drop-status-metrics`.
+- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
+
 ## Remaining Blockers
 
 - P1 manual_screenshot_evidence_missing: Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/.
@@ -51,3 +64,13 @@ Latest code version: 2e202554ff3cfd0821fc9d120b689dac3f41e29b
 - Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.
 - Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.
 - Run npm run check:overnight-beta-readiness-lock after attaching evidence.
+- Refresh generated status with npm run check:current-beta-exit-status.
+- Refresh generated status with npm run score:beta && npm run check:beta-score.
+- Refresh generated status with npm run check:evidence-capture-status.
+- Refresh generated status with npm run check:beta-evidence-gap-map.
+- Refresh generated status with npm run check:source-truth-authority-map.
+- Refresh generated status with npm run check:final-telemetry-closure-lock.
+- Refresh generated status with npm run check:mobile-ui-final-lock.
+- Refresh generated status with npm run check:creator-settings-control-plane.
+- Refresh generated status with npm run check:creator-drop-status-metrics.
+- Refresh generated status with npm run check:operator-revenue-smoke.

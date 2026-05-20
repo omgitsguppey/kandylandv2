@@ -319,6 +319,29 @@ if (report) {
   if (!Array.isArray(report.minimalVerificationCommands) || !report.minimalVerificationCommands.includes("npm run check:beta-score")) {
     failures.push("minimalVerificationCommands must include npm run check:beta-score.");
   }
+  if (!Array.isArray(report.refreshPlan) || report.refreshPlan.length === 0) {
+    failures.push("refreshPlan must be present on public beta score.");
+  } else {
+    const refreshPlanText = JSON.stringify(report.refreshPlan);
+    requireIncludes(refreshPlanText, "npm run score:beta && npm run check:beta-score", "public beta score refreshPlan");
+    requireIncludes(refreshPlanText, "agent/state/current-beta-exit-status.generated.json", "public beta score refreshPlan");
+    requireIncludes(refreshPlanText, "agent/state/evidence-capture-status.generated.json", "public beta score refreshPlan");
+    requireIncludes(refreshPlanText, "Refresh this report from the latest code version", "public beta score refreshPlan");
+    if (/\bHEAD\b|currentHead/u.test(refreshPlanText)) {
+      failures.push("public beta score refreshPlan user-facing messages must avoid raw source-control jargon.");
+    }
+  }
+  if (!Array.isArray(report.staleArtifacts)) {
+    failures.push("staleArtifacts must be present on public beta score.");
+  } else if (report.staleArtifacts.some((entry) => {
+    const record = entry && typeof entry === "object" ? entry as Record<string, unknown> : {};
+    return typeof record.nextAction !== "string" || record.nextAction.length === 0 || typeof record.refreshCommand !== "string";
+  })) {
+    failures.push("public beta score staleArtifacts must include nextAction and refreshCommand.");
+  }
+  if (!Array.isArray(report.exactRefreshCommands) || !report.exactRefreshCommands.includes("npm run score:beta && npm run check:beta-score")) {
+    failures.push("exactRefreshCommands must include the beta score refresh command.");
+  }
   if (!report.commandBudget?.forbiddenCommands?.includes("playwright")) {
     failures.push("commandBudget.forbiddenCommands must include playwright.");
   }

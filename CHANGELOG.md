@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.35 - 2026-05-20
+- Bug fixes and general improvements
+- Added safeguards for stale beta and evidence reports.
+- Mapped generated reports to exact refresh commands.
+- Kept freshness messages plain and actionable.
+
 ## 1.3.34 - 2026-05-20
 - Bug fixes and general improvements
 - Recorded operator-confirmed GumDrop revenue smoke.

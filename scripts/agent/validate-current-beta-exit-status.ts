@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import type { ArtifactRefreshStatus } from "../../src/lib/agent-score/refresh-safeguards";
+
 export type CurrentBetaExitCheck = {
   command: string;
   status: "passed" | "failed" | "not_run";
@@ -58,6 +60,16 @@ export type CurrentBetaExitStatusReport = {
     canStartBetaExitReview: boolean;
   };
   checksRun: CurrentBetaExitCheck[];
+  refreshPlan: ArtifactRefreshStatus[];
+  staleArtifacts: Array<{
+    artifactPath: string;
+    reportKey?: string;
+    status: string;
+    message: string;
+    nextAction: string;
+    refreshCommand: string | null;
+  }>;
+  exactRefreshCommands: string[];
   failedChecks: CurrentBetaExitCheck[];
   refreshedArtifacts: string[];
   remainingBlockers: Array<{
@@ -274,6 +286,28 @@ export function validateCurrentBetaExitStatusReport(
   }
   if ((report.nextExactSteps?.length ?? 0) === 0) {
     failures.push("nextExactSteps must not be empty.");
+  }
+  if (!Array.isArray(report.refreshPlan) || report.refreshPlan.length === 0) {
+    failures.push("refreshPlan must be represented in current beta exit status.");
+  } else {
+    const refreshText = JSON.stringify(report.refreshPlan);
+    if (!refreshText.includes("agent/state/current-beta-exit-status.generated.json")) {
+      failures.push("refreshPlan must include current beta exit status.");
+    }
+    if (!refreshText.includes("npm run check:current-beta-exit-status")) {
+      failures.push("refreshPlan must include current beta exit status refresh command.");
+    }
+    if (/\bHEAD\b|currentHead/u.test(refreshText)) {
+      failures.push("refreshPlan user-facing messages must avoid raw source-control jargon.");
+    }
+  }
+  if (!Array.isArray(report.staleArtifacts)) {
+    failures.push("staleArtifacts must be represented in current beta exit status.");
+  } else if (report.staleArtifacts.some((entry) => !entry.nextAction || !entry.refreshCommand)) {
+    failures.push("current beta staleArtifacts must include nextAction and refreshCommand.");
+  }
+  if (!Array.isArray(report.exactRefreshCommands) || !report.exactRefreshCommands.includes("npm run check:current-beta-exit-status")) {
+    failures.push("exactRefreshCommands must include current beta exit refresh command.");
   }
   const nextSteps = (report.nextExactSteps ?? []).join("\n");
   for (const checklistRef of requiredChecklistRefs) {

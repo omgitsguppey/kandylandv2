@@ -3,6 +3,15 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import {
+  buildRefreshPlan,
+  staleArtifactsFromPlan,
+  uniqueRefreshCommands,
+  type ArtifactRefreshStatus,
+  type RefreshArtifactInput,
+} from "../../src/lib/agent-score/refresh-safeguards";
+import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
+
 export type BetaEvidenceGapLane = {
   id: string;
   status: string;
@@ -30,6 +39,8 @@ export type BetaEvidenceGapMapReport = {
   runtimeProofMissingLanes: string[];
   ownerReviewLanes: string[];
   staleArtifacts: Array<{ artifact: string; reason: string }>;
+  refreshPlan: ArtifactRefreshStatus[];
+  exactRefreshCommands: string[];
   nextExactSteps: string[];
 };
 
@@ -54,6 +65,8 @@ type BuildInput = {
   finalCostStatus: string;
   speedSecurityStatus: string;
   staleArtifacts: Array<{ artifact: string; reason: string }>;
+  refreshPlan?: ArtifactRefreshStatus[];
+  exactRefreshCommands?: string[];
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -94,6 +107,7 @@ function missingWhen(status: string, filePath: string) {
 }
 
 export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGapMapReport {
+  const refreshPlan = input.refreshPlan ?? [];
   const lanes: BetaEvidenceGapLane[] = [
     lane({
       id: "manual_screenshot_qa",
@@ -222,6 +236,8 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       .filter((entry) => /owner_review|cost_review_required/iu.test(entry.status))
       .map((entry) => entry.id),
     staleArtifacts: input.staleArtifacts,
+    refreshPlan,
+    exactRefreshCommands: input.exactRefreshCommands ?? uniqueRefreshCommands(refreshPlan),
     nextExactSteps: [
       `1. ${input.operatorRevenueSmokeNote}`,
       "2. Optional formal provider/app artifact for the $50 GumDrop payment can be stored under agent/evidence/provider-smoke/; it is not required for acknowledging the sale.",
@@ -236,20 +252,7 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
 }
 
 function collectStaleArtifacts(head: string) {
-  const artifacts = [
-    "agent/state/current-beta-exit-status.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "agent/state/evidence-capture-status.generated.json",
-    "agent/state/source-truth-authority-map.generated.json",
-    "agent/state/final-cost-audit-lock.generated.json",
-    "agent/state/beta-health-algorithm-v2.generated.json",
-    "agent/state/analytics-semantics-final-lock.generated.json",
-    "agent/state/runtime-watch-time-v2.generated.json",
-    "agent/state/provider-smoke-evidence.generated.json",
-    "agent/state/runtime-smoke-evidence.generated.json",
-    "agent/state/admin-truth-sample-evidence.generated.json",
-    "agent/state/targeted-behavior-evidence.generated.json",
-  ];
+  const artifacts = REFRESH_ARTIFACT_REGISTRY.map((entry) => entry.artifactPath);
   return artifacts.flatMap((artifact) => {
     const parsed = readJson<Record<string, unknown>>(artifact);
     if (!parsed) return [{ artifact, reason: "Artifact is missing." }];
@@ -259,6 +262,24 @@ function collectStaleArtifacts(head: string) {
     }
     return [];
   });
+}
+
+function artifactInput(relativePath: string, head: string): RefreshArtifactInput {
+  const parsed = readJson<Record<string, unknown>>(relativePath);
+  if (!parsed) {
+    return {
+      artifactPath: relativePath,
+      currentCodeVersion: head,
+      exists: false,
+    };
+  }
+  return {
+    artifactPath: relativePath,
+    generatedAtUtc: readString(parsed.generatedAtUtc ?? parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit ?? parsed.currentHead),
+    currentCodeVersion: head,
+    exists: true,
+  };
 }
 
 function buildFromWorkspace() {
@@ -275,6 +296,10 @@ function buildFromWorkspace() {
   const paypal = (provider.paypalRefillSmoke && typeof provider.paypalRefillSmoke === "object" ? provider.paypalRefillSmoke : {}) as Record<string, unknown>;
   const finalCost = readJson<Record<string, unknown>>("agent/state/final-cost-audit-lock.generated.json") ?? {};
   const costSummary = (finalCost.summary && typeof finalCost.summary === "object" ? finalCost.summary : {}) as Record<string, unknown>;
+  const refreshPlan = buildRefreshPlan(REFRESH_ARTIFACT_REGISTRY.map((entry) => artifactInput(entry.artifactPath, head)), {
+    currentCodeVersion: head,
+    nowUtc: new Date().toISOString(),
+  });
 
   const operatorRevenueSmokeNote = "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.";
   const revenueProviderStatus = readString(operatorSummary.revenueSmokeStatus) === "operator_confirmed_revenue_smoke"
@@ -303,7 +328,15 @@ function buildFromWorkspace() {
     speedSecurityStatus: /p2BacklogVisible=true|beta-risk/iu.test(readString(betaSummary.speedSecurityStatus))
       ? "owner_review_required"
       : readString(betaSummary.speedSecurityStatus, "owner_review_required"),
-    staleArtifacts: collectStaleArtifacts(head),
+    staleArtifacts: [
+      ...collectStaleArtifacts(head),
+      ...staleArtifactsFromPlan(refreshPlan).map((entry) => ({
+        artifact: entry.artifactPath,
+        reason: entry.nextAction,
+      })),
+    ],
+    refreshPlan,
+    exactRefreshCommands: uniqueRefreshCommands(refreshPlan),
   });
 }
 
@@ -354,6 +387,12 @@ export function validateBetaEvidenceGapMapReport(report: BetaEvidenceGapMapRepor
   if (report.staleArtifacts.length === 0) {
     failures.push("staleArtifacts must list reports that need refresh or prove none are stale.");
   }
+  if (!Array.isArray(report.refreshPlan) || report.refreshPlan.length === 0) {
+    failures.push("refreshPlan must be present.");
+  }
+  if (!Array.isArray(report.exactRefreshCommands) || !report.exactRefreshCommands.includes("npm run check:source-truth-authority-map")) {
+    failures.push("exactRefreshCommands must include source-truth refresh.");
+  }
   if (report.nextExactSteps.length === 0) failures.push("nextExactSteps must not be empty.");
   return failures;
 }
@@ -390,6 +429,10 @@ function writeDocs(report: BetaEvidenceGapMapReport) {
     "## Stale Artifacts",
     "",
     ...(report.staleArtifacts.length ? report.staleArtifacts.map((entry) => `- ${entry.artifact}: ${entry.reason}`) : ["- None detected."]),
+    "",
+    "## Refresh Plan",
+    "",
+    ...report.refreshPlan.map((entry) => `- ${entry.artifactPath}: ${entry.message} Command: \`${entry.refreshCommand ?? "register a refresh command"}\`.`),
     "",
     "## Next Exact Steps",
     "",

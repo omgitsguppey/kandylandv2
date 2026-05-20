@@ -7,6 +7,12 @@ import {
   validateCurrentBetaExitStatusReport,
   type CurrentBetaExitStatusReport,
 } from "./validate-current-beta-exit-status";
+import {
+  buildRefreshPlan,
+  staleArtifactsFromPlan,
+  uniqueRefreshCommands,
+  type RefreshArtifactInput,
+} from "../../src/lib/agent-score/refresh-safeguards";
 
 export type OvernightBlocker = {
   id: string;
@@ -64,6 +70,33 @@ function readJson(relativePath: string): JsonObject {
   const absolutePath = join(repoRoot, relativePath);
   if (!existsSync(absolutePath)) return {};
   return JSON.parse(readFileSync(absolutePath, "utf8")) as JsonObject;
+}
+
+function readArtifactInput(relativePath: string, head: string, generatedAtUtc: string): RefreshArtifactInput {
+  if (relativePath === currentExitRelativePath) {
+    return {
+      artifactPath: relativePath,
+      generatedAtUtc,
+      sourceCommit: head,
+      currentCodeVersion: head,
+      exists: true,
+    };
+  }
+  const parsed = readJson(relativePath);
+  if (Object.keys(parsed).length === 0) {
+    return {
+      artifactPath: relativePath,
+      currentCodeVersion: head,
+      exists: false,
+    };
+  }
+  return {
+    artifactPath: relativePath,
+    generatedAtUtc: stringAt(parsed, ["generatedAtUtc"], stringAt(parsed, ["generatedAt"], "")) || undefined,
+    sourceCommit: stringAt(parsed, ["sourceCommit"], stringAt(parsed, ["currentHead"], "")) || undefined,
+    currentCodeVersion: head,
+    exists: true,
+  };
 }
 
 function at<T = unknown>(value: unknown, path: string[], fallback: T): T {
@@ -310,6 +343,21 @@ export function validateOvernightBetaReadinessLockReport(
 function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockReport): CurrentBetaExitStatusReport {
   const publicBetaScore = readJson("agent/state/public-beta-score.generated.json");
   const operatorSmoke = operatorRevenueSmokeSummary();
+  const refreshPlan = buildRefreshPlan([
+    currentExitRelativePath,
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/evidence-capture-status.generated.json",
+    "agent/state/beta-evidence-gap-map.generated.json",
+    "agent/state/source-truth-authority-map.generated.json",
+    "agent/state/final-telemetry-closure-lock.generated.json",
+    "agent/state/mobile-ui-final-lock.generated.json",
+    "agent/state/creator-settings-control-plane.generated.json",
+    "agent/state/creator-drop-status-metrics.generated.json",
+    "agent/state/operator-revenue-smoke.generated.json",
+  ].map((artifactPath) => readArtifactInput(artifactPath, report.currentHead, report.generatedAtUtc)), {
+    currentCodeVersion: report.currentHead,
+    nowUtc: report.generatedAtUtc,
+  });
   return {
     generatedAtUtc: report.generatedAtUtc,
     reportKey: "current-beta-exit-status",
@@ -367,6 +415,9 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       { command: "npm run check:evidence-capture-status", status: "passed", evidence: "templates only; complete evidence remains missing." },
       { command: "npm run check:overnight-beta-readiness-lock", status: "passed", evidence: overnightReportRelativePath },
     ],
+    refreshPlan,
+    staleArtifacts: staleArtifactsFromPlan(refreshPlan),
+    exactRefreshCommands: uniqueRefreshCommands(refreshPlan),
     failedChecks: [],
     refreshedArtifacts: [
       overnightReportRelativePath,
@@ -412,6 +463,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
       "Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.",
       "Run npm run check:overnight-beta-readiness-lock after attaching evidence.",
+      ...uniqueRefreshCommands(refreshPlan).map((command) => `Refresh generated status with ${command}.`),
     ],
   };
 }
@@ -495,6 +547,10 @@ Latest code version: ${report.currentHead}
 - Provider smoke can start: ${report.summary.canStartProviderSmoke}
 - Runtime smoke can start: ${report.summary.canStartRuntimeSmoke}
 - Beta exit review can start: ${report.summary.canStartBetaExitReview}
+
+## Refresh Plan
+
+${report.refreshPlan.map((entry) => `- ${entry.artifactPath}: ${entry.message} Command: \`${entry.refreshCommand ?? "register a refresh command"}\`.`).join("\n")}
 
 ## Remaining Blockers
 

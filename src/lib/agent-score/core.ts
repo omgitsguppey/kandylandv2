@@ -234,6 +234,9 @@ export type PublicBetaScoreReport = {
   safeAutofixesApplied: number;
   recommendedNextActions: string[];
   minimalVerificationCommands: string[];
+  refreshPlan?: unknown[];
+  staleArtifacts?: unknown[];
+  exactRefreshCommands?: string[];
   commandBudget: {
     allowedCommands: string[];
     forbiddenCommands: string[];

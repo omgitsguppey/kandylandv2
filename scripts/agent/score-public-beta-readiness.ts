@@ -10,6 +10,13 @@ import {
   PUBLIC_BETA_DOMAIN_WEIGHTS,
   PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS,
 } from "../../src/lib/agent-score/weights";
+import {
+  buildRefreshPlan,
+  staleArtifactsFromPlan,
+  uniqueRefreshCommands,
+  type RefreshArtifactInput,
+} from "../../src/lib/agent-score/refresh-safeguards";
+import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
 import { loadDebugEvidenceForAuditDomains } from "./load-debug-evidence-for-audit";
 import type {
   PublicBetaCostReadiness,
@@ -53,6 +60,35 @@ function readJsonFile(root: string, filePath: string) {
   const fullPath = join(root, filePath);
   if (!existsSync(fullPath)) return null;
   return parseJsonObject(readFileSync(fullPath, "utf8"));
+}
+
+function collectRefreshArtifacts(root: string, currentHead: string, generatedAtUtc: string): RefreshArtifactInput[] {
+  return REFRESH_ARTIFACT_REGISTRY.map((entry) => {
+    if (entry.artifactPath === "agent/state/public-beta-score.generated.json") {
+      return {
+        artifactPath: entry.artifactPath,
+        generatedAtUtc,
+        sourceCommit: currentHead,
+        currentCodeVersion: currentHead,
+        exists: true,
+      };
+    }
+    const parsed = readJsonFile(root, entry.artifactPath);
+    if (!parsed) {
+      return {
+        artifactPath: entry.artifactPath,
+        currentCodeVersion: currentHead,
+        exists: false,
+      };
+    }
+    return {
+      artifactPath: entry.artifactPath,
+      generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+      sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+      currentCodeVersion: currentHead,
+      exists: true,
+    };
+  });
 }
 
 function readRecord(value: unknown): Record<string, unknown> {
@@ -457,14 +493,17 @@ function buildCostReadiness(root: string): PublicBetaCostReadiness {
 }
 
 export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesApplied = 0) {
+  const currentHead = readGitHead(root);
+  const generatedAtUtc = new Date().toISOString();
   const debugEvidence = loadDebugEvidenceForAuditDomains([
     ...Object.keys(PUBLIC_BETA_DOMAIN_WEIGHTS),
     "support",
   ], root, 10);
   const report = buildPublicBetaReadinessReport({
     root,
+    generatedAt: generatedAtUtc,
     safeAutofixesApplied,
-    currentHead: readGitHead(root),
+    currentHead,
     debugEvidence,
     evidence: {
       requiredReports: collectGeneratedReportEvidence(root),
@@ -477,6 +516,13 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       openPrTriageFresh: true,
     },
   });
+  const refreshPlan = buildRefreshPlan(collectRefreshArtifacts(root, currentHead ?? "unknown", generatedAtUtc), {
+    currentCodeVersion: currentHead,
+    nowUtc: generatedAtUtc,
+  });
+  report.refreshPlan = refreshPlan;
+  report.staleArtifacts = staleArtifactsFromPlan(refreshPlan);
+  report.exactRefreshCommands = uniqueRefreshCommands(refreshPlan);
   writePublicBetaScoreReport(report, root);
   return report;
 }

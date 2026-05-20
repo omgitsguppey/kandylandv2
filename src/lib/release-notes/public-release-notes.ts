@@ -1,13 +1,77 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.34",
-  "betaReleaseCounter": 334,
+  "currentVersion": "1.3.35",
+  "betaReleaseCounter": 335,
   "channel": "beta",
-  "generatedAt": "2026-05-20T21:16:38.703Z",
-  "generatedAtUtc": "2026-05-20T21:16:38.703Z",
+  "generatedAt": "2026-05-20T21:38:53.783Z",
+  "generatedAtUtc": "2026-05-20T21:38:53.783Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.35",
+      "previousVersion": "1.3.34",
+      "betaReleaseCounter": 335,
+      "previousBetaReleaseCounter": 334,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): harden refresh safeguards",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T21:38:53.783Z",
+      "generatedAt": "2026-05-20T21:38:53.783Z",
+      "committedAtUtc": "2026-05-20T21:38:53.783Z",
+      "generatedAtUtc": "2026-05-20T21:38:53.783Z",
+      "updatedAtUtc": "2026-05-20T21:38:53.783Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added safeguards for stale beta and evidence reports.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added safeguards for stale beta and evidence reports.",
+        "Mapped generated reports to exact refresh commands.",
+        "Kept freshness messages plain and actionable."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted beta refresh safeguards pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "Evidence capture",
+        "Generated reports"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/refresh-safeguards.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "docs/agent-truth/refresh-safeguards.md",
+        "docs/agent-truth/evidence-capture-status.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-refresh-safeguards.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "scripts/agent/validate-evidence-capture-status.ts",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "src/lib/agent-score/refresh-registry.ts",
+        "src/lib/agent-score/refresh-safeguards.ts",
+        "src/lib/agent-score/freshness-actions.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/refresh-safeguards.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.34",
       "previousVersion": "1.3.33",
@@ -1320,57 +1384,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/server/analytics-identity-linking.ts",
         "tests/unit/identity-transfer-telemetry-closure.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.10",
-      "previousVersion": "1.3.9",
-      "betaReleaseCounter": 310,
-      "previousBetaReleaseCounter": 309,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): harden ingest firestore path",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T21:57:13.630Z",
-      "generatedAt": "2026-05-19T21:57:13.630Z",
-      "committedAtUtc": "2026-05-19T21:57:13.630Z",
-      "generatedAtUtc": "2026-05-19T21:57:13.630Z",
-      "updatedAtUtc": "2026-05-19T21:57:13.630Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Hardened analytics ingest contracts and clarified telemetry Firestore destinations.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Hardened analytics ingest event contracts.",
-        "Clarified Firestore write destinations for telemetry.",
-        "Reduced retry and diagnostic noise for invalid analytics payloads."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted analytics ingest and Firestore write path fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "app reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/analytics-ingest-firestore-closure.generated.json",
-        "docs/agent-truth/analytics-ingest-firestore-closure.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-analytics-ingest-firestore-closure.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/lib/analytics/ingest-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/analytics-ingest-firestore-closure.spec.ts",
-        "tests/unit/analytics-ingest-route.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

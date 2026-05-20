@@ -1,3 +1,5 @@
+import { getRegisteredRefreshCommand } from "./refresh-registry";
+
 export type FreshnessRefreshAction = {
   reportPath: string;
   command: string | null;
@@ -19,6 +21,16 @@ const REFRESH_COMMANDS: Array<[string, string]> = [
 
 export function getRefreshCommandForReport(reportPath: string): FreshnessRefreshAction {
   const normalized = reportPath.replace(/\\/gu, "/");
+  const registered = getRegisteredRefreshCommand(normalized);
+  if (registered) {
+    return {
+      reportPath,
+      command: registered,
+      actionLabel: "Refresh report",
+      actionDetail: `Run ${registered} from the latest code version.`,
+    };
+  }
+
   const match = REFRESH_COMMANDS.find(([name]) => normalized.endsWith(name));
   if (!match) {
     return {

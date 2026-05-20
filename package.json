@@ -79,6 +79,7 @@
         "check:beta-health-algorithm-v2": "tsx scripts/agent/validate-beta-health-algorithm-v2.ts",
         "check:beta-evidence-gap-map": "tsx scripts/agent/validate-beta-evidence-gap-map.ts",
         "check:beta-freshness-language": "tsx scripts/agent/validate-beta-freshness-language.ts",
+        "check:refresh-safeguards": "tsx scripts/agent/validate-refresh-safeguards.ts",
         "check:phase-one-score-ui-triage": "tsx scripts/agent/validate-phase-one-score-ui-triage.ts",
         "check:targeted-behavior-evidence": "tsx scripts/agent/validate-targeted-behavior-evidence.ts",
         "score:hardening": "tsx scripts/agent/score-codebase-hardening.ts",
