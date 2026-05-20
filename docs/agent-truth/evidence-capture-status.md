@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-05-19T18:38:51.893Z
+Generated: 2026-05-20T21:19:25.321Z
 
-Latest code version: `711970501004190b8755fccbb09a4d813e5508e8`
+Latest code version: `2e202554ff3cfd0821fc9d120b689dac3f41e29b`
 
 ## Summary
 
@@ -16,6 +16,11 @@ Latest code version: `711970501004190b8755fccbb09a4d813e5508e8`
 - Complete artifacts: 0.
 - Strict mode ready: yes.
 - Beta exit review can start: no.
+- Operator revenue smoke: `operator_confirmed_revenue_smoke`.
+- Operator confirmed amount/product: 50 GumDrops.
+- Formal provider proof from operator smoke: no.
+
+A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
 
 Templates are scaffolding only. They use `template_not_evidence` and do not count as complete evidence.
 

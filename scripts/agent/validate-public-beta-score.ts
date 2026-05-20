@@ -262,6 +262,7 @@ if (report) {
     failures.push("Empty debugEvidence must be represented as Unknown evidence.");
   }
   const runtimeProviderSmokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+  const operatorRevenueSmokeExists = existsSync(join(root, "agent/state/operator-revenue-smoke.generated.json"));
   if (!runtimeProviderSmokeGate) {
     failures.push("runtimeProviderSmoke gate must be present.");
   } else {
@@ -279,6 +280,14 @@ if (report) {
       && /runtimeArtifactStatus=runtime_unverified/u.test(runtimeProviderEvidence)
     ) {
       failures.push("Runtime smoke gate cannot be Ready when runtime artifact is runtime_unverified.");
+    }
+    if (operatorRevenueSmokeExists) {
+      requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke", "runtimeProviderSmoke evidence");
+      requireIncludes(runtimeProviderEvidence, "operatorRevenueSmoke.formalProviderSmokePassed=false", "runtimeProviderSmoke evidence");
+      requireIncludes(runtimeProviderSmokeGate.detail, "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.", "runtimeProviderSmoke detail");
+      if (runtimeProviderSmokeGate.status === "Ready") {
+        failures.push("Operator-confirmed revenue smoke must not make runtimeProviderSmoke Ready.");
+      }
     }
   }
   const adminTruthSamplesGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
@@ -334,6 +343,7 @@ const auditLedger = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 
 for (const expected of [
   "agent/state/provider-smoke-evidence.generated.json",
+  "agent/state/operator-revenue-smoke.generated.json",
   "agent/state/runtime-smoke-evidence.generated.json",
   "agent/state/admin-truth-sample-evidence.generated.json",
   "agent/state/targeted-behavior-evidence.generated.json",

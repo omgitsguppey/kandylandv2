@@ -22,6 +22,7 @@ function reportFixture(overrides: Partial<BetaEvidenceGapMapReport> = {}): BetaE
     },
     runtimeWatchStatus: "source_ready_runtime_watch_v2_runtime_proof_required",
     revenueProviderStatus: "operator_reported_unattached",
+    operatorRevenueSmokeNote: "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
     finalCostStatus: "owner_review_required",
     speedSecurityStatus: "owner_review_required",
     staleArtifacts: [
@@ -92,7 +93,7 @@ describe("beta evidence gap map", () => {
     const revenueLane = report.evidenceLanes.find((lane) => lane.id === "revenue_provider_smoke");
 
     expect(revenueLane?.status).toBe("operator_reported_unattached");
-    expect(revenueLane?.launchImpact).toContain("not formal evidence");
+    expect(revenueLane?.launchImpact).toContain("must not be treated as passed formal provider evidence");
     expect(validateBetaEvidenceGapMapReport(report, "head")).toEqual([]);
   });
 

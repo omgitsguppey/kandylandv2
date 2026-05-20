@@ -1,16 +1,18 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-20T06:30:09.874Z
+Generated: 2026-05-20T21:21:05.224Z
 
-Latest code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
+Latest code version: 2e202554ff3cfd0821fc9d120b689dac3f41e29b
 
 ## Summary
 
-- Beta version: 1.3.31
+- Beta version: 1.3.34
 - Beta score: 41.92
 - Beta status: Stale evidence
 - Visual evidence: source_only_screenshotEvidenceAttached_false
 - Provider smoke: missing_formal_evidence
+- Operator revenue smoke: operator_confirmed_revenue_smoke
+- Operator revenue note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
 - Runtime smoke: runtime_unverified
 - Admin truth sample: missing_or_unknown
 - Cloud Run cost readiness: cost_review_required
@@ -42,6 +44,7 @@ Latest code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 - Manual route/flow checklist: /, /drops, /drops/[id]/preview locked state, /dashboard, /dashboard/creator, /dashboard/profile, /dashboard/settings, /dashboard/library, /dashboard/chat shell only, /creators/[username], wallet / GumDrop purchase modal, creator profile Fan Pass, creator profile requests, creator profile booking slots, creator owner profile mode, Beta release notes drawer, mobile nav/sidebar/profile dropdown.
 - Manual artifact needed: copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated non-template JSON, set status complete only with real screenshots, and place screenshots under agent/evidence/manual-screenshot-qa/screenshots/.
 - Second lane after manual screenshots: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.
+- Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
 - Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.
 - Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.
 - Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.

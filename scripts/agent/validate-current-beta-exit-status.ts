@@ -34,6 +34,14 @@ export type CurrentBetaExitStatusReport = {
     economyP1: number;
     visualEvidenceStatus: string;
     providerSmokeStatus: string;
+    operatorRevenueSmokeStatus: string;
+    operatorRevenueSmokeAmountUsd: number | null;
+    operatorRevenueSmokeProduct: string;
+    operatorRevenueSmokeConfirmationSource: string;
+    operatorRevenueSmokeProviderArtifactAttached: boolean;
+    operatorRevenueSmokeFormalProviderSmokePassed: boolean;
+    operatorRevenueSmokeBetaGateImpact: string;
+    operatorRevenueSmokeNote: string;
     runtimeSmokeStatus: string;
     adminTruthSampleStatus: string;
     cloudRunCostReadiness: string;
@@ -78,6 +86,7 @@ const requiredRepresentedChecks = [
   "npm run check:gumdrop-economy-accuracy",
   "npm run check:creator-experience-simplification",
   "npm run check:post-economy-creator-flow-qa",
+  "npm run check:operator-revenue-smoke",
   "npm run check:release-notes",
 ] as const;
 
@@ -90,6 +99,8 @@ const requiredChecklistRefs = [
 
 const evidenceCaptureStatusRelativePath = "agent/state/evidence-capture-status.generated.json";
 const evidenceCaptureStatusPath = join(repoRoot, evidenceCaptureStatusRelativePath);
+const operatorRevenueSmokeRelativePath = "agent/state/operator-revenue-smoke.generated.json";
+const operatorRevenueSmokePath = join(repoRoot, operatorRevenueSmokeRelativePath);
 
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -121,6 +132,23 @@ function readEvidenceCaptureStatus() {
       adminTruthSampleEvidence?: string;
       canStartBetaExitReview?: boolean;
     };
+  };
+}
+
+function readOperatorRevenueSmoke() {
+  if (!existsSync(operatorRevenueSmokePath)) return null;
+  return JSON.parse(readFileSync(operatorRevenueSmokePath, "utf8")) as {
+    summary?: {
+      revenueSmokeStatus?: string;
+      amountUsdConfirmed?: number;
+      product?: string;
+      confirmationSource?: string;
+      providerArtifactAttached?: boolean;
+      formalProviderSmokePassed?: boolean;
+      betaGateImpact?: string;
+      canStartBetaExitReview?: boolean;
+    };
+    plainLanguageNote?: string;
   };
 }
 
@@ -195,6 +223,42 @@ export function validateCurrentBetaExitStatusReport(
   const visualMissing = evidenceMissing(report.summary.visualEvidenceStatus);
   const providerMissing = evidenceMissing(report.summary.providerSmokeStatus);
   const runtimeMissing = evidenceMissing(report.summary.runtimeSmokeStatus);
+  const operatorRevenueSmoke = readOperatorRevenueSmoke();
+  if (operatorRevenueSmoke) {
+    const summary = operatorRevenueSmoke.summary ?? {};
+    if (report.summary.operatorRevenueSmokeStatus !== "operator_confirmed_revenue_smoke") {
+      failures.push("operator-confirmed revenue smoke must be represented in current beta exit status.");
+    }
+    if (report.summary.operatorRevenueSmokeAmountUsd !== 50 || report.summary.operatorRevenueSmokeProduct !== "GumDrops") {
+      failures.push("operator-confirmed revenue smoke amount/product must be represented.");
+    }
+    if (report.summary.operatorRevenueSmokeConfirmationSource !== "operator_confirmed") {
+      failures.push("operator-confirmed revenue smoke source must be represented.");
+    }
+    if (
+      report.summary.operatorRevenueSmokeProviderArtifactAttached
+      || report.summary.operatorRevenueSmokeFormalProviderSmokePassed
+      || summary.providerArtifactAttached
+      || summary.formalProviderSmokePassed
+    ) {
+      failures.push("operator-confirmed revenue smoke must not clear formal provider evidence.");
+    }
+    if (report.summary.operatorRevenueSmokeBetaGateImpact !== "product_signal_only") {
+      failures.push("operator-confirmed revenue smoke betaGateImpact must be product_signal_only.");
+    }
+    if (
+      report.summary.operatorRevenueSmokeNote
+      !== "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate."
+    ) {
+      failures.push("operator-confirmed revenue smoke note must separate product signal from formal provider evidence.");
+    }
+    if (report.summary.providerSmokeStatus !== "missing_formal_evidence") {
+      failures.push("provider smoke gate must remain missing_formal_evidence after operator confirmation.");
+    }
+    if (summary.canStartBetaExitReview === true || report.summary.canStartBetaExitReview) {
+      failures.push("operator-confirmed revenue smoke alone must not mark beta exit ready.");
+    }
+  }
 
   if ((visualMissing || providerMissing || runtimeMissing) && report.summary.canStartBetaExitReview) {
     failures.push("canStartBetaExitReview must be false while visual/provider/runtime evidence is missing.");

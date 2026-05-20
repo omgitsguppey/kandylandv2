@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-20T06:29:08.941Z",
-  "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
+  "generatedAt": "2026-05-20T21:19:32.796Z",
+  "currentHead": "2e202554ff3cfd0821fc9d120b689dac3f41e29b",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
@@ -140,7 +140,7 @@
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
-      "partialReason": "Evidence is 136.29h old and outside the 24h freshness window.",
+      "partialReason": "Evidence is 151.13h old and outside the 24h freshness window.",
       "status": "Ready",
       "detail": "Focused Phase 1 validators passed from the latest code version. This is targeted behavior evidence only and does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "evidence": [
@@ -201,9 +201,9 @@
       "capImpact": 15,
       "gateRequiredForExit": true,
       "blocksLaunch": true,
-      "partialReason": "Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+      "partialReason": "Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "status": "Runtime unverified",
-      "detail": "Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+      "detail": "Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "evidence": [
         "providerArtifactStatus=missing_formal_evidence",
         "runtimeArtifactStatus=runtime_unverified",
@@ -212,10 +212,14 @@
         "artifactPassed=false",
         "generatedAtUtc=2026-05-14T02:00:00.000Z",
         "sourceCommit=4958214e1e6ed79d3be73853dc7ba896524068eb",
-        "artifactDetail=Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness.",
+        "artifactDetail=A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness.",
         "providerSmoke.status=missing_formal_evidence",
         "providerSmoke.passed=false",
         "readinessImpact.providerSmokeGatePassed=false",
+        "operatorRevenueSmoke.status=operator_confirmed_revenue_smoke",
+        "operatorRevenueSmoke.amountUsdConfirmed=50",
+        "operatorRevenueSmoke.formalProviderSmokePassed=false",
+        "operatorRevenueSmoke.note=A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
         "paypalRefillSmoke.status=operator_reported_not_formal_provider_smoke",
         "paypalRefillSmoke.note=Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached.",
         "paypalRefillSmoke.formalRepoArtifactAttached=false",
@@ -283,9 +287,9 @@
       "status": "Stale evidence",
       "detail": "3 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/post-economy-creator-flow-qa.generated.json (71.99h old)",
-        "agent/state/user-facing-feature-connection-audit.generated.json (72.01h old)",
-        "agent/state/creator-dashboard-error-cost-inventory.generated.json (72.02h old)"
+        "agent/state/post-economy-creator-flow-qa.generated.json (86.83h old)",
+        "agent/state/user-facing-feature-connection-audit.generated.json (86.84h old)",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json (86.86h old)"
       ],
       "recommendedAction": "Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current."
     },
@@ -321,7 +325,7 @@
   ],
   "evidenceCapDetails": [
     "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
-    "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+    "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
     "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
     "Stale evidence: Report freshness and PR integrity - 3 required generated report(s) are older than the freshness window.",
     "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
@@ -339,7 +343,7 @@
     "evidenceScoreMeaning": "Evidence score 31.5/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 41.92/100 currently maps to launch gate owner_review.",
     "missingEvidenceCaps": [
       "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
-      "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+      "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
       "Stale evidence: Report freshness and PR integrity - 3 required generated report(s) are older than the freshness window.",
       "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."

@@ -17,6 +17,16 @@ type EvidenceLaneStatuses = {
   adminTruthSampleEvidence: EvidenceStatus;
 };
 
+type OperatorRevenueSmokeSummary = {
+  revenueSmokeStatus: "operator_confirmed_revenue_smoke" | "not_recorded";
+  amountUsdConfirmed: number | null;
+  product: "GumDrops" | "unknown";
+  confirmationSource: "operator_confirmed" | "unknown";
+  providerArtifactAttached: boolean;
+  formalProviderSmokePassed: boolean;
+  betaGateImpact: "product_signal_only" | "none";
+};
+
 type BuildOptions = {
   currentHead: string;
   generatedAtUtc: string;
@@ -24,6 +34,7 @@ type BuildOptions = {
   templatesCreated: number;
   completeArtifacts: number;
   currentBetaExitCanStart: boolean;
+  operatorRevenueSmoke?: OperatorRevenueSmokeSummary;
 };
 
 export type EvidenceCaptureStatusReport = {
@@ -35,6 +46,7 @@ export type EvidenceCaptureStatusReport = {
     completeArtifacts: number;
     strictModeReady: boolean;
     canStartBetaExitReview: boolean;
+    operatorRevenueSmoke: OperatorRevenueSmokeSummary;
   };
   evidenceFolders: Array<{
     lane: keyof EvidenceLaneStatuses;
@@ -55,6 +67,7 @@ const reportPath = join(repoRoot, reportRelativePath);
 const docsRelativePath = "docs/agent-truth/evidence-capture-status.md";
 const docsPath = join(repoRoot, docsRelativePath);
 const currentBetaExitPath = join(repoRoot, "agent/state/current-beta-exit-status.generated.json");
+const operatorRevenueSmokePath = join(repoRoot, "agent/state/operator-revenue-smoke.generated.json");
 
 const laneLabels: Record<keyof EvidenceLaneStatuses, string> = {
   manualScreenshotEvidence: "manual screenshot evidence",
@@ -77,6 +90,37 @@ function allLanesComplete(laneStatuses: EvidenceLaneStatuses) {
   return Object.values(laneStatuses).every((status) => status === "complete");
 }
 
+function defaultOperatorRevenueSmoke(): OperatorRevenueSmokeSummary {
+  return {
+    revenueSmokeStatus: "not_recorded",
+    amountUsdConfirmed: null,
+    product: "unknown",
+    confirmationSource: "unknown",
+    providerArtifactAttached: false,
+    formalProviderSmokePassed: false,
+    betaGateImpact: "none",
+  };
+}
+
+function readOperatorRevenueSmoke(): OperatorRevenueSmokeSummary {
+  if (!existsSync(operatorRevenueSmokePath)) return defaultOperatorRevenueSmoke();
+  const report = JSON.parse(readFileSync(operatorRevenueSmokePath, "utf8")) as {
+    summary?: Partial<OperatorRevenueSmokeSummary>;
+  };
+  const summary = report.summary ?? {};
+  return {
+    revenueSmokeStatus: summary.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
+      ? "operator_confirmed_revenue_smoke"
+      : "not_recorded",
+    amountUsdConfirmed: typeof summary.amountUsdConfirmed === "number" ? summary.amountUsdConfirmed : null,
+    product: summary.product === "GumDrops" ? "GumDrops" : "unknown",
+    confirmationSource: summary.confirmationSource === "operator_confirmed" ? "operator_confirmed" : "unknown",
+    providerArtifactAttached: summary.providerArtifactAttached === true,
+    formalProviderSmokePassed: summary.formalProviderSmokePassed === true,
+    betaGateImpact: summary.betaGateImpact === "product_signal_only" ? "product_signal_only" : "none",
+  };
+}
+
 export function buildEvidenceCaptureStatusReport(options: BuildOptions): EvidenceCaptureStatusReport {
   const canStartBetaExitReview = allLanesComplete(options.laneStatuses) && options.currentBetaExitCanStart;
   const missingEvidence = (Object.entries(options.laneStatuses) as Array<[keyof EvidenceLaneStatuses, EvidenceStatus]>)
@@ -96,6 +140,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
       completeArtifacts: options.completeArtifacts,
       strictModeReady: true,
       canStartBetaExitReview,
+      operatorRevenueSmoke: options.operatorRevenueSmoke ?? defaultOperatorRevenueSmoke(),
     },
     evidenceFolders: [
       {
@@ -174,6 +219,18 @@ export function validateEvidenceCaptureStatusReport(
   if (!lanesComplete && report.missingEvidence.length === 0) {
     failures.push("missingEvidence must not be empty while evidence lanes are missing or incomplete.");
   }
+  const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;
+  if (operatorRevenueSmoke?.revenueSmokeStatus === "operator_confirmed_revenue_smoke") {
+    if (operatorRevenueSmoke.amountUsdConfirmed !== 50 || operatorRevenueSmoke.product !== "GumDrops") {
+      failures.push("operator-confirmed revenue smoke must keep amount/product fields.");
+    }
+    if (operatorRevenueSmoke.formalProviderSmokePassed || operatorRevenueSmoke.providerArtifactAttached) {
+      failures.push("operator-confirmed revenue smoke must not clear formal provider evidence.");
+    }
+    if (operatorRevenueSmoke.betaGateImpact !== "product_signal_only") {
+      failures.push("operator-confirmed revenue smoke must be product_signal_only.");
+    }
+  }
   if ((report.nextExactSteps?.length ?? 0) === 0) {
     failures.push("nextExactSteps must not be empty.");
   }
@@ -215,6 +272,7 @@ function buildFromWorkspace() {
     templatesCreated,
     completeArtifacts,
     currentBetaExitCanStart: readCurrentBetaExitCanStart(),
+    operatorRevenueSmoke: readOperatorRevenueSmoke(),
   });
 }
 
@@ -238,6 +296,13 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     `- Complete artifacts: ${report.summary.completeArtifacts}.`,
     `- Strict mode ready: ${report.summary.strictModeReady ? "yes" : "no"}.`,
     `- Beta exit review can start: ${report.summary.canStartBetaExitReview ? "yes" : "no"}.`,
+    `- Operator revenue smoke: \`${report.summary.operatorRevenueSmoke.revenueSmokeStatus}\`.`,
+    `- Operator confirmed amount/product: ${report.summary.operatorRevenueSmoke.amountUsdConfirmed ?? "n/a"} ${report.summary.operatorRevenueSmoke.product}.`,
+    `- Formal provider proof from operator smoke: ${report.summary.operatorRevenueSmoke.formalProviderSmokePassed ? "yes" : "no"}.`,
+    "",
+    report.summary.operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
+      ? "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate."
+      : "No operator-confirmed revenue smoke artifact is recorded.",
     "",
     "Templates are scaffolding only. They use `template_not_evidence` and do not count as complete evidence.",
     "",

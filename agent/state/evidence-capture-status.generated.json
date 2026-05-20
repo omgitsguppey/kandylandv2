@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T18:38:51.893Z",
+  "generatedAtUtc": "2026-05-20T21:19:25.321Z",
   "reportKey": "evidence-capture-status",
-  "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
+  "currentHead": "2e202554ff3cfd0821fc9d120b689dac3f41e29b",
   "summary": {
     "manualScreenshotEvidence": "missing",
     "providerSmokeEvidence": "missing",
@@ -10,7 +10,16 @@
     "templatesCreated": 4,
     "completeArtifacts": 0,
     "strictModeReady": true,
-    "canStartBetaExitReview": false
+    "canStartBetaExitReview": false,
+    "operatorRevenueSmoke": {
+      "revenueSmokeStatus": "operator_confirmed_revenue_smoke",
+      "amountUsdConfirmed": 50,
+      "product": "GumDrops",
+      "confirmationSource": "operator_confirmed",
+      "providerArtifactAttached": false,
+      "formalProviderSmokePassed": false,
+      "betaGateImpact": "product_signal_only"
+    }
   },
   "evidenceFolders": [
     {

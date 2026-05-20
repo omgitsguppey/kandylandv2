@@ -50,6 +50,7 @@ type BuildInput = {
   evidenceCapture: EvidenceCaptureInput;
   runtimeWatchStatus: string;
   revenueProviderStatus: string;
+  operatorRevenueSmokeNote: string;
   finalCostStatus: string;
   speedSecurityStatus: string;
   staleArtifacts: Array<{ artifact: string; reason: string }>;
@@ -89,7 +90,7 @@ function lane(input: BetaEvidenceGapLane): BetaEvidenceGapLane {
 }
 
 function missingWhen(status: string, filePath: string) {
-  return /missing|unverified|unknown|operator_reported|owner_review|source_ready/iu.test(status) ? [filePath] : [];
+  return /missing|unverified|unknown|operator_(reported|confirmed)|owner_review|source_ready/iu.test(status) ? [filePath] : [];
 }
 
 export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGapMapReport {
@@ -171,8 +172,8 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       exactTemplate: "agent/evidence/provider-smoke/evidence.template.json",
       exactCheckCommand: "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
       scoreImpact: "Could raise provider and payment confidence after formal redacted revenue proof is attached.",
-      launchImpact: "Operator-reported revenue is not formal evidence and must not be treated as passed.",
-      nextAction: "Attach redacted proof for the reported $50 payment/revenue event under provider smoke evidence.",
+      launchImpact: `${input.operatorRevenueSmokeNote} Operator-confirmed revenue is product signal only and must not be treated as passed formal provider evidence.`,
+      nextAction: "Optional: attach redacted formal proof for the $50 GumDrop payment under provider smoke evidence if the operator chooses.",
     }),
     lane({
       id: "final_cost_owner_review",
@@ -222,13 +223,14 @@ export function buildBetaEvidenceGapMapReport(input: BuildInput): BetaEvidenceGa
       .map((entry) => entry.id),
     staleArtifacts: input.staleArtifacts,
     nextExactSteps: [
-      "1. Attach provider/revenue smoke evidence if the reported $50 payment can be redacted and stored under agent/evidence/provider-smoke/.",
-      "2. Attach manual screenshot QA evidence for the already-tested user and creator surfaces under agent/evidence/manual-screenshot-qa/.",
-      "3. Attach deployed runtime smoke evidence for route loading and critical flows under agent/evidence/runtime-smoke/.",
-      "4. Attach a fresh redacted admin truth sample under agent/evidence/admin-truth-sample/.",
-      "5. Attach deployed runtime watch-time v2 playback proof under runtime smoke evidence.",
-      "6. Attach owner-reviewed Cloud SQL/Gemini/cost console evidence without treating source-only inventory as pass.",
-      "7. Keep speed/security P2 backlog visible for owner review.",
+      `1. ${input.operatorRevenueSmokeNote}`,
+      "2. Optional formal provider/app artifact for the $50 GumDrop payment can be stored under agent/evidence/provider-smoke/; it is not required for acknowledging the sale.",
+      "3. Attach manual screenshot QA evidence for the already-tested user and creator surfaces under agent/evidence/manual-screenshot-qa/.",
+      "4. Attach deployed runtime smoke evidence for route loading and critical flows under agent/evidence/runtime-smoke/.",
+      "5. Attach a fresh redacted admin truth sample under agent/evidence/admin-truth-sample/.",
+      "6. Attach deployed runtime watch-time v2 playback proof under runtime smoke evidence.",
+      "7. Attach owner-reviewed Cloud SQL/Gemini/cost console evidence without treating source-only inventory as pass.",
+      "8. Keep speed/security P2 backlog visible for owner review.",
     ],
   };
 }
@@ -268,11 +270,16 @@ function buildFromWorkspace() {
   const evidenceSummary = (evidence.summary && typeof evidence.summary === "object" ? evidence.summary : {}) as Record<string, unknown>;
   const runtimeWatch = readJson<Record<string, unknown>>("agent/state/runtime-watch-time-v2.generated.json") ?? {};
   const provider = readJson<Record<string, unknown>>("agent/state/provider-smoke-evidence.generated.json") ?? {};
+  const operatorSmoke = readJson<Record<string, unknown>>("agent/state/operator-revenue-smoke.generated.json") ?? {};
+  const operatorSummary = (operatorSmoke.summary && typeof operatorSmoke.summary === "object" ? operatorSmoke.summary : {}) as Record<string, unknown>;
   const paypal = (provider.paypalRefillSmoke && typeof provider.paypalRefillSmoke === "object" ? provider.paypalRefillSmoke : {}) as Record<string, unknown>;
   const finalCost = readJson<Record<string, unknown>>("agent/state/final-cost-audit-lock.generated.json") ?? {};
   const costSummary = (finalCost.summary && typeof finalCost.summary === "object" ? finalCost.summary : {}) as Record<string, unknown>;
 
-  const revenueProviderStatus = readString(paypal.status) === "operator_reported_not_formal_provider_smoke"
+  const operatorRevenueSmokeNote = "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.";
+  const revenueProviderStatus = readString(operatorSummary.revenueSmokeStatus) === "operator_confirmed_revenue_smoke"
+    ? "operator_confirmed_revenue_smoke"
+    : readString(paypal.status) === "operator_reported_not_formal_provider_smoke"
     ? "operator_reported_unattached"
     : readString(paypal.status, "missing_formal_evidence");
 
@@ -291,6 +298,7 @@ function buildFromWorkspace() {
     },
     runtimeWatchStatus: readString(runtimeWatch.runtimeWatchTimeStatus ?? (runtimeWatch.summary as Record<string, unknown> | undefined)?.integrationStatus, "source_ready_runtime_proof_required"),
     revenueProviderStatus,
+    operatorRevenueSmokeNote,
     finalCostStatus: readString(costSummary.cloudSqlCostReadiness, "owner_review_required"),
     speedSecurityStatus: /p2BacklogVisible=true|beta-risk/iu.test(readString(betaSummary.speedSecurityStatus))
       ? "owner_review_required"
@@ -328,13 +336,16 @@ export function validateBetaEvidenceGapMapReport(report: BetaEvidenceGapMapRepor
   const revenue = laneMap.get("revenue_provider_smoke");
   if (
     revenue
-    && /operator_reported/iu.test(revenue.status)
+    && /operator_(reported|confirmed)/iu.test(revenue.status)
     && /\b(formal_provider_smoke_passed|formal_revenue_smoke_passed|passed_formal_evidence)\b/iu.test(`${revenue.status} ${revenue.launchImpact}`)
   ) {
-    failures.push("operator-reported revenue must not be treated as formal evidence.");
+    failures.push("operator revenue smoke must not be treated as formal evidence.");
   }
-  if (report.canStartBetaExitReview && report.evidenceLanes.some((entry) => entry.requiredForExit && /missing|unverified|unknown|operator_reported|source_ready|runtime_proof_required/iu.test(entry.status))) {
+  if (report.canStartBetaExitReview && report.evidenceLanes.some((entry) => entry.requiredForExit && /missing|unverified|unknown|operator_(reported|confirmed)|source_ready|runtime_proof_required/iu.test(entry.status))) {
     failures.push("canStartBetaExitReview must remain false while required evidence lanes are missing.");
+  }
+  if (revenue?.status === "operator_confirmed_revenue_smoke" && !revenue.launchImpact.includes("A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.")) {
+    failures.push("operator-confirmed revenue smoke must include the plain-language separation note.");
   }
   const watch = laneMap.get("runtime_watch_time_v2_deployed_proof");
   if (watch && /source_ready/iu.test(watch.status) && !report.runtimeProofMissingLanes.includes("runtime_watch_time_v2_deployed_proof")) {

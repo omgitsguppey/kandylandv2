@@ -1,0 +1,38 @@
+{
+  "generatedAtUtc": "2026-05-20T21:19:18.029Z",
+  "reportKey": "operator-revenue-smoke",
+  "currentHead": "2e202554ff3cfd0821fc9d120b689dac3f41e29b",
+  "summary": {
+    "revenueSmokeStatus": "operator_confirmed_revenue_smoke",
+    "amountUsdConfirmed": 50,
+    "product": "GumDrops",
+    "confirmationSource": "operator_confirmed",
+    "providerArtifactAttached": false,
+    "formalProviderSmokePassed": false,
+    "providerSmokeGateStatus": "missing_formal_evidence",
+    "betaGateImpact": "product_signal_only",
+    "canStartBetaExitReview": false,
+    "nextAction": "Optional formal provider/app artifact if operator chooses; not required for acknowledging the sale."
+  },
+  "plainLanguageNote": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+  "evidenceSeparation": {
+    "acknowledgedAsRealProductSignal": true,
+    "formalProviderEvidenceRequiredForGate": true,
+    "providerScreenshotsDemanded": false,
+    "productionReadsPerformed": false,
+    "providerCallsPerformed": false,
+    "runtimePaymentChanged": false
+  },
+  "integrationTargets": [
+    "agent/state/current-beta-exit-status.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/beta-evidence-gap-map.generated.json",
+    "agent/state/evidence-capture-status.generated.json"
+  ],
+  "nextExactSteps": [
+    "Keep revenue smoke classified as operator_confirmed_revenue_smoke.",
+    "Keep provider smoke gate classified as missing_formal_evidence until a formal artifact exists.",
+    "Do not mark beta exit ready from operator confirmation alone.",
+    "If desired later, attach redacted formal provider/app evidence under agent/evidence/provider-smoke/."
+  ]
+}

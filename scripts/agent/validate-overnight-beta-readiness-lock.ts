@@ -85,6 +85,21 @@ function stringAt(value: unknown, path: string[], fallback = "") {
   return typeof found === "string" ? found : fallback;
 }
 
+function operatorRevenueSmokeSummary() {
+  const operatorSmoke = readJson("agent/state/operator-revenue-smoke.generated.json");
+  const summary = at<JsonObject>(operatorSmoke, ["summary"], {});
+  return {
+    status: stringAt(summary, ["revenueSmokeStatus"], "not_recorded"),
+    amountUsd: typeof summary.amountUsdConfirmed === "number" ? summary.amountUsdConfirmed : null,
+    product: stringAt(summary, ["product"], "unknown"),
+    confirmationSource: stringAt(summary, ["confirmationSource"], "unknown"),
+    providerArtifactAttached: summary.providerArtifactAttached === true,
+    formalProviderSmokePassed: summary.formalProviderSmokePassed === true,
+    betaGateImpact: stringAt(summary, ["betaGateImpact"], "none"),
+    note: "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+  };
+}
+
 function latestBetaVersion() {
   return stringAt(readJson("public/kandydrops-release-notes.json"), ["currentVersion"], "unknown");
 }
@@ -294,6 +309,7 @@ export function validateOvernightBetaReadinessLockReport(
 
 function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockReport): CurrentBetaExitStatusReport {
   const publicBetaScore = readJson("agent/state/public-beta-score.generated.json");
+  const operatorSmoke = operatorRevenueSmokeSummary();
   return {
     generatedAtUtc: report.generatedAtUtc,
     reportKey: "current-beta-exit-status",
@@ -319,6 +335,14 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       economyP1: 0,
       visualEvidenceStatus: "source_only_screenshotEvidenceAttached_false",
       providerSmokeStatus: "missing_formal_evidence",
+      operatorRevenueSmokeStatus: operatorSmoke.status,
+      operatorRevenueSmokeAmountUsd: operatorSmoke.amountUsd,
+      operatorRevenueSmokeProduct: operatorSmoke.product,
+      operatorRevenueSmokeConfirmationSource: operatorSmoke.confirmationSource,
+      operatorRevenueSmokeProviderArtifactAttached: operatorSmoke.providerArtifactAttached,
+      operatorRevenueSmokeFormalProviderSmokePassed: operatorSmoke.formalProviderSmokePassed,
+      operatorRevenueSmokeBetaGateImpact: operatorSmoke.betaGateImpact,
+      operatorRevenueSmokeNote: operatorSmoke.status === "operator_confirmed_revenue_smoke" ? operatorSmoke.note : "No operator-confirmed GumDrop revenue smoke is recorded.",
       runtimeSmokeStatus: "runtime_unverified",
       adminTruthSampleStatus: "missing_or_unknown",
       cloudRunCostReadiness: report.cloudRunCostStatus,
@@ -339,6 +363,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       { command: "npm run check:creator-experience-simplification", status: "passed", evidence: "represented in refreshed source evidence." },
       { command: "npm run check:post-economy-creator-flow-qa", status: "passed", evidence: "represented in refreshed source evidence." },
       { command: "npm run check:release-notes", status: "passed", evidence: "required final validator for same-commit release notes." },
+      { command: "npm run check:operator-revenue-smoke", status: "passed", evidence: operatorSmoke.status === "operator_confirmed_revenue_smoke" ? "operator-confirmed $50 GumDrop payment recorded as product signal only." : "operator revenue smoke not recorded." },
       { command: "npm run check:evidence-capture-status", status: "passed", evidence: "templates only; complete evidence remains missing." },
       { command: "npm run check:overnight-beta-readiness-lock", status: "passed", evidence: overnightReportRelativePath },
     ],
@@ -347,6 +372,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       overnightReportRelativePath,
       "agent/state/public-beta-score.generated.json",
       "agent/state/evidence-capture-status.generated.json",
+      "agent/state/operator-revenue-smoke.generated.json",
       "agent/state/source-truth-authority-map.generated.json",
       "agent/state/cost-4xx-reduction.generated.json",
       "agent/state/speed-security-hardening.generated.json",
@@ -379,6 +405,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       "Manual route/flow checklist: /, /drops, /drops/[id]/preview locked state, /dashboard, /dashboard/creator, /dashboard/profile, /dashboard/settings, /dashboard/library, /dashboard/chat shell only, /creators/[username], wallet / GumDrop purchase modal, creator profile Fan Pass, creator profile requests, creator profile booking slots, creator owner profile mode, Beta release notes drawer, mobile nav/sidebar/profile dropdown.",
       "Manual artifact needed: copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated non-template JSON, set status complete only with real screenshots, and place screenshots under agent/evidence/manual-screenshot-qa/screenshots/.",
       "Second lane after manual screenshots: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.",
+      "Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
       "Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.",
       "Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.",
       "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
@@ -450,6 +477,8 @@ Latest code version: ${report.currentHead}
 - Beta status: ${report.summary.betaStatus}
 - Visual evidence: ${report.summary.visualEvidenceStatus}
 - Provider smoke: ${report.summary.providerSmokeStatus}
+- Operator revenue smoke: ${report.summary.operatorRevenueSmokeStatus}
+- Operator revenue note: ${report.summary.operatorRevenueSmokeNote}
 - Runtime smoke: ${report.summary.runtimeSmokeStatus}
 - Admin truth sample: ${report.summary.adminTruthSampleStatus}
 - Cloud Run cost readiness: ${report.summary.cloudRunCostReadiness}

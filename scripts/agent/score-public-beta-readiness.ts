@@ -28,6 +28,7 @@ const REQUIRED_EVIDENCE_REPORTS = [
 ] as const;
 
 const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.generated.json";
+const OPERATOR_REVENUE_SMOKE_PATH = "agent/state/operator-revenue-smoke.generated.json";
 const RUNTIME_SMOKE_EVIDENCE_PATH = "agent/state/runtime-smoke-evidence.generated.json";
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
@@ -171,13 +172,29 @@ function collectGeneratedReportEvidence(root: string, now = Date.now()): PublicB
 
 function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   const parsed = readJsonFile(root, PROVIDER_SMOKE_EVIDENCE_PATH);
+  const operatorSmoke = readJsonFile(root, OPERATOR_REVENUE_SMOKE_PATH);
+  const operatorSummary = readRecord(operatorSmoke?.summary);
+  const operatorSmokeStatus = readString(operatorSummary.revenueSmokeStatus);
+  const operatorSmokeNote = operatorSmokeStatus === "operator_confirmed_revenue_smoke"
+    ? "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate."
+    : undefined;
   if (!parsed) {
-    return readEvidenceArtifact(
+    const artifact = readEvidenceArtifact(
       root,
       PROVIDER_SMOKE_EVIDENCE_PATH,
       "missing_formal_evidence",
       "No formal provider smoke evidence artifact was supplied.",
     );
+    if (operatorSmokeNote) {
+      artifact.detail = `${operatorSmokeNote} ${artifact.detail}`;
+      artifact.evidence.push(
+        `operatorRevenueSmoke.status=${operatorSmokeStatus}`,
+        "operatorRevenueSmoke.amountUsdConfirmed=50",
+        "operatorRevenueSmoke.formalProviderSmokePassed=false",
+        `operatorRevenueSmoke.note=${operatorSmokeNote}`,
+      );
+    }
+    return artifact;
   }
 
   const providerSmoke = readRecord(parsed.providerSmoke);
@@ -200,6 +217,7 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
     status,
     passed,
     detail: [
+      operatorSmokeNote,
       passed ? "Formal provider smoke evidence passed." : "Formal provider smoke evidence is missing.",
       paypalNote,
       providerRecommendedAction,
@@ -209,6 +227,14 @@ function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
       `providerSmoke.status=${providerStatus}`,
       `providerSmoke.passed=${readBoolean(providerSmoke.passed) === true}`,
       `readinessImpact.providerSmokeGatePassed=${readBoolean(readinessImpact.providerSmokeGatePassed) === true}`,
+      ...(operatorSmokeNote
+        ? [
+          `operatorRevenueSmoke.status=${operatorSmokeStatus}`,
+          "operatorRevenueSmoke.amountUsdConfirmed=50",
+          "operatorRevenueSmoke.formalProviderSmokePassed=false",
+          `operatorRevenueSmoke.note=${operatorSmokeNote}`,
+        ]
+        : []),
       ...(paypalStatus ? [`paypalRefillSmoke.status=${paypalStatus}`] : []),
       ...(paypalNote ? [`paypalRefillSmoke.note=${paypalNote}`] : []),
       `paypalRefillSmoke.formalRepoArtifactAttached=${readBoolean(paypalRefillSmoke.formalRepoArtifactAttached) === true}`,
