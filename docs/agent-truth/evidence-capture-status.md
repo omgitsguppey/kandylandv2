@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-05-20T21:42:42.480Z
+Generated: 2026-05-20T21:54:38.478Z
 
-Latest code version: `458bfd51d0bf4922b146928a458d45f32f74058b`
+Latest code version: `809ede1f4d7165619f646d6c163b5af6ea367feb`
 
 ## Summary
 
@@ -38,13 +38,30 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 - runtime smoke evidence is missing.
 - admin truth sample evidence is missing.
 
+## Source-Ready Evidence
+
+- runtime watch-time source lane is source-ready but still needs deployed playback proof.
+
+## Operator-Confirmed Evidence
+
+- operator-confirmed $50 GumDrop revenue smoke is recorded as product signal only.
+
+## Formal-Missing Evidence
+
+- manual screenshot evidence is missing.
+- provider smoke evidence is missing.
+- runtime smoke evidence is missing.
+- admin truth sample evidence is missing.
+- provider smoke remains formal-missing until a formal provider/app artifact is attached.
+
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
 - agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map is current for the latest code version. Command: `npm run check:beta-evidence-gap-map`.
-- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep is current for the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
+- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current for the latest code version. Command: `npm run check:operator-revenue-smoke`.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
 - agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
@@ -60,13 +77,15 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 6. Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.
 7. Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.
 8. Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.
-9. Refresh generated status with npm run check:evidence-capture-status.
-10. Refresh generated status with npm run check:current-beta-exit-status.
-11. Refresh generated status with npm run score:beta && npm run check:beta-score.
-12. Refresh generated status with npm run check:beta-evidence-gap-map.
-13. Refresh generated status with npm run check:operator-revenue-smoke.
-14. Refresh generated status with npm run check:final-telemetry-closure-lock.
-15. Refresh generated status with npm run check:mobile-ui-final-lock.
-16. Refresh generated status with npm run check:creator-settings-control-plane.
-17. Refresh generated status with npm run check:creator-drop-status-metrics.
+9. Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.
+10. Refresh generated status with npm run check:evidence-capture-status.
+11. Refresh generated status with npm run check:current-beta-exit-status.
+12. Refresh generated status with npm run score:beta && npm run check:beta-score.
+13. Refresh generated status with npm run check:beta-evidence-gap-map.
+14. Refresh generated status with npm run check:beta-evidence-lane-prep.
+15. Refresh generated status with npm run check:operator-revenue-smoke.
+16. Refresh generated status with npm run check:final-telemetry-closure-lock.
+17. Refresh generated status with npm run check:mobile-ui-final-lock.
+18. Refresh generated status with npm run check:creator-settings-control-plane.
+19. Refresh generated status with npm run check:creator-drop-status-metrics.
 

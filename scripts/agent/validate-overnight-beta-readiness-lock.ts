@@ -348,6 +348,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
     "agent/state/public-beta-score.generated.json",
     "agent/state/evidence-capture-status.generated.json",
     "agent/state/beta-evidence-gap-map.generated.json",
+    "agent/state/beta-evidence-lane-prep.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/final-telemetry-closure-lock.generated.json",
     "agent/state/mobile-ui-final-lock.generated.json",

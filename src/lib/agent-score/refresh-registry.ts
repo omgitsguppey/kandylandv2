@@ -10,6 +10,7 @@ export type RefreshArtifactKey =
   | "creator-drop-status-metrics"
   | "operator-revenue-smoke"
   | "beta-evidence-gap-map"
+  | "beta-evidence-lane-prep"
   | "beta-freshness-language"
   | "final-pr-stale-cleanup"
   | "overnight-wiring-integrity"
@@ -128,6 +129,15 @@ export const REFRESH_ARTIFACT_REGISTRY: RefreshArtifactRegistryEntry[] = [
     owner: "evidence",
     maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
     userFacingLabel: "Beta evidence gap map",
+  },
+  {
+    key: "beta-evidence-lane-prep",
+    reportKey: "beta-evidence-lane-prep",
+    artifactPath: "agent/state/beta-evidence-lane-prep.generated.json",
+    refreshCommand: "npm run check:beta-evidence-lane-prep",
+    owner: "evidence",
+    maxAgeHours: DEFAULT_REFRESH_MAX_AGE_HOURS,
+    userFacingLabel: "Beta evidence lane prep",
   },
   {
     key: "beta-freshness-language",

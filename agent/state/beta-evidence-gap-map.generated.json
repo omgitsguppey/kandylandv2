@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T21:42:23.782Z",
+  "generatedAtUtc": "2026-05-20T21:50:48.105Z",
   "reportKey": "beta-evidence-gap-map",
-  "currentHead": "458bfd51d0bf4922b146928a458d45f32f74058b",
+  "currentHead": "809ede1f4d7165619f646d6c163b5af6ea367feb",
   "betaScore": 41.92,
   "betaStatus": "Stale evidence",
   "launchGateStatus": "owner_review",
@@ -144,6 +144,18 @@
   ],
   "staleArtifacts": [
     {
+      "artifact": "agent/state/public-beta-score.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/current-beta-exit-status.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/evidence-capture-status.generated.json",
+      "reason": "Report was generated before the latest code changes."
+    },
+    {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
       "reason": "Report was generated before the latest code changes."
     },
@@ -168,11 +180,11 @@
       "reason": "Report was generated before the latest code changes."
     },
     {
-      "artifact": "agent/state/operator-revenue-smoke.generated.json",
+      "artifact": "agent/state/beta-evidence-gap-map.generated.json",
       "reason": "Report was generated before the latest code changes."
     },
     {
-      "artifact": "agent/state/beta-evidence-gap-map.generated.json",
+      "artifact": "agent/state/beta-freshness-language.generated.json",
       "reason": "Report was generated before the latest code changes."
     },
     {
@@ -194,6 +206,18 @@
     {
       "artifact": "agent/state/global-marquee-truncated-titles.generated.json",
       "reason": "Report was generated before the latest code changes."
+    },
+    {
+      "artifact": "agent/state/public-beta-score.generated.json",
+      "reason": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score"
+    },
+    {
+      "artifact": "agent/state/current-beta-exit-status.generated.json",
+      "reason": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status"
+    },
+    {
+      "artifact": "agent/state/evidence-capture-status.generated.json",
+      "reason": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status"
     },
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
@@ -220,12 +244,12 @@
       "reason": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics"
     },
     {
-      "artifact": "agent/state/operator-revenue-smoke.generated.json",
-      "reason": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke"
-    },
-    {
       "artifact": "agent/state/beta-evidence-gap-map.generated.json",
       "reason": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map"
+    },
+    {
+      "artifact": "agent/state/beta-freshness-language.generated.json",
+      "reason": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language"
     },
     {
       "artifact": "agent/state/final-pr-stale-cleanup.generated.json",
@@ -253,46 +277,46 @@
       "artifactPath": "agent/state/public-beta-score.generated.json",
       "reportKey": "public-beta-score",
       "label": "Public beta score",
-      "status": "current",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T21:41:16.608Z",
-      "ageHours": 0.018658888888888888,
+      "ageHours": 0.15874777777777777,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Public beta score is current for the latest code version.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Public beta score was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Public beta score was generated from an older code version. Refresh this report from the latest code version. Run: npm run score:beta && npm run check:beta-score",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
       "label": "Current beta exit status",
-      "status": "current",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T21:37:49.220Z",
-      "ageHours": 0.07626666666666666,
+      "ageHours": 0.21635555555555555,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Current beta exit status is current for the latest code version.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",
       "label": "Evidence capture status",
-      "status": "current",
-      "needsRefresh": false,
-      "generatedAtUtc": "2026-05-20T21:40:34.433Z",
-      "ageHours": 0.030374166666666667,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-05-20T21:42:42.480Z",
+      "ageHours": 0.13489444444444446,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Evidence capture status is current for the latest code version.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
@@ -301,7 +325,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:28:52.842Z",
-      "ageHours": 15.225260555555556,
+      "ageHours": 15.365349444444444,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -316,7 +340,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:38:25.305Z",
-      "ageHours": 15.066243055555555,
+      "ageHours": 15.206331944444445,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -331,7 +355,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:38:12.311Z",
-      "ageHours": 15.0698525,
+      "ageHours": 15.20994138888889,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -346,7 +370,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:42:43.563Z",
-      "ageHours": 14.994504722222223,
+      "ageHours": 15.13459361111111,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -361,7 +385,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:28:10.440Z",
-      "ageHours": 15.23703888888889,
+      "ageHours": 15.377127777777778,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -376,7 +400,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:27:49.305Z",
-      "ageHours": 15.242909722222223,
+      "ageHours": 15.38299861111111,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -388,16 +412,16 @@
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
       "reportKey": "operator-revenue-smoke",
       "label": "Operator revenue smoke",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-20T21:19:18.029Z",
-      "ageHours": 0.38493083333333333,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-05-20T21:50:36.744Z",
+      "ageHours": 0.0031544444444444445,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "formalEvidenceGateCanClear": false
+      "message": "Operator revenue smoke is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
@@ -405,8 +429,8 @@
       "label": "Beta evidence gap map",
       "status": "stale_source_version",
       "needsRefresh": true,
-      "generatedAtUtc": "2026-05-20T21:20:57.197Z",
-      "ageHours": 0.35738416666666667,
+      "generatedAtUtc": "2026-05-20T21:42:23.782Z",
+      "ageHours": 0.14008833333333334,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -415,19 +439,34 @@
       "formalEvidenceGateCanClear": false
     },
     {
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
+      "reportKey": "beta-evidence-lane-prep",
+      "label": "Beta evidence lane prep",
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-05-20T21:50:36.891Z",
+      "ageHours": 0.0031136111111111113,
+      "refreshCommand": "npm run check:beta-evidence-lane-prep",
+      "owner": "evidence",
+      "maxAgeHours": 24,
+      "message": "Beta evidence lane prep is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
+    },
+    {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
       "reportKey": "beta-freshness-language",
       "label": "Beta freshness language",
-      "status": "current",
-      "needsRefresh": false,
+      "status": "stale_source_version",
+      "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T21:40:45.291Z",
-      "ageHours": 0.027358055555555556,
+      "ageHours": 0.16744694444444444,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Beta freshness language is current for the latest code version.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
+      "message": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
@@ -436,7 +475,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T21:04:33.496Z",
-      "ageHours": 0.6306344444444445,
+      "ageHours": 0.7707233333333333,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -451,7 +490,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:27:23.439Z",
-      "ageHours": 15.250094722222222,
+      "ageHours": 15.39018361111111,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -466,7 +505,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:27:34.933Z",
-      "ageHours": 15.246901944444444,
+      "ageHours": 15.386990833333334,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -481,7 +520,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:27:43.502Z",
-      "ageHours": 15.244521666666667,
+      "ageHours": 15.384610555555556,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -496,7 +535,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:28:39.231Z",
-      "ageHours": 15.22904138888889,
+      "ageHours": 15.369130277777778,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -517,6 +556,7 @@
     "npm run check:creator-drop-status-metrics",
     "npm run check:operator-revenue-smoke",
     "npm run check:beta-evidence-gap-map",
+    "npm run check:beta-evidence-lane-prep",
     "npm run check:beta-freshness-language",
     "npm run check:final-pr-stale-cleanup",
     "npm run check:overnight-wiring-integrity",

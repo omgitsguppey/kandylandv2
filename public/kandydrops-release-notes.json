@@ -1,11 +1,71 @@
 {
-  "currentVersion": "1.3.35",
-  "betaReleaseCounter": 335,
+  "currentVersion": "1.3.36",
+  "betaReleaseCounter": 336,
   "channel": "beta",
-  "generatedAt": "2026-05-20T21:38:53.783Z",
-  "generatedAtUtc": "2026-05-20T21:38:53.783Z",
+  "generatedAt": "2026-05-20T21:52:05.083Z",
+  "generatedAtUtc": "2026-05-20T21:52:05.083Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.36",
+      "previousVersion": "1.3.35",
+      "betaReleaseCounter": 336,
+      "previousBetaReleaseCounter": 335,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): prepare evidence lanes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T21:52:05.083Z",
+      "generatedAt": "2026-05-20T21:52:05.083Z",
+      "committedAtUtc": "2026-05-20T21:52:05.083Z",
+      "generatedAtUtc": "2026-05-20T21:52:05.083Z",
+      "updatedAtUtc": "2026-05-20T21:52:05.083Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Prepared beta evidence lanes with clearer statuses and next steps.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Prepared beta evidence lanes with clearer statuses and next steps.",
+        "Recognized operator-confirmed revenue without faking provider proof.",
+        "Kept beta exit gates strict and understandable."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted beta evidence lane prep pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "Evidence capture",
+        "Operator revenue smoke"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/beta-evidence-lane-prep.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/operator-revenue-smoke.generated.json",
+        "agent/state/beta-evidence-gap-map.generated.json",
+        "agent/state/refresh-safeguards.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "docs/agent-truth/beta-evidence-lane-prep.md",
+        "docs/agent-truth/evidence-capture-status.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-beta-evidence-lane-prep.ts",
+        "scripts/agent/validate-evidence-capture-status.ts",
+        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+        "src/lib/agent-score/refresh-registry.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/beta-evidence-lane-prep.spec.ts",
+        "tests/unit/refresh-safeguards.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.35",
       "previousVersion": "1.3.34",
@@ -1329,59 +1389,6 @@
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/telemetry.ts",
         "tests/unit/behavioral-tracking-semantics-closure.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.11",
-      "previousVersion": "1.3.10",
-      "betaReleaseCounter": 311,
-      "previousBetaReleaseCounter": 310,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): close identity transfer telemetry",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T22:10:08.039Z",
-      "generatedAt": "2026-05-19T22:10:08.039Z",
-      "committedAtUtc": "2026-05-19T22:10:08.039Z",
-      "generatedAtUtc": "2026-05-19T22:10:08.039Z",
-      "updatedAtUtc": "2026-05-19T22:10:08.039Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Closed guest-to-user telemetry continuity gaps and linked-user counting rules.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Closed guest-to-user telemetry transfer gaps.",
-        "Improved individual user tracking continuity.",
-        "Prevented linked guest history from double-counting users."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted identity transfer telemetry closure fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "app reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/identity-transfer-telemetry-closure.generated.json",
-        "docs/agent-truth/identity-transfer-telemetry-closure.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-identity-transfer-telemetry-closure.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/lib/analytics/analytics-event-contract.ts",
-        "src/lib/analytics/analytics-identity-link.ts",
-        "src/lib/analytics/identity-transfer.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/analytics-identity-linking.ts",
-        "tests/unit/identity-transfer-telemetry-closure.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

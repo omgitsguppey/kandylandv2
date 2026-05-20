@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T21:42:42.480Z",
+  "generatedAtUtc": "2026-05-20T21:54:38.478Z",
   "reportKey": "evidence-capture-status",
-  "currentHead": "458bfd51d0bf4922b146928a458d45f32f74058b",
+  "currentHead": "809ede1f4d7165619f646d6c163b5af6ea367feb",
   "summary": {
     "manualScreenshotEvidence": "missing",
     "providerSmokeEvidence": "missing",
@@ -47,6 +47,19 @@
       "status": "missing"
     }
   ],
+  "sourceReadyEvidence": [
+    "runtime watch-time source lane is source-ready but still needs deployed playback proof."
+  ],
+  "operatorConfirmedEvidence": [
+    "operator-confirmed $50 GumDrop revenue smoke is recorded as product signal only."
+  ],
+  "formalMissingEvidence": [
+    "manual screenshot evidence is missing.",
+    "provider smoke evidence is missing.",
+    "runtime smoke evidence is missing.",
+    "admin truth sample evidence is missing.",
+    "provider smoke remains formal-missing until a formal provider/app artifact is attached."
+  ],
   "missingEvidence": [
     "manual screenshot evidence is missing.",
     "provider smoke evidence is missing.",
@@ -63,10 +76,12 @@
     "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.",
     "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.",
     "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.",
+    "Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.",
     "Refresh generated status with npm run check:evidence-capture-status.",
     "Refresh generated status with npm run check:current-beta-exit-status.",
     "Refresh generated status with npm run score:beta && npm run check:beta-score.",
     "Refresh generated status with npm run check:beta-evidence-gap-map.",
+    "Refresh generated status with npm run check:beta-evidence-lane-prep.",
     "Refresh generated status with npm run check:operator-revenue-smoke.",
     "Refresh generated status with npm run check:final-telemetry-closure-lock.",
     "Refresh generated status with npm run check:mobile-ui-final-lock.",
@@ -80,7 +95,7 @@
       "label": "Evidence capture status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-05-20T21:42:42.480Z",
+      "generatedAtUtc": "2026-05-20T21:54:38.478Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
@@ -95,8 +110,8 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-05-20T21:37:49.220Z",
-      "ageHours": 0.08146111111111111,
+      "generatedAtUtc": "2026-05-20T21:51:20.029Z",
+      "ageHours": 0.05512472222222222,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -110,8 +125,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-05-20T21:41:16.608Z",
-      "ageHours": 0.023853333333333334,
+      "generatedAtUtc": "2026-05-20T21:50:58.185Z",
+      "ageHours": 0.0611925,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -125,8 +140,8 @@
       "label": "Beta evidence gap map",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-05-20T21:42:23.782Z",
-      "ageHours": 0.0051938888888888885,
+      "generatedAtUtc": "2026-05-20T21:50:48.105Z",
+      "ageHours": 0.0639925,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -135,19 +150,34 @@
       "formalEvidenceGateCanClear": true
     },
     {
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
+      "reportKey": "beta-evidence-lane-prep",
+      "label": "Beta evidence lane prep",
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-05-20T21:52:24.536Z",
+      "ageHours": 0.03720611111111111,
+      "refreshCommand": "npm run check:beta-evidence-lane-prep",
+      "owner": "evidence",
+      "maxAgeHours": 24,
+      "message": "Beta evidence lane prep is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
+    },
+    {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
       "reportKey": "operator-revenue-smoke",
       "label": "Operator revenue smoke",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-20T21:19:18.029Z",
-      "ageHours": 0.3901252777777778,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-05-20T21:54:38.352Z",
+      "ageHours": 0.000035,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "formalEvidenceGateCanClear": false
+      "message": "Operator revenue smoke is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     },
     {
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
@@ -156,7 +186,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:38:25.305Z",
-      "ageHours": 15.0714375,
+      "ageHours": 15.270325833333333,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -171,7 +201,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:38:12.311Z",
-      "ageHours": 15.075046944444445,
+      "ageHours": 15.273935277777777,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -186,7 +216,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:28:10.440Z",
-      "ageHours": 15.242233333333333,
+      "ageHours": 15.441121666666668,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -201,7 +231,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-20T06:27:49.305Z",
-      "ageHours": 15.248104166666666,
+      "ageHours": 15.4469925,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -211,14 +241,6 @@
     }
   ],
   "staleArtifacts": [
-    {
-      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "reportKey": "operator-revenue-smoke",
-      "status": "stale_source_version",
-      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "refreshCommand": "npm run check:operator-revenue-smoke"
-    },
     {
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
       "reportKey": "final-telemetry-closure-lock",
@@ -257,6 +279,7 @@
     "npm run check:current-beta-exit-status",
     "npm run score:beta && npm run check:beta-score",
     "npm run check:beta-evidence-gap-map",
+    "npm run check:beta-evidence-lane-prep",
     "npm run check:operator-revenue-smoke",
     "npm run check:final-telemetry-closure-lock",
     "npm run check:mobile-ui-final-lock",

@@ -1,0 +1,399 @@
+{
+  "generatedAtUtc": "2026-05-20T21:54:39.075Z",
+  "reportKey": "beta-evidence-lane-prep",
+  "currentHead": "809ede1f4d7165619f646d6c163b5af6ea367feb",
+  "summary": {
+    "laneCount": 8,
+    "formalMissingCount": 4,
+    "sourceReadyCount": 2,
+    "operatorConfirmedCount": 1,
+    "betaExitReady": false,
+    "providerSmokeGateCleared": false,
+    "p0Count": 0,
+    "p1Count": 4,
+    "p2Count": 12
+  },
+  "lanes": [
+    {
+      "id": "manual_screenshot_qa",
+      "label": "Manual screenshot QA",
+      "folder": "agent/evidence/manual-screenshot-qa",
+      "template": "agent/evidence/manual-screenshot-qa/evidence.template.json",
+      "checklist": "docs/agent-truth/manual-screenshot-qa-checklist.md",
+      "validatorCommand": "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
+      "status": "formal_missing",
+      "statusEnum": [
+        "formal_missing",
+        "formal_complete"
+      ],
+      "requiredForBetaExit": true,
+      "sourceReady": false,
+      "completeAsProductSignal": false,
+      "clearsFormalProviderGate": false,
+      "scoreImpact": "Raises manual confidence and evidence completeness after real screenshots are attached.",
+      "launchGateImpact": "Required for beta exit; source-only UI validation does not clear manual evidence.",
+      "nextAction": "Attach dated screenshot evidence using the manual screenshot QA template."
+    },
+    {
+      "id": "provider_smoke",
+      "label": "Provider smoke",
+      "folder": "agent/evidence/provider-smoke",
+      "template": "agent/evidence/provider-smoke/evidence.template.json",
+      "checklist": "docs/agent-truth/provider-smoke-evidence-checklist.md",
+      "validatorCommand": "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
+      "status": "formal_missing",
+      "statusEnum": [
+        "formal_missing",
+        "formal_complete"
+      ],
+      "requiredForBetaExit": true,
+      "sourceReady": false,
+      "completeAsProductSignal": false,
+      "clearsFormalProviderGate": false,
+      "scoreImpact": "Raises provider confidence only after redacted formal provider/app proof is attached.",
+      "launchGateImpact": "Required for beta exit; operator confirmation alone does not clear this gate.",
+      "nextAction": "Attach redacted formal provider/app proof only if the operator chooses to clear provider smoke."
+    },
+    {
+      "id": "operator_confirmed_revenue_smoke",
+      "label": "Operator-confirmed revenue smoke",
+      "folder": "agent/state",
+      "template": "agent/state/operator-revenue-smoke.generated.json",
+      "checklist": "docs/agent-truth/operator-revenue-smoke.md",
+      "validatorCommand": "npm run check:operator-revenue-smoke",
+      "status": "operator_confirmed",
+      "statusEnum": [
+        "operator_confirmed",
+        "formal_missing"
+      ],
+      "requiredForBetaExit": false,
+      "sourceReady": true,
+      "completeAsProductSignal": true,
+      "clearsFormalProviderGate": false,
+      "scoreImpact": "Improves product confidence notes as real GumDrop revenue signal.",
+      "launchGateImpact": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. It does not clear formal provider smoke or beta exit.",
+      "nextAction": "Keep this acknowledged as real product signal; formal provider/app proof is optional for acknowledging the sale."
+    },
+    {
+      "id": "runtime_smoke",
+      "label": "Runtime smoke",
+      "folder": "agent/evidence/runtime-smoke",
+      "template": "agent/evidence/runtime-smoke/evidence.template.json",
+      "checklist": "docs/agent-truth/runtime-smoke-evidence-checklist.md",
+      "validatorCommand": "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
+      "status": "formal_missing",
+      "statusEnum": [
+        "formal_missing",
+        "formal_complete"
+      ],
+      "requiredForBetaExit": true,
+      "sourceReady": false,
+      "completeAsProductSignal": false,
+      "clearsFormalProviderGate": false,
+      "scoreImpact": "Raises runtime confidence after deployed route and flow proof is attached.",
+      "launchGateImpact": "Required for beta exit; local validators are not deployed runtime proof.",
+      "nextAction": "Attach deployed runtime smoke proof using the runtime smoke template."
+    },
+    {
+      "id": "admin_truth_sample",
+      "label": "Admin truth sample",
+      "folder": "agent/evidence/admin-truth-sample",
+      "template": "agent/evidence/admin-truth-sample/evidence.template.json",
+      "checklist": "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
+      "validatorCommand": "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
+      "status": "formal_missing",
+      "statusEnum": [
+        "formal_missing",
+        "formal_complete"
+      ],
+      "requiredForBetaExit": true,
+      "sourceReady": false,
+      "completeAsProductSignal": false,
+      "clearsFormalProviderGate": false,
+      "scoreImpact": "Raises admin-truth confidence after a fresh redacted source sample is attached.",
+      "launchGateImpact": "Required for beta exit; admin UI presence alone does not clear this lane.",
+      "nextAction": "Attach a redacted admin truth sample with source freshness and sample count."
+    },
+    {
+      "id": "runtime_watch_time_proof",
+      "label": "Runtime watch-time proof",
+      "folder": "agent/evidence/runtime-smoke",
+      "template": "agent/evidence/runtime-smoke/evidence.template.json",
+      "checklist": "docs/agent-truth/runtime-smoke-evidence-checklist.md",
+      "validatorCommand": "npm run check:runtime-watch-time-v2 && EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
+      "status": "source_ready_runtime_proof_required",
+      "statusEnum": [
+        "source_ready_runtime_proof_required",
+        "formal_complete"
+      ],
+      "requiredForBetaExit": true,
+      "sourceReady": true,
+      "completeAsProductSignal": false,
+      "clearsFormalProviderGate": false,
+      "scoreImpact": "Keeps watch-time source readiness separate from deployed playback evidence.",
+      "launchGateImpact": "Source-ready watch-time logic still needs deployed media proof before beta exit.",
+      "nextAction": "Attach deployed playback evidence showing runtime watch-time v2 on real media routes."
+    },
+    {
+      "id": "cost_owner_review",
+      "label": "Cost owner-review",
+      "folder": "agent/state",
+      "template": "docs/agent-truth/final-cost-audit-lock.md",
+      "checklist": "docs/agent-truth/final-cost-audit-lock.md",
+      "validatorCommand": "npm run check:final-cost-audit-lock",
+      "status": "owner_review_required",
+      "statusEnum": [
+        "owner_review_required",
+        "formal_complete"
+      ],
+      "requiredForBetaExit": false,
+      "sourceReady": false,
+      "completeAsProductSignal": false,
+      "clearsFormalProviderGate": false,
+      "scoreImpact": "Keeps external cost posture visible without pretending source inventory is billing proof.",
+      "launchGateImpact": "Owner-review context only unless a P0/P1 cost blocker appears.",
+      "nextAction": "Attach owner-reviewed cost evidence when the operator chooses to formalize the lane."
+    },
+    {
+      "id": "speed_security_owner_review",
+      "label": "Speed/security owner-review",
+      "folder": "agent/state",
+      "template": "docs/agent-truth/speed-security-hardening.md",
+      "checklist": "docs/agent-truth/speed-security-hardening.md",
+      "validatorCommand": "npm run check:speed-security",
+      "status": "owner_review_required",
+      "statusEnum": [
+        "owner_review_required",
+        "formal_complete"
+      ],
+      "requiredForBetaExit": false,
+      "sourceReady": false,
+      "completeAsProductSignal": false,
+      "clearsFormalProviderGate": false,
+      "scoreImpact": "Keeps speed/security P2 backlog visible without blocking unrelated source-ready lanes.",
+      "launchGateImpact": "Owner-review context unless findings escalate to beta-exit blockers.",
+      "nextAction": "Keep owner-review backlog visible and refresh the speed/security report when needed."
+    }
+  ],
+  "sourceReadyLanes": [
+    "operator_confirmed_revenue_smoke",
+    "runtime_watch_time_proof"
+  ],
+  "operatorConfirmedLanes": [
+    "operator_confirmed_revenue_smoke"
+  ],
+  "formalMissingLanes": [
+    "manual_screenshot_qa",
+    "provider_smoke",
+    "runtime_smoke",
+    "admin_truth_sample"
+  ],
+  "operatorPlainLanguageNote": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
+  "refreshPlan": [
+    {
+      "artifactPath": "agent/state/public-beta-score.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score"
+    },
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:current-beta-exit-status"
+    },
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:evidence-capture-status"
+    },
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+      "refreshCommand": "npm run check:source-truth-authority-map"
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+      "refreshCommand": "npm run check:final-telemetry-closure-lock"
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
+    {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "refreshCommand": "npm run check:overnight-final-integration-lock"
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+      "refreshCommand": "npm run check:creator-settings-control-plane"
+    },
+    {
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+      "refreshCommand": "npm run check:creator-drop-status-metrics"
+    },
+    {
+      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:operator-revenue-smoke"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:beta-evidence-gap-map"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:beta-evidence-lane-prep"
+    },
+    {
+      "artifactPath": "agent/state/beta-freshness-language.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "refreshCommand": "npm run check:beta-freshness-language"
+    },
+    {
+      "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+      "refreshCommand": "npm run check:final-pr-stale-cleanup"
+    },
+    {
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "refreshCommand": "npm run check:overnight-wiring-integrity"
+    },
+    {
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "refreshCommand": "npm run check:existing-algorithm-refinement"
+    },
+    {
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
+    },
+    {
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "refreshCommand": "npm run check:global-marquee-truncated-titles"
+    }
+  ],
+  "staleReports": [
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+      "refreshCommand": "npm run check:source-truth-authority-map"
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+      "refreshCommand": "npm run check:final-telemetry-closure-lock"
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
+    {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "refreshCommand": "npm run check:overnight-final-integration-lock"
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+      "refreshCommand": "npm run check:creator-settings-control-plane"
+    },
+    {
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+      "refreshCommand": "npm run check:creator-drop-status-metrics"
+    },
+    {
+      "artifactPath": "agent/state/beta-freshness-language.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "refreshCommand": "npm run check:beta-freshness-language"
+    },
+    {
+      "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+      "refreshCommand": "npm run check:final-pr-stale-cleanup"
+    },
+    {
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "refreshCommand": "npm run check:overnight-wiring-integrity"
+    },
+    {
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "refreshCommand": "npm run check:existing-algorithm-refinement"
+    },
+    {
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
+    },
+    {
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "refreshCommand": "npm run check:global-marquee-truncated-titles"
+    }
+  ],
+  "nextExactSteps": [
+    "Use this lane map before attaching evidence so source-ready, operator-confirmed, formal-missing, and owner-review states stay separate.",
+    "Keep operator-confirmed revenue smoke acknowledged without requiring provider screenshots for that acknowledgement.",
+    "Attach formal provider/app proof only when the operator chooses to clear the provider smoke gate.",
+    "Refresh supporting report with npm run score:beta && npm run check:beta-score.",
+    "Refresh supporting report with npm run check:current-beta-exit-status.",
+    "Refresh supporting report with npm run check:evidence-capture-status.",
+    "Refresh supporting report with npm run check:source-truth-authority-map.",
+    "Refresh supporting report with npm run check:final-telemetry-closure-lock.",
+    "Refresh supporting report with npm run check:mobile-ui-final-lock.",
+    "Refresh supporting report with npm run check:overnight-final-integration-lock.",
+    "Refresh supporting report with npm run check:creator-settings-control-plane.",
+    "Refresh supporting report with npm run check:creator-drop-status-metrics.",
+    "Refresh supporting report with npm run check:operator-revenue-smoke.",
+    "Refresh supporting report with npm run check:beta-evidence-gap-map.",
+    "Refresh supporting report with npm run check:beta-evidence-lane-prep.",
+    "Refresh supporting report with npm run check:beta-freshness-language.",
+    "Refresh supporting report with npm run check:final-pr-stale-cleanup.",
+    "Refresh supporting report with npm run check:overnight-wiring-integrity.",
+    "Refresh supporting report with npm run check:existing-algorithm-refinement.",
+    "Refresh supporting report with npm run check:user-loading-wallet-mobile-refinement.",
+    "Refresh supporting report with npm run check:global-marquee-truncated-titles."
+  ]
+}

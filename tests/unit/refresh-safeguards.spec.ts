@@ -22,6 +22,7 @@ describe("refresh safeguards", () => {
     expect(getRefreshCommand("agent/state/creator-settings-control-plane.generated.json")).toBe("npm run check:creator-settings-control-plane");
     expect(getRefreshCommand("agent/state/creator-drop-status-metrics.generated.json")).toBe("npm run check:creator-drop-status-metrics");
     expect(getRefreshCommand("agent/state/operator-revenue-smoke.generated.json")).toBe("npm run check:operator-revenue-smoke");
+    expect(getRefreshCommand("agent/state/beta-evidence-lane-prep.generated.json")).toBe("npm run check:beta-evidence-lane-prep");
     expect(REFRESH_ARTIFACT_REGISTRY.some((entry) => entry.artifactPath === "agent/state/evidence-capture-status.generated.json")).toBe(true);
   });
 

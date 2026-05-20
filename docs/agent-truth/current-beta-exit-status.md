@@ -1,12 +1,12 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-20T21:37:49.220Z
+Generated: 2026-05-20T21:51:20.029Z
 
-Latest code version: 458bfd51d0bf4922b146928a458d45f32f74058b
+Latest code version: 809ede1f4d7165619f646d6c163b5af6ea367feb
 
 ## Summary
 
-- Beta version: 1.3.34
+- Beta version: 1.3.35
 - Beta score: 41.92
 - Beta status: Stale evidence
 - Visual evidence: source_only_screenshotEvidenceAttached_false
@@ -35,13 +35,14 @@ Latest code version: 458bfd51d0bf4922b146928a458d45f32f74058b
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
 - agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map is current for the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep is current for the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
 - agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
 - agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
 - agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-drop-status-metrics`.
-- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
+- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current for the latest code version. Command: `npm run check:operator-revenue-smoke`.
 
 ## Remaining Blockers
 
@@ -68,6 +69,7 @@ Latest code version: 458bfd51d0bf4922b146928a458d45f32f74058b
 - Refresh generated status with npm run score:beta && npm run check:beta-score.
 - Refresh generated status with npm run check:evidence-capture-status.
 - Refresh generated status with npm run check:beta-evidence-gap-map.
+- Refresh generated status with npm run check:beta-evidence-lane-prep.
 - Refresh generated status with npm run check:source-truth-authority-map.
 - Refresh generated status with npm run check:final-telemetry-closure-lock.
 - Refresh generated status with npm run check:mobile-ui-final-lock.

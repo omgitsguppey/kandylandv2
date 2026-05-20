@@ -61,6 +61,9 @@ export type EvidenceCaptureStatusReport = {
     templatePath: string;
     status: EvidenceStatus;
   }>;
+  sourceReadyEvidence: string[];
+  operatorConfirmedEvidence: string[];
+  formalMissingEvidence: string[];
   missingEvidence: string[];
   completeEvidence: string[];
   nextExactSteps: string[];
@@ -168,11 +171,21 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
   const completeEvidence = (Object.entries(options.laneStatuses) as Array<[keyof EvidenceLaneStatuses, EvidenceStatus]>)
     .filter(([, status]) => status === "complete")
     .map(([lane]) => `${laneLabels[lane]} is complete.`);
+  const operatorRevenueSmoke = options.operatorRevenueSmoke ?? defaultOperatorRevenueSmoke();
+  const sourceReadyEvidence = ["runtime watch-time source lane is source-ready but still needs deployed playback proof."];
+  const operatorConfirmedEvidence = operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
+    ? ["operator-confirmed $50 GumDrop revenue smoke is recorded as product signal only."]
+    : [];
+  const formalMissingEvidence = [
+    ...missingEvidence,
+    "provider smoke remains formal-missing until a formal provider/app artifact is attached.",
+  ];
   const refreshPlan = buildRefreshPlan([
     reportRelativePath,
     "agent/state/current-beta-exit-status.generated.json",
     "agent/state/public-beta-score.generated.json",
     "agent/state/beta-evidence-gap-map.generated.json",
+    "agent/state/beta-evidence-lane-prep.generated.json",
     "agent/state/operator-revenue-smoke.generated.json",
     "agent/state/final-telemetry-closure-lock.generated.json",
     "agent/state/mobile-ui-final-lock.generated.json",
@@ -193,7 +206,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
       completeArtifacts: options.completeArtifacts,
       strictModeReady: true,
       canStartBetaExitReview,
-      operatorRevenueSmoke: options.operatorRevenueSmoke ?? defaultOperatorRevenueSmoke(),
+      operatorRevenueSmoke,
     },
     evidenceFolders: [
       {
@@ -221,6 +234,9 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
         status: options.laneStatuses.adminTruthSampleEvidence,
       },
     ],
+    sourceReadyEvidence,
+    operatorConfirmedEvidence,
+    formalMissingEvidence,
     missingEvidence,
     completeEvidence,
     nextExactSteps: [
@@ -232,6 +248,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
       "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence once admin truth evidence is expected to be complete.",
+      "Run npm run check:beta-evidence-lane-prep to see every source-to-proof lane with checklist, validator, and launch impact.",
       ...uniqueRefreshCommands(refreshPlan).map((command) => `Refresh generated status with ${command}.`),
     ],
     refreshPlan,
@@ -276,8 +293,17 @@ export function validateEvidenceCaptureStatusReport(
   if (!lanesComplete && report.missingEvidence.length === 0) {
     failures.push("missingEvidence must not be empty while evidence lanes are missing or incomplete.");
   }
+  if (!Array.isArray(report.sourceReadyEvidence) || !report.sourceReadyEvidence.some((entry) => /runtime watch-time/iu.test(entry))) {
+    failures.push("sourceReadyEvidence must represent source-ready runtime watch-time proof separately.");
+  }
+  if (!Array.isArray(report.formalMissingEvidence) || !report.formalMissingEvidence.some((entry) => /provider smoke remains formal-missing/iu.test(entry))) {
+    failures.push("formalMissingEvidence must keep provider smoke separate from operator confirmation.");
+  }
   const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;
   if (operatorRevenueSmoke?.revenueSmokeStatus === "operator_confirmed_revenue_smoke") {
+    if (!Array.isArray(report.operatorConfirmedEvidence) || !report.operatorConfirmedEvidence.some((entry) => /operator-confirmed \$50 GumDrop revenue smoke/iu.test(entry))) {
+      failures.push("operatorConfirmedEvidence must acknowledge operator-confirmed revenue smoke.");
+    }
     if (operatorRevenueSmoke.amountUsdConfirmed !== 50 || operatorRevenueSmoke.product !== "GumDrops") {
       failures.push("operator-confirmed revenue smoke must keep amount/product fields.");
     }
@@ -381,6 +407,18 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     "## Missing Evidence",
     "",
     ...(report.missingEvidence.length > 0 ? report.missingEvidence.map((item) => `- ${item}`) : ["- None."]),
+    "",
+    "## Source-Ready Evidence",
+    "",
+    ...(report.sourceReadyEvidence.length > 0 ? report.sourceReadyEvidence.map((item) => `- ${item}`) : ["- None."]),
+    "",
+    "## Operator-Confirmed Evidence",
+    "",
+    ...(report.operatorConfirmedEvidence.length > 0 ? report.operatorConfirmedEvidence.map((item) => `- ${item}`) : ["- None."]),
+    "",
+    "## Formal-Missing Evidence",
+    "",
+    ...(report.formalMissingEvidence.length > 0 ? report.formalMissingEvidence.map((item) => `- ${item}`) : ["- None."]),
     "",
     "## Refresh Plan",
     "",
