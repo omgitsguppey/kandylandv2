@@ -71,6 +71,14 @@ export const MOBILE_SCALE_CONTRACT = {
   protectedSurfaces: ["top_nav", "bottom_nav", "chat"] as const,
 } as const;
 
+export const MOBILE_SCALE_THRESHOLDS = {
+  mobileLargePaddingClasses: ["p-6", "p-7", "p-8", "px-6", "px-7", "px-8", "py-6", "py-7", "py-8"] as const,
+  mobileDisplayTypeClasses: ["text-3xl", "text-4xl", "text-5xl", "text-6xl"] as const,
+  mobileOversizedRadiusClasses: ["rounded-3xl"] as const,
+  mobileShellHeightClasses: ["h-screen", "min-h-screen", "max-h-screen"] as const,
+  protectedSurfaceNames: MOBILE_SCALE_CONTRACT.protectedSurfaces,
+} as const;
+
 const compactModules = new Set<MobileModuleType>(["overview", "manager", "table", "list", "evidence", "debug"]);
 
 export function getMobileDensityForSurface(
@@ -132,11 +140,26 @@ export function assertNoDesktopStuffing(config: MobileSurfaceConfig): { ok: bool
   const isMobile = config.deviceBand === "mobile";
 
   if (!isMobile) return { ok: true, failures };
-  if (/\bp-8\b/.test(className)) failures.push("mobile className must not use p-8 desktop padding");
-  if (/\bpy-8\b|\bpx-8\b/.test(className)) failures.push("mobile className must not use py/px-8 desktop padding");
-  if (/\btext-4xl\b|\btext-5xl\b/.test(className)) failures.push("mobile className must not use text-4xl display type");
-  if (/\bh-screen\b|\bmin-h-screen\b/.test(className)) failures.push("mobile className must not use raw h-screen shell math");
-  if (/\brounded-3xl\b/.test(className)) failures.push("mobile className should use shared radius tokens instead of rounded-3xl");
+  for (const token of MOBILE_SCALE_THRESHOLDS.mobileLargePaddingClasses) {
+    if (new RegExp(`\\b${token}\\b`, "u").test(className)) {
+      failures.push(`mobile className must not use ${token} desktop-scale padding`);
+    }
+  }
+  for (const token of MOBILE_SCALE_THRESHOLDS.mobileDisplayTypeClasses) {
+    if (new RegExp(`\\b${token}\\b`, "u").test(className)) {
+      failures.push(`mobile className must not use ${token} display type outside a true hero`);
+    }
+  }
+  for (const token of MOBILE_SCALE_THRESHOLDS.mobileShellHeightClasses) {
+    if (new RegExp(`\\b${token}\\b`, "u").test(className)) {
+      failures.push(`mobile className must not use raw ${token} shell math`);
+    }
+  }
+  for (const token of MOBILE_SCALE_THRESHOLDS.mobileOversizedRadiusClasses) {
+    if (new RegExp(`\\b${token}\\b`, "u").test(className)) {
+      failures.push(`mobile className should use shared radius tokens instead of ${token}`);
+    }
+  }
 
   const nestedScrollAllowed = config.moduleType === "list" || config.moduleType === "table" || config.moduleType === "debug";
   if (config.nestedScroll && !nestedScrollAllowed) {

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T17:56:53.635Z",
+  "generatedAtUtc": "2026-05-20T05:50:48.055Z",
   "reportKey": "beta-health-algorithm-v2",
-  "currentHead": "6c9632549685ea77686f04b7ac29d70c9bab7a88",
+  "currentHead": "379b9e92ab1faf8bcefd2d87f8036b50820c4e56",
   "summary": {
     "scoreVersion": "beta_health_v2",
     "binaryEvidenceGatesRemoved": true,
@@ -59,7 +59,7 @@
   ],
   "prCleanupActions": [
     "open_pr_count_start=0",
-    "open_pr_count_end=0"
+    "open_pr_count_end_pending_final_check"
   ],
   "nextFixOrder": [
     "Attach formal manual screenshot evidence.",

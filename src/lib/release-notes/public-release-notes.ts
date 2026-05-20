@@ -1,13 +1,66 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.28",
-  "betaReleaseCounter": 328,
+  "currentVersion": "1.3.29",
+  "betaReleaseCounter": 329,
   "channel": "beta",
-  "generatedAt": "2026-05-20T05:30:40.497Z",
-  "generatedAtUtc": "2026-05-20T05:30:40.497Z",
+  "generatedAt": "2026-05-20T05:50:28.317Z",
+  "generatedAtUtc": "2026-05-20T05:50:28.317Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.29",
+      "previousVersion": "1.3.28",
+      "betaReleaseCounter": 329,
+      "previousBetaReleaseCounter": 328,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(core): refine existing algorithms",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T05:50:28.317Z",
+      "generatedAt": "2026-05-20T05:50:28.317Z",
+      "committedAtUtc": "2026-05-20T05:50:28.317Z",
+      "generatedAtUtc": "2026-05-20T05:50:28.317Z",
+      "updatedAtUtc": "2026-05-20T05:50:28.317Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Refined existing scoring, telemetry, layout, pricing, and drop-status algorithms.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refined existing scoring, telemetry, layout, pricing, and drop-status algorithms.",
+        "Removed duplicate fallback logic instead of adding new systems.",
+        "Kept chat and payment logic unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted existing algorithm refinement pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Creator tools",
+        "Drops",
+        "Analytics",
+        "Mobile UI"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/existing-algorithm-refinement.generated.json",
+        "docs/agent-truth/existing-algorithm-refinement.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-existing-algorithm-refinement.ts",
+        "src/lib/creator-public-pages.ts",
+        "src/lib/drop-status.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/ui/mobile-scale-contract.ts",
+        "tests/unit/existing-algorithm-refinement.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.28",
       "previousVersion": "1.3.27",
@@ -1306,75 +1359,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/creator-drop-management-approval.spec.ts",
         "tests/unit/creator-drop-manager-mobile-refinement.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.4",
-      "previousVersion": "1.3.3",
-      "betaReleaseCounter": 304,
-      "previousBetaReleaseCounter": 303,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "feat(creator): add drop submissions for approval",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T19:26:54.000Z",
-      "generatedAt": "2026-05-19T19:26:54.000Z",
-      "committedAtUtc": "2026-05-19T19:26:54.000Z",
-      "generatedAtUtc": "2026-05-19T19:26:54.000Z",
-      "updatedAtUtc": "2026-05-19T19:26:54.000Z",
-      "category": "New",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added a creator drop management lane for admin-reviewed Drop submissions.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Added a creator drop management lane separate from My KandyDrops.",
-        "Let creators submit drops for admin approval.",
-        "Kept pending creator submissions out of public rotation until approved."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted creator drop management approval update into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator dashboard",
-        "creator drop manager",
-        "admin drops",
-        "release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-drop-management-approval.generated.json",
-        "docs/agent-truth/creator-drop-management-approval.md",
-        "docs/agent-truth/creator-dashboard-role-boundary.md",
-        "docs/agent-truth/creator-surface-routing.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-drop-management-approval.ts",
-        "scripts/agent/validate-creator-dashboard-role-boundary.ts",
-        "scripts/agent/validate-creator-surface-routing.ts",
-        "scripts/agent/validate-security-role-boundaries.ts",
-        "scripts/agent/validate-user-creator-ui-parity.ts",
-        "src/app/api/admin/drops/route.ts",
-        "src/app/api/creator/drops/route.ts",
-        "src/app/dashboard/creator/drops/page.tsx",
-        "src/components/Creators/CreatorDropManager.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/lib/creator-profile-routing.ts",
-        "src/lib/drops/drop-form-contract.ts",
-        "src/lib/drops/drop-submission-contract.ts",
-        "src/lib/drop-normalizers.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/creator-drop-scope.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/types/db.ts",
-        "tests/unit/creator-dashboard-role-boundary.spec.ts",
-        "tests/unit/creator-drop-management-approval.spec.ts",
-        "tests/unit/creator-surface-routing.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

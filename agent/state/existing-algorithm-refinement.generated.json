@@ -1,0 +1,426 @@
+{
+  "generatedAtUtc": "2026-05-20T05:53:57.903Z",
+  "reportKey": "existing-algorithm-refinement",
+  "currentHead": "379b9e92ab1faf8bcefd2d87f8036b50820c4e56",
+  "summary": {
+    "algorithmsInventoried": 10,
+    "algorithmsRefined": 3,
+    "algorithmsValidated": 6,
+    "algorithmsDeferred": 1,
+    "missingDependencies": 0,
+    "duplicateAlgorithmsRemoved": 2,
+    "betaSourceReadySeparatedFromRuntime": true,
+    "mobileDensityCanonical": true,
+    "telemetryToggleModeled": true,
+    "creatorPricingCanonical": true,
+    "dropLifecycleCanonical": true,
+    "marqueeCanonical": true,
+    "loadingGuardCanonical": true,
+    "protectedChatUntouched": true,
+    "packageScriptReady": true,
+    "dirtyFilesClassified": true,
+    "openPrsClassified": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 1
+  },
+  "algorithms": [
+    {
+      "name": "beta_health_scoring",
+      "file": "src/lib/agent-score/core.ts",
+      "purpose": "Score public beta health while separating source readiness, runtime proof, evidence completeness, freshness, and cost risk.",
+      "consumers": [
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-beta-health-algorithm-v2.ts"
+      ],
+      "inputs": [
+        "scanner findings",
+        "formal evidence artifacts",
+        "generated report freshness",
+        "cost readiness lanes"
+      ],
+      "outputs": [
+        "overallScore",
+        "healthScoreBreakdown",
+        "launchGateStatus",
+        "scoreDeltaDrivers"
+      ],
+      "failureModes": [
+        "source-ready counted as runtime proof",
+        "owner review counted as pass",
+        "missing evidence treated as zero traffic"
+      ],
+      "staleConflictingLogic": [],
+      "status": "validated",
+      "refinement": "Validated in place: source credit, runtime credit, owner-review cost, and delta drivers already exist."
+    },
+    {
+      "name": "mobile_scaling_self_checks",
+      "file": "src/lib/ui/mobile-scale-contract.ts",
+      "purpose": "Classify mobile density by surface/module and flag desktop-stuffed classes before UI work lands.",
+      "consumers": [
+        "scripts/agent/validate-mobile-ui-final-lock.ts",
+        "future UI validators"
+      ],
+      "inputs": [
+        "surface",
+        "moduleType",
+        "deviceBand",
+        "className",
+        "skeleton state"
+      ],
+      "outputs": [
+        "density",
+        "module class names",
+        "desktop stuffing failures"
+      ],
+      "failureModes": [
+        "one-off class math",
+        "mobile p-6/text-3xl sprawl missed",
+        "chat/nav included in broad cleanup"
+      ],
+      "staleConflictingLogic": [],
+      "status": "refined",
+      "refinement": "Refined in place with shared threshold tokens for p-6/p-7/p-8, display type, shell heights, and oversized radius."
+    },
+    {
+      "name": "telemetry_dependency_graph",
+      "file": "src/lib/analytics/telemetry-dependency-graph.ts",
+      "purpose": "Map telemetry lanes from producers through ingest, persistence, materializers, and admin evidence.",
+      "consumers": [
+        "scripts/agent/validate-telemetry-dependency-graph.ts",
+        "scripts/agent/validate-final-telemetry-closure-lock.ts"
+      ],
+      "inputs": [
+        "event names",
+        "tracking policy",
+        "persistence destinations",
+        "consumer lanes"
+      ],
+      "outputs": [
+        "lane graph",
+        "cost priority",
+        "failure behavior"
+      ],
+      "failureModes": [
+        "disabled behavior events sneaking through",
+        "tracked claims without persistence",
+        "product integrity events dropped"
+      ],
+      "staleConflictingLogic": [],
+      "status": "validated",
+      "refinement": "Validated in place: client tracking policy models enabled/disabled behavior and required integrity events."
+    },
+    {
+      "name": "analytics_materialization_export",
+      "file": "src/lib/analytics/materialization-contract.ts",
+      "purpose": "Classify persisted analytics records into facts, summaries, exports, admin evidence, or archive/debug-only lanes.",
+      "consumers": [
+        "scripts/agent/validate-event-facts-materializer-closure.ts",
+        "scripts/agent/validate-bigquery-cloud-pipeline-closure.ts"
+      ],
+      "inputs": [
+        "Firestore collections",
+        "event facts",
+        "rollup cadence",
+        "BigQuery eligibility"
+      ],
+      "outputs": [
+        "materialization contract",
+        "export contract",
+        "admin consumer map"
+      ],
+      "failureModes": [
+        "raw full collection reads by default",
+        "per-event export claims",
+        "unknown legacy counted as current truth"
+      ],
+      "staleConflictingLogic": [],
+      "status": "validated",
+      "refinement": "Validated existing materialization/export contracts."
+    },
+    {
+      "name": "creator_pricing_settings_resolution",
+      "file": "src/lib/creator-settings/creator-pricing-resolver.ts",
+      "purpose": "Resolve creator setting price over safe default over unavailable while preserving paid-only policy.",
+      "consumers": [
+        "src/lib/creator-public-pages.ts",
+        "creator purchase/experience flows",
+        "creator dashboard settings"
+      ],
+      "inputs": [
+        "creator settings",
+        "request category",
+        "booking service type",
+        "subscription state"
+      ],
+      "outputs": [
+        "enabled state",
+        "priceGd",
+        "source marker",
+        "paidOnly marker",
+        "disabled reason"
+      ],
+      "failureModes": [
+        "public summary hardcodes legacy price",
+        "disabled feature remains purchasable",
+        "reward GumDrops fund paid experience"
+      ],
+      "staleConflictingLogic": [],
+      "status": "refined",
+      "refinement": "Refined in place: public creator experience summaries now consume the canonical pricing resolver."
+    },
+    {
+      "name": "drop_visibility_status_resolution",
+      "file": "src/lib/drop-status.ts",
+      "purpose": "Resolve lifecycle/status separately from public visibility for creator, public, and admin audiences.",
+      "consumers": [
+        "src/lib/server/creator-drop-scope.ts",
+        "drop cards",
+        "creator drop manager",
+        "public discovery"
+      ],
+      "inputs": [
+        "status",
+        "reviewStatus",
+        "publicDiscovery",
+        "rotationEligibility",
+        "visibility",
+        "validFrom",
+        "validUntil"
+      ],
+      "outputs": [
+        "draft/pending/approved/live/expired/rejected/needs_changes/unavailable",
+        "publicVisible",
+        "creatorVisible",
+        "reason"
+      ],
+      "failureModes": [
+        "pending drop shown publicly",
+        "expired creator-owned drop hidden from creator status",
+        "review status confused with public live state"
+      ],
+      "staleConflictingLogic": [],
+      "status": "refined",
+      "refinement": "Refined in place: drop-status now exposes a lifecycle resolver while existing timing resolver remains intact."
+    },
+    {
+      "name": "creator_dashboard_overview_source_resolution",
+      "file": "docs/agent-truth/creator-dashboard-overview-stats.md",
+      "purpose": "Keep creator overview source truth separate from user dashboard and missing evidence separate from zero.",
+      "consumers": [
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "creator dashboard overview validators"
+      ],
+      "inputs": [
+        "creator-scoped drops",
+        "followers/fan pass counts",
+        "broadcast/request source states"
+      ],
+      "outputs": [
+        "overview stats",
+        "sourceTruth labels",
+        "partial/unavailable status"
+      ],
+      "failureModes": [
+        "creator overview renders user modules",
+        "missing follower data shown as zero",
+        "stale generated stats treated as live"
+      ],
+      "staleConflictingLogic": [
+        "overview source doctrine missing sourceTruth markers"
+      ],
+      "status": "deferred",
+      "refinement": "Deferred to creator dashboard owner."
+    },
+    {
+      "name": "marquee_truncation_decision",
+      "file": "src/components/ui/MarqueeText.tsx",
+      "purpose": "Animate only single-line truncated labels/titles, without layout shift and with reduced motion respected.",
+      "consumers": [
+        "drop cards",
+        "creator rows",
+        "admin labels",
+        "user library cards"
+      ],
+      "inputs": [
+        "children",
+        "container width",
+        "scroll width",
+        "reduced motion preference"
+      ],
+      "outputs": [
+        "ellipsis or marquee rendering"
+      ],
+      "failureModes": [
+        "body text animated",
+        "animation runs when not truncated",
+        "reduced motion ignored"
+      ],
+      "staleConflictingLogic": [],
+      "status": "validated",
+      "refinement": "Validated existing shared marquee algorithm."
+    },
+    {
+      "name": "loading_hydration_stale_request_guards",
+      "file": "src/lib/ui/loading-state-contract.ts",
+      "purpose": "Prevent stale async responses from overwriting newer state and keep skeletons sized to final modules.",
+      "consumers": [
+        "mobile dashboard/settings/admin loading validators",
+        "async UI loaders"
+      ],
+      "inputs": [
+        "request ids",
+        "module type",
+        "device band",
+        "loaded/error states"
+      ],
+      "outputs": [
+        "freshness checks",
+        "compact skeleton classes",
+        "module loading state"
+      ],
+      "failureModes": [
+        "old response overwrites new data",
+        "full-screen loader replaces module skeleton",
+        "skeleton larger than final layout"
+      ],
+      "staleConflictingLogic": [],
+      "status": "validated",
+      "refinement": "Validated existing loading and stale request guard algorithm."
+    },
+    {
+      "name": "cost_readiness_scoring",
+      "file": "src/lib/agent-score/evidence-quality.ts",
+      "purpose": "Score cost readiness without turning owner-review or external billing unknowns into passes.",
+      "consumers": [
+        "src/lib/agent-score/core.ts",
+        "scripts/agent/validate-beta-health-algorithm-v2.ts"
+      ],
+      "inputs": [
+        "cost readiness lanes",
+        "external billing markers",
+        "blocked lanes"
+      ],
+      "outputs": [
+        "score",
+        "ownerReviewRequired",
+        "blocksLaunch",
+        "reasons"
+      ],
+      "failureModes": [
+        "owner review counted as pass",
+        "missing billing config treated as app failure",
+        "blocked cost lane ignored"
+      ],
+      "staleConflictingLogic": [],
+      "status": "validated",
+      "refinement": "Validated existing cost readiness scorer."
+    }
+  ],
+  "duplicateAlgorithmFindings": [],
+  "staleLogicRemoved": [
+    "Removed public creator profile Fan Pass price fallback that bypassed creator-pricing-resolver.",
+    "Removed public creator profile call-rate fallback that bypassed creator-pricing-resolver."
+  ],
+  "deferredFindings": [
+    {
+      "severity": "p2",
+      "file": "docs/agent-truth/creator-dashboard-overview-stats.md",
+      "detail": "creator_dashboard_overview_source_resolution deferred: Deferred to creator dashboard owner."
+    }
+  ],
+  "dirtyFileClassifications": [
+    {
+      "file": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "agent/state/beta-health-algorithm-v2.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/creator-pricing-wiring.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/creator-pricing-wiring.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "src/lib/creator-public-pages.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "src/lib/drop-status.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "src/lib/ui/mobile-scale-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/existing-algorithm-refinement.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "scripts/agent/validate-existing-algorithm-refinement.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "file": "tests/unit/existing-algorithm-refinement.spec.ts",
+      "classification": "real_source_change_needs_review"
+    }
+  ],
+  "prCleanupActions": [
+    "PR #274 classified as preserved_broad_governance_doc_outside_algorithm_scope."
+  ],
+  "fixesApplied": [
+    "Refined public creator experience summaries to use the existing creator pricing resolver.",
+    "Refined the existing drop-status owner with creator/public/admin lifecycle status resolution.",
+    "Refined the existing mobile scale contract with shared threshold tokens for desktop-stuffing checks.",
+    "Validated beta, telemetry, materialization/export, marquee, loading, and cost algorithms without adding competing systems."
+  ],
+  "nextFixOrder": [
+    "Keep future pricing display changes routed through src/lib/creator-settings/creator-pricing-resolver.ts.",
+    "Adopt resolveDropLifecycleStatus in creator/public drop UI when those surfaces are next touched.",
+    "Keep mobile surface cleanup tied to MOBILE_SCALE_THRESHOLDS instead of one-off class scans.",
+    "Regenerate lane-specific beta/telemetry/mobile artifacts only in their owning checks; do not mark beta exit ready from this source-only pass."
+  ]
+}

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.29 - 2026-05-20
+- Bug fixes and general improvements
+- Refined existing scoring, telemetry, layout, pricing, and drop-status algorithms.
+- Removed duplicate fallback logic instead of adding new systems.
+- Kept chat and payment logic unchanged.
+
 ## 1.3.28 - 2026-05-20
 - Bug fixes and general improvements
 - Checked recent creator, UI, and telemetry wiring for stale or orphaned logic.

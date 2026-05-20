@@ -1,7 +1,5 @@
 import {
-    CREATOR_BOOKING_RATES,
     CREATOR_MESSAGE_COSTS,
-    CREATOR_SUBSCRIPTION_MIN_GD,
     DEFAULT_CREATOR_SETTINGS,
     isCreatorRole,
     normalizeCreatorSettings,
@@ -9,6 +7,11 @@ import {
 } from "@/lib/creator-experiences";
 import { normalizeCreatorOnboardingApprovalStatus } from "@/lib/creator-onboarding";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
+import {
+    resolveCreatorBookingPricing,
+    resolveCreatorPricing,
+    type CreatorPricingSource,
+} from "@/lib/creator-settings/creator-pricing-resolver";
 
 export {
     buildCreatorAdminHref,
@@ -38,6 +41,9 @@ export type CreatorPublicExperienceCard = {
     eyebrow: string;
     label: string;
     summary: string;
+    source?: CreatorPricingSource;
+    paidOnly?: boolean;
+    enabled?: boolean;
 };
 
 export type CreatorDiscoveryProfile = {
@@ -99,6 +105,7 @@ export function isCreatorVisibleInDiscovery(input: {
 
 export function resolveCreatorPublicExperienceState(settingsInput: CreatorSettings | null | undefined, activeDropCount: number) {
     const settings = settingsInput ? normalizeCreatorSettings(settingsInput) : DEFAULT_CREATOR_SETTINGS;
+    const resolvedPricing = resolveCreatorPricing(settingsInput);
     const enabledRequestCategories = settings.requestCategories.filter((category) => category.enabled);
     const summaryCards: CreatorPublicExperienceCard[] = [];
 
@@ -115,8 +122,11 @@ export function resolveCreatorPublicExperienceState(settingsInput: CreatorSettin
         summaryCards.push({
             key: "subscriptions",
             eyebrow: "Fan pass",
-            label: `${settings.subscriptionPriceGd || CREATOR_SUBSCRIPTION_MIN_GD} GD monthly`,
+            label: `${resolvedPricing.fanPass.priceGd} GD monthly`,
             summary: "Unlock recurring creator access with chat perks and discounted calls.",
+            source: resolvedPricing.fanPass.source,
+            paidOnly: resolvedPricing.fanPass.paidOnly,
+            enabled: resolvedPricing.fanPass.enabled,
         });
     }
 
@@ -130,22 +140,37 @@ export function resolveCreatorPublicExperienceState(settingsInput: CreatorSettin
     }
 
     if (settings.customRequestsEnabled && enabledRequestCategories.length > 0) {
+        const primaryRequest = resolvedPricing.requests[0];
         summaryCards.push({
             key: "requests",
             eyebrow: "Custom work",
-            label: enabledRequestCategories[0]?.label || "Custom request",
+            label: primaryRequest?.label || enabledRequestCategories[0]?.label || "Custom request",
             summary: enabledRequestCategories.length > 1
                 ? `${enabledRequestCategories.length} request categories are open right now.`
                 : "A private request lane is open for one-off creator work.",
+            source: primaryRequest?.source,
+            paidOnly: primaryRequest?.paidOnly,
+            enabled: primaryRequest?.enabled,
         });
     }
 
     if (settings.bookingsEnabled) {
+        const phonePricing = resolveCreatorBookingPricing(settingsInput, {
+            serviceType: "phone",
+            durationMinutes: settings.bookingMinimumMinutes,
+        });
+        const videoPricing = resolveCreatorBookingPricing(settingsInput, {
+            serviceType: "video",
+            durationMinutes: settings.bookingMinimumMinutes,
+        });
         summaryCards.push({
             key: "bookings",
             eyebrow: "Calls",
-            label: `${settings.phoneRatePerMinuteGd || CREATOR_BOOKING_RATES.phone}/${settings.videoRatePerMinuteGd || CREATOR_BOOKING_RATES.video} GD per min`,
+            label: `${phonePricing.ratePerMinuteGd}/${videoPricing.ratePerMinuteGd} GD per min`,
             summary: `Fans can reserve phone or video time starting at ${settings.bookingMinimumMinutes} minutes.`,
+            source: phonePricing.source === videoPricing.source ? phonePricing.source : "creator_settings",
+            paidOnly: phonePricing.paidOnly && videoPricing.paidOnly,
+            enabled: phonePricing.enabled && videoPricing.enabled,
         });
     }
 
