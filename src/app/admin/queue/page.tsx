@@ -296,7 +296,14 @@ export default function ManageQueuePage() {
     }
 
     return (
-        <div className="mx-auto max-w-4xl pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:pb-28" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+        <div
+            className="mx-auto max-w-4xl pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:pb-28"
+            data-mobile-density="compact"
+            data-mobile-sprawl-guard="true"
+            data-mobile-organization="summary-first"
+            data-mobile-drilldown="true"
+            data-desktop-flow-collapsed="true"
+        >
             <PageViewEvent eventName="admin_queue_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Queue"
@@ -321,7 +328,7 @@ export default function ManageQueuePage() {
                 )}
             />
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6" data-mobile-organization="summary-first">
                 <section className={`${adminQueueModuleClassName} bg-white/[0.02] shadow-xl shadow-black/20`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     <div className="flex items-start justify-between gap-3">
                         <div>
@@ -416,7 +423,7 @@ export default function ManageQueuePage() {
                     ) : null}
                 </section>
 
-                <section className={`${adminQueueModuleClassName} bg-white/[0.02] shadow-xl shadow-black/20`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                <section className={`${adminQueueModuleClassName} bg-white/[0.02] shadow-xl shadow-black/20`} data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-drilldown="true">
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 px-4 py-4">
                         <div>
                             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Queue Lineup</p>

@@ -649,7 +649,13 @@ export default function DebugConsole() {
     };
 
     return (
-        <div className="space-y-4 md:space-y-6">
+        <div
+            className="space-y-4 md:space-y-6"
+            data-mobile-organization="summary-first"
+            data-mobile-drilldown="true"
+            data-desktop-flow-collapsed="true"
+            data-admin-mobile-surface="debug"
+        >
             <PageViewEvent eventName="admin_debug_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Debug"
@@ -663,9 +669,11 @@ export default function DebugConsole() {
                 )}
             />
 
-            {renderTabControls()}
+            <div data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
+                {renderTabControls()}
+            </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-1">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-1" data-mobile-organization="summary-first" data-admin-debug-summary="primary">
                 <StatCard label="System state" truthState={!data && isLoading ? "loading" : error ? "failed" : systemStateHealthy ? "live" : "degraded"} value={systemStateStatus} meta={systemStateMeta} copy={systemStateCopy} />
                 <StatCard label="Route checks" truthState={!data && isLoading ? "loading" : error ? "failed" : activePipelineFailureCount > 0 ? "failed" : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "degraded" : "live"} value={activePipelineFailureCount} meta={activePipelineFailureCount > 0 ? "Route checks need attention." : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "Recent route checks need review." : "No route failures are active."} copy={pipelineCardCopy} />
                 <StatCard label="Task users" truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.usersWithTaskIssues ?? 0) > 0 || (data?.stats?.runtimeUsersWithRefreshIssues ?? 0) > 0 ? "degraded" : "live"} value={data?.stats?.usersWithTaskIssues ?? "--"} meta={(data?.stats?.usersWithTaskIssues ?? 0) > 0 ? "Some users have task issues." : "No task-user issues are active."} copy={taskIssueCopy} />

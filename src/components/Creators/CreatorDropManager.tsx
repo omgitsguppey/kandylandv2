@@ -148,6 +148,9 @@ export function CreatorDropManager() {
             data-mobile-primary-action="submit_drop"
             data-mobile-density="compact"
             data-mobile-sprawl-guard="true"
+            data-mobile-organization="summary-first"
+            data-mobile-drilldown="true"
+            data-desktop-flow-collapsed="true"
         >
             <section className="mx-auto flex w-full max-w-5xl flex-col gap-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -175,7 +178,7 @@ export function CreatorDropManager() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6" aria-label="Creator drop status filters" data-creator-drop-status-filter="all" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6" aria-label="Creator drop status filters" data-creator-drop-status-filter="all" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
                     {REVIEW_TABS.map((tab) => {
                         const Icon = tab.icon;
                         const active = activeTab === tab.id;

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.21 - 2026-05-20
+- Bug fixes and general improvements
+- Improved mobile organization across admin, user, and creator screens.
+- Collapsed desktop-heavy sections into mobile summaries and drilldowns.
+- Kept navigation and chat unchanged.
+
 ## 1.3.20 - 2026-05-20
 - Bug fixes and general improvements
 - Improved mobile loading and skeleton stability.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Made Fan Pass subscribers readable in Creator Dashboard.
 - Added mobile-first Fan Pass CRM rows.
 - Clarified Creator Broadcast audience language.
-
-## 1.2.96 - 2026-05-19
-- Bug fixes and general improvements
-- Combined Creator Dashboard stats into one compact overview.
-- Fixed creator fan and content count source mapping.
-- Separated creator-owned content counts from public drop discovery.

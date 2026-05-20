@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.20",
-  "betaReleaseCounter": 320,
+  "currentVersion": "1.3.21",
+  "betaReleaseCounter": 321,
   "channel": "beta",
-  "generatedAt": "2026-05-20T00:10:16.213Z",
-  "generatedAtUtc": "2026-05-20T00:10:16.213Z",
+  "generatedAt": "2026-05-20T00:20:42.819Z",
+  "generatedAtUtc": "2026-05-20T00:20:42.819Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.21",
+      "previousVersion": "1.3.20",
+      "betaReleaseCounter": 321,
+      "previousBetaReleaseCounter": 320,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(ui): organize mobile surfaces",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T00:20:42.819Z",
+      "generatedAt": "2026-05-20T00:20:42.819Z",
+      "committedAtUtc": "2026-05-20T00:20:42.819Z",
+      "generatedAtUtc": "2026-05-20T00:20:42.819Z",
+      "updatedAtUtc": "2026-05-20T00:20:42.819Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved mobile organization across admin, user, and creator screens.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved mobile organization across admin, user, and creator screens.",
+        "Collapsed desktop-heavy sections into mobile summaries and drilldowns.",
+        "Kept navigation and chat unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted mobile surface organization pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "mobile UI",
+        "admin screens",
+        "creator screens",
+        "user screens"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/mobile-surface-organization.generated.json",
+        "docs/agent-truth/mobile-surface-organization.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-mobile-surface-organization.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/page.tsx",
+        "src/app/admin/queue/page.tsx",
+        "src/app/dashboard/DashboardClient.tsx",
+        "src/app/dashboard/library/LibraryClient.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Creators/CreatorDropManager.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/mobile-surface-organization.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.20",
       "previousVersion": "1.3.19",
@@ -1341,68 +1398,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/creator-fan-pass-crm-broadcast.spec.ts",
         "tests/unit/creator-fan-pass-manager.spec.tsx",
         "tests/unit/creator-subscriptions-route.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.2.96",
-      "previousVersion": "1.2.95",
-      "betaReleaseCounter": 296,
-      "previousBetaReleaseCounter": 295,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(creator): consolidate overview stats sources",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T16:02:57.385Z",
-      "generatedAt": "2026-05-19T16:02:57.385Z",
-      "committedAtUtc": "2026-05-19T16:02:57.385Z",
-      "generatedAtUtc": "2026-05-19T16:02:57.385Z",
-      "updatedAtUtc": "2026-05-19T16:02:57.385Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Consolidated Creator Dashboard stats and corrected creator-scoped fan and content source mapping.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Combined Creator Dashboard stats into one compact overview.",
-        "Fixed creator fan and content count source mapping.",
-        "Separated creator-owned content counts from public drop discovery."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted creator dashboard overview stats source fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator dashboard",
-        "creator settings",
-        "drop visibility"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-dashboard-overview-stats.generated.json",
-        "docs/agent-truth/creator-dashboard-overview-stats.md",
-        "docs/agent-truth/creator-landing-dashboard-mobile.md",
-        "docs/agent-truth/creator-settings-source-health.md",
-        "docs/agent-truth/creator-surface-routing.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-dashboard-overview-stats.ts",
-        "scripts/agent/validate-creator-landing-dashboard-mobile.ts",
-        "scripts/agent/validate-creator-surface-routing.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/creator-drop-scope.ts",
-        "tests/unit/creator-dashboard-overview-stats.spec.ts",
-        "tests/unit/creator-drop-scope.spec.ts",
-        "tests/unit/creator-landing-dashboard-mobile.spec.ts",
-        "tests/unit/creator-settings-route.spec.ts",
-        "tests/unit/creator-surface-routing.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

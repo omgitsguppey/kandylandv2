@@ -56,8 +56,8 @@ Required helpers:
 
 ## Validator Report
 
-Generated: 2026-05-19T23:55:20.431Z
-Current code version: f5cd89d7f272a983716612c3cdf74e18ac24a298
+Generated: 2026-05-20T00:20:54.126Z
+Current code version: fae8156809e176dd750551277c1563cab897bcf5
 
 - Doctrine created: yes
 - Shared mobile scale contract: yes
@@ -72,7 +72,6 @@ Current code version: f5cd89d7f272a983716612c3cdf74e18ac24a298
 - src/app/(legal)/privacy/page.tsx:47:              <h1 className="mt-2 text-3xl font-black text-white md:text-4xl">How KandyDrops handles your data</h1>
 - src/app/(legal)/terms/page.tsx:25:                <h1 className="text-4xl font-bold text-white mb-8">Terms of Service</h1>
 - src/app/admin/ai/page.tsx:41:        <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8" data-ai-dashboard-density="compact-v2">
-- src/app/admin/analytics/loading.tsx:3:    <section className="min-h-screen bg-[#020617] px-4 py-6 text-white sm:px-6 lg:px-8">
 - src/app/admin/analytics/page.tsx:114:          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10 text-red-400">
 - src/app/admin/content/page.tsx:263:                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
 - src/app/admin/content/page.tsx:267:                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
@@ -94,3 +93,4 @@ Current code version: f5cd89d7f272a983716612c3cdf74e18ac24a298
 - src/app/admin/users/page.tsx:1002:                                            <td colSpan={8} className="p-8 text-center">
 - src/app/admin/users/page.tsx:1008:                                            <td colSpan={8} className="p-8 text-center text-gray-500">
 - src/app/admin/users/page.tsx:1170:                            <div className="p-8 text-center glass-panel rounded-2xl"><Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" /></div>
+- src/app/admin/users/page.tsx:1172:                            <div className="p-8 text-center text-gray-500 glass-panel rounded-2xl">No users found.</div>

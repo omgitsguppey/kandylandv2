@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T00:11:45.028Z",
+  "generatedAtUtc": "2026-05-20T00:20:54.092Z",
   "reportKey": "mobile-loading-hydration-stability",
-  "currentHead": "4939d419aa499e09113c1c16fa15d3156acd7b9e",
+  "currentHead": "fae8156809e176dd750551277c1563cab897bcf5",
   "summary": {
     "doctrinePresent": true,
     "mobileScaleContractPresent": true,

@@ -98,7 +98,15 @@ export function LibraryClient({ drops }: LibraryClientProps) {
 
     if (authLoading) {
         return (
-            <div className="animate-pulse" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-skeleton="user-library-route">
+            <div
+                className="animate-pulse"
+                data-mobile-density="compact"
+                data-mobile-sprawl-guard="true"
+                data-mobile-skeleton="user-library-route"
+                data-mobile-organization="summary-first"
+                data-mobile-drilldown="true"
+                data-user-library-surface="my-kandydrops"
+            >
                 <div className="mb-4">
                     <div className="h-10 w-64 bg-white/10 rounded mb-2" />
                     <div className="h-5 w-72 bg-white/5 rounded" />
@@ -114,7 +122,14 @@ export function LibraryClient({ drops }: LibraryClientProps) {
 
 
     return (
-        <div className="flex min-h-[calc(100dvh-var(--root-shell-top-spacing,6rem))] flex-col px-2 md:px-0" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+        <div
+            className="flex min-h-[calc(100dvh-var(--root-shell-top-spacing,6rem))] flex-col px-2 md:px-0"
+            data-mobile-density="compact"
+            data-mobile-sprawl-guard="true"
+            data-mobile-organization="summary-first"
+            data-mobile-drilldown="true"
+            data-user-library-surface="my-kandydrops"
+        >
             <header className="mb-4 md:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple mb-1">

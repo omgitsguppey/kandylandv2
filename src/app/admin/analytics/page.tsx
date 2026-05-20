@@ -127,7 +127,13 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="space-y-4 pb-20 md:space-y-5 md:pb-8">
+    <div
+      className="space-y-4 pb-20 md:space-y-5 md:pb-8"
+      data-mobile-organization="summary-first"
+      data-mobile-drilldown="true"
+      data-desktop-flow-collapsed="true"
+      data-admin-mobile-surface="analytics"
+    >
       <PageViewEvent eventName="admin_analytics_viewed" />
       <AdminPageHeader
         eyebrow="Admin Analytics"
@@ -136,7 +142,7 @@ export default function AdminAnalyticsPage() {
         compact
       />
 
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4" data-mobile-organization="summary-first" data-admin-analytics-summary="primary">
         <MetricCard
           label="Live Active"
           value={analyticsOverviewDisplayMetrics.liveActive.displayValue}
@@ -183,7 +189,7 @@ export default function AdminAnalyticsPage() {
         />
       </div>
 
-      <div className="z-20 space-y-2 rounded-[1.1rem] border border-white/10 bg-black/65 p-2 backdrop-blur-xl md:sticky md:top-24 md:space-y-2.5 md:rounded-[1.4rem] md:p-2.5">
+      <div className="z-20 space-y-2 rounded-[1.1rem] border border-white/10 bg-black/65 p-2 backdrop-blur-xl md:sticky md:top-24 md:space-y-2.5 md:rounded-[1.4rem] md:p-2.5" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
         
 
         
@@ -301,18 +307,23 @@ export default function AdminAnalyticsPage() {
         </div>
       ) : null}
 
-      <main className="space-y-4 md:space-y-5">
+      <main className="space-y-4 md:space-y-5" data-mobile-drilldown="true">
         {state.activeTab === "operations" ? <AdminAnalyticsOperationsTab {...state} /> : null}
         {state.activeTab === "audience" ? <AdminAnalyticsAudienceTab {...state} /> : null}
         {state.activeTab === "commerce" ? <AdminAnalyticsCommerceTab {...state} /> : null}
 
-        <AdminTaskAndNotificationModules
-          renderSectionRangeControl={state.renderSectionRangeControl}
-          dailyTaskPipelineModel={state.dailyTaskPipelineModel}
-          notificationFunnelModel={state.notificationFunnelModel}
-          formatDuration={state.formatDuration}
-          formatPercent={state.formatPercent}
-        />
+        <details className="rounded-[1.1rem] border border-white/10 bg-black/35 p-3" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
+          <summary className="cursor-pointer text-sm font-bold text-white">Task and notification drilldowns</summary>
+          <div className="mt-3">
+            <AdminTaskAndNotificationModules
+              renderSectionRangeControl={state.renderSectionRangeControl}
+              dailyTaskPipelineModel={state.dailyTaskPipelineModel}
+              notificationFunnelModel={state.notificationFunnelModel}
+              formatDuration={state.formatDuration}
+              formatPercent={state.formatPercent}
+            />
+          </div>
+        </details>
 
         </main>
     </div>

@@ -641,6 +641,9 @@ export function CreatorDashboardSettingsHub() {
       data-report-issue-safe-offset="bottom-nav"
       data-mobile-density="compact"
       data-mobile-sprawl-guard="true"
+      data-mobile-organization="summary-first"
+      data-mobile-drilldown="true"
+      data-desktop-flow-collapsed="true"
     >
       <div className={cn(creatorManagerModuleClassName, "bg-black/50")} data-mobile-density="compact" data-mobile-sprawl-guard="true">
         <div className="flex items-start justify-between gap-3">
@@ -684,7 +687,7 @@ export function CreatorDashboardSettingsHub() {
         ) : null}
       </div>
 
-      <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2">
+      <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2" data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
         {sections.map((section) => (
           <SectionCard
             key={section.id}
@@ -720,7 +723,7 @@ export function CreatorDashboardSettingsHub() {
         ))}
       </div>
 
-      <div className="space-y-2" data-creator-active-manager={openSection ?? "none"}>
+      <div className="space-y-2" data-creator-active-manager={openSection ?? "none"} data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
         <p className="px-1 text-xs font-semibold text-gray-400">Open a section to load its manager.</p>
         {activeManager}
       </div>

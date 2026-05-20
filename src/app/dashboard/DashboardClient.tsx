@@ -78,6 +78,9 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
                 className="mx-auto w-full max-w-7xl px-3 sm:px-4"
                 data-mobile-density="compact"
                 data-mobile-sprawl-guard="true"
+                data-mobile-organization="summary-first"
+                data-mobile-drilldown="true"
+                data-desktop-flow-collapsed="true"
             >
 
                 <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
@@ -111,7 +114,18 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
 
 
     return (
-        <div id="dashboard-home" tabIndex={-1} className="scroll-mt-24 mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none" data-onboarding-page="dashboard" data-dashboard-surface="user_dashboard" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+        <div
+            id="dashboard-home"
+            tabIndex={-1}
+            className="scroll-mt-24 mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none"
+            data-onboarding-page="dashboard"
+            data-dashboard-surface="user_dashboard"
+            data-mobile-density="compact"
+            data-mobile-sprawl-guard="true"
+            data-mobile-organization="summary-first"
+            data-mobile-drilldown="true"
+            data-desktop-flow-collapsed="true"
+        >
             <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
                 <div className="space-y-3 md:space-y-5">
                     <DailyCheckIn />
