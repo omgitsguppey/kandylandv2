@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.19",
-  "betaReleaseCounter": 319,
+  "currentVersion": "1.3.20",
+  "betaReleaseCounter": 320,
   "channel": "beta",
-  "generatedAt": "2026-05-19T23:56:06.022Z",
-  "generatedAtUtc": "2026-05-19T23:56:06.022Z",
+  "generatedAt": "2026-05-20T00:10:16.213Z",
+  "generatedAtUtc": "2026-05-20T00:10:16.213Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.20",
+      "previousVersion": "1.3.19",
+      "betaReleaseCounter": 320,
+      "previousBetaReleaseCounter": 319,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(ui): stabilize mobile loading states",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T00:10:16.213Z",
+      "generatedAt": "2026-05-20T00:10:16.213Z",
+      "committedAtUtc": "2026-05-20T00:10:16.213Z",
+      "generatedAtUtc": "2026-05-20T00:10:16.213Z",
+      "updatedAtUtc": "2026-05-20T00:10:16.213Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved mobile loading and skeleton stability.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved mobile loading and skeleton stability.",
+        "Reduced layout shift during dashboard hydration.",
+        "Added stale-request guards for mobile data loading."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted mobile loading hydration stability pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "mobile UI",
+        "admin screens",
+        "creator screens",
+        "user screens"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/mobile-loading-hydration-stability.generated.json",
+        "docs/agent-truth/mobile-loading-hydration-stability.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-mobile-loading-hydration-stability.ts",
+        "src/app/admin/analytics/loading.tsx",
+        "src/app/admin/queue/page.tsx",
+        "src/app/dashboard/DashboardClient.tsx",
+        "src/app/dashboard/library/LibraryClient.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Creators/CreatorDropManager.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/ui/loading-state-contract.ts",
+        "tests/unit/mobile-loading-hydration-stability.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.19",
       "previousVersion": "1.3.18",
@@ -1346,56 +1403,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/creator-landing-dashboard-mobile.spec.ts",
         "tests/unit/creator-settings-route.spec.ts",
         "tests/unit/creator-surface-routing.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.2.95",
-      "previousVersion": "1.2.94",
-      "betaReleaseCounter": 295,
-      "previousBetaReleaseCounter": 294,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(cost): lock final cost audit readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T15:40:07.320Z",
-      "generatedAt": "2026-05-19T15:40:07.320Z",
-      "committedAtUtc": "2026-05-19T15:40:07.320Z",
-      "generatedAtUtc": "2026-05-19T15:40:07.320Z",
-      "updatedAtUtc": "2026-05-19T15:40:07.320Z",
-      "category": "Performance",
-      "title": "Bug fixes and general improvements",
-      "summary": "Locked the full analytics cost cleanup audit and refreshed Beta readiness without marking unproven evidence as ready.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked the full analytics cost cleanup audit.",
-        "Verified cost reductions do not compromise tracking accuracy.",
-        "Refreshed Beta readiness with cost and analytics evidence."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted final cost audit lock into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "admin",
-        "runtime jobs",
-        "beta readiness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/final-cost-audit-lock.generated.json",
-        "docs/agent-truth/final-cost-audit-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-cost-audit-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-cost-audit-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

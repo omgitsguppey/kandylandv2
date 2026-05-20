@@ -12,14 +12,15 @@ import { useDrops } from "@/hooks/useDrops";
 import { mergeResolvedDropsById } from "@/lib/drop-dashboard";
 import { isDropActiveNow } from "@/lib/drop-status";
 import { CREATOR_DASHBOARD_ROUTE } from "@/lib/creator-profile-routing";
-import { getMobileModuleClassNames, getSkeletonClassForModule } from "@/lib/ui/mobile-scale-contract";
+import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
+import { getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
 import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
 
 const userOverviewModuleClassName = getMobileModuleClassNames("user", "overview");
-const userOverviewSkeletonClassName = getSkeletonClassForModule("overview");
-const userListSkeletonClassName = getSkeletonClassForModule("list");
+const userOverviewSkeletonClassName = getMobileSkeletonClass("user", "overview");
+const userListSkeletonClassName = getMobileSkeletonClass("user", "list");
 
 const RecentActivityFeed = dynamic(
     () => import("@/components/Dashboard/RecentActivityFeed").then((mod) => mod.RecentActivityFeed),
@@ -81,8 +82,8 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
 
                 <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
                     <div className="space-y-3 md:space-y-5">
-                        <div className={userOverviewSkeletonClassName} />
-                        <div className={userListSkeletonClassName} />
+                        <div className={userOverviewSkeletonClassName} data-mobile-skeleton="user-dashboard-overview" />
+                        <div className={userListSkeletonClassName} data-mobile-skeleton="user-dashboard-list" />
                     </div>
                     <div className="lg:col-span-2">
                         <div className="h-56 rounded-[1.35rem] border border-white/10 bg-white/[0.04] sm:h-72" />

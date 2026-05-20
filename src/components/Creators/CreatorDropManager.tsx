@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
 import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
+import { createStaleRequestGuard, getMobileSkeletonClass, getModuleLoadingState } from "@/lib/ui/loading-state-contract";
 
 type CreatorDropReviewStatus = "draft" | "pending_admin_approval" | "approved" | "needs_changes" | "rejected";
 type CreatorDropFilter = "all" | CreatorDropReviewStatus;
@@ -50,6 +51,7 @@ const REVIEW_STATUS_LABELS: Record<CreatorDropReviewStatus, string> = {
 };
 
 const creatorManagerModuleClassName = getMobileModuleClassNames("creator", "manager");
+const creatorDropListSkeletonClassName = getMobileSkeletonClass("creator", "list");
 
 function classifyDrop(drop: CreatorDropRow): CreatorDropReviewStatus {
     if (drop.reviewStatus === "needs_changes") return "needs_changes";
@@ -66,8 +68,10 @@ export function CreatorDropManager() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const openedTrackedRef = useRef(false);
+    const dropLoadGuardRef = useRef(createStaleRequestGuard());
 
     const loadDrops = useCallback(async () => {
+        const requestId = dropLoadGuardRef.current.next();
         setLoading(true);
         try {
             const response = await authFetch("/api/creator/drops?limit=100");
@@ -75,11 +79,18 @@ export function CreatorDropManager() {
             if (!response.ok) {
                 throw new Error(result.error || "Unable to load creator drops.");
             }
+            if (!dropLoadGuardRef.current.isFresh(requestId)) {
+                return;
+            }
             setDrops(Array.isArray(result.drops) ? result.drops : []);
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Unable to load creator drops.");
+            if (dropLoadGuardRef.current.isFresh(requestId)) {
+                toast.error(error instanceof Error ? error.message : "Unable to load creator drops.");
+            }
         } finally {
-            setLoading(false);
+            if (dropLoadGuardRef.current.isFresh(requestId)) {
+                setLoading(false);
+            }
         }
     }, []);
 
@@ -115,6 +126,8 @@ export function CreatorDropManager() {
         () => activeTab === "all" ? drops : drops.filter((drop) => classifyDrop(drop) === activeTab),
         [activeTab, drops],
     );
+    const dropListLoadingState = getModuleLoadingState({ loading, hasData: visibleDrops.length > 0 });
+    const showDropListSkeleton = dropListLoadingState === "loading";
 
     const openSubmitForm = useCallback(() => {
         trackEvent("creator_drop_submission_started", {
@@ -185,8 +198,12 @@ export function CreatorDropManager() {
                 </div>
 
                 <div className={creatorManagerModuleClassName} data-creator-drop-list-density="compact_rows" data-mobile-density="compact" data-mobile-sprawl-guard="true">
-                    {loading ? (
-                        <p className="py-6 text-center text-sm text-gray-300">Loading creator drops...</p>
+                    {showDropListSkeleton ? (
+                        <div className="grid gap-2" data-mobile-skeleton="creator-drop-list" data-mobile-density="compact" data-mobile-sprawl-guard="true" aria-label="Loading creator drops">
+                            {[0, 1, 2].map((item) => (
+                                <div key={item} className={creatorDropListSkeletonClassName} />
+                            ))}
+                        </div>
                     ) : visibleDrops.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-3 py-6 text-center" data-empty-state-density="compact">
                             <Package className="h-7 w-7 text-brand-purple" />

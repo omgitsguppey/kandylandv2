@@ -1,7 +1,7 @@
 # Mobile Hardcoded CSS Cleanup
 
-Generated: 2026-05-19T23:58:36.715Z
-Current code version: f5cd89d7f272a983716612c3cdf74e18ac24a298
+Generated: 2026-05-20T00:12:10.680Z
+Current code version: 4939d419aa499e09113c1c16fa15d3156acd7b9e
 
 ## Summary
 
@@ -38,7 +38,6 @@ Current code version: f5cd89d7f272a983716612c3cdf74e18ac24a298
 - src/app/(legal)/privacy/page.tsx:47:              <h1 className="mt-2 text-3xl font-black text-white md:text-4xl">How KandyDrops handles your data</h1>
 - src/app/(legal)/terms/page.tsx:25:                <h1 className="text-4xl font-bold text-white mb-8">Terms of Service</h1>
 - src/app/admin/ai/page.tsx:41:        <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8" data-ai-dashboard-density="compact-v2">
-- src/app/admin/analytics/loading.tsx:3:    <section className="min-h-screen bg-[#020617] px-4 py-6 text-white sm:px-6 lg:px-8">
 - src/app/admin/analytics/page.tsx:112:      <div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
 - src/app/admin/analytics/page.tsx:113:        <div className="glass-panel max-w-xl rounded-[2rem] border border-red-500/20 p-6 text-center">
 - src/app/admin/analytics/page.tsx:114:          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10 text-red-400">
@@ -49,7 +48,7 @@ Current code version: f5cd89d7f272a983716612c3cdf74e18ac24a298
 - src/app/admin/debug/page.tsx:680:            {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-6 text-sm text-gray-300"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
 - src/app/admin/drops/page.tsx:1133:                        <div className="glass-panel w-full max-w-md rounded-3xl border border-white/10 p-5">
 - src/app/admin/layout.tsx:58:      <div className="min-h-screen flex items-center justify-center">
-- src/app/admin/queue/page.tsx:282:            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6">
+- src/app/admin/queue/page.tsx:324:            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6">
 - src/app/admin/roster/page.tsx:1007:        <main className="min-h-screen bg-black px-4 pb-24 pt-24 text-white sm:px-6" data-roster-mode="decision_queue" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
 - src/app/admin/user/[userId]/page.tsx:598:        return <div className="p-8 text-center text-red-500">Access Restricted</div>;
 - src/app/admin/user/[userId]/page.tsx:603:            <div className="p-8 text-center text-gray-300">
@@ -63,6 +62,7 @@ Current code version: f5cd89d7f272a983716612c3cdf74e18ac24a298
 - src/app/admin/user/[userId]/page.tsx:1114:                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
 - src/app/admin/user/[userId]/page.tsx:1149:            <details className="glass-panel rounded-3xl border border-white/5 p-6">
 - src/app/admin/user/[userId]/page.tsx:1163:                        <p className="mt-2 text-3xl font-black text-white">{parity ? `${parity.score}%` : "[unavailable]"}</p>
+- src/app/admin/user/[userId]/page.tsx:1170:                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.purchase.canonicalCount : "[unavailable]"}</p>
 
 ## Next Fix Order
 

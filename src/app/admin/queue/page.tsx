@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowLeft, ArrowUp, Calendar, Clock3, Edit, Loader2, RefreshCw, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { collection, getDocs } from "firebase/firestore";
@@ -15,6 +15,7 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminTimeLabel } from "@/lib/admin-drop-formatting";
 import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
+import { createStaleRequestGuard, getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
 import {
     buildAdminQueueProjection,
     buildReadableQueueScheduleSummary,
@@ -25,6 +26,7 @@ import { normalizeDropRecordOrFallback } from "@/lib/drop-read-models";
 type QueueConfig = AdminDropQueueConfig;
 
 const adminQueueModuleClassName = getMobileModuleClassNames("admin", "manager");
+const adminQueueSkeletonClassName = getMobileSkeletonClass("admin", "manager");
 
 function IconControl({
     label,
@@ -66,25 +68,19 @@ export default function ManageQueuePage() {
     const [error, setError] = useState<string | null>(null);
     const [scheduleExpanded, setScheduleExpanded] = useState(false);
     const [queueEditMode, setQueueEditMode] = useState(false);
+    const queueLoadGuardRef = useRef(createStaleRequestGuard());
 
     const fetchQueueData = useCallback(async () => {
+        const requestId = queueLoadGuardRef.current.next();
         try {
             setError(null);
-            const [queueRes, dropsSnap] = await Promise.all([
-                authFetch("/api/admin/queue"),
-                getDocs(collection(db, "drops")),
-            ]);
+            const queueRes = await authFetch("/api/admin/queue");
 
             if (!queueRes.ok) {
                 throw new Error("Failed to fetch queue config");
             }
 
             const queueData = await queueRes.json() as QueueConfig;
-            const dropsMap: Record<string, Drop> = {};
-            dropsSnap.forEach((docSnapshot) => {
-                const raw = docSnapshot.data() as Record<string, unknown>;
-                dropsMap[docSnapshot.id] = normalizeDropRecordOrFallback(raw, docSnapshot.id);
-            });
 
             let times = queueData.timesPerDay || ["12:00"];
             if (times.length < queueData.dropsPerDay) {
@@ -93,13 +89,47 @@ export default function ManageQueuePage() {
                 times = times.slice(0, queueData.dropsPerDay);
             }
 
+            if (!queueLoadGuardRef.current.isFresh(requestId)) {
+                return false;
+            }
+
             setConfig({
                 ...queueData,
                 timesPerDay: times,
             });
-            setDrops(dropsMap);
+            setLoading(false);
+
+            try {
+                const dropsSnap = await getDocs(collection(db, "drops"));
+                if (!queueLoadGuardRef.current.isFresh(requestId)) {
+                    return false;
+                }
+                const dropsMap: Record<string, Drop> = {};
+                dropsSnap.forEach((docSnapshot) => {
+                    const raw = docSnapshot.data() as Record<string, unknown>;
+                    dropsMap[docSnapshot.id] = normalizeDropRecordOrFallback(raw, docSnapshot.id);
+                });
+                setDrops(dropsMap);
+            } catch (dropLoadError: any) {
+                if (!queueLoadGuardRef.current.isFresh(requestId)) {
+                    return false;
+                }
+                reportClientIssue({
+                    channel: "network",
+                    message: "Admin queue drop details load failed",
+                    error: dropLoadError,
+                    detail: {
+                        action: "fetch_queue_drop_details",
+                    },
+                    consoleLabel: "[Admin Queue] drop detail load failed",
+                });
+                toast.error("Queue schedule loaded. Drop details could not be refreshed.");
+            }
             return true;
         } catch (err: any) {
+            if (!queueLoadGuardRef.current.isFresh(requestId)) {
+                return false;
+            }
             reportClientIssue({
                 channel: "network",
                 message: "Admin queue load failed",
@@ -116,7 +146,9 @@ export default function ManageQueuePage() {
             toast.error(message);
             return false;
         } finally {
-            setLoading(false);
+            if (queueLoadGuardRef.current.isFresh(requestId)) {
+                setLoading(false);
+            }
         }
     }, []);
 
@@ -216,11 +248,21 @@ export default function ManageQueuePage() {
             .find((slot): slot is number => typeof slot === "number");
         return nextQueueSlot ? formatAdminCompactDateTime(nextQueueSlot) : null;
     }, [queueItems]);
+    const dropsHydrating = Boolean(config && config.queue.length > 0 && Object.keys(drops).length === 0);
 
     if (loading) {
         return (
-            <div className="flex min-h-[400px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+            <div
+                className="mx-auto w-full max-w-4xl space-y-3 px-3 pb-[calc(env(safe-area-inset-bottom)+6.5rem)]"
+                data-mobile-density="compact"
+                data-mobile-sprawl-guard="true"
+                data-mobile-skeleton="admin-queue-route"
+            >
+                <div className={adminQueueSkeletonClassName} />
+                <div className="grid gap-3 lg:grid-cols-[1.05fr_1.95fr]">
+                    <div className={adminQueueSkeletonClassName} data-mobile-skeleton="admin-queue-schedule" />
+                    <div className={adminQueueSkeletonClassName} data-mobile-skeleton="admin-queue-lineup" />
+                </div>
             </div>
         );
     }
@@ -394,7 +436,13 @@ export default function ManageQueuePage() {
                     </div>
 
                     <div className="p-3 md:p-4">
-                        {config.queue.length === 0 ? (
+                        {dropsHydrating ? (
+                            <div className="space-y-2" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-skeleton="admin-queue-drop-details">
+                                {[0, 1, 2].map((item) => (
+                                    <div key={item} className={adminQueueSkeletonClassName} />
+                                ))}
+                            </div>
+                        ) : config.queue.length === 0 ? (
                             <div className="rounded-[1.35rem] border-2 border-dashed border-white/10 bg-black/20 px-4 py-6 text-center" data-mobile-density="compact" data-mobile-sprawl-guard="true">
                                 <RefreshCw className="mx-auto mb-2 h-8 w-8 text-gray-600" />
                                 <p className="font-medium text-gray-300">Queue is empty</p>

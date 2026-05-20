@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, BellRing, BookOpenText, CalendarClock, DollarSign, Loader2, Megaphone, MessageSquare, ShieldCheck, Users, Wallet } from "lucide-react";
+import { ArrowRight, BellRing, BookOpenText, CalendarClock, DollarSign, Megaphone, MessageSquare, ShieldCheck, Users, Wallet } from "lucide-react";
 
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
@@ -12,6 +12,7 @@ import { buildBugReportContext, getSafePreviousRoute, resolveClientActionError, 
 import type { HumanErrorAction } from "@/lib/errors/error-language";
 import { trackEvent } from "@/lib/telemetry";
 import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
+import { getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
 import { cn } from "@/lib/utils";
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
@@ -84,6 +85,8 @@ type CreatorSettingsResponse = {
 
 const creatorOverviewModuleClassName = getMobileModuleClassNames("creator", "overview");
 const creatorManagerModuleClassName = getMobileModuleClassNames("creator", "manager");
+const creatorSettingsHeaderSkeletonClassName = getMobileSkeletonClass("creator", "manager");
+const creatorSettingsCardSkeletonClassName = getMobileSkeletonClass("creator", "overview");
 
 type SectionState = "live" | "unavailable" | "not_configured" | "blocked" | "needs_setup" | "needs_review" | "error";
 
@@ -614,8 +617,18 @@ export function CreatorDashboardSettingsHub() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[200px] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+      <div
+        className="mx-auto w-full max-w-4xl space-y-3 px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8"
+        data-mobile-density="compact"
+        data-mobile-sprawl-guard="true"
+        data-mobile-skeleton="creator-settings-route"
+      >
+        <div className={creatorSettingsHeaderSkeletonClassName} />
+        <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2">
+          {[0, 1, 2, 3].map((item) => (
+            <div key={item} className={creatorSettingsCardSkeletonClassName} data-mobile-skeleton={`creator-settings-card-${item}`} />
+          ))}
+        </div>
       </div>
     );
   }

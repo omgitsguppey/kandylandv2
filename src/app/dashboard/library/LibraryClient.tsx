@@ -11,12 +11,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Drop } from "@/types/db";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
 import { trackEvent } from "@/lib/telemetry";
-import { getMobileModuleClassNames, getSkeletonClassForModule } from "@/lib/ui/mobile-scale-contract";
+import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
+import { getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
 
 type Ratio = "1:1" | "16:9" | "9:16";
 
 const userLibraryModuleClassName = getMobileModuleClassNames("user", "list");
-const userLibrarySkeletonClassName = getSkeletonClassForModule("list");
+const userLibrarySkeletonClassName = getMobileSkeletonClass("user", "list");
 
 function getRatio(drop: Drop): Ratio {
     const raw = drop.fileMetadata?.dimensions;
@@ -95,9 +96,9 @@ export function LibraryClient({ drops }: LibraryClientProps) {
         return [...base, ...Array.from(creators).sort()];
     }, [unlockedDrops]);
 
-if (authLoading) {
+    if (authLoading) {
         return (
-            <div className="animate-pulse" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+            <div className="animate-pulse" data-mobile-density="compact" data-mobile-sprawl-guard="true" data-mobile-skeleton="user-library-route">
                 <div className="mb-4">
                     <div className="h-10 w-64 bg-white/10 rounded mb-2" />
                     <div className="h-5 w-72 bg-white/5 rounded" />

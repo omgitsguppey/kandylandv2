@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T23:58:36.715Z",
+  "generatedAtUtc": "2026-05-20T00:12:10.680Z",
   "reportKey": "mobile-hardcoded-css-cleanup",
-  "currentHead": "f5cd89d7f272a983716612c3cdf74e18ac24a298",
+  "currentHead": "4939d419aa499e09113c1c16fa15d3156acd7b9e",
   "summary": {
     "mobileScaleContractPresent": true,
     "doctrinePresent": true,
@@ -22,7 +22,6 @@
     "src/app/(legal)/privacy/page.tsx:47:              <h1 className=\"mt-2 text-3xl font-black text-white md:text-4xl\">How KandyDrops handles your data</h1>",
     "src/app/(legal)/terms/page.tsx:25:                <h1 className=\"text-4xl font-bold text-white mb-8\">Terms of Service</h1>",
     "src/app/admin/ai/page.tsx:41:        <div className=\"min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8\" data-ai-dashboard-density=\"compact-v2\">",
-    "src/app/admin/analytics/loading.tsx:3:    <section className=\"min-h-screen bg-[#020617] px-4 py-6 text-white sm:px-6 lg:px-8\">",
     "src/app/admin/analytics/page.tsx:112:      <div className=\"flex min-h-[60vh] items-center justify-center px-4 py-10\">",
     "src/app/admin/analytics/page.tsx:113:        <div className=\"glass-panel max-w-xl rounded-[2rem] border border-red-500/20 p-6 text-center\">",
     "src/app/admin/analytics/page.tsx:114:          <div className=\"mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10 text-red-400\">",
@@ -33,7 +32,7 @@
     "src/app/admin/debug/page.tsx:680:            {(isLoading || overviewLoading) && !data ? <div className=\"rounded-[1.35rem] border border-white/10 bg-black/25 p-6 text-sm text-gray-300\"><Loader2 className=\"mr-2 inline h-4 w-4 animate-spin\" />Loading debug surfaces...</div> : null}",
     "src/app/admin/drops/page.tsx:1133:                        <div className=\"glass-panel w-full max-w-md rounded-3xl border border-white/10 p-5\">",
     "src/app/admin/layout.tsx:58:      <div className=\"min-h-screen flex items-center justify-center\">",
-    "src/app/admin/queue/page.tsx:282:            <div className=\"grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6\">",
+    "src/app/admin/queue/page.tsx:324:            <div className=\"grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6\">",
     "src/app/admin/roster/page.tsx:1007:        <main className=\"min-h-screen bg-black px-4 pb-24 pt-24 text-white sm:px-6\" data-roster-mode=\"decision_queue\" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>",
     "src/app/admin/user/[userId]/page.tsx:598:        return <div className=\"p-8 text-center text-red-500\">Access Restricted</div>;",
     "src/app/admin/user/[userId]/page.tsx:603:            <div className=\"p-8 text-center text-gray-300\">",
@@ -81,7 +80,7 @@
     "src/app/creators/waitlist/page.tsx:585:                            <h1 className=\"mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl\">",
     "src/app/creators/waitlist/page.tsx:610:                                    <h2 className=\"mt-3 text-2xl font-black text-white sm:text-3xl\">",
     "src/app/dashboard/layout.tsx:36:            <div className=\"flex min-h-screen flex-col items-center justify-center bg-black\">",
-    "src/app/dashboard/library/LibraryClient.tsx:119:                    <h1 className=\"text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple mb-1\">",
+    "src/app/dashboard/library/LibraryClient.tsx:120:                    <h1 className=\"text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple mb-1\">",
     "src/app/dashboard/profile/components/ProfilePrimitives.tsx:10:            <div className=\"overflow-hidden rounded-3xl bg-white/5 border border-white/5\">",
     "src/app/dashboard/profile/creator/page.tsx:9:    <div className=\"mx-auto flex min-h-screen w-full max-w-lg items-center px-4 py-8\">",
     "src/app/dashboard/profile/creator/page.tsx:21:      <div className=\"rounded-3xl border border-white/10 bg-black/60 p-5 text-white\">",
@@ -136,7 +135,8 @@
     "src/components/Chat/ChatExperience.tsx:3065:                                            <div className=\"px-4 py-10 text-sm text-[#8f9097] sm:px-5\">",
     "src/components/Chat/ChatExperience.tsx:3136:                                    className=\"min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-black px-4 pt-4 sm:px-6\"",
     "src/components/Chat/ChatExperience.tsx:3409:                                                    \"block w-full resize-none self-center overflow-y-auto bg-transparent py-0 text-white placeholder:text-[#5d5e66] focus:outline-none\",",
-    "src/components/Chat/ChatExperience.tsx:3478:                            <div className={cn(\"overflow-y-auto px-3 py-3\", isIosPwaChatShell ? \"max-h-[52vh]\" : \"max-h-[60vh]\")}>"
+    "src/components/Chat/ChatExperience.tsx:3478:                            <div className={cn(\"overflow-y-auto px-3 py-3\", isIosPwaChatShell ? \"max-h-[52vh]\" : \"max-h-[60vh]\")}>",
+    "src/components/Chat/ChatExperience.tsx:3501:                                    <div className=\"px-3 py-10 text-center\">"
   ],
   "cleanedFiles": [
     "src/app/dashboard/DashboardClient.tsx",

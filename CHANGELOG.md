@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.20 - 2026-05-20
+- Bug fixes and general improvements
+- Improved mobile loading and skeleton stability.
+- Reduced layout shift during dashboard hydration.
+- Added stale-request guards for mobile data loading.
+
 ## 1.3.19 - 2026-05-19
 - Bug fixes and general improvements
 - Reduced oversized mobile layouts across admin, user, and creator screens.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Combined Creator Dashboard stats into one compact overview.
 - Fixed creator fan and content count source mapping.
 - Separated creator-owned content counts from public drop discovery.
-
-## 1.2.95 - 2026-05-19
-- Bug fixes and general improvements
-- Locked the full analytics cost cleanup audit.
-- Verified cost reductions do not compromise tracking accuracy.
-- Refreshed Beta readiness with cost and analytics evidence.

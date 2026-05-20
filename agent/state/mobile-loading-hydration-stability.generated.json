@@ -1,0 +1,344 @@
+{
+  "generatedAtUtc": "2026-05-20T00:11:45.028Z",
+  "reportKey": "mobile-loading-hydration-stability",
+  "currentHead": "4939d419aa499e09113c1c16fa15d3156acd7b9e",
+  "summary": {
+    "doctrinePresent": true,
+    "mobileScaleContractPresent": true,
+    "loadingContractPresent": true,
+    "protectedNavChatUntouched": true,
+    "compactSkeletonsPresent": true,
+    "staleRequestProtectionApplied": true,
+    "promiseAllHydrationAvoided": true,
+    "fullPageLoadersAvoided": true,
+    "loadingStateOverwriteGuarded": true,
+    "testsCoverStaleSuppression": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "loading-contract-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Shared loading-state contract exposes stale request guards and compact skeleton helpers."
+    },
+    {
+      "id": "mobile-scale-contract-reused",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Mobile scale contract is reused instead of duplicated."
+    },
+    {
+      "id": "package-script-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Package script exists for the mobile loading hydration validator."
+    }
+  ],
+  "protectedSurfaceFindings": [
+    {
+      "id": "protected-nav-chat-untouched",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Protected navigation and chat files were not changed."
+    }
+  ],
+  "skeletonFindings": [
+    {
+      "id": "compact-skeleton-src/app/dashboard/DashboardClient.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/dashboard/DashboardClient.tsx should use compact skeleton markers and mobile density markers."
+    },
+    {
+      "id": "compact-skeleton-src/app/dashboard/library/LibraryClient.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/dashboard/library/LibraryClient.tsx should use compact skeleton markers and mobile density markers."
+    },
+    {
+      "id": "compact-skeleton-src/components/Creators/CreatorDropManager.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/components/Creators/CreatorDropManager.tsx should use compact skeleton markers and mobile density markers."
+    },
+    {
+      "id": "compact-skeleton-src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/components/Creators/CreatorDashboardSettingsHub.tsx should use compact skeleton markers and mobile density markers."
+    },
+    {
+      "id": "compact-skeleton-src/app/admin/queue/page.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/admin/queue/page.tsx should use compact skeleton markers and mobile density markers."
+    },
+    {
+      "id": "compact-skeleton-src/app/admin/analytics/loading.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/admin/analytics/loading.tsx should use compact skeleton markers and mobile density markers."
+    }
+  ],
+  "hydrationFindings": [
+    {
+      "id": "promise-all-src/app/dashboard/DashboardClient.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/dashboard/DashboardClient.tsx should avoid all-or-nothing Promise.all hydration for mobile route modules."
+    },
+    {
+      "id": "promise-all-src/app/dashboard/library/LibraryClient.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/dashboard/library/LibraryClient.tsx should avoid all-or-nothing Promise.all hydration for mobile route modules."
+    },
+    {
+      "id": "promise-all-src/components/Creators/CreatorDropManager.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/components/Creators/CreatorDropManager.tsx should avoid all-or-nothing Promise.all hydration for mobile route modules."
+    },
+    {
+      "id": "promise-all-src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/components/Creators/CreatorDashboardSettingsHub.tsx should avoid all-or-nothing Promise.all hydration for mobile route modules."
+    },
+    {
+      "id": "promise-all-src/app/admin/queue/page.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/admin/queue/page.tsx should avoid all-or-nothing Promise.all hydration for mobile route modules."
+    },
+    {
+      "id": "promise-all-src/app/admin/analytics/loading.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/admin/analytics/loading.tsx should avoid all-or-nothing Promise.all hydration for mobile route modules."
+    },
+    {
+      "id": "full-page-loader-src/app/dashboard/DashboardClient.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/dashboard/DashboardClient.tsx should use module skeletons instead of large full-page loaders."
+    },
+    {
+      "id": "full-page-loader-src/app/dashboard/library/LibraryClient.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/dashboard/library/LibraryClient.tsx should use module skeletons instead of large full-page loaders."
+    },
+    {
+      "id": "full-page-loader-src/components/Creators/CreatorDropManager.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/components/Creators/CreatorDropManager.tsx should use module skeletons instead of large full-page loaders."
+    },
+    {
+      "id": "full-page-loader-src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/components/Creators/CreatorDashboardSettingsHub.tsx should use module skeletons instead of large full-page loaders."
+    },
+    {
+      "id": "full-page-loader-src/app/admin/queue/page.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/admin/queue/page.tsx should use module skeletons instead of large full-page loaders."
+    },
+    {
+      "id": "full-page-loader-src/app/admin/analytics/loading.tsx",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "src/app/admin/analytics/loading.tsx should use module skeletons instead of large full-page loaders."
+    }
+  ],
+  "raceConditionFindings": [
+    {
+      "id": "stale-request-src/components/Creators/CreatorDropManager.tsx",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "src/components/Creators/CreatorDropManager.tsx async loader should guard stale request results before setState."
+    },
+    {
+      "id": "stale-request-src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "src/components/Creators/CreatorDashboardSettingsHub.tsx async loader should guard stale request results before setState."
+    },
+    {
+      "id": "stale-request-src/app/admin/queue/page.tsx",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "src/app/admin/queue/page.tsx async loader should guard stale request results before setState."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "stale-suppression-test",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Unit tests cover stale request suppression."
+    },
+    {
+      "id": "mobile-loading-docs",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Mobile loading hydration stability doctrine exists."
+    }
+  ],
+  "prCleanupActions": [
+    "No open mobile loading, skeleton, hydration, dashboard, admin, creator, user, nav, or chat PRs were present at start."
+  ],
+  "nextFixOrder": [
+    "Apply loading-state-contract helpers to additional high-risk admin and creator modules as those surfaces are touched.",
+    "Keep route-level loading placeholders compact and close to the final module dimensions.",
+    "Escalate runtime screenshot verification only when source validators identify a mobile layout risk that cannot be proven from code."
+  ],
+  "inventory": [
+    "src/app/HomeClient.tsx:4:import { startTransition, useEffect, useRef } from \"react\";",
+    "src/app/HomeClient.tsx:19:    const { loading } = useAuthLoading();",
+    "src/app/HomeClient.tsx:25:        !loading &&",
+    "src/app/HomeClient.tsx:38:    useEffect(() => {",
+    "src/app/HomeClient.tsx:39:        if (!loading && (!user || isAdmin) && !trackedHomeViewRef.current) {",
+    "src/app/HomeClient.tsx:43:    }, [isAdmin, loading, user]);",
+    "src/app/HomeClient.tsx:45:    useEffect(() => {",
+    "src/app/HomeClient.tsx:46:        if (!loading && user && userProfile && !isAdmin) {",
+    "src/app/HomeClient.tsx:57:    }, [isAdmin, loading, router, user, userProfile]);",
+    "src/app/admin/AdminPrivacyPreflight.tsx:39:        isLoading,",
+    "src/app/admin/AdminPrivacyPreflight.tsx:50:    const overallState = data ? toAdminState(data.overallState) : isLoading ? \"loading\" : error ? \"failed\" : \"unavailable\";",
+    "src/app/admin/AdminPrivacyPreflight.tsx:64:            data-privacy-console-overall-state={data?.overallState ?? (isLoading ? \"loading\" : error ? \"error\" : \"unknown\")}",
+    "src/app/admin/AdminPrivacyPreflight.tsx:142:                {!isLoading && !error && checks.length === 0 ? (",
+    "src/app/admin/ai/AiHelpers.tsx:77:    isLoading?: boolean;",
+    "src/app/admin/ai/AiHelpers.tsx:81:        truthState: input.error ? \"failed\" : input.isLoading && !input.data ? \"unavailable\" : undefined,",
+    "src/app/admin/ai/AiHelpers.tsx:102:    truthState?: AdminTruthState | AdminSurfaceState | \"loading\";",
+    "src/app/admin/ai/AiHelpers.tsx:107:        pendingInitialLoad: truthState === \"loading\",",
+    "src/app/admin/ai/components/AdminAiDiagnosticsSection.tsx:15:        uploadingLibrary, setUploadingLibrary,",
+    "src/app/admin/ai/components/AdminAiDiagnosticsSection.tsx:16:        uploadingPrimary, setUploadingPrimary,",
+    "src/app/admin/ai/components/AdminAiDiagnosticsSection.tsx:25:        data, error, isLoading, mutate,",
+    "src/app/admin/ai/components/AdminAiOptimizerhealthSection.tsx:16:        uploadingLibrary, setUploadingLibrary,",
+    "src/app/admin/ai/components/AdminAiOptimizerhealthSection.tsx:17:        uploadingPrimary, setUploadingPrimary,",
+    "src/app/admin/ai/components/AdminAiOptimizerhealthSection.tsx:26:        data, error, isLoading, mutate,",
+    "src/app/admin/ai/components/AdminAiPromptworkbenchSection.tsx:16:        uploadingLibrary, setUploadingLibrary,",
+    "src/app/admin/ai/components/AdminAiPromptworkbenchSection.tsx:17:        uploadingPrimary, setUploadingPrimary,",
+    "src/app/admin/ai/components/AdminAiPromptworkbenchSection.tsx:26:        data, error, isLoading, mutate,",
+    "src/app/admin/ai/components/AdminAiPromptworkbenchSection.tsx:65:                                    <Button variant=\"brand\" size=\"sm\" onClick={() => void handlePromptPolicySave()} isLoading={savingPromptPolicy} disabled={!policyDirty}>",
+    "src/app/admin/ai/components/AdminAiRecentgenerationsSection.tsx:17:        isLoading,",
+    "src/app/admin/ai/components/AdminAiRecentgenerationsSection.tsx:22:    const sectionTruthState = resolveAdminAiDataState({ data, error, isLoading });",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:18:        uploadingLibrary, setUploadingLibrary,",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:19:        uploadingPrimary, setUploadingPrimary,",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:28:        data, error, isLoading, mutate,",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:40:    const sectionTruthState = resolveAdminAiDataState({ data, error, isLoading });",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:51:                                    <Button variant=\"outline\" size=\"sm\" onClick={() => libraryInputRef.current?.click()} isLoading={uploadingLibrary}>",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:55:                                    <Button variant=\"brand\" size=\"sm\" onClick={() => primaryInputRef.current?.click()} isLoading={uploadingPrimary}>",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:130:                                                                    <Button variant=\"outline\" size=\"sm\" onClick={() => void handleReferenceUpdate(asset.id, { primary: true }, \"Primary style reference updated\")} isLoading={updatingReferenceId === asset.id}>",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:135:                                                                    <Button variant=\"outline\" size=\"sm\" onClick={() => void handleReferenceUpdate(asset.id, { primary: false }, \"Primary style reference cleared\")} isLoading={updatingReferenceId === asset.id}>",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:139:                                                                <Button variant=\"outline\" size=\"sm\" onClick={() => void handleReferenceUpdate(asset.id, { pinned: asset.pinned !== true }, asset.pinned ? \"Reference unpinned\" : \"Reference pinned\")} isLoading={updatingReferenceId === asset.id}>",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:143:                                                                <Button variant=\"danger\" size=\"sm\" className=\"h-7 text-[10px] px-2\" onClick={() => void handleReferenceDelete(asset.id)} isLoading={removingReferenceId === asset.id}>",
+    "src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx:161:                                                    <Button variant=\"danger\" size=\"sm\" onClick={handleLegacyTemplateDelete} isLoading={removingReferenceId === \"template\"}>",
+    "src/app/admin/ai/components/AdminAiReviewgallerySection.tsx:16:        uploadingLibrary, setUploadingLibrary,",
+    "src/app/admin/ai/components/AdminAiReviewgallerySection.tsx:17:        uploadingPrimary, setUploadingPrimary,",
+    "src/app/admin/ai/components/AdminAiReviewgallerySection.tsx:26:        data, error, isLoading, mutate,",
+    "src/app/admin/ai/components/AdminAiReviewgallerySection.tsx:79:                                                <Button variant={item.reusable ? \"outline\" : \"brand\"} size=\"sm\" onClick={() => void handleReviewGalleryUpdate(item.id, !item.reusable)} isLoading={reviewingJobId === item.id}>",
+    "src/app/admin/ai/components/AdminAiRuntimestripSection.tsx:18:        uploadingLibrary, setUploadingLibrary,",
+    "src/app/admin/ai/components/AdminAiRuntimestripSection.tsx:19:        uploadingPrimary, setUploadingPrimary,",
+    "src/app/admin/ai/components/AdminAiRuntimestripSection.tsx:28:        data, error, isLoading, mutate,",
+    "src/app/admin/ai/components/AdminAiRuntimestripSection.tsx:40:    const sectionTruthState = resolveAdminAiDataState({ data, error, isLoading });",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:1:import { useEffect, useMemo, useRef, useState, type ChangeEvent } from \"react\";",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:3:import { authFetch } from \"@/lib/authFetch\";",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:125:    const [uploadingLibrary, setUploadingLibrary] = useState(false);",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:126:    const [uploadingPrimary, setUploadingPrimary] = useState(false);",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:139:    const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>(\"/api/admin/ai/drop-covers\", refreshIntervalMs, {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:147:    useEffect(() => {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:154:    useEffect(() => {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:172:    useEffect(() => {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:272:                await authFetch(\"/api/admin/ui/preferences\", {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:293:        const response = await authFetch(\"/api/admin/ai/drop-covers\", {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:394:            setUploadingPrimary(true);",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:396:            setUploadingLibrary(true);",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:409:                const response = await authFetch(\"/api/admin/ai/drop-covers/references\", {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:432:            setUploadingPrimary(false);",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:433:            setUploadingLibrary(false);",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:456:            const response = await authFetch(\"/api/admin/ai/drop-covers/references\", {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:483:            const response = await authFetch(\"/api/admin/ai/drop-covers/references\", {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:510:            const response = await authFetch(\"/api/admin/ai/drop-covers/template\", {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:536:            const response = await authFetch(\"/api/admin/ai/drop-covers/prompt-policy\", {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:570:            const response = await authFetch(\"/api/admin/ai/drop-covers/review-gallery\", {",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:601:        uploadingLibrary, setUploadingLibrary,",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:602:        uploadingPrimary, setUploadingPrimary,",
+    "src/app/admin/ai/hooks/useAdminAiState.tsx:611:        data, error, isLoading, mutate,",
+    "src/app/admin/ai/page.tsx:34:    const dashboardTruthState = state.data ? \"live\" : state.error ? \"failed\" : state.isLoading ? \"loading\" : \"unavailable\";",
+    "src/app/admin/ai/page.tsx:71:                                isLoading={state.updatingToggle}",
+    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx:42:  const historicalPanelTruthState = historicalOverviewTruthState ?? (historicalLoading ? \"loading\" : \"unavailable\");",
+    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx:43:  const returnCadenceTruthState = returnCadenceModel.truthState ?? (historicalLoading ? \"loading\" : \"unavailable\");",
+    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx:44:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx:119:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx:122:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx:130:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx:60:    : liveLoading ? \"loading\" : \"unavailable\";",
+    "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx:144:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx:1198:                                    : viewerCapturePulseState === \"stale\"",
+    "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx:1393:                                watch sessions or interaction traces land for",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:51:  const livePulseTruthState: AdminSurfaceState = liveActiveTruthState ?? (liveLoading ? \"loading\" : \"failed\");",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:52:  const historicalMetricTruthState: AdminSurfaceState = historicalOverviewTruthState ?? (historicalLoading ? \"loading\" : \"failed\");",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:60:    : liveResponse?.liveTruthLabel === \"stale\"",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:84:      : livePulseModel.guestSnapshotTruthState === \"stale\"",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:85:        ? \"stale\"",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:90:      : livePulseModel.guestSnapshotTruthState === \"stale\"",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:119:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:140:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:170:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:189:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:206:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:348:  React.useEffect(() => {",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:1034:                    truthState={guestBounceQualityModel.estimatedGuestViews.freshnessState === \"stale\" ? \"stale\" : guestBounceQualityModel.truthState}",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:1066:                    truthState={guestBounceQualityModel.signedInBounce.freshnessState === \"stale\" ? \"stale\" : guestBounceQualityModel.signedInBounce.value === null ? \"degraded\" : \"live\"}",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx:1067:                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === \"stale\" ? \"STALE\" : guestBounceQualityModel.signedInBounce.value === null ? \"PARTIAL\" : \"LIVE\"}",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts:3:import { useEffect, useMemo, useState } from \"react\";",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts:114:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:3:import { startTransition, useEffect, useMemo, useRef, useState } from \"react\";",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:17:import { authFetch } from \"@/lib/authFetch\";",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:36:} from \"@/lib/analytics/admin-analytics-loading-state\";",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:201:  loading: \"WAIT\",",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:206:  stale: \"DELAYED\",",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:229:  stale_cache: \"DELAYED\",",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:446:    cacheState: \"stale\",",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:514:  if (response.cacheState === \"stale\" || response.liveTruthLabel === \"stale\") {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:515:    return \"stale_cache\";",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:540:      truthState: input.liveResponse.cacheState === \"stale\" || input.liveResponse.liveTruthLabel === \"stale\"",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:541:        ? \"stale\"",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:546:      stale: input.liveResponse.cacheState === \"stale\" || input.liveResponse.liveTruthLabel === \"stale\",",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:560:      stale: input.snapshotModule.sourceMode === \"stale_cache\",",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:593:  if (displayState.sourceMode === \"stale_cache\") return \"stale\";",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:614:  freshnessState: \"live\" | \"review\" | \"stale\" | \"unknown\" | undefined,",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:621:    case \"stale\":",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:622:      return \"stale\";",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:666:  loading?: boolean;",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:674:    loading: input.loading,",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:680:      : displayState === \"loading\"",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:726:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:768:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:800:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:823:      const response = await authFetch(\"/api/admin/analytics/preferences\", {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:875:    isLoading: liveLoading,",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:887:    isLoading: historicalLoading,",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:897:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:926:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:935:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:941:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:947:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:953:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:1112:          liveTruthLabel: liveResponse.liveTruthLabel ?? \"stale\",",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:1164:  useEffect(() => {",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:1417:      ? \"stale\"",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:1418:      : historicalOverviewResponse?.cacheState === \"stale\"",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:1419:        ? \"stale\"",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:1426:          : historicalOverviewResponse ? \"live\" : historicalLoading ? \"loading\" : \"failed\";",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:1460:    loading: historicalLoading || commerceSnapshotModule.isLoading || audienceSnapshotModule.isLoading,",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx:1469:    : historicalTruthState === \"stale\" ? \"stale\""
+  ]
+}
