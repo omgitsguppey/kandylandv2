@@ -66,14 +66,14 @@ describe("creator surface routing", () => {
   });
 
   it("links the landing dashboard Creator settings pill to creator settings", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landing = read("src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx");
 
     expect(landing).toContain("href={CREATOR_SETTINGS_ROUTE}");
     expect(landing).not.toContain("Creator settings</Link>\r\n                        </div>");
   });
 
   it("routes the landing drop CTA to the creator drop manager", () => {
-    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const landing = read("src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx");
     const routing = read("src/lib/creator-profile-routing.ts");
 
     expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"');
@@ -88,37 +88,41 @@ describe("creator surface routing", () => {
 
   it("blocks raw creator settings internal error copy and uses HumanErrorNotice", () => {
     const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const sourceNotice = read("src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx");
     const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
-    const combined = `${landing}\n${settingsHub}`;
+    const combined = `${landing}\n${sourceNotice}\n${settingsHub}`;
 
     expect(combined).not.toContain("creator settings: Internal server error");
     expect(combined).not.toMatch(/>\s*Internal server error\s*</u);
-    expect(landing).toContain("HumanErrorNotice");
-    expect(landing).toContain("dashboard_source_unavailable");
+    expect(combined).toContain("HumanErrorNotice");
+    expect(combined).toContain("dashboard_source_unavailable");
     expect(settingsHub).toContain("HumanErrorNotice");
   });
 
   it("shows partial source review states without platform errors on successful creator settings responses", () => {
     const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const sourceNotice = read("src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx");
     const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+    const combinedLanding = `${landing}\n${sourceNotice}`;
 
-    expect(landing).toContain("data-creator-landing-source-review=\"partial_safe\"");
-    expect(landing).toContain("Creator Settings need setup");
+    expect(combinedLanding).toContain("data-creator-landing-source-review=\"partial_safe\"");
+    expect(combinedLanding).toContain("Creator Settings need setup");
     expect(settingsHub).toContain("data-creator-settings-source-state={settingsState}");
     expect(settingsHub).toContain("Creator Settings need setup");
   });
 
   it("marks both creator surfaces with compact mobile density and bottom spacing", () => {
     const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const overview = read("src/components/Dashboard/creator-workspace/CreatorDashboardOverviewModule.tsx");
     const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
 
     expect(landing).toContain("data-creator-dashboard-landing-density=\"mobile_compact\"");
     expect(landing).toContain("data-creator-landing-mobile-density=\"compact_v2\"");
     expect(landing).toContain("data-bottom-nav-safe=\"true\"");
     expect(landing).toContain("data-report-issue-safe-offset=\"bottom-nav\"");
-    expect(landing).toContain("data-creator-overview-module=\"compact_v1\"");
-    expect(landing).toContain("data-creator-dashboard-overview-density=\"mobile_compact\"");
-    expect(landing).toContain("data-creator-dashboard-content-scope=\"creator_owned_or_assigned\"");
+    expect(overview).toContain("data-creator-overview-module=\"compact_v1\"");
+    expect(overview).toContain("data-creator-dashboard-overview-density=\"mobile_compact\"");
+    expect(overview).toContain("data-creator-dashboard-content-scope=\"creator_owned_or_assigned\"");
     expect(landing).not.toContain("data-creator-landing-metric-card=\"compact_v2\"");
     expect(settingsHub).toContain("data-creator-dashboard-density=\"mobile_compact\"");
     expect(settingsHub).toContain("data-bottom-nav-safe=\"true\"");

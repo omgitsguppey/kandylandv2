@@ -1,7 +1,7 @@
 # Mobile Hardcoded CSS Cleanup
 
-Generated: 2026-05-20T00:12:10.680Z
-Current code version: 4939d419aa499e09113c1c16fa15d3156acd7b9e
+Generated: 2026-05-20T00:35:09.172Z
+Current code version: 11097e4a39af135396c4ad6795dc2c875ce12215
 
 ## Summary
 
@@ -45,10 +45,10 @@ Current code version: 4939d419aa499e09113c1c16fa15d3156acd7b9e
 - src/app/admin/content/page.tsx:267:                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
 - src/app/admin/debug/components/DebugControlTower.tsx:136:                        <p className="text-3xl font-black text-white">{model?.canonicalPublicBetaScore ?? "--"}</p>
 - src/app/admin/debug/components/DebugTabInfrastructure.tsx:218:                    <div className="py-8 text-center text-sm italic text-white/40">
-- src/app/admin/debug/page.tsx:680:            {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-6 text-sm text-gray-300"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
+- src/app/admin/debug/page.tsx:688:            {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-6 text-sm text-gray-300"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
 - src/app/admin/drops/page.tsx:1133:                        <div className="glass-panel w-full max-w-md rounded-3xl border border-white/10 p-5">
 - src/app/admin/layout.tsx:58:      <div className="min-h-screen flex items-center justify-center">
-- src/app/admin/queue/page.tsx:324:            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6">
+- src/app/admin/queue/page.tsx:331:            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6" data-mobile-organization="summary-first">
 - src/app/admin/roster/page.tsx:1007:        <main className="min-h-screen bg-black px-4 pb-24 pt-24 text-white sm:px-6" data-roster-mode="decision_queue" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
 - src/app/admin/user/[userId]/page.tsx:598:        return <div className="p-8 text-center text-red-500">Access Restricted</div>;
 - src/app/admin/user/[userId]/page.tsx:603:            <div className="p-8 text-center text-gray-300">

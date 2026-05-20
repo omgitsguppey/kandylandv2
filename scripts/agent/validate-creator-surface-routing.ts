@@ -63,6 +63,9 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
   const creatorSettingsPage = has(creatorSettingsPagePath) ? read(creatorSettingsPagePath) : "";
   const routing = read("src/lib/creator-profile-routing.ts");
   const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+  const quickActions = read("src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx");
+  const overviewModule = read("src/components/Dashboard/creator-workspace/CreatorDashboardOverviewModule.tsx");
+  const sourceNotice = read("src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx");
   const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
   const sidebar = read("src/components/Navigation/ProfileSidebar.tsx");
   const dropdown = read("src/components/Navigation/ProfileDropdown.tsx");
@@ -118,21 +121,21 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     id: "base-dashboard-settings-pill",
     status: "fixed",
     severity: "p1",
-    file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+    file: "src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx",
     summary: "The landing dashboard Creator settings pill links to the creator settings workspace.",
-  }, landing.includes("href={CREATOR_SETTINGS_ROUTE}") && !landing.includes('<Link href="/dashboard/profile" className="flex shrink-0 items-center justify-center gap-2 rounded-full'));
+  }, quickActions.includes("href={CREATOR_SETTINGS_ROUTE}") && !quickActions.includes('<Link href="/dashboard/profile" className="flex shrink-0 items-center justify-center gap-2 rounded-full'));
 
   add(navigationFindings, {
     id: "base-dashboard-drop-cta-manage-only",
     status: "fixed",
     severity: "p1",
-    file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+    file: "src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx",
     summary: "The landing dashboard Manage drops CTA points to the creator drop submission manager.",
-  }, includesAll(landing, ["Manage drops", "href={CREATOR_DROP_MANAGE_ROUTE}", "data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}"])
+  }, includesAll(quickActions, ["Manage drops", "href={CREATOR_DROP_MANAGE_ROUTE}", "data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}"])
     && routing.includes('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"')
     && routing.includes('CREATOR_DROP_ROUTE_STATE = "creator_submission"')
-    && !landing.includes('href="/dashboard/drops"')
-    && !/Create drop/u.test(landing));
+    && !quickActions.includes('href="/dashboard/drops"')
+    && !/Create drop/u.test(quickActions));
 
   add(navigationFindings, {
     id: "sidebar-separate-routes",
@@ -180,7 +183,7 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     severity: "p1",
     file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
     summary: "Creator Dashboard landing uses one compact Creator Overview module and bottom-nav-safe spacing.",
-  }, includesAll(landing, [
+  }, includesAll(`${landing}\n${overviewModule}`, [
     'data-creator-dashboard-landing-density="mobile_compact"',
     'data-creator-landing-mobile-density="compact_v2"',
     'data-bottom-nav-safe="true"',
@@ -217,9 +220,10 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     id: "raw-creator-settings-internal-error-blocked",
     status: "fixed",
     severity: "p1",
-    file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+    file: "src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx",
     summary: "Creator settings load failures use HumanErrorNotice instead of concatenating raw module errors.",
-  }, rawErrorLeaks === 0 && includesAll(landing, ["HumanErrorNotice", "dashboard_source_unavailable", "settingsBugReporter.submit"]));
+  }, rawErrorLeaks === 0
+    && includesAll(`${landing}\n${sourceNotice}`, ["HumanErrorNotice", "dashboard_source_unavailable", "settingsBugReporter.submit"]));
 
   const p0Count = failures.filter((finding) => finding.severity === "p0").length;
   const p1Count = failures.filter((finding) => finding.severity === "p1").length;

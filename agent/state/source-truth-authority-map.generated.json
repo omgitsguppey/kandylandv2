@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T23:03:56.935Z",
+  "generatedAtUtc": "2026-05-20T00:38:05.066Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "e395c1d8c55c5645f92672a67a5ec19542ecaeec",
+  "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,21 +323,21 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "e395c1d8c55c5645f92672a67a5ec19542ecaeec",
+      "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
       "status": "current",
       "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/final-phase-cleanup-lock.generated.json",
@@ -353,9 +353,9 @@
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "dc3ae97ac8edaba50669b0188a12e9f7fa4774f6",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T19:42:57.921Z",
+  "generatedAtUtc": "2026-05-20T00:38:04.986Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "c22e94cf5fc6574c69b43208c4186394a1adb145",
+  "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",
@@ -42,14 +42,14 @@
       "id": "base-dashboard-settings-pill",
       "status": "fixed",
       "severity": "p1",
-      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "file": "src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx",
       "summary": "The landing dashboard Creator settings pill links to the creator settings workspace."
     },
     {
       "id": "base-dashboard-drop-cta-manage-only",
       "status": "fixed",
       "severity": "p1",
-      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "file": "src/components/Dashboard/creator-workspace/CreatorDashboardQuickActions.tsx",
       "summary": "The landing dashboard Manage drops CTA points to the creator drop submission manager."
     },
     {
@@ -109,7 +109,7 @@
       "id": "raw-creator-settings-internal-error-blocked",
       "status": "fixed",
       "severity": "p1",
-      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "file": "src/components/Dashboard/creator-workspace/CreatorDashboardSourceNotice.tsx",
       "summary": "Creator settings load failures use HumanErrorNotice instead of concatenating raw module errors."
     }
   ],

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-19T23:34:40.489Z",
-  "currentHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
+  "generatedAt": "2026-05-20T00:36:23.310Z",
+  "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
@@ -519,5 +519,6 @@
     "accessibilityTouch": [],
     "testingCoverage": [],
     "support": []
-  }
+  },
+  "mobileUiSourceReadinessStatus": "source_ready_visual_manual_evidence_not_claimed"
 }

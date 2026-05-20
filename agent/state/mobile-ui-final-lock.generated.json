@@ -1,0 +1,75 @@
+{
+  "generatedAtUtc": "2026-05-20T00:38:44.290Z",
+  "reportKey": "mobile-ui-final-lock",
+  "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+  "summary": {
+    "scalingDoctrineReady": true,
+    "hardcodedCssScanReady": true,
+    "loadingHydrationReady": true,
+    "surfaceOrganizationReady": true,
+    "protectedNavUntouched": true,
+    "protectedChatUntouched": true,
+    "adminMobileReady": true,
+    "userMobileReady": true,
+    "creatorMobileReady": true,
+    "selfCheckGuardsReady": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyStatus": [
+    {
+      "id": "mobile-ui-scaling-doctrine",
+      "status": "ready",
+      "severity": "P0",
+      "detail": "Scaling doctrine, mobile scale contract, density helpers, hardcoded scan, skeleton policy, and hydration policy are present."
+    },
+    {
+      "id": "mobile-hardcoded-css-cleanup",
+      "status": "ready",
+      "severity": "P0",
+      "detail": "Hardcoded mobile sprawl scan is present and protected nav/chat remained untouched."
+    },
+    {
+      "id": "mobile-loading-hydration-stability",
+      "status": "ready",
+      "severity": "P0",
+      "detail": "Loading/hydration scan, compact skeletons, and stale-request guards are represented."
+    },
+    {
+      "id": "mobile-surface-organization",
+      "status": "ready",
+      "severity": "P0",
+      "detail": "Admin, user, and creator mobile surface organization are represented."
+    },
+    {
+      "id": "mobile-ui-beta-source-readiness",
+      "status": "ready",
+      "severity": "P1",
+      "detail": "Mobile UI doctrine is source-ready only; visual/manual evidence is not claimed and beta exit remains false."
+    }
+  ],
+  "protectedFileDiffs": [],
+  "remainingMobileRisks": [
+    "Visual/manual mobile evidence is not claimed by this source lock.",
+    "Beta exit remains blocked until formal evidence exists outside this source-readiness pass.",
+    "Hardcoded sprawl inventory still feeds next-fix order for future touched surfaces."
+  ],
+  "agentSelfCheckRules": [
+    "Before changing any UI, search for existing component/contracts first.",
+    "Do not create a new component if a shared component exists.",
+    "Mobile-first before desktop.",
+    "If a desktop table/grid appears in a mobile path, create a compact summary/drilldown.",
+    "If hardcoded p-6/text-4xl/min-h giant tokens appear, justify or refactor.",
+    "If a loading state changes size after hydration, fix the skeleton.",
+    "If an async loader can race, add a stale guard.",
+    "If top nav, bottom nav, or chat is touched, fail unless explicitly requested.",
+    "If route/surface doctrine conflicts, refactor doctrine first.",
+    "If user/creator/admin surfaces share a component, add a density variant instead of a global shrink."
+  ],
+  "nextExactSteps": [
+    "Run check:mobile-ui-final-lock before future mobile UI cleanup signoff.",
+    "When a future UI pass touches admin, user, or creator screens, run the matching mobile phase check before release notes.",
+    "Escalate to manual mobile screenshots only after source readiness is green and the user requests visual evidence."
+  ]
+}

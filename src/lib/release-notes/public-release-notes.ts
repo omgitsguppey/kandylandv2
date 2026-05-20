@@ -1,13 +1,77 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.21",
-  "betaReleaseCounter": 321,
+  "currentVersion": "1.3.22",
+  "betaReleaseCounter": 322,
   "channel": "beta",
-  "generatedAt": "2026-05-20T00:20:42.819Z",
-  "generatedAtUtc": "2026-05-20T00:20:42.819Z",
+  "generatedAt": "2026-05-20T00:34:33.985Z",
+  "generatedAtUtc": "2026-05-20T00:34:33.985Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.22",
+      "previousVersion": "1.3.21",
+      "betaReleaseCounter": 322,
+      "previousBetaReleaseCounter": 321,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(ui): lock mobile self checks",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T00:34:33.985Z",
+      "generatedAt": "2026-05-20T00:34:33.985Z",
+      "committedAtUtc": "2026-05-20T00:34:33.985Z",
+      "generatedAtUtc": "2026-05-20T00:34:33.985Z",
+      "updatedAtUtc": "2026-05-20T00:34:33.985Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked mobile UI scaling and organization checks.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked mobile UI scaling and organization checks.",
+        "Added self-check rules for future UI changes.",
+        "Kept navigation and chat protected from broad mobile cleanup."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted mobile UI final lock pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "mobile UI",
+        "admin screens",
+        "creator screens",
+        "user screens"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-surface-routing.generated.json",
+        "agent/state/mobile-hardcoded-css-cleanup.generated.json",
+        "agent/state/mobile-loading-hydration-stability.generated.json",
+        "agent/state/mobile-surface-organization.generated.json",
+        "agent/state/mobile-ui-final-lock.generated.json",
+        "agent/state/mobile-ui-scaling-doctrine.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "agent/state/user-creator-ui-parity.generated.json",
+        "docs/agent-truth/mobile-hardcoded-css-cleanup.md",
+        "docs/agent-truth/mobile-loading-hydration-stability.md",
+        "docs/agent-truth/mobile-surface-organization.md",
+        "docs/agent-truth/mobile-ui-final-lock.md",
+        "docs/agent-truth/mobile-ui-scaling-doctrine.md",
+        "docs/agent-truth/source-truth-authority-map.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-surface-routing.ts",
+        "scripts/agent/validate-mobile-ui-final-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-surface-routing.spec.ts",
+        "tests/unit/mobile-ui-final-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.21",
       "previousVersion": "1.3.20",
@@ -1336,68 +1400,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/creator-dashboard-role-boundary.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.2.97",
-      "previousVersion": "1.2.96",
-      "betaReleaseCounter": 297,
-      "previousBetaReleaseCounter": 296,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(creator): improve fan pass crm and broadcasts",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T16:30:18.338Z",
-      "generatedAt": "2026-05-19T16:30:18.338Z",
-      "committedAtUtc": "2026-05-19T16:30:18.338Z",
-      "generatedAtUtc": "2026-05-19T16:30:18.338Z",
-      "updatedAtUtc": "2026-05-19T16:30:18.338Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Made Fan Pass subscribers readable and clarified Creator Broadcast audience language.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Made Fan Pass subscribers readable in Creator Dashboard.",
-        "Added mobile-first Fan Pass CRM rows.",
-        "Clarified Creator Broadcast audience language."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted creator fan pass CRM and broadcast semantics fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator dashboard",
-        "fan pass",
-        "creator broadcasts"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-fan-pass-crm-broadcast.generated.json",
-        "docs/agent-truth/creator-fan-pass-crm-broadcast.md",
-        "docs/agent-truth/creator-settings-source-health.md",
-        "docs/agent-truth/creator-surface-routing.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-fan-pass-crm-broadcast.ts",
-        "scripts/agent/validate-user-creator-visual-confirmation.ts",
-        "src/app/api/creator/broadcasts/route.ts",
-        "src/app/api/creator/subscriptions/route.ts",
-        "src/components/Creators/CreatorBroadcastManager.tsx",
-        "src/components/Creators/CreatorFanPassManager.tsx",
-        "src/components/Creators/FanPassSubscriberRow.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/creator-broadcast-manager.spec.tsx",
-        "tests/unit/creator-broadcasts-route.spec.ts",
-        "tests/unit/creator-fan-pass-crm-broadcast.spec.ts",
-        "tests/unit/creator-fan-pass-manager.spec.tsx",
-        "tests/unit/creator-subscriptions-route.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }
