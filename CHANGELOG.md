@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.33 - 2026-05-20
+- Bug fixes and general improvements
+- Cleaned up remaining preserved PRs and stale repo artifacts.
+- Kept beta cleanup lanes free of superseded PR clutter.
+- Preserved current source-truth doctrine while closing stale work.
+
 ## 1.3.32 - 2026-05-20
 - Bug fixes and general improvements
 - Locked overnight wiring, telemetry, and mobile scale cleanup.

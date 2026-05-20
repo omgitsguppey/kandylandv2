@@ -1,11 +1,63 @@
 {
-  "currentVersion": "1.3.32",
-  "betaReleaseCounter": 332,
+  "currentVersion": "1.3.33",
+  "betaReleaseCounter": 333,
   "channel": "beta",
-  "generatedAt": "2026-05-20T06:37:26.045Z",
-  "generatedAtUtc": "2026-05-20T06:37:26.045Z",
+  "generatedAt": "2026-05-20T21:02:09.979Z",
+  "generatedAtUtc": "2026-05-20T21:02:09.979Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.33",
+      "previousVersion": "1.3.32",
+      "betaReleaseCounter": 333,
+      "previousBetaReleaseCounter": 332,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "chore(repo): close stale pr cleanup",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T21:02:09.979Z",
+      "generatedAt": "2026-05-20T21:02:09.979Z",
+      "committedAtUtc": "2026-05-20T21:02:09.979Z",
+      "generatedAtUtc": "2026-05-20T21:02:09.979Z",
+      "updatedAtUtc": "2026-05-20T21:02:09.979Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Cleaned up remaining preserved PRs and stale repo artifacts.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleaned up remaining preserved PRs and stale repo artifacts.",
+        "Kept beta cleanup lanes free of superseded PR clutter.",
+        "Preserved current source-truth doctrine while closing stale work."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted PR closure and stale artifact cleanup pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "admin analytics",
+        "repo cleanup",
+        "accessibility"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/final-pr-stale-cleanup.generated.json",
+        "docs/agent-truth/final-pr-stale-cleanup.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-pr-stale-cleanup.ts",
+        "src/components/ui/Button.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "tests/unit/final-pr-stale-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.32",
       "previousVersion": "1.3.31",
@@ -1306,61 +1358,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/telemetry-dependency-graph.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.8",
-      "previousVersion": "1.3.7",
-      "betaReleaseCounter": 308,
-      "previousBetaReleaseCounter": 307,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): clarify ga4 evidence truth",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T20:37:09.392Z",
-      "generatedAt": "2026-05-19T20:37:09.392Z",
-      "committedAtUtc": "2026-05-19T20:37:09.392Z",
-      "generatedAtUtc": "2026-05-19T20:37:09.392Z",
-      "updatedAtUtc": "2026-05-19T20:37:09.392Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Clarified Google Analytics evidence status while keeping KandyDrops analytics truth separate.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Clarified Google Analytics evidence status.",
-        "Kept first-party analytics as product truth.",
-        "Prevented missing GA4 data from showing as zero traffic."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted GA4 recovery and analytics fallback truth fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "admin analytics",
-        "app reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/ga4-recovery-truth.generated.json",
-        "docs/agent-truth/ga4-recovery-truth.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-ga4-recovery-truth.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/layout.tsx",
-        "src/components/Analytics/Ga4EvidenceTracker.tsx",
-        "src/lib/analytics/ga4-truth.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-analytics-data.ts",
-        "src/lib/server/admin-analytics/ga4-evidence.ts",
-        "tests/unit/ga4-recovery-truth.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

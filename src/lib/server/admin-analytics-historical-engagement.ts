@@ -611,12 +611,18 @@ function buildReturnCadenceState(input: {
   });
 
   const activeDayCounts = Array.from(activeDaysByUser.values()).map((days) => days.size);
-  const buckets = {
-    oneDay: activeDayCounts.filter((count) => count === 1).length,
-    twoDays: activeDayCounts.filter((count) => count === 2).length,
-    threeToFourDays: activeDayCounts.filter((count) => count >= 3 && count <= 4).length,
-    fivePlusDays: activeDayCounts.filter((count) => count >= 5).length,
-  };
+  const buckets = activeDayCounts.reduce((acc, count) => {
+    if (count === 1) {
+      acc.oneDay += 1;
+    } else if (count === 2) {
+      acc.twoDays += 1;
+    } else if (count >= 3 && count <= 4) {
+      acc.threeToFourDays += 1;
+    } else if (count >= 5) {
+      acc.fivePlusDays += 1;
+    }
+    return acc;
+  }, { oneDay: 0, twoDays: 0, threeToFourDays: 0, fivePlusDays: 0 });
   const trackedAuthenticatedUsers =
     buckets.oneDay + buckets.twoDays + buckets.threeToFourDays + buckets.fivePlusDays;
   const uniqueReturners =
@@ -927,49 +933,114 @@ function buildAuthOutcomeSummary(input: {
     outcome: attempt.outcome === "started" ? "unfinished" : attempt.outcome,
   }));
 
+  type MethodStats = {
+    attempts: number;
+    successes: number;
+    failures: number;
+    unfinished: number;
+    timedSuccessDurationsSum: number;
+    timedSuccessDurationsCount: number;
+    failureCodes: Map<string, number>;
+  };
+
+  const methodStats = new Map<AuthMethodKey, MethodStats>();
+  (["email_sign_in", "email_sign_up", "google_sign_in"] as const).forEach((method) => {
+    methodStats.set(method, {
+      attempts: 0,
+      successes: 0,
+      failures: 0,
+      unfinished: 0,
+      timedSuccessDurationsSum: 0,
+      timedSuccessDurationsCount: 0,
+      failureCodes: new Map<string, number>(),
+    });
+  });
+
+  let totalAttempts = 0;
+  let totalSuccesses = 0;
+  let totalFailures = 0;
+  let totalUnfinished = 0;
+  let totalMissingStarts = 0;
+  let totalMissingFinishes = 0;
+  let totalTimedAttemptsCount = 0;
+  let totalTimedAttemptsSum = 0;
+
+  aggregates.forEach((attempt) => {
+    totalAttempts += 1;
+    const outcome = attempt.outcome;
+    if (outcome === "success") {
+      totalSuccesses += 1;
+    } else if (outcome === "failure") {
+      totalFailures += 1;
+    } else if (outcome === "unfinished") {
+      totalUnfinished += 1;
+    }
+
+    const isFinished = outcome !== "unfinished";
+    const durationMs = attempt.durationMs ?? 0;
+    const hasDuration = durationMs > 0;
+
+    if (isFinished && hasDuration) {
+      totalTimedAttemptsCount += 1;
+      totalTimedAttemptsSum += durationMs;
+    }
+    if (isFinished && !attempt.startedAtUtc) {
+      totalMissingStarts += 1;
+    }
+    if (isFinished && !attempt.finishedAtUtc && !hasDuration) {
+      totalMissingFinishes += 1;
+    }
+
+    const stats = methodStats.get(attempt.method);
+    if (!stats) {
+      return;
+    }
+    stats.attempts += 1;
+    if (outcome === "success") {
+      stats.successes += 1;
+      if (hasDuration) {
+        stats.timedSuccessDurationsSum += durationMs;
+        stats.timedSuccessDurationsCount += 1;
+      }
+    } else if (outcome === "failure") {
+      stats.failures += 1;
+      const code = attempt.failureCode || "failure_code_unavailable";
+      stats.failureCodes.set(code, (stats.failureCodes.get(code) || 0) + 1);
+    } else if (outcome === "unfinished") {
+      stats.unfinished += 1;
+    }
+  });
+
   const methods: AuthMethodOutcome[] = (["email_sign_in", "email_sign_up", "google_sign_in"] as const).map((method) => {
-    const methodAttempts = aggregates.filter((attempt) => attempt.method === method);
-    const successes = methodAttempts.filter((attempt) => attempt.outcome === "success");
-    const failures = methodAttempts.filter((attempt) => attempt.outcome === "failure");
-    const unfinishedAttempts = methodAttempts.filter((attempt) => attempt.outcome === "unfinished");
-    const timedSuccessDurations = successes
-      .map((attempt) => attempt.durationMs ?? 0)
-      .filter((value) => value > 0);
-    const failureBreakdown = Array.from(
-      failures.reduce((map, attempt) => {
-        const code = attempt.failureCode || "failure_code_unavailable";
-        map.set(code, (map.get(code) || 0) + 1);
-        return map;
-      }, new Map<string, number>()),
-    ).map(([failureCode, count]) => ({
+    const stats = methodStats.get(method);
+    if (!stats) {
+      throw new Error(`Missing auth method stats for ${method}`);
+    }
+    const failureBreakdown = Array.from(stats.failureCodes.entries()).map(([failureCode, count]) => ({
       failureCode,
       count,
       explanation: failureCode === "failure_code_unavailable"
         ? "Failure telemetry was recorded without a normalized safe code."
         : `Normalized safe auth failure code ${failureCode}.`,
     }));
-    const attempts = methodAttempts.length;
-    const successesCount = successes.length;
-    const failuresCount = failures.length;
-    const unfinishedCount = unfinishedAttempts.length;
 
     return {
       method,
-      attempts,
-      successes: successesCount,
-      failures: failuresCount,
-      unfinished: unfinishedCount,
-      successRatePct: attempts > 0 ? Math.round((successesCount / attempts) * 100) : 0,
-      avgFinishMs: timedSuccessDurations.length > 0
-        ? Math.round(timedSuccessDurations.reduce((sum, value) => sum + value, 0) / timedSuccessDurations.length)
+      attempts: stats.attempts,
+      successes: stats.successes,
+      failures: stats.failures,
+      unfinished: stats.unfinished,
+      successRatePct: stats.attempts > 0 ? Math.round((stats.successes / stats.attempts) * 100) : 0,
+      avgFinishMs: stats.timedSuccessDurationsCount > 0
+        ? Math.round(stats.timedSuccessDurationsSum / stats.timedSuccessDurationsCount)
         : null,
-      weakestReason: attempts > 0 && successesCount === 0
+      weakestReason: stats.attempts > 0 && stats.successes === 0
         ? (failureBreakdown[0]?.failureCode || "failure_code_unavailable")
         : undefined,
       failureBreakdown,
-      state: failuresCount > 0 && successesCount === 0
+      state: stats.failures > 0 && stats.successes === 0
         ? "error"
-        : unfinishedCount > 0 || timedSuccessDurations.length !== successesCount
+        : stats.unfinished > 0 || stats.timedSuccessDurationsCount !== stats.successes
           ? "review"
           : "live",
     };
@@ -1002,13 +1073,16 @@ function buildAuthOutcomeSummary(input: {
     },
   ];
 
-  const attempts = aggregates.length;
-  const successes = aggregates.filter((attempt) => attempt.outcome === "success").length;
-  const failures = aggregates.filter((attempt) => attempt.outcome === "failure").length;
-  const unfinishedCount = aggregates.filter((attempt) => attempt.outcome === "unfinished").length;
-  const timedAttempts = aggregates.filter((attempt) => attempt.outcome !== "unfinished" && attempt.durationMs !== null && attempt.durationMs > 0);
-  const missingStarts = aggregates.filter((attempt) => attempt.outcome !== "unfinished" && !attempt.startedAtUtc).length;
-  const missingFinishes = aggregates.filter((attempt) => attempt.outcome !== "unfinished" && !attempt.finishedAtUtc && !(attempt.durationMs && attempt.durationMs > 0)).length;
+  const attempts = totalAttempts;
+  const successes = totalSuccesses;
+  const failures = totalFailures;
+  const unfinishedCount = totalUnfinished;
+  const missingStarts = totalMissingStarts;
+  const missingFinishes = totalMissingFinishes;
+  const timedAttemptsAvgMs = totalTimedAttemptsCount > 0
+    ? Math.round(totalTimedAttemptsSum / totalTimedAttemptsCount)
+    : null;
+  const hasTimedAttempts = totalTimedAttemptsCount > 0;
   const lastAuthTimestamp = canonicalAttemptRecords.reduce((latest, record) => Math.max(latest, record.timestamp), 0);
 
   return {
@@ -1022,14 +1096,12 @@ function buildAuthOutcomeSummary(input: {
       failures,
       unfinished: unfinishedCount,
       successRatePct: attempts > 0 ? Math.round((successes / attempts) * 100) : 0,
-      avgFinishMs: timedAttempts.length > 0
-        ? Math.round(timedAttempts.reduce((sum, attempt) => sum + (attempt.durationMs || 0), 0) / timedAttempts.length)
-        : null,
+      avgFinishMs: timedAttemptsAvgMs,
       timingState: missingStarts > 0
         ? "missing_starts"
         : missingFinishes > 0
           ? "missing_finishes"
-          : timedAttempts.length > 0
+          : hasTimedAttempts
             ? "available"
             : "unavailable",
       lastAuthEventAtUtc: lastAuthTimestamp > 0 ? new Date(lastAuthTimestamp).toISOString() : null,
