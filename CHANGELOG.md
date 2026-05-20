@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.23 - 2026-05-20
+- Bug fixes and general improvements
+- Added creator settings controls for Fan Pass, broadcasts, and creator experiences.
+- Connected creator setup warnings to actual settings.
+- Kept creator settings mobile-first and user-facing safe.
+
 ## 1.3.22 - 2026-05-20
 - Bug fixes and general improvements
 - Locked mobile UI scaling and organization checks.

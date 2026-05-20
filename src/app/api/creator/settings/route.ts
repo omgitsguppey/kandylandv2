@@ -23,6 +23,13 @@ import {
     assertKnownActor,
     buildActorMarker,
 } from "@/lib/identity/actor-markers";
+import {
+    buildCreatorSettingsCompletion,
+    buildCreatorSettingsControlPlane,
+    buildCreatorSettingsUserFacingImpact,
+    sanitizeCreatorSettingsControlPlaneUpdate,
+    stripAdminOnlyCreatorSettingsFields,
+} from "@/lib/creator-settings/creator-settings-contract";
 
 const CREATOR_SETTINGS_BODY_LIMIT_BYTES = 32_768;
 
@@ -455,6 +462,12 @@ async function GET_handler(request: NextRequest) {
         const rawCreatorRestrictions = data.creatorRestrictions;
         const settingsState = rawCreatorSettings && typeof rawCreatorSettings === "object" ? "configured" : "not_configured";
         const creatorSettings = settingsState === "configured" ? normalizeCreatorSettings(rawCreatorSettings) : DEFAULT_CREATOR_SETTINGS;
+        const controlPlaneSettings = buildCreatorSettingsControlPlane(creatorSettings, {
+            displayName: data.displayName,
+            bio: data.bio,
+            photoURL: data.photoURL,
+        });
+        const settingsCompletion = buildCreatorSettingsCompletion(controlPlaneSettings, settingsState);
         const creatorRestrictions = rawCreatorRestrictions && typeof rawCreatorRestrictions === "object"
             ? normalizeCreatorRestrictions(rawCreatorRestrictions)
             : DEFAULT_CREATOR_RESTRICTIONS;
@@ -507,6 +520,11 @@ async function GET_handler(request: NextRequest) {
                 readOnly: true,
             } : null,
             creatorSettings,
+            settings: controlPlaneSettings,
+            settingsCompletion,
+            missingSetupItems: settingsCompletion.missingSetupItems,
+            sourceTruth: settingsState === "configured" ? "creator_settings_doc" : "safe_defaults_missing_settings_doc",
+            userFacingImpact: buildCreatorSettingsUserFacingImpact(controlPlaneSettings),
             creatorRestrictions,
             stats: {
                 earningsGd,
@@ -549,6 +567,8 @@ async function PUT_handler(request: NextRequest) {
         const { data } = await requireCreator(caller.uid);
         const payload = await readBoundedJsonBody<{
             creatorSettings?: Record<string, unknown>;
+            settings?: Record<string, unknown>;
+            controlPlane?: Record<string, unknown>;
             creatorRestrictions?: Record<string, unknown>;
         }>(request, {
             maxBytes: CREATOR_SETTINGS_BODY_LIMIT_BYTES,
@@ -557,8 +577,37 @@ async function PUT_handler(request: NextRequest) {
         });
 
         const update: Record<string, unknown> = {};
-        if (payload.creatorSettings) {
-            update.creatorSettings = sanitizeCreatorSettingsUpdate(payload.creatorSettings);
+        let profilePatch: Record<string, unknown> = {};
+        let changedSections: string[] = [];
+        const controlPlanePayload = payload.settings ?? payload.controlPlane;
+        if (controlPlanePayload) {
+            const sanitized = sanitizeCreatorSettingsControlPlaneUpdate(controlPlanePayload, data.creatorSettings ?? DEFAULT_CREATOR_SETTINGS);
+            if (!sanitized.ok) {
+                return NextResponse.json({
+                    success: false,
+                    code: "invalid_creator_settings",
+                    error: "Check creator settings and try again.",
+                    message: "Check creator settings and try again.",
+                    errors: sanitized.errors,
+                    rejectedAdminOnlyFields: sanitized.rejectedAdminOnlyFields,
+                }, { status: 400 });
+            }
+            update.creatorSettings = sanitized.creatorSettings;
+            profilePatch = sanitized.profilePatch;
+            changedSections = sanitized.changedSections;
+        } else if (payload.creatorSettings) {
+            const stripped = stripAdminOnlyCreatorSettingsFields(payload.creatorSettings);
+            if (stripped.rejectedAdminOnlyFields.length > 0) {
+                return NextResponse.json({
+                    success: false,
+                    code: "admin_only_creator_settings_fields",
+                    error: "Creator settings cannot include admin-only fields.",
+                    message: "Creator settings cannot include admin-only fields.",
+                    rejectedAdminOnlyFields: stripped.rejectedAdminOnlyFields,
+                }, { status: 400 });
+            }
+            update.creatorSettings = sanitizeCreatorSettingsUpdate(stripped.input);
+            changedSections = ["legacy_creator_settings"];
         }
 
         if (payload.creatorRestrictions) {
@@ -569,7 +618,11 @@ async function PUT_handler(request: NextRequest) {
             update.creatorRestrictions = sanitizeCreatorRestrictionsUpdate(payload.creatorRestrictions);
         }
 
-        if (Object.keys(update).length === 0) {
+        const mergedUpdate = {
+            ...buildCreatorUpdateMerge(update),
+            ...profilePatch,
+        };
+        if (Object.keys(mergedUpdate).length === 0) {
             return NextResponse.json({ error: "No valid creator settings provided." }, { status: 400 });
         }
 
@@ -589,14 +642,29 @@ async function PUT_handler(request: NextRequest) {
             dedupeKey: `creator_settings_updated:${caller.uid}:${payload.creatorRestrictions ? "restrictions" : "settings"}`,
             source: "creator_settings_route",
         }));
-        await adminDb.collection("users").doc(caller.uid).update(buildCreatorUpdateMerge(update));
+        await adminDb.collection("users").doc(caller.uid).update(mergedUpdate);
         await trackServerEvent("creator_settings_updated", {
             page_path: "/dashboard/creator",
-            creator_settings_updated: Boolean(payload.creatorSettings),
+            creator_settings_updated: Boolean(payload.creatorSettings || controlPlanePayload),
             creator_restrictions_updated: Boolean(payload.creatorRestrictions),
+            changed_sections: changedSections.join(","),
+            source_truth: "creator_settings_control_plane",
             ...actorMarkerToTelemetryPayload(actorMarker),
         }, caller.uid).catch(() => undefined);
-        return NextResponse.json({ success: true });
+        const nextControlPlaneSettings = buildCreatorSettingsControlPlane(update.creatorSettings ?? data.creatorSettings ?? DEFAULT_CREATOR_SETTINGS, {
+            displayName: profilePatch.displayName ?? data.displayName,
+            bio: profilePatch.bio ?? data.bio,
+            photoURL: profilePatch.photoURL ?? data.photoURL,
+        });
+        const nextCompletion = buildCreatorSettingsCompletion(nextControlPlaneSettings, "configured");
+        return NextResponse.json({
+            success: true,
+            settings: nextControlPlaneSettings,
+            settingsCompletion: nextCompletion,
+            missingSetupItems: nextCompletion.missingSetupItems,
+            sourceTruth: "creator_settings_doc",
+            userFacingImpact: buildCreatorSettingsUserFacingImpact(nextControlPlaneSettings),
+        });
     } catch (error) {
         if (isBoundedJsonBodyError(error)) {
             return NextResponse.json({ success: false, error: error.message, code: error.code }, { status: error.status });

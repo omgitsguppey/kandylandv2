@@ -74,6 +74,7 @@ export const DEFAULT_CREATOR_SETTINGS: CreatorSettings = {
     bookingsEnabled: true,
     customRequestsEnabled: true,
     subscriptionPriceGd: CREATOR_SUBSCRIPTION_MIN_GD,
+    fanPassWelcomeText: "",
     phoneRatePerMinuteGd: CREATOR_BOOKING_RATES.phone,
     videoRatePerMinuteGd: CREATOR_BOOKING_RATES.video,
     bookingMinimumMinutes: CREATOR_BOOKING_MIN_MINUTES,
@@ -82,6 +83,10 @@ export const DEFAULT_CREATOR_SETTINGS: CreatorSettings = {
     requestCategories: DEFAULT_CREATOR_REQUEST_CATEGORIES,
     availabilityTimezone: "America/Chicago",
     availabilityWindows: DEFAULT_CREATOR_AVAILABILITY_WINDOWS,
+    broadcastDefaultAudience: "followers",
+    profileTimelineEnabled: true,
+    showApprovedDropsOnTimeline: true,
+    showBroadcastsOnTimeline: true,
 };
 
 export type CreatorDefaultSettingsActor = {
@@ -300,6 +305,9 @@ export function normalizeCreatorSettings(value: unknown): CreatorSettings {
     }
 
     const source = value as Record<string, unknown>;
+    const broadcastDefaultAudience = source.broadcastDefaultAudience === "fan_pass_subscribers" || source.broadcastDefaultAudience === "followers_and_subscribers"
+        ? source.broadcastDefaultAudience
+        : "followers";
     return {
         messagingEnabled: source.messagingEnabled !== false,
         broadcastsEnabled: source.broadcastsEnabled !== false,
@@ -307,6 +315,7 @@ export function normalizeCreatorSettings(value: unknown): CreatorSettings {
         bookingsEnabled: source.bookingsEnabled !== false,
         customRequestsEnabled: source.customRequestsEnabled !== false,
         subscriptionPriceGd: Math.max(CREATOR_SUBSCRIPTION_MIN_GD, normalizePositiveWholeNumber(source.subscriptionPriceGd, DEFAULT_CREATOR_SETTINGS.subscriptionPriceGd)),
+        fanPassWelcomeText: typeof source.fanPassWelcomeText === "string" ? source.fanPassWelcomeText.trim().slice(0, 160) : DEFAULT_CREATOR_SETTINGS.fanPassWelcomeText,
         phoneRatePerMinuteGd: Math.max(CREATOR_BOOKING_RATES.phone, normalizePositiveWholeNumber(source.phoneRatePerMinuteGd, DEFAULT_CREATOR_SETTINGS.phoneRatePerMinuteGd)),
         videoRatePerMinuteGd: Math.max(CREATOR_BOOKING_RATES.video, normalizePositiveWholeNumber(source.videoRatePerMinuteGd, DEFAULT_CREATOR_SETTINGS.videoRatePerMinuteGd)),
         bookingMinimumMinutes: Math.max(CREATOR_BOOKING_MIN_MINUTES, normalizePositiveWholeNumber(source.bookingMinimumMinutes, DEFAULT_CREATOR_SETTINGS.bookingMinimumMinutes)),
@@ -317,6 +326,10 @@ export function normalizeCreatorSettings(value: unknown): CreatorSettings {
             ? source.availabilityTimezone.trim()
             : DEFAULT_CREATOR_SETTINGS.availabilityTimezone,
         availabilityWindows: normalizeCreatorAvailabilityWindows(source.availabilityWindows),
+        broadcastDefaultAudience,
+        profileTimelineEnabled: source.profileTimelineEnabled !== false,
+        showApprovedDropsOnTimeline: source.showApprovedDropsOnTimeline !== false,
+        showBroadcastsOnTimeline: source.showBroadcastsOnTimeline !== false,
     };
 }
 

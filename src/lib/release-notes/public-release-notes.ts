@@ -1,13 +1,71 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.22",
-  "betaReleaseCounter": 322,
+  "currentVersion": "1.3.23",
+  "betaReleaseCounter": 323,
   "channel": "beta",
-  "generatedAt": "2026-05-20T00:34:33.985Z",
-  "generatedAtUtc": "2026-05-20T00:34:33.985Z",
+  "generatedAt": "2026-05-20T04:12:15.962Z",
+  "generatedAtUtc": "2026-05-20T04:12:15.962Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.23",
+      "previousVersion": "1.3.22",
+      "betaReleaseCounter": 323,
+      "previousBetaReleaseCounter": 322,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "feat(creator): finalize settings control plane",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T04:12:15.962Z",
+      "generatedAt": "2026-05-20T04:12:15.962Z",
+      "committedAtUtc": "2026-05-20T04:12:15.962Z",
+      "generatedAtUtc": "2026-05-20T04:12:15.962Z",
+      "updatedAtUtc": "2026-05-20T04:12:15.962Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added creator settings controls for Fan Pass, broadcasts, and creator experiences.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Added creator settings controls for Fan Pass, broadcasts, and creator experiences.",
+        "Connected creator setup warnings to actual settings.",
+        "Kept creator settings mobile-first and user-facing safe."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted Creator Settings control-plane pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator settings",
+        "creator profile",
+        "Fan Pass",
+        "broadcasts",
+        "creator experiences"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-settings-control-plane.generated.json",
+        "docs/agent-truth/creator-settings-control-plane.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-settings-control-plane.ts",
+        "src/app/api/creator/settings/route.ts",
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/lib/creator-experiences.ts",
+        "src/lib/creator-settings/creator-settings-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/types/db.ts",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/creator-settings-control-plane.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.22",
       "previousVersion": "1.3.21",
@@ -1346,60 +1404,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/creator-dashboard-role-boundary.spec.ts",
         "tests/unit/creator-nav-role-consolidation.spec.ts",
         "tests/unit/creator-surface-routing.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.2.98",
-      "previousVersion": "1.2.97",
-      "betaReleaseCounter": 298,
-      "previousBetaReleaseCounter": 297,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(dashboard): isolate creator dashboard surface",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T16:45:00.000Z",
-      "generatedAt": "2026-05-19T16:45:00.000Z",
-      "committedAtUtc": "2026-05-19T16:45:00.000Z",
-      "generatedAtUtc": "2026-05-19T16:45:00.000Z",
-      "updatedAtUtc": "2026-05-19T16:45:00.000Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Separated Creator Dashboard from the normal user dashboard body while preserving user reward and library sections.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Separated Creator Dashboard from user reward and library sections.",
-        "Kept Daily Rewards and My KandyDrops on the normal user dashboard.",
-        "Cleaned up creator dashboard route boundaries on mobile."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted creator dashboard role-boundary fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator dashboard",
-        "user dashboard",
-        "mobile navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-dashboard-role-boundary.generated.json",
-        "docs/agent-truth/creator-dashboard-role-boundary.md",
-        "docs/agent-truth/creator-surface-routing.md",
-        "docs/agent-truth/user-creator-ui-parity.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-dashboard-role-boundary.ts",
-        "src/app/dashboard/DashboardClient.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/components/Navigation/MobileBottomBar.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/creator-dashboard-role-boundary.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

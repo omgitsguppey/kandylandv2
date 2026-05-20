@@ -41,6 +41,7 @@ export type CreatorSettings = {
     bookingsEnabled: boolean;
     customRequestsEnabled: boolean;
     subscriptionPriceGd: number;
+    fanPassWelcomeText?: string;
     phoneRatePerMinuteGd: number;
     videoRatePerMinuteGd: number;
     bookingMinimumMinutes: number;
@@ -49,6 +50,10 @@ export type CreatorSettings = {
     requestCategories: CreatorRequestCategoryConfig[];
     availabilityTimezone: string;
     availabilityWindows: CreatorAvailabilityWindow[];
+    broadcastDefaultAudience?: "followers" | "fan_pass_subscribers" | "followers_and_subscribers";
+    profileTimelineEnabled?: boolean;
+    showApprovedDropsOnTimeline?: boolean;
+    showBroadcastsOnTimeline?: boolean;
 };
 
 export type CreatorRestrictions = {

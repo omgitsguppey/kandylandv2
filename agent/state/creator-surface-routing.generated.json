@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T00:38:04.986Z",
+  "generatedAtUtc": "2026-05-20T04:13:46.674Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+  "currentHead": "984b3d538b7f19013e297257f62ada0420044e14",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",

@@ -1,7 +1,7 @@
 # Creator Settings Source Health
 
-Generated: 2026-05-19T16:31:19.230Z
-Current head: 861a9edef5f330c5fe8ea108bd503501cd8e801c
+Generated: 2026-05-20T04:13:46.673Z
+Current head: 984b3d538b7f19013e297257f62ada0420044e14
 
 ## Summary
 

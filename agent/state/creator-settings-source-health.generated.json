@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T16:09:32.795Z",
+  "generatedAtUtc": "2026-05-20T04:13:46.673Z",
   "reportKey": "creator-settings-source-health",
-  "currentHead": "88817af94d2932fa7a6603a5cc065509f2d1718e",
+  "currentHead": "984b3d538b7f19013e297257f62ada0420044e14",
   "summary": {
     "routeReturnsPartialOnMissingSettings": true,
     "nonCriticalSourceFailuresArePartial": true,

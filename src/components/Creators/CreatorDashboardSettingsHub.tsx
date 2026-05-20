@@ -14,6 +14,7 @@ import { trackEvent } from "@/lib/telemetry";
 import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
 import { getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
 import { cn } from "@/lib/utils";
+import type { CreatorSettingsCompletion, CreatorSettingsControlPlane, CreatorSettingsSectionId, CreatorSettingsUserFacingImpact } from "@/lib/creator-settings/creator-settings-contract";
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { CreatorBroadcastManager } from "@/components/Creators/CreatorBroadcastManager";
@@ -76,6 +77,11 @@ type CreatorSettingsResponse = {
   success?: boolean;
   settingsState?: "configured" | "not_configured";
   creatorSettings?: Record<string, unknown> | null;
+  settings?: CreatorSettingsControlPlane | null;
+  settingsCompletion?: CreatorSettingsCompletion | null;
+  missingSetupItems?: CreatorSettingsSectionId[];
+  sourceTruth?: string;
+  userFacingImpact?: CreatorSettingsUserFacingImpact | null;
   creatorRestrictions?: Record<string, unknown> | null;
   stats?: CreatorDashboardStats | null;
   statsEvidence?: CreatorStatsEvidence | null;
@@ -205,6 +211,59 @@ function combineEvidenceState(...states: SectionState[]): SectionState {
   return states.every((state) => state === "live") ? "live" : "needs_review";
 }
 
+function ToggleControl({
+  label,
+  checked,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-gray-200">
+      <span className="font-semibold">{label}</span>
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-5 w-5 accent-brand-purple"
+      />
+    </label>
+  );
+}
+
+function NumberControl({
+  label,
+  value,
+  min,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  onChange: (value: number) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="grid gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
+      {label}
+      <input
+        type="number"
+        min={min}
+        value={Number.isFinite(value) ? value : min}
+        disabled={disabled}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="min-h-11 rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-semibold normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
+      />
+    </label>
+  );
+}
+
 export function CreatorDashboardSettingsHub() {
   const { userProfile } = useUserProfile();
   const { viewAsState } = useAdminViewAs();
@@ -213,6 +272,9 @@ export function CreatorDashboardSettingsHub() {
   const [settings, setSettings] = useState<CreatorSettingsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [settingsError, setSettingsError] = useState<ResolvedClientActionError | null>(null);
+  const [settingsSaveError, setSettingsSaveError] = useState<string | null>(null);
+  const [draftSettings, setDraftSettings] = useState<CreatorSettingsControlPlane | null>(null);
+  const [savingSection, setSavingSection] = useState<CreatorSettingsSectionId | null>(null);
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [reloadNonce, setReloadNonce] = useState(0);
   const dashboardRequestIdRef = useRef(0);
@@ -226,6 +288,7 @@ export function CreatorDashboardSettingsHub() {
   useEffect(() => {
     if (!canLoadCreatorDashboard) {
       setSettings(null);
+      setDraftSettings(null);
       setSettingsError(null);
       setLoading(false);
       return;
@@ -239,6 +302,7 @@ export function CreatorDashboardSettingsHub() {
         setLoading(true);
         setSettingsError(null);
         setSettings(null);
+        setDraftSettings(null);
         const response = await authFetch(`/api/creator/settings${query}`);
         const body = await response.json().catch(() => ({})) as CreatorSettingsResponse;
         if (!response.ok) {
@@ -262,6 +326,7 @@ export function CreatorDashboardSettingsHub() {
         }
         if (!cancelled && dashboardRequestIdRef.current === requestId) {
           setSettings(body);
+          setDraftSettings(body.settings ?? null);
         }
       } catch (loadError) {
         if (!cancelled && dashboardRequestIdRef.current === requestId) {
@@ -307,6 +372,8 @@ export function CreatorDashboardSettingsHub() {
   const statsEvidence = settings?.statsEvidence ?? null;
   const settingsState = settings?.settingsState ?? (settings?.creatorSettings ? "configured" : "not_configured");
   const creatorSettings = (settings?.creatorSettings ?? {}) as Record<string, unknown>;
+  const controlPlaneSettings = draftSettings ?? settings?.settings ?? null;
+  const settingsCompletion = settings?.settingsCompletion ?? null;
   const creatorRestrictions = (settings?.creatorRestrictions ?? {}) as Record<string, unknown>;
   const sourceReviewNotice = useMemo(() => {
     if (!settings || settingsError) {
@@ -371,6 +438,52 @@ export function CreatorDashboardSettingsHub() {
   const handleSettingsErrorPrimaryAction = (action: HumanErrorAction) => {
     if (action === "refresh" || action === "retry") {
       setReloadNonce((current) => current + 1);
+    }
+  };
+
+  const updateDraftSettings = <Key extends keyof CreatorSettingsControlPlane>(key: Key, value: CreatorSettingsControlPlane[Key]) => {
+    setDraftSettings((current) => current ? { ...current, [key]: value } : current);
+  };
+
+  const saveSettingsSection = async (section: CreatorSettingsSectionId) => {
+    if (!controlPlaneSettings || isReadOnlyProjection) {
+      return;
+    }
+
+    try {
+      setSavingSection(section);
+      setSettingsSaveError(null);
+      const response = await authFetch("/api/creator/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings: controlPlaneSettings }),
+      });
+      const body = await response.json().catch(() => ({})) as CreatorSettingsResponse & { message?: string; errors?: string[] };
+      if (!response.ok) {
+        const message = Array.isArray(body.errors) && body.errors.length > 0
+          ? body.errors.join(" ")
+          : body.message || "Creator settings could not be saved.";
+        setSettingsSaveError(message);
+        return;
+      }
+
+      setSettings((current) => ({
+        ...(current ?? {}),
+        ...body,
+      }));
+      setDraftSettings(body.settings ?? controlPlaneSettings);
+      trackEvent("creator_settings_control_plane_saved", {
+        actor_role: userProfile?.role || "creator",
+        creator_id: creatorId,
+        target_creator_id: creatorId,
+        section,
+        source_component: "CreatorDashboardSettingsHub",
+        truth_state: "creator_settings_doc",
+      });
+    } catch {
+      setSettingsSaveError("Creator settings could not be saved. Try again.");
+    } finally {
+      setSavingSection(null);
     }
   };
 
@@ -683,9 +796,154 @@ export function CreatorDashboardSettingsHub() {
           >
             <p className="font-bold text-amber-50">{sourceReviewNotice.title}</p>
             <p className="mt-0.5 text-amber-100/85">{sourceReviewNotice.body}</p>
+            {settingsCompletion?.missingSetupItems?.length ? (
+              <p className="mt-1 text-amber-100/80" data-creator-settings-setup-control-map="true">
+                Setup controls: {settingsCompletion.items.filter((item) => settingsCompletion.missingSetupItems.includes(item.id)).map((item) => item.label).join(", ")}.
+              </p>
+            ) : null}
           </div>
         ) : null}
       </div>
+
+      {controlPlaneSettings ? (
+        <section
+          className={cn(creatorManagerModuleClassName, "space-y-3")}
+          data-creator-settings-control-plane="true"
+          data-creator-settings-user-facing-safe="true"
+          data-mobile-density="compact"
+          data-mobile-sprawl-guard="true"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-gray-500">Setup controls</p>
+              <h2 className="text-base font-black text-white">Public creator behavior</h2>
+            </div>
+            {settingsCompletion ? (
+              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-bold text-gray-300">
+                {settingsCompletion.complete ? "Setup complete" : `${settingsCompletion.missingSetupItems.length} left`}
+              </span>
+            ) : null}
+          </div>
+
+          {settingsSaveError ? (
+            <div className="rounded-2xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs leading-5 text-red-100">
+              {settingsSaveError}
+            </div>
+          ) : null}
+
+          <div className="grid gap-2.5 md:grid-cols-2" data-mobile-organization="summary-first" data-mobile-drilldown="true">
+            <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="profile-basics">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-black text-white">Profile basics</h3>
+                <span className="text-[11px] font-semibold text-gray-500">Profile</span>
+              </div>
+              <label className="mt-3 grid gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
+                Display name
+                <input
+                  value={controlPlaneSettings.profileDisplayName}
+                  disabled={isReadOnlyProjection}
+                  onChange={(event) => updateDraftSettings("profileDisplayName", event.target.value)}
+                  className="min-h-11 rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-semibold normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
+                />
+              </label>
+              <label className="mt-2 grid gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
+                Bio
+                <textarea
+                  value={controlPlaneSettings.bio}
+                  disabled={isReadOnlyProjection}
+                  onChange={(event) => updateDraftSettings("bio", event.target.value)}
+                  rows={3}
+                  className="min-h-20 resize-y rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
+                />
+              </label>
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "profile_basics" ? "Saving..." : "Save profile"}
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="fan-pass">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-black text-white">Fan Pass</h3>
+                <span className="text-[11px] font-semibold text-gray-500">Paid GD</span>
+              </div>
+              <div className="mt-3 space-y-2">
+                <ToggleControl label="Enable Fan Pass" checked={controlPlaneSettings.fanPassEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("fanPassEnabled", value)} />
+                <NumberControl label="Fan Pass price GD" value={controlPlaneSettings.fanPassPriceGd} min={500} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("fanPassPriceGd", value)} />
+                <label className="grid gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
+                  Welcome text
+                  <input
+                    value={controlPlaneSettings.fanPassWelcomeText}
+                    disabled={isReadOnlyProjection}
+                    onChange={(event) => updateDraftSettings("fanPassWelcomeText", event.target.value)}
+                    className="min-h-11 rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
+                  />
+                </label>
+              </div>
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "fan_pass" ? "Saving..." : "Save Fan Pass"}
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="gumdrop-experiences">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-black text-white">GumDrop experiences</h3>
+                <span className="text-[11px] font-semibold text-gray-500">Requests + calls</span>
+              </div>
+              <div className="mt-3 grid gap-2">
+                <ToggleControl label="Enable requests" checked={controlPlaneSettings.creatorRequestsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("creatorRequestsEnabled", value)} />
+                <NumberControl label="Request base price GD" value={controlPlaneSettings.requestBasePriceGd} min={0} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("requestBasePriceGd", value)} />
+                <ToggleControl label="Enable live time" checked={controlPlaneSettings.callsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callsEnabled", value)} />
+                <NumberControl label="Call price per minute GD" value={controlPlaneSettings.callPriceGd} min={500} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callPriceGd", value)} />
+              </div>
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "gumdrop_experiences" ? "Saving..." : "Save experiences"}
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="broadcasts">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-black text-white">Broadcasts</h3>
+                <span className="text-[11px] font-semibold text-gray-500">Audience</span>
+              </div>
+              <div className="mt-3 space-y-2">
+                <ToggleControl label="Enable broadcasts" checked={controlPlaneSettings.broadcastsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("broadcastsEnabled", value)} />
+                <label className="grid gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
+                  Default audience
+                  <select
+                    value={controlPlaneSettings.broadcastDefaultAudience}
+                    disabled={isReadOnlyProjection}
+                    onChange={(event) => updateDraftSettings("broadcastDefaultAudience", event.target.value as CreatorSettingsControlPlane["broadcastDefaultAudience"])}
+                    className="min-h-11 rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-semibold normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
+                  >
+                    <option value="followers">Followers</option>
+                    <option value="fan_pass_subscribers">Fan Pass subscribers</option>
+                    <option value="followers_and_subscribers">Followers and subscribers</option>
+                  </select>
+                </label>
+              </div>
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "broadcasts" ? "Saving..." : "Save broadcasts"}
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/25 p-3 md:col-span-2" data-creator-settings-section="timeline">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-black text-white">Timeline</h3>
+                <span className="text-[11px] font-semibold text-gray-500">Approved only</span>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <ToggleControl label="Show profile timeline" checked={controlPlaneSettings.profileTimelineEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("profileTimelineEnabled", value)} />
+                <ToggleControl label="Show approved drops" checked={controlPlaneSettings.showApprovedDropsOnTimeline} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("showApprovedDropsOnTimeline", value)} />
+                <ToggleControl label="Show broadcasts" checked={controlPlaneSettings.showBroadcastsOnTimeline} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("showBroadcastsOnTimeline", value)} />
+              </div>
+              <p className="mt-2 text-xs leading-5 text-gray-400">Drop approval, public discovery, and rotation stay admin-only.</p>
+              <button type="button" disabled={isReadOnlyProjection || savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+                {savingSection === "timeline" ? "Saving..." : "Save timeline"}
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2" data-mobile-organization="summary-first" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
         {sections.map((section) => (

@@ -282,6 +282,7 @@
         "check:creator-drop-manager-mobile-refinement": "tsx scripts/agent/validate-creator-drop-manager-mobile-refinement.ts",
         "check:creator-surface-routing": "tsx scripts/agent/validate-creator-surface-routing.ts",
         "check:creator-settings-source-health": "tsx scripts/agent/validate-creator-settings-source-health.ts",
+        "check:creator-settings-control-plane": "tsx scripts/agent/validate-creator-settings-control-plane.ts",
         "check:creator-landing-dashboard-mobile": "tsx scripts/agent/validate-creator-landing-dashboard-mobile.ts",
         "check:error-truth-debug-visibility": "tsx scripts/agent/validate-error-truth-debug-visibility.ts",
         "check:error-handling-final-readiness": "tsx scripts/agent/validate-error-handling-final-readiness.ts",

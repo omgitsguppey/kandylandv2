@@ -883,7 +883,10 @@ export default function CreatorProfileClient() {
     }
 
     const latestBooking = bookings[0] ?? null;
-    const visibleBroadcasts = broadcasts.slice(0, 4);
+    const profileTimelineVisible = creatorSettings.profileTimelineEnabled !== false;
+    const profileDropsVisible = profileTimelineVisible && creatorSettings.showApprovedDropsOnTimeline !== false;
+    const profileBroadcastsVisible = profileTimelineVisible && creatorSettings.showBroadcastsOnTimeline !== false;
+    const visibleBroadcasts = profileBroadcastsVisible ? broadcasts.slice(0, 4) : [];
     const experienceWarnings = [
         moduleState.subscriptions.warning ? { key: "subscriptions", label: "Subscriptions", message: moduleState.subscriptions.warning } : null,
         moduleState.bookings.warning ? { key: "bookings", label: "Bookings", message: moduleState.bookings.warning } : null,
@@ -1013,8 +1016,13 @@ export default function CreatorProfileClient() {
                             ) : null}
                             <CreatorUpdatesFeed broadcasts={visibleBroadcasts} />
 
-                            <section data-drop-visibility-scope="creator_profile">
-                                {drops.length > 0 ? (
+                            <section
+                                data-drop-visibility-scope="creator_profile"
+                                data-creator-profile-timeline-enabled={String(profileTimelineVisible)}
+                                data-creator-profile-approved-drops-visible={String(profileDropsVisible)}
+                                data-creator-profile-broadcasts-visible={String(profileBroadcastsVisible)}
+                            >
+                                {profileDropsVisible && drops.length > 0 ? (
                                     <div className="relative">
                                         {!authLoading && !currentUser ? (
                                             <div className="glass-panel absolute inset-0 z-50 m-2 flex items-center justify-center border border-white/5 !bg-black/70 px-4 py-8 backdrop-blur-md">
@@ -1050,7 +1058,7 @@ export default function CreatorProfileClient() {
                                     </div>
                                 ) : (
                                     <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 py-14 text-center">
-                                        <p className="text-gray-300">This creator is live, but the first drop has not landed yet.</p>
+                                        <p className="text-gray-300">{profileDropsVisible ? "This creator is live, but the first drop has not landed yet." : "Drops are hidden on this creator profile right now."}</p>
                                     </div>
                                 )}
                             </section>

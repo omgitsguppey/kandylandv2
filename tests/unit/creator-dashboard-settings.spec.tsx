@@ -138,6 +138,43 @@ function buildStatsEvidence(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function buildControlPlane(overrides: Record<string, unknown> = {}) {
+  return {
+    fanPassEnabled: true,
+    fanPassPriceGd: 500,
+    fanPassWelcomeText: "Welcome",
+    creatorRequestsEnabled: true,
+    requestBasePriceGd: 300,
+    allowedRequestTypes: ["custom-photo"],
+    callsEnabled: true,
+    callPriceGd: 1000,
+    broadcastsEnabled: true,
+    broadcastDefaultAudience: "followers",
+    profileTimelineEnabled: true,
+    showApprovedDropsOnTimeline: true,
+    showBroadcastsOnTimeline: true,
+    profileDisplayName: "Jessica",
+    bio: "Creator bio",
+    profilePhotoURL: "",
+    ...overrides,
+  };
+}
+
+function buildCompletion(overrides: Record<string, unknown> = {}) {
+  return {
+    complete: true,
+    missingSetupItems: [],
+    items: [
+      { id: "profile_basics", label: "Profile basics", complete: true, controlId: "profile-basics", userFacingImpact: "Controls the public creator profile name and bio." },
+      { id: "fan_pass", label: "Fan Pass", complete: true, controlId: "fan-pass", userFacingImpact: "Controls Fan Pass." },
+      { id: "gumdrop_experiences", label: "GumDrop experiences", complete: true, controlId: "gumdrop-experiences", userFacingImpact: "Controls request and live-time actions." },
+      { id: "broadcasts", label: "Broadcasts", complete: true, controlId: "broadcasts", userFacingImpact: "Controls broadcasts." },
+      { id: "timeline", label: "Timeline", complete: true, controlId: "timeline", userFacingImpact: "Controls timeline surfaces." },
+    ],
+    ...overrides,
+  };
+}
+
 function section(container: HTMLElement, key: string) {
   const element = container.querySelector(`[data-creator-section-key="${key}"]`);
   expect(element).toBeTruthy();
@@ -228,6 +265,17 @@ describe("CreatorDashboardSettingsHub", () => {
           availabilityWindows: [],
           subscriptionPriceGd: 500,
         },
+        settings: buildControlPlane(),
+        settingsCompletion: buildCompletion(),
+        missingSetupItems: [],
+        sourceTruth: "creator_settings_doc",
+        userFacingImpact: {
+          fanPassVisible: true,
+          requestsVisible: true,
+          callsVisible: true,
+          broadcastsAvailable: true,
+          timelineVisible: true,
+        },
         creatorRestrictions: {},
         stats: {
           earningsGd: 0,
@@ -300,7 +348,7 @@ describe("CreatorDashboardSettingsHub", () => {
     expect(dashboard?.className).toContain("pb-[calc(env(safe-area-inset-bottom)+7rem)]");
     expect(dashboard?.getAttribute("data-report-issue-safe-offset")).toBe("bottom-nav");
     expect(section(container, "public_profile").dataset.creatorDashboardCardDensity).toBe("mobile_compact");
-    expect(section(container, "public_profile").className).toContain("p-2.5");
+    expect(section(container, "public_profile").className).toContain("p-3");
   });
 
   it("renders the creator settings sections without mounting every manager on page load", async () => {
@@ -323,6 +371,75 @@ describe("CreatorDashboardSettingsHub", () => {
     expect(screen.queryByTestId("bookings-manager")).toBeNull();
     expect(screen.queryByTestId("fan-pass-manager")).toBeNull();
     expect(screen.queryByTestId("broadcast-manager")).toBeNull();
+  });
+
+  it("renders compact creator settings control-plane sections and saves creator-safe settings", async () => {
+    mockState.authFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          creatorSettings: {
+            broadcastsEnabled: true,
+            subscriptionsEnabled: true,
+            messagingEnabled: true,
+            customRequestsEnabled: true,
+            bookingsEnabled: true,
+            availabilityWindows: [{ day: "mon" }],
+            subscriptionPriceGd: 500,
+          },
+          settings: buildControlPlane(),
+          settingsCompletion: buildCompletion(),
+          missingSetupItems: [],
+          creatorRestrictions: {},
+          stats: {
+            earningsGd: 1234,
+            pendingCashoutGd: 250,
+            followerCount: 17,
+            profileViewsCount: 88,
+            liveDropsCount: 4,
+            activeSubscribers: 3,
+            openRequests: 2,
+            bookedCalls: 1,
+          },
+          statsEvidence: buildStatsEvidence(),
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          settings: buildControlPlane({ fanPassPriceGd: 750 }),
+          settingsCompletion: buildCompletion(),
+          missingSetupItems: [],
+        }),
+      });
+
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(container.querySelector("[data-creator-settings-control-plane=\"true\"]")).toBeTruthy();
+      expect(container.querySelector("[data-creator-settings-section=\"profile-basics\"]")).toBeTruthy();
+      expect(container.querySelector("[data-creator-settings-section=\"fan-pass\"]")).toBeTruthy();
+      expect(container.querySelector("[data-creator-settings-section=\"gumdrop-experiences\"]")).toBeTruthy();
+      expect(container.querySelector("[data-creator-settings-section=\"broadcasts\"]")).toBeTruthy();
+      expect(container.querySelector("[data-creator-settings-section=\"timeline\"]")).toBeTruthy();
+    });
+    expect(screen.getByLabelText("Fan Pass price GD")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Fan Pass price GD"), { target: { value: "750" } });
+    fireEvent.click(screen.getByRole("button", { name: /save fan pass/i }));
+
+    await waitFor(() => {
+      expect(mockState.authFetch).toHaveBeenLastCalledWith("/api/creator/settings", expect.objectContaining({
+        method: "PUT",
+      }));
+    });
+    const savePayload = JSON.parse(mockState.authFetch.mock.calls[1][1].body);
+    expect(savePayload.settings).toMatchObject({
+      fanPassPriceGd: 750,
+      fanPassEnabled: true,
+    });
+    expect(container.textContent).not.toMatch(/publicDiscovery|rotationEligibility|approve drop/i);
   });
 
   it("connects the requests manager when custom requests are enabled", async () => {

@@ -1,0 +1,117 @@
+{
+  "generatedAtUtc": "2026-05-20T04:16:20.180Z",
+  "reportKey": "creator-settings-control-plane",
+  "currentHead": "984b3d538b7f19013e297257f62ada0420044e14",
+  "summary": {
+    "settingsContractCreated": true,
+    "fanPassPricingControlPresent": true,
+    "setupWarningsMappedToControls": true,
+    "adminOnlyFieldsBlocked": true,
+    "missingSettingsReturnsDefaults": true,
+    "userFacingFanPassUsesSettings": true,
+    "priceValidationPresent": true,
+    "settingsUpdateTelemetryPresent": true,
+    "mobileSettingsSectionsCompact": true,
+    "protectedNavChatUntouched": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "shared_contract",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/lib/creator-settings/creator-settings-contract.ts",
+      "summary": "Shared creator settings control-plane contract exists."
+    },
+    {
+      "id": "package_script",
+      "status": "verified",
+      "severity": "p1",
+      "file": "package.json",
+      "summary": "Package check script is registered."
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "admin_only_blocked",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/app/api/creator/settings/route.ts",
+      "summary": "Creator settings route rejects admin-only fields."
+    },
+    {
+      "id": "missing_defaults",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/app/api/creator/settings/route.ts",
+      "summary": "Missing settings docs return safe defaults and checklist metadata."
+    },
+    {
+      "id": "telemetry",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/app/api/creator/settings/route.ts",
+      "summary": "Settings update telemetry is present."
+    }
+  ],
+  "uiFindings": [
+    {
+      "id": "fan_pass_pricing_control",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "summary": "Creator Settings exposes Fan Pass pricing controls."
+    },
+    {
+      "id": "setup_map",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "summary": "Setup warning maps to exact controls."
+    },
+    {
+      "id": "mobile_compact",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "summary": "Settings controls use compact mobile sections."
+    },
+    {
+      "id": "protected_nav_chat",
+      "status": "verified",
+      "severity": "p0",
+      "file": "git diff --name-only",
+      "summary": "Top nav, bottom nav, and chat files are untouched."
+    }
+  ],
+  "userFacingFindings": [
+    {
+      "id": "profile_consumers",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "summary": "User-facing creator profile consumes settings for Fan Pass and visibility."
+    },
+    {
+      "id": "price_validation",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/lib/creator-settings/creator-settings-contract.ts",
+      "summary": "Creator-safe pricing validation is enforced."
+    }
+  ],
+  "fixesApplied": [
+    "Created a shared creator settings control-plane contract.",
+    "Returned settings completion and user-facing impact metadata from /api/creator/settings.",
+    "Added compact creator settings controls for profile, Fan Pass, experiences, broadcasts, and timeline.",
+    "Connected creator profile visibility and experience CTAs to creator settings."
+  ],
+  "prCleanupActions": [
+    "No open PRs were present at start for creator settings cleanup."
+  ],
+  "nextFixOrder": [
+    "Run manual mobile UI evidence for Creator Settings before beta visual signoff."
+  ]
+}
