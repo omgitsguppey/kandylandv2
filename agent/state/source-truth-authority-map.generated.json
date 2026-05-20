@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T23:23:16.408Z",
+  "generatedAtUtc": "2026-05-20T23:37:08.070Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+  "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,19 +323,19 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
+      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
+      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
+      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -353,33 +353,33 @@
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
       "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/creator-experience-simplification.generated.json",
       "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/post-economy-creator-flow-qa.generated.json",
       "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
       "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
-      "status": "current",
-      "action": "Artifact currentHead matches git HEAD."
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/speed-security-hardening.generated.json",

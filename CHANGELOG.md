@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.39 - 2026-05-20
+- Bug fixes and general improvements
+- Rebuilt targeted behavior evidence from current validators.
+- Recognized completed creator, user, mobile, and telemetry source behavior work.
+- Kept runtime and provider evidence gates separate.
+
 ## 1.3.38 - 2026-05-20
 - Bug fixes and general improvements
 - Refreshed implemented-lane beta reports from the latest code version.

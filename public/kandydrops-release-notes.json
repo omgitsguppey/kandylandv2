@@ -1,11 +1,59 @@
 {
-  "currentVersion": "1.3.38",
-  "betaReleaseCounter": 338,
+  "currentVersion": "1.3.39",
+  "betaReleaseCounter": 339,
   "channel": "beta",
-  "generatedAt": "2026-05-20T23:28:35.183Z",
-  "generatedAtUtc": "2026-05-20T23:28:35.183Z",
+  "generatedAt": "2026-05-20T23:38:41.434Z",
+  "generatedAtUtc": "2026-05-20T23:38:41.434Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.39",
+      "previousVersion": "1.3.38",
+      "betaReleaseCounter": 339,
+      "previousBetaReleaseCounter": 338,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): rebuild targeted behavior evidence",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T23:38:41.434Z",
+      "generatedAt": "2026-05-20T23:38:41.434Z",
+      "committedAtUtc": "2026-05-20T23:38:41.434Z",
+      "generatedAtUtc": "2026-05-20T23:38:41.434Z",
+      "updatedAtUtc": "2026-05-20T23:38:41.434Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Rebuilt targeted behavior evidence from current validators.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Rebuilt targeted behavior evidence from current validators.",
+        "Recognized completed creator, user, mobile, and telemetry source behavior work.",
+        "Kept runtime and provider evidence gates separate."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted targeted behavior evidence refresh into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "Source behavior evidence",
+        "Generated reports"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/targeted-behavior-evidence.generated.json",
+        "docs/agent-truth/targeted-behavior-evidence.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-targeted-behavior-evidence.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/targeted-behavior-evidence.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.38",
       "previousVersion": "1.3.37",
@@ -1337,54 +1385,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/external-analytics-truth-closure.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.14",
-      "previousVersion": "1.3.13",
-      "betaReleaseCounter": 314,
-      "previousBetaReleaseCounter": 313,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): close bigquery export pipeline",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T22:49:48.551Z",
-      "generatedAt": "2026-05-19T22:49:48.551Z",
-      "committedAtUtc": "2026-05-19T22:49:48.551Z",
-      "generatedAtUtc": "2026-05-19T22:49:48.551Z",
-      "updatedAtUtc": "2026-05-19T22:49:48.551Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Clarified BigQuery export readiness while keeping analytics exports batched, bounded, and evidence-based.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Clarified BigQuery export readiness.",
-        "Kept analytics exports batched, bounded, and evidence-based.",
-        "Prevented missing BigQuery from showing as zero activity."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted BigQuery export and cloud pipeline truth fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "admin analytics",
-        "app reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "functions/src/analytics-bigquery-export.ts",
-        "functions/src/index.ts",
-        "package.json",
-        "agent/state/bigquery-cloud-pipeline-closure.generated.json",
-        "docs/agent-truth/bigquery-cloud-pipeline-closure.md",
-        "scripts/agent/validate-bigquery-cloud-pipeline-closure.ts",
-        "src/lib/analytics/bigquery-export-contract.ts",
-        "tests/unit/bigquery-cloud-pipeline-closure.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

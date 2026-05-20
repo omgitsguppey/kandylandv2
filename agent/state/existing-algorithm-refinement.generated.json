@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T23:23:33.193Z",
+  "generatedAtUtc": "2026-05-20T23:36:56.643Z",
   "reportKey": "existing-algorithm-refinement",
-  "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+  "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
   "summary": {
     "algorithmsInventoried": 10,
     "algorithmsRefined": 3,
@@ -332,19 +332,19 @@
   ],
   "dirtyFileClassifications": [
     {
-      "file": "agent/state/beta-evidence-gap-map.generated.json",
+      "file": "agent/state/creator-broadcast-timeline-prep.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/beta-freshness-language.generated.json",
+      "file": "agent/state/creator-drop-status-metrics.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "file": "agent/state/creator-pricing-wiring.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/creator-experience-simplification.generated.json",
+      "file": "agent/state/creator-profile-mobile-timeline.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -352,43 +352,27 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/final-telemetry-closure-lock.generated.json",
+      "file": "agent/state/global-marquee-truncated-titles.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "file": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/mobile-ui-final-lock.generated.json",
+      "file": "docs/agent-truth/creator-broadcast-timeline-prep.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/overnight-wiring-integrity.generated.json",
+      "file": "docs/agent-truth/creator-drop-status-metrics.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "file": "docs/agent-truth/creator-pricing-wiring.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/source-truth-authority-map.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/beta-evidence-gap-map.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/beta-freshness-language.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "file": "docs/agent-truth/creator-profile-mobile-timeline.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -396,23 +380,19 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "file": "docs/agent-truth/global-marquee-truncated-titles.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/mobile-ui-final-lock.md",
+      "file": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/overnight-wiring-integrity.md",
-      "classification": "current_generated_artifact_to_commit"
+      "file": "scripts/agent/validate-targeted-behavior-evidence.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "file": "docs/agent-truth/source-truth-authority-map.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "tests/unit/score-80-refresh-pass.spec.ts",
+      "file": "tests/unit/targeted-behavior-evidence.spec.ts",
       "classification": "real_source_change_needs_review"
     }
   ],

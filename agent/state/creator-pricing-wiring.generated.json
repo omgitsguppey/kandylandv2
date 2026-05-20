@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T06:28:16.160Z",
+  "generatedAtUtc": "2026-05-20T23:36:45.143Z",
   "reportKey": "creator-pricing-wiring",
-  "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
+  "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
   "summary": {
     "controlPlaneDependencyPresent": true,
     "pricingResolverCreated": true,

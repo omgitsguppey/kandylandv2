@@ -1,78 +1,419 @@
 {
-  "generatedAtUtc": "2026-05-14T14:11:47.684Z",
+  "generatedAtUtc": "2026-05-20T23:39:10.905Z",
   "reportKey": "targeted-behavior-evidence",
-  "currentHead": "6b964e0e91f288a68da7a7e2ff0fce38d6343338",
+  "status": "passed",
+  "overallStatus": "passed",
+  "passed": true,
+  "sourceCommit": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+  "latestCodeVersion": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+  "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
   "visualQaPerformed": false,
   "realDeviceSmokePerformed": false,
-  "overallStatus": "passed",
-  "passed": true,
-  "detail": "Focused Phase 1 validators passed from current HEAD. This is targeted behavior evidence only and does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-  "summary": "Focused Phase 1 targeted behavior validators passed without production reads, providers, BigQuery, visual QA, or real-device smoke.",
+  "detail": "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+  "summary": "Targeted behavior evidence was rebuilt from current creator, user, mobile, telemetry, economy, drop, and source-truth validators.",
+  "validatorResults": [
+    {
+      "id": "creator-settings-control-plane",
+      "command": "npm run check:creator-settings-control-plane",
+      "status": "pass",
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "creator_settings",
+        "creator_profile",
+        "fan_pass"
+      ],
+      "proves": "Creator Settings controls, setup checklist, creator-safe validation, and user-facing settings impact are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "creator-pricing-wiring",
+      "command": "npm run check:creator-pricing-wiring",
+      "status": "pass",
+      "artifactPath": "agent/state/creator-pricing-wiring.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "creator_pricing",
+        "fan_pass",
+        "creator_experiences"
+      ],
+      "proves": "Creator Fan Pass and experience pricing wiring is source-validated without changing GumDrop math.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "creator-broadcast-timeline-prep",
+      "command": "npm run check:creator-broadcast-timeline-prep",
+      "status": "pass",
+      "artifactPath": "agent/state/creator-broadcast-timeline-prep.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "creator_broadcasts",
+        "notifications",
+        "creator_timeline"
+      ],
+      "proves": "Creator broadcast notification and timeline contracts are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "creator-profile-mobile-timeline",
+      "command": "npm run check:creator-profile-mobile-timeline",
+      "status": "pass",
+      "artifactPath": "agent/state/creator-profile-mobile-timeline.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "creator_profile",
+        "mobile_ui",
+        "timeline"
+      ],
+      "proves": "Creator profile mobile header and timeline source constraints are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "global-marquee-truncated-titles",
+      "command": "npm run check:global-marquee-truncated-titles",
+      "status": "pass",
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "ui_titles",
+        "creator_ui",
+        "admin_ui",
+        "user_library"
+      ],
+      "proves": "Shared marquee behavior for truncated titles is source-validated with reduced-motion separation.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "creator-drop-status-metrics",
+      "command": "npm run check:creator-drop-status-metrics",
+      "status": "pass",
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "creator_drop_manager",
+        "drop_metrics",
+        "drop_status"
+      ],
+      "proves": "Creator drop status and metrics display contracts are source-validated without fake metrics.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "user-loading-wallet-mobile-refinement",
+      "command": "npm run check:user-loading-wallet-mobile-refinement",
+      "status": "pass",
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "user_dashboard",
+        "wallet_ui",
+        "mobile_loading"
+      ],
+      "proves": "User dashboard loading and wallet mobile density are source-validated without payment runtime changes.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "existing-algorithm-refinement",
+      "command": "npm run check:existing-algorithm-refinement",
+      "status": "pass",
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "beta_scoring",
+        "telemetry",
+        "creator_pricing",
+        "drop_status",
+        "mobile_density"
+      ],
+      "proves": "Existing scoring, telemetry, pricing, drop, marquee, and loading algorithms are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "overnight-wiring-integrity",
+      "command": "npm run check:overnight-wiring-integrity",
+      "status": "pass",
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "creator_settings",
+        "telemetry",
+        "parity",
+        "routes"
+      ],
+      "proves": "Recent creator, UI, telemetry, and parity wiring is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "final-telemetry-closure-lock",
+      "command": "npm run check:final-telemetry-closure-lock",
+      "status": "pass",
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "telemetry",
+        "firestore",
+        "bigquery",
+        "ga4",
+        "admin_evidence"
+      ],
+      "proves": "Telemetry dependency closure status is source-validated without runtime provider calls.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "mobile-ui-final-lock",
+      "command": "npm run check:mobile-ui-final-lock",
+      "status": "pass",
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "mobile_ui",
+        "admin_ui",
+        "creator_ui",
+        "user_ui"
+      ],
+      "proves": "Mobile UI doctrine, scale, skeleton, and self-check guards are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "user-creator-ui-parity",
+      "command": "npm run check:user-creator-ui-parity",
+      "status": "pass",
+      "artifactPath": "agent/state/user-creator-ui-parity.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "user_ui",
+        "creator_ui",
+        "route_parity"
+      ],
+      "proves": "User and creator surface parity is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "source-truth-authority-map",
+      "command": "npm run check:source-truth-authority-map",
+      "status": "pass",
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "source_truth",
+        "admin_truth",
+        "beta_evidence"
+      ],
+      "proves": "Source truth authority map is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "gumdrop-economy-accuracy",
+      "command": "npm run check:gumdrop-economy-accuracy",
+      "status": "pass",
+      "artifactPath": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "gumdrop_economy",
+        "source_of_funds",
+        "creator_monetization"
+      ],
+      "proves": "GumDrop source-of-funds and creator monetization source contracts are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "creator-drop-management-approval",
+      "command": "npm run check:creator-drop-management-approval",
+      "status": "pass",
+      "artifactPath": "agent/state/creator-drop-management-approval.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "creator_drop_manager",
+        "admin_approval",
+        "drop_lifecycle"
+      ],
+      "proves": "Creator drop submission and admin approval boundaries are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "id": "creator-drop-manager-mobile-refinement",
+      "command": "npm run check:creator-drop-manager-mobile-refinement",
+      "status": "pass",
+      "artifactPath": "agent/state/creator-drop-manager-mobile-refinement.generated.json",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "surfaces": [
+        "creator_drop_manager",
+        "mobile_ui"
+      ],
+      "proves": "Creator drop manager mobile refinement is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    }
+  ],
   "commands": [
     {
-      "command": "npm run check:beta-score",
+      "command": "npm run check:creator-settings-control-plane",
       "status": "pass",
-      "proves": "Public beta score contract validates schema-backed evidence gates, cap details, and no stale boolean/string-derived score truth.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Creator Settings controls, setup checklist, creator-safe validation, and user-facing settings impact are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:provider-smoke-evidence",
+      "command": "npm run check:creator-pricing-wiring",
       "status": "pass",
-      "proves": "Provider smoke evidence artifact remains honest about missing formal provider evidence and operator-reported PayPal.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Creator Fan Pass and experience pricing wiring is source-validated without changing GumDrop math.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:runtime-smoke-evidence",
+      "command": "npm run check:creator-broadcast-timeline-prep",
       "status": "pass",
-      "proves": "Runtime smoke evidence artifact keeps local validators separate from deployed runtime smoke.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Creator broadcast notification and timeline contracts are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:admin-truth-sample-evidence",
+      "command": "npm run check:creator-profile-mobile-timeline",
       "status": "pass",
-      "proves": "Admin truth sample evidence artifact remains missing_or_unknown until a formal sample exists.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Creator profile mobile header and timeline source constraints are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:phase-one-score-ui-triage",
+      "command": "npm run check:global-marquee-truncated-titles",
       "status": "pass",
-      "proves": "Phase 1 score/UI triage validator identifies remaining score, UI, creator, watch-time, and admin cleanup risks.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Shared marquee behavior for truncated titles is source-validated with reduced-motion separation.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:settings-creator-dashboard-split",
+      "command": "npm run check:creator-drop-status-metrics",
       "status": "pass",
-      "proves": "Creator settings/dashboard split validator passes for the current source contract.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Creator drop status and metrics display contracts are source-validated without fake metrics.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:watch-time-rollup-truth",
+      "command": "npm run check:user-loading-wallet-mobile-refinement",
       "status": "pass",
-      "proves": "Watch-time contract validator keeps canonical watch time tied to valid watch-session rollups.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "User dashboard loading and wallet mobile density are source-validated without payment runtime changes.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:admin-debug-control-tower",
+      "command": "npm run check:existing-algorithm-refinement",
       "status": "pass",
-      "proves": "Admin Debug Control Tower validator passes with canonical beta score wiring and report aggregate separation.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Existing scoring, telemetry, pricing, drop, marquee, and loading algorithms are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:admin-truth",
+      "command": "npm run check:overnight-wiring-integrity",
       "status": "pass",
-      "proves": "Static admin truth contract validator passes for the current source.",
-      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Recent creator, UI, telemetry, and parity wiring is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:final-telemetry-closure-lock",
+      "status": "pass",
+      "proves": "Telemetry dependency closure status is source-validated without runtime provider calls.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:mobile-ui-final-lock",
+      "status": "pass",
+      "proves": "Mobile UI doctrine, scale, skeleton, and self-check guards are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:user-creator-ui-parity",
+      "status": "pass",
+      "proves": "User and creator surface parity is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:source-truth-authority-map",
+      "status": "pass",
+      "proves": "Source truth authority map is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:gumdrop-economy-accuracy",
+      "status": "pass",
+      "proves": "GumDrop source-of-funds and creator monetization source contracts are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:creator-drop-management-approval",
+      "status": "pass",
+      "proves": "Creator drop submission and admin approval boundaries are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:creator-drop-manager-mobile-refinement",
+      "status": "pass",
+      "proves": "Creator drop manager mobile refinement is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     }
+  ],
+  "surfacesCovered": [
+    "admin_approval",
+    "admin_evidence",
+    "admin_truth",
+    "admin_ui",
+    "beta_evidence",
+    "beta_scoring",
+    "bigquery",
+    "creator_broadcasts",
+    "creator_drop_manager",
+    "creator_experiences",
+    "creator_monetization",
+    "creator_pricing",
+    "creator_profile",
+    "creator_settings",
+    "creator_timeline",
+    "creator_ui",
+    "drop_lifecycle",
+    "drop_metrics",
+    "drop_status",
+    "fan_pass",
+    "firestore",
+    "ga4",
+    "gumdrop_economy",
+    "mobile_density",
+    "mobile_loading",
+    "mobile_ui",
+    "notifications",
+    "parity",
+    "route_parity",
+    "routes",
+    "source_of_funds",
+    "source_truth",
+    "telemetry",
+    "timeline",
+    "ui_titles",
+    "user_dashboard",
+    "user_library",
+    "user_ui",
+    "wallet_ui"
+  ],
+  "notCovered": [
+    "manual screenshot QA",
+    "provider smoke",
+    "runtime smoke",
+    "admin truth sample",
+    "real-device smoke",
+    "deployed runtime smoke"
+  ],
+  "formalEvidenceImpact": "source_behavior_only",
+  "doesNotClear": [
+    "manual_screenshot",
+    "provider_smoke",
+    "runtime_smoke",
+    "admin_truth_sample"
+  ],
+  "evidence": [
+    "validatorCount=16",
+    "passedValidators=16",
+    "failedValidators=0",
+    "unavailableValidators=0",
+    "surfacesCovered=admin_approval,admin_evidence,admin_truth,admin_ui,beta_evidence,beta_scoring,bigquery,creator_broadcasts,creator_drop_manager,creator_experiences,creator_monetization,creator_pricing,creator_profile,creator_settings,creator_timeline,creator_ui,drop_lifecycle,drop_metrics,drop_status,fan_pass,firestore,ga4,gumdrop_economy,mobile_density,mobile_loading,mobile_ui,notifications,parity,route_parity,routes,source_of_funds,source_truth,telemetry,timeline,ui_titles,user_dashboard,user_library,user_ui,wallet_ui",
+    "formalEvidenceImpact=source_behavior_only"
   ],
   "readinessImpact": {
     "targetedBehaviorGatePassed": true,
     "notes": [
-      "Focused Phase 1 validators passed from current HEAD.",
-      "This artifact is targeted behavior evidence only.",
-      "It cannot replace visual QA, provider smoke, real-device smoke, deployed runtime smoke, or production admin truth samples."
+      "This artifact is source-backed targeted behavior evidence only.",
+      "It cannot replace manual screenshot evidence, provider smoke, runtime smoke, or production admin truth samples.",
+      "Beta exit readiness must stay false until formal evidence lanes are attached."
     ]
   }
 }

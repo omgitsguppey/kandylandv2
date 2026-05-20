@@ -1,7 +1,7 @@
 # Existing Algorithm Refinement
 
-Generated: 2026-05-20T23:23:33.193Z
-Current code version: d8cde44345b6f0a6f0dd8710ff063356d74a5791
+Generated: 2026-05-20T23:36:56.643Z
+Current code version: 2774c5f6508dc005acde87cf4a3a0ce37f61bd51
 
 ## Summary
 
@@ -147,27 +147,22 @@ Current code version: d8cde44345b6f0a6f0dd8710ff063356d74a5791
 
 ## Dirty File Classifications
 
-- agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
-- agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-dashboard-error-cost-inventory.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-experience-simplification.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-broadcast-timeline-prep.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-drop-status-metrics.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-pricing-wiring.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-profile-mobile-timeline.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-settings-control-plane.generated.json: current_generated_artifact_to_commit
-- agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/gumdrop-economy-accuracy.generated.json: current_generated_artifact_to_commit
-- agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-wiring-integrity.generated.json: current_generated_artifact_to_commit
-- agent/state/post-economy-creator-flow-qa.generated.json: current_generated_artifact_to_commit
-- agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit
-- agent/state/user-facing-feature-connection-audit.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/beta-evidence-gap-map.md: current_generated_artifact_to_commit
-- docs/agent-truth/beta-freshness-language.md: current_generated_artifact_to_commit
-- docs/agent-truth/creator-dashboard-error-cost-inventory.md: current_generated_artifact_to_commit
+- agent/state/global-marquee-truncated-titles.generated.json: current_generated_artifact_to_commit
+- agent/state/user-loading-wallet-mobile-refinement.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/creator-broadcast-timeline-prep.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-drop-status-metrics.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-pricing-wiring.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-profile-mobile-timeline.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-settings-control-plane.md: current_generated_artifact_to_commit
-- docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
-- docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
-- docs/agent-truth/overnight-wiring-integrity.md: current_generated_artifact_to_commit
-- docs/agent-truth/source-truth-authority-map.md: current_generated_artifact_to_commit
-- tests/unit/score-80-refresh-pass.spec.ts: real_source_change_needs_review
+- docs/agent-truth/global-marquee-truncated-titles.md: current_generated_artifact_to_commit
+- docs/agent-truth/user-loading-wallet-mobile-refinement.md: current_generated_artifact_to_commit
+- scripts/agent/validate-targeted-behavior-evidence.ts: real_source_change_needs_review
+- tests/unit/targeted-behavior-evidence.spec.ts: real_source_change_needs_review
 
 ## PR Cleanup Actions
 
