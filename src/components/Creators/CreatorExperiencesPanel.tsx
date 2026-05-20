@@ -30,12 +30,12 @@ import {
 import type { HumanErrorDescriptor } from "@/lib/errors/error-language";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
-    CREATOR_BOOKING_RATES,
     CREATOR_MESSAGE_COSTS,
     CREATOR_SUBSCRIPTION_MIN_GD,
     type CreatorRequestCategoryConfig,
     type CreatorSettings,
 } from "@/lib/creator-experiences";
+import { resolveCreatorPricing } from "@/lib/creator-settings/creator-pricing-resolver";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import type { UserProfile } from "@/types/db";
@@ -154,13 +154,16 @@ export function CreatorExperiencesPanel({
     const hasRecentThread = messages.length > 0;
     const creatorGuidanceName = creatorFirstName || creatorUsername || "this creator";
     
+    const pricing = useMemo(() => resolveCreatorPricing(settings, {
+        requestCategoryId,
+        bookingServiceType,
+        bookingDurationMinutes,
+        subscriptionActive,
+    }), [bookingDurationMinutes, bookingServiceType, requestCategoryId, settings, subscriptionActive]);
     const availabilityWindows = settings.availabilityWindows || [];
-    const phoneRatePerMinute = settings.phoneRatePerMinuteGd || CREATOR_BOOKING_RATES.phone;
-    const videoRatePerMinute = settings.videoRatePerMinuteGd || CREATOR_BOOKING_RATES.video;
-    const subscriberVideoRatePerMinute = Math.round(videoRatePerMinute * (1 - (settings.videoSubscriberDiscountPercent || 0) / 100));
-    const bookingCost = bookingServiceType === "phone"
-        ? bookingDurationMinutes * phoneRatePerMinute
-        : bookingDurationMinutes * (subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute);
+    const fanPassPriceGd = pricing.fanPass.priceGd || CREATOR_SUBSCRIPTION_MIN_GD;
+    const bookingRatePerMinute = pricing.booking?.ratePerMinuteGd ?? 0;
+    const bookingCost = pricing.booking?.priceGd ?? 0;
     const [bookingSlotsNowMs] = useState(() => Date.now());
     const bookingConflictRecords = useMemo(() => (
         latestBooking ? [latestBooking, ...existingBookings] : existingBookings
@@ -377,6 +380,10 @@ export function CreatorExperiencesPanel({
             data-selected-lane={selectedExperience ? EXPERIENCE_VIEW_TO_LANE[selectedExperience] : ""}
             data-settings-source="creator_settings"
             data-restrictions-source="creator_public_state"
+            data-fan-pass-price-source={pricing.fanPass.source}
+            data-request-price-source={pricing.selectedRequest?.source ?? pricing.requests[0]?.source ?? "unavailable"}
+            data-booking-price-source={pricing.booking?.source ?? "unavailable"}
+            data-creator-experience-paid-only="true"
         >
             {experienceWarnings.length > 0 ? (
                 <div className="space-y-2">
@@ -428,7 +435,7 @@ export function CreatorExperiencesPanel({
                     >
                         <Star className={cn("mb-2 transition-transform", selectedExperience === "subscriptions" ? "h-6 w-6 text-brand-purple scale-110" : "h-5 w-5 text-zinc-400")} />
                         <p className="text-xs font-bold leading-tight">Fan Pass</p>
-                        {!selectedExperience && <p className="mt-1 text-[10px] text-zinc-500 font-medium">{settings.subscriptionPriceGd || CREATOR_SUBSCRIPTION_MIN_GD} GD/mo</p>}
+                        {!selectedExperience && <p className="mt-1 text-[10px] text-zinc-500 font-medium">{fanPassPriceGd} GD/mo</p>}
                     </button>
                 ) : null}
 
@@ -464,7 +471,7 @@ export function CreatorExperiencesPanel({
                     >
                         <Sparkles className={cn("mb-2 transition-transform", selectedExperience === "requests" ? "h-6 w-6 text-brand-purple scale-110" : "h-5 w-5 text-zinc-400")} />
                         <p className="text-xs font-bold leading-tight">Requests</p>
-                        {!selectedExperience && <p className="mt-1 text-[10px] text-zinc-500 font-medium">From {requestCategories[0]?.priceGd ?? 0} GD</p>}
+                        {!selectedExperience && <p className="mt-1 text-[10px] text-zinc-500 font-medium">From {pricing.requests[0]?.priceGd ?? 0} GD</p>}
                     </button>
                 ) : null}
 
@@ -527,7 +534,7 @@ export function CreatorExperiencesPanel({
                     <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 py-3.5 pl-5 pr-4">
                         <div className="flex flex-col">
                             <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Monthly Auto-Renew</span>
-                            <span className="mt-0.5 text-2xl font-black text-white">{settings.subscriptionPriceGd || CREATOR_SUBSCRIPTION_MIN_GD} <span className="text-sm font-medium text-zinc-400">GD</span></span>
+                            <span className="mt-0.5 text-2xl font-black text-white">{fanPassPriceGd} <span className="text-sm font-medium text-zinc-400">GD</span></span>
                         </div>
                         {subscriptionActive && (
                             <span className="rounded-full border border-brand-purple/30 bg-brand-purple/20 px-3 py-1 text-xs font-bold text-brand-purple-light">Active</span>
@@ -541,7 +548,7 @@ export function CreatorExperiencesPanel({
                     ) : (
                         renderCTA(
                             "subscriptions",
-                            subscriptionActive ? 0 : (settings.subscriptionPriceGd || CREATOR_SUBSCRIPTION_MIN_GD), 
+                            subscriptionActive ? 0 : fanPassPriceGd,
                             () => subscriptionActive ? onStartSubscription() : onStartSubscription(),
                             subscribeLoading,
                             <Star className="h-4 w-4" />,
@@ -688,7 +695,7 @@ export function CreatorExperiencesPanel({
                             />
                             {renderCTA(
                                 "requests",
-                                requestCategories.find(c => c.id === requestCategoryId)?.priceGd || 0,
+                                pricing.selectedRequest?.priceGd || 0,
                                 onCreateRequest,
                                 creatingRequest,
                                 <Sparkles className="h-4 w-4" />,
@@ -729,7 +736,7 @@ export function CreatorExperiencesPanel({
                             aria-pressed={bookingServiceType === "phone"}
                             onClick={() => {
                                 onBookingServiceTypeChange("phone");
-                                trackCreatorExperienceEvent("creator_experience_booking_type_selected", "bookings", bookingDurationMinutes * phoneRatePerMinute, {
+                                trackCreatorExperienceEvent("creator_experience_booking_type_selected", "bookings", bookingCost, {
                                     bookingType: "phone",
                                 });
                             }}
@@ -742,7 +749,7 @@ export function CreatorExperiencesPanel({
                             aria-pressed={bookingServiceType === "video"}
                             onClick={() => {
                                 onBookingServiceTypeChange("video");
-                                trackCreatorExperienceEvent("creator_experience_booking_type_selected", "bookings", bookingDurationMinutes * (subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute), {
+                                trackCreatorExperienceEvent("creator_experience_booking_type_selected", "bookings", bookingCost, {
                                     bookingType: "video",
                                 });
                             }}
@@ -769,18 +776,10 @@ export function CreatorExperiencesPanel({
                         </div>
                         <div className="flex items-end justify-between">
                             <div>
-                                {bookingServiceType === "phone" ? (
-                                    <span className="text-xs text-brand-purple-light/70 font-semibold">@ {CREATOR_BOOKING_RATES.phone} GD/min</span>
-                                ) : (
-                                    <span className="text-xs text-brand-purple-light/70 font-semibold">
-                                        @ {subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute} GD/min
-                                    </span>
-                                )}
+                                <span className="text-xs text-brand-purple-light/70 font-semibold">@ {bookingRatePerMinute} GD/min</span>
                             </div>
                             <div className="text-2xl font-black text-white">
-                                {bookingServiceType === "phone" 
-                                    ? bookingDurationMinutes * phoneRatePerMinute
-                                    : bookingDurationMinutes * (subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute)} <span className="text-[11px] uppercase tracking-widest text-zinc-500 font-bold ml-0.5">GD ttl</span>
+                                {bookingCost} <span className="text-[11px] uppercase tracking-widest text-zinc-500 font-bold ml-0.5">GD ttl</span>
                             </div>
                         </div>
                     </div>

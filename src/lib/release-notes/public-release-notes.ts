@@ -1,13 +1,69 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.23",
-  "betaReleaseCounter": 323,
+  "currentVersion": "1.3.24",
+  "betaReleaseCounter": 324,
   "channel": "beta",
-  "generatedAt": "2026-05-20T04:12:15.962Z",
-  "generatedAtUtc": "2026-05-20T04:12:15.962Z",
+  "generatedAt": "2026-05-20T04:26:48.686Z",
+  "generatedAtUtc": "2026-05-20T04:26:48.686Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.24",
+      "previousVersion": "1.3.23",
+      "betaReleaseCounter": 324,
+      "previousBetaReleaseCounter": 323,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(creator): wire pricing settings to experiences",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T04:26:48.686Z",
+      "generatedAt": "2026-05-20T04:26:48.686Z",
+      "committedAtUtc": "2026-05-20T04:26:48.686Z",
+      "generatedAtUtc": "2026-05-20T04:26:48.686Z",
+      "updatedAtUtc": "2026-05-20T04:26:48.686Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Connected creator Fan Pass pricing to user-facing flows.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Connected creator Fan Pass pricing to user-facing flows.",
+        "Aligned creator experience prices with creator settings.",
+        "Preserved paid-GumDrop-only rules for creator experiences."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted creator pricing wiring pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator settings",
+        "creator profile",
+        "Fan Pass",
+        "creator experiences"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-pricing-wiring.generated.json",
+        "docs/agent-truth/creator-pricing-wiring.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-pricing-wiring.ts",
+        "src/app/api/creator/bookings/route.ts",
+        "src/app/api/creator/requests/route.ts",
+        "src/app/api/creator/subscriptions/route.ts",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Creators/CreatorExperiencesPanel.tsx",
+        "src/lib/creator-settings/creator-pricing-resolver.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-pricing-wiring.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.23",
       "previousVersion": "1.3.22",
@@ -1343,67 +1399,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/beta-health-algorithm-v2.spec.ts",
         "tests/unit/current-beta-exit-status.spec.ts",
         "tests/unit/public-beta-score-v2.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.2.99",
-      "previousVersion": "1.2.98",
-      "betaReleaseCounter": 299,
-      "previousBetaReleaseCounter": 298,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(creator): consolidate nav and role boundaries",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T16:57:10.000Z",
-      "generatedAt": "2026-05-19T16:57:10.000Z",
-      "committedAtUtc": "2026-05-19T16:57:10.000Z",
-      "generatedAtUtc": "2026-05-19T16:57:10.000Z",
-      "updatedAtUtc": "2026-05-19T16:57:10.000Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Cleaned up Creator Dashboard navigation, role boundaries, Fan Pass CRM identity, and broadcast audience behavior.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Cleaned up Creator Dashboard and Creator Settings navigation.",
-        "Removed stale creator/user dashboard stacking rules.",
-        "Locked readable Fan Pass CRM and broadcast audience behavior."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted creator navigation and role-boundary consolidation fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator dashboard",
-        "creator settings",
-        "account navigation",
-        "fan pass",
-        "creator broadcasts"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-nav-role-consolidation.generated.json",
-        "docs/agent-truth/creator-nav-role-consolidation.md",
-        "docs/agent-truth/creator-surface-routing.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-dashboard-role-boundary.ts",
-        "scripts/agent/validate-creator-nav-role-consolidation.ts",
-        "scripts/agent/validate-creator-surface-routing.ts",
-        "src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx",
-        "src/app/dashboard/profile/hooks/useProfileState.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/components/Navigation/ProfileDropdown.tsx",
-        "src/components/Navigation/ProfileSidebar.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/creator-dashboard-role-boundary.spec.ts",
-        "tests/unit/creator-nav-role-consolidation.spec.ts",
-        "tests/unit/creator-surface-routing.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

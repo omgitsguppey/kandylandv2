@@ -1,0 +1,117 @@
+{
+  "generatedAtUtc": "2026-05-20T04:32:29.418Z",
+  "reportKey": "creator-pricing-wiring",
+  "currentHead": "65156c93fe2a901b9e5c7dde3ad179a0efbd2e94",
+  "summary": {
+    "controlPlaneDependencyPresent": true,
+    "pricingResolverCreated": true,
+    "fanPassUsesResolver": true,
+    "requestsUseResolver": true,
+    "bookingsUseResolver": true,
+    "userFacingPanelUsesResolver": true,
+    "dashboardShowsPriceSource": true,
+    "paidOnlyPolicyPreserved": true,
+    "disabledFeaturesBlocked": true,
+    "protectedNavChatUntouched": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "dependencyFindings": [
+    {
+      "id": "control_plane_dependency",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/lib/creator-settings/creator-settings-contract.ts",
+      "summary": "Creator settings control plane dependency is present."
+    },
+    {
+      "id": "package_script",
+      "status": "verified",
+      "severity": "p1",
+      "file": "package.json",
+      "summary": "Pricing wiring check script is registered."
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "fan_pass_route",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/app/api/creator/subscriptions/route.ts",
+      "summary": "Fan Pass purchase route uses creator pricing resolver."
+    },
+    {
+      "id": "request_route",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/app/api/creator/requests/route.ts",
+      "summary": "Request route uses creator pricing resolver."
+    },
+    {
+      "id": "booking_route",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/app/api/creator/bookings/route.ts",
+      "summary": "Booking route uses creator pricing resolver."
+    },
+    {
+      "id": "disabled_blocked",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/app/api/creator",
+      "summary": "Disabled creator features stay blocked."
+    }
+  ],
+  "uiFindings": [
+    {
+      "id": "resolver",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/lib/creator-settings/creator-pricing-resolver.ts",
+      "summary": "Canonical creator pricing resolver exists."
+    },
+    {
+      "id": "public_panel",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "summary": "Public creator experience panel uses resolver and source markers."
+    },
+    {
+      "id": "dashboard_source",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "summary": "Creator dashboard shows custom/default price source."
+    },
+    {
+      "id": "protected_nav_chat",
+      "status": "verified",
+      "severity": "p0",
+      "file": "git diff --name-only",
+      "summary": "Protected nav/chat surfaces are untouched."
+    }
+  ],
+  "economyFindings": [
+    {
+      "id": "paid_only_policy",
+      "status": "verified",
+      "severity": "p0",
+      "file": "src/lib/server/creator-experiences.ts",
+      "summary": "Paid creator experiences remain purchased-GumDrop only."
+    }
+  ],
+  "fixesApplied": [
+    "Added a shared creator pricing resolver for Fan Pass, request, booking, and broadcast lanes.",
+    "Wired subscription, request, and booking routes through resolver-backed creator settings prices.",
+    "Updated the public creator experiences panel to display resolver-backed price and source markers.",
+    "Marked creator dashboard pricing as custom/default while preserving paid-GumDrop-only spend helpers."
+  ],
+  "prCleanupActions": [
+    "No open PRs were present for creator pricing wiring."
+  ],
+  "nextFixOrder": [
+    "Capture manual user-facing Fan Pass/request/booking price screenshots before visual beta signoff."
+  ]
+}

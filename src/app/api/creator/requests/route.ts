@@ -5,7 +5,8 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { CREATOR_COLLECTIONS, isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { resolveCreatorRequestPricing } from "@/lib/creator-settings/creator-pricing-resolver";
 import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
@@ -259,10 +260,11 @@ async function POST_handler(request: NextRequest) {
             const creatorSettings = creatorData.creatorSettings && typeof creatorData.creatorSettings === "object"
                 ? creatorData.creatorSettings as Record<string, unknown>
                 : {};
+            const requestPricing = resolveCreatorRequestPricing(creatorSettings, categoryId);
             const creatorRestrictions = creatorData.creatorRestrictions && typeof creatorData.creatorRestrictions === "object"
                 ? creatorData.creatorRestrictions as Record<string, unknown>
                 : {};
-            if (creatorSettings.customRequestsEnabled === false || creatorRestrictions.customRequestsRestricted === true) {
+            if (requestPricing?.enabled === false || creatorRestrictions.customRequestsRestricted === true) {
                 throw new CreatorRequestProblem(
                     409,
                     "requests_unavailable",
@@ -271,9 +273,7 @@ async function POST_handler(request: NextRequest) {
                 );
             }
 
-            const categories = Array.isArray(creatorSettings.requestCategories)
-                ? creatorSettings.requestCategories.filter((entry): entry is Record<string, unknown> => Boolean(entry && typeof entry === "object"))
-                : [];
+            const categories = normalizeCreatorSettings(creatorSettings).requestCategories;
             const selectedCategory = categories.find((entry) => entry.id === categoryId && entry.enabled !== false);
             if (!selectedCategory) {
                 throw new CreatorRequestProblem(
@@ -284,7 +284,7 @@ async function POST_handler(request: NextRequest) {
                 );
             }
 
-            const priceGd = typeof selectedCategory.priceGd === "number" ? Math.round(selectedCategory.priceGd) : 0;
+            const priceGd = requestPricing?.priceGd ?? (typeof selectedCategory.priceGd === "number" ? Math.round(selectedCategory.priceGd) : 0);
             const balance = readSourceAwareBalance(userData);
             if (requestSnap.exists || transactionSnap.exists) {
                 const requestData = requestSnap.data() as Record<string, unknown> | undefined;
@@ -367,6 +367,8 @@ async function POST_handler(request: NextRequest) {
                 categoryLabel: typeof selectedCategory.label === "string" ? selectedCategory.label : categoryId,
                 details,
                 priceGd,
+                priceSource: requestPricing?.source ?? "unavailable",
+                paidOnlyPolicy: requestPricing?.paidOnly ?? true,
                 status: "pending",
                 creatorAccrualId: ledgerRef.id,
                 userTransactionId: transactionRef.id,

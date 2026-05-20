@@ -6,6 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_BOOKING_MIN_MINUTES, CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { resolveCreatorBookingPricing } from "@/lib/creator-settings/creator-pricing-resolver";
 import { buildCreatorBookingSlots } from "@/lib/creator-booking-slots";
 import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import {
@@ -19,7 +20,6 @@ import {
     buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
-    calculateBookingPriceGd,
     readSourceAwareBalance,
     spendCreatorExperienceGumdrops,
 } from "@/lib/server/creator-experiences";
@@ -309,10 +309,16 @@ async function POST_handler(request: NextRequest) {
             const creatorSettings = creatorData.creatorSettings && typeof creatorData.creatorSettings === "object"
                 ? creatorData.creatorSettings as Record<string, unknown>
                 : {};
+            const subscriptionActive = subscriptionSnap.exists && (subscriptionSnap.data() as Record<string, unknown>).status === "active";
+            const bookingPricing = resolveCreatorBookingPricing(creatorSettings, {
+                serviceType,
+                durationMinutes,
+                subscriptionActive,
+            });
             const creatorRestrictions = creatorData.creatorRestrictions && typeof creatorData.creatorRestrictions === "object"
                 ? creatorData.creatorRestrictions as Record<string, unknown>
                 : {};
-            if (creatorSettings.bookingsEnabled === false || creatorRestrictions.bookingsRestricted === true) {
+            if (bookingPricing.enabled === false || creatorRestrictions.bookingsRestricted === true) {
                 throw new CreatorBookingProblem(
                     409,
                     "bookings_unavailable",
@@ -345,15 +351,7 @@ async function POST_handler(request: NextRequest) {
             }
 
             const slotKey = buildBookingSlotKey({ creatorId, serviceType, startAt, durationMinutes });
-            const subscriptionActive = subscriptionSnap.exists && (subscriptionSnap.data() as Record<string, unknown>).status === "active";
-            const priceGd = calculateBookingPriceGd({
-                serviceType,
-                durationMinutes,
-                subscriptionActive,
-                videoDiscountPercent: typeof creatorSettings.videoSubscriberDiscountPercent === "number"
-                    ? creatorSettings.videoSubscriberDiscountPercent
-                    : undefined,
-            });
+            const priceGd = bookingPricing.priceGd;
             const balance = readSourceAwareBalance(userData);
             if (bookingSnap.exists || transactionSnap.exists) {
                 const bookingData = bookingSnap.data() as Record<string, unknown> | undefined;
@@ -493,6 +491,9 @@ async function POST_handler(request: NextRequest) {
                 durationMinutes,
                 slotKey,
                 priceGd,
+                priceSource: bookingPricing.source,
+                paidOnlyPolicy: bookingPricing.paidOnly,
+                ratePerMinuteGd: bookingPricing.ratePerMinuteGd,
                 subscriberDiscountApplied: subscriptionActive && serviceType === "video",
                 creatorAccrualId: ledgerRef.id,
                 userTransactionId: transactionRef.id,

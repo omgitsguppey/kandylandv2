@@ -14,6 +14,7 @@ import { trackEvent } from "@/lib/telemetry";
 import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
 import { getMobileSkeletonClass } from "@/lib/ui/loading-state-contract";
 import { cn } from "@/lib/utils";
+import { resolveCreatorPricing } from "@/lib/creator-settings/creator-pricing-resolver";
 import type { CreatorSettingsCompletion, CreatorSettingsControlPlane, CreatorSettingsSectionId, CreatorSettingsUserFacingImpact } from "@/lib/creator-settings/creator-settings-contract";
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
@@ -396,7 +397,11 @@ export function CreatorDashboardSettingsHub() {
     return null;
   }, [settings, settingsError, settingsState, statsEvidence?.issues, statsEvidence?.sourceTruth]);
   const availabilityWindows = Array.isArray(creatorSettings.availabilityWindows) ? creatorSettings.availabilityWindows : [];
-  const subscriptionPriceGd = typeof creatorSettings.subscriptionPriceGd === "number" ? creatorSettings.subscriptionPriceGd : 0;
+  const creatorPricing = resolveCreatorPricing(creatorSettings, {
+    bookingServiceType: "video",
+    bookingDurationMinutes: 1,
+  });
+  const subscriptionPriceGd = creatorPricing.fanPass.priceGd;
   const requestsState = creatorSectionStateFromEvidence(statsEvidence?.sources.customRequests, stats?.openRequests ?? 0);
   const bookingsSourceState = creatorSectionStateFromEvidence(statsEvidence?.sources.callBookings, stats?.bookedCalls ?? 0);
   const subscriptionsState = creatorSectionStateFromEvidence(statsEvidence?.sources.subscriptions, stats?.activeSubscribers ?? 0);
@@ -864,7 +869,7 @@ export function CreatorDashboardSettingsHub() {
             <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="fan-pass">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-black text-white">Fan Pass</h3>
-                <span className="text-[11px] font-semibold text-gray-500">Paid GD</span>
+                <span className="text-[11px] font-semibold text-gray-500" data-creator-price-source={creatorPricing.fanPass.source}>Paid GD - {creatorPricing.fanPass.source === "creator_settings" ? "Custom" : "Default"}</span>
               </div>
               <div className="mt-3 space-y-2">
                 <ToggleControl label="Enable Fan Pass" checked={controlPlaneSettings.fanPassEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("fanPassEnabled", value)} />
@@ -887,7 +892,7 @@ export function CreatorDashboardSettingsHub() {
             <div className="rounded-2xl border border-white/10 bg-black/25 p-3" data-creator-settings-section="gumdrop-experiences">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-black text-white">GumDrop experiences</h3>
-                <span className="text-[11px] font-semibold text-gray-500">Requests + calls</span>
+                <span className="text-[11px] font-semibold text-gray-500" data-creator-price-source={creatorPricing.selectedRequest?.source ?? creatorPricing.booking?.source ?? "unavailable"}>Requests + calls</span>
               </div>
               <div className="mt-3 grid gap-2">
                 <ToggleControl label="Enable requests" checked={controlPlaneSettings.creatorRequestsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("creatorRequestsEnabled", value)} />

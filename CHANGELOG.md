@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.24 - 2026-05-20
+- Bug fixes and general improvements
+- Connected creator Fan Pass pricing to user-facing flows.
+- Aligned creator experience prices with creator settings.
+- Preserved paid-GumDrop-only rules for creator experiences.
+
 ## 1.3.23 - 2026-05-20
 - Bug fixes and general improvements
 - Added creator settings controls for Fan Pass, broadcasts, and creator experiences.

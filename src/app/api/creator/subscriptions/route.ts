@@ -5,7 +5,8 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { CREATOR_COLLECTIONS, CREATOR_SUBSCRIPTION_MIN_GD, isCreatorOrAdminRole, isCreatorRole } from "@/lib/creator-experiences";
+import { CREATOR_COLLECTIONS, isCreatorOrAdminRole, isCreatorRole } from "@/lib/creator-experiences";
+import { resolveCreatorFanPassPricing } from "@/lib/creator-settings/creator-pricing-resolver";
 import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
@@ -457,7 +458,8 @@ async function POST_handler(request: NextRequest) {
             const creatorSettings = creatorData.creatorSettings && typeof creatorData.creatorSettings === "object"
                 ? creatorData.creatorSettings as Record<string, unknown>
                 : {};
-            const subscriptionsEnabled = creatorSettings.subscriptionsEnabled !== false;
+            const fanPassPricing = resolveCreatorFanPassPricing(creatorSettings);
+            const subscriptionsEnabled = fanPassPricing.enabled;
             const subscriptionsRestricted = creatorData.creatorRestrictions && typeof creatorData.creatorRestrictions === "object"
                 ? (creatorData.creatorRestrictions as Record<string, unknown>).subscriptionsRestricted === true
                 : false;
@@ -491,10 +493,7 @@ async function POST_handler(request: NextRequest) {
                 };
             }
 
-            const priceGd = Math.max(
-                CREATOR_SUBSCRIPTION_MIN_GD,
-                typeof creatorSettings.subscriptionPriceGd === "number" ? Math.round(creatorSettings.subscriptionPriceGd) : CREATOR_SUBSCRIPTION_MIN_GD,
-            );
+            const priceGd = fanPassPricing.priceGd;
             const balance = readSourceAwareBalance(userData);
             if (transactionSnap.exists || (subscriptionSnap.exists && (subscriptionSnap.data() as Record<string, unknown>).status === "active")) {
                 return {
@@ -601,6 +600,8 @@ async function POST_handler(request: NextRequest) {
                 userId: caller.uid,
                 status: "active",
                 priceGd,
+                priceSource: fanPassPricing.source,
+                paidOnlyPolicy: fanPassPricing.paidOnly,
                 startedAt: now,
                 renewAt,
                 renewedAt: now,
