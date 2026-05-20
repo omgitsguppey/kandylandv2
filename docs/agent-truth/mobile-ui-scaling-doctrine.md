@@ -56,8 +56,8 @@ Required helpers:
 
 ## Validator Report
 
-Generated: 2026-05-19T23:43:49.440Z
-Current code version: b37deb98984a269230e97bdadfd3e0aea6180caf
+Generated: 2026-05-19T23:55:20.431Z
+Current code version: f5cd89d7f272a983716612c3cdf74e18ac24a298
 
 - Doctrine created: yes
 - Shared mobile scale contract: yes
@@ -79,7 +79,6 @@ Current code version: b37deb98984a269230e97bdadfd3e0aea6180caf
 - src/app/admin/debug/components/DebugTabInfrastructure.tsx:218:                    <div className="py-8 text-center text-sm italic text-white/40">
 - src/app/admin/drops/page.tsx:1133:                        <div className="glass-panel w-full max-w-md rounded-3xl border border-white/10 p-5">
 - src/app/admin/layout.tsx:58:      <div className="min-h-screen flex items-center justify-center">
-- src/app/admin/queue/page.tsx:235:                <div className="glass-panel rounded-3xl border border-red-500/20 bg-red-500/10 p-6 text-center">
 - src/app/admin/roster/page.tsx:1007:        <main className="min-h-screen bg-black px-4 pb-24 pt-24 text-white sm:px-6" data-roster-mode="decision_queue" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
 - src/app/admin/user/[userId]/page.tsx:598:        return <div className="p-8 text-center text-red-500">Access Restricted</div>;
 - src/app/admin/user/[userId]/page.tsx:603:            <div className="p-8 text-center text-gray-300">
@@ -94,3 +93,4 @@ Current code version: b37deb98984a269230e97bdadfd3e0aea6180caf
 - src/app/admin/user/[userId]/page.tsx:1291:                <details className="glass-panel rounded-3xl border border-white/5 p-6">
 - src/app/admin/users/page.tsx:1002:                                            <td colSpan={8} className="p-8 text-center">
 - src/app/admin/users/page.tsx:1008:                                            <td colSpan={8} className="p-8 text-center text-gray-500">
+- src/app/admin/users/page.tsx:1170:                            <div className="p-8 text-center glass-panel rounded-2xl"><Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" /></div>

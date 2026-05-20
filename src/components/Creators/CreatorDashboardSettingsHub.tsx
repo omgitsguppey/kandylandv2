@@ -11,6 +11,7 @@ import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { buildBugReportContext, getSafePreviousRoute, resolveClientActionError, type ResolvedClientActionError } from "@/lib/errors/client-error-adapter";
 import type { HumanErrorAction } from "@/lib/errors/error-language";
 import { trackEvent } from "@/lib/telemetry";
+import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
 import { cn } from "@/lib/utils";
 import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
@@ -81,6 +82,9 @@ type CreatorSettingsResponse = {
   error?: string;
 };
 
+const creatorOverviewModuleClassName = getMobileModuleClassNames("creator", "overview");
+const creatorManagerModuleClassName = getMobileModuleClassNames("creator", "manager");
+
 type SectionState = "live" | "unavailable" | "not_configured" | "blocked" | "needs_setup" | "needs_review" | "error";
 
 function sectionTone(state: SectionState) {
@@ -139,10 +143,12 @@ function SectionCard({
 }) {
   return (
     <section
-      className="min-h-[92px] rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 sm:min-h-[128px] sm:rounded-3xl sm:p-5"
+      className={cn(creatorOverviewModuleClassName, "sm:min-h-[112px] sm:rounded-2xl sm:p-4")}
       data-creator-section-key={id}
       data-creator-section-state={state}
       data-creator-dashboard-card-density="mobile_compact"
+      data-mobile-density="compact"
+      data-mobile-sprawl-guard="true"
       data-creator-stats-source-truth={sourceTruth ?? "not_applicable"}
       data-creator-stats-source-freshness={sourceFreshness ?? "not_applicable"}
       data-creator-stats-sample-count={sampleCount ?? 0}
@@ -598,7 +604,7 @@ export function CreatorDashboardSettingsHub() {
 
   if (!isCreatorOrProjection) {
     return (
-      <section className="mx-auto w-full max-w-4xl rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-white">
+      <section className={cn("mx-auto max-w-4xl text-white", creatorManagerModuleClassName)} data-mobile-density="compact" data-mobile-sprawl-guard="true">
         <p className="text-sm font-bold uppercase tracking-[0.18em] text-gray-400">Creator dashboard</p>
         <h2 className="mt-2 text-2xl font-black">Creator tools are not available on this account.</h2>
         <p className="mt-2 text-sm text-gray-300">Creator settings are only available to creator-role accounts.</p>
@@ -620,8 +626,10 @@ export function CreatorDashboardSettingsHub() {
       data-creator-dashboard-density="mobile_compact"
       data-bottom-nav-safe="true"
       data-report-issue-safe-offset="bottom-nav"
+      data-mobile-density="compact"
+      data-mobile-sprawl-guard="true"
     >
-      <div className="rounded-2xl border border-white/10 bg-black/50 p-3 sm:rounded-3xl sm:p-5">
+      <div className={cn(creatorManagerModuleClassName, "bg-black/50")} data-mobile-density="compact" data-mobile-sprawl-guard="true">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Creator dashboard settings</p>

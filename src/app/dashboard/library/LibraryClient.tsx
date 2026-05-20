@@ -11,8 +11,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Drop } from "@/types/db";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
 import { trackEvent } from "@/lib/telemetry";
+import { getMobileModuleClassNames, getSkeletonClassForModule } from "@/lib/ui/mobile-scale-contract";
 
 type Ratio = "1:1" | "16:9" | "9:16";
+
+const userLibraryModuleClassName = getMobileModuleClassNames("user", "list");
+const userLibrarySkeletonClassName = getSkeletonClassForModule("list");
 
 function getRatio(drop: Drop): Ratio {
     const raw = drop.fileMetadata?.dimensions;
@@ -93,14 +97,14 @@ export function LibraryClient({ drops }: LibraryClientProps) {
 
 if (authLoading) {
         return (
-            <div className="animate-pulse">
-                <div className="mb-6">
+            <div className="animate-pulse" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                <div className="mb-4">
                     <div className="h-10 w-64 bg-white/10 rounded mb-2" />
                     <div className="h-5 w-72 bg-white/5 rounded" />
                 </div>
                 <div className="grid grid-cols-6 gap-3">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="col-span-3 aspect-square bg-white/5 rounded-2xl" />
+                        <div key={i} className={`col-span-3 ${userLibrarySkeletonClassName}`} />
                     ))}
                 </div>
             </div>
@@ -109,7 +113,7 @@ if (authLoading) {
 
 
     return (
-        <div className="flex flex-col min-h-screen px-2 md:px-0">
+        <div className="flex min-h-[calc(100dvh-var(--root-shell-top-spacing,6rem))] flex-col px-2 md:px-0" data-mobile-density="compact" data-mobile-sprawl-guard="true">
             <header className="mb-4 md:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-purple mb-1">
@@ -120,16 +124,16 @@ if (authLoading) {
             </header>
 
             {unlockedDrops.length === 0 ? (
-                <div className="glass-panel p-8 md:p-12 rounded-3xl text-center border border-white/5">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className={`${userLibraryModuleClassName} text-center`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5 md:h-14 md:w-14">
                         <Lock className="w-6 h-6 md:w-8 md:h-8 text-gray-500" />
                     </div>
                     <h2 className="text-lg md:text-xl font-bold text-white mb-2">No Unwrapped Drops</h2>
-                    <p className="text-gray-400 text-sm md:text-base mb-6 md:mb-8 max-w-sm md:max-w-md mx-auto">
+                    <p className="mx-auto mb-4 max-w-sm text-sm text-gray-400 md:max-w-md md:text-base">
                         You haven&apos;t unwrapped any drops yet. Browse live drops to start building your collection.
                     </p>
                     <Link href="/drops">
-                        <Button variant="brand" className="px-6 py-2.5 rounded-full text-base font-bold">
+                        <Button variant="brand" className="rounded-full px-5 py-2.5 text-sm font-bold">
                             Browse Drops
                         </Button>
                     </Link>
@@ -187,7 +191,7 @@ if (authLoading) {
                         ))}
                     </div>
                     {filteredDrops.length === 0 && (
-                        <div className="py-12 text-center">
+                        <div className="py-6 text-center" data-mobile-density="compact" data-mobile-sprawl-guard="true">
                             <p className="text-gray-500">No items match your search or filter.</p>
                         </div>
                     )}

@@ -14,6 +14,7 @@ import { Drop } from "@/types/db";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { formatAdminCompactDateTime, formatAdminTimeLabel } from "@/lib/admin-drop-formatting";
+import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
 import {
     buildAdminQueueProjection,
     buildReadableQueueScheduleSummary,
@@ -22,6 +23,8 @@ import {
 import { normalizeDropRecordOrFallback } from "@/lib/drop-read-models";
 
 type QueueConfig = AdminDropQueueConfig;
+
+const adminQueueModuleClassName = getMobileModuleClassNames("admin", "manager");
 
 function IconControl({
     label,
@@ -232,7 +235,7 @@ export default function ManageQueuePage() {
                     subtitle="Configure automated drop rotation and schedule."
                     compact
                 />
-                <div className="glass-panel rounded-3xl border border-red-500/20 bg-red-500/10 p-6 text-center">
+                <div className={`${adminQueueModuleClassName} bg-red-500/10 text-center`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     <p className="text-base font-semibold text-red-200">Queue data could not be loaded.</p>
                     <p className="mt-2 text-sm text-red-100/90">{error || "The queue configuration is unavailable right now."}</p>
                     <button
@@ -251,7 +254,7 @@ export default function ManageQueuePage() {
     }
 
     return (
-        <div className="mx-auto max-w-4xl pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:pb-28">
+        <div className="mx-auto max-w-4xl pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:pb-28" data-mobile-density="compact" data-mobile-sprawl-guard="true">
             <PageViewEvent eventName="admin_queue_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Queue"
@@ -277,7 +280,7 @@ export default function ManageQueuePage() {
             />
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_1.95fr] lg:gap-6">
-                <section className="glass-panel rounded-[1.9rem] border border-white/10 bg-white/[0.02] p-4 shadow-xl shadow-black/20">
+                <section className={`${adminQueueModuleClassName} bg-white/[0.02] shadow-xl shadow-black/20`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     <div className="flex items-start justify-between gap-3">
                         <div>
                             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Schedule Summary</p>
@@ -371,7 +374,7 @@ export default function ManageQueuePage() {
                     ) : null}
                 </section>
 
-                <section className="glass-panel rounded-[1.9rem] border border-white/10 bg-white/[0.02] shadow-xl shadow-black/20">
+                <section className={`${adminQueueModuleClassName} bg-white/[0.02] shadow-xl shadow-black/20`} data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 px-4 py-4">
                         <div>
                             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Queue Lineup</p>
@@ -392,8 +395,8 @@ export default function ManageQueuePage() {
 
                     <div className="p-3 md:p-4">
                         {config.queue.length === 0 ? (
-                            <div className="rounded-[1.5rem] border-2 border-dashed border-white/10 bg-black/20 px-6 py-12 text-center">
-                                <RefreshCw className="mx-auto mb-3 h-10 w-10 text-gray-600" />
+                            <div className="rounded-[1.35rem] border-2 border-dashed border-white/10 bg-black/20 px-4 py-6 text-center" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+                                <RefreshCw className="mx-auto mb-2 h-8 w-8 text-gray-600" />
                                 <p className="font-medium text-gray-300">Queue is empty</p>
                                 <p className="mt-1 text-sm text-gray-500">Add drops from the Manage Drops page to start building the lineup.</p>
                             </div>

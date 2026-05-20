@@ -183,6 +183,7 @@
         "check:ios-pwa-chat-refinements": "tsx scripts/agent/validate-ios-pwa-chat-refinements.ts",
         "check:homepage-mobile-density": "tsx scripts/agent/validate-homepage-mobile-density.ts",
         "check:mobile-ui-scaling-doctrine": "tsx scripts/agent/validate-mobile-ui-scaling-doctrine.ts",
+        "check:mobile-hardcoded-css-cleanup": "tsx scripts/agent/validate-mobile-hardcoded-css-cleanup.ts",
         "check:analytics-truth-layer-v2": "tsx scripts/agent/validate-analytics-truth-layer-v2.ts",
         "check:ga4-recovery-truth": "tsx scripts/agent/validate-ga4-recovery-truth.ts",
         "check:external-analytics-truth-closure": "tsx scripts/agent/validate-external-analytics-truth-closure.ts",

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.19 - 2026-05-19
+- Bug fixes and general improvements
+- Reduced oversized mobile layouts across admin, user, and creator screens.
+- Replaced desktop-scale spacing with compact mobile density rules.
+- Kept navigation and chat surfaces unchanged.
+
 ## 1.3.18 - 2026-05-19
 - Bug fixes and general improvements
 - Added mobile-first UI scaling rules.
@@ -147,51 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Locked the full analytics cost cleanup audit.
 - Verified cost reductions do not compromise tracking accuracy.
 - Refreshed Beta readiness with cost and analytics evidence.
-
-## 1.2.94 - 2026-05-19
-- Bug fixes and general improvements
-- Guarded SQL mirror and Data Connect cost paths.
-- Clarified Cloud SQL and Gemini cost owner-review lanes.
-- Blocked accidental background AI or SQL cost work.
-
-## 1.2.93 - 2026-05-19
-- Bug fixes and general improvements
-- Reduced scheduled analytics and runtime scan costs.
-- Moved recurring jobs toward due-only and incremental work.
-- Kept subscription, notification, and queue correctness intact.
-
-## 1.2.92 - 2026-05-19
-- Bug fixes and general improvements
-- Reduced default Admin Analytics and Debug read costs.
-- Moved expensive admin sections behind snapshots, cache, or drilldowns.
-- Preserved truth labels for stale, missing, and unavailable data.
-
-## 1.2.91 - 2026-05-19
-- Bug fixes and general improvements
-- Reduced non-priority client analytics flush volume.
-- Summarized hover, visibility, and scroll telemetry.
-- Kept priority conversion and watch-time tracking accurate.
-
-## 1.2.90 - 2026-05-19
-- Bug fixes and general improvements
-- Reduced hot-path analytics ingest and export cost risks.
-- Moved low-priority analytics work toward batched lanes.
-- Kept priority tracking accuracy intact while cutting retry and export churn.
-
-## 1.2.89 - 2026-05-19
-- Bug fixes and general improvements
-- Reduced hot-path analytics and export cost risks.
-- Moved non-priority analytics work toward batched and cached lanes.
-- Kept priority tracking accuracy intact while reducing retry and export churn.
-
-## 1.2.88 - 2026-05-18
-- Bug fixes and general improvements
-- Kept admin debug panels from showing missing evidence as healthy.
-- Reduced duplicate admin analytics and debug lookup work.
-- Updated the Scorecard security action and closed out the remaining PR lane.
-
-## 1.2.87 - 2026-05-18
-- Bug fixes and general improvements
-- Improved loading state accessibility for buttons.
-- Kept remaining risky PRs out of the beta cleanup lane.
-- Recorded final open PR owner-review actions.

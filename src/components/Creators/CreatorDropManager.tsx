@@ -8,6 +8,7 @@ import { CreateDropModal } from "@/components/Admin/CreateDropModal";
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
+import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
 
 type CreatorDropReviewStatus = "draft" | "pending_admin_approval" | "approved" | "needs_changes" | "rejected";
 type CreatorDropFilter = "all" | CreatorDropReviewStatus;
@@ -47,6 +48,8 @@ const REVIEW_STATUS_LABELS: Record<CreatorDropReviewStatus, string> = {
     needs_changes: "Needs changes",
     rejected: "Not approved",
 };
+
+const creatorManagerModuleClassName = getMobileModuleClassNames("creator", "manager");
 
 function classifyDrop(drop: CreatorDropRow): CreatorDropReviewStatus {
     if (drop.reviewStatus === "needs_changes") return "needs_changes";
@@ -124,12 +127,14 @@ export function CreatorDropManager() {
 
     return (
         <main
-            className="min-h-screen bg-[#0b0614] px-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-5 text-white sm:px-6 lg:px-8"
+            className="min-h-[calc(100dvh-var(--root-shell-top-spacing,5rem))] bg-[#0b0614] px-4 pb-[calc(env(safe-area-inset-bottom)+6rem)] pt-5 text-white sm:px-6 lg:px-8"
             data-creator-drop-manager="true"
             data-drop-manager-surface="creator_submission"
             data-admin-approval-required="true"
             data-bottom-nav-safe="true"
             data-mobile-primary-action="submit_drop"
+            data-mobile-density="compact"
+            data-mobile-sprawl-guard="true"
         >
             <section className="mx-auto flex w-full max-w-5xl flex-col gap-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -157,7 +162,7 @@ export function CreatorDropManager() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6" aria-label="Creator drop status filters" data-creator-drop-status-filter="all">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6" aria-label="Creator drop status filters" data-creator-drop-status-filter="all" data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     {REVIEW_TABS.map((tab) => {
                         const Icon = tab.icon;
                         const active = activeTab === tab.id;
@@ -179,7 +184,7 @@ export function CreatorDropManager() {
                     })}
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-2.5 sm:p-3" data-creator-drop-list-density="compact_rows">
+                <div className={creatorManagerModuleClassName} data-creator-drop-list-density="compact_rows" data-mobile-density="compact" data-mobile-sprawl-guard="true">
                     {loading ? (
                         <p className="py-6 text-center text-sm text-gray-300">Loading creator drops...</p>
                     ) : visibleDrops.length === 0 ? (

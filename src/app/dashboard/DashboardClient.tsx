@@ -12,17 +12,26 @@ import { useDrops } from "@/hooks/useDrops";
 import { mergeResolvedDropsById } from "@/lib/drop-dashboard";
 import { isDropActiveNow } from "@/lib/drop-status";
 import { CREATOR_DASHBOARD_ROUTE } from "@/lib/creator-profile-routing";
+import { getMobileModuleClassNames, getSkeletonClassForModule } from "@/lib/ui/mobile-scale-contract";
 import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
+
+const userOverviewModuleClassName = getMobileModuleClassNames("user", "overview");
+const userOverviewSkeletonClassName = getSkeletonClassForModule("overview");
+const userListSkeletonClassName = getSkeletonClassForModule("list");
 
 const RecentActivityFeed = dynamic(
     () => import("@/components/Dashboard/RecentActivityFeed").then((mod) => mod.RecentActivityFeed),
     {
         loading: () => (
-            <div className="glass-panel mt-6 rounded-3xl p-6 lg:mt-8">
+            <div
+                className={`${userOverviewModuleClassName} mt-3 lg:mt-8`}
+                data-mobile-density="compact"
+                data-mobile-sprawl-guard="true"
+            >
                 <div className="h-5 w-40 rounded-lg bg-white/10" />
-                <div className="mt-4 h-24 rounded-2xl bg-white/5" />
+                <div className="mt-3 h-20 rounded-2xl bg-white/5" />
             </div>
         ),
     },
@@ -64,15 +73,19 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
 
     if (loading || !userProfile) {
         return (
-            <div className="mx-auto w-full max-w-7xl px-3 sm:px-4">
+            <div
+                className="mx-auto w-full max-w-7xl px-3 sm:px-4"
+                data-mobile-density="compact"
+                data-mobile-sprawl-guard="true"
+            >
 
-                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                    <div className="space-y-6 md:space-y-8">
-                        <div className="min-h-[20rem] rounded-3xl bg-white/5" />
-                        <div className="h-40 rounded-3xl bg-white/5" />
+                <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
+                    <div className="space-y-3 md:space-y-5">
+                        <div className={userOverviewSkeletonClassName} />
+                        <div className={userListSkeletonClassName} />
                     </div>
                     <div className="lg:col-span-2">
-                        <div className="h-[400px] rounded-3xl bg-white/5" />
+                        <div className="h-56 rounded-[1.35rem] border border-white/10 bg-white/[0.04] sm:h-72" />
                     </div>
                 </div>
             </div>
@@ -97,9 +110,9 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
 
 
     return (
-        <div id="dashboard-home" tabIndex={-1} className="scroll-mt-24 mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none" data-onboarding-page="dashboard" data-dashboard-surface="user_dashboard">
-            <div className="grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-3">
-                <div className="space-y-6 md:space-y-8">
+        <div id="dashboard-home" tabIndex={-1} className="scroll-mt-24 mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none" data-onboarding-page="dashboard" data-dashboard-surface="user_dashboard" data-mobile-density="compact" data-mobile-sprawl-guard="true">
+            <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-3">
+                <div className="space-y-3 md:space-y-5">
                     <DailyCheckIn />
                     <CreatorDiscoveryRail surface="dashboard" compact initialCreators={creatorRailProfiles} />
 
