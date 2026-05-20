@@ -1,0 +1,413 @@
+{
+  "generatedAtUtc": "2026-05-20T22:06:55.480Z",
+  "reportKey": "final-morning-beta-lock",
+  "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
+  "summary": {
+    "openPrsClassified": true,
+    "dirtyFilesClassified": true,
+    "staleArtifactsHaveRefreshActions": true,
+    "operatorRevenueSmokeStatus": "operator_confirmed_revenue_smoke",
+    "formalProviderSmokeStatus": "missing_formal_evidence",
+    "manualEvidenceStatus": "missing",
+    "runtimeEvidenceStatus": "missing",
+    "adminTruthEvidenceStatus": "missing",
+    "betaScore": 41.92,
+    "betaStatus": "Stale evidence",
+    "canStartBetaExitReview": false,
+    "chatUntouched": true,
+    "navUntouched": true,
+    "p0Count": 0,
+    "p1Count": 4,
+    "p2Count": 1
+  },
+  "prActions": [],
+  "dirtyFileActions": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release-note artifacts with the lock."
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "agent/state/refresh-safeguards.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "docs/agent-truth/refresh-safeguards.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed source-only status artifact."
+    },
+    {
+      "path": "package.json",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release-note artifacts with the lock."
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release-note artifacts with the lock."
+    },
+    {
+      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped validator/helper change after focused checks."
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release-note artifacts with the lock."
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release-note artifacts with the lock."
+    },
+    {
+      "path": "agent/state/final-morning-beta-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit as this final morning lock."
+    },
+    {
+      "path": "docs/agent-truth/final-morning-beta-lock.md",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit as this final morning lock."
+    },
+    {
+      "path": "scripts/agent/validate-final-morning-beta-lock.ts",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit as this final morning lock."
+    },
+    {
+      "path": "tests/unit/final-morning-beta-lock.spec.ts",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit as this final morning lock."
+    }
+  ],
+  "staleArtifacts": [
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+      "refreshCommand": "npm run check:source-truth-authority-map"
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+      "refreshCommand": "npm run check:final-telemetry-closure-lock"
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+      "refreshCommand": "npm run check:creator-settings-control-plane"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "refreshCommand": "npm run check:beta-evidence-gap-map"
+    },
+    {
+      "artifactPath": "agent/state/beta-freshness-language.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "refreshCommand": "npm run check:beta-freshness-language"
+    },
+    {
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "refreshCommand": "npm run check:overnight-wiring-integrity"
+    },
+    {
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "refreshCommand": "npm run check:existing-algorithm-refinement"
+    },
+    {
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
+    },
+    {
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "refreshCommand": "npm run check:global-marquee-truncated-titles"
+    }
+  ],
+  "evidenceStatus": [
+    {
+      "lane": "operator_revenue_smoke",
+      "status": "operator_confirmed_revenue_smoke",
+      "gateImpact": "product_signal_only",
+      "nextAction": "Keep represented without clearing provider smoke."
+    },
+    {
+      "lane": "formal_provider_smoke",
+      "status": "missing_formal_evidence",
+      "gateImpact": "required_formal_lane",
+      "nextAction": "Attach formal artifact only when available."
+    },
+    {
+      "lane": "manual_screenshot_qa",
+      "status": "missing",
+      "gateImpact": "required_formal_lane",
+      "nextAction": "Attach screenshot evidence."
+    },
+    {
+      "lane": "runtime_smoke",
+      "status": "missing",
+      "gateImpact": "required_formal_lane",
+      "nextAction": "Attach deployed runtime proof."
+    },
+    {
+      "lane": "admin_truth_sample",
+      "status": "missing",
+      "gateImpact": "required_formal_lane",
+      "nextAction": "Attach redacted admin truth sample."
+    }
+  ],
+  "refreshPlan": [
+    {
+      "artifactPath": "agent/state/public-beta-score.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score"
+    },
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:current-beta-exit-status"
+    },
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:evidence-capture-status"
+    },
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+      "refreshCommand": "npm run check:source-truth-authority-map"
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+      "refreshCommand": "npm run check:final-telemetry-closure-lock"
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
+    {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:overnight-final-integration-lock"
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+      "refreshCommand": "npm run check:creator-settings-control-plane"
+    },
+    {
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:creator-drop-status-metrics"
+    },
+    {
+      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:operator-revenue-smoke"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "refreshCommand": "npm run check:beta-evidence-gap-map"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:beta-evidence-lane-prep"
+    },
+    {
+      "artifactPath": "agent/state/beta-freshness-language.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "refreshCommand": "npm run check:beta-freshness-language"
+    },
+    {
+      "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
+      "status": "current",
+      "nextAction": "No refresh needed.",
+      "refreshCommand": "npm run check:final-pr-stale-cleanup"
+    },
+    {
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "refreshCommand": "npm run check:overnight-wiring-integrity"
+    },
+    {
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "refreshCommand": "npm run check:existing-algorithm-refinement"
+    },
+    {
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
+    },
+    {
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "status": "stale_source_version",
+      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "refreshCommand": "npm run check:global-marquee-truncated-titles"
+    }
+  ],
+  "remainingBlockers": [
+    {
+      "id": "formal_provider_smoke_missing",
+      "severity": "P1",
+      "status": "missing_formal_evidence",
+      "nextAction": "Attach formal provider/app artifact only when the operator chooses to clear provider smoke."
+    },
+    {
+      "id": "manual_evidence_missing",
+      "severity": "P1",
+      "status": "missing",
+      "nextAction": "Attach manual screenshot QA evidence."
+    },
+    {
+      "id": "runtime_evidence_missing",
+      "severity": "P1",
+      "status": "missing",
+      "nextAction": "Attach deployed runtime smoke evidence."
+    },
+    {
+      "id": "admin_truth_evidence_missing",
+      "severity": "P1",
+      "status": "missing",
+      "nextAction": "Attach a redacted admin truth sample artifact."
+    },
+    {
+      "id": "stale_artifacts_need_refresh",
+      "severity": "P2",
+      "status": "refresh_actions_available",
+      "nextAction": "Run listed refresh commands before relying on stale supporting reports."
+    }
+  ],
+  "nextExactSteps": [
+    "Keep operator-confirmed $50 GumDrop revenue smoke represented as product signal only.",
+    "Do not clear formal provider smoke until a formal provider/app artifact exists.",
+    "Attach manual screenshot, runtime smoke, and admin truth sample evidence before beta exit review.",
+    "Use stale artifact refresh commands before relying on supporting reports."
+  ]
+}

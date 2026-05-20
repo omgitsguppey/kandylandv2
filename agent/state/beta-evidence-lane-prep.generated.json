@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T21:54:39.075Z",
+  "generatedAtUtc": "2026-05-20T22:03:29.988Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "809ede1f4d7165619f646d6c163b5af6ea367feb",
+  "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 4,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 4,
-    "p2Count": 12
+    "p2Count": 10
   },
   "lanes": [
     {
@@ -228,8 +228,8 @@
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
@@ -240,8 +240,8 @@
     },
     {
       "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:creator-drop-status-metrics"
     },
     {
@@ -252,8 +252,8 @@
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
       "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
@@ -270,8 +270,8 @@
     },
     {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:final-pr-stale-cleanup"
     },
     {
@@ -319,34 +319,22 @@
       "refreshCommand": "npm run check:mobile-ui-final-lock"
     },
     {
-      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-      "refreshCommand": "npm run check:overnight-final-integration-lock"
-    },
-    {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
       "status": "stale_source_version",
       "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
       "refreshCommand": "npm run check:creator-settings-control-plane"
     },
     {
-      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
       "status": "stale_source_version",
-      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-      "refreshCommand": "npm run check:creator-drop-status-metrics"
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "refreshCommand": "npm run check:beta-evidence-gap-map"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
       "status": "stale_source_version",
       "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
       "refreshCommand": "npm run check:beta-freshness-language"
-    },
-    {
-      "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
-      "refreshCommand": "npm run check:final-pr-stale-cleanup"
     },
     {
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",

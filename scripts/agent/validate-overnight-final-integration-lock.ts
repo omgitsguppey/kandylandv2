@@ -291,7 +291,9 @@ function dirtyFileStatus(files: string[]) {
   const unknown = files.filter((file) => {
     if (file === ARTIFACT || file === DOC) return false;
     if (file === "scripts/agent/validate-overnight-final-integration-lock.ts") return false;
+    if (file === "scripts/agent/validate-final-morning-beta-lock.ts") return false;
     if (file === "tests/unit/overnight-final-integration-lock.spec.ts") return false;
+    if (file === "tests/unit/final-morning-beta-lock.spec.ts") return false;
     if (file === "package.json") return false;
     if (file === "CHANGELOG.md" || file === "public/kandydrops-release-notes.json") return false;
     if (file.startsWith("agent/state/") || file.startsWith("docs/agent-truth/")) return false;

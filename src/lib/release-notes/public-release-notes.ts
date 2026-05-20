@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.36",
-  "betaReleaseCounter": 336,
+  "currentVersion": "1.3.37",
+  "betaReleaseCounter": 337,
   "channel": "beta",
-  "generatedAt": "2026-05-20T21:52:05.083Z",
-  "generatedAtUtc": "2026-05-20T21:52:05.083Z",
+  "generatedAt": "2026-05-20T22:03:14.706Z",
+  "generatedAtUtc": "2026-05-20T22:03:14.706Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.37",
+      "previousVersion": "1.3.36",
+      "betaReleaseCounter": 337,
+      "previousBetaReleaseCounter": 336,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): lock morning cleanup status",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T22:03:14.706Z",
+      "generatedAt": "2026-05-20T22:03:14.706Z",
+      "committedAtUtc": "2026-05-20T22:03:14.706Z",
+      "generatedAtUtc": "2026-05-20T22:03:14.706Z",
+      "updatedAtUtc": "2026-05-20T22:03:14.706Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked beta cleanup status after stale artifact and evidence refresh safeguards.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked beta cleanup status after stale artifact and evidence refresh safeguards.",
+        "Recorded operator-confirmed GumDrop revenue smoke honestly.",
+        "Kept formal beta evidence gates clear and current."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted final morning beta cleanup lock into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "Evidence capture",
+        "Generated reports"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/final-morning-beta-lock.generated.json",
+        "docs/agent-truth/final-morning-beta-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-morning-beta-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-morning-beta-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.36",
       "previousVersion": "1.3.35",
@@ -1339,58 +1388,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/event-facts-materializer-closure.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.12",
-      "previousVersion": "1.3.11",
-      "betaReleaseCounter": 312,
-      "previousBetaReleaseCounter": 311,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): close behavior tracking semantics",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T22:26:12.428Z",
-      "generatedAt": "2026-05-19T22:26:12.428Z",
-      "committedAtUtc": "2026-05-19T22:26:12.428Z",
-      "generatedAtUtc": "2026-05-19T22:26:12.428Z",
-      "updatedAtUtc": "2026-05-19T22:26:12.428Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Closed behavior tracking event gaps while keeping watch time separate from passive page activity.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Closed behavior tracking event gaps.",
-        "Aligned behavior telemetry with tracking toggles.",
-        "Kept watch time separate from passive page activity."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted behavioral tracking semantics and toggle coverage fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "app reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/behavioral-tracking-semantics-closure.generated.json",
-        "docs/agent-truth/behavioral-tracking-semantics-closure.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-behavioral-tracking-semantics-closure.ts",
-        "src/components/Analytics/DeepTracker.tsx",
-        "src/lib/analytics/client-tracking-policy.ts",
-        "src/lib/behavioral/tracking-surface-map.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry.ts",
-        "tests/unit/behavioral-tracking-semantics-closure.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }
