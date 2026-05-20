@@ -1,12 +1,12 @@
 # Overnight Wiring Integrity
 
-Generated: 2026-05-20T06:27:23.439Z
-Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
+Generated: 2026-05-20T23:23:30.339Z
+Current code version: d8cde44345b6f0a6f0dd8710ff063356d74a5791
 
 ## Summary
 
-- Lanes wired: 9
-- Lanes stale: 3
+- Lanes wired: 11
+- Lanes stale: 1
 - Lanes partial: 0
 - Missing dependencies: 0
 - Broken/orphaned lanes: 0
@@ -16,7 +16,7 @@ Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 - Shared marquee preserved: yes
 - Protected chat untouched: yes
 - Beta exit marked ready: no
-- Findings: P0=0, P1=0, P2=3
+- Findings: P0=0, P1=0, P2=1
 
 ## Lane Map
 
@@ -106,7 +106,7 @@ Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 
 ### mobile_ui_final_lock
 
-- Status: stale
+- Status: wired
 - Expected UI: admin/user/creator source-readiness artifacts
 - Expected route: not applicable
 - Expected contract: docs/agent-truth/mobile-ui-final-lock.md
@@ -114,11 +114,11 @@ Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 - Expected telemetry: not applicable
 - Expected artifact: agent/state/mobile-ui-final-lock.generated.json
 - Fix applied: Validated existing source wiring; no duplicate system added.
-- Next action: Regenerate mobile final lock during source-readiness signoff; do not mark visual evidence complete.
+- Next action: Keep validator coverage current with future changes.
 
 ### telemetry_final_lock
 
-- Status: stale
+- Status: wired
 - Expected UI: admin telemetry/source truth artifacts
 - Expected route: telemetry ingest, identity, materializer, GA4, BigQuery lanes
 - Expected contract: src/lib/analytics/telemetry-dependency-graph.ts
@@ -126,7 +126,7 @@ Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 - Expected telemetry: all priority telemetry lanes
 - Expected artifact: agent/state/final-telemetry-closure-lock.generated.json
 - Fix applied: Validated existing source wiring; no duplicate system added.
-- Next action: Regenerate telemetry final lock after focused telemetry checks; keep beta evidence separate from source readiness.
+- Next action: Keep validator coverage current with future changes.
 
 ### ga4_external_truth
 
@@ -166,22 +166,35 @@ Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 
 ## Findings
 
-- P2 agent/state/mobile-ui-final-lock.generated.json: mobile_ui_final_lock artifact is stale relative to current HEAD but has an explicit next action.
-- P2 agent/state/final-telemetry-closure-lock.generated.json: telemetry_final_lock artifact is stale relative to current HEAD but has an explicit next action.
 - P2 agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json: beta_health_scoring artifact is stale relative to current HEAD but has an explicit next action.
 
 ## Dirty File Classifications
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
+- agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-dashboard-error-cost-inventory.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-experience-simplification.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-settings-control-plane.generated.json: current_generated_artifact_to_commit
+- agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/gumdrop-economy-accuracy.generated.json: current_generated_artifact_to_commit
+- agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/post-economy-creator-flow-qa.generated.json: current_generated_artifact_to_commit
+- agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit
+- agent/state/user-facing-feature-connection-audit.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/beta-evidence-gap-map.md: current_generated_artifact_to_commit
+- docs/agent-truth/beta-freshness-language.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-dashboard-error-cost-inventory.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-settings-control-plane.md: current_generated_artifact_to_commit
+- docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/source-truth-authority-map.md: current_generated_artifact_to_commit
+- tests/unit/score-80-refresh-pass.spec.ts: real_source_change_needs_review
 
 ## PR Cleanup Actions
 
-- PR #275 classified as unrelated_preserved.
-- PR #274 classified as preserved_broad_governance_doc_outside_overnight_allowed_files.
+- No open PRs were present at start/end for overnight wiring integrity.
 
 ## Next Fix Order
 
-- mobile_ui_final_lock: Regenerate mobile final lock during source-readiness signoff; do not mark visual evidence complete.
-- telemetry_final_lock: Regenerate telemetry final lock after focused telemetry checks; keep beta evidence separate from source readiness.
 - beta_health_scoring: Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready.
 - Keep future telemetry claims tied to TELEMETRY_DEPENDENCY_GRAPH or analytics-event-contract before UI labels say tracked.

@@ -1,7 +1,7 @@
 # Existing Algorithm Refinement
 
-Generated: 2026-05-20T06:27:34.933Z
-Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
+Generated: 2026-05-20T23:23:33.193Z
+Current code version: d8cde44345b6f0a6f0dd8710ff063356d74a5791
 
 ## Summary
 
@@ -147,14 +147,31 @@ Current code version: 6aa811dfed3d8aa10435fda3811790f04d13ba2a
 
 ## Dirty File Classifications
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
+- agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-dashboard-error-cost-inventory.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-experience-simplification.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-settings-control-plane.generated.json: current_generated_artifact_to_commit
+- agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/gumdrop-economy-accuracy.generated.json: current_generated_artifact_to_commit
+- agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/overnight-wiring-integrity.generated.json: current_generated_artifact_to_commit
+- agent/state/post-economy-creator-flow-qa.generated.json: current_generated_artifact_to_commit
+- agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit
+- agent/state/user-facing-feature-connection-audit.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/beta-evidence-gap-map.md: current_generated_artifact_to_commit
+- docs/agent-truth/beta-freshness-language.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-dashboard-error-cost-inventory.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-settings-control-plane.md: current_generated_artifact_to_commit
+- docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
 - docs/agent-truth/overnight-wiring-integrity.md: current_generated_artifact_to_commit
+- docs/agent-truth/source-truth-authority-map.md: current_generated_artifact_to_commit
+- tests/unit/score-80-refresh-pass.spec.ts: real_source_change_needs_review
 
 ## PR Cleanup Actions
 
-- PR #275 classified as unrelated_preserved.
-- PR #274 classified as preserved_broad_governance_doc_outside_algorithm_scope.
+- No open PRs were present for algorithm refinement.
 
 ## Next Fix Order
 

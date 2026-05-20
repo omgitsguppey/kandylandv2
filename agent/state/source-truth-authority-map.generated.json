@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T06:28:52.842Z",
+  "generatedAtUtc": "2026-05-20T23:23:16.408Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
+  "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,19 +323,19 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "44556013b9dba08ec65eee7ed0e9549762f1ca8b",
+      "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+      "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "11097e4a39af135396c4ad6795dc2c875ce12215",
+      "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -347,39 +347,39 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
+      "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
       "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
       "status": "current",
       "action": "Artifact currentHead matches git HEAD."
     },
     {
-      "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "currentHead": "ff13edd69832efd0776612e474ddc586b6345965",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
-    },
-    {
       "artifact": "agent/state/creator-experience-simplification.generated.json",
-      "currentHead": "65156c93fe2a901b9e5c7dde3ad179a0efbd2e94",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/post-economy-creator-flow-qa.generated.json",
-      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
-      "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/speed-security-hardening.generated.json",

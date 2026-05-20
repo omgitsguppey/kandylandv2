@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.38 - 2026-05-20
+- Bug fixes and general improvements
+- Refreshed implemented-lane beta reports from the latest code version.
+- Reduced stale-report drag on beta health scoring.
+- Kept formal evidence gates separate from source refreshes.
+
 ## 1.3.37 - 2026-05-20
 - Bug fixes and general improvements
 - Locked beta cleanup status after stale artifact and evidence refresh safeguards.

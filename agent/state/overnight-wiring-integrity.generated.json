@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-20T06:27:23.439Z",
+  "generatedAtUtc": "2026-05-20T23:23:30.339Z",
   "reportKey": "overnight-wiring-integrity",
-  "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
+  "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
   "summary": {
-    "lanesWired": 9,
+    "lanesWired": 11,
     "lanesPartial": 0,
     "lanesMissingDependency": 0,
-    "lanesStale": 3,
+    "lanesStale": 1,
     "lanesBrokenOrOrphaned": 0,
     "orphanedTelemetryFixed": 0,
     "parityConflictsFixed": 1,
@@ -21,7 +21,7 @@
     "betaExitReadyMarked": false,
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 3
+    "p2Count": 1
   },
   "lanes": [
     {
@@ -116,9 +116,9 @@
       "expectedValidator": "scripts/agent/validate-mobile-ui-final-lock.ts",
       "expectedTelemetry": "not applicable",
       "expectedArtifact": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "stale",
+      "status": "wired",
       "fixApplied": "Validated existing source wiring; no duplicate system added.",
-      "nextAction": "Regenerate mobile final lock during source-readiness signoff; do not mark visual evidence complete."
+      "nextAction": "Keep validator coverage current with future changes."
     },
     {
       "lane": "telemetry_final_lock",
@@ -128,9 +128,9 @@
       "expectedValidator": "scripts/agent/validate-final-telemetry-closure-lock.ts",
       "expectedTelemetry": "all priority telemetry lanes",
       "expectedArtifact": "agent/state/final-telemetry-closure-lock.generated.json",
-      "status": "stale",
+      "status": "wired",
       "fixApplied": "Validated existing source wiring; no duplicate system added.",
-      "nextAction": "Regenerate telemetry final lock after focused telemetry checks; keep beta evidence separate from source readiness."
+      "nextAction": "Keep validator coverage current with future changes."
     },
     {
       "lane": "ga4_external_truth",
@@ -175,48 +175,92 @@
   "staleArtifactFindings": [
     {
       "severity": "p2",
-      "file": "agent/state/mobile-ui-final-lock.generated.json",
-      "detail": "mobile_ui_final_lock artifact is stale relative to current HEAD but has an explicit next action."
-    },
-    {
-      "severity": "p2",
-      "file": "agent/state/final-telemetry-closure-lock.generated.json",
-      "detail": "telemetry_final_lock artifact is stale relative to current HEAD but has an explicit next action."
-    },
-    {
-      "severity": "p2",
       "file": "agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json",
       "detail": "beta_health_scoring artifact is stale relative to current HEAD but has an explicit next action."
     }
   ],
   "dirtyFileClassifications": [
     {
-      "file": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "file": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/beta-freshness-language.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/creator-settings-control-plane.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/beta-freshness-language.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/creator-settings-control-plane.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/source-truth-authority-map.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "tests/unit/score-80-refresh-pass.spec.ts",
+      "classification": "real_source_change_needs_review"
     }
   ],
   "prCleanupActions": [
-    "PR #275 classified as unrelated_preserved.",
-    "PR #274 classified as preserved_broad_governance_doc_outside_overnight_allowed_files."
+    "No open PRs were present at start/end for overnight wiring integrity."
   ],
-  "openPrs": [
-    {
-      "headRefName": "fix-duplicate-computation-aggregation-hotspot-5085010533081067349",
-      "mergeStateStatus": "CLEAN",
-      "number": 275,
-      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/275",
-      "classification": "unrelated_preserved"
-    },
-    {
-      "headRefName": "structural-audit-monoliths-18102144203164477076",
-      "mergeStateStatus": "CLEAN",
-      "number": 274,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/274",
-      "classification": "preserved_broad_governance_doc_outside_overnight_allowed_files"
-    }
-  ],
+  "openPrs": [],
   "fixesApplied": [
     "Added an overnight wiring integrity map covering creator, UI, telemetry, external analytics, BigQuery, and beta health lanes.",
     "Classified stale beta/mobile/telemetry artifacts as source-readiness evidence that must not mark beta exit ready.",
@@ -224,8 +268,6 @@
     "Kept chat and protected navigation out of this cleanup pass."
   ],
   "nextFixOrder": [
-    "mobile_ui_final_lock: Regenerate mobile final lock during source-readiness signoff; do not mark visual evidence complete.",
-    "telemetry_final_lock: Regenerate telemetry final lock after focused telemetry checks; keep beta evidence separate from source readiness.",
     "beta_health_scoring: Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready.",
     "Keep future telemetry claims tied to TELEMETRY_DEPENDENCY_GRAPH or analytics-event-contract before UI labels say tracked."
   ]

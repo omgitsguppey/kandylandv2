@@ -3,8 +3,8 @@
 Artifact: `agent/state/creator-dashboard-error-cost-inventory.generated.json`
 Validator: `npm run check:creator-dashboard-error-cost-inventory`
 
-Generated: 2026-05-17T06:28:14.073Z
-Current source head: `70919f6be9129ce71ecc8b8f88eeafec9f866b5f`
+Generated: 2026-05-20T23:23:13.350Z
+Current source head: `d8cde44345b6f0a6f0dd8710ff063356d74a5791`
 
 ## Summary
 

@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.3.37",
-  "betaReleaseCounter": 337,
+  "currentVersion": "1.3.38",
+  "betaReleaseCounter": 338,
   "channel": "beta",
-  "generatedAt": "2026-05-20T22:03:14.706Z",
-  "generatedAtUtc": "2026-05-20T22:03:14.706Z",
+  "generatedAt": "2026-05-20T23:28:35.183Z",
+  "generatedAtUtc": "2026-05-20T23:28:35.183Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.38",
+      "previousVersion": "1.3.37",
+      "betaReleaseCounter": 338,
+      "previousBetaReleaseCounter": 337,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): refresh implemented score lanes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-20T23:28:35.183Z",
+      "generatedAt": "2026-05-20T23:28:35.183Z",
+      "committedAtUtc": "2026-05-20T23:28:35.183Z",
+      "generatedAtUtc": "2026-05-20T23:28:35.183Z",
+      "updatedAtUtc": "2026-05-20T23:28:35.183Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Refreshed implemented-lane beta reports from the latest code version.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed implemented-lane beta reports from the latest code version.",
+        "Reduced stale-report drag on beta health scoring.",
+        "Kept formal evidence gates separate from source refreshes."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted implemented-lane score refresh pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "Generated reports",
+        "Refresh safeguards"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/score-80-refresh-pass.generated.json",
+        "docs/agent-truth/score-80-refresh-pass.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-score-80-refresh-pass.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/score-80-refresh-pass.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.37",
       "previousVersion": "1.3.36",
@@ -1336,56 +1385,6 @@
         "scripts/agent/validate-bigquery-cloud-pipeline-closure.ts",
         "src/lib/analytics/bigquery-export-contract.ts",
         "tests/unit/bigquery-cloud-pipeline-closure.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.13",
-      "previousVersion": "1.3.12",
-      "betaReleaseCounter": 313,
-      "previousBetaReleaseCounter": 312,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): close event fact materializers",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T22:38:43.178Z",
-      "generatedAt": "2026-05-19T22:38:43.178Z",
-      "committedAtUtc": "2026-05-19T22:38:43.178Z",
-      "generatedAtUtc": "2026-05-19T22:38:43.178Z",
-      "updatedAtUtc": "2026-05-19T22:38:43.178Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Closed telemetry materialization gaps by mapping Firestore analytics records into event facts, summaries, and legacy archive lanes.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Closed telemetry materialization gaps.",
-        "Mapped Firestore analytics records to event facts and summaries.",
-        "Separated legacy analytics from current truth."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted Firestore event facts and materializer closure fix into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "admin analytics",
-        "app reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/event-facts-materializer-closure.generated.json",
-        "docs/agent-truth/event-facts-materializer-closure.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-event-facts-materializer-closure.ts",
-        "src/lib/analytics/materialization-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/event-facts-materializer-closure.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

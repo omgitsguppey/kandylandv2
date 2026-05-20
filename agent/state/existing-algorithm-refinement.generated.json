@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T06:27:34.933Z",
+  "generatedAtUtc": "2026-05-20T23:23:33.193Z",
   "reportKey": "existing-algorithm-refinement",
-  "currentHead": "6aa811dfed3d8aa10435fda3811790f04d13ba2a",
+  "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
   "summary": {
     "algorithmsInventoried": 10,
     "algorithmsRefined": 3,
@@ -332,21 +332,92 @@
   ],
   "dirtyFileClassifications": [
     {
-      "file": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "file": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/beta-freshness-language.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/creator-settings-control-plane.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "file": "agent/state/overnight-wiring-integrity.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "file": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/beta-freshness-language.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/creator-settings-control-plane.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "file": "docs/agent-truth/overnight-wiring-integrity.md",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/source-truth-authority-map.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "tests/unit/score-80-refresh-pass.spec.ts",
+      "classification": "real_source_change_needs_review"
     }
   ],
   "prCleanupActions": [
-    "PR #275 classified as unrelated_preserved.",
-    "PR #274 classified as preserved_broad_governance_doc_outside_algorithm_scope."
+    "No open PRs were present for algorithm refinement."
   ],
   "fixesApplied": [
     "Refined public creator experience summaries to use the existing creator pricing resolver.",

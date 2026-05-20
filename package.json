@@ -80,6 +80,7 @@
         "check:beta-evidence-gap-map": "tsx scripts/agent/validate-beta-evidence-gap-map.ts",
         "check:beta-freshness-language": "tsx scripts/agent/validate-beta-freshness-language.ts",
         "check:refresh-safeguards": "tsx scripts/agent/validate-refresh-safeguards.ts",
+        "check:score-80-refresh-pass": "tsx scripts/agent/validate-score-80-refresh-pass.ts",
         "check:beta-evidence-lane-prep": "tsx scripts/agent/validate-beta-evidence-lane-prep.ts",
         "check:final-morning-beta-lock": "tsx scripts/agent/validate-final-morning-beta-lock.ts",
         "check:phase-one-score-ui-triage": "tsx scripts/agent/validate-phase-one-score-ui-triage.ts",

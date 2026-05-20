@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-05-17T06:28:50.757Z",
+  "generatedAtUtc": "2026-05-20T23:23:10.862Z",
   "reportKey": "user-facing-feature-connection-audit",
-  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
   "summary": {
     "surfacesScanned": 9,
     "connectedSurfaces": 6,
     "disconnectedSurfaces": 3,
     "fakeLiveRisks": 0,
     "raceConditionRisks": 0,
-    "costBleedRisks": 0,
+    "costBleedRisks": 1,
     "selfLoopLinks": 0,
     "p0Count": 0,
-    "p1Count": 0,
+    "p1Count": 1,
     "p2Count": 1
   },
   "surfaces": [
@@ -108,7 +108,7 @@
       "route": "/dashboard/creator",
       "expectedSource": "creator settings document",
       "actualSource": "/api/creator/settings creatorSettings.availabilityWindows",
-      "sourceMetadataPresent": true,
+      "sourceMetadataPresent": false,
       "actionTarget": null,
       "targetExists": true,
       "status": "configuration_only",
@@ -143,7 +143,16 @@
     }
   ],
   "raceConditionFindings": [],
-  "costBleedFindings": [],
+  "costBleedFindings": [
+    {
+      "severity": "P1",
+      "title": "Creator settings route reads unexpected collections",
+      "evidence": [
+        "creator_relationships"
+      ],
+      "recommendedAction": "Do not add broad reads beyond the known settings summary sources without a new cost contract."
+    }
+  ],
   "selfLoopLinkFindings": [],
   "recommendedFixOrder": [
     "Keep statsEvidence as the dashboard source-state contract.",
