@@ -836,11 +836,31 @@ function buildAuthOutcomeSummary(input: {
       };
     });
 
-    const successes = methods.reduce((sum, method) => sum + method.successes, 0);
-    const failures = methods.reduce((sum, method) => sum + method.failures, 0);
-    const attempts = methods.reduce((sum, method) => sum + method.attempts, 0);
-    const unfinishedCount = methods.reduce((sum, method) => sum + method.unfinished, 0);
-    const hasLegacyAuthSample = methods.some((method) => method.attempts > 0 || method.successes > 0 || method.failures > 0);
+    const {
+      successes,
+      failures,
+      attempts,
+      unfinishedCount,
+      hasLegacyAuthSample,
+    } = methods.reduce(
+      (acc, method) => {
+        acc.successes += method.successes;
+        acc.failures += method.failures;
+        acc.attempts += method.attempts;
+        acc.unfinishedCount += method.unfinished;
+        if (!acc.hasLegacyAuthSample && (method.attempts > 0 || method.successes > 0 || method.failures > 0)) {
+          acc.hasLegacyAuthSample = true;
+        }
+        return acc;
+      },
+      {
+        successes: 0,
+        failures: 0,
+        attempts: 0,
+        unfinishedCount: 0,
+        hasLegacyAuthSample: false,
+      }
+    );
     const lifecycleOutcomes: AuthLifecycleOutcome[] = [
       {
         name: "registration_completed",
