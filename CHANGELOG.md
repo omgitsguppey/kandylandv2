@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.62 - 2026-05-21
+- Score 80 reconciliation lock
+- Reconciled score-80 path after algorithmic evidence refinement.
+- Separated manual-only checks from algorithmic and runtime proof.
+- Ranked remaining score blockers by true proof type.
+
 ## 1.3.61 - 2026-05-21
 - Runtime smoke substitute matrix
 - Mapped runtime smoke checks to source, debug, telemetry, manual, and formal evidence lanes.

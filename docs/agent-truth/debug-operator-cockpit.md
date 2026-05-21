@@ -58,7 +58,7 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 - Owner: critic
 - State: degraded
 - Score impact estimate: 1
-- Next action: Open stale backlog items must be refreshed, retired, or explicitly blocked before a patch can claim completion.
+- Next action: Open stale backlog items are classified as refresh, formal evidence, or operator confirmation work; they must stay visible but do not imply a source code request-change.
 
 ### 8. Recovery Playbook CTA
 

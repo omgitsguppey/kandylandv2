@@ -1,70 +1,26 @@
 {
-  "generatedAtUtc": "2026-05-21T13:13:27.549Z",
+  "generatedAtUtc": "2026-05-21T14:22:31.506Z",
   "reportKey": "ai-critic-p1-triage",
-  "currentHead": "faa73546e65aeca5b83c99b578cd2ad7c2efd4d7",
-  "scoreBefore": 65.8,
-  "scoreAfter": 65.8,
+  "currentHead": "bbd8d8c7da74cf60bb978373242a76e5e0f305d7",
+  "scoreBefore": 77.76,
+  "scoreAfter": 77.76,
   "criticStatusBefore": "pass",
   "criticStatusAfter": "pass",
   "p1Count": 20,
-  "p2Count": 62,
+  "p2Count": 61,
   "p1FixedCount": 1,
   "p1DeferredCount": 20,
-  "p2DeferredCount": 62,
+  "p2DeferredCount": 61,
   "p1Ranking": [
     {
       "rank": 1,
-      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
-      "title": "Ready with smoke required: Admin truth/sample evidence",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 51,
-      "weightedScoreImpact": 204,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 2,
-      "id": "beta-cap-visual-qa-required-visual-manual-smoke-0",
-      "title": "Visual QA required: Visual/manual smoke",
-      "severity": "p1",
-      "owner": "beta_score",
-      "surface": "mobile_ui",
-      "scoreImpact": 51,
-      "weightedScoreImpact": 204,
-      "fixClass": "manual_required",
-      "actionClass": "needs_operator_ui_confirmation",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach targeted manual or screenshot evidence before clearing visual/manual smoke.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 3,
       "id": "beta-cap-runtime-unverified-runtime-provider-smoke-1",
       "title": "Runtime unverified: Runtime/provider smoke",
       "severity": "p1",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
-      "scoreImpact": 30.67,
-      "weightedScoreImpact": 122.68,
+      "scoreImpact": 75.5,
+      "weightedScoreImpact": 302,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -74,6 +30,50 @@
       "status": "deferred",
       "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ]
+    },
+    {
+      "rank": 2,
+      "id": "beta-cap-visual-qa-required-ui-visual-manual-smoke-0",
+      "title": "Visual QA required: UI visual/manual smoke",
+      "severity": "p1",
+      "owner": "runtime_evidence",
+      "surface": "runtime_evidence",
+      "scoreImpact": 75.5,
+      "weightedScoreImpact": 302,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ]
+    },
+    {
+      "rank": 3,
+      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
+      "title": "Ready with smoke required: Admin truth/sample evidence",
+      "severity": "p1",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 63.75,
+      "weightedScoreImpact": 255,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ]
@@ -1777,28 +1777,6 @@
     },
     {
       "rank": 61,
-      "id": "debug-runtime-unknown-evidence",
-      "title": "Debug/runtime evidence still has unknown lanes",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 0.01,
-      "weightedScoreImpact": 0.03,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
-      "sourceFiles": [
-        "agent/state/debug-runtime-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 62,
       "id": "score-drag-sourcehealthscore",
       "title": "Score drag: sourceHealthScore",
       "severity": "p2",
@@ -1847,57 +1825,13 @@
   "deferred": [
     {
       "rank": 1,
-      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
-      "title": "Ready with smoke required: Admin truth/sample evidence",
-      "severity": "p1",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 51,
-      "weightedScoreImpact": 204,
-      "fixClass": "manual_required",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 2,
-      "id": "beta-cap-visual-qa-required-visual-manual-smoke-0",
-      "title": "Visual QA required: Visual/manual smoke",
-      "severity": "p1",
-      "owner": "beta_score",
-      "surface": "mobile_ui",
-      "scoreImpact": 51,
-      "weightedScoreImpact": 204,
-      "fixClass": "manual_required",
-      "actionClass": "needs_operator_ui_confirmation",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Attach targeted manual or screenshot evidence before clearing visual/manual smoke.",
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ]
-    },
-    {
-      "rank": 3,
       "id": "beta-cap-runtime-unverified-runtime-provider-smoke-1",
       "title": "Runtime unverified: Runtime/provider smoke",
       "severity": "p1",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
-      "scoreImpact": 30.67,
-      "weightedScoreImpact": 122.68,
+      "scoreImpact": 75.5,
+      "weightedScoreImpact": 302,
       "fixClass": "manual_required",
       "actionClass": "blocked_formal_evidence",
       "sourceFixable": false,
@@ -1907,6 +1841,50 @@
       "status": "deferred",
       "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ]
+    },
+    {
+      "rank": 2,
+      "id": "beta-cap-visual-qa-required-ui-visual-manual-smoke-0",
+      "title": "Visual QA required: UI visual/manual smoke",
+      "severity": "p1",
+      "owner": "runtime_evidence",
+      "surface": "runtime_evidence",
+      "scoreImpact": 75.5,
+      "weightedScoreImpact": 302,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ]
+    },
+    {
+      "rank": 3,
+      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
+      "title": "Ready with smoke required: Admin truth/sample evidence",
+      "severity": "p1",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "scoreImpact": 63.75,
+      "weightedScoreImpact": 255,
+      "fixClass": "manual_required",
+      "actionClass": "blocked_formal_evidence",
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleRefreshFixable": false,
+      "manualOnly": true,
+      "status": "deferred",
+      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
+      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ]
@@ -3608,28 +3586,6 @@
     },
     {
       "rank": 61,
-      "id": "debug-runtime-unknown-evidence",
-      "title": "Debug/runtime evidence still has unknown lanes",
-      "severity": "p2",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "scoreImpact": 0.01,
-      "weightedScoreImpact": 0.03,
-      "fixClass": "evidence_refresh",
-      "actionClass": "blocked_formal_evidence",
-      "sourceFixable": false,
-      "evidenceFixable": false,
-      "staleRefreshFixable": false,
-      "manualOnly": true,
-      "status": "deferred",
-      "deferredReason": "Formal/manual evidence is required and cannot be produced by source-only validation.",
-      "exactNextAction": "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
-      "sourceFiles": [
-        "agent/state/debug-runtime-evidence.generated.json"
-      ]
-    },
-    {
-      "rank": 62,
       "id": "score-drag-sourcehealthscore",
       "title": "Score drag: sourceHealthScore",
       "severity": "p2",
@@ -3652,9 +3608,9 @@
     }
   ],
   "topRemainingScoreDrag": [
-    "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2: 51 (blocked_formal_evidence)",
-    "beta-cap-visual-qa-required-visual-manual-smoke-0: 51 (needs_operator_ui_confirmation)",
-    "beta-cap-runtime-unverified-runtime-provider-smoke-1: 30.67 (blocked_formal_evidence)",
+    "beta-cap-runtime-unverified-runtime-provider-smoke-1: 75.5 (blocked_formal_evidence)",
+    "beta-cap-visual-qa-required-ui-visual-manual-smoke-0: 75.5 (blocked_formal_evidence)",
+    "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2: 63.75 (blocked_formal_evidence)",
     "score-drag-runtimehealthscore: 16.33 (blocked_formal_evidence)",
     "stale-artifact-debug-runtime-evidence: 16.33 (blocked_formal_evidence)",
     "stale-artifact-runtime-provider-smoke: 16.33 (blocked_formal_evidence)",
@@ -3665,7 +3621,7 @@
   "monolithRisksTracked": true,
   "fakeEvidenceBlocked": true,
   "formalEvidenceGates": [
-    "Visual/manual smoke: Visual QA required",
+    "UI visual/manual smoke: Visual QA required",
     "Runtime/provider smoke: Runtime unverified",
     "Admin truth/sample evidence: Ready with smoke required"
   ],

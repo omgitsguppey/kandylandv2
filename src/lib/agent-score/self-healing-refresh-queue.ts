@@ -1,4 +1,5 @@
 import type { ArtifactRefreshStatus } from "./refresh-safeguards";
+import { getRegisteredRefreshCommand } from "./refresh-registry";
 
 export type SelfHealingRefreshQueueSource =
   | "refresh_plan"
@@ -137,7 +138,7 @@ function buildScoreImpactEntries(
 
   return [...uniqueItems.values()]
     .map((item) => {
-      const command = item.refreshCommand ?? "";
+      const command = item.refreshCommand ?? getRegisteredRefreshCommand(item.id) ?? "";
       const formal = isFormalEvidenceRefresh(command, item.id, item.status);
       return {
         artifact: item.id,

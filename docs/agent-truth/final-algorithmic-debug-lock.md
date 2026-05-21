@@ -2,13 +2,13 @@
 
 Status: algorithmic debugging is locked as the primary confidence engine. Formal runtime/provider/manual evidence gates remain separate and are not cleared by this source-only lock.
 
-- Score before: 65.8
-- Score after: 65.8
+- Score before: 77.76
+- Score after: 77.76
 - Algorithmic debug status: locked
 - Manual bottleneck reduction: manual testing is no longer the default bottleneck; debug panel, telemetry, behavior math, route diagnostics, AI critic, admin truth samples, and refresh queues now drive source confidence while formal evidence gates remain manual
-- Remaining formal evidence gates: Visual/manual smoke: Visual QA required; Runtime/provider smoke: Runtime unverified; Admin truth/sample evidence: Ready with smoke required
+- Remaining formal evidence gates: UI visual/manual smoke: Visual QA required; Runtime/provider smoke: Runtime unverified; Admin truth/sample evidence: Ready with smoke required
 - Remaining score drag: runtimeHealth; evidenceCompleteness; freshness; costRisk
-- P0/P1/P2: 0/20/70
+- P0/P1/P2: 0/20/62
 
 ## Next Exact Steps
 
@@ -20,7 +20,7 @@ Status: algorithmic debugging is locked as the primary confidence engine. Formal
 ## Phase Status
 
 - Debug backlog: pass
-- AI critic: request_changes
+- AI critic: pass
 - Behavior math: pass
 - Legacy normalization: pass
 - Orphan metrics: pass

@@ -1,11 +1,63 @@
 {
-  "currentVersion": "1.3.61",
-  "betaReleaseCounter": 361,
+  "currentVersion": "1.3.62",
+  "betaReleaseCounter": 362,
   "channel": "beta",
-  "generatedAt": "2026-05-21T14:06:44.755Z",
-  "generatedAtUtc": "2026-05-21T14:06:44.755Z",
+  "generatedAt": "2026-05-21T14:22:06.066Z",
+  "generatedAtUtc": "2026-05-21T14:22:06.066Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.62",
+      "previousVersion": "1.3.61",
+      "betaReleaseCounter": 362,
+      "previousBetaReleaseCounter": 361,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): reconcile score 80 path",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T14:22:06.066Z",
+      "generatedAt": "2026-05-21T14:22:06.066Z",
+      "committedAtUtc": "2026-05-21T14:22:06.066Z",
+      "generatedAtUtc": "2026-05-21T14:22:06.066Z",
+      "updatedAtUtc": "2026-05-21T14:22:06.066Z",
+      "category": "Improved",
+      "title": "Score 80 reconciliation lock",
+      "summary": "Reconciled the score-80 path and ranked remaining blockers by true proof type.",
+      "userFacingTitle": "Score 80 reconciliation lock",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reconciled score-80 path after algorithmic evidence refinement.",
+        "Separated manual-only checks from algorithmic and runtime proof.",
+        "Ranked remaining score blockers by true proof type."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a score-80 reconciliation lock report, validator, and unit coverage without clearing formal beta gates."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Beta scoring",
+        "Debug evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/score-80-reconciliation-lock.generated.json",
+        "docs/agent-truth/score-80-reconciliation-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-score-80-reconciliation-lock.ts",
+        "src/lib/agent-score/score-80-reconciliation-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/score-80-reconciliation-lock.spec.ts",
+        "src/lib/agent-score/self-healing-refresh-queue.ts",
+        "tests/unit/self-healing-refresh-queue.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.61",
       "previousVersion": "1.3.60",
@@ -1321,55 +1373,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/score-80-refresh-pass.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.37",
-      "previousVersion": "1.3.36",
-      "betaReleaseCounter": 337,
-      "previousBetaReleaseCounter": 336,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): lock morning cleanup status",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T22:03:14.706Z",
-      "generatedAt": "2026-05-20T22:03:14.706Z",
-      "committedAtUtc": "2026-05-20T22:03:14.706Z",
-      "generatedAtUtc": "2026-05-20T22:03:14.706Z",
-      "updatedAtUtc": "2026-05-20T22:03:14.706Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Locked beta cleanup status after stale artifact and evidence refresh safeguards.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked beta cleanup status after stale artifact and evidence refresh safeguards.",
-        "Recorded operator-confirmed GumDrop revenue smoke honestly.",
-        "Kept formal beta evidence gates clear and current."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted final morning beta cleanup lock into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Evidence capture",
-        "Generated reports"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/final-morning-beta-lock.generated.json",
-        "docs/agent-truth/final-morning-beta-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-morning-beta-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-morning-beta-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

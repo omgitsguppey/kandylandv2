@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-21T13:13:27.469Z",
+  "generatedAt": "2026-05-21T14:22:31.420Z",
   "reportKey": "ai-debug-critic",
   "criticStatus": "pass",
   "checks": [
@@ -66,7 +66,7 @@
   ],
   "findings": [
     {
-      "id": "no_patch_on_top_of_stale_logic-968169009",
+      "id": "no_patch_on_top_of_stale_logic-417073463",
       "check": "no_patch_on_top_of_stale_logic",
       "severity": "warning",
       "actionClass": "needs_refresh",
@@ -94,6 +94,7 @@
         "agent/state/overnight-final-integration-lock.generated.json",
         "agent/state/overnight-wiring-integrity.generated.json",
         "agent/state/provider-smoke-evidence.generated.json",
+        "agent/state/public-beta-score.generated.json",
         "agent/state/runtime-smoke-evidence.generated.json",
         "agent/state/source-truth-authority-map.generated.json",
         "agent/state/targeted-behavior-evidence.generated.json",

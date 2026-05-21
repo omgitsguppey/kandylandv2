@@ -87,6 +87,26 @@ describe("self-healing refresh queue", () => {
     expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
   });
 
+  it("uses registered refresh commands for score-impact artifacts that omit commands", () => {
+    const report = buildSelfHealingRefreshQueue({
+      refreshPlan: [],
+      scoreImpactArtifacts: [
+        {
+          id: "agent/state/current-beta-exit-status.generated.json",
+          status: "stale_source_version",
+          pointImpact: 1,
+        },
+      ],
+    });
+
+    expect(report.queue[0]).toMatchObject({
+      artifact: "agent/state/current-beta-exit-status.generated.json",
+      refreshCommand: "npm run check:current-beta-exit-status",
+      canRunAutomatically: true,
+    });
+    expect(validateSelfHealingRefreshQueue(report)).toEqual([]);
+  });
+
   it("rejects missing impact, missing order, and forbidden commands", () => {
     const invalid: SelfHealingRefreshQueueReport = {
       generatedAtUtc: "2026-05-21T12:00:00.000Z",
