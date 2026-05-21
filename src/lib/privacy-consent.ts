@@ -36,7 +36,7 @@ interface PersistPrivacyOptions {
     preserveTimestamp?: boolean;
 }
 
-const DEFAULT_PRIVACY_SETTINGS: PrivacySettingsSnapshot = {
+export const DEFAULT_PRIVACY_SETTINGS: PrivacySettingsSnapshot = {
     consentMode: "unknown",
     consentDecision: null,
     consentSource: "unknown",
@@ -53,6 +53,16 @@ export type PrivacyDataAvailabilityReason =
     | "full_signal"
     | "privacy_limited_identified_analytics_denied"
     | "privacy_limited_global_privacy_control";
+
+export type AccountPrivacySettingsInput = Partial<Pick<
+    PrivacySettingsSnapshot,
+    | "anonymousAnalyticsEnabled"
+    | "identifiedAnalyticsEnabled"
+    | "allowRecommendations"
+    | "showInAnonymousStats"
+    | "honorGlobalPrivacyControl"
+    | "consentUpdatedAt"
+>>;
 
 function canUseDom() {
     return typeof window !== "undefined" && typeof document !== "undefined";
@@ -84,6 +94,37 @@ export function normalizePrivacySettingsSnapshot(
         honorGlobalPrivacyControl: value?.honorGlobalPrivacyControl !== false,
         consentUpdatedAt: Number.isFinite(value?.consentUpdatedAt) ? Number(value?.consentUpdatedAt) : Date.now(),
     };
+}
+
+export function hasExplicitConsentPreference(value: { consentUpdatedAt?: unknown } | null | undefined) {
+    return Number.isFinite(value?.consentUpdatedAt)
+        ? Number(value?.consentUpdatedAt) > 0
+        : false;
+}
+
+export function buildAccountPrivacySettingsFromConsentSnapshot(
+    snapshot: PrivacySettingsSnapshot,
+): Required<AccountPrivacySettingsInput> {
+    const consentMode = resolveConsentMode(snapshot);
+    const minimalAllowed = consentMode === "minimal_analytics" || consentMode === "full_analytics" || consentMode === "full_behavioral";
+    const fullBehavioralAllowed = consentMode === "full_behavioral";
+
+    return {
+        anonymousAnalyticsEnabled: minimalAllowed,
+        identifiedAnalyticsEnabled: fullBehavioralAllowed,
+        allowRecommendations: fullBehavioralAllowed,
+        showInAnonymousStats: minimalAllowed,
+        honorGlobalPrivacyControl: snapshot.honorGlobalPrivacyControl !== false,
+        consentUpdatedAt: hasExplicitConsentPreference(snapshot) ? snapshot.consentUpdatedAt : Date.now(),
+    };
+}
+
+export function shouldSyncGuestConsentToAccount(
+    guestSnapshot: PrivacySettingsSnapshot | null | undefined,
+    accountPrivacySettings: AccountPrivacySettingsInput | null | undefined,
+) {
+    return hasExplicitConsentPreference(guestSnapshot)
+        && !hasExplicitConsentPreference(accountPrivacySettings);
 }
 
 export function readPrivacySettingsSnapshot() {

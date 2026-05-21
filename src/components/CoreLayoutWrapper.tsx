@@ -5,14 +5,22 @@ import { Navbar } from "@/components/Navbar";
 import { AdminViewAsBanner } from "@/components/Admin/AdminViewAsBanner";
 import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
 import dynamic from "next/dynamic";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { CLIENT_RUNTIME_STORAGE_KEYS, writeSessionStorageValue } from "@/hooks/client-runtime";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { shouldBypassFanOnboarding } from "@/lib/creator-application";
-import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
+import { authFetch } from "@/lib/authFetch";
+import { reportRealtimeIssue } from "@/lib/client-error-reporting";
+import {
+    applyAnalyticsConsentToGtag,
+    buildAccountPrivacySettingsFromConsentSnapshot,
+    persistPrivacySettingsSnapshot,
+    readPrivacySettingsSnapshot,
+    shouldSyncGuestConsentToAccount,
+} from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
 import { ADMIN_SHELL_ROUTE_CLASS } from "@/lib/admin-shell-spacing";
 import {
@@ -60,6 +68,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         isPurchaseModalOpen,
     } = useUI();
     const [displayMode, setDisplayMode] = useState<DeviceDisplayMode>("unknown");
+    const submittedConsentSyncRef = useRef<string | null>(null);
     const pathname = usePathname();
     const isHomeRoute = pathname === "/";
     const isAdminRoute = pathname?.startsWith("/admin") ?? false;
@@ -149,7 +158,38 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const localPrivacySnapshot = readPrivacySettingsSnapshot();
         if (userProfile?.privacySettings) {
+            if (user?.uid && shouldSyncGuestConsentToAccount(localPrivacySnapshot, userProfile.privacySettings)) {
+                const accountPrivacySettings = buildAccountPrivacySettingsFromConsentSnapshot(localPrivacySnapshot);
+                const syncKey = `${user.uid}:${accountPrivacySettings.consentUpdatedAt}`;
+
+                persistPrivacySettingsSnapshot({
+                    ...accountPrivacySettings,
+                    consentMode: localPrivacySnapshot.consentMode,
+                    consentDecision: localPrivacySnapshot.consentDecision,
+                    consentSource: "account_settings",
+                    consentPolicyVersion: localPrivacySnapshot.consentPolicyVersion,
+                }, { preserveTimestamp: true });
+
+                if (submittedConsentSyncRef.current !== syncKey) {
+                    submittedConsentSyncRef.current = syncKey;
+                    void authFetch("/api/user/profile", {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ privacySettings: accountPrivacySettings }),
+                    }).catch((error) => {
+                        submittedConsentSyncRef.current = null;
+                        reportRealtimeIssue("privacy consent account sync failed", error, {
+                            userId: user.uid,
+                            consentMode: localPrivacySnapshot.consentMode,
+                            consentSource: localPrivacySnapshot.consentSource,
+                        });
+                    });
+                }
+                return;
+            }
+
             persistPrivacySettingsSnapshot({
                 anonymousAnalyticsEnabled: userProfile.privacySettings.anonymousAnalyticsEnabled,
                 identifiedAnalyticsEnabled: userProfile.privacySettings.identifiedAnalyticsEnabled,
@@ -157,12 +197,13 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
                 showInAnonymousStats: userProfile.privacySettings.showInAnonymousStats,
                 honorGlobalPrivacyControl: userProfile.privacySettings.honorGlobalPrivacyControl,
                 consentUpdatedAt: userProfile.privacySettings.consentUpdatedAt ?? Date.now(),
-            });
+                consentSource: "account_settings",
+            }, { preserveTimestamp: true });
             return;
         }
 
-        applyAnalyticsConsentToGtag(readPrivacySettingsSnapshot());
-    }, [userProfile?.privacySettings]);
+        applyAnalyticsConsentToGtag(localPrivacySnapshot);
+    }, [user?.uid, userProfile?.privacySettings]);
 
     useEffect(() => {
         if (!pathname || typeof window === "undefined") {

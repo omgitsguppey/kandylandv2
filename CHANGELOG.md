@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.66 - 2026-05-21
+- Cookie banner settings sync
+- Improved mobile cookie banner readability.
+- Connected cookie choices to privacy tracking settings.
+- Synced guest consent through signup and login.
+
 ## 1.3.65 - 2026-05-21
 - Behavioral telemetry extensibility
 - Made behavioral telemetry extensible for new features.
@@ -147,45 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Locked the score-80 path with refreshed source evidence.
 - Ranked remaining score drag by impact.
 - Added dirty-build safeguards for beta scoring.
-
-## 1.3.41 - 2026-05-21
-- Bug fixes and general improvements
-- Refined cost readiness scoring from current source cleanup.
-- Separated external billing owner review from source cost readiness.
-- Updated route 4xx and Cloud cost scoring inputs.
-
-## 1.3.40 - 2026-05-20
-- Bug fixes and general improvements
-- Added source-backed runtime confidence without faking deployed smoke.
-- Recognized runtime contracts while keeping runtime evidence gates honest.
-- Kept operator-confirmed revenue separate from formal provider proof.
-
-## 1.3.39 - 2026-05-20
-- Bug fixes and general improvements
-- Rebuilt targeted behavior evidence from current validators.
-- Recognized completed creator, user, mobile, and telemetry source behavior work.
-- Kept runtime and provider evidence gates separate.
-
-## 1.3.38 - 2026-05-20
-- Bug fixes and general improvements
-- Refreshed implemented-lane beta reports from the latest code version.
-- Reduced stale-report drag on beta health scoring.
-- Kept formal evidence gates separate from source refreshes.
-
-## 1.3.37 - 2026-05-20
-- Bug fixes and general improvements
-- Locked beta cleanup status after stale artifact and evidence refresh safeguards.
-- Recorded operator-confirmed GumDrop revenue smoke honestly.
-- Kept formal beta evidence gates clear and current.
-
-## 1.3.36 - 2026-05-20
-- Bug fixes and general improvements
-- Prepared beta evidence lanes with clearer statuses and next steps.
-- Recognized operator-confirmed revenue without faking provider proof.
-- Kept beta exit gates strict and understandable.
-
-## 1.3.35 - 2026-05-20
-- Bug fixes and general improvements
-- Added safeguards for stale beta and evidence reports.
-- Mapped generated reports to exact refresh commands.
-- Kept freshness messages plain and actionable.

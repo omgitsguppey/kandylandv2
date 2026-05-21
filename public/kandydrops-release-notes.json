@@ -1,11 +1,70 @@
 {
-  "currentVersion": "1.3.65",
-  "betaReleaseCounter": 365,
+  "currentVersion": "1.3.66",
+  "betaReleaseCounter": 366,
   "channel": "beta",
-  "generatedAt": "2026-05-21T15:06:33.909Z",
-  "generatedAtUtc": "2026-05-21T15:06:33.909Z",
+  "generatedAt": "2026-05-21T15:37:04.441Z",
+  "generatedAtUtc": "2026-05-21T15:37:04.441Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.66",
+      "previousVersion": "1.3.65",
+      "betaReleaseCounter": 366,
+      "previousBetaReleaseCounter": 365,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(privacy): sync cookie banner tracking",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T15:37:04.441Z",
+      "generatedAt": "2026-05-21T15:37:04.441Z",
+      "committedAtUtc": "2026-05-21T15:37:04.441Z",
+      "generatedAtUtc": "2026-05-21T15:37:04.441Z",
+      "updatedAtUtc": "2026-05-21T15:37:04.441Z",
+      "category": "Improved",
+      "title": "Cookie banner settings sync",
+      "summary": "Improved the mobile cookie banner and carried guest cookie choices into account privacy settings after signup or login.",
+      "userFacingTitle": "Cookie banner settings sync",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Improved mobile cookie banner readability.",
+        "Connected cookie choices to privacy tracking settings.",
+        "Synced guest consent through signup and login."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added deterministic validation and unit coverage for mobile cookie banner tracking-mode sync."
+      ],
+      "affectedSurfaces": [
+        "Privacy & security",
+        "Account & onboarding",
+        "Telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/consent-tracking-contract.generated.json",
+        "agent/state/cookie-banner-settings-sync.generated.json",
+        "agent/state/identity-handoff-refinement.generated.json",
+        "agent/state/mobile-ui-final-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/cookie-banner-settings-sync.md",
+        "docs/agent-truth/identity-handoff-refinement.md",
+        "docs/agent-truth/mobile-ui-final-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-cookie-banner-settings-sync.ts",
+        "src/components/CookieBanner.tsx",
+        "src/components/CoreLayoutWrapper.tsx",
+        "src/lib/privacy-consent.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/cookie-banner-settings-sync.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.65",
       "previousVersion": "1.3.64",
@@ -1353,107 +1412,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/score-80-path-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.41",
-      "previousVersion": "1.3.40",
-      "betaReleaseCounter": 341,
-      "previousBetaReleaseCounter": 340,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): refine cost readiness scoring",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T00:02:49.613Z",
-      "generatedAt": "2026-05-21T00:02:49.613Z",
-      "committedAtUtc": "2026-05-21T00:02:49.613Z",
-      "generatedAtUtc": "2026-05-21T00:02:49.613Z",
-      "updatedAtUtc": "2026-05-21T00:02:49.613Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Refined cost readiness scoring from current source cleanup.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refined cost readiness scoring from current source cleanup.",
-        "Separated external billing owner review from source cost readiness.",
-        "Updated route 4xx and Cloud cost scoring inputs."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted cost readiness score cleanup pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Cost readiness",
-        "Generated reports"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/score-80-cost-readiness.generated.json",
-        "docs/agent-truth/score-80-cost-readiness.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-score-80-cost-readiness.ts",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/score-80-cost-readiness.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.40",
-      "previousVersion": "1.3.39",
-      "betaReleaseCounter": 340,
-      "previousBetaReleaseCounter": 339,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): add source runtime confidence",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T23:47:59.625Z",
-      "generatedAt": "2026-05-20T23:47:59.625Z",
-      "committedAtUtc": "2026-05-20T23:47:59.625Z",
-      "generatedAtUtc": "2026-05-20T23:47:59.625Z",
-      "updatedAtUtc": "2026-05-20T23:47:59.625Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added source-backed runtime confidence without faking deployed smoke.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added source-backed runtime confidence without faking deployed smoke.",
-        "Recognized runtime contracts while keeping runtime evidence gates honest.",
-        "Kept operator-confirmed revenue separate from formal provider proof."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted source-backed runtime confidence pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Runtime confidence",
-        "Generated reports"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/source-backed-runtime-confidence.generated.json",
-        "docs/agent-truth/source-backed-runtime-confidence.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-source-backed-runtime-confidence.ts",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/source-backed-runtime-confidence.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

@@ -16,25 +16,25 @@ function CompactBannerView({ savingChoice, handleConsent }: BannerViewProps) {
     return (
         <div className="flex flex-col gap-2">
             <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-brand-purple">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">
                     Privacy
                 </p>
-                <p className="text-[10px] leading-4 text-gray-100">
-                    Essential storage stays on. Accept all enables behavioral tracking; minimal keeps lightweight product analytics only.
+                <p className="text-xs leading-4 text-gray-100">
+                    Essential storage stays on. Accept all enables behavioral tracking; minimal keeps lightweight product analytics only. You can change this later in Settings.
                 </p>
             </div>
-            <div className="grid grid-cols-2 gap-2 min-[380px]:grid-cols-4">
+            <div className="grid grid-cols-1 gap-1.5 min-[340px]:grid-cols-2">
                 <Link
-                    href="/privacy"
-                    className="inline-flex min-h-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-[10px] font-bold text-white transition-opacity hover:opacity-90"
+                    href="/settings"
+                    className="inline-flex min-h-9 items-center justify-center whitespace-normal break-words rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
                 >
-                    Policy
+                    Manage settings
                 </Link>
                 <button
                     type="button"
                     onClick={() => void handleConsent("decline_optional")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-[10px] font-bold text-white transition-opacity hover:opacity-90"
+                    className="inline-flex min-h-9 items-center justify-center whitespace-normal break-words rounded-xl border border-white/10 bg-white/5 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
                 >
                     Decline optional
                 </button>
@@ -42,7 +42,7 @@ function CompactBannerView({ savingChoice, handleConsent }: BannerViewProps) {
                     type="button"
                     onClick={() => void handleConsent("minimal")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-8 items-center justify-center rounded-xl border border-brand-purple/40 bg-brand-purple/15 px-2 py-1.5 text-[10px] font-bold text-white transition-opacity hover:opacity-90"
+                    className="inline-flex min-h-9 items-center justify-center whitespace-normal break-words rounded-xl border border-brand-purple/40 bg-brand-purple/15 px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
                 >
                     Minimal analytics
                 </button>
@@ -50,7 +50,7 @@ function CompactBannerView({ savingChoice, handleConsent }: BannerViewProps) {
                     type="button"
                     onClick={() => void handleConsent("accept_all")}
                     disabled={savingChoice}
-                    className="inline-flex min-h-8 items-center justify-center rounded-xl bg-brand-purple px-2 py-1.5 text-[10px] font-bold text-white transition-opacity hover:opacity-90"
+                    className="inline-flex min-h-9 items-center justify-center whitespace-normal break-words rounded-xl bg-brand-purple px-2 py-1.5 text-center text-[11px] font-bold leading-3 text-white transition-opacity hover:opacity-90"
                 >
                     {savingChoice ? "Saving..." : "Accept all"}
                 </button>
@@ -186,11 +186,12 @@ export default function CookieBanner() {
     return (
         <div
             data-cookie-banner-mobile={isCompactViewport ? "compact" : "standard"}
+            data-cookie-banner-mobile-size={isCompactViewport ? "320-safe" : "standard"}
             data-consent-mode={consentMode}
             data-consent-tracking-connected="true"
             className={
                 isCompactViewport
-                    ? "fixed left-3 right-3 top-[calc(4.85rem+env(safe-area-inset-top))] z-50 max-h-[calc(100dvh-7rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto rounded-[1.35rem] border border-white/10 bg-black/92 px-3 py-2.5 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+                    ? "fixed bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,4.5rem)+0.5rem+env(safe-area-inset-bottom))] left-2 right-2 z-50 max-h-[calc(100dvh-7rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto rounded-[1.15rem] border border-white/10 bg-black/92 px-3 py-2 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
                     : "fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-50 w-[min(24rem,calc(100vw-2rem))] rounded-[1.6rem] border border-white/10 bg-black/92 px-4 py-4 text-white shadow-[0_25px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
             }
         >
