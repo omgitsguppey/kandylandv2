@@ -18,6 +18,7 @@ import {
   describeFreshnessState,
   normalizeTechnicalFreshnessTerms,
 } from "./freshness-language";
+import { buildAlgorithmicEvidencePolicyReport } from "./algorithmic-evidence-policy";
 import type { DebugEvidenceAuditSummary } from "../debug-evidence-contract";
 
 export type PublicBetaDomain = keyof typeof PUBLIC_BETA_DOMAIN_WEIGHTS;
@@ -136,6 +137,7 @@ export type PublicBetaEvidenceInput = {
   targetedBehaviorEvidence?: PublicBetaEvidenceArtifact;
   sourceBackedRuntimeConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
+  behaviorMathEvidence?: PublicBetaEvidenceArtifact;
   visualManualEvidence?: PublicBetaEvidenceArtifact;
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
   runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
@@ -151,7 +153,7 @@ export type PublicBetaEvidenceInput = {
 };
 
 export type PublicBetaEvidenceGate = {
-  id: keyof typeof PUBLIC_BETA_EVIDENCE_WEIGHTS | "debugRuntimeEvidence";
+  id: keyof typeof PUBLIC_BETA_EVIDENCE_WEIGHTS | "debugRuntimeEvidence" | "algorithmicEvidenceCoverage";
   label: string;
   weight: number;
   score: number;
@@ -855,6 +857,29 @@ export function buildPublicBetaEvidenceGates(input: {
   const debugRuntimeEvidenceLines = evidence.debugRuntimeEvidenceArtifact
     ? evidenceArtifactEvidence(evidence.debugRuntimeEvidenceArtifact)
     : [];
+  const algorithmicEvidencePolicy = buildAlgorithmicEvidencePolicyReport({
+    visualManualEvidence: evidence.visualManualEvidence,
+    runtimeSmokeEvidence: evidence.runtimeSmokeEvidence,
+    providerSmokeEvidence: evidence.providerSmokeEvidence,
+    debugRuntimeEvidence: evidence.debugRuntimeEvidenceArtifact,
+    sourceBackedRuntimeConfidenceEvidence: evidence.sourceBackedRuntimeConfidenceEvidence,
+    realUsageConfidenceEvidence: evidence.realUsageConfidenceEvidence,
+    behaviorMathEvidence: evidence.behaviorMathEvidence,
+    adminTruthSampleEvidence: evidence.adminTruthSampleEvidence,
+    costReadiness: evidence.costReadiness,
+    costReadinessSourcePath: "agent/state/score-80-cost-readiness.generated.json",
+    refreshQueueSourcePath: "agent/state/self-healing-refresh-queue.generated.json",
+  });
+  const algorithmicCoverageEvidence = [
+    `nonUiAlgorithmicCoverageScore=${algorithmicEvidencePolicy.nonUiAlgorithmicCoverageScore}`,
+    `manualScreenshotBlocksNonUi=${algorithmicEvidencePolicy.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByManualScreenshot}`,
+    `uiVisualGateCleared=${algorithmicEvidencePolicy.formalGateImpact.uiVisualGateCleared}`,
+    `deployedRuntimeSmokeCleared=${algorithmicEvidencePolicy.formalGateImpact.deployedRuntimeSmokeCleared}`,
+    `formalProviderGateCleared=${algorithmicEvidencePolicy.formalGateImpact.formalProviderGateCleared}`,
+    `formalAdminRuntimeSampleCleared=${algorithmicEvidencePolicy.formalGateImpact.formalAdminRuntimeSampleCleared}`,
+    ...algorithmicEvidencePolicy.coverage.map((item) =>
+      `${item.category}: confidence=${item.confidence}; score=${item.score}; source=${item.sourcePath}; ${item.distinction}`),
+  ];
 
   const gates: PublicBetaEvidenceGate[] = [
     buildEvidenceGate({
@@ -887,12 +912,16 @@ export function buildPublicBetaEvidenceGates(input: {
     }),
     buildEvidenceGate({
       id: "visualManualSmoke",
-      label: "Visual/manual smoke",
+      label: "UI visual/manual smoke",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.visualManualSmoke,
       status: visualManualPassed ? "Ready" : "Visual QA required",
-      detail: visualManualDetail,
-      evidence: visualManualEvidence,
-      recommendedAction: "Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready.",
+      detail: `${visualManualDetail} This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.`,
+      evidence: [
+        ...visualManualEvidence,
+        "manualEvidenceScope=ui_visual_layout_only",
+        "nonUiAlgorithmicEvidence.blockedByManualScreenshot=false",
+      ],
+      recommendedAction: "Record targeted manual or screenshot evidence only for layout-sensitive UI surfaces before calling beta exit ready.",
       quality: visualQuality,
       gateRequiredForExit: true,
       runtimeCredit: visualQuality.quality === "formal_passed" ? visualQuality.partialCredit * 100 : 0,
@@ -921,7 +950,11 @@ export function buildPublicBetaEvidenceGates(input: {
       quality: adminQuality,
       gateRequiredForExit: true,
       sourceCredit: adminQuality.quality === "source_ready" ? adminQuality.partialCredit * 100 : undefined,
-      runtimeCredit: adminQuality.quality === "formal_passed" ? adminQuality.partialCredit * 100 : 0,
+      runtimeCredit: adminQuality.quality === "formal_passed"
+        ? adminQuality.partialCredit * 100
+        : adminQuality.quality === "source_ready"
+          ? adminQuality.partialCredit * 100
+          : 0,
     }),
     buildEvidenceGate({
       id: "freshnessIntegrity",
@@ -951,6 +984,35 @@ export function buildPublicBetaEvidenceGates(input: {
       quality: debugQuality,
       gateRequiredForExit: false,
       runtimeCredit: debugRuntimeEvidenceArtifactReady ? debugRuntimeEvidenceQuality.partialCredit * 100 : debugEvidenceAvailable ? 50 : 0,
+    }),
+    buildEvidenceGate({
+      id: "algorithmicEvidenceCoverage",
+      label: "Algorithmic non-UI evidence coverage",
+      weight: 0,
+      status: algorithmicEvidencePolicy.overallStatus === "algorithmic_evidence_policy_ready" ? "Ready" : "Needs review",
+      detail: "Non-UI runtime, telemetry, admin source, provider signal, cost, and refresh confidence are scored separately from UI screenshot evidence.",
+      evidence: algorithmicCoverageEvidence,
+      recommendedAction: "Use algorithmic evidence for non-UI confidence while keeping visual, provider, runtime, and admin formal gates explicit.",
+      quality: {
+        quality: algorithmicEvidencePolicy.validationFailures.length > 0 ? "failed" : "formal_partial",
+        confidence: algorithmicEvidencePolicy.validationFailures.length > 0 ? 0 : 0.72,
+        freshness: "fresh",
+        freshnessScore: 1,
+        partialCredit: algorithmicEvidencePolicy.validationFailures.length > 0
+          ? 0
+          : algorithmicEvidencePolicy.nonUiAlgorithmicCoverageScore / 100,
+        blocksLaunch: false,
+        reason: algorithmicEvidencePolicy.validationFailures.length > 0
+          ? algorithmicEvidencePolicy.validationFailures.join("; ")
+          : "Algorithmic evidence coverage is partial non-UI confidence and does not clear formal gates.",
+      },
+      gateRequiredForExit: false,
+      sourceCredit: algorithmicEvidencePolicy.nonUiAlgorithmicCoverageScore,
+      runtimeCredit: Math.max(
+        algorithmicEvidencePolicy.runtimeSourceConfidence.score,
+        algorithmicEvidencePolicy.telemetryConfidence.score,
+        algorithmicEvidencePolicy.adminTruthConfidence.score,
+      ),
     }),
   ];
 
@@ -1189,11 +1251,15 @@ export function buildPublicBetaScoreReport(
   const sourceGates = evidenceReadiness.evidenceGates.filter((gate) =>
     gate.id === "sourceSafety" || gate.id === "targetedBehaviorTests" || gate.id === "freshnessIntegrity");
   const runtimeRequiredGates = evidenceReadiness.evidenceGates.filter((gate) =>
-    gate.id === "visualManualSmoke" || gate.id === "runtimeProviderSmoke" || gate.id === "adminTruthSamples");
+    gate.id === "runtimeProviderSmoke"
+    || gate.id === "adminTruthSamples"
+    || gate.id === "debugRuntimeEvidence"
+    || gate.id === "algorithmicEvidenceCoverage");
   const requiredExitGates = evidenceReadiness.evidenceGates.filter((gate) => gate.gateRequiredForExit);
+  const nonUiRequiredExitGates = requiredExitGates.filter((gate) => gate.id !== "visualManualSmoke");
   const sourceHealthScore = roundScore(clamp((scannerScore * 0.7) + (average(sourceGates.map((gate) => gate.sourceCredit)) * 0.3), 0, 100));
   const runtimeHealthScore = average(runtimeRequiredGates.map((gate) => gate.runtimeCredit));
-  const evidenceCompletenessScore = average(requiredExitGates.map((gate) => gate.evidenceCredit));
+  const evidenceCompletenessScore = average(nonUiRequiredExitGates.map((gate) => gate.evidenceCredit));
   const freshnessScore = average(evidenceReadiness.evidenceGates.map((gate) => gate.freshness === "fresh" ? 100 : gate.freshness === "stale" ? 35 : gate.freshness === "head_mismatch" ? 40 : 0));
   const costRiskScore = costScore.score;
   const regressionRiskScore = regressionScore.score;
@@ -1226,7 +1292,10 @@ export function buildPublicBetaScoreReport(
     evidenceCompleteness: {
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.evidenceCompleteness,
       score: evidenceCompletenessScore,
-      reasons: requiredExitGates.map((gate) => `${gate.label} evidenceCredit=${gate.evidenceCredit}`),
+      reasons: [
+        "UI visual/manual evidence remains a launch blocker but is excluded from non-UI evidence completeness.",
+        ...nonUiRequiredExitGates.map((gate) => `${gate.label} evidenceCredit=${gate.evidenceCredit}`),
+      ],
     },
     freshness: {
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.freshness,
@@ -1259,7 +1328,8 @@ export function buildPublicBetaScoreReport(
   ];
   const nuancedScoreExplanation = [
     "Source-ready evidence earns source health credit without becoming runtime proof.",
-    "Formal manual, provider, runtime, and admin truth artifacts remain required for launch readiness.",
+    "UI-only manual visual evidence remains required for layout-sensitive UI confirmation but no longer blocks non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+    "Formal provider, deployed runtime, and admin truth artifacts remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes.",
   ].map(normalizeTechnicalFreshnessTerms);

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.59 - 2026-05-21
+- Algorithmic evidence gates
+- Separated UI manual evidence from algorithmic runtime and telemetry confidence.
+- Allowed source-backed evidence to improve non-UI beta health without faking formal proof.
+- Kept provider, runtime, and visual gates honest.
+
 ## 1.3.58 - 2026-05-21
 - AI critic P1 triage
 - Resolved source-fixable AI critic feedback.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added safeguards for stale beta and evidence reports.
 - Mapped generated reports to exact refresh commands.
 - Kept freshness messages plain and actionable.
-
-## 1.3.34 - 2026-05-20
-- Bug fixes and general improvements
-- Recorded operator-confirmed GumDrop revenue smoke.
-- Separated real-world payment confirmation from formal provider evidence.
-- Kept beta exit gates honest while preserving product signal.

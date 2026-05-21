@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.58",
-  "betaReleaseCounter": 358,
+  "currentVersion": "1.3.59",
+  "betaReleaseCounter": 359,
   "channel": "beta",
-  "generatedAt": "2026-05-21T13:05:24.206Z",
-  "generatedAtUtc": "2026-05-21T13:05:24.206Z",
+  "generatedAt": "2026-05-21T13:29:27.123Z",
+  "generatedAtUtc": "2026-05-21T13:29:27.123Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.59",
+      "previousVersion": "1.3.58",
+      "betaReleaseCounter": 359,
+      "previousBetaReleaseCounter": 358,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): refine algorithmic evidence gates",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T13:29:27.123Z",
+      "generatedAt": "2026-05-21T13:29:27.123Z",
+      "committedAtUtc": "2026-05-21T13:29:27.123Z",
+      "generatedAtUtc": "2026-05-21T13:29:27.123Z",
+      "updatedAtUtc": "2026-05-21T13:29:27.123Z",
+      "category": "Improved",
+      "title": "Algorithmic evidence gates",
+      "summary": "Separated UI manual evidence from algorithmic runtime and telemetry confidence.",
+      "userFacingTitle": "Algorithmic evidence gates",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Separated UI manual evidence from algorithmic runtime and telemetry confidence.",
+        "Allowed source-backed evidence to improve non-UI beta health without faking formal proof.",
+        "Kept provider, runtime, and visual gates honest."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the algorithmic evidence policy report, validator, score integration, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Beta scoring",
+        "Evidence gates"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/algorithmic-evidence-policy.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/algorithmic-evidence-policy.md",
+        "docs/agent-truth/beta-health-algorithm-v2.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-algorithmic-evidence-policy.ts",
+        "src/lib/agent-score/algorithmic-evidence-policy.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/algorithmic-evidence-policy.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.58",
       "previousVersion": "1.3.57",
@@ -1307,67 +1361,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/refresh-safeguards.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.34",
-      "previousVersion": "1.3.33",
-      "betaReleaseCounter": 334,
-      "previousBetaReleaseCounter": 333,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): record operator revenue smoke",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T21:16:38.703Z",
-      "generatedAt": "2026-05-20T21:16:38.703Z",
-      "committedAtUtc": "2026-05-20T21:16:38.703Z",
-      "generatedAtUtc": "2026-05-20T21:16:38.703Z",
-      "updatedAtUtc": "2026-05-20T21:16:38.703Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Recorded operator-confirmed GumDrop revenue smoke.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Recorded operator-confirmed GumDrop revenue smoke.",
-        "Separated real-world payment confirmation from formal provider evidence.",
-        "Kept beta exit gates honest while preserving product signal."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted operator-confirmed revenue smoke evidence pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Wallet evidence",
-        "GumDrop revenue smoke"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/operator-revenue-smoke.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/beta-evidence-gap-map.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/operator-revenue-smoke.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/evidence-capture-status.md",
-        "docs/agent-truth/beta-evidence-gap-map.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-operator-revenue-smoke.ts",
-        "scripts/agent/validate-current-beta-exit-status.ts",
-        "scripts/agent/validate-evidence-capture-status.ts",
-        "scripts/agent/validate-beta-evidence-gap-map.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/operator-revenue-smoke.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

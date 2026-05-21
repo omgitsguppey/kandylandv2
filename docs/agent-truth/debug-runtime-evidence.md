@@ -1,8 +1,8 @@
 # Debug Runtime Evidence
 
-Generated: 2026-05-21T13:12:02.394Z
+Generated: 2026-05-21T13:30:35.590Z
 
-Latest code version: faa73546e65aeca5b83c99b578cd2ad7c2efd4d7
+Latest code version: 1834e7481d4c0a87fa36f188e6a84548cc489a51
 
 ## Summary
 
@@ -11,7 +11,7 @@ Latest code version: faa73546e65aeca5b83c99b578cd2ad7c2efd4d7
 - Checked sources: 7
 - Critical runtime issues: 0
 - Unresolved warnings: 0
-- Unknown evidence count: 1
+- Unknown evidence count: 0
 - Source-backed runtime confidence: 100
 - Launch gate impact: `does_not_clear_deployed_runtime_smoke`
 

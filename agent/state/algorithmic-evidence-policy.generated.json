@@ -1,0 +1,187 @@
+{
+  "generatedAtUtc": "2026-05-21T13:34:02.157Z",
+  "reportKey": "algorithmic-evidence-policy",
+  "overallStatus": "algorithmic_evidence_policy_ready",
+  "manualEvidenceScope": {
+    "visualUiGate": {
+      "requiresVisualOrOperatorEvidence": true,
+      "canClearFromAlgorithmicEvidence": false,
+      "status": "missing",
+      "sourcePath": "agent/state/manual-smoke-evidence.generated.json",
+      "nextAction": "Attach screenshot or operator visual evidence only for layout-sensitive UI surfaces."
+    },
+    "nonUiAlgorithmicEvidence": {
+      "blockedByManualScreenshot": false,
+      "coveredCategories": [
+        "runtime_source_gate",
+        "telemetry_gate",
+        "admin_truth_gate",
+        "provider_gate",
+        "cost_gate",
+        "refresh_gate"
+      ],
+      "score": 67.83,
+      "note": "Manual screenshot evidence is UI-only and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
+    }
+  },
+  "runtimeSourceConfidence": {
+    "category": "runtime_source_gate",
+    "label": "Runtime source confidence",
+    "confidence": "partial",
+    "score": 100,
+    "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json",
+    "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_confidence;source_ready_real_usage_confidence",
+    "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
+    "formalGateCleared": false,
+    "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
+  },
+  "telemetryConfidence": {
+    "category": "telemetry_gate",
+    "label": "Telemetry and behavior confidence",
+    "confidence": "partial",
+    "score": 92,
+    "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json",
+    "sourceStatus": "live;source_ready_real_usage_confidence",
+    "distinction": "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
+    "formalGateCleared": false,
+    "nextAction": "Keep behavior math and real usage confidence artifacts current."
+  },
+  "adminTruthConfidence": {
+    "category": "admin_truth_gate",
+    "label": "Admin truth source confidence",
+    "confidence": "partial",
+    "score": 55,
+    "sourcePath": "agent/state/admin-truth-source-sample.generated.json",
+    "sourceStatus": "source_ready_admin_truth_sample",
+    "distinction": "admin source sample earns partial confidence but does not clear formal admin runtime sample",
+    "formalGateCleared": false,
+    "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin gate."
+  },
+  "providerConfidence": {
+    "category": "provider_gate",
+    "label": "Provider confidence",
+    "confidence": "partial",
+    "score": 40,
+    "sourcePath": "agent/state/operator-revenue-smoke.generated.json",
+    "sourceStatus": "operator_confirmed_revenue_smoke",
+    "distinction": "operator-confirmed revenue smoke is partial product confidence only",
+    "formalGateCleared": false,
+    "nextAction": "Attach formal provider evidence before clearing provider smoke."
+  },
+  "costConfidence": {
+    "category": "cost_gate",
+    "label": "Cost source confidence",
+    "confidence": "partial",
+    "score": 45,
+    "sourcePath": "agent/state/score-80-cost-readiness.generated.json",
+    "sourceStatus": "source_cost_readiness_present",
+    "distinction": "source cost readiness can improve cost confidence; external billing review remains separate",
+    "formalGateCleared": false,
+    "nextAction": "Keep source cost inventory current and attach owner billing review when required."
+  },
+  "refreshConfidence": {
+    "category": "refresh_gate",
+    "label": "Refresh queue confidence",
+    "confidence": "partial",
+    "score": 75,
+    "sourcePath": "agent/state/self-healing-refresh-queue.generated.json",
+    "sourceStatus": "source_path_available",
+    "distinction": "current refresh queue can satisfy source freshness ordering without creating runtime proof",
+    "formalGateCleared": false,
+    "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
+  },
+  "nonUiAlgorithmicCoverageScore": 67.83,
+  "formalGateImpact": {
+    "uiVisualGateCleared": false,
+    "deployedRuntimeSmokeCleared": false,
+    "formalProviderGateCleared": false,
+    "formalAdminRuntimeSampleCleared": false
+  },
+  "remainingFormalEvidenceGates": [
+    "UI visual/manual smoke requires screenshot or operator visual evidence when UI changed.",
+    "Deployed runtime smoke requires a formal runtime artifact.",
+    "Provider smoke requires a formal provider artifact.",
+    "Admin truth sample requires a formal runtime/sample artifact."
+  ],
+  "coverage": [
+    {
+      "category": "runtime_source_gate",
+      "label": "Runtime source confidence",
+      "confidence": "partial",
+      "score": 100,
+      "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json",
+      "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_confidence;source_ready_real_usage_confidence",
+      "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
+      "formalGateCleared": false,
+      "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
+    },
+    {
+      "category": "telemetry_gate",
+      "label": "Telemetry and behavior confidence",
+      "confidence": "partial",
+      "score": 92,
+      "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json",
+      "sourceStatus": "live;source_ready_real_usage_confidence",
+      "distinction": "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
+      "formalGateCleared": false,
+      "nextAction": "Keep behavior math and real usage confidence artifacts current."
+    },
+    {
+      "category": "admin_truth_gate",
+      "label": "Admin truth source confidence",
+      "confidence": "partial",
+      "score": 55,
+      "sourcePath": "agent/state/admin-truth-source-sample.generated.json",
+      "sourceStatus": "source_ready_admin_truth_sample",
+      "distinction": "admin source sample earns partial confidence but does not clear formal admin runtime sample",
+      "formalGateCleared": false,
+      "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin gate."
+    },
+    {
+      "category": "provider_gate",
+      "label": "Provider confidence",
+      "confidence": "partial",
+      "score": 40,
+      "sourcePath": "agent/state/operator-revenue-smoke.generated.json",
+      "sourceStatus": "operator_confirmed_revenue_smoke",
+      "distinction": "operator-confirmed revenue smoke is partial product confidence only",
+      "formalGateCleared": false,
+      "nextAction": "Attach formal provider evidence before clearing provider smoke."
+    },
+    {
+      "category": "cost_gate",
+      "label": "Cost source confidence",
+      "confidence": "partial",
+      "score": 45,
+      "sourcePath": "agent/state/score-80-cost-readiness.generated.json",
+      "sourceStatus": "source_cost_readiness_present",
+      "distinction": "source cost readiness can improve cost confidence; external billing review remains separate",
+      "formalGateCleared": false,
+      "nextAction": "Keep source cost inventory current and attach owner billing review when required."
+    },
+    {
+      "category": "refresh_gate",
+      "label": "Refresh queue confidence",
+      "confidence": "partial",
+      "score": 75,
+      "sourcePath": "agent/state/self-healing-refresh-queue.generated.json",
+      "sourceStatus": "source_path_available",
+      "distinction": "current refresh queue can satisfy source freshness ordering without creating runtime proof",
+      "formalGateCleared": false,
+      "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
+    }
+  ],
+  "validationFailures": [],
+  "currentHead": "1834e7481d4c0a87fa36f188e6a84548cc489a51",
+  "scoreProbe": {
+    "runtimeHealthScore": 75.5,
+    "evidenceCompletenessScore": 38.75,
+    "readinessStatus": "Unknown evidence",
+    "launchBlockers": [
+      "UI visual/manual smoke: Visual QA required",
+      "Runtime/provider smoke: Runtime unverified",
+      "Admin truth/sample evidence: Ready with smoke required",
+      "Report freshness and PR integrity: Unknown evidence"
+    ]
+  }
+}
