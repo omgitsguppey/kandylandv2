@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T23:37:08.070Z",
+  "generatedAtUtc": "2026-05-21T00:17:56.845Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+  "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,19 +323,19 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+      "currentHead": "d418e158af1454abfadc9433008439bee888c796",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -347,19 +347,19 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "status": "current",
       "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },

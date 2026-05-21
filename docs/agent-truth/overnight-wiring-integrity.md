@@ -1,12 +1,12 @@
 # Overnight Wiring Integrity
 
-Generated: 2026-05-20T23:36:59.456Z
-Current code version: 2774c5f6508dc005acde87cf4a3a0ce37f61bd51
+Generated: 2026-05-21T00:17:33.500Z
+Current code version: 080ebb115fc9d917f52b2e38108634821a2712ce
 
 ## Summary
 
-- Lanes wired: 9
-- Lanes stale: 3
+- Lanes wired: 10
+- Lanes stale: 2
 - Lanes partial: 0
 - Missing dependencies: 0
 - Broken/orphaned lanes: 0
@@ -16,7 +16,7 @@ Current code version: 2774c5f6508dc005acde87cf4a3a0ce37f61bd51
 - Shared marquee preserved: yes
 - Protected chat untouched: yes
 - Beta exit marked ready: no
-- Findings: P0=0, P1=0, P2=3
+- Findings: P0=0, P1=0, P2=2
 
 ## Lane Map
 
@@ -118,7 +118,7 @@ Current code version: 2774c5f6508dc005acde87cf4a3a0ce37f61bd51
 
 ### telemetry_final_lock
 
-- Status: stale
+- Status: wired
 - Expected UI: admin telemetry/source truth artifacts
 - Expected route: telemetry ingest, identity, materializer, GA4, BigQuery lanes
 - Expected contract: src/lib/analytics/telemetry-dependency-graph.ts
@@ -126,7 +126,7 @@ Current code version: 2774c5f6508dc005acde87cf4a3a0ce37f61bd51
 - Expected telemetry: all priority telemetry lanes
 - Expected artifact: agent/state/final-telemetry-closure-lock.generated.json
 - Fix applied: Validated existing source wiring; no duplicate system added.
-- Next action: Regenerate telemetry final lock after focused telemetry checks; keep beta evidence separate from source readiness.
+- Next action: Keep validator coverage current with future changes.
 
 ### ga4_external_truth
 
@@ -167,29 +167,55 @@ Current code version: 2774c5f6508dc005acde87cf4a3a0ce37f61bd51
 ## Findings
 
 - P2 agent/state/mobile-ui-final-lock.generated.json: mobile_ui_final_lock artifact is stale relative to current HEAD but has an explicit next action.
-- P2 agent/state/final-telemetry-closure-lock.generated.json: telemetry_final_lock artifact is stale relative to current HEAD but has an explicit next action.
 - P2 agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json: beta_health_scoring artifact is stale relative to current HEAD but has an explicit next action.
 
 ## Dirty File Classifications
 
+- agent/state/analytics-cost-runtime-inventory.generated.json: current_generated_artifact_to_commit
+- agent/state/cloud-sql-gemini-cost-guards.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-broadcast-timeline-prep.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-drop-status-metrics.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-pricing-wiring.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-profile-mobile-timeline.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-settings-control-plane.generated.json: current_generated_artifact_to_commit
+- agent/state/evidence-capture-status.generated.json: current_generated_artifact_to_commit
 - agent/state/existing-algorithm-refinement.generated.json: current_generated_artifact_to_commit
+- agent/state/final-cost-audit-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/global-marquee-truncated-titles.generated.json: current_generated_artifact_to_commit
+- agent/state/mobile-loading-hydration-stability.generated.json: current_generated_artifact_to_commit
+- agent/state/operator-revenue-smoke.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/refresh-safeguards.generated.json: current_generated_artifact_to_commit
+- agent/state/runtime-watch-time-v2.generated.json: current_generated_artifact_to_commit
+- agent/state/score-80-cost-readiness.generated.json: current_generated_artifact_to_commit
+- agent/state/score-80-refresh-pass.generated.json: current_generated_artifact_to_commit
+- agent/state/source-backed-runtime-confidence.generated.json: current_generated_artifact_to_commit
+- agent/state/targeted-behavior-evidence.generated.json: current_generated_artifact_to_commit
+- agent/state/telemetry-admin-debug-truth.generated.json: current_generated_artifact_to_commit
 - agent/state/user-loading-wallet-mobile-refinement.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/analytics-cost-runtime-inventory.md: current_generated_artifact_to_commit
+- docs/agent-truth/cloud-sql-gemini-cost-guards.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-broadcast-timeline-prep.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-drop-status-metrics.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-pricing-wiring.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-profile-mobile-timeline.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-settings-control-plane.md: current_generated_artifact_to_commit
+- docs/agent-truth/evidence-capture-status.md: current_generated_artifact_to_commit
 - docs/agent-truth/existing-algorithm-refinement.md: current_generated_artifact_to_commit
+- docs/agent-truth/final-cost-audit-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
 - docs/agent-truth/global-marquee-truncated-titles.md: current_generated_artifact_to_commit
+- docs/agent-truth/mobile-loading-hydration-stability.md: current_generated_artifact_to_commit
+- docs/agent-truth/operator-revenue-smoke.md: current_generated_artifact_to_commit
+- docs/agent-truth/refresh-safeguards.md: current_generated_artifact_to_commit
+- docs/agent-truth/runtime-watch-time-v2.md: current_generated_artifact_to_commit
+- docs/agent-truth/score-80-cost-readiness.md: current_generated_artifact_to_commit
+- docs/agent-truth/score-80-refresh-pass.md: current_generated_artifact_to_commit
+- docs/agent-truth/source-backed-runtime-confidence.md: current_generated_artifact_to_commit
+- docs/agent-truth/targeted-behavior-evidence.md: current_generated_artifact_to_commit
+- docs/agent-truth/telemetry-admin-debug-truth.md: current_generated_artifact_to_commit
 - docs/agent-truth/user-loading-wallet-mobile-refinement.md: current_generated_artifact_to_commit
-- scripts/agent/validate-targeted-behavior-evidence.ts: real_source_change_needs_review
-- tests/unit/targeted-behavior-evidence.spec.ts: real_source_change_needs_review
 
 ## PR Cleanup Actions
 
@@ -198,6 +224,5 @@ Current code version: 2774c5f6508dc005acde87cf4a3a0ce37f61bd51
 ## Next Fix Order
 
 - mobile_ui_final_lock: Regenerate mobile final lock during source-readiness signoff; do not mark visual evidence complete.
-- telemetry_final_lock: Regenerate telemetry final lock after focused telemetry checks; keep beta evidence separate from source readiness.
 - beta_health_scoring: Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready.
 - Keep future telemetry claims tied to TELEMETRY_DEPENDENCY_GRAPH or analytics-event-contract before UI labels say tracked.

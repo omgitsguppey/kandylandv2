@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.41",
-  "betaReleaseCounter": 341,
+  "currentVersion": "1.3.42",
+  "betaReleaseCounter": 342,
   "channel": "beta",
-  "generatedAt": "2026-05-21T00:02:49.613Z",
-  "generatedAtUtc": "2026-05-21T00:02:49.613Z",
+  "generatedAt": "2026-05-21T00:24:56.057Z",
+  "generatedAtUtc": "2026-05-21T00:24:56.057Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.42",
+      "previousVersion": "1.3.41",
+      "betaReleaseCounter": 342,
+      "previousBetaReleaseCounter": 341,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): lock score 80 path",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T00:24:56.057Z",
+      "generatedAt": "2026-05-21T00:24:56.057Z",
+      "committedAtUtc": "2026-05-21T00:24:56.057Z",
+      "generatedAtUtc": "2026-05-21T00:24:56.057Z",
+      "updatedAtUtc": "2026-05-21T00:24:56.057Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked the score-80 path with refreshed source evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked the score-80 path with refreshed source evidence.",
+        "Ranked remaining score drag by impact.",
+        "Added dirty-build safeguards for beta scoring."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted score-80 path lock and dirty build prevention pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "Evidence freshness",
+        "Generated reports"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/score-80-path-lock.generated.json",
+        "docs/agent-truth/score-80-path-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-score-80-path-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/score-80-path-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.41",
       "previousVersion": "1.3.40",
@@ -1334,56 +1383,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/ui/mobile-scale-contract.ts",
         "tests/unit/mobile-ui-scaling-doctrine.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.17",
-      "previousVersion": "1.3.16",
-      "betaReleaseCounter": 317,
-      "previousBetaReleaseCounter": 316,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(analytics): lock telemetry closure",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T23:59:00.000Z",
-      "generatedAt": "2026-05-19T23:59:00.000Z",
-      "committedAtUtc": "2026-05-19T23:59:00.000Z",
-      "generatedAtUtc": "2026-05-19T23:59:00.000Z",
-      "updatedAtUtc": "2026-05-19T23:59:00.000Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Locked telemetry dependency closure status while keeping beta evidence requirements separate from source readiness.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked telemetry dependency closure status.",
-        "Mapped analytics from client tracking through admin evidence.",
-        "Kept beta evidence requirements separate from source readiness."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted final telemetry closure lock into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics",
-        "admin evidence",
-        "beta readiness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/final-telemetry-closure-lock.generated.json",
-        "docs/agent-truth/final-telemetry-closure-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-telemetry-closure-lock.ts",
-        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-telemetry-closure-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

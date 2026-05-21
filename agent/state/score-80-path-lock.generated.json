@@ -1,0 +1,598 @@
+{
+  "generatedAtUtc": "2026-05-21T00:27:10.726Z",
+  "reportKey": "score-80-path-lock",
+  "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+  "oldScore": 41.92,
+  "newScore": 59.6,
+  "sourceHealthScore": 100,
+  "runtimeHealthScore": 18.33,
+  "evidenceCompletenessScore": 40,
+  "freshnessScore": 52.86,
+  "costRiskScore": 60,
+  "regressionRiskScore": 90,
+  "launchGateStatus": "owner_review",
+  "canStartBetaExitReview": false,
+  "exactScoreDeltaDrivers": [
+    "oldScore=41.92",
+    "newScore=59.6",
+    "scoreDelta=17.68",
+    "sourceHealthScore=100",
+    "runtimeHealthScore=18.33",
+    "evidenceCompletenessScore=40",
+    "freshnessScore=52.86",
+    "costRiskScore=60",
+    "regressionRiskScore=90",
+    "launchBlockers=3",
+    "runtimeHealthScore drag=16.33",
+    "evidenceCompletenessScore drag=12",
+    "freshnessScore drag=7.07",
+    "costRiskScore drag=4",
+    "regressionRiskScore drag=1",
+    "sourceHealthScore drag=0"
+  ],
+  "remainingScoreDrag": [
+    {
+      "dimension": "runtimeHealthScore",
+      "score": 18.33,
+      "weight": 20,
+      "rawGap": 81.67,
+      "weightedPointImpact": 16.33,
+      "reason": "Source-backed runtime confidence helps, but deployed runtime smoke remains missing."
+    },
+    {
+      "dimension": "evidenceCompletenessScore",
+      "score": 40,
+      "weight": 20,
+      "rawGap": 60,
+      "weightedPointImpact": 12,
+      "reason": "Formal manual, provider, runtime, and admin truth evidence is still missing."
+    },
+    {
+      "dimension": "freshnessScore",
+      "score": 52.86,
+      "weight": 15,
+      "rawGap": 47.14,
+      "weightedPointImpact": 7.07,
+      "reason": "Stale or missing generated evidence reports still decay freshness."
+    },
+    {
+      "dimension": "costRiskScore",
+      "score": 60,
+      "weight": 10,
+      "rawGap": 40,
+      "weightedPointImpact": 4,
+      "reason": "Source cost readiness is partial while external billing owner review remains separate."
+    },
+    {
+      "dimension": "regressionRiskScore",
+      "score": 90,
+      "weight": 10,
+      "rawGap": 10,
+      "weightedPointImpact": 1,
+      "reason": "Recent high-blast source changes keep regression risk from reaching zero."
+    },
+    {
+      "dimension": "sourceHealthScore",
+      "score": 100,
+      "weight": 25,
+      "rawGap": 0,
+      "weightedPointImpact": 0,
+      "reason": "Source health is affected by failed or stale implemented source validators."
+    }
+  ],
+  "artifactsBlocking80": [
+    {
+      "id": "runtime_provider_smoke",
+      "status": "Runtime unverified: Runtime/provider smoke",
+      "pointImpact": 16.33,
+      "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      "nextAction": "Attach formal evidence before clearing this beta gate."
+    },
+    {
+      "id": "debug_runtime_evidence",
+      "status": "Unknown evidence: Debug/runtime evidence",
+      "pointImpact": 16.33,
+      "refreshCommand": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status",
+      "nextAction": "Attach formal evidence before clearing this beta gate."
+    },
+    {
+      "id": "visual_manual_smoke",
+      "status": "Visual QA required: Visual/manual smoke",
+      "pointImpact": 12,
+      "refreshCommand": "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
+      "nextAction": "Attach formal evidence before clearing this beta gate."
+    },
+    {
+      "id": "admin_truth_sample_evidence",
+      "status": "Unknown evidence: Admin truth/sample evidence",
+      "pointImpact": 12,
+      "refreshCommand": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
+      "nextAction": "Attach formal evidence before clearing this beta gate."
+    },
+    {
+      "id": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "stale_source_version",
+      "pointImpact": 2,
+      "refreshCommand": "npm run check:overnight-final-integration-lock",
+      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock"
+    },
+    {
+      "id": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "stale_source_version",
+      "pointImpact": 1.8,
+      "refreshCommand": "npm run check:beta-evidence-gap-map",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map"
+    },
+    {
+      "id": "agent/state/beta-evidence-lane-prep.generated.json",
+      "status": "stale_source_version",
+      "pointImpact": 1.6,
+      "refreshCommand": "npm run check:beta-evidence-lane-prep",
+      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep"
+    },
+    {
+      "id": "agent/state/beta-freshness-language.generated.json",
+      "status": "stale_source_version",
+      "pointImpact": 1.4,
+      "refreshCommand": "npm run check:beta-freshness-language",
+      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language"
+    },
+    {
+      "id": "agent/state/final-pr-stale-cleanup.generated.json",
+      "status": "stale_source_version",
+      "pointImpact": 1.2,
+      "refreshCommand": "npm run check:final-pr-stale-cleanup",
+      "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup"
+    }
+  ],
+  "cleanBuildStatus": {
+    "status": "classified_dirty",
+    "dirtyCount": 68,
+    "untrackedCount": 4,
+    "openPrCount": 0,
+    "staleScoreArtifactCount": 5
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "status": "M",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release beta note update."
+    },
+    {
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-broadcast-timeline-prep.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-drop-management-approval.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-drop-manager-mobile-refinement.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-pricing-wiring.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-profile-mobile-timeline.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/existing-algorithm-refinement.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/final-cost-audit-lock.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/refresh-safeguards.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/runtime-watch-time-v2.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/score-80-refresh-pass.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/source-backed-runtime-confidence.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/user-creator-ui-parity.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-broadcast-timeline-prep.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-pricing-wiring.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-profile-mobile-timeline.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-settings-control-plane.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/existing-algorithm-refinement.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/final-cost-audit-lock.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-wiring-integrity.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/refresh-safeguards.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/runtime-watch-time-v2.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/score-80-refresh-pass.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score/evidence artifact generated by focused validators."
+    },
+    {
+      "path": "package.json",
+      "status": "M",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped package script update."
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "status": "M",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release beta note update."
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "status": "M",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release beta note update."
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "status": "M",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release beta note update."
+    },
+    {
+      "path": "agent/state/score-80-path-lock.generated.json",
+      "status": "??",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit score-80 path lock artifact."
+    },
+    {
+      "path": "docs/agent-truth/score-80-path-lock.md",
+      "status": "??",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit score-80 path lock artifact."
+    },
+    {
+      "path": "scripts/agent/validate-score-80-path-lock.ts",
+      "status": "??",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped score-80 path lock validator/test."
+    },
+    {
+      "path": "tests/unit/score-80-path-lock.spec.ts",
+      "status": "??",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped score-80 path lock validator/test."
+    }
+  ],
+  "openPrs": [],
+  "evidenceStatus": [
+    {
+      "lane": "manual_screenshot",
+      "status": "missing",
+      "formalArtifactAttached": false
+    },
+    {
+      "lane": "provider_smoke",
+      "status": "missing",
+      "formalArtifactAttached": false
+    },
+    {
+      "lane": "runtime_smoke",
+      "status": "missing",
+      "formalArtifactAttached": false
+    },
+    {
+      "lane": "admin_truth_sample",
+      "status": "missing",
+      "formalArtifactAttached": false
+    },
+    {
+      "lane": "operator_revenue_smoke",
+      "status": "operator_confirmed_revenue_smoke",
+      "formalArtifactAttached": false
+    }
+  ],
+  "nextThreeActions": [
+    "Attach deployed runtime smoke and provider smoke artifacts; source-backed confidence does not clear those gates.",
+    "Attach manual screenshot QA and admin truth sample evidence so evidence completeness can move without fake proof.",
+    "Refresh or retire every stale score-impacting artifact using its listed command before re-running npm run score:beta."
+  ]
+}

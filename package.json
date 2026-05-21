@@ -85,6 +85,7 @@
         "check:final-morning-beta-lock": "tsx scripts/agent/validate-final-morning-beta-lock.ts",
         "check:source-backed-runtime-confidence": "tsx scripts/agent/validate-source-backed-runtime-confidence.ts",
         "check:score-80-cost-readiness": "tsx scripts/agent/validate-score-80-cost-readiness.ts",
+        "check:score-80-path-lock": "tsx scripts/agent/validate-score-80-path-lock.ts",
         "check:phase-one-score-ui-triage": "tsx scripts/agent/validate-phase-one-score-ui-triage.ts",
         "check:targeted-behavior-evidence": "tsx scripts/agent/validate-targeted-behavior-evidence.ts",
         "score:hardening": "tsx scripts/agent/score-codebase-hardening.ts",

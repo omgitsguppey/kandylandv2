@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-20T23:39:10.905Z",
+  "generatedAtUtc": "2026-05-21T00:25:29.900Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
-  "latestCodeVersion": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
-  "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+  "sourceCommit": "080ebb115fc9d917f52b2e38108634821a2712ce",
+  "latestCodeVersion": "080ebb115fc9d917f52b2e38108634821a2712ce",
+  "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
@@ -20,7 +20,7 @@
       "command": "npm run check:creator-settings-control-plane",
       "status": "pass",
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "creator_settings",
         "creator_profile",
@@ -34,7 +34,7 @@
       "command": "npm run check:creator-pricing-wiring",
       "status": "pass",
       "artifactPath": "agent/state/creator-pricing-wiring.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "creator_pricing",
         "fan_pass",
@@ -48,7 +48,7 @@
       "command": "npm run check:creator-broadcast-timeline-prep",
       "status": "pass",
       "artifactPath": "agent/state/creator-broadcast-timeline-prep.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "creator_broadcasts",
         "notifications",
@@ -62,7 +62,7 @@
       "command": "npm run check:creator-profile-mobile-timeline",
       "status": "pass",
       "artifactPath": "agent/state/creator-profile-mobile-timeline.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "creator_profile",
         "mobile_ui",
@@ -76,7 +76,7 @@
       "command": "npm run check:global-marquee-truncated-titles",
       "status": "pass",
       "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "ui_titles",
         "creator_ui",
@@ -91,7 +91,7 @@
       "command": "npm run check:creator-drop-status-metrics",
       "status": "pass",
       "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "creator_drop_manager",
         "drop_metrics",
@@ -105,7 +105,7 @@
       "command": "npm run check:user-loading-wallet-mobile-refinement",
       "status": "pass",
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "user_dashboard",
         "wallet_ui",
@@ -119,7 +119,7 @@
       "command": "npm run check:existing-algorithm-refinement",
       "status": "pass",
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "beta_scoring",
         "telemetry",
@@ -135,7 +135,7 @@
       "command": "npm run check:overnight-wiring-integrity",
       "status": "pass",
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "creator_settings",
         "telemetry",
@@ -150,7 +150,7 @@
       "command": "npm run check:final-telemetry-closure-lock",
       "status": "pass",
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "telemetry",
         "firestore",
@@ -166,7 +166,7 @@
       "command": "npm run check:mobile-ui-final-lock",
       "status": "pass",
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "mobile_ui",
         "admin_ui",
@@ -181,7 +181,7 @@
       "command": "npm run check:user-creator-ui-parity",
       "status": "pass",
       "artifactPath": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "user_ui",
         "creator_ui",
@@ -195,7 +195,7 @@
       "command": "npm run check:source-truth-authority-map",
       "status": "pass",
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "source_truth",
         "admin_truth",
@@ -209,7 +209,7 @@
       "command": "npm run check:gumdrop-economy-accuracy",
       "status": "pass",
       "artifactPath": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "gumdrop_economy",
         "source_of_funds",
@@ -223,7 +223,7 @@
       "command": "npm run check:creator-drop-management-approval",
       "status": "pass",
       "artifactPath": "agent/state/creator-drop-management-approval.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "creator_drop_manager",
         "admin_approval",
@@ -237,7 +237,7 @@
       "command": "npm run check:creator-drop-manager-mobile-refinement",
       "status": "pass",
       "artifactPath": "agent/state/creator-drop-manager-mobile-refinement.generated.json",
-      "currentHead": "2774c5f6508dc005acde87cf4a3a0ce37f61bd51",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
         "creator_drop_manager",
         "mobile_ui"

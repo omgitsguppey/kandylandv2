@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T00:05:23.242Z",
+  "generatedAtUtc": "2026-05-21T00:15:43.508Z",
   "reportKey": "final-cost-audit-lock",
-  "currentHead": "d418e158af1454abfadc9433008439bee888c796",
+  "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
   "summary": {
     "totalAuditItems": 50,
     "fixedCount": 44,
@@ -17,7 +17,7 @@
     "route4xxReadiness": "source_inventory_complete",
     "openPrCount": 0,
     "workingTreeClean": false,
-    "betaScore": 59.6,
+    "betaScore": 51.43,
     "betaStatus": "Unknown evidence",
     "canStartBetaExitReview": false,
     "p0Count": 0,
@@ -974,29 +974,14 @@
   ],
   "dirtyFileActions": [
     {
-      "path": "CHANGELOG.md",
-      "status": "release_artifact_expected",
-      "action": "commit same-commit release-note artifact."
-    },
-    {
-      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "path": "agent/state/evidence-capture-status.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current_generated_artifact_to_commit",
-      "action": "commit refreshed focused validator artifact."
-    },
-    {
-      "path": "agent/state/final-cost-audit-lock.generated.json",
-      "status": "report_artifact_to_commit",
-      "action": "commit final cost audit lock artifact."
     },
     {
       "path": "agent/state/final-telemetry-closure-lock.generated.json",
@@ -1004,7 +989,12 @@
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
@@ -1014,24 +1004,54 @@
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "path": "agent/state/refresh-safeguards.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "path": "agent/state/runtime-watch-time-v2.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "path": "agent/state/score-80-cost-readiness.generated.json",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "docs/agent-truth/final-cost-audit-lock.md",
-      "status": "report_artifact_to_commit",
-      "action": "commit final cost audit lock artifact."
+      "path": "agent/state/score-80-refresh-pass.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/source-backed-runtime-confidence.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
     },
     {
       "path": "docs/agent-truth/final-telemetry-closure-lock.md",
@@ -1039,37 +1059,22 @@
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "package.json",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "status": "release_artifact_expected",
-      "action": "commit same-commit release-note artifact."
+      "path": "docs/agent-truth/refresh-safeguards.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "status": "release_artifact_expected",
-      "action": "commit same-commit release-note artifact."
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "status": "release_artifact_expected",
-      "action": "commit same-commit release-note artifact."
-    },
-    {
-      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "path": "docs/agent-truth/runtime-watch-time-v2.md",
       "status": "current_generated_artifact_to_commit",
       "action": "commit refreshed focused validator artifact."
     },
@@ -1079,14 +1084,29 @@
       "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "scripts/agent/validate-score-80-cost-readiness.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
+      "path": "docs/agent-truth/score-80-refresh-pass.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
     },
     {
-      "path": "tests/unit/score-80-cost-readiness.spec.ts",
-      "status": "real_source_change_needs_review",
-      "action": "commit scoped validator/package source change after targeted checks."
+      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
+    },
+    {
+      "path": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+      "status": "current_generated_artifact_to_commit",
+      "action": "commit refreshed focused validator artifact."
     }
   ],
   "remainingBlockers": [

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.42 - 2026-05-20
+- Bug fixes and general improvements
+- Locked the score-80 path with refreshed source evidence.
+- Ranked remaining score drag by impact.
+- Added dirty-build safeguards for beta scoring.
+
 ## 1.3.41 - 2026-05-20
 - Bug fixes and general improvements
 - Refined cost readiness scoring from current source cleanup.

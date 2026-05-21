@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T23:42:23.804Z",
+  "generatedAtUtc": "2026-05-21T00:15:29.884Z",
   "reportKey": "creator-drop-status-metrics",
-  "currentHead": "94aa3b26e38df8a77ce0c38f5143b2e75a94c805",
+  "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
   "summary": {
     "dependencyPresent": true,
     "statusResolverReady": true,

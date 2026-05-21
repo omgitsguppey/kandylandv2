@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-05-20T22:05:26.793Z
+Generated: 2026-05-21T00:26:00.597Z
 
-Latest code version: `97de3470792bd8dcc5259863cc164eb178b57760`
+Latest code version: `080ebb115fc9d917f52b2e38108634821a2712ce`
 
 ## Summary
 
@@ -60,11 +60,11 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
 - agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
-- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep is current for the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current for the latest code version. Command: `npm run check:operator-revenue-smoke`.
-- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
-- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
-- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
+- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock is current for the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
+- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock is current for the latest code version. Command: `npm run check:mobile-ui-final-lock`.
+- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane is current for the latest code version. Command: `npm run check:creator-settings-control-plane`.
 - agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics is current for the latest code version. Command: `npm run check:creator-drop-status-metrics`.
 
 ## Next Exact Steps
