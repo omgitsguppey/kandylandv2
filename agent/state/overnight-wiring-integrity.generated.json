@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T01:26:48.321Z",
+  "generatedAtUtc": "2026-05-21T16:16:24.214Z",
   "reportKey": "overnight-wiring-integrity",
-  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
   "summary": {
     "lanesWired": 11,
     "lanesPartial": 0,
@@ -181,6 +181,10 @@
   ],
   "dirtyFileClassifications": [
     {
+      "file": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
       "file": "agent/state/beta-evidence-gap-map.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
@@ -210,6 +214,14 @@
     },
     {
       "file": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/refresh-safeguards.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/self-healing-refresh-queue.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -249,14 +261,44 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "file": "docs/agent-truth/refresh-safeguards.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/self-healing-refresh-queue.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "file": "docs/agent-truth/source-truth-authority-map.md",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "tests/unit/score-80-refresh-queue-execution.spec.ts",
+      "classification": "real_source_change_needs_review"
     }
   ],
   "prCleanupActions": [
-    "No open PRs were present at start/end for overnight wiring integrity."
+    "PR #278 classified as unrelated_preserved.",
+    "PR #277 classified as unrelated_preserved."
   ],
-  "openPrs": [],
+  "openPrs": [
+    {
+      "headRefName": "jules-11994101092319445340-c8418fdc",
+      "mergeStateStatus": "CLEAN",
+      "number": 278,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/278",
+      "classification": "unrelated_preserved"
+    },
+    {
+      "headRefName": "audit-package-metadata-claims-8479328365422966163",
+      "mergeStateStatus": "CLEAN",
+      "number": 277,
+      "title": "💸 Audit package metadata and source-of-funds truth",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/277",
+      "classification": "unrelated_preserved"
+    }
+  ],
   "fixesApplied": [
     "Added an overnight wiring integrity map covering creator, UI, telemetry, external analytics, BigQuery, and beta health lanes.",
     "Classified stale beta/mobile/telemetry artifacts as source-readiness evidence that must not mark beta exit ready.",

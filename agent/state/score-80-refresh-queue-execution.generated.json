@@ -1,0 +1,576 @@
+{
+  "generatedAtUtc": "2026-05-21T16:30:35.568Z",
+  "reportKey": "score-80-refresh-queue-execution",
+  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
+  "status": "pass",
+  "oldScore": 77.76,
+  "newScore": 73.13,
+  "distanceTo80": 6.87,
+  "queueSummary": {
+    "totalEntries": 54,
+    "automaticEntries": 50,
+    "blockedEntries": 4,
+    "sourceQueueCommandCount": 54
+  },
+  "queueEntriesRun": 15,
+  "queueEntriesSkipped": 2,
+  "queueEntriesBlocked": 8,
+  "commandResults": [
+    {
+      "command": "npm run check:self-healing-refresh-queue",
+      "status": "passed",
+      "queueArtifact": "agent/state/self-healing-refresh-queue.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Regenerated the ordered source-only queue and preserved 4 blocked formal/manual entries."
+    },
+    {
+      "command": "npm run check:refresh-safeguards",
+      "status": "passed",
+      "queueArtifact": "agent/state/refresh-safeguards.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed registered stale-artifact safeguards and exact refresh commands."
+    },
+    {
+      "command": "npm run check:overnight-final-integration-lock",
+      "status": "failed",
+      "queueArtifact": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "blocked_dirty_or_pr_classification",
+      "reason": "Optional lock failed before this execution report existed because dirty files and open PRs were intentionally unclassified until this pass."
+    },
+    {
+      "command": "npm run check:beta-evidence-gap-map",
+      "status": "passed",
+      "queueArtifact": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed beta evidence gap map from current source."
+    },
+    {
+      "command": "npm run check:beta-evidence-lane-prep",
+      "status": "passed",
+      "queueArtifact": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed beta evidence lane prep from current source."
+    },
+    {
+      "command": "npm run check:beta-freshness-language",
+      "status": "passed",
+      "queueArtifact": "agent/state/beta-freshness-language.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed beta freshness wording and stale report actions."
+    },
+    {
+      "command": "npm run check:final-pr-stale-cleanup",
+      "status": "failed",
+      "queueArtifact": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "blocked_dirty_or_pr_classification",
+      "reason": "Optional stale PR cleanup lane still requires this pass's PR and dirty-file classification and does not block source refresh execution."
+    },
+    {
+      "command": "npm run check:source-truth-authority-map",
+      "status": "passed",
+      "queueArtifact": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed generated source-truth authority map."
+    },
+    {
+      "command": "npm run check:final-telemetry-closure-lock",
+      "status": "passed",
+      "queueArtifact": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed telemetry closure lock without claiming beta evidence readiness."
+    },
+    {
+      "command": "npm run check:mobile-ui-final-lock",
+      "status": "passed",
+      "queueArtifact": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed mobile lock from source; no chat/nav edits."
+    },
+    {
+      "command": "npm run check:creator-settings-control-plane",
+      "status": "passed",
+      "queueArtifact": "agent/state/creator-settings-control-plane.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed creator settings control-plane artifact."
+    },
+    {
+      "command": "npm run check:creator-drop-status-metrics",
+      "status": "passed",
+      "queueArtifact": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed creator drop status metrics after overnight lock identified it as missing."
+    },
+    {
+      "command": "npm run check:overnight-wiring-integrity",
+      "status": "passed",
+      "queueArtifact": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed overnight wiring integrity and preserved betaExitReady=false."
+    },
+    {
+      "command": "npm run check:existing-algorithm-refinement",
+      "status": "failed",
+      "queueArtifact": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "blocked_existing_source_issue",
+      "reason": "Existing algorithm lane still reports telemetry classifier disabled/enabled modeling as a source issue; privacy implementation is in-flight-owned and was not modified here."
+    },
+    {
+      "command": "npm run check:user-loading-wallet-mobile-refinement",
+      "status": "passed",
+      "queueArtifact": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed user loading/wallet mobile refinement without touching wallet runtime."
+    },
+    {
+      "command": "npm run check:global-marquee-truncated-titles",
+      "status": "passed",
+      "queueArtifact": "agent/state/global-marquee-truncated-titles.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed global marquee title rollout."
+    },
+    {
+      "command": "npm run check:evidence-capture-status",
+      "status": "passed",
+      "queueArtifact": "agent/state/evidence-capture-status.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed evidence capture status while keeping manual/provider/runtime/admin evidence missing."
+    },
+    {
+      "command": "npm run check:operator-revenue-smoke",
+      "status": "passed",
+      "queueArtifact": "agent/state/operator-revenue-smoke.generated.json",
+      "classification": "safe_automatic_refresh",
+      "reason": "Refreshed operator-confirmed revenue smoke as product signal only; provider gate remains missing_formal_evidence."
+    },
+    {
+      "command": "npm run check:debug-runtime-evidence",
+      "status": "failed",
+      "queueArtifact": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "blocked_formal_evidence",
+      "reason": "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime proof."
+    },
+    {
+      "command": "npm run check:provider-smoke-evidence",
+      "status": "skipped",
+      "queueArtifact": "agent/state/provider-smoke-evidence.generated.json",
+      "classification": "blocked_formal_evidence",
+      "reason": "Provider smoke evidence requires a real formal artifact; this pass cannot generate or clear it."
+    },
+    {
+      "command": "npm run check:runtime-smoke-evidence",
+      "status": "skipped",
+      "queueArtifact": "agent/state/runtime-smoke-evidence.generated.json",
+      "classification": "blocked_formal_evidence",
+      "reason": "Runtime smoke evidence requires deployed runtime proof; this pass cannot generate or clear it."
+    },
+    {
+      "command": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status",
+      "status": "blocked",
+      "queueArtifact": "debug_runtime_evidence",
+      "classification": "blocked_formal_evidence",
+      "reason": "Formal deployed runtime artifact required; source queue cannot generate proof."
+    },
+    {
+      "command": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      "status": "blocked",
+      "queueArtifact": "runtime_provider_smoke",
+      "classification": "blocked_formal_evidence",
+      "reason": "Formal provider artifact required; source queue cannot generate proof."
+    },
+    {
+      "command": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
+      "status": "blocked",
+      "queueArtifact": "admin_truth_sample_evidence",
+      "classification": "blocked_formal_evidence",
+      "reason": "Formal admin truth sample artifact required; source queue cannot generate proof."
+    },
+    {
+      "command": "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
+      "status": "blocked",
+      "queueArtifact": "visual_manual_smoke",
+      "classification": "blocked_formal_evidence",
+      "reason": "Manual visual screenshot/operator artifact required; source queue cannot generate proof."
+    }
+  ],
+  "refreshedArtifacts": [
+    "agent/state/self-healing-refresh-queue.generated.json",
+    "agent/state/refresh-safeguards.generated.json",
+    "agent/state/beta-evidence-gap-map.generated.json",
+    "agent/state/beta-evidence-lane-prep.generated.json",
+    "agent/state/beta-freshness-language.generated.json",
+    "agent/state/source-truth-authority-map.generated.json",
+    "agent/state/final-telemetry-closure-lock.generated.json",
+    "agent/state/mobile-ui-final-lock.generated.json",
+    "agent/state/creator-settings-control-plane.generated.json",
+    "agent/state/creator-drop-status-metrics.generated.json",
+    "agent/state/overnight-wiring-integrity.generated.json",
+    "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+    "agent/state/global-marquee-truncated-titles.generated.json",
+    "agent/state/evidence-capture-status.generated.json",
+    "agent/state/operator-revenue-smoke.generated.json"
+  ],
+  "retiredArtifacts": [],
+  "blockedEntries": [
+    {
+      "command": "npm run check:overnight-final-integration-lock",
+      "status": "failed",
+      "queueArtifact": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "blocked_dirty_or_pr_classification",
+      "reason": "Optional lock failed before this execution report existed because dirty files and open PRs were intentionally unclassified until this pass."
+    },
+    {
+      "command": "npm run check:final-pr-stale-cleanup",
+      "status": "failed",
+      "queueArtifact": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "blocked_dirty_or_pr_classification",
+      "reason": "Optional stale PR cleanup lane still requires this pass's PR and dirty-file classification and does not block source refresh execution."
+    },
+    {
+      "command": "npm run check:existing-algorithm-refinement",
+      "status": "failed",
+      "queueArtifact": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "blocked_existing_source_issue",
+      "reason": "Existing algorithm lane still reports telemetry classifier disabled/enabled modeling as a source issue; privacy implementation is in-flight-owned and was not modified here."
+    },
+    {
+      "command": "npm run check:debug-runtime-evidence",
+      "status": "failed",
+      "queueArtifact": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "blocked_formal_evidence",
+      "reason": "Debug runtime evidence still has non-passing runtime validator results and cannot be converted into deployed runtime proof."
+    },
+    {
+      "command": "npm run check:provider-smoke-evidence",
+      "status": "skipped",
+      "queueArtifact": "agent/state/provider-smoke-evidence.generated.json",
+      "classification": "blocked_formal_evidence",
+      "reason": "Provider smoke evidence requires a real formal artifact; this pass cannot generate or clear it."
+    },
+    {
+      "command": "npm run check:runtime-smoke-evidence",
+      "status": "skipped",
+      "queueArtifact": "agent/state/runtime-smoke-evidence.generated.json",
+      "classification": "blocked_formal_evidence",
+      "reason": "Runtime smoke evidence requires deployed runtime proof; this pass cannot generate or clear it."
+    },
+    {
+      "command": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status",
+      "status": "blocked",
+      "queueArtifact": "debug_runtime_evidence",
+      "classification": "blocked_formal_evidence",
+      "reason": "Formal deployed runtime artifact required; source queue cannot generate proof."
+    },
+    {
+      "command": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      "status": "blocked",
+      "queueArtifact": "runtime_provider_smoke",
+      "classification": "blocked_formal_evidence",
+      "reason": "Formal provider artifact required; source queue cannot generate proof."
+    },
+    {
+      "command": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status",
+      "status": "blocked",
+      "queueArtifact": "admin_truth_sample_evidence",
+      "classification": "blocked_formal_evidence",
+      "reason": "Formal admin truth sample artifact required; source queue cannot generate proof."
+    },
+    {
+      "command": "Attach manual screenshot evidence, then run npm run check:evidence-capture-status",
+      "status": "blocked",
+      "queueArtifact": "visual_manual_smoke",
+      "classification": "blocked_formal_evidence",
+      "reason": "Manual visual screenshot/operator artifact required; source queue cannot generate proof."
+    }
+  ],
+  "staleArtifactsStillTracked": [],
+  "formalGateImpact": {
+    "clearsVisualManual": false,
+    "clearsRuntime": false,
+    "clearsProvider": false,
+    "clearsAdminTruth": false
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected",
+      "reason": "Same-commit public beta release note artifact requested by this batch."
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/beta-freshness-language.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/refresh-safeguards.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/self-healing-refresh-queue.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated artifact refreshed by safe score-impact refresh queue execution."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/beta-freshness-language.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-settings-control-plane.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/debug-runtime-evidence.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/existing-algorithm-refinement.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-wiring-integrity.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/refresh-safeguards.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/score-80-refresh-queue-execution.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/self-healing-refresh-queue.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by queue validators."
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review",
+      "reason": "Scoped package script wiring for the new validator."
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected",
+      "reason": "Same-commit public beta release note artifact requested by this batch."
+    },
+    {
+      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated queue execution validator requested by this pass."
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected",
+      "reason": "Same-commit public beta release note artifact requested by this batch."
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected",
+      "reason": "Same-commit public beta release note artifact requested by this batch."
+    },
+    {
+      "path": "tests/unit/score-80-refresh-queue-execution.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated queue execution unit coverage requested by this pass."
+    }
+  ],
+  "openPrs": [
+    {
+      "number": 278,
+      "title": "Reduce duplicate computation in high-ROI aggregation hotspot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/278",
+      "classification": "deferred_unrelated",
+      "reason": "Analytics performance branch is outside score-impact refresh queue execution."
+    },
+    {
+      "number": 277,
+      "title": "Audit package metadata and source-of-funds truth",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/277",
+      "classification": "deferred_forbidden_surface",
+      "reason": "Package/source-of-funds adjacent branch is deferred by hard-rule scope."
+    }
+  ],
+  "validationFailures": []
+}

@@ -3,8 +3,8 @@
 Artifact: `agent/state/source-truth-authority-map.generated.json`
 Validator: `npm run check:source-truth-authority-map`
 
-Generated: 2026-05-21T01:26:40.399Z
-Current source head: `6a72b1efc5d28cfbaf9809263db7a975a53fc9e3`
+Generated: 2026-05-21T16:15:54.095Z
+Current source head: `2b2e19b60aff5bd93e0a9bde735793dad18dbe52`
 
 ## Summary
 
@@ -70,11 +70,11 @@ None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4
 
 ## Current Head Inventory
 
-- agent/state/source-truth-authority-map.generated.json: `stale` (080ebb115fc9d917f52b2e38108634821a2712ce) - Refresh through the lane validator before treating as current evidence.
-- agent/state/public-beta-score.generated.json: `stale` (979fd59494a844e8e2322cb6790d3607a58b1bc2) - Refresh through the lane validator before treating as current evidence.
-- agent/state/current-beta-exit-status.generated.json: `stale` (979fd59494a844e8e2322cb6790d3607a58b1bc2) - Refresh through the lane validator before treating as current evidence.
+- agent/state/source-truth-authority-map.generated.json: `stale` (6a72b1efc5d28cfbaf9809263db7a975a53fc9e3) - Refresh through the lane validator before treating as current evidence.
+- agent/state/public-beta-score.generated.json: `stale` (f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359) - Refresh through the lane validator before treating as current evidence.
+- agent/state/current-beta-exit-status.generated.json: `stale` (f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359) - Refresh through the lane validator before treating as current evidence.
 - agent/state/final-phase-cleanup-lock.generated.json: `stale` (d0994c9ace05575a22d679cdfc37f8a5877f66d8) - Refresh through the lane validator before treating as current evidence.
-- agent/state/evidence-capture-status.generated.json: `stale` (080ebb115fc9d917f52b2e38108634821a2712ce) - Refresh through the lane validator before treating as current evidence.
+- agent/state/evidence-capture-status.generated.json: `stale` (6a72b1efc5d28cfbaf9809263db7a975a53fc9e3) - Refresh through the lane validator before treating as current evidence.
 - agent/state/user-creator-ui-parity.generated.json: `stale` (080ebb115fc9d917f52b2e38108634821a2712ce) - Refresh through the lane validator before treating as current evidence.
 - agent/state/gumdrop-economy-accuracy.generated.json: `stale` (080ebb115fc9d917f52b2e38108634821a2712ce) - Refresh through the lane validator before treating as current evidence.
 - agent/state/creator-experience-simplification.generated.json: `stale` (d8cde44345b6f0a6f0dd8710ff063356d74a5791) - Refresh through the lane validator before treating as current evidence.
@@ -88,7 +88,7 @@ None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4
 - agent/state/launch-readiness-report.generated.json: `not_required`  - Retired artifact has no required currentHead.
 - agent/state/launch-pr-triage.generated.json: `not_required`  - Retired artifact has no required currentHead.
 - agent/state/repo-spring-cleaning-rewire.generated.json: `not_required` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Retired/archive artifact does not block beta score.
-- agent/state/debug-panel-output-triage.generated.json: `not_required` (979fd59494a844e8e2322cb6790d3607a58b1bc2) - Retired/archive artifact does not block beta score.
+- agent/state/debug-panel-output-triage.generated.json: `not_required` (7d9e42b90fb20bf0672ec4b9a602f183c3050b1d) - Retired/archive artifact does not block beta score.
 
 ## Next Exact Steps
 

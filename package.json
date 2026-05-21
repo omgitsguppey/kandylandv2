@@ -59,6 +59,7 @@
         "check:real-usage-confidence-calibration": "tsx scripts/agent/validate-real-usage-confidence-calibration.ts",
         "check:runtime-smoke-substitute-matrix": "tsx scripts/agent/validate-runtime-smoke-substitute-matrix.ts",
         "check:score-80-reconciliation-lock": "tsx scripts/agent/validate-score-80-reconciliation-lock.ts",
+        "check:score-80-refresh-queue-execution": "tsx scripts/agent/validate-score-80-refresh-queue-execution.ts",
         "check:negative-preferences": "tsx scripts/agent/validate-negative-preferences.ts",
         "check:satisfaction-signal": "tsx scripts/agent/validate-satisfaction-signal.ts",
         "check:search-intent-truth": "tsx scripts/agent/validate-search-intent-truth.ts",

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T01:26:40.399Z",
+  "generatedAtUtc": "2026-05-21T16:15:54.095Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,19 +323,19 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+      "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+      "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+      "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -347,7 +347,7 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+      "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -431,7 +431,7 @@
     },
     {
       "artifact": "agent/state/debug-panel-output-triage.generated.json",
-      "currentHead": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+      "currentHead": "7d9e42b90fb20bf0672ec4b9a602f183c3050b1d",
       "status": "not_required",
       "action": "Retired/archive artifact does not block beta score."
     }

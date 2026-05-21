@@ -1,19 +1,19 @@
 # Final PR Stale Cleanup
 
-Generated: 2026-05-21T01:26:37.556Z
+Generated: 2026-05-21T16:15:45.673Z
 
-Latest code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
+Latest code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
 
 ## Summary
 
-- Open PR count: 0
+- Open PR count: 2
 - PRs handled: 3
 - Integrated and closed: 2
 - Closed superseded: 1
-- Dirty files unclassified: 0
+- Dirty files unclassified: 1
 - Stale generated artifacts: 0
-- Release notes same commit: true
-- Findings: P0=0, P1=0, P2=0
+- Release notes same commit: false
+- Findings: P0=3, P1=0, P2=0
 
 ## PR Cleanup Actions
 
@@ -27,14 +27,20 @@ Latest code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 
 | File | Classification | Reason |
 | --- | --- | --- |
+| agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore | Agent context output should be restored before staging unless explicitly owned. |
 | agent/state/beta-evidence-gap-map.generated.json | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
 | agent/state/beta-evidence-lane-prep.generated.json | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
 | agent/state/beta-freshness-language.generated.json | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
 | agent/state/overnight-final-integration-lock.generated.json | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
+| agent/state/refresh-safeguards.generated.json | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
+| agent/state/self-healing-refresh-queue.generated.json | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
 | docs/agent-truth/beta-evidence-gap-map.md | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
 | docs/agent-truth/beta-evidence-lane-prep.md | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
 | docs/agent-truth/beta-freshness-language.md | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
 | docs/agent-truth/overnight-final-integration-lock.md | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
+| docs/agent-truth/refresh-safeguards.md | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
+| docs/agent-truth/self-healing-refresh-queue.md | current_generated_artifact_to_commit | Focused validator refreshed current generated evidence. |
+| tests/unit/score-80-refresh-queue-execution.spec.ts | unsafe_unknown | File is not in the final PR stale cleanup allowed scope. |
 
 ## Fixes Applied
 

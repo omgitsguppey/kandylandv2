@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T01:26:34.233Z",
+  "generatedAtUtc": "2026-05-21T16:15:31.762Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 4,

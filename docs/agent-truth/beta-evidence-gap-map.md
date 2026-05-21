@@ -1,11 +1,11 @@
 # Beta Evidence Gap Map
 
-Generated: 2026-05-21T01:26:31.836Z
-Latest code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
+Generated: 2026-05-21T16:15:24.391Z
+Latest code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
 
 ## Summary
 
-- Beta score/status: 59.74/Unknown evidence
+- Beta score/status: 77.76/Visual QA required
 - Launch gate status: owner_review
 - Beta exit review ready: false
 

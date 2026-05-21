@@ -1,18 +1,18 @@
 # Existing Algorithm Refinement
 
-Generated: 2026-05-21T01:26:50.674Z
-Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
+Generated: 2026-05-21T16:16:32.982Z
+Current code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
 
 ## Summary
 
 - Algorithms inventoried: 10
 - Refined in place: 3
-- Validated in place: 6
-- Deferred: 1
+- Validated in place: 5
+- Deferred: 2
 - Missing dependencies: 0
-- Duplicate algorithms removed/refactored: 2
+- Duplicate algorithms removed/refactored: 0
 - Protected chat untouched: yes
-- Findings: P0=0, P1=0, P2=1
+- Findings: P0=1, P1=0, P2=2
 
 ## Inventory
 
@@ -43,14 +43,14 @@ Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 ### telemetry_dependency_graph
 
 - File: src/lib/analytics/telemetry-dependency-graph.ts
-- Status: validated
+- Status: deferred
 - Purpose: Map telemetry lanes from producers through ingest, persistence, materializers, and admin evidence.
 - Consumers: scripts/agent/validate-telemetry-dependency-graph.ts, scripts/agent/validate-final-telemetry-closure-lock.ts
 - Inputs: event names, tracking policy, persistence destinations, consumer lanes
 - Outputs: lane graph, cost priority, failure behavior
 - Failure modes: disabled behavior events sneaking through; tracked claims without persistence; product integrity events dropped
-- Stale/conflicting logic: none found
-- Refinement: Validated in place: client tracking policy models enabled/disabled behavior and required integrity events.
+- Stale/conflicting logic: telemetry classifier or graph markers missing
+- Refinement: Deferred to telemetry graph owner because existing markers were incomplete.
 
 ### analytics_materialization_export
 
@@ -143,10 +143,13 @@ Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 
 ## Findings
 
+- P0 src/lib/analytics/client-tracking-policy.ts: Telemetry classifier does not model enabled/disabled state and required product events.
+- P2 src/lib/analytics/telemetry-dependency-graph.ts: telemetry_dependency_graph deferred: Deferred to telemetry graph owner because existing markers were incomplete.
 - P2 docs/agent-truth/creator-dashboard-overview-stats.md: creator_dashboard_overview_source_resolution deferred: Deferred to creator dashboard owner.
 
 ## Dirty File Classifications
 
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
 - agent/state/beta-evidence-lane-prep.generated.json: current_generated_artifact_to_commit
 - agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit
@@ -156,6 +159,8 @@ Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 - agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/overnight-final-integration-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/overnight-wiring-integrity.generated.json: current_generated_artifact_to_commit
+- agent/state/refresh-safeguards.generated.json: current_generated_artifact_to_commit
+- agent/state/self-healing-refresh-queue.generated.json: current_generated_artifact_to_commit
 - agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/beta-evidence-gap-map.md: current_generated_artifact_to_commit
 - docs/agent-truth/beta-evidence-lane-prep.md: current_generated_artifact_to_commit
@@ -166,11 +171,15 @@ Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 - docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
 - docs/agent-truth/overnight-final-integration-lock.md: current_generated_artifact_to_commit
 - docs/agent-truth/overnight-wiring-integrity.md: current_generated_artifact_to_commit
+- docs/agent-truth/refresh-safeguards.md: current_generated_artifact_to_commit
+- docs/agent-truth/self-healing-refresh-queue.md: current_generated_artifact_to_commit
 - docs/agent-truth/source-truth-authority-map.md: current_generated_artifact_to_commit
+- tests/unit/score-80-refresh-queue-execution.spec.ts: real_source_change_needs_review
 
 ## PR Cleanup Actions
 
-- No open PRs were present for algorithm refinement.
+- PR #278 classified as unrelated_preserved.
+- PR #277 classified as unrelated_preserved.
 
 ## Next Fix Order
 

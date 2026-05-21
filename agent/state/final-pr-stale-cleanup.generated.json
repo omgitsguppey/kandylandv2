@@ -1,24 +1,39 @@
 {
-  "generatedAtUtc": "2026-05-21T01:26:37.556Z",
+  "generatedAtUtc": "2026-05-21T16:15:45.673Z",
   "reportKey": "final-pr-stale-cleanup",
-  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
   "summary": {
-    "openPrCount": 0,
+    "openPrCount": 2,
     "prsHandled": 3,
     "prsIntegrated": 2,
     "prsClosedSuperseded": 1,
     "prsPreserved": 0,
-    "prsUnclassified": 0,
-    "dirtyFilesClassified": 8,
-    "dirtyFilesUnclassified": 0,
+    "prsUnclassified": 2,
+    "dirtyFilesClassified": 13,
+    "dirtyFilesUnclassified": 1,
     "staleGeneratedArtifacts": 0,
     "staleGeneratedArtifactsUnclassified": 0,
-    "releaseNotesSameCommit": true,
-    "p0Count": 0,
+    "releaseNotesSameCommit": false,
+    "p0Count": 3,
     "p1Count": 0,
     "p2Count": 0
   },
-  "openPrs": [],
+  "openPrs": [
+    {
+      "mergeStateStatus": "CLEAN",
+      "number": 278,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/278",
+      "classification": ""
+    },
+    {
+      "mergeStateStatus": "CLEAN",
+      "number": 277,
+      "title": "💸 Audit package metadata and source-of-funds truth",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/277",
+      "classification": ""
+    }
+  ],
   "prCleanupActions": [
     {
       "number": 275,
@@ -41,6 +56,11 @@
   ],
   "dirtyFileClassifications": [
     {
+      "file": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore",
+      "reason": "Agent context output should be restored before staging unless explicitly owned."
+    },
+    {
       "file": "agent/state/beta-evidence-gap-map.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Focused validator refreshed current generated evidence."
@@ -57,6 +77,16 @@
     },
     {
       "file": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Focused validator refreshed current generated evidence."
+    },
+    {
+      "file": "agent/state/refresh-safeguards.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Focused validator refreshed current generated evidence."
+    },
+    {
+      "file": "agent/state/self-healing-refresh-queue.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Focused validator refreshed current generated evidence."
     },
@@ -79,6 +109,21 @@
       "file": "docs/agent-truth/overnight-final-integration-lock.md",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Focused validator refreshed current generated evidence."
+    },
+    {
+      "file": "docs/agent-truth/refresh-safeguards.md",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Focused validator refreshed current generated evidence."
+    },
+    {
+      "file": "docs/agent-truth/self-healing-refresh-queue.md",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Focused validator refreshed current generated evidence."
+    },
+    {
+      "file": "tests/unit/score-80-refresh-queue-execution.spec.ts",
+      "classification": "unsafe_unknown",
+      "reason": "File is not in the final PR stale cleanup allowed scope."
     }
   ],
   "staleArtifactFindings": [],

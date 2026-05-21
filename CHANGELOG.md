@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.69 - 2026-05-21
+- Score refresh queue execution
+- Executed safe score-impact refresh queue.
+- Cleared stale artifact drag without changing formal evidence gates.
+- Kept in-flight privacy telemetry work isolated.
+
 ## 1.3.68 - 2026-05-21
 - Behavioral privacy telemetry lock
 - Locked privacy-aware behavioral telemetry.

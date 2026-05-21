@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-05-21T01:26:50.674Z",
+  "generatedAtUtc": "2026-05-21T16:16:32.982Z",
   "reportKey": "existing-algorithm-refinement",
-  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
   "summary": {
     "algorithmsInventoried": 10,
     "algorithmsRefined": 3,
-    "algorithmsValidated": 6,
-    "algorithmsDeferred": 1,
+    "algorithmsValidated": 5,
+    "algorithmsDeferred": 2,
     "missingDependencies": 0,
-    "duplicateAlgorithmsRemoved": 2,
+    "duplicateAlgorithmsRemoved": 0,
     "betaSourceReadySeparatedFromRuntime": true,
     "mobileDensityCanonical": true,
-    "telemetryToggleModeled": true,
+    "telemetryToggleModeled": false,
     "creatorPricingCanonical": true,
     "dropLifecycleCanonical": true,
     "marqueeCanonical": true,
@@ -20,9 +20,9 @@
     "packageScriptReady": true,
     "dirtyFilesClassified": true,
     "openPrsClassified": true,
-    "p0Count": 0,
+    "p0Count": 1,
     "p1Count": 0,
-    "p2Count": 1
+    "p2Count": 2
   },
   "algorithms": [
     {
@@ -107,9 +107,11 @@
         "tracked claims without persistence",
         "product integrity events dropped"
       ],
-      "staleConflictingLogic": [],
-      "status": "validated",
-      "refinement": "Validated in place: client tracking policy models enabled/disabled behavior and required integrity events."
+      "staleConflictingLogic": [
+        "telemetry classifier or graph markers missing"
+      ],
+      "status": "deferred",
+      "refinement": "Deferred to telemetry graph owner because existing markers were incomplete."
     },
     {
       "name": "analytics_materialization_export",
@@ -318,7 +320,13 @@
       "refinement": "Validated existing cost readiness scorer."
     }
   ],
-  "duplicateAlgorithmFindings": [],
+  "duplicateAlgorithmFindings": [
+    {
+      "severity": "p0",
+      "file": "src/lib/analytics/client-tracking-policy.ts",
+      "detail": "Telemetry classifier does not model enabled/disabled state and required product events."
+    }
+  ],
   "staleLogicRemoved": [
     "Removed public creator profile Fan Pass price fallback that bypassed creator-pricing-resolver.",
     "Removed public creator profile call-rate fallback that bypassed creator-pricing-resolver."
@@ -326,11 +334,20 @@
   "deferredFindings": [
     {
       "severity": "p2",
+      "file": "src/lib/analytics/telemetry-dependency-graph.ts",
+      "detail": "telemetry_dependency_graph deferred: Deferred to telemetry graph owner because existing markers were incomplete."
+    },
+    {
+      "severity": "p2",
       "file": "docs/agent-truth/creator-dashboard-overview-stats.md",
       "detail": "creator_dashboard_overview_source_resolution deferred: Deferred to creator dashboard owner."
     }
   ],
   "dirtyFileClassifications": [
+    {
+      "file": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
     {
       "file": "agent/state/beta-evidence-gap-map.generated.json",
       "classification": "current_generated_artifact_to_commit"
@@ -365,6 +382,14 @@
     },
     {
       "file": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/refresh-safeguards.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/self-healing-refresh-queue.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -408,12 +433,25 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "file": "docs/agent-truth/refresh-safeguards.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/self-healing-refresh-queue.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "file": "docs/agent-truth/source-truth-authority-map.md",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "tests/unit/score-80-refresh-queue-execution.spec.ts",
+      "classification": "real_source_change_needs_review"
     }
   ],
   "prCleanupActions": [
-    "No open PRs were present for algorithm refinement."
+    "PR #278 classified as unrelated_preserved.",
+    "PR #277 classified as unrelated_preserved."
   ],
   "fixesApplied": [
     "Refined public creator experience summaries to use the existing creator pricing resolver.",

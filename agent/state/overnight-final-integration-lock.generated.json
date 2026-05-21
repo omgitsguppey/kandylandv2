@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T01:26:29.553Z",
+  "generatedAtUtc": "2026-05-21T16:15:11.032Z",
   "reportKey": "overnight-final-integration-lock",
-  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
   "summary": {
     "wiringIntegrityStatus": "stale",
     "telemetryOrphanStatus": "stale",
@@ -13,10 +13,10 @@
     "mobileScaleSweepStatus": "source_sweep_complete_residuals_recorded",
     "chatUntouched": true,
     "navUntouched": true,
-    "openPrCount": 0,
-    "dirtyFileStatus": "clean",
-    "betaScore": 59.74,
-    "betaStatus": "Unknown evidence",
+    "openPrCount": 2,
+    "dirtyFileStatus": "unclassified:tests/unit/score-80-refresh-queue-execution.spec.ts",
+    "betaScore": 77.76,
+    "betaStatus": "Visual QA required",
     "p0Count": 0,
     "p1Count": 0,
     "p2Count": 9
@@ -26,49 +26,49 @@
       "id": "overnight-wiring-integrity",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/overnight-wiring-integrity.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/overnight-wiring-integrity.generated.json is stale for 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3.",
       "nextAction": "Run the owner check for overnight-wiring-integrity from current HEAD."
     },
     {
       "id": "existing-algorithm-refinement",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/existing-algorithm-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/existing-algorithm-refinement.generated.json is stale for 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3.",
       "nextAction": "Run the owner check for existing-algorithm-refinement from current HEAD."
     },
     {
       "id": "user-loading-wallet-mobile-refinement",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "nextAction": "Run the owner check for user-loading-wallet-mobile-refinement from current HEAD."
     },
     {
       "id": "creator-drop-status-metrics",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/creator-drop-status-metrics.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/creator-drop-status-metrics.generated.json is stale for 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "nextAction": "Run the owner check for creator-drop-status-metrics from current HEAD."
     },
     {
       "id": "mobile-ui-final-lock",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 28c5d750b636cdeb9698392e44804c8187865180.",
       "nextAction": "Run the owner check for mobile-ui-final-lock from current HEAD."
     },
     {
       "id": "final-telemetry-closure-lock",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
     },
     {
       "id": "creator-settings-control-plane",
       "status": "stale",
       "required": false,
-      "detail": "agent/state/creator-settings-control-plane.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/creator-settings-control-plane.generated.json is stale for 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3.",
       "nextAction": "Run the owner check for creator-settings-control-plane from current HEAD."
     },
     {
@@ -96,21 +96,21 @@
       "id": "global-marquee-truncated-titles",
       "status": "stale",
       "required": false,
-      "detail": "agent/state/global-marquee-truncated-titles.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/global-marquee-truncated-titles.generated.json is stale for 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3.",
       "nextAction": "Run the owner check for global-marquee-truncated-titles from current HEAD."
     },
     {
       "id": "public-beta-score",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/public-beta-score.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2.",
+      "detail": "agent/state/public-beta-score.generated.json is stale for f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359.",
       "nextAction": "Run the owner check for public-beta-score from current HEAD."
     },
     {
       "id": "current-beta-exit-status",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2.",
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359.",
       "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     }
   ],
@@ -120,49 +120,49 @@
     {
       "severity": "P2",
       "id": "overnight-wiring-integrity",
-      "detail": "agent/state/overnight-wiring-integrity.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/overnight-wiring-integrity.generated.json is stale for 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3.",
       "nextAction": "Run the owner check for overnight-wiring-integrity from current HEAD."
     },
     {
       "severity": "P2",
       "id": "existing-algorithm-refinement",
-      "detail": "agent/state/existing-algorithm-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/existing-algorithm-refinement.generated.json is stale for 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3.",
       "nextAction": "Run the owner check for existing-algorithm-refinement from current HEAD."
     },
     {
       "severity": "P2",
       "id": "user-loading-wallet-mobile-refinement",
-      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "nextAction": "Run the owner check for user-loading-wallet-mobile-refinement from current HEAD."
     },
     {
       "severity": "P2",
       "id": "creator-drop-status-metrics",
-      "detail": "agent/state/creator-drop-status-metrics.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/creator-drop-status-metrics.generated.json is stale for 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "nextAction": "Run the owner check for creator-drop-status-metrics from current HEAD."
     },
     {
       "severity": "P2",
       "id": "mobile-ui-final-lock",
-      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 28c5d750b636cdeb9698392e44804c8187865180.",
       "nextAction": "Run the owner check for mobile-ui-final-lock from current HEAD."
     },
     {
       "severity": "P2",
       "id": "final-telemetry-closure-lock",
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
     },
     {
       "severity": "P2",
       "id": "public-beta-score",
-      "detail": "agent/state/public-beta-score.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2.",
+      "detail": "agent/state/public-beta-score.generated.json is stale for f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359.",
       "nextAction": "Run the owner check for public-beta-score from current HEAD."
     },
     {
       "severity": "P2",
       "id": "current-beta-exit-status",
-      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2.",
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359.",
       "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     },
     {
@@ -178,14 +178,54 @@
     "runtime smoke evidence remains required before beta exit.",
     "admin truth sample evidence remains required before beta exit."
   ],
-  "prCleanupActions": [],
+  "prCleanupActions": [
+    "Preserved PR #278: preserved_unrelated_admin_analytics_optimization_outside_final_lock_scope.",
+    "Preserved PR #277: ."
+  ],
   "nextExactSteps": [
     "Do not mark beta exit ready until formal manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence are attached.",
     "Keep PR #274 and #275 preserved unless a human explicitly promotes those unrelated admin/governance changes.",
     "For future mobile scale work, fix one owner-scoped surface at a time and keep chat/navigation protected.",
     "Run npm run check:overnight-final-integration-lock after any follow-up lock refresh."
   ],
-  "changedFiles": [],
-  "untrackedFiles": [],
-  "openPrs": []
+  "changedFiles": [
+    "agent/context/optimized-task-context.generated.json",
+    "agent/state/refresh-safeguards.generated.json",
+    "agent/state/self-healing-refresh-queue.generated.json",
+    "docs/agent-truth/refresh-safeguards.md",
+    "docs/agent-truth/self-healing-refresh-queue.md"
+  ],
+  "untrackedFiles": [
+    "tests/unit/score-80-refresh-queue-execution.spec.ts"
+  ],
+  "openPrs": [
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "mergeStateStatus": "CLEAN",
+      "number": 278,
+      "title": "Reduce duplicate computation in high-ROI aggregation hotspot",
+      "updatedAt": "2026-05-21T06:09:58Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/278",
+      "classification": "preserved_unrelated_admin_analytics_optimization_outside_final_lock_scope"
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "mergeStateStatus": "CLEAN",
+      "number": 277,
+      "title": "Audit package metadata and source-of-funds truth",
+      "updatedAt": "2026-05-21T05:38:51Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/277",
+      "classification": ""
+    }
+  ]
 }

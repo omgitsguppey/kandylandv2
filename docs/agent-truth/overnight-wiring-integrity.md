@@ -1,7 +1,7 @@
 # Overnight Wiring Integrity
 
-Generated: 2026-05-21T01:26:48.321Z
-Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
+Generated: 2026-05-21T16:16:24.214Z
+Current code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
 
 ## Summary
 
@@ -170,6 +170,7 @@ Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 
 ## Dirty File Classifications
 
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
 - agent/state/beta-evidence-lane-prep.generated.json: current_generated_artifact_to_commit
 - agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit
@@ -178,6 +179,8 @@ Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 - agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/overnight-final-integration-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/refresh-safeguards.generated.json: current_generated_artifact_to_commit
+- agent/state/self-healing-refresh-queue.generated.json: current_generated_artifact_to_commit
 - agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/beta-evidence-gap-map.md: current_generated_artifact_to_commit
 - docs/agent-truth/beta-evidence-lane-prep.md: current_generated_artifact_to_commit
@@ -187,11 +190,15 @@ Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 - docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
 - docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
 - docs/agent-truth/overnight-final-integration-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/refresh-safeguards.md: current_generated_artifact_to_commit
+- docs/agent-truth/self-healing-refresh-queue.md: current_generated_artifact_to_commit
 - docs/agent-truth/source-truth-authority-map.md: current_generated_artifact_to_commit
+- tests/unit/score-80-refresh-queue-execution.spec.ts: real_source_change_needs_review
 
 ## PR Cleanup Actions
 
-- No open PRs were present at start/end for overnight wiring integrity.
+- PR #278 classified as unrelated_preserved.
+- PR #277 classified as unrelated_preserved.
 
 ## Next Fix Order
 
