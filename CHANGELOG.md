@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.51 - 2026-05-21
+- Legacy data normalization plan
+- Added dry-run legacy data normalization from March 1.
+- Mapped old behavior and analytics records into current schemas with confidence labels.
+- Prevented legacy unknown data from becoming current truth.
+
 ## 1.3.50 - 2026-05-21
 - Behavior math verification
 - Verified behavioral tracking math for guests, users, and linked sessions.

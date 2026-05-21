@@ -1,0 +1,307 @@
+{
+  "generatedAt": "2026-05-21T04:53:42.780Z",
+  "source": "local_static_validator",
+  "overallStatus": "live",
+  "overallScore": 100,
+  "productionReads": false,
+  "liveBackfill": false,
+  "mutationsAllowed": false,
+  "reportKey": "march-first-legacy-normalization",
+  "plan": {
+    "mode": "dry_run_only",
+    "recoveryStartDate": "2026-03-01",
+    "readsProduction": false,
+    "liveBackfill": false,
+    "mutationsAllowed": false,
+    "records": [
+      {
+        "legacyId": "fixture_guest_session",
+        "legacyDomain": "guest_sessions",
+        "legacySource": "analytics_guest_batches",
+        "timestampMs": 1772323200000,
+        "fields": {
+          "session_id": "session-1",
+          "anonymous_visitor_id": "guest-1",
+          "route": "/drops"
+        },
+        "currentCategory": "guest_session",
+        "mappedFields": {
+          "sessionId": "session-1",
+          "anonymousVisitorId": "guest-1",
+          "route": "/drops"
+        },
+        "confidence": "probable",
+        "duplicateRisk": "medium",
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      },
+      {
+        "legacyId": "fixture_user_session",
+        "legacyDomain": "user_sessions",
+        "legacySource": "analytics_sessions",
+        "timestampMs": 1772323260000,
+        "fields": {
+          "session_id": "session-2",
+          "user_id": "user-1",
+          "route": "/dashboard"
+        },
+        "currentCategory": "user_session",
+        "mappedFields": {
+          "sessionId": "session-2",
+          "userId": "user-1",
+          "route": "/dashboard"
+        },
+        "confidence": "probable",
+        "duplicateRisk": "medium",
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      },
+      {
+        "legacyId": "fixture_identity_link",
+        "legacyDomain": "identity_links",
+        "legacySource": "analytics_identity_links",
+        "timestampMs": 1772409600000,
+        "fields": {
+          "user_id": "user-1",
+          "anonymous_visitor_id": "guest-1",
+          "session_id": "session-1"
+        },
+        "currentCategory": "identity_link",
+        "mappedFields": {
+          "anonymousVisitorId": "guest-1",
+          "userId": "user-1",
+          "sessionId": "session-1"
+        },
+        "confidence": "probable",
+        "duplicateRisk": "medium",
+        "action": "link_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      },
+      {
+        "legacyId": "fixture_unknown_behavior",
+        "legacyDomain": "behavior_events",
+        "legacySource": "analytics_event_facts",
+        "timestampMs": 1772496000000,
+        "fields": {
+          "eventName": "unknown_legacy"
+        },
+        "currentCategory": "unknown",
+        "mappedFields": {
+          "eventName": "unknown_legacy"
+        },
+        "confidence": "unknown",
+        "duplicateRisk": "high",
+        "action": "archive_only",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "unknown_legacy_not_current_truth",
+        "evidenceReason": "Unknown legacy evidence cannot become current truth or known user behavior."
+      },
+      {
+        "legacyId": "fixture_watch",
+        "legacyDomain": "watch_sessions",
+        "legacySource": "analytics_watch_sessions",
+        "timestampMs": 1772582400000,
+        "fields": {
+          "watch_session_id": "watch-1",
+          "session_id": "session-1",
+          "drop_id": "drop-1"
+        },
+        "currentCategory": "watch_session",
+        "mappedFields": {
+          "watchSessionId": "watch-1",
+          "sessionId": "session-1",
+          "dropId": "drop-1"
+        },
+        "confidence": "weak",
+        "duplicateRisk": "low",
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      },
+      {
+        "legacyId": "fixture_drop",
+        "legacyDomain": "drops",
+        "legacySource": "drops",
+        "timestampMs": 1772668800000,
+        "fields": {
+          "drop_id": "drop-1",
+          "slug": "legacy-drop"
+        },
+        "currentCategory": "drop",
+        "mappedFields": {
+          "dropId": "drop-1",
+          "slug": "legacy-drop"
+        },
+        "confidence": "probable",
+        "duplicateRisk": "medium",
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      },
+      {
+        "legacyId": "fixture_creator_profile",
+        "legacyDomain": "creator_profile_views",
+        "legacySource": "analytics_event_facts",
+        "timestampMs": 1772755200000,
+        "fields": {
+          "creator_id": "creator-1",
+          "session_id": "session-1",
+          "user_id": "user-1"
+        },
+        "currentCategory": "creator_profile_view",
+        "mappedFields": {
+          "targetCreatorId": "creator-1",
+          "sessionId": "session-1",
+          "userId": "user-1"
+        },
+        "confidence": "probable",
+        "duplicateRisk": "medium",
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      },
+      {
+        "legacyId": "fixture_fan_pass",
+        "legacyDomain": "fan_pass_subscriptions",
+        "legacySource": "creator_subscriptions",
+        "timestampMs": 1772841600000,
+        "fields": {
+          "subscription_id": "sub-1",
+          "creator_id": "creator-1",
+          "user_id": "user-1"
+        },
+        "currentCategory": "fan_pass_subscription",
+        "mappedFields": {
+          "subscriptionId": "sub-1",
+          "targetCreatorId": "creator-1",
+          "userId": "user-1"
+        },
+        "confidence": "weak",
+        "duplicateRisk": "low",
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      },
+      {
+        "legacyId": "fixture_broadcast",
+        "legacyDomain": "creator_broadcasts",
+        "legacySource": "creator_broadcasts",
+        "timestampMs": 1772928000000,
+        "fields": {
+          "broadcast_id": "broadcast-1",
+          "creator_id": "creator-1"
+        },
+        "currentCategory": "creator_broadcast",
+        "mappedFields": {
+          "broadcastId": "broadcast-1",
+          "actorCreatorId": "creator-1"
+        },
+        "confidence": "weak",
+        "duplicateRisk": "low",
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      },
+      {
+        "legacyId": "fixture_purchase_ledger",
+        "legacyDomain": "purchases_gumdrop_ledger_references",
+        "legacySource": "transactions",
+        "timestampMs": 1773014400000,
+        "fields": {
+          "transaction_id": "txn-1",
+          "user_id": "user-1",
+          "gumdrops_amount": 100
+        },
+        "currentCategory": "purchase_ledger_reference",
+        "mappedFields": {
+          "transactionId": "txn-1",
+          "userId": "user-1",
+          "gumDropsAmount": 100
+        },
+        "confidence": "weak",
+        "duplicateRisk": "high",
+        "action": "needs_manual_review",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "purchase_gumdrop_ledger_read_only",
+        "evidenceReason": "Purchase and GumDrop ledger references are classified read-only and require manual review before any future migration."
+      },
+      {
+        "legacyId": "fixture_admin_truth",
+        "legacyDomain": "admin_truth_samples",
+        "legacySource": "admin_debug",
+        "timestampMs": 1773100800000,
+        "fields": {
+          "admin_id": "admin-1",
+          "route": "/admin/debug",
+          "sample_id": "sample-1"
+        },
+        "currentCategory": "admin_truth_sample",
+        "mappedFields": {
+          "actorAdminId": "admin-1",
+          "route": "/admin/debug",
+          "sampleId": "sample-1"
+        },
+        "confidence": "probable",
+        "duplicateRisk": "medium",
+        "action": "archive_only",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Legacy evidence is mapped as a dry-run candidate with confidence and duplicate-risk labels."
+      }
+    ],
+    "debugBacklogIssues": [
+      {
+        "id": "march-first-legacy-normalization-evidence-refresh",
+        "source": "evidence",
+        "fixClass": "evidence_refresh",
+        "sourceRoute": "legacy://march-first-normalization",
+        "owner": "analytics",
+        "severity": "p1",
+        "exactNextAction": "Review generated dry-run candidates, refresh source evidence locally, and keep unknown legacy rows archived until identity improves."
+      },
+      {
+        "id": "march-first-ledger-readonly-manual-review",
+        "source": "admin_truth",
+        "fixClass": "manual_required",
+        "sourceRoute": "legacy://march-first-normalization",
+        "owner": "analytics",
+        "severity": "p1",
+        "exactNextAction": "Keep purchase and GumDrop ledger references read-only; require a separate reviewed migration before any ledger write plan."
+      }
+    ],
+    "summary": {
+      "inputRecords": 11,
+      "inWindowRecords": 11,
+      "exactCount": 0,
+      "probableCount": 6,
+      "weakCount": 4,
+      "unknownCount": 1,
+      "highDuplicateRiskCount": 2,
+      "currentTruthEligibleCount": 0,
+      "readOnlyLedgerReferenceCount": 1
+    }
+  },
+  "findings": []
+}

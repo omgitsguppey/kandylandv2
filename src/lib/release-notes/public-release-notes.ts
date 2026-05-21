@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.50",
-  "betaReleaseCounter": 350,
+  "currentVersion": "1.3.51",
+  "betaReleaseCounter": 351,
   "channel": "beta",
-  "generatedAt": "2026-05-21T04:45:00.000Z",
-  "generatedAtUtc": "2026-05-21T04:45:00.000Z",
+  "generatedAt": "2026-05-21T04:55:00.000Z",
+  "generatedAtUtc": "2026-05-21T04:55:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.51",
+      "previousVersion": "1.3.50",
+      "betaReleaseCounter": 351,
+      "previousBetaReleaseCounter": 350,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(legacy): plan march first normalization",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T04:55:00.000Z",
+      "generatedAt": "2026-05-21T04:55:00.000Z",
+      "committedAtUtc": "2026-05-21T04:55:00.000Z",
+      "generatedAtUtc": "2026-05-21T04:55:00.000Z",
+      "updatedAtUtc": "2026-05-21T04:55:00.000Z",
+      "category": "Improved",
+      "title": "Legacy data normalization plan",
+      "summary": "Added dry-run legacy data normalization from March 1.",
+      "userFacingTitle": "Legacy data normalization plan",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added dry-run legacy data normalization from March 1.",
+        "Mapped old behavior and analytics records into current schemas with confidence labels.",
+        "Prevented legacy unknown data from becoming current truth."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the March-first legacy normalization contract, dry-run plan builder, generated report, validator, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Legacy analytics"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-legacy-history-reconciliation.generated.json",
+        "agent/state/march-first-legacy-normalization.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/analytics-legacy-history-reconciliation.md",
+        "docs/agent-truth/march-first-legacy-normalization.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-march-first-legacy-normalization.ts",
+        "src/lib/legacy/legacy-normalization-contract.ts",
+        "src/lib/legacy/march-first-recovery-plan.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/march-first-legacy-normalization.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.50",
       "previousVersion": "1.3.49",
