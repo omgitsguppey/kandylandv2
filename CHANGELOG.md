@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.53 - 2026-05-21
+- Real usage confidence scoring
+- Added real usage confidence scoring from validated source signals.
+- Recognized operator-confirmed product usage without faking formal proof.
+- Kept manual and provider gates separate from usage confidence.
+
 ## 1.3.52 - 2026-05-21
 - Monolith and orphan metric registry
 - Added monolith and orphan metric registry.

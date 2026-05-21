@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T04:50:54.098Z",
+  "generatedAtUtc": "2026-05-21T05:13:13.679Z",
   "reportKey": "telemetry-dependency-graph",
-  "currentHead": "7c61feaf8898924149f1cde5dc11278782ef8b9d",
+  "currentHead": "2838df27ca051d090019b1833c17e8e3ab1980bb",
   "summary": {
     "lanesMapped": 14,
     "priorityLanesClosed": true,

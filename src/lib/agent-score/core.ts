@@ -135,6 +135,7 @@ export type PublicBetaEvidenceInput = {
   debugRuntimeEvidenceArtifact?: PublicBetaEvidenceArtifact;
   targetedBehaviorEvidence?: PublicBetaEvidenceArtifact;
   sourceBackedRuntimeConfidenceEvidence?: PublicBetaEvidenceArtifact;
+  realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
   visualManualEvidence?: PublicBetaEvidenceArtifact;
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
   runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
@@ -400,6 +401,13 @@ export function evidenceArtifactEvidence(artifact: PublicBetaEvidenceArtifact | 
     `artifactDetail=${normalizeTechnicalFreshnessTerms(artifact.detail)}`,
     ...artifact.evidence,
   ]));
+}
+
+function evidenceArtifactNumber(artifact: PublicBetaEvidenceArtifact | undefined, key: string) {
+  const match = artifact?.evidence.find((entry) => entry.includes(`${key}=`));
+  if (!match) return undefined;
+  const value = Number(match.slice(match.indexOf(`${key}=`) + key.length + 1));
+  return Number.isFinite(value) ? value : undefined;
 }
 
 function hasDebugEvidence(debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>) {
@@ -693,9 +701,29 @@ export function buildPublicBetaEvidenceGates(input: {
     && sourceBackedRuntimeConfidenceStatus.includes("source_ready")
     ? sourceBackedRuntimeConfidenceQuality.partialCredit * 100
     : 0;
+  const realUsageConfidenceStatus = String(evidenceArtifactStatus(
+    evidence.realUsageConfidenceEvidence,
+    "missing_or_unknown",
+  ));
+  const realUsageConfidenceQuality = resolveEvidenceQuality({
+    artifact: evidence.realUsageConfidenceEvidence,
+    context: {
+      currentHead,
+      lane: "real_usage_confidence",
+      requiredForExit: false,
+      requiresRuntimeProof: true,
+    },
+  });
+  const realUsageConfidenceCredit = realUsageConfidenceQuality.quality === "source_ready"
+    && realUsageConfidenceStatus.includes("source_ready")
+    ? Math.max(
+        realUsageConfidenceQuality.partialCredit * 100,
+        clamp(evidenceArtifactNumber(evidence.realUsageConfidenceEvidence, "confidenceScore") ?? 0, 0, 100),
+      )
+    : 0;
   const runtimeProviderRuntimeCredit = runtimeProviderSmokePassed
     ? 100
-    : sourceBackedRuntimeConfidenceCredit;
+    : Math.max(sourceBackedRuntimeConfidenceCredit, realUsageConfidenceCredit);
   const runtimeProviderEvidenceWithSourceConfidence = Array.from(new Set([
     ...runtimeProviderSmokeEvidence,
     ...(
@@ -704,6 +732,15 @@ export function buildPublicBetaEvidenceGates(input: {
             `sourceBackedRuntimeConfidenceStatus=${sourceBackedRuntimeConfidenceStatus}`,
             `sourceBackedRuntimeConfidenceCredit=${roundScore(sourceBackedRuntimeConfidenceCredit)}`,
             ...evidenceArtifactEvidence(evidence.sourceBackedRuntimeConfidenceEvidence),
+          ]
+        : []
+    ),
+    ...(
+      evidence.realUsageConfidenceEvidence
+        ? [
+            `realUsageConfidenceStatus=${realUsageConfidenceStatus}`,
+            `realUsageConfidenceCredit=${roundScore(realUsageConfidenceCredit)}`,
+            ...evidenceArtifactEvidence(evidence.realUsageConfidenceEvidence),
           ]
         : []
     ),
@@ -845,6 +882,7 @@ export function buildPublicBetaEvidenceGates(input: {
       recommendedAction: "Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata.",
       quality: targetedQuality,
       gateRequiredForExit: false,
+      sourceCredit: Math.max(targetedQuality.partialCredit * 100, realUsageConfidenceCredit),
       runtimeCredit: 0,
     }),
     buildEvidenceGate({

@@ -1,13 +1,72 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.52",
-  "betaReleaseCounter": 352,
+  "currentVersion": "1.3.53",
+  "betaReleaseCounter": 353,
   "channel": "beta",
-  "generatedAt": "2026-05-21T05:10:00.000Z",
-  "generatedAtUtc": "2026-05-21T05:10:00.000Z",
+  "generatedAt": "2026-05-21T05:25:00.000Z",
+  "generatedAtUtc": "2026-05-21T05:25:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.53",
+      "previousVersion": "1.3.52",
+      "betaReleaseCounter": 353,
+      "previousBetaReleaseCounter": 352,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): add real usage confidence",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T05:25:00.000Z",
+      "generatedAt": "2026-05-21T05:25:00.000Z",
+      "committedAtUtc": "2026-05-21T05:25:00.000Z",
+      "generatedAtUtc": "2026-05-21T05:25:00.000Z",
+      "updatedAtUtc": "2026-05-21T05:25:00.000Z",
+      "category": "Improved",
+      "title": "Real usage confidence scoring",
+      "summary": "Added real usage confidence scoring from validated source signals.",
+      "userFacingTitle": "Real usage confidence scoring",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added real usage confidence scoring from validated source signals.",
+        "Recognized operator-confirmed product usage without faking formal proof.",
+        "Kept manual and provider gates separate from usage confidence."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the source-only real usage confidence engine, generated evidence artifact, validator, score integration, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Beta scoring"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/behavior-math-verification.generated.json",
+        "agent/state/operator-revenue-smoke.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/real-usage-confidence.generated.json",
+        "agent/state/telemetry-dependency-graph.generated.json",
+        "docs/agent-truth/behavior-math-verification.md",
+        "docs/agent-truth/operator-revenue-smoke.md",
+        "docs/agent-truth/real-usage-confidence.md",
+        "docs/agent-truth/telemetry-dependency-graph.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-real-usage-confidence.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/analytics/real-usage-confidence-engine.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/real-usage-confidence.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.52",
       "previousVersion": "1.3.51",
@@ -1308,58 +1367,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/ui/mobile-scale-contract.ts",
         "tests/unit/existing-algorithm-refinement.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.28",
-      "previousVersion": "1.3.27",
-      "betaReleaseCounter": 328,
-      "previousBetaReleaseCounter": 327,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(repo): close overnight wiring gaps",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T05:30:40.497Z",
-      "generatedAt": "2026-05-20T05:30:40.497Z",
-      "committedAtUtc": "2026-05-20T05:30:40.497Z",
-      "generatedAtUtc": "2026-05-20T05:30:40.497Z",
-      "updatedAtUtc": "2026-05-20T05:30:40.497Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Checked recent creator, UI, and telemetry wiring for stale or orphaned logic.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Checked recent creator, UI, and telemetry wiring for stale or orphaned logic.",
-        "Cleaned up disconnected routes, telemetry lanes, and parity conflicts.",
-        "Kept chat unchanged while tightening product surface wiring."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted overnight wiring integrity pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Creator tools",
-        "Admin tools",
-        "Analytics",
-        "My KandyDrops"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/overnight-wiring-integrity.generated.json",
-        "docs/agent-truth/overnight-wiring-integrity.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-overnight-wiring-integrity.ts",
-        "src/app/dashboard/viewer/ViewerClient.tsx",
-        "src/components/Dashboard/DailyTasksModule.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/overnight-wiring-integrity.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

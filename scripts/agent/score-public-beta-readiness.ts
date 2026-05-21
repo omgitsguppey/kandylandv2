@@ -38,6 +38,7 @@ const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.genera
 const OPERATOR_REVENUE_SMOKE_PATH = "agent/state/operator-revenue-smoke.generated.json";
 const RUNTIME_SMOKE_EVIDENCE_PATH = "agent/state/runtime-smoke-evidence.generated.json";
 const SOURCE_BACKED_RUNTIME_CONFIDENCE_PATH = "agent/state/source-backed-runtime-confidence.generated.json";
+const REAL_USAGE_CONFIDENCE_PATH = "agent/state/real-usage-confidence.generated.json";
 const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generated.json";
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const ADMIN_TRUTH_SOURCE_SAMPLE_PATH = "agent/state/admin-truth-source-sample.generated.json";
@@ -401,6 +402,15 @@ function readSourceBackedRuntimeConfidenceEvidence(root: string): PublicBetaEvid
   );
 }
 
+function readRealUsageConfidenceEvidence(root: string): PublicBetaEvidenceArtifact {
+  return readEvidenceArtifact(
+    root,
+    REAL_USAGE_CONFIDENCE_PATH,
+    "missing_or_unknown",
+    "No real usage confidence artifact was supplied.",
+  );
+}
+
 function readDebugRuntimeEvidence(root: string): PublicBetaEvidenceArtifact {
   return readEvidenceArtifact(
     root,
@@ -471,6 +481,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       debugRuntimeEvidenceArtifact: readDebugRuntimeEvidence(root),
       targetedBehaviorEvidence: readTargetedBehaviorEvidence(root),
       sourceBackedRuntimeConfidenceEvidence: readSourceBackedRuntimeConfidenceEvidence(root),
+      realUsageConfidenceEvidence: readRealUsageConfidenceEvidence(root),
       visualManualEvidence: readVisualManualEvidence(root),
       providerSmokeEvidence: readProviderSmokeEvidence(root),
       runtimeSmokeEvidence: readRuntimeSmokeEvidence(root),
