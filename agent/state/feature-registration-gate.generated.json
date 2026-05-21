@@ -1,8 +1,8 @@
 {
   "reportKey": "feature-registration-gate",
   "registryVersion": "2026.05.feature-registration.1",
-  "generatedAtUtc": "2026-05-21T19:03:23.893Z",
-  "currentHead": "71a910fcbbe06296e4ffd189192543233af30cb6",
+  "generatedAtUtc": "2026-05-21T19:15:26.840Z",
+  "currentHead": "7843e781eba0e455bafaa2bec52ad69f7f1c0c3d",
   "status": "pass",
   "features": [
     {

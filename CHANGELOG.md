@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.75 - 2026-05-21
+- Guest and user activity verification
+- Added guest and user activity verification engine.
+- Used consent-aware activity paths to reduce manual verification.
+- Flagged features with activity but missing telemetry or materializers.
+
 ## 1.3.74 - 2026-05-21
 - Feature registration gate
 - Added feature registration gate for telemetry, debug, and score tracking.
