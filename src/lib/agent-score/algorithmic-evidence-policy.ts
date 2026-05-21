@@ -32,6 +32,7 @@ export type AlgorithmicEvidencePolicyInput = {
   runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
   debugRuntimeEvidence?: PublicBetaEvidenceArtifact;
+  runtimeSmokeSubstituteMatrixEvidence?: PublicBetaEvidenceArtifact;
   sourceBackedRuntimeConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceCalibrationEvidence?: PublicBetaEvidenceArtifact;
@@ -176,6 +177,8 @@ export function buildAlgorithmicEvidencePolicyReport(
   const sourceBackedRuntimeScore = numberFromEvidence(input.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
     ?? numberFromEvidence(input.sourceBackedRuntimeConfidenceEvidence, "sourceBackedRuntimeConfidence")
     ?? (hasSourceReady(input.sourceBackedRuntimeConfidenceEvidence) ? 55 : 0);
+  const runtimeSmokeSubstituteMatrixScore = numberFromEvidence(input.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeHealthCredit")
+    ?? (hasSourceReady(input.runtimeSmokeSubstituteMatrixEvidence) ? 55 : 0);
   const realUsageScore = numberFromEvidence(input.realUsageConfidenceEvidence, "confidenceScore")
     ?? (hasSourceReady(input.realUsageConfidenceEvidence) ? 55 : 0);
   const realUsageCalibrationScore = numberFromEvidence(input.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit")
@@ -185,6 +188,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     ? 100
     : Math.max(
         sourceBackedRuntimeScore,
+        runtimeSmokeSubstituteMatrixScore,
         realUsageScore,
         realUsageCalibrationScore,
         hasSourceReady(input.debugRuntimeEvidence) ? 55 : 0,
@@ -209,12 +213,14 @@ export function buildAlgorithmicEvidencePolicyReport(
     score: runtimeSourceScore,
     sourcePath: [
       pathOf(input.debugRuntimeEvidence),
+      pathOf(input.runtimeSmokeSubstituteMatrixEvidence),
       pathOf(input.sourceBackedRuntimeConfidenceEvidence),
       pathOf(input.realUsageConfidenceEvidence),
       pathOf(input.realUsageConfidenceCalibrationEvidence),
     ].filter((path) => path !== MISSING_ARTIFACT_PATH).join(",") || MISSING_ARTIFACT_PATH,
     sourceStatus: [
       statusOf(input.debugRuntimeEvidence),
+      statusOf(input.runtimeSmokeSubstituteMatrixEvidence),
       statusOf(input.sourceBackedRuntimeConfidenceEvidence),
       statusOf(input.realUsageConfidenceEvidence),
       statusOf(input.realUsageConfidenceCalibrationEvidence),

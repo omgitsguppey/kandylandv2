@@ -1,11 +1,88 @@
 {
-  "currentVersion": "1.3.60",
-  "betaReleaseCounter": 360,
+  "currentVersion": "1.3.61",
+  "betaReleaseCounter": 361,
   "channel": "beta",
-  "generatedAt": "2026-05-21T13:48:57.505Z",
-  "generatedAtUtc": "2026-05-21T13:48:57.505Z",
+  "generatedAt": "2026-05-21T14:06:44.755Z",
+  "generatedAtUtc": "2026-05-21T14:06:44.755Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.61",
+      "previousVersion": "1.3.60",
+      "betaReleaseCounter": 361,
+      "previousBetaReleaseCounter": 360,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(runtime): map smoke substitutes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T14:06:44.755Z",
+      "generatedAt": "2026-05-21T14:06:44.755Z",
+      "committedAtUtc": "2026-05-21T14:06:44.755Z",
+      "generatedAtUtc": "2026-05-21T14:06:44.755Z",
+      "updatedAtUtc": "2026-05-21T14:06:44.755Z",
+      "category": "Improved",
+      "title": "Runtime smoke substitute matrix",
+      "summary": "Mapped runtime smoke checks to source, debug, telemetry, manual, and formal evidence lanes.",
+      "userFacingTitle": "Runtime smoke substitute matrix",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Mapped runtime smoke checks to source, debug, telemetry, manual, and formal evidence lanes.",
+        "Reduced manual testing scope to rows that need UI or deployed runtime confirmation.",
+        "Kept deployed runtime smoke as a formal gate until a real artifact exists."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the runtime smoke substitute matrix report, validator, beta score integration, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Beta scoring",
+        "Runtime evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/algorithmic-evidence-policy.generated.json",
+        "agent/state/creator-drop-status-metrics.generated.json",
+        "agent/state/debug-panel-output-triage.generated.json",
+        "agent/state/debug-runtime-evidence.generated.json",
+        "agent/state/final-telemetry-closure-lock.generated.json",
+        "agent/state/mobile-loading-hydration-stability.generated.json",
+        "agent/state/operator-revenue-smoke.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/real-usage-confidence-calibration.generated.json",
+        "agent/state/runtime-smoke-substitute-matrix.generated.json",
+        "agent/state/runtime-watch-time-v2.generated.json",
+        "agent/state/source-backed-runtime-confidence.generated.json",
+        "agent/state/telemetry-admin-debug-truth.generated.json",
+        "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+        "docs/agent-truth/algorithmic-evidence-policy.md",
+        "docs/agent-truth/creator-drop-status-metrics.md",
+        "docs/agent-truth/debug-runtime-evidence.md",
+        "docs/agent-truth/final-telemetry-closure-lock.md",
+        "docs/agent-truth/mobile-loading-hydration-stability.md",
+        "docs/agent-truth/operator-revenue-smoke.md",
+        "docs/agent-truth/runtime-smoke-substitute-matrix.md",
+        "docs/agent-truth/runtime-watch-time-v2.md",
+        "docs/agent-truth/source-backed-runtime-confidence.md",
+        "docs/agent-truth/telemetry-admin-debug-truth.md",
+        "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-algorithmic-evidence-policy.ts",
+        "scripts/agent/validate-runtime-smoke-substitute-matrix.ts",
+        "src/lib/agent-score/algorithmic-evidence-policy.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/runtime/runtime-smoke-substitute-matrix.ts",
+        "tests/unit/runtime-smoke-substitute-matrix.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.60",
       "previousVersion": "1.3.59",
@@ -1293,66 +1370,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/final-morning-beta-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.36",
-      "previousVersion": "1.3.35",
-      "betaReleaseCounter": 336,
-      "previousBetaReleaseCounter": 335,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): prepare evidence lanes",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T21:52:05.083Z",
-      "generatedAt": "2026-05-20T21:52:05.083Z",
-      "committedAtUtc": "2026-05-20T21:52:05.083Z",
-      "generatedAtUtc": "2026-05-20T21:52:05.083Z",
-      "updatedAtUtc": "2026-05-20T21:52:05.083Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Prepared beta evidence lanes with clearer statuses and next steps.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Prepared beta evidence lanes with clearer statuses and next steps.",
-        "Recognized operator-confirmed revenue without faking provider proof.",
-        "Kept beta exit gates strict and understandable."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted beta evidence lane prep pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Evidence capture",
-        "Operator revenue smoke"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/beta-evidence-lane-prep.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/operator-revenue-smoke.generated.json",
-        "agent/state/beta-evidence-gap-map.generated.json",
-        "agent/state/refresh-safeguards.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "docs/agent-truth/beta-evidence-lane-prep.md",
-        "docs/agent-truth/evidence-capture-status.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-beta-evidence-lane-prep.ts",
-        "scripts/agent/validate-evidence-capture-status.ts",
-        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-        "src/lib/agent-score/refresh-registry.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/beta-evidence-lane-prep.spec.ts",
-        "tests/unit/refresh-safeguards.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

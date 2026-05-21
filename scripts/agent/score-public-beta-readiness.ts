@@ -38,6 +38,7 @@ const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.genera
 const OPERATOR_REVENUE_SMOKE_PATH = "agent/state/operator-revenue-smoke.generated.json";
 const RUNTIME_SMOKE_EVIDENCE_PATH = "agent/state/runtime-smoke-evidence.generated.json";
 const SOURCE_BACKED_RUNTIME_CONFIDENCE_PATH = "agent/state/source-backed-runtime-confidence.generated.json";
+const RUNTIME_SMOKE_SUBSTITUTE_MATRIX_PATH = "agent/state/runtime-smoke-substitute-matrix.generated.json";
 const REAL_USAGE_CONFIDENCE_PATH = "agent/state/real-usage-confidence.generated.json";
 const REAL_USAGE_CONFIDENCE_CALIBRATION_PATH = "agent/state/real-usage-confidence-calibration.generated.json";
 const BEHAVIOR_MATH_VERIFICATION_PATH = "agent/state/behavior-math-verification.generated.json";
@@ -404,6 +405,15 @@ function readSourceBackedRuntimeConfidenceEvidence(root: string): PublicBetaEvid
   );
 }
 
+function readRuntimeSmokeSubstituteMatrixEvidence(root: string): PublicBetaEvidenceArtifact {
+  return readEvidenceArtifact(
+    root,
+    RUNTIME_SMOKE_SUBSTITUTE_MATRIX_PATH,
+    "missing_or_unknown",
+    "No runtime smoke substitute matrix artifact was supplied.",
+  );
+}
+
 function readRealUsageConfidenceEvidence(root: string): PublicBetaEvidenceArtifact {
   return readEvidenceArtifact(
     root,
@@ -499,6 +509,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
     evidence: {
       requiredReports: collectGeneratedReportEvidence(root),
       debugRuntimeEvidenceArtifact: readDebugRuntimeEvidence(root),
+      runtimeSmokeSubstituteMatrixEvidence: readRuntimeSmokeSubstituteMatrixEvidence(root),
       targetedBehaviorEvidence: readTargetedBehaviorEvidence(root),
       sourceBackedRuntimeConfidenceEvidence: readSourceBackedRuntimeConfidenceEvidence(root),
       realUsageConfidenceEvidence: readRealUsageConfidenceEvidence(root),

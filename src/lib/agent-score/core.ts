@@ -134,6 +134,7 @@ export type PublicBetaEvidenceInput = {
   requiredReports?: PublicBetaGeneratedReportEvidence[];
   debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
   debugRuntimeEvidenceArtifact?: PublicBetaEvidenceArtifact;
+  runtimeSmokeSubstituteMatrixEvidence?: PublicBetaEvidenceArtifact;
   targetedBehaviorEvidence?: PublicBetaEvidenceArtifact;
   sourceBackedRuntimeConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
@@ -745,9 +746,29 @@ export function buildPublicBetaEvidenceGates(input: {
         realUsageCalibrationCredit,
       )
     : realUsageCalibrationCredit;
+  const runtimeSmokeSubstituteMatrixStatus = String(evidenceArtifactStatus(
+    evidence.runtimeSmokeSubstituteMatrixEvidence,
+    "missing_or_unknown",
+  ));
+  const runtimeSmokeSubstituteMatrixQuality = resolveEvidenceQuality({
+    artifact: evidence.runtimeSmokeSubstituteMatrixEvidence,
+    context: {
+      currentHead,
+      lane: "runtime_smoke_substitute_matrix",
+      requiredForExit: false,
+      requiresRuntimeProof: true,
+    },
+  });
+  const runtimeSmokeSubstituteMatrixCredit = runtimeSmokeSubstituteMatrixQuality.quality === "source_ready"
+    && runtimeSmokeSubstituteMatrixStatus.includes("source_ready")
+    ? Math.max(
+        runtimeSmokeSubstituteMatrixQuality.partialCredit * 100,
+        clamp(evidenceArtifactNumber(evidence.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeHealthCredit") ?? 0, 0, 100),
+      )
+    : 0;
   const runtimeProviderRuntimeCredit = runtimeProviderSmokePassed
     ? 100
-    : Math.max(sourceBackedRuntimeConfidenceCredit, realUsageConfidenceCredit);
+    : Math.max(sourceBackedRuntimeConfidenceCredit, realUsageConfidenceCredit, runtimeSmokeSubstituteMatrixCredit);
   const runtimeProviderEvidenceWithSourceConfidence = Array.from(new Set([
     ...runtimeProviderSmokeEvidence,
     ...(
@@ -774,6 +795,15 @@ export function buildPublicBetaEvidenceGates(input: {
             `realUsageConfidenceCalibrationStatus=${realUsageCalibrationStatus}`,
             `realUsageConfidenceCalibrationCredit=${roundScore(realUsageCalibrationCredit)}`,
             ...evidenceArtifactEvidence(evidence.realUsageConfidenceCalibrationEvidence),
+          ]
+        : []
+    ),
+    ...(
+      evidence.runtimeSmokeSubstituteMatrixEvidence
+        ? [
+            `runtimeSmokeSubstituteMatrixStatus=${runtimeSmokeSubstituteMatrixStatus}`,
+            `runtimeSmokeSubstituteMatrixCredit=${roundScore(runtimeSmokeSubstituteMatrixCredit)}`,
+            ...evidenceArtifactEvidence(evidence.runtimeSmokeSubstituteMatrixEvidence),
           ]
         : []
     ),
@@ -893,6 +923,7 @@ export function buildPublicBetaEvidenceGates(input: {
     runtimeSmokeEvidence: evidence.runtimeSmokeEvidence,
     providerSmokeEvidence: evidence.providerSmokeEvidence,
     debugRuntimeEvidence: evidence.debugRuntimeEvidenceArtifact,
+    runtimeSmokeSubstituteMatrixEvidence: evidence.runtimeSmokeSubstituteMatrixEvidence,
     sourceBackedRuntimeConfidenceEvidence: evidence.sourceBackedRuntimeConfidenceEvidence,
     realUsageConfidenceEvidence: evidence.realUsageConfidenceEvidence,
     realUsageConfidenceCalibrationEvidence: evidence.realUsageConfidenceCalibrationEvidence,

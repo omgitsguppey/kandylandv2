@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-21T13:30:35.590Z",
-  "currentHead": "1834e7481d4c0a87fa36f188e6a84548cc489a51",
+  "generatedAtUtc": "2026-05-21T14:07:12.523Z",
+  "currentHead": "7d9e42b90fb20bf0672ec4b9a602f183c3050b1d",
   "debugPanelSourceSnapshotStatus": "checked_clean",
   "routeDiagnosticsStatus": "source_ready",
   "runtimeWarningStoreStatus": "source_ready",
@@ -27,7 +27,7 @@
     }
   ],
   "reportKey": "debug-runtime-evidence",
-  "sourceCommit": "1834e7481d4c0a87fa36f188e6a84548cc489a51",
+  "sourceCommit": "7d9e42b90fb20bf0672ec4b9a602f183c3050b1d",
   "status": "source_ready_debug_runtime_evidence",
   "passed": true,
   "launchGateImpact": "does_not_clear_deployed_runtime_smoke",

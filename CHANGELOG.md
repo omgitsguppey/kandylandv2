@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.61 - 2026-05-21
+- Runtime smoke substitute matrix
+- Mapped runtime smoke checks to source, debug, telemetry, manual, and formal evidence lanes.
+- Reduced manual testing scope to rows that need UI or deployed runtime confirmation.
+- Kept deployed runtime smoke as a formal gate until a real artifact exists.
+
 ## 1.3.60 - 2026-05-21
 - Real usage confidence calibration
 - Calibrated real usage confidence from behavioral and operator-confirmed signals.

@@ -6,7 +6,7 @@ Manual screenshot evidence is scoped to UI visual/layout confirmation. It must n
 
 ## Coverage
 
-- runtime_source_gate: partial; score=100; source=`agent/state/debug-runtime-evidence.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke
+- runtime_source_gate: partial; score=100; source=`agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke
 - telemetry_gate: partial; score=92; source=`agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; telemetry and behavior math can satisfy non-UI confidence without becoming visual proof
 - admin_truth_gate: partial; score=55; source=`agent/state/admin-truth-source-sample.generated.json`; admin source sample earns partial confidence but does not clear formal admin runtime sample
 - provider_gate: partial; score=40; source=`agent/state/operator-revenue-smoke.generated.json`; operator-confirmed revenue smoke is partial product confidence only

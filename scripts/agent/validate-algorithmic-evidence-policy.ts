@@ -177,6 +177,12 @@ function main() {
       "missing_or_unknown",
       "No source-backed debug/runtime evidence artifact was supplied.",
     ),
+    runtimeSmokeSubstituteMatrixEvidence: readArtifact(
+      root,
+      "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "missing_or_unknown",
+      "No runtime smoke substitute matrix artifact was supplied.",
+    ),
     sourceBackedRuntimeConfidenceEvidence: readArtifact(
       root,
       "agent/state/source-backed-runtime-confidence.generated.json",
@@ -235,6 +241,12 @@ function main() {
         "agent/state/debug-runtime-evidence.generated.json",
         "missing_or_unknown",
         "No source-backed debug/runtime evidence artifact was supplied.",
+      ),
+      runtimeSmokeSubstituteMatrixEvidence: readArtifact(
+        root,
+        "agent/state/runtime-smoke-substitute-matrix.generated.json",
+        "missing_or_unknown",
+        "No runtime smoke substitute matrix artifact was supplied.",
       ),
       realUsageConfidenceEvidence: readArtifact(
         root,
