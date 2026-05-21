@@ -2,16 +2,16 @@
 
 Authority: structured source-backed backlog generated from debug panel, beta score, route diagnostics, telemetry/admin truth, cost, and evidence freshness lanes.
 
-Generated: 2026-05-21T04:09:32.677Z
-Current HEAD: 43ac3a1bcab1803949ba85f3893a68090dcfa1e4
-Score: 41.92 -> 63.33
+Generated: 2026-05-21T05:23:49.777Z
+Current HEAD: f97634cf0ccd718b0b77966d08f77258ae01044a
+Score: 41.92 -> 65.8
 Readiness: Visual QA required
 
 ## Summary
 
-- Total backlog items: 90
+- Total backlog items: 89
 - Open P0/P1 items: 20
-- Evidence refreshable: 50
+- Evidence refreshable: 49
 - Source-fixable: 20
 - Manual required: 5
 - Stale retired: 15

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.54 - 2026-05-21
+- Debug recovery playbooks
+- Added debug-driven recovery playbooks for high-impact issue categories.
+- Mapped triggers to exact files, commands, fixes, validation, and forbidden actions.
+- Kept formal evidence gates separate from source-only recovery.
+
 ## 1.3.53 - 2026-05-21
 - Real usage confidence scoring
 - Added real usage confidence scoring from validated source signals.

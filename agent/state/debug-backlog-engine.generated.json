@@ -1,23 +1,23 @@
 {
-  "generatedAtUtc": "2026-05-21T04:09:32.677Z",
+  "generatedAtUtc": "2026-05-21T05:23:49.777Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "43ac3a1bcab1803949ba85f3893a68090dcfa1e4",
+  "currentHead": "f97634cf0ccd718b0b77966d08f77258ae01044a",
   "oldScore": 41.92,
-  "newScore": 63.33,
+  "newScore": 65.8,
   "publicBetaStatus": "warning",
   "readinessStatus": "Visual QA required",
   "summary": {
-    "total": 90,
+    "total": 89,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 20,
-      "p2": 70,
+      "p2": 69,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 66,
+      "open": 65,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
@@ -33,12 +33,12 @@
       "admin_truth": 2,
       "mobile_ui": 0,
       "cost": 5,
-      "evidence": 26,
+      "evidence": 25,
       "runtime_warning": 1
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 50,
+      "evidence_refresh": 49,
       "stale_retire": 15,
       "algorithm_refine": 0,
       "route_fix": 9,
@@ -47,14 +47,14 @@
       "manual_required": 5,
       "no_action": 0
     },
-    "open": 66,
+    "open": 65,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 4,
     "blockedExternal": 5,
     "staleRetired": 15,
     "sourceFixable": 20,
-    "evidenceRefreshable": 50,
+    "evidenceRefreshable": 49,
     "manualRequired": 5,
     "p0P1Open": 20
   },
@@ -119,7 +119,7 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 18.33,
+      "scoreImpact": 30.67,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -2037,29 +2037,6 @@
       "exactNextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
       "sourceMessage": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
       "refreshCommand": "npm run check:mobile-ui-final-lock"
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
-      "title": "Refresh stale artifact: agent/state/operator-revenue-smoke.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/operator-revenue-smoke.generated.json"
-      ],
-      "sourceRoute": "agent/state/operator-revenue-smoke.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "sourceMessage": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:operator-revenue-smoke"
     },
     {
       "id": "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json",

@@ -90,6 +90,7 @@
         "check:debug-runtime-evidence": "tsx scripts/agent/validate-debug-runtime-evidence.ts",
         "check:debug-backlog-engine": "tsx scripts/agent/validate-debug-backlog-engine.ts",
         "check:ai-debug-critic": "tsx scripts/agent/validate-ai-debug-critic.ts",
+        "check:debug-recovery-playbooks": "tsx scripts/agent/validate-debug-recovery-playbooks.ts",
         "check:admin-truth-source-sample": "tsx scripts/agent/validate-admin-truth-source-sample.ts",
         "check:score-80-cost-readiness": "tsx scripts/agent/validate-score-80-cost-readiness.ts",
         "check:score-80-path-lock": "tsx scripts/agent/validate-score-80-path-lock.ts",
