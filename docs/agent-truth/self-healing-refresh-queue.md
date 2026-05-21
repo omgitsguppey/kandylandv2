@@ -7,7 +7,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Queue entries: 54
 - Automatic entries: 50
 - Blocked entries: 4
-- Estimated score impact: 141.66
+- Estimated score impact: 135.66
 
 ## Queue
 
@@ -31,17 +31,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 3. agent/state/public-beta-score.generated.json
-
-- Owner: beta
-- Stale reason: stale
-- Refresh command: `npm run check:beta-score`
-- Score impact estimate: 4
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 4. agent/state/final-launch-readiness-report.generated.json
+### 3. agent/state/final-launch-readiness-report.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -51,7 +41,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 5. agent/state/launch-pr-triage.generated.json
+### 4. agent/state/launch-pr-triage.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -61,7 +51,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 6. agent/state/launch-readiness-report.generated.json
+### 5. agent/state/launch-readiness-report.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -71,7 +61,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 7. agent/state/provider-smoke-evidence.generated.json
+### 6. agent/state/provider-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: stale
@@ -81,7 +71,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 8. agent/state/runtime-smoke-evidence.generated.json
+### 7. agent/state/runtime-smoke-evidence.generated.json
 
 - Owner: runtime
 - Stale reason: stale
@@ -91,57 +81,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 9. agent/state/overnight-final-integration-lock.generated.json
-
-- Owner: repo
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:overnight-final-integration-lock`
-- Score impact estimate: 2
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 10. agent/state/beta-evidence-gap-map.generated.json
-
-- Owner: beta
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:beta-evidence-gap-map`
-- Score impact estimate: 1.8
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 11. agent/state/beta-evidence-lane-prep.generated.json
-
-- Owner: beta
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:beta-evidence-lane-prep`
-- Score impact estimate: 1.6
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 12. agent/state/beta-freshness-language.generated.json
-
-- Owner: beta
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:beta-freshness-language`
-- Score impact estimate: 1.4
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 13. agent/state/final-pr-stale-cleanup.generated.json
-
-- Owner: repo
-- Stale reason: stale_source_version
-- Refresh command: `npm run check:final-pr-stale-cleanup`
-- Score impact estimate: 1.2
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 14. agent/state/admin-truth.generated.json
+### 8. agent/state/admin-truth.generated.json
 
 - Owner: admin
 - Stale reason: missing
@@ -151,27 +91,47 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 15. agent/state/current-beta-exit-status.generated.json
+### 9. agent/state/beta-freshness-language.generated.json
 
 - Owner: beta
-- Stale reason: stale
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:beta-freshness-language`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 10. agent/state/current-beta-exit-status.generated.json
+
+- Owner: beta
+- Stale reason: stale_source_version
 - Refresh command: `npm run check:current-beta-exit-status`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 16. agent/state/creator-drop-status-metrics.generated.json
+### 11. agent/state/public-beta-score.generated.json
+
+- Owner: beta
+- Stale reason: stale_source_version
+- Refresh command: `npm run score:beta && npm run check:beta-score`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 12. agent/state/creator-drop-status-metrics.generated.json
 
 - Owner: creator
-- Stale reason: stale
+- Stale reason: stale_source_version
 - Refresh command: `npm run check:creator-drop-status-metrics`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 17. agent/state/creator-lane-debug-parity.generated.json
+### 13. agent/state/creator-lane-debug-parity.generated.json
 
 - Owner: creator
 - Stale reason: stale
@@ -181,7 +141,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 18. agent/state/creator-lane-legacy-truth-inventory.generated.json
+### 14. agent/state/creator-lane-legacy-truth-inventory.generated.json
 
 - Owner: creator
 - Stale reason: stale
@@ -191,37 +151,97 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 19. agent/state/creator-settings-control-plane.generated.json
+### 15. agent/state/creator-settings-control-plane.generated.json
 
 - Owner: creator
-- Stale reason: stale
+- Stale reason: stale_source_version
 - Refresh command: `npm run check:creator-settings-control-plane`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 20. agent/state/mobile-ui-final-lock.generated.json
+### 16. agent/state/beta-evidence-gap-map.generated.json
+
+- Owner: evidence
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:beta-evidence-gap-map`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 17. agent/state/beta-evidence-lane-prep.generated.json
+
+- Owner: evidence
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:beta-evidence-lane-prep`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 18. agent/state/evidence-capture-status.generated.json
+
+- Owner: evidence
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:evidence-capture-status`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 19. agent/state/operator-revenue-smoke.generated.json
+
+- Owner: evidence
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:operator-revenue-smoke`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 20. agent/state/source-truth-authority-map.generated.json
+
+- Owner: evidence
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:source-truth-authority-map`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 21. agent/state/global-marquee-truncated-titles.generated.json
 
 - Owner: mobile
-- Stale reason: stale
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:global-marquee-truncated-titles`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 22. agent/state/mobile-ui-final-lock.generated.json
+
+- Owner: mobile
+- Stale reason: stale_source_version
 - Refresh command: `npm run check:mobile-ui-final-lock`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 21. agent/state/user-loading-wallet-mobile-refinement.generated.json
+### 23. agent/state/user-loading-wallet-mobile-refinement.generated.json
 
 - Owner: mobile
-- Stale reason: stale
+- Stale reason: stale_source_version
 - Refresh command: `npm run check:user-loading-wallet-mobile-refinement`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 22. agent/state/analytics-rewire-phase-one.generated.json
+### 24. agent/state/analytics-rewire-phase-one.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -231,7 +251,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 23. agent/state/cloudrun-sql-bigquery-guardrails.generated.json
+### 25. agent/state/cloudrun-sql-bigquery-guardrails.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -241,7 +261,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 24. agent/state/codebase-hardening.generated.json
+### 26. agent/state/codebase-hardening.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -251,7 +271,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 25. agent/state/content-protection.generated.json
+### 27. agent/state/content-protection.generated.json
 
 - Owner: repo
 - Stale reason: missing
@@ -261,7 +281,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 26. agent/state/debug-evidence-pipeline.generated.json
+### 28. agent/state/debug-evidence-pipeline.generated.json
 
 - Owner: repo
 - Stale reason: missing
@@ -271,7 +291,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 27. agent/state/device-layout-score.generated.json
+### 29. agent/state/device-layout-score.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -281,7 +301,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 28. agent/state/device-ui-dry-audit.generated.json
+### 30. agent/state/device-ui-dry-audit.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -291,37 +311,27 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 29. agent/state/evidence-capture-status.generated.json
+### 31. agent/state/existing-algorithm-refinement.generated.json
 
 - Owner: repo
-- Stale reason: stale
-- Refresh command: `npm run check:evidence-capture-status`
-- Score impact estimate: 1
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 30. agent/state/existing-algorithm-refinement.generated.json
-
-- Owner: repo
-- Stale reason: stale
+- Stale reason: stale_source_version
 - Refresh command: `npm run check:existing-algorithm-refinement`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 31. agent/state/global-marquee-truncated-titles.generated.json
+### 32. agent/state/final-pr-stale-cleanup.generated.json
 
 - Owner: repo
-- Stale reason: stale
-- Refresh command: `npm run check:global-marquee-truncated-titles`
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:final-pr-stale-cleanup`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 32. agent/state/google-cost-bleed.generated.json
+### 33. agent/state/google-cost-bleed.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -331,7 +341,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 33. agent/state/gumdrop-economy.generated.json
+### 34. agent/state/gumdrop-economy.generated.json
 
 - Owner: repo
 - Stale reason: missing
@@ -341,7 +351,7 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 34. agent/state/hydration-performance.generated.json
+### 35. agent/state/hydration-performance.generated.json
 
 - Owner: repo
 - Stale reason: stale
@@ -351,21 +361,11 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 35. agent/state/lost-data-recovery-dry-run.generated.json
+### 36. agent/state/lost-data-recovery-dry-run.generated.json
 
 - Owner: repo
 - Stale reason: stale
 - Refresh command: `npm run check:lost-data-recovery-dry-run`
-- Score impact estimate: 1
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 36. agent/state/operator-revenue-smoke.generated.json
-
-- Owner: repo
-- Stale reason: stale
-- Refresh command: `npm run check:operator-revenue-smoke`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
@@ -381,31 +381,31 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Blocked reason: none
 - Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
 
-### 38. agent/state/overnight-wiring-integrity.generated.json
+### 38. agent/state/overnight-final-integration-lock.generated.json
 
 - Owner: repo
-- Stale reason: stale
+- Stale reason: stale_source_version
+- Refresh command: `npm run check:overnight-final-integration-lock`
+- Score impact estimate: 1
+- Can run automatically: true
+- Blocked reason: none
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
+
+### 39. agent/state/overnight-wiring-integrity.generated.json
+
+- Owner: repo
+- Stale reason: stale_source_version
 - Refresh command: `npm run check:overnight-wiring-integrity`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
-### 39. agent/state/sitewide-image-optimization.generated.json
+### 40. agent/state/sitewide-image-optimization.generated.json
 
 - Owner: repo
 - Stale reason: missing
 - Refresh command: `npm run check:sitewide-image-optimization`
-- Score impact estimate: 1
-- Can run automatically: true
-- Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
-
-### 40. agent/state/source-truth-authority-map.generated.json
-
-- Owner: repo
-- Stale reason: stale
-- Refresh command: `npm run check:source-truth-authority-map`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
@@ -494,12 +494,12 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 ### 49. agent/state/final-telemetry-closure-lock.generated.json
 
 - Owner: telemetry
-- Stale reason: stale
+- Stale reason: stale_source_version
 - Refresh command: `npm run check:final-telemetry-closure-lock`
 - Score impact estimate: 1
 - Can run automatically: true
 - Blocked reason: none
-- Expected outcome: Refresh score-impact artifact and reduce freshness/regression drag if validation passes.
+- Expected outcome: Refresh generated artifact from current source and update debug/beta freshness state.
 
 ### 50. agent/state/telemetry-parity-score.generated.json
 
@@ -518,8 +518,8 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Refresh command: `Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status`
 - Score impact estimate: 16.33
 - Can run automatically: false
-- Blocked reason: Formal evidence artifact required; source queue cannot generate proof.
-- Expected outcome: Remain blocked until a human attaches the required formal artifact.
+- Blocked reason: blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.
+- Expected outcome: Remain blocked until a human attaches the deployed runtime smoke artifact.
 
 ### 52. runtime_provider_smoke
 
@@ -528,8 +528,8 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Refresh command: `Attach formal provider smoke evidence, then run npm run check:evidence-capture-status`
 - Score impact estimate: 16.33
 - Can run automatically: false
-- Blocked reason: Formal evidence artifact required; source queue cannot generate proof.
-- Expected outcome: Remain blocked until a human attaches the required formal artifact.
+- Blocked reason: blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.
+- Expected outcome: Remain blocked until a human attaches the formal provider smoke artifact.
 
 ### 53. admin_truth_sample_evidence
 
@@ -538,8 +538,8 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Refresh command: `Attach admin truth sample evidence, then run npm run check:evidence-capture-status`
 - Score impact estimate: 12
 - Can run automatically: false
-- Blocked reason: Formal evidence artifact required; source queue cannot generate proof.
-- Expected outcome: Remain blocked until a human attaches the required formal artifact.
+- Blocked reason: blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.
+- Expected outcome: Remain blocked until a human attaches the admin truth sample artifact.
 
 ### 54. visual_manual_smoke
 
@@ -548,5 +548,5 @@ Status: source-only stale artifact refresh queue. It orders registered refresh c
 - Refresh command: `Attach manual screenshot evidence, then run npm run check:evidence-capture-status`
 - Score impact estimate: 12
 - Can run automatically: false
-- Blocked reason: Formal evidence artifact required; source queue cannot generate proof.
-- Expected outcome: Remain blocked until a human attaches the required formal artifact.
+- Blocked reason: blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.
+- Expected outcome: Remain blocked until a human attaches the visual/manual smoke artifact.

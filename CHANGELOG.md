@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.71 - 2026-05-21
+- Blocked refresh queue resolver
+- Resolved blocked score refresh queue entries.
+- Separated refreshable stale reports from formal evidence blockers.
+- Retired obsolete score artifacts where safe.
+
 ## 1.3.70 - 2026-05-21
 - Source cost review closure
 - Refined cost owner-review lanes using source guard evidence.

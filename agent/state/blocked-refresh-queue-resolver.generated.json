@@ -1,0 +1,186 @@
+{
+  "generatedAtUtc": "2026-05-21T17:04:21.968Z",
+  "reportKey": "blocked-refresh-queue-resolver",
+  "currentHead": "f77a5c417449e51c3ec56b14fcaeef2ac546f95c",
+  "status": "pass",
+  "oldScore": 73.33,
+  "newScore": 73.33,
+  "blockedCount": 4,
+  "resolvedEntries": [
+    {
+      "artifact": "debug_runtime_evidence",
+      "owner": "runtime",
+      "scoreImpactEstimate": 16.33,
+      "classification": "blocked_formal_evidence",
+      "originalBlockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
+      "resolvedBlockedReason": "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.",
+      "nextAction": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status.",
+      "canRunAutomatically": false,
+      "formalGate": "runtime",
+      "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
+    },
+    {
+      "artifact": "runtime_provider_smoke",
+      "owner": "runtime",
+      "scoreImpactEstimate": 16.33,
+      "classification": "blocked_formal_evidence",
+      "originalBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.",
+      "nextAction": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status.",
+      "canRunAutomatically": false,
+      "formalGate": "provider",
+      "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
+    },
+    {
+      "artifact": "admin_truth_sample_evidence",
+      "owner": "admin",
+      "scoreImpactEstimate": 12,
+      "classification": "blocked_formal_evidence",
+      "originalBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.",
+      "nextAction": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status.",
+      "canRunAutomatically": false,
+      "formalGate": "admin_truth",
+      "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
+    },
+    {
+      "artifact": "visual_manual_smoke",
+      "owner": "manual",
+      "scoreImpactEstimate": 12,
+      "classification": "blocked_formal_evidence",
+      "originalBlockedReason": "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.",
+      "resolvedBlockedReason": "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.",
+      "nextAction": "Attach manual screenshot/operator evidence, then run npm run check:evidence-capture-status.",
+      "canRunAutomatically": false,
+      "formalGate": "visual_manual",
+      "scoreTreatment": "blocked_formal_evidence_not_auto_refreshable"
+    }
+  ],
+  "refreshableBlockedEntries": [],
+  "obsoleteEntriesRetired": [],
+  "formalGateImpact": {
+    "clearsVisualManual": false,
+    "clearsRuntime": false,
+    "clearsProvider": false,
+    "clearsAdminTruth": false
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected",
+      "reason": "Same-commit public beta release note artifact requested by this batch."
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated doctrine context refreshed by required task startup."
+    },
+    {
+      "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/refresh-safeguards.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "agent/state/self-healing-refresh-queue.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by this resolver."
+    },
+    {
+      "path": "docs/agent-truth/blocked-refresh-queue-resolver.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
+      "path": "docs/agent-truth/refresh-safeguards.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
+      "path": "docs/agent-truth/self-healing-refresh-queue.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Agent-truth documentation for the blocked refresh resolver."
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review",
+      "reason": "Scoped queue/source wiring needed to replace generic blocked reasons."
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected",
+      "reason": "Same-commit public beta release note artifact requested by this batch."
+    },
+    {
+      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Dedicated validator requested by this batch."
+    },
+    {
+      "path": "src/lib/agent-score/self-healing-refresh-queue.ts",
+      "classification": "real_source_change_needs_review",
+      "reason": "Scoped queue/source wiring needed to replace generic blocked reasons."
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected",
+      "reason": "Same-commit public beta release note artifact requested by this batch."
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected",
+      "reason": "Same-commit public beta release note artifact requested by this batch."
+    },
+    {
+      "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated unit coverage requested by this batch."
+    }
+  ],
+  "openPrs": [
+    {
+      "number": 278,
+      "title": "Reduce duplicate computation in high-ROI aggregation hotspot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/278",
+      "classification": "deferred_unrelated",
+      "reason": "Aggregation hotspot work is outside blocked refresh queue resolver scope."
+    },
+    {
+      "number": 277,
+      "title": "Audit package metadata and source-of-funds truth",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/277",
+      "classification": "deferred_forbidden_surface",
+      "reason": "Payment/source-of-funds adjacent branch is deferred by hard-rule scope."
+    }
+  ],
+  "validationFailures": []
+}

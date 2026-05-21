@@ -84,6 +84,38 @@ function isFormalEvidenceRefresh(command: string, artifact: string, status = "")
   return FORMAL_EVIDENCE_PATTERN.test(`${command} ${artifact} ${status}`);
 }
 
+function formalEvidenceBlockedReason(artifact: string) {
+  if (artifact === "debug_runtime_evidence") {
+    return "blocked_formal_evidence: deployed runtime smoke artifact required; source/debug evidence is partial only and cannot clear formal runtime gate.";
+  }
+  if (artifact === "runtime_provider_smoke") {
+    return "blocked_formal_evidence: formal provider smoke artifact required; operator-confirmed usage remains partial confidence only.";
+  }
+  if (artifact === "admin_truth_sample_evidence") {
+    return "blocked_formal_evidence: first-party admin truth sample artifact required; source samples remain partial confidence only.";
+  }
+  if (artifact === "visual_manual_smoke") {
+    return "blocked_formal_evidence: targeted visual/manual screenshot or operator artifact required for layout-sensitive UI only.";
+  }
+  return "blocked_formal_evidence: formal artifact required; source queue cannot generate proof.";
+}
+
+function formalEvidenceExpectedOutcome(artifact: string) {
+  if (artifact === "debug_runtime_evidence") {
+    return "Remain blocked until a human attaches the deployed runtime smoke artifact.";
+  }
+  if (artifact === "runtime_provider_smoke") {
+    return "Remain blocked until a human attaches the formal provider smoke artifact.";
+  }
+  if (artifact === "admin_truth_sample_evidence") {
+    return "Remain blocked until a human attaches the admin truth sample artifact.";
+  }
+  if (artifact === "visual_manual_smoke") {
+    return "Remain blocked until a human attaches the visual/manual smoke artifact.";
+  }
+  return "Remain blocked until a human attaches the required formal artifact.";
+}
+
 function isForbiddenCommand(command: string) {
   return FORBIDDEN_COMMAND_PATTERN.test(command);
 }
@@ -111,7 +143,7 @@ function buildRefreshPlanEntries(
         dependencyOrder: 0,
         canRunAutomatically: Boolean(command) && !formal && !isForbiddenCommand(command),
         blockedReason: formal
-          ? "Formal evidence artifact required; source queue cannot generate proof."
+          ? formalEvidenceBlockedReason(entry.artifactPath)
           : isForbiddenCommand(command)
             ? "Forbidden command is not allowed in the self-healing queue."
             : command
@@ -149,7 +181,7 @@ function buildScoreImpactEntries(
         dependencyOrder: 0,
         canRunAutomatically: Boolean(command) && !formal && !isForbiddenCommand(command),
         blockedReason: formal
-          ? "Formal evidence artifact required; source queue cannot generate proof."
+          ? formalEvidenceBlockedReason(item.id)
           : isForbiddenCommand(command)
             ? "Forbidden command is not allowed in the self-healing queue."
             : command
@@ -157,7 +189,7 @@ function buildScoreImpactEntries(
               : "No registered refresh command.",
         source: "score_impact",
         expectedOutcome: formal
-          ? "Remain blocked until a human attaches the required formal artifact."
+          ? formalEvidenceExpectedOutcome(item.id)
           : "Refresh score-impact artifact and reduce freshness/regression drag if validation passes.",
       };
     });
