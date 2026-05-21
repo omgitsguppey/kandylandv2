@@ -5,6 +5,10 @@ import { fileURLToPath } from "node:url";
 
 import type { PublicBetaCostReadiness } from "../../src/lib/agent-score/core";
 import { scoreCostReadiness } from "../../src/lib/agent-score/evidence-quality";
+import {
+  classifyCostOwnerReviewLanes,
+  costOwnerReviewLanesToScoreInput,
+} from "../../src/lib/cost/cost-owner-review-classifier";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -19,6 +23,7 @@ export type Score80CostReadinessArtifacts = {
   creatorDashboardErrorCostInventory?: JsonRecord | null;
   analyticsCostRuntimeInventory?: JsonRecord | null;
   finalTelemetryClosureLock?: JsonRecord | null;
+  costOwnerReviewSourceClosure?: JsonRecord | null;
 };
 
 export type Score80CostReadinessReport = {
@@ -135,6 +140,20 @@ export function buildScore80CostReadinessReport(input: {
   const globalCost = input.artifacts.globalCostSurfaces ?? null;
   const telemetry = input.artifacts.finalTelemetryClosureLock ?? null;
   const telemetrySummary = record(telemetry?.summary);
+  const analyticsRuntime = input.artifacts.analyticsCostRuntimeInventory ?? null;
+  const analyticsSummary = record(analyticsRuntime?.summary);
+  const hotPath = input.artifacts.analyticsHotPathCostReduction ?? null;
+  const hotSummary = record(hotPath?.summary);
+  const scheduled = input.artifacts.scheduledRuntimeCostReduction ?? null;
+  const scheduledSummary = record(scheduled?.summary);
+  const adminCost = input.artifacts.adminAnalyticsDebugCostReduction ?? null;
+  const adminSummary = record(adminCost?.summary);
+  const bigQuery = readJson(ROOT, "agent/state/bigquery-cloud-pipeline-closure.generated.json");
+  const bigQuerySummary = record(bigQuery?.summary);
+  const cost4xx = readJson(ROOT, "agent/state/cost-4xx-reduction.generated.json");
+  const currentCost4xxHead = cost4xx?.currentHead === input.currentHead ? stringValue(cost4xx.currentHead) : "";
+  const costOwnerClosure = input.artifacts.costOwnerReviewSourceClosure ?? null;
+  const costOwnerClosureCurrent = artifactCurrent(costOwnerClosure, input.currentHead);
   const creatorInventory = input.artifacts.creatorDashboardErrorCostInventory ?? null;
 
   const finalCostCurrent = artifactCurrent(finalCost, input.currentHead);
@@ -152,80 +171,64 @@ export function buildScore80CostReadinessReport(input: {
     && finalCostSummary.route4xxReadiness === "source_inventory_complete"
     && telemetrySummary.ingestClosed === true
     && telemetrySummary.firestoreWritePathClosed === true;
-  const cloudSqlExternalBillingObserved = cloudSummary.cloudSqlExternalBillingObserved === true;
-  const cloudSqlRuntimeDetected = cloudSummary.cloudSqlRuntimeDetected === true || cloudSummary.dataConnectRuntimeDetected === true;
-  const geminiRuntimeDetected = cloudSummary.geminiRuntimeDetected === true;
-  const geminiExternalBillingObserved = cloudSummary.geminiExternalBillingObserved === true;
-  const geminiSourceGuarded = cloudSummary.aiCallsRequireExplicitAction === true
-    && cloudSummary.aiCallsHaveRateOrCacheGuard === true;
-
-  const costReadiness: PublicBetaCostReadiness = {
-    cloudRunCostReadiness: {
-      status: cloudRunSourceReady ? "source_inventory_complete" : "cost_review_required",
-      detail: cloudRunSourceReady
-        ? "Current source cost locks and global cost surfaces are source-ready; external Cloud Run billing and deployed scheduler review remain separate."
-        : "Cloud Run/App Hosting source cost readiness still needs review from current cost locks.",
-      evidence: [
-        artifactPathEvidence("agent/state/final-cost-audit-lock.generated.json", finalCostCurrent),
-        `artifactPath=agent/state/global-cost-surfaces.generated.json; sourceClean=${globalCostClean}`,
-        artifactPathEvidence("agent/state/analytics-cost-runtime-inventory.generated.json", artifactCurrent(input.artifacts.analyticsCostRuntimeInventory, input.currentHead)),
-        `finalCostP0Count=${finalCostP0}`,
-        `finalCostP1Count=${finalCostP1}`,
-        "externalBillingProof=false",
-      ],
-      blocksBetaExit: false,
+  const costOwnerReviewLanes = classifyCostOwnerReviewLanes({
+    currentHead: input.currentHead,
+    finalCostAudit: {
+      currentHead: stringValue(finalCost?.currentHead),
+      cloudRunGuarded: cloudRunSourceReady,
+      route4xxSourceReady,
+      scheduledRuntimeGuarded: artifactCurrent(scheduled, input.currentHead)
+        && scheduledSummary.queueLifecycleDueOnly === true
+        && scheduledSummary.creatorSubscriptionsDueOnly === true
+        && numberValue(scheduledSummary.p0Count) === 0,
+      adminDefaultLoadGuarded: artifactCurrent(adminCost, input.currentHead)
+        && adminSummary.debugInitialLoadLazy === true
+        && adminSummary.adminHistoricalDefaultCacheEnabled === true
+        && numberValue(adminSummary.p0Count) === 0,
     },
-    cloudSqlCostReadiness: {
-      status: cloudSqlRuntimeDetected ? "cost_review_required" : "owner_review",
-      detail: cloudSqlRuntimeDetected
-        ? "Cloud SQL/Data Connect runtime source needs owner review before cost pass."
-        : "Cloud SQL runtime usage is not detected, but external billing observation remains owner-review and is not a pass.",
-      evidence: [
-        artifactPathEvidence("agent/state/cloud-sql-gemini-cost-guards.generated.json", cloudGuardsCurrent),
-        `cloudSqlRuntimeDetected=${cloudSqlRuntimeDetected}`,
-        `cloudSqlExternalBillingObserved=${cloudSqlExternalBillingObserved}`,
-        "notDetectedIsNotPass=true",
-      ],
-      blocksBetaExit: false,
+    cloudSqlGemini: {
+      currentHead: stringValue(cloudGuards?.currentHead),
+      cloudSqlRuntimeDetected: cloudSummary.cloudSqlRuntimeDetected === true,
+      dataConnectRuntimeDetected: cloudSummary.dataConnectRuntimeDetected === true,
+      sqlMirrorScriptsGuarded: cloudSummary.sqlMirrorScriptsGuarded === true,
+      sqlMirrorRequiresExplicitApproval: cloudSummary.sqlMirrorRequiresExplicitApproval === true,
+      geminiRuntimeDetected: cloudSummary.geminiRuntimeDetected === true,
+      aiCallsRequireExplicitAction: cloudSummary.aiCallsRequireExplicitAction === true,
+      aiCallsHaveRateOrCacheGuard: cloudSummary.aiCallsHaveRateOrCacheGuard === true,
+      geminiExternalBillingObserved: cloudSummary.geminiExternalBillingObserved === true,
     },
-    geminiCloudAssistCostReadiness: {
-      status: geminiRuntimeDetected || geminiExternalBillingObserved ? "cost_review_required" : "owner_review",
-      detail: geminiRuntimeDetected || geminiExternalBillingObserved
-        ? "Gemini/Vertex/Cloud Assist remains owner-review; source guards prevent background use but do not prove external billing savings."
-        : "No Gemini runtime source is detected, but external AI billing proof is still separate.",
-      evidence: [
-        artifactPathEvidence("agent/state/cloud-sql-gemini-cost-guards.generated.json", cloudGuardsCurrent),
-        `geminiRuntimeDetected=${geminiRuntimeDetected}`,
-        `geminiExternalBillingObserved=${geminiExternalBillingObserved}`,
-        `geminiSourceGuarded=${geminiSourceGuarded}`,
-        "externalBillingProof=false",
-      ],
-      blocksBetaExit: false,
+    bigQuery: {
+      currentHead: stringValue(bigQuery?.currentHead),
+      scheduledWindowExportEnabled: bigQuerySummary.scheduledWindowExportEnabled === true,
+      eventTriggeredExportDisabled: bigQuerySummary.eventTriggeredExportDisabled === true,
+      watermarkDefined: bigQuerySummary.watermarkDefined === true,
+      queryCostGuardDefined: bigQuerySummary.queryCostGuardDefined === true,
     },
-    route4xxReadiness: {
-      status: route4xxSourceReady ? "source_inventory_complete" : "cost_review_required",
-      detail: route4xxSourceReady
-        ? "Latest telemetry and ingest closure prove source-level 4xx retry/diagnostic guardrails; stale creator-dashboard-only inventory is not the primary source."
-        : "Route 4xx readiness needs current telemetry and ingest closure before source credit.",
-      evidence: [
-        artifactPathEvidence("agent/state/final-cost-audit-lock.generated.json", finalCostCurrent),
-        artifactPathEvidence("agent/state/final-telemetry-closure-lock.generated.json", telemetryCurrent),
-        `ingestClosed=${telemetrySummary.ingestClosed === true}`,
-        `firestoreWritePathClosed=${telemetrySummary.firestoreWritePathClosed === true}`,
-        `legacyCreatorDashboardInventoryPrimary=false`,
-      ],
-      blocksBetaExit: false,
+    analyticsRuntime: {
+      currentHead: stringValue(currentCost4xxHead || analyticsRuntime?.currentHead || hotPath?.currentHead),
+      ingestGuarded: hotSummary.ingestMaterializationDeferred === true
+        && hotSummary.invalidPayloadWarningsCapped === true
+        && hotSummary.catchPathFailuresRolledUp === true,
+      retry4xxClassified: Boolean(currentCost4xxHead) || hotSummary.retryable503Reduced === true || numberValue(analyticsSummary.retry4xxFindings, 1) === 0,
     },
-  };
+    globalCost: {
+      sourceClean: globalCostClean,
+    },
+  });
+  const closureCostReadiness = record(costOwnerClosure?.costReadiness);
+  const costReadiness: PublicBetaCostReadiness = costOwnerClosureCurrent && Object.keys(closureCostReadiness).length > 0
+    ? closureCostReadiness as PublicBetaCostReadiness
+    : costOwnerReviewLanesToScoreInput(costOwnerReviewLanes);
   const costScore = scoreCostReadiness(costReadiness);
   const staleArtifacts = staleArtifactsFor(input.currentHead, input.artifacts);
   const ignoredLegacyArtifacts = !creatorInventoryCurrent && creatorInventory
     ? [CREATOR_DASHBOARD_COST_INVENTORY_PATH]
     : [];
   const ownerReviewLanes = Object.entries(costReadiness)
-    .filter(([, lane]) => /owner_review|cost_review_required/u.test(String(lane.status)))
+    .filter(([, lane]) => /owner_review|cost_review_required|external_review_remaining|source_ready_no_runtime_usage_detected|source_ready_config_missing_safe/u.test(String(lane.status)))
     .map(([laneName]) => laneName);
   const externalOwnerReviewStillRequired = ownerReviewLanes.length > 0;
+  const sourceStatus = (status: unknown) => /source_|source_inventory_complete/u.test(String(status));
 
   return {
     generatedAtUtc: input.generatedAtUtc,
@@ -233,22 +236,22 @@ export function buildScore80CostReadinessReport(input: {
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
     summary: {
-      latestCostLocksPreferred: finalCostCurrent && telemetryCurrent,
+      latestCostLocksPreferred: costOwnerClosureCurrent || (finalCostCurrent && telemetryCurrent),
       externalOwnerReviewStillRequired,
       sourceCostReadinessScore: costScore.score,
       costRiskScore: costScore.score,
       staleCreatorDashboardInventoryIgnored: ignoredLegacyArtifacts.includes(CREATOR_DASHBOARD_COST_INVENTORY_PATH),
-      cloudRunSourceReady,
+      cloudRunSourceReady: sourceStatus(costReadiness.cloudRunCostReadiness.status),
       cloudSqlOwnerReview: ownerReviewLanes.includes("cloudSqlCostReadiness"),
       geminiOwnerReview: ownerReviewLanes.includes("geminiCloudAssistCostReadiness"),
-      route4xxSourceReady,
+      route4xxSourceReady: sourceStatus(costReadiness.route4xxReadiness.status),
       p0Count: 0,
       p1Count: externalOwnerReviewStillRequired ? ownerReviewLanes.length : 0,
       p2Count: staleArtifacts.length,
     },
     costReadiness,
     costRiskScore: costScore.score,
-    costRiskScoreExplanation: `Cost risk score ${costScore.score} gives source readiness credit for current cost locks and route 4xx closure, while external billing proof and owner review remain separate.`,
+    costRiskScoreExplanation: `Cost risk score ${costScore.score} gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.`,
     externalOwnerReviewStillRequired,
     sourceReadinessSignals: [
       `cloudRunSourceReady=${cloudRunSourceReady}`,
@@ -256,6 +259,7 @@ export function buildScore80CostReadinessReport(input: {
       `globalCostClean=${globalCostClean}`,
       `finalCostCurrent=${finalCostCurrent}`,
       `telemetryCurrent=${telemetryCurrent}`,
+      `costOwnerReviewSourceClosureCurrent=${costOwnerClosureCurrent}`,
     ],
     staleArtifacts,
     ignoredLegacyArtifacts,
@@ -266,6 +270,12 @@ export function buildScore80CostReadinessReport(input: {
         status: finalCostCurrent ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/final-cost-audit-lock.generated.json",
         detail: finalCostCurrent ? "Current final cost lock is available." : "Final cost lock is missing or stale.",
+      },
+      {
+        command: "npm run check:cost-owner-review-source-closure",
+        status: costOwnerClosureCurrent ? "pass" : "failed_or_not_run",
+        artifactPath: "agent/state/cost-owner-review-source-closure.generated.json",
+        detail: costOwnerClosureCurrent ? "Current cost owner-review source closure is available." : "Cost owner-review source closure is missing or stale.",
       },
       {
         command: "npm run check:cloud-sql-gemini-cost-guards",
@@ -359,6 +369,7 @@ export function buildScore80CostReadinessFromRepo(root = ROOT): Score80CostReadi
       creatorDashboardErrorCostInventory: readJson(root, CREATOR_DASHBOARD_COST_INVENTORY_PATH),
       analyticsCostRuntimeInventory: readJson(root, "agent/state/analytics-cost-runtime-inventory.generated.json"),
       finalTelemetryClosureLock: readJson(root, "agent/state/final-telemetry-closure-lock.generated.json"),
+      costOwnerReviewSourceClosure: readJson(root, "agent/state/cost-owner-review-source-closure.generated.json"),
     },
   });
 }

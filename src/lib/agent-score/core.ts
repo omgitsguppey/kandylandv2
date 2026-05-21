@@ -100,6 +100,10 @@ export type PublicBetaEvidenceArtifact = {
 
 export type PublicBetaCostReadinessStatus =
   | "source_inventory_complete"
+  | "source_guarded_external_review_remaining"
+  | "source_ready_no_runtime_usage_detected"
+  | "source_ready_config_missing_safe"
+  | "owner_review_external_billing_required"
   | "cost_review_required"
   | "not_detected_in_repo"
   | "config_not_in_repo"

@@ -263,6 +263,10 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
 function laneScore(status: string) {
   const normalized = normalizeStatus(status);
   if (normalized === "source_inventory_complete") return 80;
+  if (normalized === "source_guarded_external_review_remaining") return 72;
+  if (normalized === "source_ready_no_runtime_usage_detected") return 68;
+  if (normalized === "source_ready_config_missing_safe") return 62;
+  if (normalized === "owner_review_external_billing_required") return 48;
   if (normalized === "not_detected_in_repo") return 50;
   if (normalized === "cost_review_required" || normalized === "owner_review") return 40;
   if (normalized === "config_not_in_repo") return 35;
@@ -284,10 +288,14 @@ export function scoreCostReadiness(costReadiness: PublicBetaCostReadiness): Publ
     if (
       status === "owner_review"
       || status === "cost_review_required"
+      || status === "source_guarded_external_review_remaining"
+      || status === "source_ready_no_runtime_usage_detected"
+      || status === "source_ready_config_missing_safe"
+      || status === "owner_review_external_billing_required"
       || (status === "not_detected_in_repo" && lane.evidence.some((entry) => /externalBillingObserved=true|external billing/iu.test(entry)))
     ) {
       ownerReviewRequired = true;
-      reasons.push(`${key} remains owner-review (${lane.status}).`);
+      reasons.push(`${key} remains source-cost/external-review tracked (${lane.status}).`);
     }
     if (lane.blocksBetaExit || status === "blocked") {
       blocksLaunch = true;

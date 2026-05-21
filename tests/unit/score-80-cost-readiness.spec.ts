@@ -28,6 +28,7 @@ const sourceArtifacts = {
       cloudSqlRuntimeDetected: false,
       cloudSqlExternalBillingObserved: true,
       sqlMirrorScriptsGuarded: true,
+      sqlMirrorRequiresExplicitApproval: true,
       geminiRuntimeDetected: true,
       geminiExternalBillingObserved: true,
       aiCallsRequireExplicitAction: true,
@@ -54,6 +55,15 @@ const sourceArtifacts = {
       retry4xxFindings: 2,
     },
   },
+  analyticsHotPathCostReduction: {
+    currentHead: head,
+    summary: {
+      ingestMaterializationDeferred: true,
+      invalidPayloadWarningsCapped: true,
+      catchPathFailuresRolledUp: true,
+      retryable503Reduced: true,
+    },
+  },
   creatorDashboardErrorCostInventory: {
     currentHead: "old",
     summary: {
@@ -74,10 +84,10 @@ describe("score 80 cost readiness", () => {
     });
 
     expect(report.summary.latestCostLocksPreferred).toBe(true);
-    expect(report.costReadiness.cloudRunCostReadiness.status).toBe("source_inventory_complete");
-    expect(report.costReadiness.cloudSqlCostReadiness.status).toBe("owner_review");
-    expect(report.costReadiness.geminiCloudAssistCostReadiness.status).toBe("cost_review_required");
-    expect(report.costReadiness.route4xxReadiness.status).toBe("source_inventory_complete");
+    expect(report.costReadiness.cloudRunCostReadiness.status).toBe("source_guarded_external_review_remaining");
+    expect(report.costReadiness.cloudSqlCostReadiness.status).toBe("source_ready_no_runtime_usage_detected");
+    expect(report.costReadiness.geminiCloudAssistCostReadiness.status).toBe("source_guarded_external_review_remaining");
+    expect(report.costReadiness.route4xxReadiness.status).toBe("source_guarded_external_review_remaining");
     expect(report.costReadiness.route4xxReadiness.evidence.join("\n")).toContain("final-telemetry-closure-lock");
     expect(report.costReadiness.route4xxReadiness.evidence.join("\n")).not.toContain("creator-dashboard-error-cost-inventory");
     expect(report.staleArtifacts).toContain("agent/state/creator-dashboard-error-cost-inventory.generated.json");
@@ -92,7 +102,7 @@ describe("score 80 cost readiness", () => {
     });
     const score = scoreCostReadiness(report.costReadiness);
 
-    expect(score.score).toBeGreaterThan(52.5);
+    expect(score.score).toBeGreaterThan(68);
     expect(score.ownerReviewRequired).toBe(true);
     expect(report.externalOwnerReviewStillRequired).toBe(true);
     expect(report.costRiskScoreExplanation).toContain("source readiness");

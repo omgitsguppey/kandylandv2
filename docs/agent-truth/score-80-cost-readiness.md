@@ -1,35 +1,36 @@
 # Score 80 Cost Readiness
 
-Generated: 2026-05-21T00:25:45.025Z
+Generated: 2026-05-21T16:49:04.600Z
 
-Latest code version: 080ebb115fc9d917f52b2e38108634821a2712ce
+Latest code version: 3878a581193dd171f69e3c0b63073ac738c14152
 
 ## Summary
 
-- Cost risk score: 60
+- Cost risk score: 71
 - Latest cost locks preferred: true
 - External owner review still required: true
 - Stale creator dashboard inventory ignored: true
-- Explanation: Cost risk score 60 gives source readiness credit for current cost locks and route 4xx closure, while external billing proof and owner review remain separate.
+- Explanation: Cost risk score 71 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.
 
 ## Cost Lanes
 
 | Lane | Status | Detail |
 | --- | --- | --- |
-| cloudRunCostReadiness | source_inventory_complete | Current source cost locks and global cost surfaces are source-ready; external Cloud Run billing and deployed scheduler review remain separate. |
-| cloudSqlCostReadiness | owner_review | Cloud SQL runtime usage is not detected, but external billing observation remains owner-review and is not a pass. |
-| geminiCloudAssistCostReadiness | cost_review_required | Gemini/Vertex/Cloud Assist remains owner-review; source guards prevent background use but do not prove external billing savings. |
-| route4xxReadiness | source_inventory_complete | Latest telemetry and ingest closure prove source-level 4xx retry/diagnostic guardrails; stale creator-dashboard-only inventory is not the primary source. |
+| cloudRunCostReadiness | source_guarded_external_review_remaining | Cloud Run/App Hosting has source guard coverage; deployed billing review remains external. |
+| cloudSqlCostReadiness | source_ready_no_runtime_usage_detected | Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review. |
+| geminiCloudAssistCostReadiness | source_guarded_external_review_remaining | AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review. |
+| route4xxReadiness | source_guarded_external_review_remaining | Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review. |
 
 ## Validator Inputs
 
 | Command | Status | Artifact | Detail |
 | --- | --- | --- | --- |
 | npm run check:final-cost-audit-lock | pass | agent/state/final-cost-audit-lock.generated.json | Current final cost lock is available. |
+| npm run check:cost-owner-review-source-closure | pass | agent/state/cost-owner-review-source-closure.generated.json | Current cost owner-review source closure is available. |
 | npm run check:cloud-sql-gemini-cost-guards | pass | agent/state/cloud-sql-gemini-cost-guards.generated.json | Current Cloud SQL/Gemini guard report is available. |
 | npm run check:global-cost-surfaces | missing_script | agent/state/global-cost-surfaces.generated.json | Package script is not present; existing global-cost source report is treated as supporting source context only. |
 | npm run check:billing-spike-radar | missing_script | agent/state/billing-spike-radar.generated.json | Package script is not present; billing spike radar remains supporting watchlist context only. |
-| npm run check:analytics-cost-runtime-inventory | pass | agent/state/analytics-cost-runtime-inventory.generated.json | Analytics cost runtime inventory refresh is tracked separately from external billing proof. |
+| npm run check:analytics-cost-runtime-inventory | failed_or_not_run | agent/state/analytics-cost-runtime-inventory.generated.json | Analytics cost runtime inventory refresh is tracked separately from external billing proof. |
 
 ## Boundary
 

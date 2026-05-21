@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.70 - 2026-05-21
+- Source cost review closure
+- Refined cost owner-review lanes using source guard evidence.
+- Separated external billing review from source cost readiness.
+- Reduced generic cost-risk drag without claiming fake savings.
+
 ## 1.3.69 - 2026-05-21
 - Score refresh queue execution
 - Executed safe score-impact refresh queue.

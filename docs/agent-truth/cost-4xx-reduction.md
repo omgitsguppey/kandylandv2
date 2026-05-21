@@ -3,13 +3,13 @@
 Artifact: `agent/state/cost-4xx-reduction.generated.json`
 Validator: `npm run check:cost-4xx-reduction`
 
-Generated: 2026-05-17T06:28:34.492Z
-Current source head: `70919f6be9129ce71ecc8b8f88eeafec9f866b5f`
+Generated: 2026-05-21T16:43:13.954Z
+Current source head: `3878a581193dd171f69e3c0b63073ac738c14152`
 
 ## Summary
 
 - Speed/security before: 51/beta-risk, findings 91.
-- Speed/security after: 51/beta-risk, findings 89.
+- Speed/security after: 51/beta-risk, findings 90.
 - P0/P1/P2 findings: 0/0/7.
 - Payment, GumDrop math, Firebase rules, Cloud Functions, BigQuery, deployment config, and admin runtime were not changed.
 

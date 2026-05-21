@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T16:24:52.319Z",
-  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
-  "betaScore": 73.13,
+  "generatedAtUtc": "2026-05-21T16:47:40.136Z",
+  "currentHead": "3878a581193dd171f69e3c0b63073ac738c14152",
+  "betaScore": 76.23,
   "betaStatus": "Unknown evidence",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
   "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",

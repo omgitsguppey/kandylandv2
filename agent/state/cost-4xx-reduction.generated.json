@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T06:28:34.492Z",
+  "generatedAtUtc": "2026-05-21T16:43:13.954Z",
   "reportKey": "cost-4xx-reduction",
-  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "currentHead": "3878a581193dd171f69e3c0b63073ac738c14152",
   "cloudRunFindings": [
     {
       "id": "cloud-run-app-hosting-source-config",
@@ -237,7 +237,7 @@
   "speedSecurityAfter": {
     "score": 51,
     "status": "beta-risk",
-    "findings": 89,
+    "findings": 90,
     "criticalFindings": 0,
     "evidence": "Post-fix score:speed-security artifact."
   },

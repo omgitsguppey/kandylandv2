@@ -1,11 +1,85 @@
 {
-  "currentVersion": "1.3.69",
-  "betaReleaseCounter": 369,
+  "currentVersion": "1.3.70",
+  "betaReleaseCounter": 370,
   "channel": "beta",
-  "generatedAt": "2026-05-21T16:25:51.472Z",
-  "generatedAtUtc": "2026-05-21T16:25:51.472Z",
+  "generatedAt": "2026-05-21T16:48:48.601Z",
+  "generatedAtUtc": "2026-05-21T16:48:48.601Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.70",
+      "previousVersion": "1.3.69",
+      "betaReleaseCounter": 370,
+      "previousBetaReleaseCounter": 369,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): close source cost review",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T16:48:48.601Z",
+      "generatedAt": "2026-05-21T16:48:48.601Z",
+      "committedAtUtc": "2026-05-21T16:48:48.601Z",
+      "generatedAtUtc": "2026-05-21T16:48:48.601Z",
+      "updatedAtUtc": "2026-05-21T16:48:48.601Z",
+      "category": "Improved",
+      "title": "Source cost review closure",
+      "summary": "Refined source-verifiable cost lanes while keeping external billing review separate.",
+      "userFacingTitle": "Source cost review closure",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refined cost owner-review lanes using source guard evidence.",
+        "Separated external billing review from source cost readiness.",
+        "Reduced generic cost-risk drag without claiming fake savings."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a source-only cost owner-review classifier and routed beta cost scoring through guarded source statuses without external billing claims."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "Cost readiness",
+        "Admin Debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+        "agent/state/bigquery-cloud-pipeline-closure.generated.json",
+        "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+        "agent/state/cost-4xx-reduction.generated.json",
+        "agent/state/cost-owner-review-source-closure.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/final-cost-audit-lock.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/scheduled-runtime-cost-reduction.generated.json",
+        "agent/state/score-80-cost-readiness.generated.json",
+        "docs/agent-truth/admin-analytics-debug-cost-reduction.md",
+        "docs/agent-truth/bigquery-cloud-pipeline-closure.md",
+        "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+        "docs/agent-truth/cost-4xx-reduction.md",
+        "docs/agent-truth/cost-owner-review-source-closure.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/final-cost-audit-lock.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "docs/agent-truth/scheduled-runtime-cost-reduction.md",
+        "docs/agent-truth/score-80-cost-readiness.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-cost-owner-review-source-closure.ts",
+        "scripts/agent/validate-score-80-cost-readiness.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/evidence-quality.ts",
+        "src/lib/cost/cost-owner-review-classifier.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/cost-owner-review-source-closure.spec.ts",
+        "tests/unit/score-80-cost-readiness.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.69",
       "previousVersion": "1.3.68",
@@ -1419,60 +1493,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/route-diagnostics-error-map.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.45",
-      "previousVersion": "1.3.44",
-      "betaReleaseCounter": 345,
-      "previousBetaReleaseCounter": 344,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(admin): add source truth sample",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T01:58:23.749Z",
-      "generatedAt": "2026-05-21T01:58:23.749Z",
-      "committedAtUtc": "2026-05-21T01:58:23.749Z",
-      "generatedAtUtc": "2026-05-21T01:58:23.749Z",
-      "updatedAtUtc": "2026-05-21T01:58:23.749Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added source-backed admin truth sample evidence.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added source-backed admin truth sample evidence.",
-        "Kept unavailable admin lanes from appearing healthy.",
-        "Preserved formal admin evidence gate for runtime proof."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted admin truth source sample pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug",
-        "Beta readiness",
-        "Evidence freshness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-truth-source-sample.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/admin-truth-source-sample.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-admin-truth-source-sample.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-truth-source-sample.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }
