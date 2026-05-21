@@ -4,43 +4,49 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
-## 1.3.47 - 2026-05-20
+## 1.3.48 - 2026-05-21
+- Debug backlog improvements
+- Made debug panel output drive a structured fix backlog.
+- Mapped warnings and unknown evidence to owners, score impact, and exact actions.
+- Kept debug truth strict without clearing formal beta gates.
+
+## 1.3.47 - 2026-05-21
 - Bug fixes and general improvements
 - Cleaned up high-impact mobile layout residuals.
 - Ranked remaining mobile scale warnings by score impact.
 - Kept chat and navigation unchanged.
 
-## 1.3.46 - 2026-05-20
+## 1.3.46 - 2026-05-21
 - Bug fixes and general improvements
 - Mapped route diagnostics to clearer human error guidance.
 - Replaced raw route failure copy with actionable recovery states.
 - Kept debug warnings classified without hiding real errors.
 
-## 1.3.45 - 2026-05-20
+## 1.3.45 - 2026-05-21
 - Bug fixes and general improvements
 - Added source-backed admin truth sample evidence.
 - Kept unavailable admin lanes from appearing healthy.
 - Preserved formal admin evidence gate for runtime proof.
 
-## 1.3.44 - 2026-05-20
+## 1.3.44 - 2026-05-21
 - Bug fixes and general improvements
 - Refreshed stale score-impact reports from the latest code version.
 - Reduced freshness and regression drag from outdated artifacts.
 - Kept formal beta evidence gates unchanged.
 
-## 1.3.43 - 2026-05-20
+## 1.3.43 - 2026-05-21
 - Bug fixes and general improvements
 - Prioritized debug panel warnings by beta score impact.
 - Converted debug/runtime checks into source-backed evidence.
 - Kept formal runtime and provider smoke gates honest.
 
-## 1.3.42 - 2026-05-20
+## 1.3.42 - 2026-05-21
 - Bug fixes and general improvements
 - Locked the score-80 path with refreshed source evidence.
 - Ranked remaining score drag by impact.
 - Added dirty-build safeguards for beta scoring.
 
-## 1.3.41 - 2026-05-20
+## 1.3.41 - 2026-05-21
 - Bug fixes and general improvements
 - Refined cost readiness scoring from current source cleanup.
 - Separated external billing owner review from source cost readiness.
@@ -147,87 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Connected creator Fan Pass pricing to user-facing flows.
 - Aligned creator experience prices with creator settings.
 - Preserved paid-GumDrop-only rules for creator experiences.
-
-## 1.3.23 - 2026-05-20
-- Bug fixes and general improvements
-- Added creator settings controls for Fan Pass, broadcasts, and creator experiences.
-- Connected creator setup warnings to actual settings.
-- Kept creator settings mobile-first and user-facing safe.
-
-## 1.3.22 - 2026-05-20
-- Bug fixes and general improvements
-- Locked mobile UI scaling and organization checks.
-- Added self-check rules for future UI changes.
-- Kept navigation and chat protected from broad mobile cleanup.
-
-## 1.3.21 - 2026-05-20
-- Bug fixes and general improvements
-- Improved mobile organization across admin, user, and creator screens.
-- Collapsed desktop-heavy sections into mobile summaries and drilldowns.
-- Kept navigation and chat unchanged.
-
-## 1.3.20 - 2026-05-20
-- Bug fixes and general improvements
-- Improved mobile loading and skeleton stability.
-- Reduced layout shift during dashboard hydration.
-- Added stale-request guards for mobile data loading.
-
-## 1.3.19 - 2026-05-19
-- Bug fixes and general improvements
-- Reduced oversized mobile layouts across admin, user, and creator screens.
-- Replaced desktop-scale spacing with compact mobile density rules.
-- Kept navigation and chat surfaces unchanged.
-
-## 1.3.18 - 2026-05-19
-- Bug fixes and general improvements
-- Added mobile-first UI scaling rules.
-- Prepared shared density and skeleton guidance for admin, user, and creator screens.
-- Protected navigation and chat surfaces from broad UI cleanup.
-
-## 1.3.17 - 2026-05-19
-- Bug fixes and general improvements
-- Locked telemetry dependency closure status.
-- Mapped analytics from client tracking through admin evidence.
-- Kept beta evidence requirements separate from source readiness.
-
-## 1.3.16 - 2026-05-19
-- Bug fixes and general improvements
-- Simplified admin telemetry health reporting.
-- Separated live, degraded, unavailable, and unproven analytics lanes.
-- Kept raw telemetry details behind debug drilldowns.
-
-## 1.3.15 - 2026-05-19
-- Bug fixes and general improvements
-- Closed Google Analytics evidence ambiguity.
-- Kept external analytics separate from product truth.
-- Prevented missing external analytics from showing as zero traffic.
-
-## 1.3.14 - 2026-05-19
-- Bug fixes and general improvements
-- Clarified BigQuery export readiness.
-- Kept analytics exports batched, bounded, and evidence-based.
-- Prevented missing BigQuery from showing as zero activity.
-
-## 1.3.13 - 2026-05-19
-- Bug fixes and general improvements
-- Closed telemetry materialization gaps.
-- Mapped Firestore analytics records to event facts and summaries.
-- Separated legacy analytics from current truth.
-
-## 1.3.12 - 2026-05-19
-- Bug fixes and general improvements
-- Closed behavior tracking event gaps.
-- Aligned behavior telemetry with tracking toggles.
-- Kept watch time separate from passive page activity.
-
-## 1.3.11 - 2026-05-19
-- Bug fixes and general improvements
-- Closed guest-to-user telemetry transfer gaps.
-- Improved individual user tracking continuity.
-- Prevented linked guest history from double-counting users.
-
-## 1.3.10 - 2026-05-19
-- Bug fixes and general improvements
-- Hardened analytics ingest event contracts.
-- Clarified Firestore write destinations for telemetry.
-- Reduced retry and diagnostic noise for invalid analytics payloads.

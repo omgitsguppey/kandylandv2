@@ -101,6 +101,38 @@ export type AdminDebugNextAction = {
     severity: AdminDebugSeverity;
 };
 
+export type AdminDebugBacklogItemCard = {
+    id: string;
+    title: string;
+    owner: string;
+    surface: string;
+    severity: "critical" | "p0" | "p1" | "p2" | "p3" | "info";
+    source: string;
+    status: string;
+    fixClass: string;
+    scoreDimensionImpact: string[];
+    scoreImpact: number;
+    sourceFiles: string[];
+    sourceRoute: string;
+    evidenceStatus: string;
+    evidenceReason: string;
+    exactNextAction: string;
+};
+
+export type AdminDebugBacklogSummaryCard = {
+    total: number;
+    open: number;
+    fixed: number;
+    deferred: number;
+    blockedManual: number;
+    blockedExternal: number;
+    staleRetired: number;
+    sourceFixable: number;
+    evidenceRefreshable: number;
+    manualRequired: number;
+    p0P1Open: number;
+};
+
 export type AdminDebugControlTowerModel = {
     generatedAt: string;
     title: "Control Tower";
@@ -129,6 +161,8 @@ export type AdminDebugControlTowerModel = {
     liveIssues: AdminDebugLiveIssueCard[];
     runtimeEvidenceGroups: AdminDebugRuntimeEvidenceGroup[];
     nextActions: AdminDebugNextAction[];
+    debugBacklog: AdminDebugBacklogItemCard[];
+    debugBacklogSummary: AdminDebugBacklogSummaryCard | null;
     debugEvidenceSource: "firestore" | "generated" | "unavailable";
     reportSource: "agent_state";
     businessSnapshot: AdminUserTruthSnapshot | null;
@@ -678,6 +712,78 @@ function readGeneratedDebugEvidence(rootDir: string): DebugEvidenceAuditSummary[
     }
 }
 
+function normalizeDebugBacklogItem(value: unknown): AdminDebugBacklogItemCard | null {
+    if (!isRecord(value)) {
+        return null;
+    }
+    const sourceFiles = Array.isArray(value.sourceFiles)
+        ? value.sourceFiles.map((entry) => String(entry)).filter(Boolean)
+        : [];
+    const scoreDimensionImpact = Array.isArray(value.scoreDimensionImpact)
+        ? value.scoreDimensionImpact.map((entry) => String(entry)).filter(Boolean)
+        : [];
+    const id = toStringValue(value.id);
+    const title = toStringValue(value.title);
+    const owner = toStringValue(value.owner);
+    const surface = toStringValue(value.surface);
+    const exactNextAction = toStringValue(value.exactNextAction);
+    if (!id || !title || !owner || !surface || !exactNextAction || sourceFiles.length === 0 || scoreDimensionImpact.length === 0) {
+        return null;
+    }
+    return {
+        id,
+        title,
+        owner,
+        surface,
+        severity: toStringValue(value.severity, "p2") as AdminDebugBacklogItemCard["severity"],
+        source: toStringValue(value.source, "debug_panel"),
+        status: toStringValue(value.status, "open"),
+        fixClass: toStringValue(value.fixClass, "manual_required"),
+        scoreDimensionImpact,
+        scoreImpact: toNumber(value.scoreImpact) ?? 0,
+        sourceFiles,
+        sourceRoute: toStringValue(value.sourceRoute, "unknown"),
+        evidenceStatus: toStringValue(value.evidenceStatus, "unknown"),
+        evidenceReason: toStringValue(value.evidenceReason, "No evidence reason supplied."),
+        exactNextAction,
+    };
+}
+
+function readGeneratedDebugBacklog(rootDir: string): {
+    backlog: AdminDebugBacklogItemCard[];
+    summary: AdminDebugBacklogSummaryCard | null;
+} {
+    const fullPath = join(rootDir, "agent", "state", "debug-backlog-engine.generated.json");
+    if (!existsSync(fullPath)) {
+        return { backlog: [], summary: null };
+    }
+
+    try {
+        const raw = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
+        const backlog = Array.isArray(raw.backlog)
+            ? raw.backlog.map(normalizeDebugBacklogItem).filter((item): item is AdminDebugBacklogItemCard => Boolean(item)).slice(0, 40)
+            : [];
+        const summary = isRecord(raw.summary)
+            ? {
+                total: toNumber(raw.summary.total) ?? backlog.length,
+                open: toNumber(raw.summary.open) ?? 0,
+                fixed: toNumber(raw.summary.fixed) ?? 0,
+                deferred: toNumber(raw.summary.deferred) ?? 0,
+                blockedManual: toNumber(raw.summary.blockedManual) ?? 0,
+                blockedExternal: toNumber(raw.summary.blockedExternal) ?? 0,
+                staleRetired: toNumber(raw.summary.staleRetired) ?? 0,
+                sourceFixable: toNumber(raw.summary.sourceFixable) ?? 0,
+                evidenceRefreshable: toNumber(raw.summary.evidenceRefreshable) ?? 0,
+                manualRequired: toNumber(raw.summary.manualRequired) ?? 0,
+                p0P1Open: toNumber(raw.summary.p0P1Open) ?? 0,
+            }
+            : null;
+        return { backlog, summary };
+    } catch {
+        return { backlog: [], summary: null };
+    }
+}
+
 function buildSections(reports: AdminDebugReportCard[]) {
     return reports.reduce<AdminDebugControlTowerModel["sections"]>((sections, report) => {
         sections[report.section].push(report);
@@ -719,6 +825,7 @@ export function buildAdminDebugControlTowerModel(options?: {
     const sortedFindings = [...allFindings].sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);
     const generatedEvidence = options?.debugEvidence?.length ? [] : readGeneratedDebugEvidence(rootDir);
     const debugEvidence = options?.debugEvidence?.length ? options.debugEvidence : generatedEvidence;
+    const generatedBacklog = readGeneratedDebugBacklog(rootDir);
     const liveIssues = debugEvidence
         .map(normalizeLiveIssue)
         .sort((left, right) => {
@@ -776,6 +883,8 @@ export function buildAdminDebugControlTowerModel(options?: {
         liveIssues,
         runtimeEvidenceGroups: [],
         nextActions,
+        debugBacklog: generatedBacklog.backlog,
+        debugBacklogSummary: generatedBacklog.summary,
         debugEvidenceSource: options?.debugEvidenceSource ?? (options?.debugEvidence?.length ? "firestore" : generatedEvidence.length > 0 ? "generated" : "unavailable"),
         reportSource: "agent_state",
         businessSnapshot: null,

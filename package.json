@@ -86,6 +86,7 @@
         "check:source-backed-runtime-confidence": "tsx scripts/agent/validate-source-backed-runtime-confidence.ts",
         "check:debug-score-impact-triage": "tsx scripts/agent/validate-debug-score-impact-triage.ts",
         "check:debug-runtime-evidence": "tsx scripts/agent/validate-debug-runtime-evidence.ts",
+        "check:debug-backlog-engine": "tsx scripts/agent/validate-debug-backlog-engine.ts",
         "check:admin-truth-source-sample": "tsx scripts/agent/validate-admin-truth-source-sample.ts",
         "check:score-80-cost-readiness": "tsx scripts/agent/validate-score-80-cost-readiness.ts",
         "check:score-80-path-lock": "tsx scripts/agent/validate-score-80-path-lock.ts",

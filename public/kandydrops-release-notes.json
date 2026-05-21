@@ -1,11 +1,63 @@
 {
-  "currentVersion": "1.3.47",
-  "betaReleaseCounter": 347,
+  "currentVersion": "1.3.48",
+  "betaReleaseCounter": 348,
   "channel": "beta",
-  "generatedAt": "2026-05-21T02:32:59.275Z",
-  "generatedAtUtc": "2026-05-21T02:32:59.275Z",
+  "generatedAt": "2026-05-21T04:03:07.750Z",
+  "generatedAtUtc": "2026-05-21T04:03:07.750Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.48",
+      "previousVersion": "1.3.47",
+      "betaReleaseCounter": 348,
+      "previousBetaReleaseCounter": 347,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): build score backed backlog",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T02:37:25.000Z",
+      "generatedAt": "2026-05-21T04:03:07.745Z",
+      "committedAtUtc": "2026-05-21T02:37:25.000Z",
+      "generatedAtUtc": "2026-05-21T04:03:07.745Z",
+      "updatedAtUtc": "2026-05-21T04:03:07.745Z",
+      "category": "Improved",
+      "title": "Debug backlog improvements",
+      "summary": "Made debug panel output drive a structured fix backlog.",
+      "userFacingTitle": "Debug backlog improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Made debug panel output drive a structured fix backlog.",
+        "Mapped warnings and unknown evidence to owners, score impact, and exact actions.",
+        "Kept debug truth strict without clearing formal beta gates."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the debug backlog engine contract, builder, validator, generated report, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Beta readiness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/debug-backlog-engine.generated.json",
+        "docs/agent-truth/debug-backlog-engine.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-debug-backlog-engine.ts",
+        "src/lib/admin-debug-control-tower.ts",
+        "src/lib/debug/debug-backlog-builder.ts",
+        "src/lib/debug/debug-backlog-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/debug-backlog-engine.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.47",
       "previousVersion": "1.3.46",
@@ -1313,64 +1365,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/creator-pricing-wiring.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.23",
-      "previousVersion": "1.3.22",
-      "betaReleaseCounter": 323,
-      "previousBetaReleaseCounter": 322,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "feat(creator): finalize settings control plane",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T04:12:15.962Z",
-      "generatedAt": "2026-05-20T04:12:15.962Z",
-      "committedAtUtc": "2026-05-20T04:12:15.962Z",
-      "generatedAtUtc": "2026-05-20T04:12:15.962Z",
-      "updatedAtUtc": "2026-05-20T04:12:15.962Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added creator settings controls for Fan Pass, broadcasts, and creator experiences.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Added creator settings controls for Fan Pass, broadcasts, and creator experiences.",
-        "Connected creator setup warnings to actual settings.",
-        "Kept creator settings mobile-first and user-facing safe."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted Creator Settings control-plane pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator settings",
-        "creator profile",
-        "Fan Pass",
-        "broadcasts",
-        "creator experiences"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-settings-control-plane.generated.json",
-        "docs/agent-truth/creator-settings-control-plane.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-settings-control-plane.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/lib/creator-experiences.ts",
-        "src/lib/creator-settings/creator-settings-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/types/db.ts",
-        "tests/unit/creator-dashboard-settings.spec.tsx",
-        "tests/unit/creator-settings-control-plane.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }
