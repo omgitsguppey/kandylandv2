@@ -256,10 +256,21 @@ if (report) {
   }
   const hasEmptyDebugGate = report.evidenceGates?.some((gate) =>
     gate.id === "debugRuntimeEvidence" && gate.status === "Unknown evidence");
+  const hasSourceBackedDebugGate = report.evidenceGates?.some((gate) =>
+    gate.id === "debugRuntimeEvidence"
+    && gate.status === "Ready"
+    && gate.evidence.join("\n").includes("source_ready_debug_runtime_evidence"));
   const debugEvidence = report.debugEvidence ?? {};
   const debugEvidenceEmpty = Object.values(debugEvidence).every((entries) => Array.isArray(entries) && entries.length === 0);
-  if (debugEvidenceEmpty && !hasEmptyDebugGate) {
+  if (debugEvidenceEmpty && !hasEmptyDebugGate && !hasSourceBackedDebugGate) {
     failures.push("Empty debugEvidence must be represented as Unknown evidence.");
+  }
+  const debugRuntimeGate = report.evidenceGates?.find((gate) => gate.id === "debugRuntimeEvidence");
+  if (
+    debugRuntimeGate?.status === "Ready"
+    && debugRuntimeGate.evidence.join("\n").includes("launchGateImpact=does_not_clear_deployed_runtime_smoke") === false
+  ) {
+    failures.push("Source-backed debug runtime evidence must keep deployed runtime smoke gate separate.");
   }
   const runtimeProviderSmokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
   const operatorRevenueSmokeExists = existsSync(join(root, "agent/state/operator-revenue-smoke.generated.json"));

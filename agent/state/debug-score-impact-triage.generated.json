@@ -1,0 +1,871 @@
+{
+  "generatedAtUtc": "2026-05-21T01:20:02.352Z",
+  "reportKey": "debug-score-impact-triage",
+  "currentHead": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+  "summary": {
+    "issueCount": 52,
+    "sourceFixableCount": 6,
+    "evidenceFixableCount": 40,
+    "staleArtifactFixableCount": 35,
+    "p0Count": 0,
+    "p1Count": 16,
+    "p2Count": 36,
+    "topPointImpact": 60
+  },
+  "issues": [
+    {
+      "id": "admin-truth-sample-missing",
+      "source": "public-beta-score",
+      "surface": "admin_debug",
+      "severity": "P1",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 60,
+      "sourceFixable": true,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing_or_unknown",
+      "exactFiles": [
+        "agent/state/admin-truth-source-sample.generated.json",
+        "src/lib/admin-debug-control-tower.ts",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "fixPlan": "Create a source-only admin truth sample showing admin models are wired while keeping formal production admin truth sample missing."
+    },
+    {
+      "id": "runtime-provider-smoke-source-confidence-gap",
+      "source": "public-beta-score",
+      "surface": "runtime_evidence",
+      "severity": "P1",
+      "betaDimension": "runtimeHealth",
+      "estimatedPointImpact": 81.67,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "runtime_unverified",
+      "exactFiles": [
+        "agent/state/runtime-smoke-evidence.generated.json",
+        "agent/state/provider-smoke-evidence.generated.json",
+        "agent/state/source-backed-runtime-confidence.generated.json"
+      ],
+      "fixPlan": "Keep formal runtime/provider gates blocked; only source-backed confidence can be refreshed without deployed/runtime proof."
+    },
+    {
+      "id": "debug-panel-admin-truth-samples",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 4,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/admin-truth-sample-evidence.generated.json"
+      ],
+      "fixPlan": "Attach a fresh first-party admin truth sample before upgrading this gate."
+    },
+    {
+      "id": "debug-panel-report-precatch-runtime",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 4,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/precatch-runtime-issues.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-targeted-behavior-evidence",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 4,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/targeted-behavior-evidence.generated.json"
+      ],
+      "fixPlan": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate."
+    },
+    {
+      "id": "stale-artifact-creator-drop-status-metrics-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/creator-drop-status-metrics.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:creator-drop-status-metrics."
+    },
+    {
+      "id": "stale-artifact-creator-settings-control-plane-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/creator-settings-control-plane.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:creator-settings-control-plane."
+    },
+    {
+      "id": "stale-artifact-evidence-capture-status-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/evidence-capture-status.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:evidence-capture-status."
+    },
+    {
+      "id": "stale-artifact-existing-algorithm-refinement-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/existing-algorithm-refinement.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:existing-algorithm-refinement."
+    },
+    {
+      "id": "stale-artifact-final-telemetry-closure-lock-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/final-telemetry-closure-lock.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:final-telemetry-closure-lock."
+    },
+    {
+      "id": "stale-artifact-global-marquee-truncated-titles-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/global-marquee-truncated-titles.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:global-marquee-truncated-titles."
+    },
+    {
+      "id": "stale-artifact-mobile-ui-final-lock-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/mobile-ui-final-lock.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:mobile-ui-final-lock."
+    },
+    {
+      "id": "stale-artifact-operator-revenue-smoke-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/operator-revenue-smoke.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:operator-revenue-smoke."
+    },
+    {
+      "id": "stale-artifact-overnight-wiring-integrity-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/overnight-wiring-integrity.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:overnight-wiring-integrity."
+    },
+    {
+      "id": "stale-artifact-source-truth-authority-map-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/source-truth-authority-map.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:source-truth-authority-map."
+    },
+    {
+      "id": "stale-artifact-user-loading-wallet-mobile-refinement-generated-json",
+      "source": "refresh-safeguards",
+      "surface": "agent_state",
+      "severity": "P1",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 2.9872727272727273,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale_refreshable",
+      "exactFiles": [
+        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
+      ],
+      "fixPlan": "Refresh with npm run check:user-loading-wallet-mobile-refinement."
+    },
+    {
+      "id": "debug-runtime-evidence-unknown-empty",
+      "source": "debug-runtime-evidence",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "runtimeHealth",
+      "estimatedPointImpact": 0.01,
+      "sourceFixable": false,
+      "evidenceFixable": false,
+      "staleArtifactFixable": false,
+      "currentStatus": "source_ready_debug_runtime_evidence",
+      "exactFiles": [
+        "agent/state/debug-runtime-evidence.generated.json",
+        "docs/agent-truth/debug-runtime-evidence.md"
+      ],
+      "fixPlan": "Debug/runtime evidence has source-backed checked-clean status; deployed runtime smoke remains separate."
+    },
+    {
+      "id": "telemetry-lane-admin-snapshots",
+      "source": "telemetry-admin-debug-truth",
+      "surface": "telemetry",
+      "severity": "P2",
+      "betaDimension": "runtimeHealth",
+      "estimatedPointImpact": 2,
+      "sourceFixable": true,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "unavailable",
+      "exactFiles": [
+        "agent/state/telemetry-admin-debug-truth.generated.json"
+      ],
+      "fixPlan": "Run the admin analytics refresh lane before treating this as current."
+    },
+    {
+      "id": "telemetry-lane-bigquery-export",
+      "source": "telemetry-admin-debug-truth",
+      "surface": "telemetry",
+      "severity": "P2",
+      "betaDimension": "runtimeHealth",
+      "estimatedPointImpact": 2,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "config_missing",
+      "exactFiles": [
+        "agent/state/telemetry-admin-debug-truth.generated.json"
+      ],
+      "fixPlan": "Configure export only in an owner-approved cloud pipeline pass."
+    },
+    {
+      "id": "telemetry-lane-ingest",
+      "source": "telemetry-admin-debug-truth",
+      "surface": "telemetry",
+      "severity": "P2",
+      "betaDimension": "runtimeHealth",
+      "estimatedPointImpact": 2,
+      "sourceFixable": true,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "runtime_unproven",
+      "exactFiles": [
+        "agent/state/telemetry-admin-debug-truth.generated.json"
+      ],
+      "fixPlan": "Open the route runtime drilldown or wait for runtime samples before treating ingest as proven."
+    },
+    {
+      "id": "telemetry-lane-materializers",
+      "source": "telemetry-admin-debug-truth",
+      "surface": "telemetry",
+      "severity": "P2",
+      "betaDimension": "runtimeHealth",
+      "estimatedPointImpact": 2,
+      "sourceFixable": true,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "runtime_unproven",
+      "exactFiles": [
+        "agent/state/telemetry-admin-debug-truth.generated.json"
+      ],
+      "fixPlan": "Use snapshot metadata before raw collections."
+    },
+    {
+      "id": "telemetry-lane-user-events",
+      "source": "telemetry-admin-debug-truth",
+      "surface": "telemetry",
+      "severity": "P2",
+      "betaDimension": "runtimeHealth",
+      "estimatedPointImpact": 2,
+      "sourceFixable": true,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "runtime_unproven",
+      "exactFiles": [
+        "agent/state/telemetry-admin-debug-truth.generated.json"
+      ],
+      "fixPlan": "Refresh admin analytics snapshots before reading user-event health."
+    },
+    {
+      "id": "telemetry-lane-watch-time",
+      "source": "telemetry-admin-debug-truth",
+      "surface": "telemetry",
+      "severity": "P2",
+      "betaDimension": "runtimeHealth",
+      "estimatedPointImpact": 2,
+      "sourceFixable": true,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "runtime_unproven",
+      "exactFiles": [
+        "agent/state/telemetry-admin-debug-truth.generated.json"
+      ],
+      "fixPlan": "Attach or verify deployed runtime watch-session evidence before treating watch time as proven."
+    },
+    {
+      "id": "debug-panel-analytics-rewire",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-creator-connection-audit",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/user-facing-feature-connection-audit.generated.json"
+      ],
+      "fixPlan": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed."
+    },
+    {
+      "id": "debug-panel-final-launch-readiness",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/final-launch-readiness-report.generated.json"
+      ],
+      "fixPlan": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed."
+    },
+    {
+      "id": "debug-panel-launch-pr-triage",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/launch-pr-triage.generated.json"
+      ],
+      "fixPlan": "Run npm run check:launch-pr-triage when this stale warning must be refreshed."
+    },
+    {
+      "id": "debug-panel-public-beta-score",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "fixPlan": "Use the canonical beta score and cap reasons as the primary Phase 1 queue."
+    },
+    {
+      "id": "debug-panel-recovery-evidence",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/lost-data-recovery-dry-run.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-repo-spring-cleaning",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "archive",
+      "exactFiles": [
+        "agent/state/repo-spring-cleaning-rewire.generated.json"
+      ],
+      "fixPlan": "Run npm run check:repo-spring-cleaning-rewire when this stale warning must be refreshed."
+    },
+    {
+      "id": "debug-panel-report-cloud-cost",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-codebase-hardening",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/codebase-hardening.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-content-protection",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing",
+      "exactFiles": [
+        "agent/state/content-protection.generated.json"
+      ],
+      "fixPlan": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "id": "debug-panel-report-creator-lane",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/creator-lane-debug-parity.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-creator-lane-legacy",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/creator-lane-legacy-truth-inventory.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-debug-evidence",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing",
+      "exactFiles": [
+        "agent/state/debug-evidence-pipeline.generated.json"
+      ],
+      "fixPlan": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "id": "debug-panel-report-device-layout",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/device-layout-score.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-device-ui",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/device-ui-dry-audit.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-event-catalog",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing",
+      "exactFiles": [
+        "agent/state/event-catalog-telemetry.generated.json"
+      ],
+      "fixPlan": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "id": "debug-panel-report-google-cost",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/google-cost-bleed.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-gumdrop-economy",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing",
+      "exactFiles": [
+        "agent/state/gumdrop-economy.generated.json"
+      ],
+      "fixPlan": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "id": "debug-panel-report-hydration",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/hydration-performance.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-orphaned-logic",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/orphaned-logic-score.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-public-beta-score",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "fixPlan": "Run npm run score:beta when this stale warning must be refreshed."
+    },
+    {
+      "id": "debug-panel-report-sitewide-image",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing",
+      "exactFiles": [
+        "agent/state/sitewide-image-optimization.generated.json"
+      ],
+      "fixPlan": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "id": "debug-panel-report-speed-security",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/speed-security-hardening.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-sql-mirror",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/sql-mirror-status.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-support-recovery",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing",
+      "exactFiles": [
+        "agent/state/support-recovery-flows.generated.json"
+      ],
+      "fixPlan": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "id": "debug-panel-report-telemetry-parity",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/telemetry-parity-score.generated.json"
+      ],
+      "fixPlan": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "id": "debug-panel-report-watch-time-truth",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing",
+      "exactFiles": [
+        "agent/state/watch-time-rollup-truth.generated.json"
+      ],
+      "fixPlan": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "id": "debug-panel-score-cap-reasons",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "freshness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": true,
+      "currentStatus": "stale",
+      "exactFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "fixPlan": "Work the visible cap reasons in order instead of hiding them in Debug."
+    },
+    {
+      "id": "debug-panel-system-health",
+      "source": "debug-panel-output-triage",
+      "surface": "admin_debug",
+      "severity": "P2",
+      "betaDimension": "evidenceCompleteness",
+      "estimatedPointImpact": 1,
+      "sourceFixable": false,
+      "evidenceFixable": true,
+      "staleArtifactFixable": false,
+      "currentStatus": "missing",
+      "exactFiles": [
+        "agent/state/admin-truth.generated.json"
+      ],
+      "fixPlan": "Run npm run check:admin-truth if that command owns the missing artifact; otherwise keep the Debug state missing."
+    }
+  ],
+  "fixedThisPass": [
+    "debug-runtime-evidence-unknown-empty",
+    "admin-truth-sample-missing"
+  ],
+  "deferred": [
+    {
+      "id": "runtime-provider-smoke-source-confidence-gap",
+      "reason": "Formal deployed runtime/provider smoke requires external proof.",
+      "nextAction": "Keep formal runtime/provider gates blocked; only source-backed confidence can be refreshed without deployed/runtime proof."
+    }
+  ],
+  "nextExactSteps": [
+    "Run npm run check:debug-runtime-evidence.",
+    "Attach deployed runtime smoke before clearing runtime evidence gates.",
+    "Attach formal provider proof before clearing provider smoke.",
+    "Attach a redacted production admin truth sample before clearing the admin truth sample gate."
+  ]
+}

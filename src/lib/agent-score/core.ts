@@ -132,6 +132,7 @@ export type PublicBetaScoreExplanation = {
 export type PublicBetaEvidenceInput = {
   requiredReports?: PublicBetaGeneratedReportEvidence[];
   debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
+  debugRuntimeEvidenceArtifact?: PublicBetaEvidenceArtifact;
   targetedBehaviorEvidence?: PublicBetaEvidenceArtifact;
   sourceBackedRuntimeConfidenceEvidence?: PublicBetaEvidenceArtifact;
   visualManualEvidence?: PublicBetaEvidenceArtifact;
@@ -577,7 +578,18 @@ export function buildPublicBetaEvidenceGates(input: {
   const evidence = input.evidence ?? {};
   const currentHead = evidence.requiredReports?.find((report) => report.currentHead)?.currentHead;
   const reportEvidence = summarizeRequiredReportEvidence(evidence.requiredReports);
-  const debugEvidenceAvailable = hasDebugEvidence(evidence.debugEvidence);
+  const debugRuntimeEvidenceQuality = resolveEvidenceQuality({
+    artifact: evidence.debugRuntimeEvidenceArtifact,
+    context: {
+      currentHead,
+      lane: "debug_runtime_evidence",
+      requiredForExit: false,
+      requiresRuntimeProof: true,
+    },
+  });
+  const debugRuntimeEvidenceArtifactReady = debugRuntimeEvidenceQuality.quality === "source_ready"
+    && String(evidenceArtifactStatus(evidence.debugRuntimeEvidenceArtifact, "missing_or_unknown")).includes("source_ready");
+  const debugEvidenceAvailable = hasDebugEvidence(evidence.debugEvidence) || debugRuntimeEvidenceArtifactReady;
   const freshnessStatus = mostSevereReadinessStatus([
     reportEvidence.status,
     evidence.openPrTriageFresh === false || evidence.runtimeCodeChangedSinceReport ? "Needs review" : "Ready",
@@ -784,7 +796,9 @@ export function buildPublicBetaEvidenceGates(input: {
     reason: freshnessDetail,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
-  const debugQuality = {
+  const debugQuality = debugRuntimeEvidenceArtifactReady
+    ? debugRuntimeEvidenceQuality
+    : {
     quality: debugEvidenceAvailable ? "formal_partial" : "missing",
     confidence: debugEvidenceAvailable ? 0.65 : 0,
     freshness: debugEvidenceAvailable ? "fresh" : "missing",
@@ -795,6 +809,9 @@ export function buildPublicBetaEvidenceGates(input: {
       ? "Runtime debug evidence is present in the score input."
       : "Debug evidence is empty, so absence of runtime issues is unknown.",
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
+  const debugRuntimeEvidenceLines = evidence.debugRuntimeEvidenceArtifact
+    ? evidenceArtifactEvidence(evidence.debugRuntimeEvidenceArtifact)
+    : [];
 
   const gates: PublicBetaEvidenceGate[] = [
     buildEvidenceGate({
@@ -879,14 +896,16 @@ export function buildPublicBetaEvidenceGates(input: {
       label: "Debug/runtime evidence",
       weight: 0,
       status: debugEvidenceAvailable ? "Ready" : "Unknown evidence",
-      detail: debugEvidenceAvailable
+      detail: debugRuntimeEvidenceArtifactReady
+        ? "source-backed debug/runtime evidence checked debug sources without clearing deployed runtime smoke."
+        : debugEvidenceAvailable
         ? "Runtime debug evidence is present in the score input."
         : "Debug evidence is empty, so absence of runtime issues is unknown.",
-      evidence: [],
+      evidence: debugRuntimeEvidenceLines,
       recommendedAction: "Do not treat empty debug evidence as proof that no runtime issue exists.",
       quality: debugQuality,
       gateRequiredForExit: false,
-      runtimeCredit: debugEvidenceAvailable ? 50 : 0,
+      runtimeCredit: debugRuntimeEvidenceArtifactReady ? debugRuntimeEvidenceQuality.partialCredit * 100 : debugEvidenceAvailable ? 50 : 0,
     }),
   ];
 

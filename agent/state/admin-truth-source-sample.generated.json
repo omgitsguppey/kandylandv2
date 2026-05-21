@@ -1,0 +1,33 @@
+{
+  "generatedAtUtc": "2026-05-21T01:20:31.395Z",
+  "currentHead": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+  "adminDebugControlTowerModelPresent": true,
+  "adminDebugRoutePresent": true,
+  "summaryCardsPresent": true,
+  "productionSampleAttached": false,
+  "formalAdminTruthSamplePassed": false,
+  "sourceTruthLabelsPresent": true,
+  "fakeHealthyStateDetected": false,
+  "reportKey": "admin-truth-source-sample",
+  "sourceCommit": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+  "status": "source_ready_admin_truth_sample",
+  "passed": true,
+  "launchGateImpact": "does_not_clear_admin_truth_sample",
+  "formalEvidenceImpact": "source_admin_truth_wiring_only",
+  "evidence": [
+    "adminDebugControlTowerModelPresent=true",
+    "adminDebugRoutePresent=true",
+    "summaryCardsPresent=true",
+    "productionSampleAttached=false",
+    "formalAdminTruthSamplePassed=false",
+    "sourceTruthLabelsPresent=true",
+    "fakeHealthyStateDetected=false",
+    "launchGateImpact=does_not_clear_admin_truth_sample"
+  ],
+  "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+  "summary": {
+    "adminTruthSourceReady": true,
+    "productionSampleAttached": false,
+    "formalAdminTruthSamplePassed": false
+  }
+}

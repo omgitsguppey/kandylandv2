@@ -38,6 +38,7 @@ const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.genera
 const OPERATOR_REVENUE_SMOKE_PATH = "agent/state/operator-revenue-smoke.generated.json";
 const RUNTIME_SMOKE_EVIDENCE_PATH = "agent/state/runtime-smoke-evidence.generated.json";
 const SOURCE_BACKED_RUNTIME_CONFIDENCE_PATH = "agent/state/source-backed-runtime-confidence.generated.json";
+const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generated.json";
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
 const VISUAL_MANUAL_EVIDENCE_PATHS = [
@@ -167,6 +168,7 @@ function readEvidenceArtifact(
       `artifactPath=${filePath}`,
       `artifactStatus=${status}`,
       `artifactExists=true`,
+      ...evidenceLinesFromArray(parsed.evidence, "artifactEvidence"),
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
     sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
@@ -363,6 +365,15 @@ function readSourceBackedRuntimeConfidenceEvidence(root: string): PublicBetaEvid
   );
 }
 
+function readDebugRuntimeEvidence(root: string): PublicBetaEvidenceArtifact {
+  return readEvidenceArtifact(
+    root,
+    DEBUG_RUNTIME_EVIDENCE_PATH,
+    "missing_or_unknown",
+    "No source-backed debug/runtime evidence artifact was supplied.",
+  );
+}
+
 function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
   const inspected: string[] = [];
   for (const evidencePath of VISUAL_MANUAL_EVIDENCE_PATHS) {
@@ -421,6 +432,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
     debugEvidence,
     evidence: {
       requiredReports: collectGeneratedReportEvidence(root),
+      debugRuntimeEvidenceArtifact: readDebugRuntimeEvidence(root),
       targetedBehaviorEvidence: readTargetedBehaviorEvidence(root),
       sourceBackedRuntimeConfidenceEvidence: readSourceBackedRuntimeConfidenceEvidence(root),
       visualManualEvidence: readVisualManualEvidence(root),

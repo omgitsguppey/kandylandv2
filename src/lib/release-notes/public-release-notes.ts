@@ -1,13 +1,73 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.42",
-  "betaReleaseCounter": 342,
+  "currentVersion": "1.3.43",
+  "betaReleaseCounter": 343,
   "channel": "beta",
-  "generatedAt": "2026-05-21T00:24:56.057Z",
-  "generatedAtUtc": "2026-05-21T00:24:56.057Z",
+  "generatedAt": "2026-05-21T01:13:59.485Z",
+  "generatedAtUtc": "2026-05-21T01:13:59.485Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.43",
+      "previousVersion": "1.3.42",
+      "betaReleaseCounter": 343,
+      "previousBetaReleaseCounter": 342,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): triage score impact warnings",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T01:13:59.485Z",
+      "generatedAt": "2026-05-21T01:13:59.485Z",
+      "committedAtUtc": "2026-05-21T01:13:59.485Z",
+      "generatedAtUtc": "2026-05-21T01:13:59.485Z",
+      "updatedAtUtc": "2026-05-21T01:13:59.485Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Prioritized debug panel warnings by beta score impact.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Prioritized debug panel warnings by beta score impact.",
+        "Converted debug/runtime checks into source-backed evidence.",
+        "Kept formal runtime and provider smoke gates honest."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted debug panel score impact triage and runtime evidence closure pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug",
+        "Beta readiness",
+        "Runtime evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-truth-source-sample.generated.json",
+        "agent/state/debug-runtime-evidence.generated.json",
+        "agent/state/debug-score-impact-triage.generated.json",
+        "docs/agent-truth/admin-truth-source-sample.md",
+        "docs/agent-truth/debug-runtime-evidence.md",
+        "docs/agent-truth/debug-score-impact-triage.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-truth-source-sample.ts",
+        "scripts/agent/validate-debug-runtime-evidence.ts",
+        "scripts/agent/validate-debug-score-impact-triage.ts",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-truth-source-sample.spec.ts",
+        "tests/unit/debug-runtime-evidence.spec.ts",
+        "tests/unit/debug-score-impact-triage.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.42",
       "previousVersion": "1.3.41",
@@ -1334,57 +1394,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/mobile-hardcoded-css-cleanup.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.18",
-      "previousVersion": "1.3.17",
-      "betaReleaseCounter": 318,
-      "previousBetaReleaseCounter": 317,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(ui): add mobile scaling doctrine",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T23:50:00.000Z",
-      "generatedAt": "2026-05-19T23:50:00.000Z",
-      "committedAtUtc": "2026-05-19T23:50:00.000Z",
-      "generatedAtUtc": "2026-05-19T23:50:00.000Z",
-      "updatedAtUtc": "2026-05-19T23:50:00.000Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added mobile-first scaling doctrine and shared density guidance for future UI cleanup.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added mobile-first UI scaling rules.",
-        "Prepared shared density and skeleton guidance for admin, user, and creator screens.",
-        "Protected navigation and chat surfaces from broad UI cleanup."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted mobile UI scaling doctrine foundation pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "mobile UI",
-        "admin screens",
-        "creator screens",
-        "user screens"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/mobile-ui-scaling-doctrine.generated.json",
-        "docs/agent-truth/mobile-ui-scaling-doctrine.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-mobile-ui-scaling-doctrine.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/ui/mobile-scale-contract.ts",
-        "tests/unit/mobile-ui-scaling-doctrine.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
@@ -1396,3 +1405,4 @@ export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
 } as const;
 
 export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;
+

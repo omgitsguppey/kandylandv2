@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.43 - 2026-05-20
+- Bug fixes and general improvements
+- Prioritized debug panel warnings by beta score impact.
+- Converted debug/runtime checks into source-backed evidence.
+- Kept formal runtime and provider smoke gates honest.
+
 ## 1.3.42 - 2026-05-20
 - Bug fixes and general improvements
 - Locked the score-80 path with refreshed source evidence.

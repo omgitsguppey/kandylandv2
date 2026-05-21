@@ -1,0 +1,68 @@
+{
+  "generatedAtUtc": "2026-05-21T01:20:31.346Z",
+  "currentHead": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+  "debugPanelSourceSnapshotStatus": "checked_clean",
+  "routeDiagnosticsStatus": "source_ready",
+  "runtimeWarningStoreStatus": "source_ready",
+  "telemetryAdminDebugTruthStatus": "checked_clean",
+  "adminDebugControlTowerStatus": "source_ready",
+  "precatchRuntimeIssueScanStatus": "source_ready",
+  "errorDictionaryMappingStatus": "source_ready",
+  "criticalRuntimeIssueCount": 0,
+  "unresolvedWarningCount": 0,
+  "unknownEvidenceCount": 1,
+  "sourceBackedRuntimeConfidence": 100,
+  "validatorResults": [
+    {
+      "command": "npm run check:debug-panel-output-triage",
+      "status": "pass",
+      "artifactPath": "agent/state/debug-panel-output-triage.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    },
+    {
+      "command": "npm run check:telemetry-admin-debug-truth",
+      "status": "pass",
+      "artifactPath": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "detail": "Artifact is current for the latest code version."
+    }
+  ],
+  "reportKey": "debug-runtime-evidence",
+  "sourceCommit": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+  "status": "source_ready_debug_runtime_evidence",
+  "passed": true,
+  "launchGateImpact": "does_not_clear_deployed_runtime_smoke",
+  "formalProviderSmokeCleared": false,
+  "deployedRuntimeSmokeCleared": false,
+  "formalEvidenceImpact": "source_debug_runtime_evidence_only",
+  "doesNotClear": [
+    "deployed_runtime_smoke",
+    "provider_smoke",
+    "manual_screenshot",
+    "admin_truth_sample"
+  ],
+  "evidence": [
+    "debugPanelSourceSnapshotStatus=checked_clean",
+    "routeDiagnosticsStatus=source_ready",
+    "runtimeWarningStoreStatus=source_ready",
+    "telemetryAdminDebugTruthStatus=checked_clean",
+    "adminDebugControlTowerStatus=source_ready",
+    "precatchRuntimeIssueScanStatus=source_ready",
+    "errorDictionaryMappingStatus=source_ready",
+    "criticalRuntimeIssueCount=0",
+    "unresolvedWarningCount=0",
+    "unknownEvidenceCount=1",
+    "sourceBackedRuntimeConfidence=100",
+    "launchGateImpact=does_not_clear_deployed_runtime_smoke",
+    "formalProviderSmokeCleared=false",
+    "deployedRuntimeSmokeCleared=false"
+  ],
+  "nextAction": "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
+  "summary": {
+    "debugRuntimeEvidenceStatus": "source_ready_debug_runtime_evidence",
+    "checkedSources": 7,
+    "criticalRuntimeIssueCount": 0,
+    "unresolvedWarningCount": 0,
+    "unknownEvidenceCount": 1,
+    "formalRuntimeSmokeStillRequired": true
+  }
+}
