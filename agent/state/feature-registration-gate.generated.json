@@ -1,0 +1,3245 @@
+{
+  "reportKey": "feature-registration-gate",
+  "registryVersion": "2026.05.feature-registration.1",
+  "generatedAtUtc": "2026-05-21T19:03:23.893Z",
+  "currentHead": "71a910fcbbe06296e4ffd189192543233af30cb6",
+  "status": "pass",
+  "features": [
+    {
+      "featureId": "wallet",
+      "owner": "wallet-analytics",
+      "routes": [
+        {
+          "path": "src/app/api/wallet",
+          "classification": "feature",
+          "owner": "wallet-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/paypal",
+          "classification": "feature",
+          "owner": "wallet-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/checkout",
+          "classification": "feature",
+          "owner": "wallet-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "wallet mobile",
+        "wallet modal",
+        "checkout intent"
+      ],
+      "telemetryEvents": [
+        "wallet_opened",
+        "wallet_closed_incomplete",
+        "purchase_package_selected",
+        "begin_checkout",
+        "purchase",
+        "gumdrops_purchase_completed",
+        "gumdrops_purchase_failed",
+        "server_purchase_verified"
+      ],
+      "consentModeRequirements": [
+        "required_integrity"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "authenticated_user"
+      ],
+      "materializerLanes": [
+        "purchase_integrity_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "wallet-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "costRisk"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Server payment truth outranks telemetry; payment integrity events stay required under declined optional consent."
+      ],
+      "rolloutStatus": "runtime_unverified",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "purchase_events",
+          "producer": "Checkout UI and server purchase verification",
+          "consumer": "Admin revenue/top drops truth, Admin Analytics commerce snapshot, beta revenue evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "gumdrop_balance_events",
+          "producer": "Daily task pipeline, wallet/economy server handlers, ledger-backed reward flows",
+          "consumer": "Admin daily task pipeline, economy evidence, public beta score economy lane",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "user_dashboard",
+      "owner": "user-dashboard-analytics",
+      "routes": [
+        {
+          "path": "src/app/dashboard/page.tsx",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/account/page.tsx",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/dashboard/profile",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/dashboard/settings",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/profile/settings",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/settings",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/activity",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/data",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/profile",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/check-username",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/complete-onboarding",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/onboarding-progress",
+          "classification": "feature",
+          "owner": "user-dashboard-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "user dashboard",
+        "account profile",
+        "settings"
+      ],
+      "telemetryEvents": [
+        "page_viewed",
+        "home_page_viewed",
+        "hero_cta_clicked",
+        "creator_apply_viewed",
+        "creator_waitlist_viewed",
+        "privacy_page_viewed",
+        "terms_page_viewed",
+        "faq_page_viewed",
+        "faq_question_toggled",
+        "dashboard_viewed",
+        "library_viewed",
+        "experience_hub_viewed",
+        "daily_checkin_claimed",
+        "daily_task_window_assigned",
+        "daily_task_window_repaired",
+        "daily_task_progressed",
+        "daily_task_completed",
+        "daily_task_claimed",
+        "daily_task_claim_duplicate_prevented",
+        "daily_task_expired",
+        "daily_task_reward_normalized",
+        "daily_task_state_repair_required",
+        "drop_preview_open_library_clicked",
+        "creator_unfollowed",
+        "creator_not_interested",
+        "creator_muted",
+        "creator_experience_lane_opened",
+        "creator_experience_lane_closed",
+        "creator_experience_cta_clicked",
+        "creator_experience_insufficient_balance",
+        "creator_experience_booking_type_selected",
+        "chat_thread_opened",
+        "chat_compose_sheet_opened",
+        "chat_new_message_sheet_opened",
+        "chat_new_message_sheet_creator_selected",
+        "chat_ios_pwa_shell_applied",
+        "chat_bottom_anchor_restored",
+        "chat_media_file_rejected_size",
+        "chat_icebreaker_inserted",
+        "chat_empty_state_viewed",
+        "creator_private_chat_opened",
+        "creator_custom_request_created",
+        "creator_custom_request_accepted",
+        "creator_custom_request_declined",
+        "creator_call_booking_created",
+        "creator_live_time_booked",
+        "creator_call_booking_completed",
+        "creator_ledger_accrual_created",
+        "creator_cashout_requested",
+        "creator_cashout_honored",
+        "feedback_modal_opened",
+        "feedback_submitted",
+        "navigation_click",
+        "semantic_page_viewed",
+        "semantic_page_engaged",
+        "semantic_page_passive",
+        "semantic_page_exited",
+        "semantic_page_bounced",
+        "semantic_target_clicked",
+        "recent_activity_viewed",
+        "recent_activity_toggled",
+        "daily_tasks_viewed",
+        "daily_task_action_clicked",
+        "task_guidance_viewed",
+        "task_guidance_dismissed",
+        "task_guidance_tapped",
+        "task_guidance_completed",
+        "task_card_expanded",
+        "task_help_opened",
+        "daily_task_assigned",
+        "daily_task_started",
+        "task_completed",
+        "daily_task_failed",
+        "daily_task_deadline_reminder_sent",
+        "promo_card_clicked",
+        "cookie_consent_updated",
+        "insufficient_balance_modal_closed",
+        "insufficient_balance_get_more_clicked",
+        "library_search",
+        "recent_activity_page_changed",
+        "recent_activity_searched"
+      ],
+      "consentModeRequirements": [
+        "minimal_analytics",
+        "full_behavioral",
+        "required_integrity"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "authenticated_user"
+      ],
+      "materializerLanes": [
+        "behavior_signal_materializer",
+        "library_materializer",
+        "retention_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "user-dashboard-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "User dashboard metrics must map to telemetry events, materializers, and admin/debug evidence before complete."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "sessions",
+          "producer": "DeepTracker, AuthContext, client session helpers",
+          "consumer": "Admin Analytics audience/live pulse and Admin Debug session evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "auth_transitions",
+          "producer": "Auth UI, onboarding flows, server auth handlers",
+          "consumer": "Admin Analytics auth outcomes, onboarding performance, analytics truth layer",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "drops",
+      "owner": "drops-analytics",
+      "routes": [
+        {
+          "path": "src/app/drops",
+          "classification": "feature",
+          "owner": "drops-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/experiences",
+          "classification": "feature",
+          "owner": "drops-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/drops",
+          "classification": "feature",
+          "owner": "drops-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "drops index",
+        "locked drop preview",
+        "experiences retention hub"
+      ],
+      "telemetryEvents": [
+        "drops_page_viewed",
+        "faq_search_used",
+        "faq_category_selected",
+        "spend_virtual_currency",
+        "drop_card_impression",
+        "search_query_submitted",
+        "filter_selected",
+        "sort_changed",
+        "category_clicked",
+        "view_drop_details",
+        "drop_clicked",
+        "drop_preview_opened",
+        "drop_preview_page_viewed",
+        "drop_preview_creator_cover_viewed",
+        "drop_preview_creator_share_clicked",
+        "drop_preview_guest_signup_cta_viewed",
+        "drop_preview_guest_signup_cta_clicked",
+        "drop_preview_topup_cta_viewed",
+        "drop_preview_topup_cta_clicked",
+        "drop_preview_unwrap_cta_viewed",
+        "drop_preview_unwrap_cta_clicked",
+        "drop_preview_owned_view_clicked",
+        "drop_preview_cta_viewed",
+        "drop_preview_cta_clicked",
+        "drop_preview_feedback_reacted",
+        "drop_preview_idle_reached",
+        "drop_preview_closed_incomplete",
+        "drop_preview_unlock_success_state_viewed",
+        "drop_preview_keep_unwrapping_clicked",
+        "content_satisfaction_positive",
+        "content_satisfaction_negative",
+        "content_satisfaction_skipped",
+        "recommendation_reason_helpful",
+        "recommendation_reason_not_helpful",
+        "drop_not_interested",
+        "category_not_interested",
+        "recommendation_dismissed",
+        "drop_unwrap_intent_blocked_by_funds",
+        "drop_unlock_attempted",
+        "drop_unwrapped",
+        "unlock_drop_success",
+        "entitlement_granted",
+        "drop_share_copied",
+        "viewer_opened",
+        "viewer_session_started",
+        "viewer_session_completed",
+        "watch_session_started",
+        "watch_session_visible_tick",
+        "watch_session_progress",
+        "watch_session_paused",
+        "watch_session_resumed",
+        "watch_session_hidden",
+        "watch_session_ended",
+        "watch_score_computed",
+        "file_viewed",
+        "viewer_asset_completed",
+        "viewer_asset_consumed",
+        "video_played",
+        "viewer_watch_checkpoint",
+        "viewer_content_loaded",
+        "viewer_source_downloaded",
+        "viewer_related_drop_clicked",
+        "viewer_backgrounded",
+        "creator_experience_request_category_selected",
+        "chat_list_search_focused",
+        "queued_drop_returned_live",
+        "collection_filter_changed",
+        "owned_drop_clicked",
+        "featured_slide_viewed",
+        "featured_slide_clicked",
+        "admin_top_drops_search",
+        "admin_ai_cover_generate_succeeded",
+        "admin_ai_cover_generate_failed",
+        "admin_ai_cover_generation_liked",
+        "admin_ai_cover_generation_disliked",
+        "admin_ai_cover_generation_accepted",
+        "admin_ai_cover_history_cleared",
+        "admin_ai_description_toggle_updated",
+        "admin_ai_description_generate_succeeded",
+        "admin_ai_description_generate_failed",
+        "admin_ai_description_generation_liked",
+        "admin_ai_description_generation_disliked",
+        "admin_ai_description_generation_accepted",
+        "admin_ai_description_prompt_policy_updated",
+        "admin_ai_description_history_cleared",
+        "drops_category_selected",
+        "drops_searched",
+        "unlock_drop_failed"
+      ],
+      "consentModeRequirements": [
+        "full_behavioral",
+        "required_integrity",
+        "minimal_analytics",
+        "full_analytics"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "authenticated_user",
+        "admin_required"
+      ],
+      "materializerLanes": [
+        "drop_behavior_materializer",
+        "search_discovery_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "drops-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Drop interest must keep product-state blur, unlock truth, and behavior signals separate."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "page_views",
+          "producer": "PageViewEvent, DeepTracker, route-level client components",
+          "consumer": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "library",
+      "owner": "library-analytics",
+      "routes": [
+        {
+          "path": "src/app/dashboard/library",
+          "classification": "feature",
+          "owner": "library-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "user library",
+        "recent activity"
+      ],
+      "telemetryEvents": [
+        "library_viewed",
+        "drop_preview_open_library_clicked",
+        "recent_activity_viewed",
+        "recent_activity_toggled",
+        "library_search",
+        "recent_activity_page_changed",
+        "recent_activity_searched"
+      ],
+      "consentModeRequirements": [
+        "minimal_analytics",
+        "full_behavioral"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user"
+      ],
+      "materializerLanes": [
+        "library_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "library-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Library engagement must not infer unlock or purchase truth from UI-only state."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "creator_dashboard",
+      "owner": "creator-dashboard-analytics",
+      "routes": [
+        {
+          "path": "src/app/creator/page.tsx",
+          "classification": "feature",
+          "owner": "creator-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/dashboard/creator/page.tsx",
+          "classification": "feature",
+          "owner": "creator-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/creators/dashboard/page.tsx",
+          "classification": "feature",
+          "owner": "creator-dashboard-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/payouts",
+          "classification": "feature",
+          "owner": "creator-dashboard-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "creator dashboard",
+        "creator overview stats"
+      ],
+      "telemetryEvents": [
+        "user_settings_viewed",
+        "user_settings_creator_tools_cta_clicked",
+        "profile_settings_viewed",
+        "creator_dashboard_settings_viewed",
+        "creator_settings_section_opened",
+        "creator_broadcast_manager_viewed",
+        "creator_broadcast_created",
+        "creator_broadcast_creation_failed",
+        "creator_broadcast_detail_viewed",
+        "creator_broadcast_empty_state_viewed",
+        "creator_settings_migrated_redirect_viewed",
+        "creator_settings_updated",
+        "creator_drop_submitted",
+        "creator_drop_updated",
+        "admin_creator_drop_reviewed",
+        "creator_broadcast_opened",
+        "chat_media_file_allowed_fan_pass",
+        "creator_fan_pass_started",
+        "creator_subscription_started",
+        "creator_subscription_renewed",
+        "creator_subscription_failed",
+        "creator_subscription_canceled",
+        "creator_drop_unwrapped",
+        "admin_creator_experience_settings_opened",
+        "admin_creator_experience_settings_saved"
+      ],
+      "consentModeRequirements": [
+        "minimal_analytics",
+        "full_behavioral",
+        "full_analytics",
+        "required_integrity"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "admin_required",
+        "authenticated_user"
+      ],
+      "materializerLanes": [
+        "creator_settings_materializer",
+        "broadcast_materializer",
+        "creator_drop_manager_materializer",
+        "fan_pass_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "creator-dashboard-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Creator UI, telemetry, and admin evidence must preserve actor/target creator separation."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "creator_interactions",
+          "producer": "Creator profile, Fan Pass, broadcast, chat, booking, and creator dashboard surfaces",
+          "consumer": "Creator dashboard role boundary reports, Fan Pass CRM/broadcast evidence, Admin Analytics creator lanes",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "fan_pass_subscribers",
+          "producer": "Creator subscription/Fan Pass server routes and UI companions",
+          "consumer": "Fan Pass CRM/broadcast evidence, creator parity reports, creator dashboard stats evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "creator_settings",
+      "owner": "creator-settings-analytics",
+      "routes": [
+        {
+          "path": "src/app/dashboard/creator/settings",
+          "classification": "feature",
+          "owner": "creator-settings-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/settings",
+          "classification": "feature",
+          "owner": "creator-settings-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/settings/landing",
+          "classification": "feature",
+          "owner": "creator-settings-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "creator settings",
+        "pricing settings",
+        "experience settings"
+      ],
+      "telemetryEvents": [
+        "user_settings_viewed",
+        "user_settings_creator_tools_cta_clicked",
+        "profile_settings_viewed",
+        "creator_dashboard_settings_viewed",
+        "creator_settings_section_opened",
+        "creator_settings_migrated_redirect_viewed",
+        "creator_settings_updated",
+        "admin_creator_experience_settings_opened",
+        "admin_creator_experience_settings_saved"
+      ],
+      "consentModeRequirements": [
+        "minimal_analytics",
+        "full_behavioral",
+        "full_analytics"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "admin_required"
+      ],
+      "materializerLanes": [
+        "creator_settings_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "creator-settings-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Settings saves need source truth, telemetry companions, and admin/debug visibility."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "creator_interactions",
+          "producer": "Creator profile, Fan Pass, broadcast, chat, booking, and creator dashboard surfaces",
+          "consumer": "Creator dashboard role boundary reports, Fan Pass CRM/broadcast evidence, Admin Analytics creator lanes",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "creator_drop_manager",
+      "owner": "creator-drop-manager-analytics",
+      "routes": [
+        {
+          "path": "src/app/dashboard/creator/drops",
+          "classification": "feature",
+          "owner": "creator-drop-manager-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/drops",
+          "classification": "feature",
+          "owner": "creator-drop-manager-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/admin/drops",
+          "classification": "feature",
+          "owner": "creator-drop-manager-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "creator drop manager",
+        "drop status metrics",
+        "admin drop review"
+      ],
+      "telemetryEvents": [
+        "creator_drop_submitted",
+        "creator_drop_updated",
+        "admin_creator_drop_reviewed",
+        "creator_drop_unwrapped"
+      ],
+      "consentModeRequirements": [
+        "full_behavioral",
+        "full_analytics",
+        "required_integrity"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "admin_required",
+        "authenticated_user"
+      ],
+      "materializerLanes": [
+        "creator_drop_manager_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "creator-drop-manager-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Creator drop status metrics need producer, materializer, and admin/debug consumers."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "creator_drop_submissions",
+          "producer": "Creator drop API and Admin drops review route",
+          "consumer": "Creator drop management approval report, Admin Drops CMS audit, public beta creator supply evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "creator_interactions",
+          "producer": "Creator profile, Fan Pass, broadcast, chat, booking, and creator dashboard surfaces",
+          "consumer": "Creator dashboard role boundary reports, Fan Pass CRM/broadcast evidence, Admin Analytics creator lanes",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "creator_profile",
+      "owner": "creator-profile-analytics",
+      "routes": [
+        {
+          "path": "src/app/creators/[username]",
+          "classification": "feature",
+          "owner": "creator-profile-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/dashboard/profile/creator",
+          "classification": "feature",
+          "owner": "creator-profile-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creators/[username]",
+          "classification": "feature",
+          "owner": "creator-profile-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/discovery",
+          "classification": "feature",
+          "owner": "creator-profile-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/follow",
+          "classification": "feature",
+          "owner": "creator-profile-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "creator profile",
+        "creator profile timeline",
+        "creator profile mobile"
+      ],
+      "telemetryEvents": [
+        "creator_search_selected",
+        "creator_followed",
+        "creator_profile_viewed",
+        "creator_profile_link_clicked",
+        "creator_profile_link_missing",
+        "creator_rail_impression"
+      ],
+      "consentModeRequirements": [
+        "full_behavioral"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user"
+      ],
+      "materializerLanes": [
+        "creator_profile_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "creator-profile-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Profile views and follows must require consent and identity-aware behavior attribution."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "creator_interactions",
+          "producer": "Creator profile, Fan Pass, broadcast, chat, booking, and creator dashboard surfaces",
+          "consumer": "Creator dashboard role boundary reports, Fan Pass CRM/broadcast evidence, Admin Analytics creator lanes",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "broadcasts",
+      "owner": "broadcasts-analytics",
+      "routes": [
+        {
+          "path": "src/app/dashboard/creator/page.tsx",
+          "classification": "feature",
+          "owner": "broadcasts-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/broadcasts",
+          "classification": "feature",
+          "owner": "broadcasts-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "creator broadcasts",
+        "broadcast source"
+      ],
+      "telemetryEvents": [
+        "creator_broadcast_manager_viewed",
+        "creator_broadcast_created",
+        "creator_broadcast_creation_failed",
+        "creator_broadcast_detail_viewed",
+        "creator_broadcast_empty_state_viewed",
+        "creator_broadcast_opened"
+      ],
+      "consentModeRequirements": [
+        "full_behavioral"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user"
+      ],
+      "materializerLanes": [
+        "broadcast_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "broadcasts-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Broadcast source readiness is not runtime proof until formal runtime evidence exists."
+      ],
+      "rolloutStatus": "runtime_unverified",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "creator_interactions",
+          "producer": "Creator profile, Fan Pass, broadcast, chat, booking, and creator dashboard surfaces",
+          "consumer": "Creator dashboard role boundary reports, Fan Pass CRM/broadcast evidence, Admin Analytics creator lanes",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "fan_pass",
+      "owner": "fan-pass-analytics",
+      "routes": [
+        {
+          "path": "src/app/creators/[username]",
+          "classification": "feature",
+          "owner": "fan-pass-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/subscriptions",
+          "classification": "feature",
+          "owner": "fan-pass-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/bookings",
+          "classification": "feature",
+          "owner": "fan-pass-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/relationships",
+          "classification": "feature",
+          "owner": "fan-pass-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/requests",
+          "classification": "feature",
+          "owner": "fan-pass-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "Fan Pass",
+        "creator monetization"
+      ],
+      "telemetryEvents": [
+        "chat_media_file_allowed_fan_pass",
+        "creator_fan_pass_started",
+        "creator_subscription_started",
+        "creator_subscription_renewed",
+        "creator_subscription_failed",
+        "creator_subscription_canceled"
+      ],
+      "consentModeRequirements": [
+        "full_behavioral",
+        "required_integrity"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "authenticated_user"
+      ],
+      "materializerLanes": [
+        "fan_pass_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "fan-pass-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Fan Pass remains paid-source GumDrops only; telemetry cannot override subscription truth."
+      ],
+      "rolloutStatus": "runtime_unverified",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "fan_pass_subscribers",
+          "producer": "Creator subscription/Fan Pass server routes and UI companions",
+          "consumer": "Fan Pass CRM/broadcast evidence, creator parity reports, creator dashboard stats evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "creator_interactions",
+          "producer": "Creator profile, Fan Pass, broadcast, chat, booking, and creator dashboard surfaces",
+          "consumer": "Creator dashboard role boundary reports, Fan Pass CRM/broadcast evidence, Admin Analytics creator lanes",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "admin_debug",
+      "owner": "admin-debug-analytics",
+      "routes": [
+        {
+          "path": "src/app/admin",
+          "classification": "feature",
+          "owner": "admin-debug-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/admin",
+          "classification": "feature",
+          "owner": "admin-debug-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/admin/debug",
+          "classification": "feature",
+          "owner": "admin-debug-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "admin debug",
+        "admin analytics",
+        "admin control tower"
+      ],
+      "telemetryEvents": [
+        "creator_agreement_signed",
+        "creator_onboarding_submitted",
+        "creator_intro_acknowledged",
+        "creator_legally_cleared_override",
+        "creator_admin_queue_materialized",
+        "creator_id_requested",
+        "creator_id_document_uploaded",
+        "creator_id_submitted",
+        "creator_id_submission_failed",
+        "creator_id_verified",
+        "creator_id_rejected",
+        "creator_legal_sent",
+        "creator_contract_signed",
+        "creator_legal_signed",
+        "creator_segment_assigned",
+        "creator_approved",
+        "creator_rejected",
+        "creator_needs_changes",
+        "creator_role_activated",
+        "creator_role_activation_blocked",
+        "owner_override_applied",
+        "owner_override_cleared",
+        "admin_chart_view_changed",
+        "admin_action_performed",
+        "asset_upload_started",
+        "asset_upload_queued",
+        "asset_batch_selected",
+        "asset_batch_queue_started",
+        "asset_batch_progress_updated",
+        "asset_batch_completed",
+        "asset_batch_failed",
+        "asset_batch_retry_failed_clicked",
+        "asset_batch_submit_blocked_uploads_in_progress",
+        "asset_upload_progress_checkpoint",
+        "asset_upload_success",
+        "asset_upload_failed",
+        "asset_upload_retry_clicked",
+        "asset_upload_canceled",
+        "admin_dashboard_viewed",
+        "admin_overview_viewed",
+        "admin_analytics_viewed",
+        "admin_revenue_range_changed",
+        "admin_top_drops_page_changed",
+        "admin_ai_viewed",
+        "admin_moderation_viewed",
+        "admin_moderation_alert_selected",
+        "admin_moderation_risk_action_clicked",
+        "admin_moderation_alert_reviewed",
+        "admin_moderation_alert_dismissed_false_positive",
+        "admin_moderation_alert_escalated",
+        "admin_moderation_data_failed",
+        "admin_debug_viewed",
+        "admin_support_viewed",
+        "admin_users_viewed",
+        "admin_content_viewed",
+        "admin_drops_viewed",
+        "admin_privacy_viewed",
+        "admin_queue_viewed",
+        "admin_roster_viewed",
+        "admin_roster_tab_changed",
+        "admin_creator_record_opened",
+        "admin_creator_primary_action_clicked",
+        "admin_creator_section_expanded",
+        "admin_creator_audit_trail_opened",
+        "admin_creator_audit_event_expanded",
+        "admin_creator_action_executed",
+        "admin_creator_account_updated",
+        "admin_creator_email_updated",
+        "admin_creator_password_reset_sent",
+        "admin_creator_temporary_password_set",
+        "admin_creator_role_updated",
+        "admin_creator_status_updated",
+        "admin_creator_experience_lane_toggled",
+        "admin_creator_experience_pricing_updated",
+        "admin_creator_experience_restriction_updated",
+        "admin_creator_agreement_template_created",
+        "admin_creator_agreement_template_activated",
+        "admin_creator_agreement_sent",
+        "admin_creator_agreement_update_sent",
+        "admin_creator_agreement_countersigned",
+        "admin_synthetic_creator_created",
+        "admin_synthetic_creator_marked",
+        "admin_view_as_creator_started",
+        "admin_view_as_creator_ended",
+        "admin_projection_write_blocked",
+        "admin_user_detail_viewed",
+        "admin_ai_cover_toggle_updated",
+        "admin_creator_created_directly",
+        "creator_application_review_saved"
+      ],
+      "consentModeRequirements": [
+        "full_analytics"
+      ],
+      "identityRequirements": [
+        "admin_required"
+      ],
+      "materializerLanes": [
+        "admin_debug_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "admin-debug-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Admin debug must show unknown/stale as unknown or stale, never healthy."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "admin_debug_evidence",
+          "producer": "Admin routes, security/moderation handlers, debug evidence pipeline, server system jobs",
+          "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "external_ga4_evidence",
+          "producer": "Ga4EvidenceTracker, PostHog provider, analytics export jobs",
+          "consumer": "Admin Analytics external evidence, GA4 recovery truth, beta analytics supporting evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "analytics_telemetry",
+      "owner": "analytics-platform",
+      "routes": [
+        {
+          "path": "src/app/api/analytics",
+          "classification": "feature",
+          "owner": "analytics-platform",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/telemetry",
+          "classification": "feature",
+          "owner": "analytics-platform",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/%5F%5F/firebase",
+          "classification": "feature",
+          "owner": "analytics-platform",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "telemetry dependency graph",
+        "analytics ingest",
+        "event facts"
+      ],
+      "telemetryEvents": [
+        "auth_modal_opened",
+        "auth_modal_closed_incomplete",
+        "auth_mode_switched",
+        "auth_google_sign_in_attempted",
+        "auth_google_sign_in_success",
+        "auth_google_sign_in_failed",
+        "auth_sign_in_attempted",
+        "auth_sign_in_success",
+        "auth_sign_in_failed",
+        "auth_sign_up_attempted",
+        "auth_sign_up_success",
+        "auth_sign_up_failed",
+        "auth_attempt_started",
+        "auth_attempt_succeeded",
+        "auth_attempt_failed",
+        "auth_attempt_unfinished",
+        "auth_session_established",
+        "auth_registration_started",
+        "auth_registration_completed",
+        "auth_navigation_session_started",
+        "auth_navigation_session_completed",
+        "auth_navigation_session_failed",
+        "user_registered",
+        "auth_session_restored",
+        "auth_logout",
+        "password_reset_requested",
+        "password_reset_sent",
+        "password_reset_failed",
+        "guided_onboarding_started",
+        "guided_onboarding_completed",
+        "guided_onboarding_step_started",
+        "guided_onboarding_step_completed",
+        "onboarding_step_viewed",
+        "avatar_uploaded",
+        "page_viewed",
+        "home_page_viewed",
+        "hero_cta_clicked",
+        "creator_apply_viewed",
+        "creator_waitlist_viewed",
+        "creator_agreement_viewed",
+        "creator_agreement_section_opened",
+        "creator_agreement_acknowledgement_checked",
+        "creator_intake_started",
+        "creator_intake_step_completed",
+        "creator_intake_goal_selected",
+        "creator_intake_recommended_setup_shown",
+        "creator_intake_submitted",
+        "creator_application_updated",
+        "privacy_page_viewed",
+        "terms_page_viewed",
+        "faq_page_viewed",
+        "faq_question_toggled",
+        "dashboard_viewed",
+        "support_inbox_viewed",
+        "support_ticket_created",
+        "support_thread_opened",
+        "support_reply_viewed",
+        "support_reply_sent",
+        "support_thread_reply_failed",
+        "bug_report_submitted",
+        "creator_unfollowed",
+        "creator_not_interested",
+        "creator_muted",
+        "creator_experience_lane_opened",
+        "creator_experience_lane_closed",
+        "creator_experience_cta_clicked",
+        "creator_experience_insufficient_balance",
+        "creator_experience_booking_type_selected",
+        "chat_thread_opened",
+        "chat_compose_sheet_opened",
+        "chat_new_message_sheet_opened",
+        "chat_new_message_sheet_creator_selected",
+        "chat_no_followed_creators_prompt_viewed",
+        "chat_no_followed_creators_cta_clicked",
+        "chat_thread_auto_created_or_resolved",
+        "chat_paid_gd_gate_viewed",
+        "chat_paid_gd_gate_primary_clicked",
+        "chat_paid_gd_gate_secondary_clicked",
+        "chat_message_send_attempted",
+        "chat_message_send_failed",
+        "chat_message_sent",
+        "chat_ios_pwa_shell_applied",
+        "chat_bottom_anchor_restored",
+        "chat_media_file_rejected_size",
+        "chat_icebreaker_inserted",
+        "chat_empty_state_viewed",
+        "creator_message_sent",
+        "creator_media_sent",
+        "creator_private_chat_opened",
+        "creator_custom_request_created",
+        "creator_custom_request_accepted",
+        "creator_custom_request_declined",
+        "creator_call_booking_created",
+        "creator_live_time_booked",
+        "creator_call_booking_completed",
+        "creator_ledger_accrual_created",
+        "creator_cashout_requested",
+        "creator_cashout_honored",
+        "feature_flag_exposed",
+        "experiment_variant_exposed",
+        "identity_linked",
+        "system_job_ran",
+        "navigation_click",
+        "beta_badge_clicked",
+        "beta_changelog_opened",
+        "beta_changelog_closed",
+        "beta_changelog_entry_clicked",
+        "semantic_page_viewed",
+        "semantic_page_engaged",
+        "semantic_page_passive",
+        "semantic_page_exited",
+        "semantic_page_bounced",
+        "semantic_target_clicked",
+        "promo_card_clicked",
+        "cookie_consent_updated",
+        "insufficient_balance_modal_closed",
+        "insufficient_balance_get_more_clicked",
+        "heuristic_screenshot_shortcut_mac",
+        "heuristic_screenshot_shortcut_windows",
+        "heuristic_screen_record_shortcut",
+        "heuristic_devtools_shortcut",
+        "heuristic_rapid_visibility_capture",
+        "heuristic_rip_pattern",
+        "heuristic_unknown_threat",
+        "confirmed_print_attempt",
+        "confirmed_save_attempt",
+        "confirmed_copy_attempt",
+        "confirmed_cut_attempt",
+        "confirmed_selection_attempt",
+        "confirmed_drag_attempt",
+        "confirmed_context_menu_attempt"
+      ],
+      "consentModeRequirements": [
+        "required_integrity",
+        "full_behavioral",
+        "minimal_analytics",
+        "full_analytics"
+      ],
+      "identityRequirements": [
+        "authenticated_user",
+        "anonymous_or_user",
+        "system"
+      ],
+      "materializerLanes": [
+        "identity_materializer",
+        "behavior_signal_materializer",
+        "support_materializer",
+        "watch_session_materializer",
+        "security_diagnostics_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "analytics-platform",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Telemetry platform changes must bind catalog, ingest, materializer, score, and debug evidence."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "page_views",
+          "producer": "PageViewEvent, DeepTracker, route-level client components",
+          "consumer": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "sessions",
+          "producer": "DeepTracker, AuthContext, client session helpers",
+          "consumer": "Admin Analytics audience/live pulse and Admin Debug session evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "guest_events",
+          "producer": "DeepTracker semantic event queue",
+          "consumer": "Guest analytics cutover report, Admin Analytics guest bounce quality, Admin Debug guest evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "auth_transitions",
+          "producer": "Auth UI, onboarding flows, server auth handlers",
+          "consumer": "Admin Analytics auth outcomes, onboarding performance, analytics truth layer",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "identity_links",
+          "producer": "analytics identity-link route and identified ingest identity_linked events",
+          "consumer": "Analytics identity transfer inventory, guest-user analytics cutover, Admin Debug identity evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "cookie_consent_privacy",
+      "owner": "privacy-analytics",
+      "routes": [
+        {
+          "path": "src/app/(legal)/privacy",
+          "classification": "feature",
+          "owner": "privacy-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/admin/privacy",
+          "classification": "feature",
+          "owner": "privacy-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/privacy",
+          "classification": "feature",
+          "owner": "privacy-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/consent",
+          "classification": "feature",
+          "owner": "privacy-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "cookie banner",
+        "privacy settings",
+        "admin privacy"
+      ],
+      "telemetryEvents": [
+        "auth_modal_opened",
+        "auth_modal_closed_incomplete",
+        "auth_mode_switched",
+        "auth_google_sign_in_attempted",
+        "auth_google_sign_in_success",
+        "auth_google_sign_in_failed",
+        "auth_sign_in_attempted",
+        "auth_sign_in_success",
+        "auth_sign_in_failed",
+        "auth_sign_up_attempted",
+        "auth_sign_up_success",
+        "auth_sign_up_failed",
+        "auth_attempt_started",
+        "auth_attempt_succeeded",
+        "auth_attempt_failed",
+        "auth_attempt_unfinished",
+        "auth_session_established",
+        "auth_registration_started",
+        "auth_registration_completed",
+        "auth_navigation_session_started",
+        "auth_navigation_session_completed",
+        "auth_navigation_session_failed",
+        "user_registered",
+        "auth_session_restored",
+        "auth_logout",
+        "password_reset_requested",
+        "password_reset_sent",
+        "password_reset_failed",
+        "guided_onboarding_started",
+        "guided_onboarding_completed",
+        "guided_onboarding_step_started",
+        "guided_onboarding_step_completed",
+        "onboarding_step_viewed",
+        "avatar_uploaded",
+        "page_viewed",
+        "home_page_viewed",
+        "hero_cta_clicked",
+        "creator_apply_viewed",
+        "creator_waitlist_viewed",
+        "creator_agreement_viewed",
+        "creator_agreement_section_opened",
+        "creator_agreement_acknowledgement_checked",
+        "creator_intake_started",
+        "creator_intake_step_completed",
+        "creator_intake_goal_selected",
+        "creator_intake_recommended_setup_shown",
+        "creator_intake_submitted",
+        "creator_application_updated",
+        "privacy_page_viewed",
+        "terms_page_viewed",
+        "faq_page_viewed",
+        "faq_question_toggled",
+        "dashboard_viewed",
+        "creator_unfollowed",
+        "creator_not_interested",
+        "creator_muted",
+        "creator_experience_lane_opened",
+        "creator_experience_lane_closed",
+        "creator_experience_cta_clicked",
+        "creator_experience_insufficient_balance",
+        "creator_experience_booking_type_selected",
+        "chat_thread_opened",
+        "chat_compose_sheet_opened",
+        "chat_new_message_sheet_opened",
+        "chat_new_message_sheet_creator_selected",
+        "chat_ios_pwa_shell_applied",
+        "chat_bottom_anchor_restored",
+        "chat_media_file_rejected_size",
+        "chat_icebreaker_inserted",
+        "chat_empty_state_viewed",
+        "creator_private_chat_opened",
+        "creator_custom_request_created",
+        "creator_custom_request_accepted",
+        "creator_custom_request_declined",
+        "creator_call_booking_created",
+        "creator_live_time_booked",
+        "creator_call_booking_completed",
+        "creator_ledger_accrual_created",
+        "creator_cashout_requested",
+        "creator_cashout_honored",
+        "identity_linked",
+        "navigation_click",
+        "semantic_page_viewed",
+        "semantic_page_engaged",
+        "semantic_page_passive",
+        "semantic_page_exited",
+        "semantic_page_bounced",
+        "semantic_target_clicked",
+        "promo_card_clicked",
+        "cookie_consent_updated",
+        "insufficient_balance_modal_closed",
+        "insufficient_balance_get_more_clicked"
+      ],
+      "consentModeRequirements": [
+        "required_integrity",
+        "full_behavioral",
+        "minimal_analytics"
+      ],
+      "identityRequirements": [
+        "authenticated_user",
+        "anonymous_or_user"
+      ],
+      "materializerLanes": [
+        "identity_materializer",
+        "behavior_signal_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "privacy-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Consent mode must gate behavior tracking and account settings must override banner state."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "guest_events",
+          "producer": "DeepTracker semantic event queue",
+          "consumer": "Guest analytics cutover report, Admin Analytics guest bounce quality, Admin Debug guest evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "identity_links",
+          "producer": "analytics identity-link route and identified ingest identity_linked events",
+          "consumer": "Analytics identity transfer inventory, guest-user analytics cutover, Admin Debug identity evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "behavior_tracking",
+      "owner": "behavioral-intelligence",
+      "routes": [
+        {
+          "path": "src/app/api/behavior",
+          "classification": "feature",
+          "owner": "behavioral-intelligence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/analytics/identity-link",
+          "classification": "feature",
+          "owner": "behavioral-intelligence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/dashboard/viewer",
+          "classification": "feature",
+          "owner": "behavioral-intelligence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/viewer/watch-session",
+          "classification": "feature",
+          "owner": "behavioral-intelligence",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "DeepTracker",
+        "behavior math",
+        "identity handoff"
+      ],
+      "telemetryEvents": [
+        "page_viewed",
+        "home_page_viewed",
+        "hero_cta_clicked",
+        "creator_apply_viewed",
+        "creator_waitlist_viewed",
+        "privacy_page_viewed",
+        "terms_page_viewed",
+        "drops_page_viewed",
+        "faq_page_viewed",
+        "faq_question_toggled",
+        "dashboard_viewed",
+        "spend_virtual_currency",
+        "drop_card_impression",
+        "creator_search_selected",
+        "view_drop_details",
+        "drop_clicked",
+        "drop_preview_opened",
+        "drop_preview_page_viewed",
+        "drop_preview_creator_cover_viewed",
+        "drop_preview_creator_share_clicked",
+        "drop_preview_guest_signup_cta_viewed",
+        "drop_preview_guest_signup_cta_clicked",
+        "drop_preview_topup_cta_viewed",
+        "drop_preview_topup_cta_clicked",
+        "drop_preview_unwrap_cta_viewed",
+        "drop_preview_unwrap_cta_clicked",
+        "drop_preview_owned_view_clicked",
+        "drop_preview_cta_viewed",
+        "drop_preview_cta_clicked",
+        "drop_preview_feedback_reacted",
+        "drop_preview_idle_reached",
+        "drop_preview_closed_incomplete",
+        "drop_preview_unlock_success_state_viewed",
+        "drop_preview_keep_unwrapping_clicked",
+        "content_satisfaction_positive",
+        "content_satisfaction_negative",
+        "content_satisfaction_skipped",
+        "recommendation_reason_helpful",
+        "recommendation_reason_not_helpful",
+        "drop_not_interested",
+        "recommendation_dismissed",
+        "drop_unwrap_intent_blocked_by_funds",
+        "drop_unlock_attempted",
+        "drop_unwrapped",
+        "unlock_drop_success",
+        "entitlement_granted",
+        "drop_share_copied",
+        "viewer_opened",
+        "viewer_session_started",
+        "viewer_session_completed",
+        "watch_session_started",
+        "watch_session_visible_tick",
+        "watch_session_progress",
+        "watch_session_paused",
+        "watch_session_resumed",
+        "watch_session_hidden",
+        "watch_session_ended",
+        "watch_score_computed",
+        "file_viewed",
+        "viewer_asset_completed",
+        "viewer_asset_consumed",
+        "video_played",
+        "viewer_watch_checkpoint",
+        "viewer_content_loaded",
+        "viewer_source_downloaded",
+        "viewer_related_drop_clicked",
+        "viewer_backgrounded",
+        "creator_followed",
+        "creator_unfollowed",
+        "creator_not_interested",
+        "creator_muted",
+        "creator_profile_viewed",
+        "creator_profile_link_clicked",
+        "creator_profile_link_missing",
+        "creator_rail_impression",
+        "creator_experience_lane_opened",
+        "creator_experience_lane_closed",
+        "creator_experience_cta_clicked",
+        "creator_experience_insufficient_balance",
+        "creator_experience_booking_type_selected",
+        "chat_thread_opened",
+        "chat_compose_sheet_opened",
+        "chat_new_message_sheet_opened",
+        "chat_new_message_sheet_creator_selected",
+        "chat_ios_pwa_shell_applied",
+        "chat_bottom_anchor_restored",
+        "chat_media_file_rejected_size",
+        "chat_icebreaker_inserted",
+        "chat_empty_state_viewed",
+        "creator_private_chat_opened",
+        "creator_custom_request_created",
+        "creator_custom_request_accepted",
+        "creator_custom_request_declined",
+        "creator_call_booking_created",
+        "creator_live_time_booked",
+        "creator_call_booking_completed",
+        "creator_ledger_accrual_created",
+        "creator_cashout_requested",
+        "creator_cashout_honored",
+        "queued_drop_returned_live",
+        "feature_flag_exposed",
+        "experiment_variant_exposed",
+        "system_job_ran",
+        "navigation_click",
+        "beta_badge_clicked",
+        "beta_changelog_opened",
+        "beta_changelog_closed",
+        "beta_changelog_entry_clicked",
+        "semantic_page_viewed",
+        "semantic_page_engaged",
+        "semantic_page_passive",
+        "semantic_page_exited",
+        "semantic_page_bounced",
+        "semantic_target_clicked",
+        "promo_card_clicked",
+        "owned_drop_clicked",
+        "cookie_consent_updated",
+        "insufficient_balance_modal_closed",
+        "insufficient_balance_get_more_clicked",
+        "featured_slide_viewed",
+        "featured_slide_clicked",
+        "admin_ai_cover_generate_succeeded",
+        "admin_ai_cover_generate_failed",
+        "admin_ai_cover_generation_liked",
+        "admin_ai_cover_generation_disliked",
+        "admin_ai_cover_generation_accepted",
+        "admin_ai_cover_history_cleared",
+        "admin_ai_description_toggle_updated",
+        "admin_ai_description_generate_succeeded",
+        "admin_ai_description_generate_failed",
+        "admin_ai_description_generation_liked",
+        "admin_ai_description_generation_disliked",
+        "admin_ai_description_generation_accepted",
+        "admin_ai_description_prompt_policy_updated",
+        "admin_ai_description_history_cleared",
+        "unlock_drop_failed"
+      ],
+      "consentModeRequirements": [
+        "minimal_analytics",
+        "full_behavioral",
+        "required_integrity",
+        "full_analytics"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "authenticated_user",
+        "system",
+        "admin_required"
+      ],
+      "materializerLanes": [
+        "behavior_signal_materializer",
+        "drop_behavior_materializer",
+        "creator_profile_materializer",
+        "watch_session_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "behavioral-intelligence",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Behavior math must be consent-aware, identity-aware, deduped, and materializer-ready."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "runtime_watch_time",
+          "producer": "useViewerWatchSession and viewer watch-session route; RuntimeWatchTracker is source-ready but not the persisted default path",
+          "consumer": "Runtime watch-time v2 evidence, Admin Analytics watch-time health, public beta runtime proof",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "identity_links",
+          "producer": "analytics identity-link route and identified ingest identity_linked events",
+          "consumer": "Analytics identity transfer inventory, guest-user analytics cutover, Admin Debug identity evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "runtime_smoke_substitutes",
+      "owner": "runtime-evidence",
+      "routes": [
+        {
+          "path": "src/app/api/runtime",
+          "classification": "feature",
+          "owner": "runtime-evidence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/banned",
+          "classification": "feature",
+          "owner": "runtime-evidence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/offline",
+          "classification": "feature",
+          "owner": "runtime-evidence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/%5F%5F/auth",
+          "classification": "feature",
+          "owner": "runtime-evidence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/health",
+          "classification": "feature",
+          "owner": "runtime-evidence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/cron",
+          "classification": "feature",
+          "owner": "runtime-evidence",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/debug/evidence",
+          "classification": "feature",
+          "owner": "runtime-evidence",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "runtime smoke substitute matrix",
+        "route diagnostics",
+        "error dictionary"
+      ],
+      "telemetryEvents": [
+        "creator_agreement_signed",
+        "creator_onboarding_submitted",
+        "creator_intro_acknowledged",
+        "creator_legally_cleared_override",
+        "creator_admin_queue_materialized",
+        "creator_id_requested",
+        "creator_id_document_uploaded",
+        "creator_id_submitted",
+        "creator_id_submission_failed",
+        "creator_id_verified",
+        "creator_id_rejected",
+        "creator_legal_sent",
+        "creator_contract_signed",
+        "creator_legal_signed",
+        "creator_segment_assigned",
+        "creator_approved",
+        "creator_rejected",
+        "creator_needs_changes",
+        "creator_role_activated",
+        "creator_role_activation_blocked",
+        "owner_override_applied",
+        "owner_override_cleared",
+        "feature_flag_exposed",
+        "experiment_variant_exposed",
+        "system_job_ran",
+        "beta_badge_clicked",
+        "beta_changelog_opened",
+        "beta_changelog_closed",
+        "beta_changelog_entry_clicked",
+        "admin_chart_view_changed",
+        "admin_action_performed",
+        "asset_upload_started",
+        "asset_upload_queued",
+        "asset_batch_selected",
+        "asset_batch_queue_started",
+        "asset_batch_progress_updated",
+        "asset_batch_completed",
+        "asset_batch_failed",
+        "asset_batch_retry_failed_clicked",
+        "asset_batch_submit_blocked_uploads_in_progress",
+        "asset_upload_progress_checkpoint",
+        "asset_upload_success",
+        "asset_upload_failed",
+        "asset_upload_retry_clicked",
+        "asset_upload_canceled",
+        "admin_dashboard_viewed",
+        "admin_overview_viewed",
+        "admin_analytics_viewed",
+        "admin_revenue_range_changed",
+        "admin_top_drops_page_changed",
+        "admin_ai_viewed",
+        "admin_moderation_viewed",
+        "admin_moderation_alert_selected",
+        "admin_moderation_risk_action_clicked",
+        "admin_moderation_alert_reviewed",
+        "admin_moderation_alert_dismissed_false_positive",
+        "admin_moderation_alert_escalated",
+        "admin_moderation_data_failed",
+        "admin_debug_viewed",
+        "admin_support_viewed",
+        "admin_users_viewed",
+        "admin_content_viewed",
+        "admin_drops_viewed",
+        "admin_privacy_viewed",
+        "admin_queue_viewed",
+        "admin_roster_viewed",
+        "admin_roster_tab_changed",
+        "admin_creator_record_opened",
+        "admin_creator_primary_action_clicked",
+        "admin_creator_section_expanded",
+        "admin_creator_audit_trail_opened",
+        "admin_creator_audit_event_expanded",
+        "admin_creator_action_executed",
+        "admin_creator_account_updated",
+        "admin_creator_email_updated",
+        "admin_creator_password_reset_sent",
+        "admin_creator_temporary_password_set",
+        "admin_creator_role_updated",
+        "admin_creator_status_updated",
+        "admin_creator_experience_lane_toggled",
+        "admin_creator_experience_pricing_updated",
+        "admin_creator_experience_restriction_updated",
+        "admin_creator_agreement_template_created",
+        "admin_creator_agreement_template_activated",
+        "admin_creator_agreement_sent",
+        "admin_creator_agreement_update_sent",
+        "admin_creator_agreement_countersigned",
+        "admin_synthetic_creator_created",
+        "admin_synthetic_creator_marked",
+        "admin_view_as_creator_started",
+        "admin_view_as_creator_ended",
+        "admin_projection_write_blocked",
+        "admin_user_detail_viewed",
+        "admin_ai_cover_toggle_updated",
+        "admin_creator_created_directly",
+        "creator_application_review_saved",
+        "heuristic_screenshot_shortcut_mac",
+        "heuristic_screenshot_shortcut_windows",
+        "heuristic_screen_record_shortcut",
+        "heuristic_devtools_shortcut",
+        "heuristic_rapid_visibility_capture",
+        "heuristic_rip_pattern",
+        "heuristic_unknown_threat",
+        "confirmed_print_attempt",
+        "confirmed_save_attempt",
+        "confirmed_copy_attempt",
+        "confirmed_cut_attempt",
+        "confirmed_selection_attempt",
+        "confirmed_drag_attempt",
+        "confirmed_context_menu_attempt"
+      ],
+      "consentModeRequirements": [
+        "full_analytics",
+        "full_behavioral",
+        "required_integrity"
+      ],
+      "identityRequirements": [
+        "admin_required",
+        "system",
+        "anonymous_or_user"
+      ],
+      "materializerLanes": [
+        "admin_debug_materializer",
+        "watch_session_materializer",
+        "security_diagnostics_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "runtime-evidence",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Source/debug/telemetry substitute rows are partial confidence and never clear deployed runtime smoke."
+      ],
+      "rolloutStatus": "runtime_unverified",
+      "legacyOrphanRecoveryStatus": "not_required",
+      "uiMetrics": [
+        {
+          "metricId": "runtime_watch_time",
+          "producer": "useViewerWatchSession and viewer watch-session route; RuntimeWatchTracker is source-ready but not the persisted default path",
+          "consumer": "Runtime watch-time v2 evidence, Admin Analytics watch-time health, public beta runtime proof",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "admin_debug_evidence",
+          "producer": "Admin routes, security/moderation handlers, debug evidence pipeline, server system jobs",
+          "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "daily_checkin",
+      "owner": "retention-analytics",
+      "routes": [
+        {
+          "path": "src/app/experiences",
+          "classification": "feature",
+          "owner": "retention-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/checkin",
+          "classification": "feature",
+          "owner": "retention-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/tasks",
+          "classification": "feature",
+          "owner": "retention-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "daily check-in",
+        "retention hub"
+      ],
+      "telemetryEvents": [
+        "experience_hub_viewed",
+        "daily_checkin_claimed",
+        "daily_task_window_assigned",
+        "daily_task_window_repaired",
+        "daily_task_progressed",
+        "daily_task_completed",
+        "daily_task_claimed",
+        "daily_task_claim_duplicate_prevented",
+        "daily_task_expired",
+        "daily_task_reward_normalized",
+        "daily_task_state_repair_required",
+        "feedback_modal_opened",
+        "feedback_submitted",
+        "daily_tasks_viewed",
+        "daily_task_action_clicked",
+        "task_guidance_viewed",
+        "task_guidance_dismissed",
+        "task_guidance_tapped",
+        "task_guidance_completed",
+        "task_card_expanded",
+        "task_help_opened",
+        "daily_task_assigned",
+        "daily_task_started",
+        "task_completed",
+        "daily_task_failed",
+        "daily_task_deadline_reminder_sent"
+      ],
+      "consentModeRequirements": [
+        "full_behavioral"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "authenticated_user"
+      ],
+      "materializerLanes": [
+        "retention_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "retention-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Reward telemetry must not override canonical task or GumDrop ledger truth."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "gumdrop_balance_events",
+          "producer": "Daily task pipeline, wallet/economy server handlers, ledger-backed reward flows",
+          "consumer": "Admin daily task pipeline, economy evidence, public beta score economy lane",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "notifications",
+      "owner": "notifications-analytics",
+      "routes": [
+        {
+          "path": "src/app/api/notifications",
+          "classification": "feature",
+          "owner": "notifications-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "notification queue",
+        "notification interactions"
+      ],
+      "telemetryEvents": [
+        "creator_notifications_enabled",
+        "creator_notifications_disabled",
+        "chat_low_paid_gd_reminder_sent",
+        "chat_low_paid_gd_reminder_reset",
+        "notifications_dropdown_opened",
+        "notification_opened",
+        "notification_read",
+        "notification_action_clicked",
+        "notification_mark_all_read",
+        "notification_cleared",
+        "task_notifications_enabled",
+        "notification_prompt_banner_viewed",
+        "notification_prompt_banner_dismissed",
+        "notification_prompt_install_help_opened",
+        "notification_sent",
+        "notification_duplicate_prevented",
+        "daily_deadline_in_app_reminder_shown",
+        "daily_deadline_in_app_reminder_opened",
+        "daily_deadline_in_app_reminder_dismissed",
+        "daily_deadline_browser_notification_shown"
+      ],
+      "consentModeRequirements": [
+        "full_behavioral"
+      ],
+      "identityRequirements": [
+        "authenticated_user",
+        "anonymous_or_user"
+      ],
+      "materializerLanes": [
+        "notification_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "notifications-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Notification records reconcile with push/open/read telemetry and never fake delivery truth."
+      ],
+      "rolloutStatus": "runtime_unverified",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "auth_identity",
+      "owner": "identity-analytics",
+      "routes": [
+        {
+          "path": "src/app/api/auth",
+          "classification": "feature",
+          "owner": "identity-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/creators/apply",
+          "classification": "feature",
+          "owner": "identity-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/creators/waitlist",
+          "classification": "feature",
+          "owner": "identity-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/register",
+          "classification": "feature",
+          "owner": "identity-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/delete",
+          "classification": "feature",
+          "owner": "identity-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/user/revoke-sessions",
+          "classification": "feature",
+          "owner": "identity-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/creator/onboarding",
+          "classification": "feature",
+          "owner": "identity-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "auth modal",
+        "creator application",
+        "identity handoff"
+      ],
+      "telemetryEvents": [
+        "auth_modal_opened",
+        "auth_modal_closed_incomplete",
+        "auth_mode_switched",
+        "auth_google_sign_in_attempted",
+        "auth_google_sign_in_success",
+        "auth_google_sign_in_failed",
+        "auth_sign_in_attempted",
+        "auth_sign_in_success",
+        "auth_sign_in_failed",
+        "auth_sign_up_attempted",
+        "auth_sign_up_success",
+        "auth_sign_up_failed",
+        "auth_attempt_started",
+        "auth_attempt_succeeded",
+        "auth_attempt_failed",
+        "auth_attempt_unfinished",
+        "auth_session_established",
+        "auth_registration_started",
+        "auth_registration_completed",
+        "auth_navigation_session_started",
+        "auth_navigation_session_completed",
+        "auth_navigation_session_failed",
+        "user_registered",
+        "auth_session_restored",
+        "auth_logout",
+        "password_reset_requested",
+        "password_reset_sent",
+        "password_reset_failed",
+        "guided_onboarding_started",
+        "guided_onboarding_completed",
+        "guided_onboarding_step_started",
+        "guided_onboarding_step_completed",
+        "onboarding_step_viewed",
+        "avatar_uploaded",
+        "creator_agreement_viewed",
+        "creator_agreement_section_opened",
+        "creator_agreement_acknowledgement_checked",
+        "creator_intake_started",
+        "creator_intake_step_completed",
+        "creator_intake_goal_selected",
+        "creator_intake_recommended_setup_shown",
+        "creator_intake_submitted",
+        "creator_application_updated",
+        "identity_linked"
+      ],
+      "consentModeRequirements": [
+        "required_integrity",
+        "full_behavioral"
+      ],
+      "identityRequirements": [
+        "authenticated_user",
+        "anonymous_or_user"
+      ],
+      "materializerLanes": [
+        "identity_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "identity-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Guest-to-user handoff must be deterministic, idempotent, and consent-aware."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "auth_transitions",
+          "producer": "Auth UI, onboarding flows, server auth handlers",
+          "consumer": "Admin Analytics auth outcomes, onboarding performance, analytics truth layer",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        },
+        {
+          "metricId": "identity_links",
+          "producer": "analytics identity-link route and identified ingest identity_linked events",
+          "consumer": "Analytics identity transfer inventory, guest-user analytics cutover, Admin Debug identity evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "support",
+      "owner": "support-analytics",
+      "routes": [
+        {
+          "path": "src/app/dashboard/support",
+          "classification": "feature",
+          "owner": "support-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/support",
+          "classification": "feature",
+          "owner": "support-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/faq",
+          "classification": "feature",
+          "owner": "support-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/api/bug-reports",
+          "classification": "feature",
+          "owner": "support-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "support",
+        "FAQ",
+        "bug reports"
+      ],
+      "telemetryEvents": [
+        "support_inbox_viewed",
+        "support_ticket_created",
+        "support_thread_opened",
+        "support_reply_viewed",
+        "support_reply_sent",
+        "support_thread_reply_failed",
+        "bug_report_submitted",
+        "chat_no_followed_creators_prompt_viewed",
+        "chat_no_followed_creators_cta_clicked",
+        "chat_thread_auto_created_or_resolved",
+        "chat_paid_gd_gate_viewed",
+        "chat_paid_gd_gate_primary_clicked",
+        "chat_paid_gd_gate_secondary_clicked",
+        "chat_message_send_attempted",
+        "chat_message_send_failed",
+        "chat_message_sent",
+        "creator_message_sent",
+        "creator_media_sent"
+      ],
+      "consentModeRequirements": [
+        "minimal_analytics",
+        "full_behavioral"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "authenticated_user"
+      ],
+      "materializerLanes": [
+        "support_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "support-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Support telemetry must stay scoped to user-owned support truth and admin inbox evidence."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "orphan_registry_tracked",
+      "uiMetrics": [
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "security",
+      "owner": "security-analytics",
+      "routes": [
+        {
+          "path": "src/app/api/security",
+          "classification": "feature",
+          "owner": "security-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/banned",
+          "classification": "feature",
+          "owner": "security-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "security diagnostics",
+        "moderation evidence"
+      ],
+      "telemetryEvents": [
+        "heuristic_screenshot_shortcut_mac",
+        "heuristic_screenshot_shortcut_windows",
+        "heuristic_screen_record_shortcut",
+        "heuristic_devtools_shortcut",
+        "heuristic_rapid_visibility_capture",
+        "heuristic_rip_pattern",
+        "heuristic_unknown_threat",
+        "confirmed_print_attempt",
+        "confirmed_save_attempt",
+        "confirmed_copy_attempt",
+        "confirmed_cut_attempt",
+        "confirmed_selection_attempt",
+        "confirmed_drag_attempt",
+        "confirmed_context_menu_attempt"
+      ],
+      "consentModeRequirements": [
+        "required_integrity"
+      ],
+      "identityRequirements": [
+        "system"
+      ],
+      "materializerLanes": [
+        "security_diagnostics_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "security-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "regressionRisk",
+        "runtimeHealth"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Weak browser/PWA screenshot heuristics cannot become confirmed moderation facts."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "not_required",
+      "uiMetrics": [
+        {
+          "metricId": "admin_debug_evidence",
+          "producer": "Admin routes, security/moderation handlers, debug evidence pipeline, server system jobs",
+          "consumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    },
+    {
+      "featureId": "search_discovery",
+      "owner": "search-discovery-analytics",
+      "routes": [
+        {
+          "path": "src/app/drops",
+          "classification": "feature",
+          "owner": "search-discovery-analytics",
+          "reason": "Registered feature route."
+        },
+        {
+          "path": "src/app/faq",
+          "classification": "feature",
+          "owner": "search-discovery-analytics",
+          "reason": "Registered feature route."
+        }
+      ],
+      "uiSurfaces": [
+        "search",
+        "discovery filters",
+        "category selections"
+      ],
+      "telemetryEvents": [
+        "faq_search_used",
+        "faq_category_selected",
+        "search_query_submitted",
+        "filter_selected",
+        "sort_changed",
+        "category_clicked",
+        "category_not_interested",
+        "creator_experience_request_category_selected",
+        "chat_list_search_focused",
+        "collection_filter_changed",
+        "admin_top_drops_search",
+        "drops_category_selected",
+        "drops_searched"
+      ],
+      "consentModeRequirements": [
+        "full_behavioral",
+        "full_analytics"
+      ],
+      "identityRequirements": [
+        "anonymous_or_user",
+        "admin_required"
+      ],
+      "materializerLanes": [
+        "search_discovery_materializer"
+      ],
+      "adminDebugVisibility": {
+        "debugVisible": true,
+        "owner": "search-discovery-analytics",
+        "surfaces": [
+          "admin debug",
+          "debug backlog",
+          "feature registration gate"
+        ]
+      },
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness"
+      ],
+      "userCreatorAdminParityRequirements": [
+        "Search/discovery events require catalog registration before being treated as behavior signals."
+      ],
+      "rolloutStatus": "source_ready",
+      "legacyOrphanRecoveryStatus": "covered_by_legacy_recovery",
+      "uiMetrics": [
+        {
+          "metricId": "behavior_signals",
+          "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+          "consumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+          "sourcePath": "src/lib/debug/orphan-metric-registry.ts"
+        }
+      ]
+    }
+  ],
+  "routeCoverage": {
+    "totalRoutes": 173,
+    "mappedRoutes": [
+      "src/app/%5F%5F/auth/[...path]/route.ts",
+      "src/app/%5F%5F/firebase/[...path]/route.ts",
+      "src/app/(legal)/privacy/page.tsx",
+      "src/app/account/page.tsx",
+      "src/app/admin/ai/page.tsx",
+      "src/app/admin/analytics/page.tsx",
+      "src/app/admin/content/page.tsx",
+      "src/app/admin/debug/page.tsx",
+      "src/app/admin/drops/page.tsx",
+      "src/app/admin/economy/page.tsx",
+      "src/app/admin/moderation/page.tsx",
+      "src/app/admin/page.tsx",
+      "src/app/admin/privacy/page.tsx",
+      "src/app/admin/queue/page.tsx",
+      "src/app/admin/roster/page.tsx",
+      "src/app/admin/support/page.tsx",
+      "src/app/admin/user/[userId]/page.tsx",
+      "src/app/admin/users/page.tsx",
+      "src/app/api/admin/ai/drop-covers/feedback/route.ts",
+      "src/app/api/admin/ai/drop-covers/generate/route.ts",
+      "src/app/api/admin/ai/drop-covers/prompt-policy/route.ts",
+      "src/app/api/admin/ai/drop-covers/references/route.ts",
+      "src/app/api/admin/ai/drop-covers/review-gallery/route.ts",
+      "src/app/api/admin/ai/drop-covers/route.ts",
+      "src/app/api/admin/ai/drop-covers/template/route.ts",
+      "src/app/api/admin/ai/drop-descriptions/feedback/route.ts",
+      "src/app/api/admin/ai/drop-descriptions/generate/route.ts",
+      "src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts",
+      "src/app/api/admin/ai/drop-descriptions/route.ts",
+      "src/app/api/admin/analytics/historical/route.ts",
+      "src/app/api/admin/analytics/preferences/route.ts",
+      "src/app/api/admin/analytics/realtime/route.ts",
+      "src/app/api/admin/analytics/refresh/route.ts",
+      "src/app/api/admin/analytics/route.ts",
+      "src/app/api/admin/balance/route.ts",
+      "src/app/api/admin/content/route.ts",
+      "src/app/api/admin/creator-account-controls/route.ts",
+      "src/app/api/admin/creator-agreements/route.ts",
+      "src/app/api/admin/creator-fan-experience-settings/route.ts",
+      "src/app/api/admin/creator-options/route.ts",
+      "src/app/api/admin/creators/[userId]/action/route.ts",
+      "src/app/api/admin/debug/assistant/fix/route.ts",
+      "src/app/api/admin/debug/assistant/route.ts",
+      "src/app/api/admin/debug/bug-reports/route.ts",
+      "src/app/api/admin/debug/control-tower/route.ts",
+      "src/app/api/admin/debug/preferences/route.ts",
+      "src/app/api/admin/debug/route.ts",
+      "src/app/api/admin/drops/route.ts",
+      "src/app/api/admin/economy/drift/route.ts",
+      "src/app/api/admin/economy/offers/route.ts",
+      "src/app/api/admin/economy/packages/route.ts",
+      "src/app/api/admin/economy/promos/route.ts",
+      "src/app/api/admin/economy/redemptions/route.ts",
+      "src/app/api/admin/economy/treasury/route.ts",
+      "src/app/api/admin/feedback/route.ts",
+      "src/app/api/admin/moderation/security-alerts/route.ts",
+      "src/app/api/admin/moderation/threads/[threadId]/route.ts",
+      "src/app/api/admin/moderation/threads/route.ts",
+      "src/app/api/admin/orchestration/repairs/route.ts",
+      "src/app/api/admin/overview/route.ts",
+      "src/app/api/admin/privacy/preflight/route.ts",
+      "src/app/api/admin/queue/route.ts",
+      "src/app/api/admin/queue/toggle/route.ts",
+      "src/app/api/admin/roster/route.ts",
+      "src/app/api/admin/support/threads/[threadId]/messages/route.ts",
+      "src/app/api/admin/support/threads/[threadId]/route.ts",
+      "src/app/api/admin/support/threads/route.ts",
+      "src/app/api/admin/tasks/route.ts",
+      "src/app/api/admin/ui/preferences/route.ts",
+      "src/app/api/admin/user/[userId]/creator-onboarding/id-document/route.ts",
+      "src/app/api/admin/user/[userId]/route.ts",
+      "src/app/api/admin/users/[userId]/username/route.ts",
+      "src/app/api/admin/users/realtime/route.ts",
+      "src/app/api/admin/users/route.ts",
+      "src/app/api/admin/view-as-creator/route.ts",
+      "src/app/api/analytics/identity-link/route.ts",
+      "src/app/api/analytics/ingest-identified/route.ts",
+      "src/app/api/analytics/ingest/route.ts",
+      "src/app/api/auth/manual-sign-in-lookup/route.ts",
+      "src/app/api/auth/navigation-session/route.ts",
+      "src/app/api/bug-reports/route.ts",
+      "src/app/api/checkin/route.ts",
+      "src/app/api/creator/bookings/route.ts",
+      "src/app/api/creator/broadcasts/route.ts",
+      "src/app/api/creator/discovery/route.ts",
+      "src/app/api/creator/drops/assets/route.ts",
+      "src/app/api/creator/drops/route.ts",
+      "src/app/api/creator/onboarding/agreement-document/route.ts",
+      "src/app/api/creator/onboarding/application/route.ts",
+      "src/app/api/creator/onboarding/contract-signature/route.ts",
+      "src/app/api/creator/onboarding/id-submission/route.ts",
+      "src/app/api/creator/onboarding/intro/route.ts",
+      "src/app/api/creator/payouts/route.ts",
+      "src/app/api/creator/relationships/route.ts",
+      "src/app/api/creator/requests/route.ts",
+      "src/app/api/creator/settings/route.ts",
+      "src/app/api/creator/subscriptions/route.ts",
+      "src/app/api/creators/[username]/route.ts",
+      "src/app/api/cron/notify-active-drops/route.ts",
+      "src/app/api/cron/process-creator-subscriptions/route.ts",
+      "src/app/api/cron/process-queue/route.ts",
+      "src/app/api/debug/evidence/route.ts",
+      "src/app/api/drops/[dropId]/click/route.ts",
+      "src/app/api/drops/content/route.ts",
+      "src/app/api/drops/duplicate-filenames/route.ts",
+      "src/app/api/drops/feedback/route.ts",
+      "src/app/api/drops/impression/route.ts",
+      "src/app/api/drops/recommendations/route.ts",
+      "src/app/api/drops/retention/route.ts",
+      "src/app/api/drops/route.ts",
+      "src/app/api/drops/track/route.ts",
+      "src/app/api/drops/unlock/route.ts",
+      "src/app/api/health/route.ts",
+      "src/app/api/notifications/route.ts",
+      "src/app/api/paypal/capture/route.ts",
+      "src/app/api/paypal/create/route.ts",
+      "src/app/api/privacy/consent/route.ts",
+      "src/app/api/security/log-attempt/route.ts",
+      "src/app/api/settings/landing/route.ts",
+      "src/app/api/settings/landing/upload/route.ts",
+      "src/app/api/support/threads/[threadId]/route.ts",
+      "src/app/api/support/threads/guest/route.ts",
+      "src/app/api/support/threads/route.ts",
+      "src/app/api/tasks/feedback/route.ts",
+      "src/app/api/tasks/materialize/route.ts",
+      "src/app/api/tasks/reminders/sync/route.ts",
+      "src/app/api/tasks/rotate/route.ts",
+      "src/app/api/user/activity/route.ts",
+      "src/app/api/user/check-username/route.ts",
+      "src/app/api/user/complete-onboarding/route.ts",
+      "src/app/api/user/data/route.ts",
+      "src/app/api/user/delete/route.ts",
+      "src/app/api/user/follow/route.ts",
+      "src/app/api/user/onboarding-progress/route.ts",
+      "src/app/api/user/profile/route.ts",
+      "src/app/api/user/register/route.ts",
+      "src/app/api/user/revoke-sessions/route.ts",
+      "src/app/api/viewer/watch-session/route.ts",
+      "src/app/api/wallet/packages/route.ts",
+      "src/app/banned/page.tsx",
+      "src/app/creator/page.tsx",
+      "src/app/creators/[username]/page.tsx",
+      "src/app/creators/apply/page.tsx",
+      "src/app/creators/dashboard/page.tsx",
+      "src/app/creators/waitlist/page.tsx",
+      "src/app/dashboard/creator/drops/page.tsx",
+      "src/app/dashboard/creator/page.tsx",
+      "src/app/dashboard/creator/settings/page.tsx",
+      "src/app/dashboard/library/page.tsx",
+      "src/app/dashboard/page.tsx",
+      "src/app/dashboard/profile/creator/page.tsx",
+      "src/app/dashboard/profile/page.tsx",
+      "src/app/dashboard/settings/page.tsx",
+      "src/app/dashboard/support/page.tsx",
+      "src/app/dashboard/viewer/page.tsx",
+      "src/app/drops/[id]/preview/page.tsx",
+      "src/app/drops/page.tsx",
+      "src/app/experiences/page.tsx",
+      "src/app/faq/page.tsx",
+      "src/app/offline/page.tsx",
+      "src/app/profile/settings/page.tsx",
+      "src/app/settings/page.tsx"
+    ],
+    "systemInternalRoutes": [
+      "src/app/(legal)/terms/page.tsx",
+      "src/app/api/chat/attachments/cancel/route.ts",
+      "src/app/api/chat/attachments/complete/route.ts",
+      "src/app/api/chat/attachments/prepare/route.ts",
+      "src/app/api/chat/threads/[threadId]/messages/route.ts",
+      "src/app/api/chat/threads/[threadId]/read/route.ts",
+      "src/app/api/chat/threads/[threadId]/route.ts",
+      "src/app/api/chat/threads/route.ts",
+      "src/app/api/creator/messages/route.ts",
+      "src/app/dashboard/chat/page.tsx",
+      "src/app/page.tsx"
+    ],
+    "unmappedRoutes": []
+  },
+  "telemetryCoverage": {
+    "totalEvents": 400,
+    "mappedEvents": [
+      "admin_action_performed",
+      "admin_ai_cover_generate_failed",
+      "admin_ai_cover_generate_succeeded",
+      "admin_ai_cover_generation_accepted",
+      "admin_ai_cover_generation_disliked",
+      "admin_ai_cover_generation_liked",
+      "admin_ai_cover_history_cleared",
+      "admin_ai_cover_toggle_updated",
+      "admin_ai_description_generate_failed",
+      "admin_ai_description_generate_succeeded",
+      "admin_ai_description_generation_accepted",
+      "admin_ai_description_generation_disliked",
+      "admin_ai_description_generation_liked",
+      "admin_ai_description_history_cleared",
+      "admin_ai_description_prompt_policy_updated",
+      "admin_ai_description_toggle_updated",
+      "admin_ai_viewed",
+      "admin_analytics_viewed",
+      "admin_chart_view_changed",
+      "admin_content_viewed",
+      "admin_creator_account_updated",
+      "admin_creator_action_executed",
+      "admin_creator_agreement_countersigned",
+      "admin_creator_agreement_sent",
+      "admin_creator_agreement_template_activated",
+      "admin_creator_agreement_template_created",
+      "admin_creator_agreement_update_sent",
+      "admin_creator_audit_event_expanded",
+      "admin_creator_audit_trail_opened",
+      "admin_creator_created_directly",
+      "admin_creator_drop_reviewed",
+      "admin_creator_email_updated",
+      "admin_creator_experience_lane_toggled",
+      "admin_creator_experience_pricing_updated",
+      "admin_creator_experience_restriction_updated",
+      "admin_creator_experience_settings_opened",
+      "admin_creator_experience_settings_saved",
+      "admin_creator_password_reset_sent",
+      "admin_creator_primary_action_clicked",
+      "admin_creator_record_opened",
+      "admin_creator_role_updated",
+      "admin_creator_section_expanded",
+      "admin_creator_status_updated",
+      "admin_creator_temporary_password_set",
+      "admin_dashboard_viewed",
+      "admin_debug_viewed",
+      "admin_drops_viewed",
+      "admin_moderation_alert_dismissed_false_positive",
+      "admin_moderation_alert_escalated",
+      "admin_moderation_alert_reviewed",
+      "admin_moderation_alert_selected",
+      "admin_moderation_data_failed",
+      "admin_moderation_risk_action_clicked",
+      "admin_moderation_viewed",
+      "admin_overview_viewed",
+      "admin_privacy_viewed",
+      "admin_projection_write_blocked",
+      "admin_queue_viewed",
+      "admin_revenue_range_changed",
+      "admin_roster_tab_changed",
+      "admin_roster_viewed",
+      "admin_support_viewed",
+      "admin_synthetic_creator_created",
+      "admin_synthetic_creator_marked",
+      "admin_top_drops_page_changed",
+      "admin_top_drops_search",
+      "admin_user_detail_viewed",
+      "admin_users_viewed",
+      "admin_view_as_creator_ended",
+      "admin_view_as_creator_started",
+      "asset_batch_completed",
+      "asset_batch_failed",
+      "asset_batch_progress_updated",
+      "asset_batch_queue_started",
+      "asset_batch_retry_failed_clicked",
+      "asset_batch_selected",
+      "asset_batch_submit_blocked_uploads_in_progress",
+      "asset_upload_canceled",
+      "asset_upload_failed",
+      "asset_upload_progress_checkpoint",
+      "asset_upload_queued",
+      "asset_upload_retry_clicked",
+      "asset_upload_started",
+      "asset_upload_success",
+      "auth_attempt_failed",
+      "auth_attempt_started",
+      "auth_attempt_succeeded",
+      "auth_attempt_unfinished",
+      "auth_google_sign_in_attempted",
+      "auth_google_sign_in_failed",
+      "auth_google_sign_in_success",
+      "auth_logout",
+      "auth_modal_closed_incomplete",
+      "auth_modal_opened",
+      "auth_mode_switched",
+      "auth_navigation_session_completed",
+      "auth_navigation_session_failed",
+      "auth_navigation_session_started",
+      "auth_registration_completed",
+      "auth_registration_started",
+      "auth_session_established",
+      "auth_session_restored",
+      "auth_sign_in_attempted",
+      "auth_sign_in_failed",
+      "auth_sign_in_success",
+      "auth_sign_up_attempted",
+      "auth_sign_up_failed",
+      "auth_sign_up_success",
+      "avatar_uploaded",
+      "begin_checkout",
+      "beta_badge_clicked",
+      "beta_changelog_closed",
+      "beta_changelog_entry_clicked",
+      "beta_changelog_opened",
+      "bug_report_submitted",
+      "category_clicked",
+      "category_not_interested",
+      "chat_bottom_anchor_restored",
+      "chat_compose_sheet_opened",
+      "chat_empty_state_viewed",
+      "chat_icebreaker_inserted",
+      "chat_ios_pwa_shell_applied",
+      "chat_list_search_focused",
+      "chat_low_paid_gd_reminder_reset",
+      "chat_low_paid_gd_reminder_sent",
+      "chat_media_file_allowed_fan_pass",
+      "chat_media_file_rejected_size",
+      "chat_message_send_attempted",
+      "chat_message_send_failed",
+      "chat_message_sent",
+      "chat_new_message_sheet_creator_selected",
+      "chat_new_message_sheet_opened",
+      "chat_no_followed_creators_cta_clicked",
+      "chat_no_followed_creators_prompt_viewed",
+      "chat_paid_gd_gate_primary_clicked",
+      "chat_paid_gd_gate_secondary_clicked",
+      "chat_paid_gd_gate_viewed",
+      "chat_thread_auto_created_or_resolved",
+      "chat_thread_opened",
+      "collection_filter_changed",
+      "confirmed_context_menu_attempt",
+      "confirmed_copy_attempt",
+      "confirmed_cut_attempt",
+      "confirmed_drag_attempt",
+      "confirmed_print_attempt",
+      "confirmed_save_attempt",
+      "confirmed_selection_attempt",
+      "content_satisfaction_negative",
+      "content_satisfaction_positive",
+      "content_satisfaction_skipped",
+      "cookie_consent_updated",
+      "creator_admin_queue_materialized",
+      "creator_agreement_acknowledgement_checked",
+      "creator_agreement_section_opened",
+      "creator_agreement_signed",
+      "creator_agreement_viewed",
+      "creator_application_review_saved",
+      "creator_application_updated",
+      "creator_apply_viewed",
+      "creator_approved",
+      "creator_broadcast_created",
+      "creator_broadcast_creation_failed",
+      "creator_broadcast_detail_viewed",
+      "creator_broadcast_empty_state_viewed",
+      "creator_broadcast_manager_viewed",
+      "creator_broadcast_opened",
+      "creator_call_booking_completed",
+      "creator_call_booking_created",
+      "creator_cashout_honored",
+      "creator_cashout_requested",
+      "creator_contract_signed",
+      "creator_custom_request_accepted",
+      "creator_custom_request_created",
+      "creator_custom_request_declined",
+      "creator_dashboard_settings_viewed",
+      "creator_drop_submitted",
+      "creator_drop_unwrapped",
+      "creator_drop_updated",
+      "creator_experience_booking_type_selected",
+      "creator_experience_cta_clicked",
+      "creator_experience_insufficient_balance",
+      "creator_experience_lane_closed",
+      "creator_experience_lane_opened",
+      "creator_experience_request_category_selected",
+      "creator_fan_pass_started",
+      "creator_followed",
+      "creator_id_document_uploaded",
+      "creator_id_rejected",
+      "creator_id_requested",
+      "creator_id_submission_failed",
+      "creator_id_submitted",
+      "creator_id_verified",
+      "creator_intake_goal_selected",
+      "creator_intake_recommended_setup_shown",
+      "creator_intake_started",
+      "creator_intake_step_completed",
+      "creator_intake_submitted",
+      "creator_intro_acknowledged",
+      "creator_ledger_accrual_created",
+      "creator_legal_sent",
+      "creator_legal_signed",
+      "creator_legally_cleared_override",
+      "creator_live_time_booked",
+      "creator_media_sent",
+      "creator_message_sent",
+      "creator_muted",
+      "creator_needs_changes",
+      "creator_not_interested",
+      "creator_notifications_disabled",
+      "creator_notifications_enabled",
+      "creator_onboarding_submitted",
+      "creator_private_chat_opened",
+      "creator_profile_link_clicked",
+      "creator_profile_link_missing",
+      "creator_profile_viewed",
+      "creator_rail_impression",
+      "creator_rejected",
+      "creator_role_activated",
+      "creator_role_activation_blocked",
+      "creator_search_selected",
+      "creator_segment_assigned",
+      "creator_settings_migrated_redirect_viewed",
+      "creator_settings_section_opened",
+      "creator_settings_updated",
+      "creator_subscription_canceled",
+      "creator_subscription_failed",
+      "creator_subscription_renewed",
+      "creator_subscription_started",
+      "creator_unfollowed",
+      "creator_waitlist_viewed",
+      "daily_checkin_claimed",
+      "daily_deadline_browser_notification_shown",
+      "daily_deadline_in_app_reminder_dismissed",
+      "daily_deadline_in_app_reminder_opened",
+      "daily_deadline_in_app_reminder_shown",
+      "daily_task_action_clicked",
+      "daily_task_assigned",
+      "daily_task_claim_duplicate_prevented",
+      "daily_task_claimed",
+      "daily_task_completed",
+      "daily_task_deadline_reminder_sent",
+      "daily_task_expired",
+      "daily_task_failed",
+      "daily_task_progressed",
+      "daily_task_reward_normalized",
+      "daily_task_started",
+      "daily_task_state_repair_required",
+      "daily_task_window_assigned",
+      "daily_task_window_repaired",
+      "daily_tasks_viewed",
+      "dashboard_viewed",
+      "drop_card_impression",
+      "drop_clicked",
+      "drop_not_interested",
+      "drop_preview_closed_incomplete",
+      "drop_preview_creator_cover_viewed",
+      "drop_preview_creator_share_clicked",
+      "drop_preview_cta_clicked",
+      "drop_preview_cta_viewed",
+      "drop_preview_feedback_reacted",
+      "drop_preview_guest_signup_cta_clicked",
+      "drop_preview_guest_signup_cta_viewed",
+      "drop_preview_idle_reached",
+      "drop_preview_keep_unwrapping_clicked",
+      "drop_preview_open_library_clicked",
+      "drop_preview_opened",
+      "drop_preview_owned_view_clicked",
+      "drop_preview_page_viewed",
+      "drop_preview_topup_cta_clicked",
+      "drop_preview_topup_cta_viewed",
+      "drop_preview_unlock_success_state_viewed",
+      "drop_preview_unwrap_cta_clicked",
+      "drop_preview_unwrap_cta_viewed",
+      "drop_share_copied",
+      "drop_unlock_attempted",
+      "drop_unwrap_intent_blocked_by_funds",
+      "drop_unwrapped",
+      "drops_category_selected",
+      "drops_page_viewed",
+      "drops_searched",
+      "entitlement_granted",
+      "experience_hub_viewed",
+      "experiment_variant_exposed",
+      "faq_category_selected",
+      "faq_page_viewed",
+      "faq_question_toggled",
+      "faq_search_used",
+      "feature_flag_exposed",
+      "featured_slide_clicked",
+      "featured_slide_viewed",
+      "feedback_modal_opened",
+      "feedback_submitted",
+      "file_viewed",
+      "filter_selected",
+      "guided_onboarding_completed",
+      "guided_onboarding_started",
+      "guided_onboarding_step_completed",
+      "guided_onboarding_step_started",
+      "gumdrops_purchase_completed",
+      "gumdrops_purchase_failed",
+      "hero_cta_clicked",
+      "heuristic_devtools_shortcut",
+      "heuristic_rapid_visibility_capture",
+      "heuristic_rip_pattern",
+      "heuristic_screen_record_shortcut",
+      "heuristic_screenshot_shortcut_mac",
+      "heuristic_screenshot_shortcut_windows",
+      "heuristic_unknown_threat",
+      "home_page_viewed",
+      "identity_linked",
+      "insufficient_balance_get_more_clicked",
+      "insufficient_balance_modal_closed",
+      "library_search",
+      "library_viewed",
+      "navigation_click",
+      "notification_action_clicked",
+      "notification_cleared",
+      "notification_duplicate_prevented",
+      "notification_mark_all_read",
+      "notification_opened",
+      "notification_prompt_banner_dismissed",
+      "notification_prompt_banner_viewed",
+      "notification_prompt_install_help_opened",
+      "notification_read",
+      "notification_sent",
+      "notifications_dropdown_opened",
+      "onboarding_step_viewed",
+      "owned_drop_clicked",
+      "owner_override_applied",
+      "owner_override_cleared",
+      "page_viewed",
+      "password_reset_failed",
+      "password_reset_requested",
+      "password_reset_sent",
+      "privacy_page_viewed",
+      "profile_settings_viewed",
+      "promo_card_clicked",
+      "purchase",
+      "purchase_package_selected",
+      "queued_drop_returned_live",
+      "recent_activity_page_changed",
+      "recent_activity_searched",
+      "recent_activity_toggled",
+      "recent_activity_viewed",
+      "recommendation_dismissed",
+      "recommendation_reason_helpful",
+      "recommendation_reason_not_helpful",
+      "search_query_submitted",
+      "semantic_page_bounced",
+      "semantic_page_engaged",
+      "semantic_page_exited",
+      "semantic_page_passive",
+      "semantic_page_viewed",
+      "semantic_target_clicked",
+      "server_purchase_verified",
+      "sort_changed",
+      "spend_virtual_currency",
+      "support_inbox_viewed",
+      "support_reply_sent",
+      "support_reply_viewed",
+      "support_thread_opened",
+      "support_thread_reply_failed",
+      "support_ticket_created",
+      "system_job_ran",
+      "task_card_expanded",
+      "task_completed",
+      "task_guidance_completed",
+      "task_guidance_dismissed",
+      "task_guidance_tapped",
+      "task_guidance_viewed",
+      "task_help_opened",
+      "task_notifications_enabled",
+      "terms_page_viewed",
+      "unlock_drop_failed",
+      "unlock_drop_success",
+      "user_registered",
+      "user_settings_creator_tools_cta_clicked",
+      "user_settings_viewed",
+      "video_played",
+      "view_drop_details",
+      "viewer_asset_completed",
+      "viewer_asset_consumed",
+      "viewer_backgrounded",
+      "viewer_content_loaded",
+      "viewer_opened",
+      "viewer_related_drop_clicked",
+      "viewer_session_completed",
+      "viewer_session_started",
+      "viewer_source_downloaded",
+      "viewer_watch_checkpoint",
+      "wallet_closed_incomplete",
+      "wallet_opened",
+      "watch_score_computed",
+      "watch_session_ended",
+      "watch_session_hidden",
+      "watch_session_paused",
+      "watch_session_progress",
+      "watch_session_resumed",
+      "watch_session_started",
+      "watch_session_visible_tick"
+    ],
+    "unmappedEvents": []
+  },
+  "metricCoverage": {
+    "totalMetrics": 14,
+    "producerLinkedMetrics": [
+      "admin_debug_evidence",
+      "auth_transitions",
+      "behavior_signals",
+      "creator_drop_submissions",
+      "creator_interactions",
+      "external_ga4_evidence",
+      "fan_pass_subscribers",
+      "guest_events",
+      "gumdrop_balance_events",
+      "identity_links",
+      "page_views",
+      "purchase_events",
+      "runtime_watch_time",
+      "sessions"
+    ],
+    "orphanMetrics": []
+  },
+  "systemInternalRoutes": [
+    "src/app/(legal)/terms/page.tsx",
+    "src/app/api/chat/attachments/cancel/route.ts",
+    "src/app/api/chat/attachments/complete/route.ts",
+    "src/app/api/chat/attachments/prepare/route.ts",
+    "src/app/api/chat/threads/[threadId]/messages/route.ts",
+    "src/app/api/chat/threads/[threadId]/read/route.ts",
+    "src/app/api/chat/threads/[threadId]/route.ts",
+    "src/app/api/chat/threads/route.ts",
+    "src/app/api/creator/messages/route.ts",
+    "src/app/dashboard/chat/page.tsx",
+    "src/app/page.tsx"
+  ],
+  "validationFailures": [],
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/context/optimized-task-context.generated.json",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts"
+  ],
+  "protectedChanges": []
+}

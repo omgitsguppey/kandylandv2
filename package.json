@@ -54,6 +54,7 @@
         "check:behavioral-math-calibration": "tsx scripts/agent/validate-behavioral-math-calibration.ts",
         "check:behavior-math-verification": "tsx scripts/agent/validate-behavior-math-verification.ts",
         "check:behavioral-extensibility-layer": "tsx scripts/agent/validate-behavioral-extensibility-layer.ts",
+        "check:feature-registration-gate": "tsx scripts/agent/validate-feature-registration-gate.ts",
         "check:final-behavioral-privacy-telemetry-lock": "tsx scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
         "check:real-usage-confidence": "tsx scripts/agent/validate-real-usage-confidence.ts",
         "check:real-usage-confidence-calibration": "tsx scripts/agent/validate-real-usage-confidence-calibration.ts",

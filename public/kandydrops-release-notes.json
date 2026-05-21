@@ -1,11 +1,62 @@
 {
-  "currentVersion": "1.3.73",
-  "betaReleaseCounter": 373,
+  "currentVersion": "1.3.74",
+  "betaReleaseCounter": 374,
   "channel": "beta",
-  "generatedAt": "2026-05-21T17:00:32.547Z",
-  "generatedAtUtc": "2026-05-21T17:00:32.547Z",
+  "generatedAt": "2026-05-21T19:10:00.000Z",
+  "generatedAtUtc": "2026-05-21T19:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.74",
+      "previousVersion": "1.3.73",
+      "betaReleaseCounter": 374,
+      "previousBetaReleaseCounter": 373,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(telemetry): require feature registration",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T19:10:00.000Z",
+      "generatedAt": "2026-05-21T19:10:00.000Z",
+      "committedAtUtc": "2026-05-21T19:10:00.000Z",
+      "generatedAtUtc": "2026-05-21T19:10:00.000Z",
+      "updatedAtUtc": "2026-05-21T19:10:00.000Z",
+      "category": "Improved",
+      "title": "Feature registration gate",
+      "summary": "Added a feature registration gate so telemetry, debug, and score tracking stay connected as features change.",
+      "userFacingTitle": "Feature registration gate",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added feature registration gate for telemetry, debug, and score tracking.",
+        "Prevented new features from shipping with orphaned analytics.",
+        "Mapped routes, surfaces, consent, identity, and score impact per feature."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a feature registration contract, registry, validator, generated report, docs, and unit coverage using the existing telemetry catalog."
+      ],
+      "affectedSurfaces": [
+        "Telemetry",
+        "Debug evidence",
+        "Beta readiness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/feature-registration-gate.generated.json",
+        "docs/agent-truth/feature-registration-gate.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-feature-registration-gate.ts",
+        "src/lib/features/feature-registration-contract.ts",
+        "src/lib/features/feature-registration-registry.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/feature-registration-gate.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.73",
       "previousVersion": "1.3.72",
@@ -1439,58 +1490,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/behavior-math-verification.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.49",
-      "previousVersion": "1.3.48",
-      "betaReleaseCounter": 349,
-      "previousBetaReleaseCounter": 348,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): add ai critic guard",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T04:10:03.000Z",
-      "generatedAt": "2026-05-21T04:23:40.707Z",
-      "committedAtUtc": "2026-05-21T04:10:03.000Z",
-      "generatedAtUtc": "2026-05-21T04:23:40.707Z",
-      "updatedAtUtc": "2026-05-21T04:23:40.707Z",
-      "category": "Improved",
-      "title": "Debug critic improvements",
-      "summary": "Added source-only AI debug critic checks.",
-      "userFacingTitle": "Debug critic improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added source-only AI debug critic checks.",
-        "Blocked shallow patches, duplicate systems, and fake evidence claims.",
-        "Kept AI debugging local and cost-safe."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the local AI debug critic contract, static evaluator, generated report, validator, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Admin Debug",
-        "Beta readiness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/ai-debug-critic.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/ai-debug-critic.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-ai-debug-critic.ts",
-        "src/lib/debug/ai-debug-critic-contract.ts",
-        "src/lib/debug/ai-debug-critic.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/ai-debug-critic.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

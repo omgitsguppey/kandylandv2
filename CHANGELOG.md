@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.74 - 2026-05-21
+- Feature registration gate
+- Added feature registration gate for telemetry, debug, and score tracking.
+- Prevented new features from shipping with orphaned analytics.
+- Mapped routes, surfaces, consent, identity, and score impact per feature.
+
 ## 1.3.73 - 2026-05-21
 - Visual checks moved out of Codex score gates
 - Moved visual screenshot checks out of Codex score gates.
