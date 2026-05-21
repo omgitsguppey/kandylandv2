@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.49 - 2026-05-21
+- Debug critic improvements
+- Added source-only AI debug critic checks.
+- Blocked shallow patches, duplicate systems, and fake evidence claims.
+- Kept AI debugging local and cost-safe.
+
 ## 1.3.48 - 2026-05-21
 - Debug backlog improvements
 - Made debug panel output drive a structured fix backlog.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Prepared creator broadcasts for follower notifications.
 - Added timeline-ready broadcast and drop source contracts.
 - Kept broadcast fanout bounded and idempotent.
-
-## 1.3.24 - 2026-05-20
-- Bug fixes and general improvements
-- Connected creator Fan Pass pricing to user-facing flows.
-- Aligned creator experience prices with creator settings.
-- Preserved paid-GumDrop-only rules for creator experiences.

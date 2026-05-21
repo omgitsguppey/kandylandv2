@@ -1,0 +1,139 @@
+{
+  "generatedAt": "2026-05-21T04:27:55.689Z",
+  "reportKey": "ai-debug-critic",
+  "criticStatus": "request_changes",
+  "checks": [
+    {
+      "id": "no_patch_on_top_of_stale_logic",
+      "label": "Do not patch on top of stale logic",
+      "failureMode": "A stale backlog item remains open while the proposed fix claims completion."
+    },
+    {
+      "id": "no_duplicate_systems",
+      "label": "Do not create duplicate systems",
+      "failureMode": "A new debug, evidence, telemetry, score, route, or cost system duplicates a canonical lane."
+    },
+    {
+      "id": "no_fake_evidence",
+      "label": "Do not fake evidence",
+      "failureMode": "Source-only output is described as runtime, provider, smoke, screenshot, or formal proof."
+    },
+    {
+      "id": "no_formal_gate_cleared_without_artifact",
+      "label": "Do not clear formal gates without artifacts",
+      "failureMode": "A formal beta gate is marked resolved without the required generated artifact."
+    },
+    {
+      "id": "no_monolith_growth_without_split_plan",
+      "label": "Do not grow monoliths without split plans",
+      "failureMode": "A touched source file exceeds module discipline limits without a split plan."
+    },
+    {
+      "id": "no_chat_nav_touch_without_explicit_request",
+      "label": "Do not touch chat or navigation without explicit request",
+      "failureMode": "A protected chat or nav path changed outside the prompt scope."
+    },
+    {
+      "id": "no_payment_math_change_without_explicit_request",
+      "label": "Do not touch payment or GumDrop math without explicit request",
+      "failureMode": "Payment, wallet, PayPal, or GumDrop math paths changed outside the prompt scope."
+    },
+    {
+      "id": "no_unowned_debug_warning",
+      "label": "Do not leave debug warnings unowned",
+      "failureMode": "A debug backlog item lacks owner, surface, or next action."
+    },
+    {
+      "id": "no_orphaned_telemetry",
+      "label": "Do not create orphaned telemetry",
+      "failureMode": "Telemetry changes bypass canonical event fact or catalog ownership."
+    },
+    {
+      "id": "no_hardcoded_ui_scale_regression",
+      "label": "Do not hardcode UI scale regressions",
+      "failureMode": "UI scale tokens are hardcoded without device/layout doctrine ownership."
+    },
+    {
+      "id": "no_new_cost_path_without_guard",
+      "label": "Do not add cost paths without guardrails",
+      "failureMode": "A new AI, cloud, analytics, storage, or scheduled path lacks a cost guard."
+    },
+    {
+      "id": "no_source_ready_as_runtime_proof",
+      "label": "Do not present source readiness as runtime proof",
+      "failureMode": "Local source checks are used to claim deployed runtime/provider evidence."
+    }
+  ],
+  "findings": [
+    {
+      "id": "no_patch_on_top_of_stale_logic-417073463",
+      "check": "no_patch_on_top_of_stale_logic",
+      "severity": "required",
+      "title": "Stale debug logic is still active",
+      "detail": "Open stale backlog items must be refreshed, retired, or explicitly blocked before a patch can claim completion.",
+      "sourceFiles": [
+        "admin_truth_sample_evidence",
+        "agent/state/admin-truth-sample-evidence.generated.json",
+        "agent/state/beta-evidence-gap-map.generated.json",
+        "agent/state/beta-evidence-lane-prep.generated.json",
+        "agent/state/beta-freshness-language.generated.json",
+        "agent/state/creator-drop-status-metrics.generated.json",
+        "agent/state/creator-settings-control-plane.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/existing-algorithm-refinement.generated.json",
+        "agent/state/final-launch-readiness-report.generated.json",
+        "agent/state/final-pr-stale-cleanup.generated.json",
+        "agent/state/final-telemetry-closure-lock.generated.json",
+        "agent/state/global-marquee-truncated-titles.generated.json",
+        "agent/state/launch-pr-triage.generated.json",
+        "agent/state/launch-readiness-report.generated.json",
+        "agent/state/mobile-ui-final-lock.generated.json",
+        "agent/state/operator-revenue-smoke.generated.json",
+        "agent/state/overnight-final-integration-lock.generated.json",
+        "agent/state/overnight-wiring-integrity.generated.json",
+        "agent/state/provider-smoke-evidence.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/runtime-smoke-evidence.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "agent/state/targeted-behavior-evidence.generated.json",
+        "agent/state/user-facing-feature-connection-audit.generated.json",
+        "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+        "debug_runtime_evidence",
+        "runtime_provider_smoke",
+        "visual_manual_smoke"
+      ],
+      "requiredFix": "Refresh or retire stale backlog items and keep them visible until the owning evidence lane changes.",
+      "suggestedValidators": [
+        "npm run check:ai-debug-critic",
+        "npm run check:debug-backlog-engine"
+      ]
+    }
+  ],
+  "requiredFixes": [
+    "Refresh or retire stale backlog items and keep them visible until the owning evidence lane changes."
+  ],
+  "suggestedValidators": [
+    "npm run check:ai-debug-critic",
+    "npm run check:beta-score",
+    "npm run check:debug-backlog-engine",
+    "npm run check:debug-evidence-pipeline",
+    "npm run score:beta"
+  ],
+  "unsafeChanges": [],
+  "duplicateSystems": [],
+  "monolithRisks": [],
+  "evidenceMisclassificationRisks": [],
+  "sourceOnly": true,
+  "externalAiCallsAllowed": false,
+  "summary": {
+    "totalFindings": 1,
+    "blockedFindings": 0,
+    "requiredFindings": 1,
+    "warningFindings": 0,
+    "unsafeChangeCount": 0,
+    "duplicateSystemCount": 0,
+    "monolithRiskCount": 0,
+    "evidenceMisclassificationRiskCount": 0
+  }
+}

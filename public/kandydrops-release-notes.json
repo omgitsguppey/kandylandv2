@@ -1,11 +1,63 @@
 {
-  "currentVersion": "1.3.48",
-  "betaReleaseCounter": 348,
+  "currentVersion": "1.3.49",
+  "betaReleaseCounter": 349,
   "channel": "beta",
-  "generatedAt": "2026-05-21T04:03:07.750Z",
-  "generatedAtUtc": "2026-05-21T04:03:07.750Z",
+  "generatedAt": "2026-05-21T04:23:40.710Z",
+  "generatedAtUtc": "2026-05-21T04:23:40.710Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.49",
+      "previousVersion": "1.3.48",
+      "betaReleaseCounter": 349,
+      "previousBetaReleaseCounter": 348,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): add ai critic guard",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T04:10:03.000Z",
+      "generatedAt": "2026-05-21T04:23:40.707Z",
+      "committedAtUtc": "2026-05-21T04:10:03.000Z",
+      "generatedAtUtc": "2026-05-21T04:23:40.707Z",
+      "updatedAtUtc": "2026-05-21T04:23:40.707Z",
+      "category": "Improved",
+      "title": "Debug critic improvements",
+      "summary": "Added source-only AI debug critic checks.",
+      "userFacingTitle": "Debug critic improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added source-only AI debug critic checks.",
+        "Blocked shallow patches, duplicate systems, and fake evidence claims.",
+        "Kept AI debugging local and cost-safe."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the local AI debug critic contract, static evaluator, generated report, validator, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Beta readiness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/ai-debug-critic.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/ai-debug-critic.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-ai-debug-critic.ts",
+        "src/lib/debug/ai-debug-critic-contract.ts",
+        "src/lib/debug/ai-debug-critic.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/ai-debug-critic.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.48",
       "previousVersion": "1.3.47",
@@ -1309,62 +1361,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/creator-broadcast-timeline-prep.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.24",
-      "previousVersion": "1.3.23",
-      "betaReleaseCounter": 324,
-      "previousBetaReleaseCounter": 323,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(creator): wire pricing settings to experiences",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T04:26:48.686Z",
-      "generatedAt": "2026-05-20T04:26:48.686Z",
-      "committedAtUtc": "2026-05-20T04:26:48.686Z",
-      "generatedAtUtc": "2026-05-20T04:26:48.686Z",
-      "updatedAtUtc": "2026-05-20T04:26:48.686Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Connected creator Fan Pass pricing to user-facing flows.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Connected creator Fan Pass pricing to user-facing flows.",
-        "Aligned creator experience prices with creator settings.",
-        "Preserved paid-GumDrop-only rules for creator experiences."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted creator pricing wiring pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator settings",
-        "creator profile",
-        "Fan Pass",
-        "creator experiences"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-pricing-wiring.generated.json",
-        "docs/agent-truth/creator-pricing-wiring.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-pricing-wiring.ts",
-        "src/app/api/creator/bookings/route.ts",
-        "src/app/api/creator/requests/route.ts",
-        "src/app/api/creator/subscriptions/route.ts",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Creators/CreatorExperiencesPanel.tsx",
-        "src/lib/creator-settings/creator-pricing-resolver.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/creator-pricing-wiring.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }
