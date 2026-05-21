@@ -1082,7 +1082,7 @@ export default function CreatorProfileClient() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 py-14 text-center">
+                                    <div className="rounded-[1.35rem] border border-dashed border-white/10 bg-white/5 px-4 py-8 text-center sm:py-10" data-mobile-residual-cleanup="score-impact">
                                         <p className="text-gray-300">{profileDropsVisible ? "This creator is live, but the first drop has not landed yet." : "Drops are hidden on this creator profile right now."}</p>
                                     </div>
                                 )}

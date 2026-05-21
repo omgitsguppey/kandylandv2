@@ -642,14 +642,14 @@ export function DailyTasksModule() {
       ) : null}
 
       {rotating && activeTasks.length === 0 ? (
-        <div className="glass-panel rounded-[2rem] border border-white/10 p-6 text-center">
+        <div className="glass-panel rounded-[1.35rem] border border-white/10 p-4 text-center sm:p-5" data-mobile-residual-cleanup="score-impact">
           <Loader2 className="mx-auto h-7 w-7 animate-spin text-brand-purple" />
           <p className="mt-3 text-sm text-gray-400">Preparing today&apos;s tasks...</p>
         </div>
       ) : null}
 
       {!rotating && activeTasks.length === 0 ? (
-        <div className="glass-panel rounded-[2rem] border border-white/10 p-6 text-center">
+        <div className="glass-panel rounded-[1.35rem] border border-white/10 p-4 text-center sm:p-5" data-mobile-residual-cleanup="score-impact">
           <Gift className="mx-auto h-8 w-8 text-brand-purple" />
           <p className="mt-3 text-sm text-gray-400">No tasks are ready right now.</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">

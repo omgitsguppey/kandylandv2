@@ -1,0 +1,217 @@
+{
+  "generatedAtUtc": "2026-05-21T02:36:34.230Z",
+  "reportKey": "mobile-residual-score-impact",
+  "currentHead": "d21c3e879ee17c77af614c0d4843f6044cc19259",
+  "summary": {
+    "mobileUiFinalLockPresent": true,
+    "hardcodedCssCleanupPresent": true,
+    "highImpactResidualsRanked": true,
+    "highImpactResidualsFixed": 6,
+    "deferredLowImpactResiduals": 1,
+    "chatUntouched": true,
+    "navUntouched": true,
+    "skeletonMismatchIntroduced": false,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "impactRanking": [
+    {
+      "id": "admin-debug-loading-density",
+      "category": "admin debug/truth route",
+      "surfaceOwner": "admin",
+      "path": "src/app/admin/debug/page.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "Admin debug is score-impacting because it feeds truth/evidence confidence. Loading states must stay compact and explicit.",
+      "fixApplied": "Compacted the debug loading block and added the mobile residual cleanup marker.",
+      "nextAction": "Keep raw debug details behind drilldowns and retain explicit degraded/unavailable states."
+    },
+    {
+      "id": "user-dashboard-recent-activity-density",
+      "category": "user-critical route",
+      "surfaceOwner": "user",
+      "path": "src/components/Dashboard/RecentActivityFeed.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "Recent activity is a dashboard confidence module; oversized mobile cards increase sprawl and loading drag.",
+      "fixApplied": "Reduced mobile card radius/padding while preserving the existing dashboard behavior.",
+      "nextAction": "Use the existing expansion affordance for deeper history instead of larger default cards."
+    },
+    {
+      "id": "user-dashboard-daily-task-empty-density",
+      "category": "user-critical route",
+      "surfaceOwner": "user",
+      "path": "src/components/Dashboard/DailyTasksModule.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "Daily task empty/loading states are first-run dashboard states and should reserve compact final-size space.",
+      "fixApplied": "Compacted empty/loading cards and marked the mobile residual cleanup.",
+      "nextAction": "Keep task state truth and telemetry unchanged."
+    },
+    {
+      "id": "user-library-empty-state-density",
+      "category": "profile/drop route",
+      "surfaceOwner": "user",
+      "path": "src/components/Dashboard/CollectionList.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "My KandyDrops is user-critical. Empty states should be compact and actionable, not a giant blank panel.",
+      "fixApplied": "Reduced mobile empty-state spacing while preserving the library route action.",
+      "nextAction": "Keep owned/locked Drop semantics unchanged."
+    },
+    {
+      "id": "creator-profile-empty-timeline-density",
+      "category": "creator-critical route",
+      "surfaceOwner": "creator",
+      "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "Creator public profiles are conversion and timeline surfaces; empty timeline states should not dominate mobile.",
+      "fixApplied": "Compacted the empty timeline card and marked the residual cleanup.",
+      "nextAction": "Keep draft/pending/private content hidden from public profile timelines."
+    },
+    {
+      "id": "wallet-mobile-density-marker",
+      "category": "wallet/revenue route",
+      "surfaceOwner": "wallet",
+      "path": "src/components/PurchaseModal.tsx",
+      "scoreImpact": "P1",
+      "status": "already_compact",
+      "sourceFixable": false,
+      "reason": "Wallet revenue UI already exposes compact mobile density and unchanged runtime markers.",
+      "fixApplied": "No runtime or payment-adjacent edit was needed.",
+      "nextAction": "Do not change payment provider or GumDrop math for mobile residual cleanup."
+    },
+    {
+      "id": "low-impact-legal-shells",
+      "category": "merely cosmetic",
+      "surfaceOwner": "public",
+      "path": "src/app/(legal)/**",
+      "scoreImpact": "P2",
+      "status": "deferred_with_reason",
+      "sourceFixable": true,
+      "reason": "Legal/offline/not-found display classes remain lower score impact than dashboard, creator profile, admin debug, and wallet surfaces.",
+      "fixApplied": "Deferred to avoid broad UI redesign.",
+      "nextAction": "Only clean these when their owner surface is touched for a direct reason."
+    }
+  ],
+  "fixedResiduals": [
+    {
+      "id": "admin-debug-loading-density",
+      "category": "admin debug/truth route",
+      "surfaceOwner": "admin",
+      "path": "src/app/admin/debug/page.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "Admin debug is score-impacting because it feeds truth/evidence confidence. Loading states must stay compact and explicit.",
+      "fixApplied": "Compacted the debug loading block and added the mobile residual cleanup marker.",
+      "nextAction": "Keep raw debug details behind drilldowns and retain explicit degraded/unavailable states."
+    },
+    {
+      "id": "user-dashboard-recent-activity-density",
+      "category": "user-critical route",
+      "surfaceOwner": "user",
+      "path": "src/components/Dashboard/RecentActivityFeed.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "Recent activity is a dashboard confidence module; oversized mobile cards increase sprawl and loading drag.",
+      "fixApplied": "Reduced mobile card radius/padding while preserving the existing dashboard behavior.",
+      "nextAction": "Use the existing expansion affordance for deeper history instead of larger default cards."
+    },
+    {
+      "id": "user-dashboard-daily-task-empty-density",
+      "category": "user-critical route",
+      "surfaceOwner": "user",
+      "path": "src/components/Dashboard/DailyTasksModule.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "Daily task empty/loading states are first-run dashboard states and should reserve compact final-size space.",
+      "fixApplied": "Compacted empty/loading cards and marked the mobile residual cleanup.",
+      "nextAction": "Keep task state truth and telemetry unchanged."
+    },
+    {
+      "id": "user-library-empty-state-density",
+      "category": "profile/drop route",
+      "surfaceOwner": "user",
+      "path": "src/components/Dashboard/CollectionList.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "My KandyDrops is user-critical. Empty states should be compact and actionable, not a giant blank panel.",
+      "fixApplied": "Reduced mobile empty-state spacing while preserving the library route action.",
+      "nextAction": "Keep owned/locked Drop semantics unchanged."
+    },
+    {
+      "id": "creator-profile-empty-timeline-density",
+      "category": "creator-critical route",
+      "surfaceOwner": "creator",
+      "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "scoreImpact": "P1",
+      "status": "fixed",
+      "sourceFixable": true,
+      "reason": "Creator public profiles are conversion and timeline surfaces; empty timeline states should not dominate mobile.",
+      "fixApplied": "Compacted the empty timeline card and marked the residual cleanup.",
+      "nextAction": "Keep draft/pending/private content hidden from public profile timelines."
+    },
+    {
+      "id": "wallet-mobile-density-marker",
+      "category": "wallet/revenue route",
+      "surfaceOwner": "wallet",
+      "path": "src/components/PurchaseModal.tsx",
+      "scoreImpact": "P1",
+      "status": "already_compact",
+      "sourceFixable": false,
+      "reason": "Wallet revenue UI already exposes compact mobile density and unchanged runtime markers.",
+      "fixApplied": "No runtime or payment-adjacent edit was needed.",
+      "nextAction": "Do not change payment provider or GumDrop math for mobile residual cleanup."
+    }
+  ],
+  "deferredResiduals": [
+    {
+      "id": "low-impact-legal-shells",
+      "category": "merely cosmetic",
+      "surfaceOwner": "public",
+      "path": "src/app/(legal)/**",
+      "scoreImpact": "P2",
+      "status": "deferred_with_reason",
+      "sourceFixable": true,
+      "reason": "Legal/offline/not-found display classes remain lower score impact than dashboard, creator profile, admin debug, and wallet surfaces.",
+      "fixApplied": "Deferred to avoid broad UI redesign.",
+      "nextAction": "Only clean these when their owner surface is touched for a direct reason."
+    }
+  ],
+  "protectedFileDiffs": [],
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/mobile-loading-hydration-stability.generated.json",
+    "agent/state/mobile-ui-final-lock.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+    "docs/agent-truth/mobile-loading-hydration-stability.md",
+    "docs/agent-truth/mobile-ui-final-lock.md",
+    "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "src/app/admin/debug/page.tsx",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/components/Dashboard/CollectionList.tsx",
+    "src/components/Dashboard/DailyTasksModule.tsx",
+    "src/components/Dashboard/RecentActivityFeed.tsx",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts"
+  ],
+  "nextExactSteps": [
+    "Run check:mobile-residual-score-impact after high-impact mobile residual cleanup.",
+    "Leave cosmetic residuals deferred until their owner surface is touched.",
+    "Keep chat, top navigation, and bottom navigation in their protected workflows."
+  ]
+}

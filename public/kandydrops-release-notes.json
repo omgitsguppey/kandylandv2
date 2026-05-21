@@ -1,11 +1,66 @@
 {
-  "currentVersion": "1.3.46",
-  "betaReleaseCounter": 346,
+  "currentVersion": "1.3.47",
+  "betaReleaseCounter": 347,
   "channel": "beta",
-  "generatedAt": "2026-05-21T02:19:25.478Z",
-  "generatedAtUtc": "2026-05-21T02:19:25.478Z",
+  "generatedAt": "2026-05-21T02:32:59.275Z",
+  "generatedAtUtc": "2026-05-21T02:32:59.275Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.47",
+      "previousVersion": "1.3.46",
+      "betaReleaseCounter": 347,
+      "previousBetaReleaseCounter": 346,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(ui): clean high impact mobile residuals",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T02:32:59.275Z",
+      "generatedAt": "2026-05-21T02:32:59.275Z",
+      "committedAtUtc": "2026-05-21T02:32:59.275Z",
+      "generatedAtUtc": "2026-05-21T02:32:59.275Z",
+      "updatedAtUtc": "2026-05-21T02:32:59.275Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Cleaned up high-impact mobile layout residuals.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleaned up high-impact mobile layout residuals.",
+        "Ranked remaining mobile scale warnings by score impact.",
+        "Kept chat and navigation unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted high-impact mobile residual cleanup pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug",
+        "Creator profiles",
+        "User dashboard",
+        "My KandyDrops"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/mobile-residual-score-impact.generated.json",
+        "docs/agent-truth/mobile-residual-score-impact.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-mobile-residual-score-impact.ts",
+        "src/app/admin/debug/page.tsx",
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/Dashboard/CollectionList.tsx",
+        "src/components/Dashboard/DailyTasksModule.tsx",
+        "src/components/Dashboard/RecentActivityFeed.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/mobile-residual-score-impact.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.46",
       "previousVersion": "1.3.45",
@@ -1316,70 +1371,6 @@
         "src/types/db.ts",
         "tests/unit/creator-dashboard-settings.spec.tsx",
         "tests/unit/creator-settings-control-plane.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.22",
-      "previousVersion": "1.3.21",
-      "betaReleaseCounter": 322,
-      "previousBetaReleaseCounter": 321,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(ui): lock mobile self checks",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T00:34:33.985Z",
-      "generatedAt": "2026-05-20T00:34:33.985Z",
-      "committedAtUtc": "2026-05-20T00:34:33.985Z",
-      "generatedAtUtc": "2026-05-20T00:34:33.985Z",
-      "updatedAtUtc": "2026-05-20T00:34:33.985Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Locked mobile UI scaling and organization checks.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked mobile UI scaling and organization checks.",
-        "Added self-check rules for future UI changes.",
-        "Kept navigation and chat protected from broad mobile cleanup."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted mobile UI final lock pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "mobile UI",
-        "admin screens",
-        "creator screens",
-        "user screens"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-surface-routing.generated.json",
-        "agent/state/mobile-hardcoded-css-cleanup.generated.json",
-        "agent/state/mobile-loading-hydration-stability.generated.json",
-        "agent/state/mobile-surface-organization.generated.json",
-        "agent/state/mobile-ui-final-lock.generated.json",
-        "agent/state/mobile-ui-scaling-doctrine.generated.json",
-        "agent/state/source-truth-authority-map.generated.json",
-        "agent/state/user-creator-ui-parity.generated.json",
-        "docs/agent-truth/mobile-hardcoded-css-cleanup.md",
-        "docs/agent-truth/mobile-loading-hydration-stability.md",
-        "docs/agent-truth/mobile-surface-organization.md",
-        "docs/agent-truth/mobile-ui-final-lock.md",
-        "docs/agent-truth/mobile-ui-scaling-doctrine.md",
-        "docs/agent-truth/source-truth-authority-map.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-surface-routing.ts",
-        "scripts/agent/validate-mobile-ui-final-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/creator-surface-routing.spec.ts",
-        "tests/unit/mobile-ui-final-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

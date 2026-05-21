@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.47 - 2026-05-20
+- Bug fixes and general improvements
+- Cleaned up high-impact mobile layout residuals.
+- Ranked remaining mobile scale warnings by score impact.
+- Kept chat and navigation unchanged.
+
 ## 1.3.46 - 2026-05-20
 - Bug fixes and general improvements
 - Mapped route diagnostics to clearer human error guidance.

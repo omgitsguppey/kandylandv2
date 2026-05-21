@@ -720,7 +720,7 @@ export function RecentActivityFeed() {
     };
 
     return (
-        <div className="glass-panel mt-6 rounded-3xl p-6 lg:mt-8">
+        <div className="glass-panel mt-4 rounded-[1.35rem] p-3.5 sm:p-5 lg:mt-8" data-mobile-residual-cleanup="score-impact">
             <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                     <h3 className="flex items-center gap-2 text-lg font-bold text-white">

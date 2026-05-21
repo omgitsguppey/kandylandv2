@@ -126,12 +126,12 @@ export function CollectionList({ drops, userProfile, currentTimeMs }: Collection
                 })}
 
                 {filteredDrops.length === 0 && (
-                    <div className="glass-panel col-span-full rounded-3xl border border-white/5 py-16 text-center">
-                        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5 shadow-inner">
-                            <LayoutGrid className="h-10 w-10 text-brand-purple opacity-50" />
+                    <div className="glass-panel col-span-full rounded-[1.35rem] border border-white/5 px-4 py-8 text-center sm:py-12" data-mobile-residual-cleanup="score-impact">
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 shadow-inner sm:h-16 sm:w-16">
+                            <LayoutGrid className="h-7 w-7 text-brand-purple opacity-50 sm:h-8 sm:w-8" />
                         </div>
                         <h3 className="mb-2 text-xl font-bold text-white">No drops to show</h3>
-                        <p className="mx-auto mb-8 max-w-xs text-sm text-gray-400">
+                        <p className="mx-auto mb-5 max-w-xs text-sm text-gray-400 sm:mb-7">
                             {filter === "owned"
                                 ? "You haven't unwrapped any flavors yet."
                                 : filter === "locked"
@@ -140,7 +140,7 @@ export function CollectionList({ drops, userProfile, currentTimeMs }: Collection
                         </p>
                         <a
                             href="/drops"
-                            className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/20 bg-brand-purple/10 px-8 py-3 font-bold text-brand-purple"
+                            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-brand-purple/20 bg-brand-purple/10 px-5 py-2.5 font-bold text-brand-purple sm:px-7"
                         >
                             Visit Shop
                         </a>
