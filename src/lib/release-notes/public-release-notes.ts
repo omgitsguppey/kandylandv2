@@ -1,13 +1,72 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.66",
-  "betaReleaseCounter": 366,
+  "currentVersion": "1.3.67",
+  "betaReleaseCounter": 367,
   "channel": "beta",
-  "generatedAt": "2026-05-21T15:37:04.441Z",
-  "generatedAtUtc": "2026-05-21T15:37:04.441Z",
+  "generatedAt": "2026-05-21T15:54:29.832Z",
+  "generatedAtUtc": "2026-05-21T15:54:29.832Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.67",
+      "previousVersion": "1.3.66",
+      "betaReleaseCounter": 367,
+      "previousBetaReleaseCounter": 366,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(privacy): recover legacy behavior states",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T15:54:29.832Z",
+      "generatedAt": "2026-05-21T15:54:29.832Z",
+      "committedAtUtc": "2026-05-21T15:54:29.832Z",
+      "generatedAtUtc": "2026-05-21T15:54:29.832Z",
+      "updatedAtUtc": "2026-05-21T15:54:29.832Z",
+      "category": "Improved",
+      "title": "Legacy privacy behavior recovery",
+      "summary": "Added dry-run recovery for legacy privacy and behavior records while keeping unknown consent and orphaned data out of current truth.",
+      "userFacingTitle": "Legacy privacy behavior recovery",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Added dry-run recovery for legacy privacy and behavior records.",
+        "Kept unknown legacy consent from becoming full behavioral tracking.",
+        "Mapped orphaned behavior data without mutating production."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a dry-run legacy privacy behavior mapper, admin debug report registration, deterministic validator, generated report, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "Privacy & security",
+        "Telemetry",
+        "Admin Debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/behavior-math-verification.generated.json",
+        "agent/state/identity-handoff-refinement.generated.json",
+        "agent/state/march-first-legacy-normalization.generated.json",
+        "agent/state/privacy-behavior-legacy-recovery.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/identity-handoff-refinement.md",
+        "docs/agent-truth/march-first-legacy-normalization.md",
+        "docs/agent-truth/privacy-behavior-legacy-recovery.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-privacy-behavior-legacy-recovery.ts",
+        "src/lib/admin-debug-control-tower.ts",
+        "src/lib/legacy/legacy-normalization-contract.ts",
+        "src/lib/legacy/privacy-behavior-legacy-recovery.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/privacy-behavior-legacy-recovery.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.66",
       "previousVersion": "1.3.65",
@@ -1365,55 +1424,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-truth-source-sample.spec.ts",
         "tests/unit/debug-runtime-evidence.spec.ts",
         "tests/unit/debug-score-impact-triage.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.42",
-      "previousVersion": "1.3.41",
-      "betaReleaseCounter": 342,
-      "previousBetaReleaseCounter": 341,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): lock score 80 path",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T00:24:56.057Z",
-      "generatedAt": "2026-05-21T00:24:56.057Z",
-      "committedAtUtc": "2026-05-21T00:24:56.057Z",
-      "generatedAtUtc": "2026-05-21T00:24:56.057Z",
-      "updatedAtUtc": "2026-05-21T00:24:56.057Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Locked the score-80 path with refreshed source evidence.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked the score-80 path with refreshed source evidence.",
-        "Ranked remaining score drag by impact.",
-        "Added dirty-build safeguards for beta scoring."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted score-80 path lock and dirty build prevention pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Evidence freshness",
-        "Generated reports"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/score-80-path-lock.generated.json",
-        "docs/agent-truth/score-80-path-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-score-80-path-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/score-80-path-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

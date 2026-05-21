@@ -1,0 +1,438 @@
+{
+  "generatedAt": "2026-05-21T15:55:43.910Z",
+  "generatedAtUtc": "2026-05-21T15:55:43.913Z",
+  "source": "local_static_validator",
+  "reportKey": "privacy-behavior-legacy-recovery",
+  "currentHead": "717f24c1dd78724b26626deeb04c6c4707ef317f",
+  "overallStatus": "live",
+  "overallScore": 100,
+  "productionReads": false,
+  "liveBackfill": false,
+  "mutationsAllowed": false,
+  "recoveryClasses": [
+    "legacy_consent_unknown",
+    "legacy_guest_behavior_unknown",
+    "legacy_user_behavior_probable",
+    "orphaned_guest_session",
+    "orphaned_user_event",
+    "orphaned_materialized_metric",
+    "orphaned_profile_drop_interaction",
+    "legacy_cookie_banner_state"
+  ],
+  "plan": {
+    "mode": "dry_run_only",
+    "recoveryStartDate": "2026-03-01",
+    "readsProduction": false,
+    "liveBackfill": false,
+    "mutationsAllowed": false,
+    "records": [
+      {
+        "legacyId": "fixture_legacy_consent_unknown",
+        "legacyClass": "legacy_consent_unknown",
+        "legacySource": "legacy_cookie_banner_state",
+        "timestampMs": 1772323200000,
+        "fields": {
+          "consentMode": "unknown",
+          "anonymousVisitorId": "guest-1"
+        },
+        "normalizedCategory": "legacy_consent_unknown",
+        "candidateNormalizedRecord": {
+          "legacyId": "fixture_legacy_consent_unknown",
+          "legacySource": "legacy_cookie_banner_state",
+          "normalizedCategory": "legacy_consent_unknown",
+          "anonymousVisitorId": "guest-1",
+          "consentMode": "necessary_only",
+          "consentSource": "legacy_default"
+        },
+        "confidence": "unknown",
+        "duplicateRisk": "high",
+        "consentAssumption": "unknown_consent_treat_as_necessary_only",
+        "allowedUsage": [
+          "debug_visibility",
+          "dry_run_review",
+          "archive_recovery",
+          "local_evidence_mapping"
+        ],
+        "forbiddenUsage": [
+          "current_truth",
+          "production_backfill",
+          "mutation",
+          "full_behavioral_tracking",
+          "person_level_behavior",
+          "personalization"
+        ],
+        "requiresUserConfirmation": true,
+        "action": "archive_only",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "dryRunOnly": true,
+        "mutationBlockedReason": "unknown_legacy_not_current_truth",
+        "evidenceReason": "Unknown legacy consent is treated as necessary-only archive evidence and cannot become full behavioral tracking."
+      },
+      {
+        "legacyId": "fixture_legacy_guest_behavior_unknown",
+        "legacyClass": "legacy_guest_behavior_unknown",
+        "legacySource": "analytics_guest_batches",
+        "timestampMs": 1772409600000,
+        "fields": {
+          "eventName": "unknown_legacy",
+          "anonymousVisitorId": "guest-2"
+        },
+        "normalizedCategory": "guest_behavior_unknown",
+        "candidateNormalizedRecord": {
+          "legacyId": "fixture_legacy_guest_behavior_unknown",
+          "legacySource": "analytics_guest_batches",
+          "normalizedCategory": "guest_behavior_unknown",
+          "eventName": "unknown_legacy",
+          "anonymousVisitorId": "guest-2"
+        },
+        "confidence": "unknown",
+        "duplicateRisk": "high",
+        "consentAssumption": "consent_not_proven_archive_only",
+        "allowedUsage": [
+          "debug_visibility",
+          "dry_run_review",
+          "archive_recovery",
+          "local_evidence_mapping"
+        ],
+        "forbiddenUsage": [
+          "current_truth",
+          "production_backfill",
+          "mutation",
+          "full_behavioral_tracking",
+          "person_level_behavior",
+          "personalization"
+        ],
+        "requiresUserConfirmation": false,
+        "action": "archive_only",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "dryRunOnly": true,
+        "mutationBlockedReason": "unknown_legacy_not_current_truth",
+        "evidenceReason": "Unknown or orphaned legacy data cannot count as current truth."
+      },
+      {
+        "legacyId": "fixture_legacy_user_behavior_probable",
+        "legacyClass": "legacy_user_behavior_probable",
+        "legacySource": "analytics_event_facts",
+        "timestampMs": 1772496000000,
+        "fields": {
+          "eventName": "creator_profile_viewed",
+          "userId": "user-1",
+          "sessionId": "session-1"
+        },
+        "normalizedCategory": "behavior_event",
+        "candidateNormalizedRecord": {
+          "legacyId": "fixture_legacy_user_behavior_probable",
+          "legacySource": "analytics_event_facts",
+          "normalizedCategory": "behavior_event",
+          "eventName": "creator_profile_viewed",
+          "userId": "user-1",
+          "sessionId": "session-1"
+        },
+        "confidence": "probable",
+        "duplicateRisk": "medium",
+        "consentAssumption": "minimal_or_full_consent_required_before_behavior_use",
+        "allowedUsage": [
+          "debug_visibility",
+          "dry_run_review",
+          "archive_recovery",
+          "local_evidence_mapping"
+        ],
+        "forbiddenUsage": [
+          "current_truth",
+          "production_backfill",
+          "mutation",
+          "full_behavioral_tracking",
+          "person_level_behavior",
+          "personalization"
+        ],
+        "requiresUserConfirmation": false,
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "dryRunOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Dry-run candidate only; confidence, duplicate risk, and consent assumptions must be reviewed before any future migration plan."
+      },
+      {
+        "legacyId": "fixture_orphaned_guest_session",
+        "legacyClass": "orphaned_guest_session",
+        "legacySource": "analytics_sessions",
+        "timestampMs": 1772582400000,
+        "fields": {
+          "sessionId": "session-orphan",
+          "anonymousVisitorId": "guest-orphan"
+        },
+        "normalizedCategory": "guest_session",
+        "candidateNormalizedRecord": {
+          "legacyId": "fixture_orphaned_guest_session",
+          "legacySource": "analytics_sessions",
+          "normalizedCategory": "guest_session",
+          "anonymousVisitorId": "guest-orphan",
+          "sessionId": "session-orphan"
+        },
+        "confidence": "weak",
+        "duplicateRisk": "medium",
+        "consentAssumption": "consent_not_proven_archive_only",
+        "allowedUsage": [
+          "debug_visibility",
+          "dry_run_review",
+          "archive_recovery",
+          "local_evidence_mapping"
+        ],
+        "forbiddenUsage": [
+          "current_truth",
+          "production_backfill",
+          "mutation"
+        ],
+        "requiresUserConfirmation": false,
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "dryRunOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Dry-run candidate only; confidence, duplicate risk, and consent assumptions must be reviewed before any future migration plan."
+      },
+      {
+        "legacyId": "fixture_orphaned_user_event",
+        "legacyClass": "orphaned_user_event",
+        "legacySource": "analytics_event_facts",
+        "timestampMs": 1772668800000,
+        "fields": {
+          "eventName": "drop_opened",
+          "userId": "user-1"
+        },
+        "normalizedCategory": "behavior_event",
+        "candidateNormalizedRecord": {
+          "legacyId": "fixture_orphaned_user_event",
+          "legacySource": "analytics_event_facts",
+          "normalizedCategory": "behavior_event",
+          "eventName": "drop_opened",
+          "userId": "user-1"
+        },
+        "confidence": "weak",
+        "duplicateRisk": "medium",
+        "consentAssumption": "minimal_or_full_consent_required_before_behavior_use",
+        "allowedUsage": [
+          "debug_visibility",
+          "dry_run_review",
+          "archive_recovery",
+          "local_evidence_mapping"
+        ],
+        "forbiddenUsage": [
+          "current_truth",
+          "production_backfill",
+          "mutation"
+        ],
+        "requiresUserConfirmation": false,
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "dryRunOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Dry-run candidate only; confidence, duplicate risk, and consent assumptions must be reviewed before any future migration plan."
+      },
+      {
+        "legacyId": "fixture_orphaned_materialized_metric",
+        "legacyClass": "orphaned_materialized_metric",
+        "legacySource": "analytics_users_rollup",
+        "timestampMs": 1772755200000,
+        "fields": {
+          "metricId": "profile_views",
+          "userId": "user-1",
+          "count": 4
+        },
+        "normalizedCategory": "orphaned_materialized_metric",
+        "candidateNormalizedRecord": {
+          "legacyId": "fixture_orphaned_materialized_metric",
+          "legacySource": "analytics_users_rollup",
+          "normalizedCategory": "orphaned_materialized_metric",
+          "userId": "user-1",
+          "metricId": "profile_views",
+          "count": 4
+        },
+        "confidence": "weak",
+        "duplicateRisk": "high",
+        "consentAssumption": "consent_not_proven_archive_only",
+        "allowedUsage": [
+          "debug_visibility",
+          "dry_run_review",
+          "archive_recovery",
+          "local_evidence_mapping"
+        ],
+        "forbiddenUsage": [
+          "current_truth",
+          "production_backfill",
+          "mutation"
+        ],
+        "requiresUserConfirmation": false,
+        "action": "archive_only",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "dryRunOnly": true,
+        "mutationBlockedReason": "orphaned_metric_archive_only",
+        "evidenceReason": "Orphaned materialized metrics lack a source producer and remain archive-only until source facts are found."
+      },
+      {
+        "legacyId": "fixture_orphaned_profile_drop_interaction",
+        "legacyClass": "orphaned_profile_drop_interaction",
+        "legacySource": "behavioral_timeline_facts",
+        "timestampMs": 1772841600000,
+        "fields": {
+          "creatorId": "creator-1",
+          "dropId": "drop-1",
+          "sessionId": "session-3"
+        },
+        "normalizedCategory": "profile_drop_interaction",
+        "candidateNormalizedRecord": {
+          "legacyId": "fixture_orphaned_profile_drop_interaction",
+          "legacySource": "behavioral_timeline_facts",
+          "normalizedCategory": "profile_drop_interaction",
+          "sessionId": "session-3",
+          "targetCreatorId": "creator-1",
+          "dropId": "drop-1"
+        },
+        "confidence": "weak",
+        "duplicateRisk": "medium",
+        "consentAssumption": "consent_not_proven_archive_only",
+        "allowedUsage": [
+          "debug_visibility",
+          "dry_run_review",
+          "archive_recovery",
+          "local_evidence_mapping"
+        ],
+        "forbiddenUsage": [
+          "current_truth",
+          "production_backfill",
+          "mutation"
+        ],
+        "requiresUserConfirmation": false,
+        "action": "normalize_candidate",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "dryRunOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Dry-run candidate only; confidence, duplicate risk, and consent assumptions must be reviewed before any future migration plan."
+      },
+      {
+        "legacyId": "fixture_legacy_cookie_banner_state",
+        "legacyClass": "legacy_cookie_banner_state",
+        "legacySource": "legacy_cookie_banner_state",
+        "timestampMs": 1772928000000,
+        "fields": {
+          "consentMode": "minimal_analytics",
+          "anonymousVisitorId": "guest-3"
+        },
+        "normalizedCategory": "legacy_cookie_banner_state",
+        "candidateNormalizedRecord": {
+          "legacyId": "fixture_legacy_cookie_banner_state",
+          "legacySource": "legacy_cookie_banner_state",
+          "normalizedCategory": "legacy_cookie_banner_state",
+          "anonymousVisitorId": "guest-3"
+        },
+        "confidence": "weak",
+        "duplicateRisk": "high",
+        "consentAssumption": "explicit_legacy_banner_state_review_required",
+        "allowedUsage": [
+          "debug_visibility",
+          "dry_run_review",
+          "archive_recovery",
+          "local_evidence_mapping"
+        ],
+        "forbiddenUsage": [
+          "current_truth",
+          "production_backfill",
+          "mutation"
+        ],
+        "requiresUserConfirmation": true,
+        "action": "needs_manual_review",
+        "currentTruthEligible": false,
+        "readOnly": true,
+        "dryRunOnly": true,
+        "mutationBlockedReason": "dry_run_only",
+        "evidenceReason": "Dry-run candidate only; confidence, duplicate risk, and consent assumptions must be reviewed before any future migration plan."
+      }
+    ],
+    "adminDebugVisibility": {
+      "recoveryReadiness": "ready_for_dry_run_review",
+      "reportPath": "agent/state/privacy-behavior-legacy-recovery.generated.json",
+      "orphanCountsByClass": {
+        "orphaned_guest_session": 1,
+        "orphaned_user_event": 1,
+        "orphaned_materialized_metric": 1,
+        "orphaned_profile_drop_interaction": 1
+      },
+      "cannotSafelyRecover": [
+        "legacy_consent_unknown",
+        "legacy_cookie_banner_state",
+        "legacy_guest_behavior_unknown",
+        "orphaned_materialized_metric"
+      ],
+      "unsafeRecoveryReason": "Unknown consent, orphaned metrics, and high-duplicate-risk rows stay archive-only and visible to debug/admin truth."
+    },
+    "debugBacklogIssues": [
+      {
+        "id": "privacy-behavior-legacy-unknown-consent",
+        "sourceRoute": "legacy://privacy-behavior-recovery",
+        "source": "evidence",
+        "fixClass": "manual_required",
+        "owner": "analytics",
+        "severity": "p1",
+        "exactNextAction": "Keep unknown legacy consent necessary-only unless a user or account-level consent artifact confirms a stronger mode."
+      },
+      {
+        "id": "privacy-behavior-orphaned-data-archive",
+        "sourceRoute": "legacy://privacy-behavior-recovery",
+        "source": "telemetry",
+        "fixClass": "evidence_refresh",
+        "owner": "analytics",
+        "severity": "p2",
+        "exactNextAction": "Use this dry-run mapping to locate source facts for orphaned behavior rows; otherwise keep them archive-only."
+      }
+    ],
+    "summary": {
+      "inputRecords": 8,
+      "inWindowRecords": 8,
+      "confidenceCounts": {
+        "exact": 0,
+        "probable": 1,
+        "weak": 5,
+        "unknown": 2
+      },
+      "duplicateRiskCounts": {
+        "low": 0,
+        "medium": 4,
+        "high": 4
+      },
+      "currentTruthEligibleCount": 0,
+      "requiresUserConfirmationCount": 2,
+      "archiveOnlyCount": 3,
+      "orphanCountsByClass": {
+        "orphaned_guest_session": 1,
+        "orphaned_user_event": 1,
+        "orphaned_materialized_metric": 1,
+        "orphaned_profile_drop_interaction": 1
+      },
+      "cannotSafelyRecoverCount": 4
+    }
+  },
+  "protectedChanges": [],
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/context/optimized-task-context.generated.json",
+    "agent/state/behavior-math-verification.generated.json",
+    "agent/state/identity-handoff-refinement.generated.json",
+    "agent/state/march-first-legacy-normalization.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "docs/agent-truth/identity-handoff-refinement.md",
+    "docs/agent-truth/march-first-legacy-normalization.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "src/lib/admin-debug-control-tower.ts",
+    "src/lib/legacy/legacy-normalization-contract.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts"
+  ],
+  "findings": []
+}

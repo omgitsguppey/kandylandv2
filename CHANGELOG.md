@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.67 - 2026-05-21
+- Legacy privacy behavior recovery
+- Added dry-run recovery for legacy privacy and behavior records.
+- Kept unknown legacy consent from becoming full behavioral tracking.
+- Mapped orphaned behavior data without mutating production.
+
 ## 1.3.66 - 2026-05-21
 - Cookie banner settings sync
 - Improved mobile cookie banner readability.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Prioritized debug panel warnings by beta score impact.
 - Converted debug/runtime checks into source-backed evidence.
 - Kept formal runtime and provider smoke gates honest.
-
-## 1.3.42 - 2026-05-21
-- Bug fixes and general improvements
-- Locked the score-80 path with refreshed source evidence.
-- Ranked remaining score drag by impact.
-- Added dirty-build safeguards for beta scoring.

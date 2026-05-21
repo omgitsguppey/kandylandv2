@@ -25,6 +25,19 @@ export type LegacyNormalizationAction =
   | "ignore"
   | "needs_manual_review";
 
+export const PRIVACY_BEHAVIOR_LEGACY_CLASSES = [
+  "legacy_consent_unknown",
+  "legacy_guest_behavior_unknown",
+  "legacy_user_behavior_probable",
+  "orphaned_guest_session",
+  "orphaned_user_event",
+  "orphaned_materialized_metric",
+  "orphaned_profile_drop_interaction",
+  "legacy_cookie_banner_state",
+] as const;
+
+export type PrivacyBehaviorLegacyClass = (typeof PRIVACY_BEHAVIOR_LEGACY_CLASSES)[number];
+
 export type LegacyNormalizedCategory =
   | "guest_session"
   | "user_session"
