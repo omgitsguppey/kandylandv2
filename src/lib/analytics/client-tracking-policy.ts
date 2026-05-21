@@ -1,3 +1,13 @@
+import {
+  canTrackCapability,
+  canUseExternalAnalytics,
+  classifyTrackingCapability,
+  getConsentTelemetryReason,
+  resolveConsentMode,
+  type ConsentMode,
+  type TrackingCapability,
+} from "@/lib/privacy/consent-tracking-policy";
+
 export const CLIENT_TRACKING_STATES = [
   "enabled",
   "disabled",
@@ -21,6 +31,7 @@ export const CLIENT_TRACKING_EVENT_KINDS = [
 export type ClientTrackingEventKind = (typeof CLIENT_TRACKING_EVENT_KINDS)[number];
 
 export type ClientTrackingPolicyPrivacySnapshot = {
+  consentMode?: ConsentMode;
   anonymousAnalyticsEnabled?: boolean;
   identifiedAnalyticsEnabled?: boolean;
   allowRecommendations?: boolean;
@@ -83,6 +94,7 @@ export function resolveClientTrackingState(
 export function classifyClientTrackingEvent(input: ClientTrackingEventInput): ClientTrackingEventKind {
   const eventName = normalized(input.eventName);
   const eventType = normalized(input.eventType ?? input.type);
+  const capability = classifyTrackingCapability(eventName || eventType);
 
   if (input.debug === true || eventName.startsWith("debug_") || eventName.startsWith("source_only_")) {
     return "debug_only";
@@ -90,37 +102,16 @@ export function classifyClientTrackingEvent(input: ClientTrackingEventInput): Cl
   if (input.externalEvidence === true || eventName.startsWith("ga4_") || eventName.startsWith("posthog_")) {
     return "external_evidence";
   }
-  if (eventName.startsWith("security_") || eventName.startsWith("confirmed_") || eventName.startsWith("heuristic_")) {
+  if (capability === "required_security") {
     return "required_security";
   }
-  if (eventName.startsWith("auth_") || eventName === "identity_linked" || eventName.startsWith("password_reset_")) {
+  if (capability === "required_account") {
     return "required_account";
   }
-  if (
-    eventName.includes("purchase")
-    || eventName.includes("checkout")
-    || eventName.includes("payment")
-    || eventName.includes("paypal")
-    || eventName.includes("gumdrop_balance")
-  ) {
+  if (capability === "payment_integrity") {
     return "payment_integrity";
   }
-  if (
-    hasBehaviorType(eventType)
-    || eventName.startsWith("semantic_")
-    || eventName.includes("clicked")
-    || eventName.includes("viewed")
-    || eventName.includes("opened")
-    || eventName.includes("hover")
-    || eventName.includes("scroll")
-    || eventName.includes("visibility")
-    || eventName.includes("watch")
-    || eventName.includes("creator_")
-    || eventName.includes("fan_pass")
-    || eventName.includes("booking")
-    || eventName.includes("request")
-    || eventName.includes("chat")
-  ) {
+  if (capability === "behavioral_analytics" || hasBehaviorType(eventType)) {
     return "behavior_signal";
   }
 
@@ -138,13 +129,24 @@ export function buildClientTrackingDecision(input: {
   const privacySettings = input.privacySettings ?? {};
   const trackingState = resolveClientTrackingState(privacySettings);
   const eventKind = classifyClientTrackingEvent(input);
+  const consentMode = resolveConsentMode(privacySettings);
+  const capabilityByKind: Record<ClientTrackingEventKind, TrackingCapability> = {
+    required_security: "required_security",
+    required_account: "required_account",
+    payment_integrity: "payment_integrity",
+    product_usage: "product_usage_minimal",
+    behavior_signal: "behavioral_analytics",
+    external_evidence: "external_analytics",
+    debug_only: "debug_diagnostics",
+  };
+  const capability = capabilityByKind[eventKind];
   const coreIntegrityEvent =
     eventKind === "required_security"
     || eventKind === "required_account"
     || eventKind === "payment_integrity";
-  const enabled = trackingState === "enabled";
+  const allowedByConsent = canTrackCapability(capability, consentMode);
+  const externalAllowed = canUseExternalAnalytics(consentMode);
   const debugOnly = trackingState === "debug_only" || eventKind === "debug_only";
-  const behaviorAllowed = enabled && eventKind !== "external_evidence" && !debugOnly;
 
   if (coreIntegrityEvent) {
     return {
@@ -163,11 +165,11 @@ export function buildClientTrackingDecision(input: {
     return {
       trackingState,
       eventKind,
-      mayQueue: enabled,
+      mayQueue: externalAllowed,
       mayPersist: false,
-      maySendExternal: enabled,
-      diagnosticsCanBeSampled: enabled,
-      reason: enabled ? "external_evidence_enabled" : "external_evidence_blocked",
+      maySendExternal: externalAllowed,
+      diagnosticsCanBeSampled: externalAllowed,
+      reason: externalAllowed ? "external_evidence_enabled" : getConsentTelemetryReason(input.eventName ?? input.eventType ?? "", consentMode),
       privacySettings,
     };
   }
@@ -176,10 +178,10 @@ export function buildClientTrackingDecision(input: {
     return {
       trackingState: "debug_only",
       eventKind,
-      mayQueue: false,
+      mayQueue: allowedByConsent,
       mayPersist: false,
       maySendExternal: false,
-      diagnosticsCanBeSampled: trackingState === "enabled",
+      diagnosticsCanBeSampled: allowedByConsent,
       reason: "debug_only_not_product_truth",
       privacySettings,
     };
@@ -188,11 +190,11 @@ export function buildClientTrackingDecision(input: {
   return {
     trackingState,
     eventKind,
-    mayQueue: behaviorAllowed,
-    mayPersist: behaviorAllowed,
-    maySendExternal: enabled && eventKind !== "behavior_signal",
-    diagnosticsCanBeSampled: enabled,
-    reason: behaviorAllowed ? "tracking_enabled" : "behavior_tracking_disabled",
+    mayQueue: allowedByConsent,
+    mayPersist: allowedByConsent,
+    maySendExternal: eventKind !== "behavior_signal" && externalAllowed,
+    diagnosticsCanBeSampled: allowedByConsent,
+    reason: allowedByConsent ? `tracking_enabled_${consentMode}` : getConsentTelemetryReason(input.eventName ?? input.eventType ?? "", consentMode),
     privacySettings,
   };
 }

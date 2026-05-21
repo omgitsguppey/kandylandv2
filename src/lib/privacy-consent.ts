@@ -1,10 +1,29 @@
 "use client";
 
-export const ANALYTICS_CONSENT_COOKIE = "kandydrops_analytics_consent";
-export const PRIVACY_SETTINGS_STORAGE_KEY = "kandydrops.privacy.settings";
-const CONSENT_EVENT_NAME = "kandydrops-privacy-updated";
+import {
+    CONSENT_TRACKING_STORAGE_KEYS,
+    CONSENT_TRACKING_VERSION,
+    type ConsentDecision,
+    type ConsentMode,
+    type ConsentSource,
+} from "@/lib/privacy/consent-tracking-contract";
+import {
+    buildConsentSettingsFromDecision,
+    canPersistIdentityLink,
+    canUseBehavioralSignals,
+    canUseExternalAnalytics,
+    resolveConsentMode,
+} from "@/lib/privacy/consent-tracking-policy";
+
+export const ANALYTICS_CONSENT_COOKIE = CONSENT_TRACKING_STORAGE_KEYS.cookie;
+export const PRIVACY_SETTINGS_STORAGE_KEY = CONSENT_TRACKING_STORAGE_KEYS.localStorage;
+const CONSENT_EVENT_NAME = CONSENT_TRACKING_STORAGE_KEYS.eventName;
 
 export interface PrivacySettingsSnapshot {
+    consentMode: ConsentMode;
+    consentDecision: ConsentDecision | null;
+    consentSource: ConsentSource;
+    consentPolicyVersion: typeof CONSENT_TRACKING_VERSION;
     anonymousAnalyticsEnabled: boolean;
     identifiedAnalyticsEnabled: boolean;
     allowRecommendations: boolean;
@@ -18,6 +37,10 @@ interface PersistPrivacyOptions {
 }
 
 const DEFAULT_PRIVACY_SETTINGS: PrivacySettingsSnapshot = {
+    consentMode: "unknown",
+    consentDecision: null,
+    consentSource: "unknown",
+    consentPolicyVersion: CONSENT_TRACKING_VERSION,
     anonymousAnalyticsEnabled: false,
     identifiedAnalyticsEnabled: false,
     allowRecommendations: false,
@@ -47,11 +70,17 @@ export function getBrowserGlobalPrivacyControl() {
 export function normalizePrivacySettingsSnapshot(
     value: Partial<PrivacySettingsSnapshot> | null | undefined,
 ): PrivacySettingsSnapshot {
+    const consentMode = resolveConsentMode(value);
+    const legacyAccepted = !value?.consentMode && value?.anonymousAnalyticsEnabled === true;
     return {
+        consentMode,
+        consentDecision: value?.consentDecision ?? (legacyAccepted ? "accept_all" : null),
+        consentSource: value?.consentSource ?? (legacyAccepted ? "legacy_default" : "unknown"),
+        consentPolicyVersion: CONSENT_TRACKING_VERSION,
         anonymousAnalyticsEnabled: value?.anonymousAnalyticsEnabled === true,
-        identifiedAnalyticsEnabled: value?.identifiedAnalyticsEnabled === true,
-        allowRecommendations: value?.allowRecommendations === true,
-        showInAnonymousStats: value?.showInAnonymousStats === true,
+        identifiedAnalyticsEnabled: value?.identifiedAnalyticsEnabled === true || consentMode === "full_behavioral",
+        allowRecommendations: value?.allowRecommendations === true || consentMode === "full_behavioral",
+        showInAnonymousStats: value?.showInAnonymousStats === true || consentMode === "minimal_analytics" || consentMode === "full_behavioral",
         honorGlobalPrivacyControl: value?.honorGlobalPrivacyControl !== false,
         consentUpdatedAt: Number.isFinite(value?.consentUpdatedAt) ? Number(value?.consentUpdatedAt) : Date.now(),
     };
@@ -101,8 +130,10 @@ export function applyAnalyticsConsentToGtag(settings: PrivacySettingsSnapshot = 
         return;
     }
 
-    const granted = settings.anonymousAnalyticsEnabled &&
-        !(settings.honorGlobalPrivacyControl && getBrowserGlobalPrivacyControl());
+    const granted = canUseExternalAnalytics(resolveConsentMode({
+        ...settings,
+        globalPrivacyControl: getBrowserGlobalPrivacyControl(),
+    }));
 
     window.gtag("consent", "update", {
         analytics_storage: granted ? "granted" : "denied",
@@ -139,7 +170,7 @@ export function persistPrivacySettingsSnapshot(
     }
 
     const cookieParts = [
-        `${ANALYTICS_CONSENT_COOKIE}=${merged.anonymousAnalyticsEnabled ? "granted" : "denied"}`,
+        `${ANALYTICS_CONSENT_COOKIE}=${merged.consentMode}`,
         "path=/",
         "max-age=31536000",
         "SameSite=Lax",
@@ -156,11 +187,12 @@ export function persistPrivacySettingsSnapshot(
 }
 
 export async function saveGuestAnalyticsConsent(enabled: boolean) {
+    return saveGuestConsentDecision(enabled ? "accept_all" : "decline_optional");
+}
+
+export async function saveGuestConsentDecision(decision: ConsentDecision) {
     const previousSnapshot = readPrivacySettingsSnapshot();
-    const snapshot = persistPrivacySettingsSnapshot({
-        anonymousAnalyticsEnabled: enabled,
-        identifiedAnalyticsEnabled: false,
-    });
+    const snapshot = persistPrivacySettingsSnapshot(buildConsentSettingsFromDecision(decision, "banner"));
 
     try {
         const response = await fetch("/api/privacy/consent", {
@@ -168,6 +200,10 @@ export async function saveGuestAnalyticsConsent(enabled: boolean) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 anonymousAnalyticsEnabled: snapshot.anonymousAnalyticsEnabled,
+                consentMode: snapshot.consentMode,
+                consentDecision: snapshot.consentDecision,
+                consentSource: snapshot.consentSource,
+                consentPolicyVersion: snapshot.consentPolicyVersion,
             }),
         });
 
@@ -184,27 +220,32 @@ export async function saveGuestAnalyticsConsent(enabled: boolean) {
 }
 
 export function canUseAnonymousAnalytics(settings: PrivacySettingsSnapshot = readPrivacySettingsSnapshot()) {
-    if (!settings.anonymousAnalyticsEnabled) {
-        return false;
-    }
-
-    if (settings.honorGlobalPrivacyControl && getBrowserGlobalPrivacyControl()) {
-        return false;
-    }
-
-    return true;
+    const consentMode = resolveConsentMode({
+        ...settings,
+        globalPrivacyControl: getBrowserGlobalPrivacyControl(),
+    });
+    return consentMode === "minimal_analytics" || consentMode === "full_analytics" || consentMode === "full_behavioral";
 }
 
 export function canUseIdentifiedAnalytics(settings: PrivacySettingsSnapshot = readPrivacySettingsSnapshot()) {
-    if (!settings.identifiedAnalyticsEnabled) {
-        return false;
-    }
+    return canPersistIdentityLink(resolveConsentMode({
+        ...settings,
+        globalPrivacyControl: getBrowserGlobalPrivacyControl(),
+    }));
+}
 
-    if (settings.honorGlobalPrivacyControl && getBrowserGlobalPrivacyControl()) {
-        return false;
-    }
+export function canUseBehavioralAnalytics(settings: PrivacySettingsSnapshot = readPrivacySettingsSnapshot()) {
+    return canUseBehavioralSignals(resolveConsentMode({
+        ...settings,
+        globalPrivacyControl: getBrowserGlobalPrivacyControl(),
+    }));
+}
 
-    return true;
+export function canUseExternalAnalyticsFromPrivacy(settings: PrivacySettingsSnapshot = readPrivacySettingsSnapshot()) {
+    return canUseExternalAnalytics(resolveConsentMode({
+        ...settings,
+        globalPrivacyControl: getBrowserGlobalPrivacyControl(),
+    }));
 }
 
 export function resolvePrivacyDataAvailabilityReason(

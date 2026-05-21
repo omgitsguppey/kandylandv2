@@ -2,6 +2,7 @@ import "server-only";
 import { NextRequest } from "next/server";
 import { UserProfile } from "@/types/db";
 import { ANALYTICS_CONSENT_COOKIE } from "@/lib/privacy-consent";
+import { canUseBehavioralSignals, normalizeConsentMode } from "@/lib/privacy/consent-tracking-policy";
 
 export function requestHasGlobalPrivacyControl(request: NextRequest) {
     return request.headers.get("sec-gpc") === "1";
@@ -12,7 +13,8 @@ export function requestAllowsAnonymousAnalytics(request: NextRequest) {
         return false;
     }
 
-    return request.cookies.get(ANALYTICS_CONSENT_COOKIE)?.value === "granted";
+    const cookieMode = request.cookies.get(ANALYTICS_CONSENT_COOKIE)?.value;
+    return cookieMode === "granted" || canUseBehavioralSignals(normalizeConsentMode(cookieMode));
 }
 
 export function profileAllowsAnonymousAnalytics(profile: UserProfile | null | undefined, request?: NextRequest) {

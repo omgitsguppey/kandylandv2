@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.63 - 2026-05-21
+- Cookie consent tracking modes
+- Connected cookie choices to actual analytics tracking modes.
+- Made the cookie banner readable on mobile.
+- Separated minimal analytics from full behavioral tracking.
+
 ## 1.3.62 - 2026-05-21
 - Score 80 reconciliation lock
 - Reconciled score-80 path after algorithmic evidence refinement.

@@ -12,16 +12,21 @@ import {
     readPrivacySettingsSnapshot,
     saveGuestAnalyticsConsent,
     subscribeToPrivacySettings,
+    type PrivacySettingsSnapshot,
 } from "@/lib/privacy-consent";
 
 const DEFAULT_PRIVACY_SETTINGS = {
+    consentMode: "unknown",
+    consentDecision: null,
+    consentSource: "unknown",
+    consentPolicyVersion: "2026-05-consent-tracking-v1",
     anonymousAnalyticsEnabled: false,
     identifiedAnalyticsEnabled: false,
     allowRecommendations: false,
     showInAnonymousStats: false,
     honorGlobalPrivacyControl: true,
     consentUpdatedAt: 0,
-};
+} satisfies PrivacySettingsSnapshot;
 
 describe("normalizePrivacySettingsSnapshot", () => {
     beforeEach(() => {
@@ -35,6 +40,10 @@ describe("normalizePrivacySettingsSnapshot", () => {
 
     it("returns safe defaults for null or undefined input", () => {
         const expected = {
+            consentMode: "unknown",
+            consentDecision: null,
+            consentSource: "unknown",
+            consentPolicyVersion: "2026-05-consent-tracking-v1",
             anonymousAnalyticsEnabled: false,
             identifiedAnalyticsEnabled: false,
             allowRecommendations: false,
@@ -112,8 +121,9 @@ describe("readPrivacySettingsSnapshot", () => {
 
         const snapshot = readPrivacySettingsSnapshot();
         expect(snapshot.anonymousAnalyticsEnabled).toBe(true);
+        expect(snapshot.consentMode).toBe("full_behavioral");
         expect(snapshot.consentUpdatedAt).toBe(123456789);
-        expect(snapshot.identifiedAnalyticsEnabled).toBe(false);
+        expect(snapshot.identifiedAnalyticsEnabled).toBe(true);
         expect(snapshot.honorGlobalPrivacyControl).toBe(true);
     });
 
@@ -417,23 +427,23 @@ describe("persistPrivacySettingsSnapshot", () => {
         expect(mergedSettings.consentUpdatedAt).toBe(1600000000000);
     });
 
-    it("sets the analytics consent cookie to granted on https", () => {
+    it("sets the analytics consent cookie to full behavioral on https", () => {
         persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
 
-        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=granted; path=/; max-age=31536000; SameSite=Lax; Secure`);
+        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=full_behavioral; path=/; max-age=31536000; SameSite=Lax; Secure`);
     });
 
-    it("sets the analytics consent cookie to denied on https", () => {
+    it("sets the analytics consent cookie to necessary only on https", () => {
         persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: false });
 
-        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=denied; path=/; max-age=31536000; SameSite=Lax; Secure`);
+        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=necessary_only; path=/; max-age=31536000; SameSite=Lax; Secure`);
     });
 
     it("omits Secure from the analytics consent cookie on http", () => {
         window.location.protocol = "http:";
         persistPrivacySettingsSnapshot({ anonymousAnalyticsEnabled: true });
 
-        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=granted; path=/; max-age=31536000; SameSite=Lax`);
+        expect(document.cookie).toBe(`${ANALYTICS_CONSENT_COOKIE}=full_behavioral; path=/; max-age=31536000; SameSite=Lax`);
     });
 
     it("calls window.gtag with updated consent", () => {
@@ -499,10 +509,16 @@ describe("saveGuestAnalyticsConsent", () => {
         expect(fetch).toHaveBeenCalledWith("/api/privacy/consent", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ anonymousAnalyticsEnabled: true }),
+            body: JSON.stringify({
+                anonymousAnalyticsEnabled: true,
+                consentMode: "full_behavioral",
+                consentDecision: "accept_all",
+                consentSource: "banner",
+                consentPolicyVersion: "2026-05-consent-tracking-v1",
+            }),
         });
         expect(snapshot.anonymousAnalyticsEnabled).toBe(true);
-        expect(snapshot.identifiedAnalyticsEnabled).toBe(false);
+        expect(snapshot.identifiedAnalyticsEnabled).toBe(true);
     });
 
     it("restores the previous snapshot on fetch failure", async () => {
@@ -521,7 +537,10 @@ describe("saveGuestAnalyticsConsent", () => {
         await expect(saveGuestAnalyticsConsent(true)).rejects.toThrow("Server error");
         expect(window.localStorage.setItem).toHaveBeenLastCalledWith(
             PRIVACY_SETTINGS_STORAGE_KEY,
-            JSON.stringify(previousSnapshot),
+            JSON.stringify({
+                ...previousSnapshot,
+                consentMode: "necessary_only",
+            }),
         );
     });
 

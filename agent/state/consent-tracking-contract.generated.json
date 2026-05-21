@@ -1,0 +1,70 @@
+{
+  "generatedAtUtc": "2026-05-21T14:49:42.213Z",
+  "reportKey": "consent-tracking-contract",
+  "currentHead": "33d664a3913facb0ec96b61a90ebc84c27bb1000",
+  "status": "pass",
+  "consentPolicyVersion": "2026-05-consent-tracking-v1",
+  "consentModes": [
+    "unknown",
+    "necessary_only",
+    "minimal_analytics",
+    "full_analytics",
+    "full_behavioral"
+  ],
+  "trackingCapabilities": [
+    "required_security",
+    "required_session",
+    "required_account",
+    "payment_integrity",
+    "product_usage_minimal",
+    "performance_analytics",
+    "behavioral_analytics",
+    "personalization",
+    "external_analytics",
+    "debug_diagnostics"
+  ],
+  "storageKeys": {
+    "localStorage": "kandydrops.privacy.settings",
+    "cookie": "kandydrops_analytics_consent",
+    "eventName": "kandydrops-privacy-updated"
+  },
+  "banner": {
+    "mobileCompact": true,
+    "noTruncation": true,
+    "fullMessageVisible": true,
+    "choices": [
+      "accept_all",
+      "minimal",
+      "decline_optional"
+    ],
+    "trackingConnected": true
+  },
+  "policyChecks": {
+    "acceptAllEnablesFullBehavioral": true,
+    "minimalAllowsBehavioral": false,
+    "declineAllowsRequiredAuth": true,
+    "declineAllowsPaymentIntegrity": true,
+    "minimalAllowsExternalAnalytics": false,
+    "minimalPersistsIdentityLink": false
+  },
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/context/optimized-task-context.generated.json",
+    "agent/state/behavior-math-verification.generated.json",
+    "agent/state/final-telemetry-closure-lock.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "docs/agent-truth/final-telemetry-closure-lock.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "src/app/api/privacy/consent/route.ts",
+    "src/components/Analytics/DeepTracker.tsx",
+    "src/components/CookieBanner.tsx",
+    "src/lib/analytics/client-tracking-policy.ts",
+    "src/lib/privacy-consent.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/server/privacy-consent.ts",
+    "tests/unit/privacy-consent.spec.ts"
+  ],
+  "validationFailures": []
+}

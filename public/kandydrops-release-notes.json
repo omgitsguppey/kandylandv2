@@ -1,11 +1,69 @@
 {
-  "currentVersion": "1.3.62",
-  "betaReleaseCounter": 362,
+  "currentVersion": "1.3.63",
+  "betaReleaseCounter": 363,
   "channel": "beta",
-  "generatedAt": "2026-05-21T14:22:06.066Z",
-  "generatedAtUtc": "2026-05-21T14:22:06.066Z",
+  "generatedAt": "2026-05-21T14:47:40.397Z",
+  "generatedAtUtc": "2026-05-21T14:47:40.397Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.63",
+      "previousVersion": "1.3.62",
+      "betaReleaseCounter": 363,
+      "previousBetaReleaseCounter": 362,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(privacy): wire consent tracking modes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T14:47:40.397Z",
+      "generatedAt": "2026-05-21T14:47:40.397Z",
+      "committedAtUtc": "2026-05-21T14:47:40.397Z",
+      "generatedAtUtc": "2026-05-21T14:47:40.397Z",
+      "updatedAtUtc": "2026-05-21T14:47:40.397Z",
+      "category": "Improved",
+      "title": "Cookie consent tracking modes",
+      "summary": "Connected cookie choices to real tracking modes and made the banner easier to read on mobile.",
+      "userFacingTitle": "Cookie consent tracking modes",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Connected cookie choices to actual analytics tracking modes.",
+        "Made the cookie banner readable on mobile.",
+        "Separated minimal analytics from full behavioral tracking."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a versioned consent tracking contract, policy validator, and unit coverage for minimal versus full behavioral analytics."
+      ],
+      "affectedSurfaces": [
+        "Privacy & security",
+        "App experience",
+        "Telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/consent-tracking-contract.generated.json",
+        "docs/agent-truth/consent-tracking-contract.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-consent-tracking-contract.ts",
+        "src/app/api/privacy/consent/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/components/CookieBanner.tsx",
+        "src/lib/analytics/client-tracking-policy.ts",
+        "src/lib/privacy-consent.ts",
+        "src/lib/privacy/consent-tracking-contract.ts",
+        "src/lib/privacy/consent-tracking-policy.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/privacy-consent.ts",
+        "tests/unit/consent-tracking-contract.spec.ts",
+        "tests/unit/privacy-consent.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.62",
       "previousVersion": "1.3.61",
@@ -1324,55 +1382,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/targeted-behavior-evidence.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.38",
-      "previousVersion": "1.3.37",
-      "betaReleaseCounter": 338,
-      "previousBetaReleaseCounter": 337,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): refresh implemented score lanes",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T23:28:35.183Z",
-      "generatedAt": "2026-05-20T23:28:35.183Z",
-      "committedAtUtc": "2026-05-20T23:28:35.183Z",
-      "generatedAtUtc": "2026-05-20T23:28:35.183Z",
-      "updatedAtUtc": "2026-05-20T23:28:35.183Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Refreshed implemented-lane beta reports from the latest code version.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refreshed implemented-lane beta reports from the latest code version.",
-        "Reduced stale-report drag on beta health scoring.",
-        "Kept formal evidence gates separate from source refreshes."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted implemented-lane score refresh pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Generated reports",
-        "Refresh safeguards"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/score-80-refresh-pass.generated.json",
-        "docs/agent-truth/score-80-refresh-pass.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-score-80-refresh-pass.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/score-80-refresh-pass.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

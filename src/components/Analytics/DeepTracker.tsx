@@ -8,7 +8,7 @@ import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { buildClientTrackingDecision } from "@/lib/analytics/client-tracking-policy";
-import { readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
+import { canUseBehavioralAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
 import { trackEvent } from "@/lib/telemetry";
 import {
     CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS,
@@ -86,7 +86,7 @@ type VisibilitySummaryState = {
 };
 
 function canCaptureAnonymousBehavior() {
-    return buildClientTrackingDecision({
+    return canUseBehavioralAnalytics(readPrivacySettingsSnapshot()) && buildClientTrackingDecision({
         eventName: "semantic_page_viewed",
         eventType: "page_view",
         privacySettings: readPrivacySettingsSnapshot(),

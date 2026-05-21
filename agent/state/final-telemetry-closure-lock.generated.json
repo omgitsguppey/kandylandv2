@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T14:04:38.770Z",
+  "generatedAtUtc": "2026-05-21T14:49:59.990Z",
   "reportKey": "final-telemetry-closure-lock",
-  "currentHead": "7d9e42b90fb20bf0672ec4b9a602f183c3050b1d",
+  "currentHead": "33d664a3913facb0ec96b61a90ebc84c27bb1000",
   "summary": {
     "clientTrackingClosed": true,
     "consentToggleClosed": false,
@@ -190,7 +190,7 @@
     },
     {
       "id": "admin-truth-sample",
-      "status": "source_ready_admin_truth_sample_formal_missing",
+      "status": "missing_or_unknown",
       "nextAction": "Attach fresh admin truth sample evidence before beta exit review."
     }
   ],
