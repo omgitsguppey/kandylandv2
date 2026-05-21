@@ -1,0 +1,362 @@
+{
+  "reportKey": "real-usage-confidence-calibration",
+  "generatedAtUtc": "2026-05-21T13:52:22.626Z",
+  "currentHead": "867d04ea8e3286532b1c6dfbcb7f2f8e31e65470",
+  "sourceCommit": "867d04ea8e3286532b1c6dfbcb7f2f8e31e65470",
+  "status": "source_ready_real_usage_confidence_calibrated",
+  "detail": "Real usage confidence is calibrated from operator-confirmed usage, behavior math, identity transfer, telemetry closure, and source-ready paths without clearing formal gates.",
+  "productionReadsRequired": false,
+  "legacyMutationAllowed": false,
+  "fakeUsageCountsUsed": false,
+  "confidenceClasses": [
+    "observed_operator_confirmed",
+    "observed_telemetry_source_ready",
+    "inferred_from_validated_path",
+    "unavailable",
+    "unknown_legacy"
+  ],
+  "calibratedConfidenceScore": 63.27,
+  "runtimeHealthCredit": 92,
+  "evidenceCompletenessCredit": 63.27,
+  "operatorConfirmedRevenueSmoke": {
+    "amountUsdConfirmed": 50,
+    "recognized": true,
+    "sourcePath": "agent/state/operator-revenue-smoke.generated.json",
+    "formalProviderGateCleared": false
+  },
+  "behaviorMathConnection": {
+    "perUserConfidence": "exact",
+    "linkedGuestUserNoDoubleCount": true,
+    "disabledTrackingSuppressed": true,
+    "unknownLegacyExcluded": true,
+    "legacyMarchFirstDryRun": true,
+    "watchTimeUsesRuntimeSource": true
+  },
+  "formalGateImpact": {
+    "clearsFormalProvider": false,
+    "clearsDeployedRuntime": false,
+    "clearsManualVisual": false
+  },
+  "perFlowConfidence": {
+    "wallet_refill": {
+      "flowId": "wallet_refill",
+      "label": "Wallet/refill",
+      "confidenceClass": "observed_operator_confirmed",
+      "confidenceScore": 84,
+      "observedCount": 1,
+      "sourcePath": "agent/state/operator-revenue-smoke.generated.json",
+      "sourceStatus": "observed",
+      "telemetryLaneId": "purchase",
+      "operatorConfirmed": true,
+      "behaviorMathLinked": false,
+      "evidence": [
+        "confidenceClass=observed_operator_confirmed",
+        "telemetryLane=purchase",
+        "telemetryReady=true",
+        "sourceSignalReady=true",
+        "observedCount=1",
+        "eventName=gumdrops_purchase_completed",
+        "confirmationSource=operator_confirmed",
+        "count=1",
+        "telemetryLane=purchase"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Keep the operator-confirmed revenue signal separate from formal provider smoke."
+    },
+    "gumdrop_credit": {
+      "flowId": "gumdrop_credit",
+      "label": "GumDrop credit",
+      "confidenceClass": "observed_telemetry_source_ready",
+      "confidenceScore": 76,
+      "observedCount": 0,
+      "sourcePath": "src/lib/analytics/materialization-contract.ts",
+      "sourceStatus": "source_ready",
+      "telemetryLaneId": "gumdrop_balance",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": false,
+      "evidence": [
+        "confidenceClass=observed_telemetry_source_ready",
+        "telemetryLane=gumdrop_balance",
+        "telemetryReady=true",
+        "sourceSignalReady=true",
+        "observedCount=0",
+        "telemetryLane=gumdrop_balance",
+        "laneStatus=closed",
+        "materializerPresent=true",
+        "behaviorMathConfidence=exact"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Keep ledger/materializer source readiness as confidence only."
+    },
+    "user_dashboard": {
+      "flowId": "user_dashboard",
+      "label": "User dashboard",
+      "confidenceClass": "observed_telemetry_source_ready",
+      "confidenceScore": 72,
+      "observedCount": 0,
+      "sourcePath": "src/lib/analytics/telemetry-dependency-graph.ts",
+      "sourceStatus": "source_ready",
+      "telemetryLaneId": "page_view",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": false,
+      "evidence": [
+        "confidenceClass=observed_telemetry_source_ready",
+        "telemetryLane=page_view",
+        "telemetryReady=true",
+        "sourceSignalReady=true",
+        "observedCount=0",
+        "telemetryLane=page_view",
+        "laneStatus=closed",
+        "materializerPresent=true",
+        "behaviorMathConfidence=exact"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Use source-backed dashboard telemetry as non-visual confidence."
+    },
+    "creator_dashboard": {
+      "flowId": "creator_dashboard",
+      "label": "Creator dashboard",
+      "confidenceClass": "observed_telemetry_source_ready",
+      "confidenceScore": 72,
+      "observedCount": 0,
+      "sourcePath": "agent/state/creator-drop-status-metrics.generated.json",
+      "sourceStatus": "source_ready",
+      "telemetryLaneId": "creator_experience",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": false,
+      "evidence": [
+        "confidenceClass=observed_telemetry_source_ready",
+        "telemetryLane=creator_experience",
+        "telemetryReady=true",
+        "sourceSignalReady=true",
+        "observedCount=0",
+        "telemetryLane=creator_experience",
+        "laneStatus=closed",
+        "materializerPresent=true",
+        "behaviorMathConfidence=exact"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Use creator dashboard source readiness as non-visual confidence."
+    },
+    "creator_settings": {
+      "flowId": "creator_settings",
+      "label": "Creator settings",
+      "confidenceClass": "inferred_from_validated_path",
+      "confidenceScore": 58,
+      "observedCount": 0,
+      "sourcePath": "src/lib/analytics/telemetry-dependency-graph.ts",
+      "sourceStatus": "source_ready_graph_mapped",
+      "telemetryLaneId": "creator_experience",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": false,
+      "evidence": [
+        "confidenceClass=inferred_from_validated_path",
+        "telemetryLane=creator_experience",
+        "telemetryReady=true",
+        "sourceSignalReady=false",
+        "observedCount=0"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Attach operator or telemetry evidence before treating creator settings as observed."
+    },
+    "creator_drop_manager": {
+      "flowId": "creator_drop_manager",
+      "label": "Creator drop manager",
+      "confidenceClass": "observed_telemetry_source_ready",
+      "confidenceScore": 76,
+      "observedCount": 0,
+      "sourcePath": "agent/state/creator-drop-status-metrics.generated.json",
+      "sourceStatus": "source_ready",
+      "telemetryLaneId": "creator_drop_submission",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": false,
+      "evidence": [
+        "confidenceClass=observed_telemetry_source_ready",
+        "telemetryLane=creator_drop_submission",
+        "telemetryReady=true",
+        "sourceSignalReady=true",
+        "observedCount=0",
+        "telemetryLane=creator_drop_submission",
+        "laneStatus=closed",
+        "materializerPresent=true",
+        "behaviorMathConfidence=exact"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Keep creator drop manager confidence tied to source telemetry and admin status metrics."
+    },
+    "creator_profile_timeline": {
+      "flowId": "creator_profile_timeline",
+      "label": "Creator profile/timeline",
+      "confidenceClass": "unknown_legacy",
+      "confidenceScore": 0,
+      "observedCount": 0,
+      "sourcePath": "src/lib/behavioral/behavior-math-engine.ts",
+      "sourceStatus": "source_ready_graph_mapped",
+      "telemetryLaneId": "creator_experience",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": true,
+      "evidence": [
+        "confidenceClass=unknown_legacy",
+        "telemetryLane=creator_experience",
+        "telemetryReady=true",
+        "sourceSignalReady=false",
+        "observedCount=0"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Recover March 1 legacy profile/timeline records through dry-run mapping before counting them."
+    },
+    "broadcast_source": {
+      "flowId": "broadcast_source",
+      "label": "Broadcast source",
+      "confidenceClass": "inferred_from_validated_path",
+      "confidenceScore": 55,
+      "observedCount": 0,
+      "sourcePath": "src/lib/analytics/telemetry-dependency-graph.ts",
+      "sourceStatus": "source_ready",
+      "telemetryLaneId": "creator_experience",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": false,
+      "evidence": [
+        "confidenceClass=inferred_from_validated_path",
+        "telemetryLane=creator_experience",
+        "telemetryReady=true",
+        "sourceSignalReady=true",
+        "observedCount=0",
+        "telemetryLane=creator_experience",
+        "laneStatus=closed",
+        "materializerPresent=true",
+        "behaviorMathConfidence=exact"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Keep broadcast as source-ready until a concrete observed event is confirmed."
+    },
+    "fan_pass_source": {
+      "flowId": "fan_pass_source",
+      "label": "Fan Pass source",
+      "confidenceClass": "inferred_from_validated_path",
+      "confidenceScore": 55,
+      "observedCount": 0,
+      "sourcePath": "src/lib/analytics/telemetry-dependency-graph.ts",
+      "sourceStatus": "source_ready",
+      "telemetryLaneId": "creator_subscription",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": false,
+      "evidence": [
+        "confidenceClass=inferred_from_validated_path",
+        "telemetryLane=creator_subscription",
+        "telemetryReady=true",
+        "sourceSignalReady=true",
+        "observedCount=0",
+        "telemetryLane=creator_subscription",
+        "laneStatus=closed",
+        "materializerPresent=true",
+        "behaviorMathConfidence=exact"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Keep Fan Pass source readiness separate from subscription/payment runtime proof."
+    },
+    "drops_unlock_open": {
+      "flowId": "drops_unlock_open",
+      "label": "Drops unlock/open",
+      "confidenceClass": "observed_telemetry_source_ready",
+      "confidenceScore": 70,
+      "observedCount": 0,
+      "sourcePath": "src/lib/behavioral/behavior-math-engine.ts",
+      "sourceStatus": "source_ready_graph_mapped",
+      "telemetryLaneId": "behavior_signal",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": true,
+      "evidence": [
+        "confidenceClass=observed_telemetry_source_ready",
+        "telemetryLane=behavior_signal",
+        "telemetryReady=true",
+        "sourceSignalReady=false",
+        "observedCount=0"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Use behavior math confidence for non-payment drop-open evidence only."
+    },
+    "runtime_watch_source": {
+      "flowId": "runtime_watch_source",
+      "label": "Runtime watch source",
+      "confidenceClass": "observed_telemetry_source_ready",
+      "confidenceScore": 78,
+      "observedCount": 0,
+      "sourcePath": "src/lib/behavioral/behavior-math-engine.ts",
+      "sourceStatus": "source_ready_graph_mapped",
+      "telemetryLaneId": "runtime_watch",
+      "operatorConfirmed": false,
+      "behaviorMathLinked": true,
+      "evidence": [
+        "confidenceClass=observed_telemetry_source_ready",
+        "telemetryLane=runtime_watch",
+        "telemetryReady=true",
+        "sourceSignalReady=false",
+        "observedCount=0"
+      ],
+      "limitations": [
+        "does_not_clear_formal_provider",
+        "does_not_clear_deployed_runtime",
+        "does_not_clear_manual_visual"
+      ],
+      "nextAction": "Keep watch confidence tied to watch-session rollups, not page-open time."
+    }
+  },
+  "evidence": [
+    "calibratedConfidenceScore=63.27",
+    "runtimeHealthCredit=92",
+    "operatorConfirmedRevenueRecognized=true",
+    "disabledTrackingSuppressed=true",
+    "unknownLegacyExcluded=true",
+    "formalGatesCleared=false",
+    "productionReadsRequired=false",
+    "fakeUsageCountsUsed=false"
+  ],
+  "limitations": [
+    "does_not_clear_formal_provider",
+    "does_not_clear_deployed_runtime",
+    "does_not_clear_manual_visual"
+  ],
+  "nextAction": "Use calibrated real usage confidence for non-UI source/runtime scoring only; keep formal provider, deployed runtime, and visual gates separate.",
+  "validationFailures": []
+}

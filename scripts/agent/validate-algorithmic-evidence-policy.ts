@@ -189,6 +189,12 @@ function main() {
       "missing_or_unknown",
       "No real usage confidence artifact was supplied.",
     ),
+    realUsageConfidenceCalibrationEvidence: readArtifact(
+      root,
+      "agent/state/real-usage-confidence-calibration.generated.json",
+      "missing_or_unknown",
+      "No calibrated real usage confidence artifact was supplied.",
+    ),
     behaviorMathEvidence: readArtifact(
       root,
       "agent/state/behavior-math-verification.generated.json",
@@ -235,6 +241,12 @@ function main() {
         "agent/state/real-usage-confidence.generated.json",
         "missing_or_unknown",
         "No real usage confidence artifact was supplied.",
+      ),
+      realUsageConfidenceCalibrationEvidence: readArtifact(
+        root,
+        "agent/state/real-usage-confidence-calibration.generated.json",
+        "missing_or_unknown",
+        "No calibrated real usage confidence artifact was supplied.",
       ),
       behaviorMathEvidence: readArtifact(
         root,

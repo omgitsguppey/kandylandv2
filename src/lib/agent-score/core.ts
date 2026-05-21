@@ -137,6 +137,7 @@ export type PublicBetaEvidenceInput = {
   targetedBehaviorEvidence?: PublicBetaEvidenceArtifact;
   sourceBackedRuntimeConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
+  realUsageConfidenceCalibrationEvidence?: PublicBetaEvidenceArtifact;
   behaviorMathEvidence?: PublicBetaEvidenceArtifact;
   visualManualEvidence?: PublicBetaEvidenceArtifact;
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
@@ -716,13 +717,34 @@ export function buildPublicBetaEvidenceGates(input: {
       requiresRuntimeProof: true,
     },
   });
+  const realUsageCalibrationStatus = String(evidenceArtifactStatus(
+    evidence.realUsageConfidenceCalibrationEvidence,
+    "missing_or_unknown",
+  ));
+  const realUsageCalibrationQuality = resolveEvidenceQuality({
+    artifact: evidence.realUsageConfidenceCalibrationEvidence,
+    context: {
+      currentHead,
+      lane: "real_usage_confidence_calibration",
+      requiredForExit: false,
+      requiresRuntimeProof: true,
+    },
+  });
+  const realUsageCalibrationCredit = realUsageCalibrationQuality.quality === "source_ready"
+    && realUsageCalibrationStatus.includes("source_ready")
+    ? Math.max(
+        realUsageCalibrationQuality.partialCredit * 100,
+        clamp(evidenceArtifactNumber(evidence.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit") ?? 0, 0, 100),
+      )
+    : 0;
   const realUsageConfidenceCredit = realUsageConfidenceQuality.quality === "source_ready"
     && realUsageConfidenceStatus.includes("source_ready")
     ? Math.max(
         realUsageConfidenceQuality.partialCredit * 100,
         clamp(evidenceArtifactNumber(evidence.realUsageConfidenceEvidence, "confidenceScore") ?? 0, 0, 100),
+        realUsageCalibrationCredit,
       )
-    : 0;
+    : realUsageCalibrationCredit;
   const runtimeProviderRuntimeCredit = runtimeProviderSmokePassed
     ? 100
     : Math.max(sourceBackedRuntimeConfidenceCredit, realUsageConfidenceCredit);
@@ -743,6 +765,15 @@ export function buildPublicBetaEvidenceGates(input: {
             `realUsageConfidenceStatus=${realUsageConfidenceStatus}`,
             `realUsageConfidenceCredit=${roundScore(realUsageConfidenceCredit)}`,
             ...evidenceArtifactEvidence(evidence.realUsageConfidenceEvidence),
+          ]
+        : []
+    ),
+    ...(
+      evidence.realUsageConfidenceCalibrationEvidence
+        ? [
+            `realUsageConfidenceCalibrationStatus=${realUsageCalibrationStatus}`,
+            `realUsageConfidenceCalibrationCredit=${roundScore(realUsageCalibrationCredit)}`,
+            ...evidenceArtifactEvidence(evidence.realUsageConfidenceCalibrationEvidence),
           ]
         : []
     ),
@@ -864,6 +895,7 @@ export function buildPublicBetaEvidenceGates(input: {
     debugRuntimeEvidence: evidence.debugRuntimeEvidenceArtifact,
     sourceBackedRuntimeConfidenceEvidence: evidence.sourceBackedRuntimeConfidenceEvidence,
     realUsageConfidenceEvidence: evidence.realUsageConfidenceEvidence,
+    realUsageConfidenceCalibrationEvidence: evidence.realUsageConfidenceCalibrationEvidence,
     behaviorMathEvidence: evidence.behaviorMathEvidence,
     adminTruthSampleEvidence: evidence.adminTruthSampleEvidence,
     costReadiness: evidence.costReadiness,

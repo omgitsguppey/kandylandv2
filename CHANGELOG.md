@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.60 - 2026-05-21
+- Real usage confidence calibration
+- Calibrated real usage confidence from behavioral and operator-confirmed signals.
+- Separated observed signals from inferred source readiness.
+- Kept formal beta gates separate from real usage confidence.
+
 ## 1.3.59 - 2026-05-21
 - Algorithmic evidence gates
 - Separated UI manual evidence from algorithmic runtime and telemetry confidence.

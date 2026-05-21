@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-05-21T13:34:02.157Z",
+  "generatedAtUtc": "2026-05-21T13:53:02.601Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "manualEvidenceScope": {
@@ -29,8 +29,8 @@
     "label": "Runtime source confidence",
     "confidence": "partial",
     "score": 100,
-    "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json",
-    "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_confidence;source_ready_real_usage_confidence",
+    "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
+    "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
     "formalGateCleared": false,
     "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
@@ -40,8 +40,8 @@
     "label": "Telemetry and behavior confidence",
     "confidence": "partial",
     "score": 92,
-    "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json",
-    "sourceStatus": "live;source_ready_real_usage_confidence",
+    "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
+    "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
     "formalGateCleared": false,
     "nextAction": "Keep behavior math and real usage confidence artifacts current."
@@ -109,8 +109,8 @@
       "label": "Runtime source confidence",
       "confidence": "partial",
       "score": 100,
-      "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json",
-      "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_confidence;source_ready_real_usage_confidence",
+      "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
+      "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
       "formalGateCleared": false,
       "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
@@ -120,8 +120,8 @@
       "label": "Telemetry and behavior confidence",
       "confidence": "partial",
       "score": 92,
-      "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json",
-      "sourceStatus": "live;source_ready_real_usage_confidence",
+      "sourcePath": "agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
+      "sourceStatus": "live;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
       "formalGateCleared": false,
       "nextAction": "Keep behavior math and real usage confidence artifacts current."
@@ -172,7 +172,7 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "1834e7481d4c0a87fa36f188e6a84548cc489a51",
+  "currentHead": "867d04ea8e3286532b1c6dfbcb7f2f8e31e65470",
   "scoreProbe": {
     "runtimeHealthScore": 75.5,
     "evidenceCompletenessScore": 38.75,

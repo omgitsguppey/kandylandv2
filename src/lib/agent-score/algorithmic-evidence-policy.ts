@@ -34,6 +34,7 @@ export type AlgorithmicEvidencePolicyInput = {
   debugRuntimeEvidence?: PublicBetaEvidenceArtifact;
   sourceBackedRuntimeConfidenceEvidence?: PublicBetaEvidenceArtifact;
   realUsageConfidenceEvidence?: PublicBetaEvidenceArtifact;
+  realUsageConfidenceCalibrationEvidence?: PublicBetaEvidenceArtifact;
   behaviorMathEvidence?: PublicBetaEvidenceArtifact;
   adminTruthSampleEvidence?: PublicBetaEvidenceArtifact;
   operatorRevenueSmokeEvidence?: PublicBetaEvidenceArtifact;
@@ -177,16 +178,20 @@ export function buildAlgorithmicEvidencePolicyReport(
     ?? (hasSourceReady(input.sourceBackedRuntimeConfidenceEvidence) ? 55 : 0);
   const realUsageScore = numberFromEvidence(input.realUsageConfidenceEvidence, "confidenceScore")
     ?? (hasSourceReady(input.realUsageConfidenceEvidence) ? 55 : 0);
+  const realUsageCalibrationScore = numberFromEvidence(input.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit")
+    ?? numberFromEvidence(input.realUsageConfidenceCalibrationEvidence, "calibratedConfidenceScore")
+    ?? (hasSourceReady(input.realUsageConfidenceCalibrationEvidence) ? 55 : 0);
   const runtimeSourceScore = deployedRuntimeSmokeCleared
     ? 100
     : Math.max(
         sourceBackedRuntimeScore,
         realUsageScore,
+        realUsageCalibrationScore,
         hasSourceReady(input.debugRuntimeEvidence) ? 55 : 0,
       );
 
   const behaviorMathScore = hasSourceReady(input.behaviorMathEvidence) ? 85 : 0;
-  const telemetryScore = Math.max(behaviorMathScore, realUsageScore);
+  const telemetryScore = Math.max(behaviorMathScore, realUsageScore, realUsageCalibrationScore);
   const adminTruthScore = formalAdminRuntimeSampleCleared
     ? 100
     : hasSourceReady(input.adminTruthSampleEvidence) ? 55 : 0;
@@ -206,11 +211,13 @@ export function buildAlgorithmicEvidencePolicyReport(
       pathOf(input.debugRuntimeEvidence),
       pathOf(input.sourceBackedRuntimeConfidenceEvidence),
       pathOf(input.realUsageConfidenceEvidence),
+      pathOf(input.realUsageConfidenceCalibrationEvidence),
     ].filter((path) => path !== MISSING_ARTIFACT_PATH).join(",") || MISSING_ARTIFACT_PATH,
     sourceStatus: [
       statusOf(input.debugRuntimeEvidence),
       statusOf(input.sourceBackedRuntimeConfidenceEvidence),
       statusOf(input.realUsageConfidenceEvidence),
+      statusOf(input.realUsageConfidenceCalibrationEvidence),
     ].join(";"),
     distinction: deployedRuntimeSmokeCleared
       ? "formal deployed runtime smoke is attached"
@@ -228,8 +235,13 @@ export function buildAlgorithmicEvidencePolicyReport(
     sourcePath: [
       pathOf(input.behaviorMathEvidence),
       pathOf(input.realUsageConfidenceEvidence),
+      pathOf(input.realUsageConfidenceCalibrationEvidence),
     ].filter((path) => path !== MISSING_ARTIFACT_PATH).join(",") || MISSING_ARTIFACT_PATH,
-    sourceStatus: [statusOf(input.behaviorMathEvidence), statusOf(input.realUsageConfidenceEvidence)].join(";"),
+    sourceStatus: [
+      statusOf(input.behaviorMathEvidence),
+      statusOf(input.realUsageConfidenceEvidence),
+      statusOf(input.realUsageConfidenceCalibrationEvidence),
+    ].join(";"),
     distinction: "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
     nextAction: "Keep behavior math and real usage confidence artifacts current.",
   });

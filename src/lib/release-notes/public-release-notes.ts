@@ -1,13 +1,71 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.59",
-  "betaReleaseCounter": 359,
+  "currentVersion": "1.3.60",
+  "betaReleaseCounter": 360,
   "channel": "beta",
-  "generatedAt": "2026-05-21T13:29:27.123Z",
-  "generatedAtUtc": "2026-05-21T13:29:27.123Z",
+  "generatedAt": "2026-05-21T13:48:57.505Z",
+  "generatedAtUtc": "2026-05-21T13:48:57.505Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.60",
+      "previousVersion": "1.3.59",
+      "betaReleaseCounter": 360,
+      "previousBetaReleaseCounter": 359,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): calibrate real usage confidence",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T13:48:57.505Z",
+      "generatedAt": "2026-05-21T13:48:57.505Z",
+      "committedAtUtc": "2026-05-21T13:48:57.505Z",
+      "generatedAtUtc": "2026-05-21T13:48:57.505Z",
+      "updatedAtUtc": "2026-05-21T13:48:57.505Z",
+      "category": "Improved",
+      "title": "Real usage confidence calibration",
+      "summary": "Calibrated real usage confidence from behavioral and operator-confirmed signals.",
+      "userFacingTitle": "Real usage confidence calibration",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Calibrated real usage confidence from behavioral and operator-confirmed signals.",
+        "Separated observed signals from inferred source readiness.",
+        "Kept formal beta gates separate from real usage confidence."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the real usage confidence calibration report, validator, score integration, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Beta scoring",
+        "Telemetry confidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/algorithmic-evidence-policy.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/real-usage-confidence-calibration.generated.json",
+        "agent/state/real-usage-confidence.generated.json",
+        "docs/agent-truth/algorithmic-evidence-policy.md",
+        "docs/agent-truth/real-usage-confidence-calibration.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-algorithmic-evidence-policy.ts",
+        "scripts/agent/validate-real-usage-confidence-calibration.ts",
+        "src/lib/agent-score/algorithmic-evidence-policy.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/analytics/real-usage-confidence-calibration.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/real-usage-confidence-calibration.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.59",
       "previousVersion": "1.3.58",
@@ -1296,70 +1354,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/beta-evidence-lane-prep.spec.ts",
-        "tests/unit/refresh-safeguards.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.35",
-      "previousVersion": "1.3.34",
-      "betaReleaseCounter": 335,
-      "previousBetaReleaseCounter": 334,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): harden refresh safeguards",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T21:38:53.783Z",
-      "generatedAt": "2026-05-20T21:38:53.783Z",
-      "committedAtUtc": "2026-05-20T21:38:53.783Z",
-      "generatedAtUtc": "2026-05-20T21:38:53.783Z",
-      "updatedAtUtc": "2026-05-20T21:38:53.783Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added safeguards for stale beta and evidence reports.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added safeguards for stale beta and evidence reports.",
-        "Mapped generated reports to exact refresh commands.",
-        "Kept freshness messages plain and actionable."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted beta refresh safeguards pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Evidence capture",
-        "Generated reports"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/refresh-safeguards.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "docs/agent-truth/refresh-safeguards.md",
-        "docs/agent-truth/evidence-capture-status.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-refresh-safeguards.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "scripts/agent/validate-evidence-capture-status.ts",
-        "scripts/agent/validate-current-beta-exit-status.ts",
-        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "src/lib/agent-score/refresh-registry.ts",
-        "src/lib/agent-score/refresh-safeguards.ts",
-        "src/lib/agent-score/freshness-actions.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/refresh-safeguards.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
