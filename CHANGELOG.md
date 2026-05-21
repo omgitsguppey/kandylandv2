@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.76 - 2026-05-21
+- New additions score coverage lock
+- Verified new additions are tracked in telemetry, debug, and score systems.
+- Closed orphaned score coverage for privacy and behavioral telemetry work.
+- Kept manual visual review outside Codex score blocking.
+
 ## 1.3.75 - 2026-05-21
 - Guest and user activity verification
 - Added guest and user activity verification engine.
@@ -147,51 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added monolith and orphan metric registry.
 - Mapped metrics from producer to UI and evidence consumers.
 - Flagged high-risk monoliths without broad refactors.
-
-## 1.3.51 - 2026-05-21
-- Legacy data normalization plan
-- Added dry-run legacy data normalization from March 1.
-- Mapped old behavior and analytics records into current schemas with confidence labels.
-- Prevented legacy unknown data from becoming current truth.
-
-## 1.3.50 - 2026-05-21
-- Behavior math verification
-- Verified behavioral tracking math for guests, users, and linked sessions.
-- Added dry-run legacy behavior recovery from March 1.
-- Prevented disabled tracking and legacy data from polluting user metrics.
-
-## 1.3.49 - 2026-05-21
-- Debug critic improvements
-- Added source-only AI debug critic checks.
-- Blocked shallow patches, duplicate systems, and fake evidence claims.
-- Kept AI debugging local and cost-safe.
-
-## 1.3.48 - 2026-05-21
-- Debug backlog improvements
-- Made debug panel output drive a structured fix backlog.
-- Mapped warnings and unknown evidence to owners, score impact, and exact actions.
-- Kept debug truth strict without clearing formal beta gates.
-
-## 1.3.47 - 2026-05-21
-- Bug fixes and general improvements
-- Cleaned up high-impact mobile layout residuals.
-- Ranked remaining mobile scale warnings by score impact.
-- Kept chat and navigation unchanged.
-
-## 1.3.46 - 2026-05-21
-- Bug fixes and general improvements
-- Mapped route diagnostics to clearer human error guidance.
-- Replaced raw route failure copy with actionable recovery states.
-- Kept debug warnings classified without hiding real errors.
-
-## 1.3.45 - 2026-05-21
-- Bug fixes and general improvements
-- Added source-backed admin truth sample evidence.
-- Kept unavailable admin lanes from appearing healthy.
-- Preserved formal admin evidence gate for runtime proof.
-
-## 1.3.44 - 2026-05-21
-- Bug fixes and general improvements
-- Refreshed stale score-impact reports from the latest code version.
-- Reduced freshness and regression drag from outdated artifacts.
-- Kept formal beta evidence gates unchanged.

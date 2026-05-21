@@ -16,8 +16,8 @@ Privacy-aware behavioral telemetry is locked as a source-only contract. Cookie c
 - Full behavioral: full_behavioral_enabled
 - Legacy recovery: pass
 - Future feature telemetry: pass
-- Score before: 77.76
-- Score after: 77.76
+- Score before: 74.76
+- Score after: 74.76
 
 ## Remaining Manual Only Items
 

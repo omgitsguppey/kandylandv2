@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-21T16:05:23.626Z",
-  "generatedAtUtc": "2026-05-21T16:05:23.628Z",
+  "generatedAt": "2026-05-21T19:30:39.221Z",
+  "generatedAtUtc": "2026-05-21T19:30:39.223Z",
   "source": "local_static_validator",
   "reportKey": "privacy-behavior-legacy-recovery",
-  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
+  "currentHead": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
   "overallStatus": "live",
   "overallScore": 100,
   "productionReads": false,
@@ -424,7 +424,6 @@
     "agent/state/consent-tracking-contract.generated.json",
     "agent/state/cookie-banner-settings-sync.generated.json",
     "agent/state/identity-handoff-refinement.generated.json",
-    "agent/state/public-beta-score.generated.json",
     "docs/agent-truth/identity-handoff-refinement.md",
     "package.json"
   ],

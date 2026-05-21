@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T16:09:26.973Z",
+  "generatedAtUtc": "2026-05-21T19:30:48.033Z",
   "reportKey": "final-behavioral-privacy-telemetry-lock",
-  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
+  "currentHead": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
   "overallStatus": "locked_with_formal_gates_remaining",
   "consentContractStatus": "pass",
   "cookieBannerStatus": "pass",
@@ -18,8 +18,8 @@
     "Runtime/provider smoke",
     "Admin truth/sample evidence"
   ],
-  "scoreBefore": 77.76,
-  "scoreAfter": 77.76,
+  "scoreBefore": 74.76,
+  "scoreAfter": 74.76,
   "nextExactSteps": [
     "Keep minimal analytics mapped to product_usage_minimal and performance_analytics only; do not promote it to behavioral personalization.",
     "Register new feature events in src/lib/telemetry-catalog.ts and src/lib/behavioral/behavior-feature-registry.ts before any tracker emits them.",
@@ -39,12 +39,12 @@
   },
   "protectedChanges": [],
   "sourceArtifacts": {
-    "consentContract": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
-    "cookieBanner": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
-    "identityHandoff": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
-    "behaviorMath": "2026-05-21T16:05:30.713Z",
-    "legacyRecovery": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
-    "futureTelemetry": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359"
+    "consentContract": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+    "cookieBanner": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+    "identityHandoff": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+    "behaviorMath": "2026-05-21T19:15:45.407Z",
+    "legacyRecovery": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+    "futureTelemetry": "edd31cbee1e569fa059397c4782dd9f608c02fe9"
   },
   "validationFailures": []
 }

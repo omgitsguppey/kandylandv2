@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T16:04:47.868Z",
+  "generatedAtUtc": "2026-05-21T19:30:06.940Z",
   "reportKey": "consent-tracking-contract",
-  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
+  "currentHead": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
   "status": "pass",
   "consentPolicyVersion": "2026-05-consent-tracking-v1",
   "consentModes": [
@@ -49,7 +49,6 @@
   },
   "changedFiles": [
     "agent/context/optimized-task-context.generated.json",
-    "agent/state/public-beta-score.generated.json",
     "package.json"
   ],
   "validationFailures": []

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T16:05:15.166Z",
+  "generatedAtUtc": "2026-05-21T19:30:15.750Z",
   "reportKey": "cookie-banner-settings-sync",
-  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
+  "currentHead": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
   "status": "pass",
   "mobileBanner": {
     "compact320Safe": true,
@@ -27,11 +27,7 @@
   "protectedChanges": [],
   "changedFiles": [
     "agent/context/optimized-task-context.generated.json",
-    "agent/state/behavioral-extensibility-layer.generated.json",
     "agent/state/consent-tracking-contract.generated.json",
-    "agent/state/identity-handoff-refinement.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "docs/agent-truth/identity-handoff-refinement.md",
     "package.json"
   ],
   "validationFailures": []

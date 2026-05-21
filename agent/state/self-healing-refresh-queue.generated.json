@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-21T17:00:55.406Z",
+  "generatedAtUtc": "2026-05-21T19:31:44.665Z",
   "reportKey": "self-healing-refresh-queue",
-  "currentHead": "f77a5c417449e51c3ec56b14fcaeef2ac546f95c",
-  "sourceCommit": "f77a5c417449e51c3ec56b14fcaeef2ac546f95c",
+  "currentHead": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+  "sourceCommit": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
   "overallStatus": "pass",
   "queue": [
     {

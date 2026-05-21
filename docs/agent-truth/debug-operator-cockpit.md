@@ -20,10 +20,10 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 
 ### 2. Critical Runtime + Debug Warnings
 
-- Owner: admin_debug
+- Owner: provider_evidence
 - State: failed
 - Score impact estimate: 16
-- Next action: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
+- Next action: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
 
 ### 3. Stale Artifact Refresh Queue
 
