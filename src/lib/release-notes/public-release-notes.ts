@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.45",
-  "betaReleaseCounter": 345,
+  "currentVersion": "1.3.46",
+  "betaReleaseCounter": 346,
   "channel": "beta",
-  "generatedAt": "2026-05-21T01:58:23.749Z",
-  "generatedAtUtc": "2026-05-21T01:58:23.749Z",
+  "generatedAt": "2026-05-21T02:19:25.478Z",
+  "generatedAtUtc": "2026-05-21T02:19:25.478Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.46",
+      "previousVersion": "1.3.45",
+      "betaReleaseCounter": 346,
+      "previousBetaReleaseCounter": 345,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(errors): map route diagnostics",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T02:19:25.478Z",
+      "generatedAt": "2026-05-21T02:19:25.478Z",
+      "committedAtUtc": "2026-05-21T02:19:25.478Z",
+      "generatedAtUtc": "2026-05-21T02:19:25.478Z",
+      "updatedAtUtc": "2026-05-21T02:19:25.478Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Mapped route diagnostics to clearer human error guidance.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Mapped route diagnostics to clearer human error guidance.",
+        "Replaced raw route failure copy with actionable recovery states.",
+        "Kept debug warnings classified without hiding real errors."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted route diagnostics and human error mapping pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "App errors",
+        "Admin Debug",
+        "Route diagnostics"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/route-diagnostics-error-map.generated.json",
+        "docs/agent-truth/route-diagnostics-error-map.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-route-diagnostics-error-map.ts",
+        "scripts/agent/validate-human-error-surface-wiring.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+        "src/app/api/admin/users/[userId]/username/route.ts",
+        "src/app/api/wallet/packages/route.ts",
+        "src/lib/errors/error-dictionary.ts",
+        "src/lib/errors/error-language.ts",
+        "src/lib/server/auth.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/route-diagnostics-error-map.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.45",
       "previousVersion": "1.3.44",
@@ -1325,63 +1382,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/creator-surface-routing.spec.ts",
         "tests/unit/mobile-ui-final-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.21",
-      "previousVersion": "1.3.20",
-      "betaReleaseCounter": 321,
-      "previousBetaReleaseCounter": 320,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(ui): organize mobile surfaces",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T00:20:42.819Z",
-      "generatedAt": "2026-05-20T00:20:42.819Z",
-      "committedAtUtc": "2026-05-20T00:20:42.819Z",
-      "generatedAtUtc": "2026-05-20T00:20:42.819Z",
-      "updatedAtUtc": "2026-05-20T00:20:42.819Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved mobile organization across admin, user, and creator screens.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved mobile organization across admin, user, and creator screens.",
-        "Collapsed desktop-heavy sections into mobile summaries and drilldowns.",
-        "Kept navigation and chat unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted mobile surface organization pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "mobile UI",
-        "admin screens",
-        "creator screens",
-        "user screens"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/mobile-surface-organization.generated.json",
-        "docs/agent-truth/mobile-surface-organization.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-mobile-surface-organization.ts",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/app/admin/queue/page.tsx",
-        "src/app/dashboard/DashboardClient.tsx",
-        "src/app/dashboard/library/LibraryClient.tsx",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Creators/CreatorDropManager.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/mobile-surface-organization.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

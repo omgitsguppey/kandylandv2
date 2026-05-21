@@ -1,17 +1,22 @@
 {
-  "generatedAtUtc": "2026-05-20T05:33:59.473Z",
+  "generatedAtUtc": "2026-05-21T02:22:17.116Z",
   "reportKey": "error-language-contract",
-  "currentHead": "44556013b9dba08ec65eee7ed0e9549762f1ca8b",
+  "currentHead": "dc77dba983af6f0a79040c44c792e78ae0c5baec",
   "summary": {
-    "dictionaryEntries": 41,
+    "dictionaryEntries": 47,
     "rawErrorPatternsBlocked": 9,
     "surfacesCovered": [
+      "admin_debug",
+      "admin_truth",
+      "analytics",
       "auth",
       "creator_booking",
       "creator_chat",
       "creator_dashboard",
+      "creator_drops",
       "creator_profile",
       "creator_request",
+      "creator_settings",
       "fan_pass",
       "gumdrop_purchase",
       "navigation",
@@ -19,7 +24,7 @@
       "unknown",
       "wallet"
     ],
-    "bugReportEligibleCount": 15,
+    "bugReportEligibleCount": 18,
     "rewardEligibleCount": 1,
     "unresolvedRawErrorSources": 3,
     "p0Count": 0,
@@ -52,7 +57,7 @@
       "surface": "runtime",
       "severity": "warning",
       "owner": "user",
-      "primaryAction": "retry",
+      "primaryAction": "none",
       "secondaryAction": "refresh",
       "bugReportEligible": false,
       "rewardEligible": false
@@ -62,7 +67,7 @@
       "surface": "runtime",
       "severity": "warning",
       "owner": "platform",
-      "primaryAction": "retry",
+      "primaryAction": "none",
       "secondaryAction": "submit_bug",
       "bugReportEligible": true,
       "rewardEligible": false
@@ -72,7 +77,7 @@
       "surface": "runtime",
       "severity": "blocking",
       "owner": "platform",
-      "primaryAction": "retry",
+      "primaryAction": "none",
       "secondaryAction": "submit_bug",
       "bugReportEligible": true,
       "rewardEligible": false
@@ -102,7 +107,7 @@
       "surface": "runtime",
       "severity": "blocking",
       "owner": "provider",
-      "primaryAction": "retry",
+      "primaryAction": "none",
       "secondaryAction": "contact_support",
       "bugReportEligible": true,
       "rewardEligible": false
@@ -192,7 +197,7 @@
       "surface": "runtime",
       "severity": "warning",
       "owner": "user",
-      "primaryAction": "retry",
+      "primaryAction": "none",
       "secondaryAction": null,
       "bugReportEligible": false,
       "rewardEligible": false
@@ -202,7 +207,7 @@
       "surface": "runtime",
       "severity": "warning",
       "owner": "user",
-      "primaryAction": "retry",
+      "primaryAction": "none",
       "secondaryAction": null,
       "bugReportEligible": false,
       "rewardEligible": false
@@ -425,6 +430,66 @@
       "primaryAction": "go_back",
       "secondaryAction": "submit_bug",
       "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "creator_settings_unavailable",
+      "surface": "creator_settings",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "creator_drops_unavailable",
+      "surface": "creator_drops",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "wallet_packages_unavailable",
+      "surface": "wallet",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "analytics_source_unavailable",
+      "surface": "analytics",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "none",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "debug_route_degraded",
+      "surface": "admin_debug",
+      "severity": "warning",
+      "owner": "platform",
+      "primaryAction": "none",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "admin_truth_unavailable",
+      "surface": "admin_truth",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "none",
+      "secondaryAction": null,
+      "bugReportEligible": false,
       "rewardEligible": false
     },
     {

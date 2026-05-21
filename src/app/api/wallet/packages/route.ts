@@ -4,6 +4,8 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { buildHumanApiErrorResponse } from "@/lib/errors/api-error-response";
+import { resolveHumanErrorFromCode } from "@/lib/errors/resolve-human-error";
 
 export const dynamic = "force-dynamic";
 const WALLET_PACKAGES_CACHE_CONTROL = "public, max-age=300, s-maxage=900, stale-while-revalidate=3600";
@@ -34,7 +36,7 @@ async function GET_handler(request: NextRequest) {
         });
     } catch (error) {
         recordRouteWarning("wallet/packages", "Error fetching packages", error);
-        return NextResponse.json({ error: "Failed to fetch packages" }, { status: 500 });
+        return buildHumanApiErrorResponse(resolveHumanErrorFromCode("wallet_packages_unavailable", "wallet"), { status: 500 });
     }
 }
 

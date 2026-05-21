@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.46 - 2026-05-20
+- Bug fixes and general improvements
+- Mapped route diagnostics to clearer human error guidance.
+- Replaced raw route failure copy with actionable recovery states.
+- Kept debug warnings classified without hiding real errors.
+
 ## 1.3.45 - 2026-05-20
 - Bug fixes and general improvements
 - Added source-backed admin truth sample evidence.

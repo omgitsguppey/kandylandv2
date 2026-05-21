@@ -150,7 +150,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
               ...current.details,
               eventFacts: {
                 ...current.details.eventFacts,
-                errorMessage: error?.message ?? "Unknown error",
+                errorMessage: buildFirestoreClientFallbackMessage("Admin analytics identified events", error),
               },
             },
           }));
@@ -211,7 +211,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
               ...current.details,
               guestBatches: {
                 ...current.details.guestBatches,
-                errorMessage: error?.message ?? "Unknown error",
+                errorMessage: buildFirestoreClientFallbackMessage("Admin analytics guest batches", error),
               },
             },
           }));
@@ -272,7 +272,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
               ...current.details,
               guestSessions: {
                 ...current.details.guestSessions,
-                errorMessage: error?.message ?? "Unknown error",
+                errorMessage: buildFirestoreClientFallbackMessage("Admin analytics guest sessions", error),
               },
             },
           }));
@@ -333,7 +333,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
               ...current.details,
               watchSessions: {
                 ...current.details.watchSessions,
-                errorMessage: error?.message ?? "Unknown error",
+                errorMessage: buildFirestoreClientFallbackMessage("Admin analytics watch sessions", error),
               },
             },
           }));

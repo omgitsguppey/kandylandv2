@@ -1,8 +1,8 @@
 # Error Language Contract
 
-Generated: 2026-05-20T05:33:59.473Z
+Generated: 2026-05-21T02:22:17.116Z
 
-Current head: `44556013b9dba08ec65eee7ed0e9549762f1ca8b`
+Current head: `dc77dba983af6f0a79040c44c792e78ae0c5baec`
 
 ## Status
 
@@ -17,10 +17,10 @@ Phase 1 creates the shared human error contract, dictionary, resolver, API paylo
 
 ## Coverage
 
-- Dictionary entries: 41
-- Bug-report eligible entries: 15
+- Dictionary entries: 47
+- Bug-report eligible entries: 18
 - Reward eligible entries: 1
-- Surfaces covered: auth, creator_booking, creator_chat, creator_dashboard, creator_profile, creator_request, fan_pass, gumdrop_purchase, navigation, runtime, unknown, wallet
+- Surfaces covered: admin_debug, admin_truth, analytics, auth, creator_booking, creator_chat, creator_dashboard, creator_drops, creator_profile, creator_request, creator_settings, fan_pass, gumdrop_purchase, navigation, runtime, unknown, wallet
 
 ## Deferred Wiring
 

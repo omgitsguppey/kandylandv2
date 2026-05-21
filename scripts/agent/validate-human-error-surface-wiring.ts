@@ -85,7 +85,9 @@ if (noticeSource.includes("purchased GumDrops added")) fail("bug reward copy mus
 
 const changed = gitOutput("git diff --name-only HEAD").split(/\r?\n/u).filter(Boolean);
 const phaseFiveAllowedAdminDebugFiles = new Set([
+  "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
   "src/app/api/admin/debug/bug-reports/route.ts",
+  "src/app/api/admin/users/[userId]/username/route.ts",
   "src/app/admin/debug/components/DebugBugReportSummary.tsx",
   "src/app/admin/debug/components/DebugTabAdvanced.tsx",
 ]);

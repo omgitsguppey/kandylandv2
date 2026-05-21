@@ -5,6 +5,8 @@ import { buildNotFoundResponse, type ApiNotFoundResource } from "./not-found";
 import { RateLimitError, buildRateLimitResponse } from "./rate-limit";
 import { inferDiagnosticChannel, recordRouteFailure } from "./route-diagnostics";
 import { recordDebugEvidence } from "./debug-evidence-store";
+import { buildHumanApiErrorResponse } from "@/lib/errors/api-error-response";
+import { resolveHumanErrorFromCode, resolveHumanErrorFromStatus } from "@/lib/errors/resolve-human-error";
 
 export interface AuthResult {
     uid: string;
@@ -110,7 +112,10 @@ export function handleApiError(error: unknown, context: string) {
         if (error.status === 404) {
             return buildNotFoundResponse(error.resource ?? "resource", error.message);
         }
-        return NextResponse.json({ error: error.message }, { status: error.status });
+        return buildHumanApiErrorResponse(resolveHumanErrorFromStatus(error.status, "auth"), {
+            status: error.status,
+            includeOperatorMessage: normalizedContext.includes("admin") || normalizedContext.includes("debug"),
+        });
     }
     const diagnosticChannel = inferDiagnosticChannel(context);
 
@@ -124,10 +129,7 @@ export function handleApiError(error: unknown, context: string) {
         },
     });
 
-    return NextResponse.json(
-        { error: "Internal server error" },
-        { status: 500 }
-    );
+    return buildHumanApiErrorResponse(resolveHumanErrorFromCode("internal_server_error", "runtime"), { status: 500 });
 }
 
 /**

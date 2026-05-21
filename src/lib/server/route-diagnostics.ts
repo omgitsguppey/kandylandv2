@@ -1,6 +1,9 @@
 import "server-only";
 
 import type { DebugEvidenceCategory } from "@/lib/debug-evidence-contract";
+import type { HumanErrorKey } from "@/lib/errors/error-dictionary";
+import type { ErrorSurface } from "@/lib/errors/error-language";
+import { resolveHumanError } from "@/lib/errors/resolve-human-error";
 import { recordDebugEvidence } from "@/lib/server/debug-evidence-store";
 
 import { recordAnalyticsPipelineFailure } from "./analytics-pipeline-health";
@@ -127,6 +130,66 @@ function inferDebugEvidenceCategory(context: string, channel: ServerDiagnosticCh
   return "api_route";
 }
 
+function readStatus(value: unknown) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+  const candidate = record.status ?? record.statusCode;
+  return typeof candidate === "number" && Number.isFinite(candidate) ? candidate : null;
+}
+
+function readDetailStatus(detail: Record<string, unknown> | undefined) {
+  const candidate = detail?.status ?? detail?.statusCode;
+  return typeof candidate === "number" && Number.isFinite(candidate) ? candidate : null;
+}
+
+function inferHumanErrorSurface(context: string, channel: ServerDiagnosticChannel): ErrorSurface {
+  const normalizedContext = context.toLowerCase();
+
+  if (normalizedContext.includes("wallet") || normalizedContext.includes("paypal") || channel === "commerce") {
+    return "wallet";
+  }
+  if (normalizedContext.includes("creator") && normalizedContext.includes("settings")) {
+    return "creator_settings";
+  }
+  if (normalizedContext.includes("creator") && normalizedContext.includes("drop")) {
+    return "creator_drops";
+  }
+  if (normalizedContext.includes("creator")) {
+    return "creator_dashboard";
+  }
+  if (normalizedContext.includes("analytics") || normalizedContext.includes("telemetry") || channel === "analytics") {
+    return "analytics";
+  }
+  if (normalizedContext.includes("admin") && normalizedContext.includes("truth")) {
+    return "admin_truth";
+  }
+  if (normalizedContext.includes("admin") || normalizedContext.includes("debug")) {
+    return "admin_debug";
+  }
+  if (normalizedContext.includes("drop")) {
+    return "drops";
+  }
+  if (normalizedContext.includes("auth")) {
+    return "auth";
+  }
+  return "runtime";
+}
+
+function inferFallbackErrorKey(context: string, channel: ServerDiagnosticChannel): HumanErrorKey {
+  const normalizedContext = context.toLowerCase();
+
+  if (normalizedContext.includes("wallet/packages")) return "wallet_packages_unavailable";
+  if (normalizedContext.includes("creator") && normalizedContext.includes("settings")) return "creator_settings_unavailable";
+  if (normalizedContext.includes("creator") && normalizedContext.includes("drop")) return "creator_drops_unavailable";
+  if (normalizedContext.includes("analytics") || normalizedContext.includes("telemetry") || channel === "analytics") return "analytics_source_unavailable";
+  if (normalizedContext.includes("admin") && normalizedContext.includes("truth")) return "admin_truth_unavailable";
+  if (normalizedContext.includes("admin") || normalizedContext.includes("debug")) return "debug_route_degraded";
+  return "internal_server_error";
+}
+
 function buildDiagnosticDetail(
   error: unknown,
   context: string,
@@ -135,12 +198,20 @@ function buildDiagnosticDetail(
     actorRole?: string;
     traceId?: string;
     moduleKey?: string;
+    diagnosticDescriptor?: ReturnType<typeof resolveHumanError>;
   }
 ) {
+  const diagnosticDescriptor = structuredContext?.diagnosticDescriptor;
   return sanitizeDetail({
     routeContext: context,
     errorName: error instanceof Error ? error.name : "UnknownError",
     errorMessage: getErrorMessage(error),
+    errorKey: diagnosticDescriptor?.errorKey,
+    fixOwner: diagnosticDescriptor?.owner,
+    humanSurface: diagnosticDescriptor?.surface,
+    primaryAction: diagnosticDescriptor?.primaryAction,
+    secondaryAction: diagnosticDescriptor?.secondaryAction,
+    bugReportEligible: diagnosticDescriptor?.bugReportEligible,
     actorRole: structuredContext?.actorRole,
     traceId: structuredContext?.traceId,
     moduleKey: structuredContext?.moduleKey,
@@ -165,16 +236,25 @@ export function recordRouteDiagnostic(input: RouteDiagnosticInput) {
   const channel = input.channel ?? inferDiagnosticChannel(input.context);
   const severity = input.severity ?? "warn";
   const errorMessage = getErrorMessage(input.error, input.message);
+  const diagnosticDescriptor = resolveHumanError({
+    code: input.detail?.errorKey ?? input.detail?.errorCode ?? input.detail?.code,
+    status: readDetailStatus(input.detail) ?? readStatus(input.error),
+    surface: inferHumanErrorSurface(input.context, channel),
+    fallback: inferFallbackErrorKey(input.context, channel),
+    error: input.error,
+  });
+  const diagnosticDetail = buildDiagnosticDetail(input.error, input.context, input.detail, {
+    actorRole: input.actorRole,
+    traceId: input.traceId,
+    moduleKey: input.moduleKey,
+    diagnosticDescriptor,
+  });
 
   void recordServerDiagnostic({
     channel,
     severity,
     message: input.message,
-    detail: buildDiagnosticDetail(input.error, input.context, input.detail, {
-      actorRole: input.actorRole,
-      traceId: input.traceId,
-      moduleKey: input.moduleKey,
-    }),
+    detail: diagnosticDetail,
   });
   void recordDebugEvidence({
     source: input.context.toLowerCase().includes("admin") ? "admin" : "route",
@@ -183,12 +263,8 @@ export function recordRouteDiagnostic(input: RouteDiagnosticInput) {
     route: input.context,
     component: input.moduleKey,
     message: input.message,
-    humanMessage: input.message,
-    technicalDetail: buildDiagnosticDetail(input.error, input.context, input.detail, {
-      actorRole: input.actorRole,
-      traceId: input.traceId,
-      moduleKey: input.moduleKey,
-    }),
+    humanMessage: diagnosticDescriptor.operatorMessage,
+    technicalDetail: diagnosticDetail,
   });
 
   if (input.includePipelineHealth === true) {

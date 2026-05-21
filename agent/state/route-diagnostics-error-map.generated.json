@@ -1,0 +1,70 @@
+{
+  "generatedAtUtc": "2026-05-21T02:19:37.982Z",
+  "reportKey": "route-diagnostics-error-map",
+  "currentHead": "dc77dba983af6f0a79040c44c792e78ae0c5baec",
+  "summary": {
+    "routeDiagnosticsMapped": true,
+    "debugWarningsClassified": true,
+    "rawInternalServerErrorLeaks": 0,
+    "duplicateGenericErrorStrings": 0,
+    "validation4xxNonRetryable": true,
+    "requiredDictionaryKeysPresent": true,
+    "chatUntouched": true,
+    "navUntouched": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "mappedRouteFamilies": [
+    {
+      "key": "creator_settings_unavailable",
+      "surface": "creator_settings",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "bugReportEligible": true
+    },
+    {
+      "key": "creator_drops_unavailable",
+      "surface": "creator_drops",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "bugReportEligible": true
+    },
+    {
+      "key": "wallet_packages_unavailable",
+      "surface": "wallet",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "bugReportEligible": true
+    },
+    {
+      "key": "analytics_source_unavailable",
+      "surface": "analytics",
+      "owner": "platform",
+      "primaryAction": "none",
+      "bugReportEligible": false
+    },
+    {
+      "key": "debug_route_degraded",
+      "surface": "admin_debug",
+      "owner": "platform",
+      "primaryAction": "none",
+      "bugReportEligible": false
+    },
+    {
+      "key": "admin_truth_unavailable",
+      "surface": "admin_truth",
+      "owner": "platform",
+      "primaryAction": "none",
+      "bugReportEligible": false
+    }
+  ],
+  "rawErrorFindings": [],
+  "duplicateErrorStringFindings": [],
+  "protectedFileDiffs": [],
+  "nextExactSteps": [
+    "Keep new route diagnostics calls mapped through the human error dictionary.",
+    "Add new route family error keys before exposing new debug/user-facing failures.",
+    "Keep formal runtime evidence separate from source-backed diagnostic mapping."
+  ]
+}
