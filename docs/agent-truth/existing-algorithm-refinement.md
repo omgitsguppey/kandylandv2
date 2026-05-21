@@ -1,7 +1,7 @@
 # Existing Algorithm Refinement
 
-Generated: 2026-05-21T00:17:25.134Z
-Current code version: 080ebb115fc9d917f52b2e38108634821a2712ce
+Generated: 2026-05-21T01:26:50.674Z
+Current code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 
 ## Summary
 
@@ -147,49 +147,26 @@ Current code version: 080ebb115fc9d917f52b2e38108634821a2712ce
 
 ## Dirty File Classifications
 
-- agent/state/analytics-cost-runtime-inventory.generated.json: current_generated_artifact_to_commit
-- agent/state/cloud-sql-gemini-cost-guards.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-broadcast-timeline-prep.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-drop-status-metrics.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-pricing-wiring.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-profile-mobile-timeline.generated.json: current_generated_artifact_to_commit
+- agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
+- agent/state/beta-evidence-lane-prep.generated.json: current_generated_artifact_to_commit
+- agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-settings-control-plane.generated.json: current_generated_artifact_to_commit
-- agent/state/evidence-capture-status.generated.json: current_generated_artifact_to_commit
-- agent/state/final-cost-audit-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/final-pr-stale-cleanup.generated.json: current_generated_artifact_to_commit
 - agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/global-marquee-truncated-titles.generated.json: current_generated_artifact_to_commit
-- agent/state/mobile-loading-hydration-stability.generated.json: current_generated_artifact_to_commit
-- agent/state/operator-revenue-smoke.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/refresh-safeguards.generated.json: current_generated_artifact_to_commit
-- agent/state/runtime-watch-time-v2.generated.json: current_generated_artifact_to_commit
-- agent/state/score-80-cost-readiness.generated.json: current_generated_artifact_to_commit
-- agent/state/score-80-refresh-pass.generated.json: current_generated_artifact_to_commit
-- agent/state/source-backed-runtime-confidence.generated.json: current_generated_artifact_to_commit
-- agent/state/targeted-behavior-evidence.generated.json: current_generated_artifact_to_commit
-- agent/state/telemetry-admin-debug-truth.generated.json: current_generated_artifact_to_commit
-- agent/state/user-loading-wallet-mobile-refinement.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytics-cost-runtime-inventory.md: current_generated_artifact_to_commit
-- docs/agent-truth/cloud-sql-gemini-cost-guards.md: current_generated_artifact_to_commit
-- docs/agent-truth/creator-broadcast-timeline-prep.md: current_generated_artifact_to_commit
-- docs/agent-truth/creator-drop-status-metrics.md: current_generated_artifact_to_commit
-- docs/agent-truth/creator-pricing-wiring.md: current_generated_artifact_to_commit
-- docs/agent-truth/creator-profile-mobile-timeline.md: current_generated_artifact_to_commit
+- agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/overnight-final-integration-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/overnight-wiring-integrity.generated.json: current_generated_artifact_to_commit
+- agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/beta-evidence-gap-map.md: current_generated_artifact_to_commit
+- docs/agent-truth/beta-evidence-lane-prep.md: current_generated_artifact_to_commit
+- docs/agent-truth/beta-freshness-language.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-settings-control-plane.md: current_generated_artifact_to_commit
-- docs/agent-truth/evidence-capture-status.md: current_generated_artifact_to_commit
-- docs/agent-truth/final-cost-audit-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/final-pr-stale-cleanup.md: current_generated_artifact_to_commit
 - docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
-- docs/agent-truth/global-marquee-truncated-titles.md: current_generated_artifact_to_commit
-- docs/agent-truth/mobile-loading-hydration-stability.md: current_generated_artifact_to_commit
-- docs/agent-truth/operator-revenue-smoke.md: current_generated_artifact_to_commit
-- docs/agent-truth/refresh-safeguards.md: current_generated_artifact_to_commit
-- docs/agent-truth/runtime-watch-time-v2.md: current_generated_artifact_to_commit
-- docs/agent-truth/score-80-cost-readiness.md: current_generated_artifact_to_commit
-- docs/agent-truth/score-80-refresh-pass.md: current_generated_artifact_to_commit
-- docs/agent-truth/source-backed-runtime-confidence.md: current_generated_artifact_to_commit
-- docs/agent-truth/targeted-behavior-evidence.md: current_generated_artifact_to_commit
-- docs/agent-truth/telemetry-admin-debug-truth.md: current_generated_artifact_to_commit
-- docs/agent-truth/user-loading-wallet-mobile-refinement.md: current_generated_artifact_to_commit
+- docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/overnight-final-integration-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/overnight-wiring-integrity.md: current_generated_artifact_to_commit
+- docs/agent-truth/source-truth-authority-map.md: current_generated_artifact_to_commit
 
 ## PR Cleanup Actions
 

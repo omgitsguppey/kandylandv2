@@ -89,6 +89,7 @@
         "check:admin-truth-source-sample": "tsx scripts/agent/validate-admin-truth-source-sample.ts",
         "check:score-80-cost-readiness": "tsx scripts/agent/validate-score-80-cost-readiness.ts",
         "check:score-80-path-lock": "tsx scripts/agent/validate-score-80-path-lock.ts",
+        "check:score-impact-stale-artifact-sweep": "tsx scripts/agent/validate-score-impact-stale-artifact-sweep.ts",
         "check:phase-one-score-ui-triage": "tsx scripts/agent/validate-phase-one-score-ui-triage.ts",
         "check:targeted-behavior-evidence": "tsx scripts/agent/validate-targeted-behavior-evidence.ts",
         "score:hardening": "tsx scripts/agent/score-codebase-hardening.ts",

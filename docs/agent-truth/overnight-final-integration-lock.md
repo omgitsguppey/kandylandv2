@@ -1,8 +1,8 @@
 # Overnight Final Integration Lock
 
-Generated: 2026-05-20T22:06:11.551Z
+Generated: 2026-05-21T01:26:29.553Z
 
-Latest code version: 97de3470792bd8dcc5259863cc164eb178b57760
+Latest code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 
 ## Summary
 
@@ -12,33 +12,33 @@ Latest code version: 97de3470792bd8dcc5259863cc164eb178b57760
 - Algorithm refinement: stale
 - User loading: stale
 - Wallet mobile scale: stale
-- Creator drop status metrics: passed
+- Creator drop status metrics: stale
 - Mobile scale sweep: source_sweep_complete_residuals_recorded
 - Chat untouched: true
 - Nav untouched: true
 - Open PR count: 0
-- Dirty file status: classified
-- Beta score: 41.92
-- Beta status: Stale evidence
-- Findings: P0=0, P1=0, P2=6
+- Dirty file status: clean
+- Beta score: 59.74
+- Beta status: Unknown evidence
+- Findings: P0=0, P1=0, P2=9
 
 ## Dependency Status
 
 | Dependency | Status | Required | Detail | Next action |
 | --- | --- | --- | --- | --- |
-| overnight-wiring-integrity | stale | yes | agent/state/overnight-wiring-integrity.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for overnight-wiring-integrity from current HEAD. |
-| existing-algorithm-refinement | stale | yes | agent/state/existing-algorithm-refinement.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for existing-algorithm-refinement from current HEAD. |
-| user-loading-wallet-mobile-refinement | stale | yes | agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for user-loading-wallet-mobile-refinement from current HEAD. |
-| creator-drop-status-metrics | passed | yes | agent/state/creator-drop-status-metrics.generated.json is current. | Keep current; do not mark runtime/manual evidence complete from source-only artifacts. |
-| mobile-ui-final-lock | stale | yes | agent/state/mobile-ui-final-lock.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for mobile-ui-final-lock from current HEAD. |
-| final-telemetry-closure-lock | stale | yes | agent/state/final-telemetry-closure-lock.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for final-telemetry-closure-lock from current HEAD. |
-| creator-settings-control-plane | stale | no | agent/state/creator-settings-control-plane.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for creator-settings-control-plane from current HEAD. |
-| creator-pricing-wiring | stale | no | agent/state/creator-pricing-wiring.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for creator-pricing-wiring from current HEAD. |
-| creator-broadcast-timeline-prep | stale | no | agent/state/creator-broadcast-timeline-prep.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for creator-broadcast-timeline-prep from current HEAD. |
-| creator-profile-mobile-timeline | stale | no | agent/state/creator-profile-mobile-timeline.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for creator-profile-mobile-timeline from current HEAD. |
-| global-marquee-truncated-titles | stale | no | agent/state/global-marquee-truncated-titles.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. | Run the owner check for global-marquee-truncated-titles from current HEAD. |
-| public-beta-score | passed | yes | agent/state/public-beta-score.generated.json is current. | Keep current; do not mark runtime/manual evidence complete from source-only artifacts. |
-| current-beta-exit-status | passed | yes | agent/state/current-beta-exit-status.generated.json is current. | Keep current; do not mark runtime/manual evidence complete from source-only artifacts. |
+| overnight-wiring-integrity | stale | yes | agent/state/overnight-wiring-integrity.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for overnight-wiring-integrity from current HEAD. |
+| existing-algorithm-refinement | stale | yes | agent/state/existing-algorithm-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for existing-algorithm-refinement from current HEAD. |
+| user-loading-wallet-mobile-refinement | stale | yes | agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for user-loading-wallet-mobile-refinement from current HEAD. |
+| creator-drop-status-metrics | stale | yes | agent/state/creator-drop-status-metrics.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for creator-drop-status-metrics from current HEAD. |
+| mobile-ui-final-lock | stale | yes | agent/state/mobile-ui-final-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for mobile-ui-final-lock from current HEAD. |
+| final-telemetry-closure-lock | stale | yes | agent/state/final-telemetry-closure-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for final-telemetry-closure-lock from current HEAD. |
+| creator-settings-control-plane | stale | no | agent/state/creator-settings-control-plane.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for creator-settings-control-plane from current HEAD. |
+| creator-pricing-wiring | stale | no | agent/state/creator-pricing-wiring.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for creator-pricing-wiring from current HEAD. |
+| creator-broadcast-timeline-prep | stale | no | agent/state/creator-broadcast-timeline-prep.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for creator-broadcast-timeline-prep from current HEAD. |
+| creator-profile-mobile-timeline | stale | no | agent/state/creator-profile-mobile-timeline.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for creator-profile-mobile-timeline from current HEAD. |
+| global-marquee-truncated-titles | stale | no | agent/state/global-marquee-truncated-titles.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. | Run the owner check for global-marquee-truncated-titles from current HEAD. |
+| public-beta-score | stale | yes | agent/state/public-beta-score.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2. | Run the owner check for public-beta-score from current HEAD. |
+| current-beta-exit-status | stale | yes | agent/state/current-beta-exit-status.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2. | Run the owner check for current-beta-exit-status from current HEAD. |
 
 ## Fixes Applied
 
@@ -50,11 +50,14 @@ Latest code version: 97de3470792bd8dcc5259863cc164eb178b57760
 
 ## Remaining Risks
 
-- P2 overnight-wiring-integrity: agent/state/overnight-wiring-integrity.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. Next: Run the owner check for overnight-wiring-integrity from current HEAD.
-- P2 existing-algorithm-refinement: agent/state/existing-algorithm-refinement.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. Next: Run the owner check for existing-algorithm-refinement from current HEAD.
-- P2 user-loading-wallet-mobile-refinement: agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. Next: Run the owner check for user-loading-wallet-mobile-refinement from current HEAD.
-- P2 mobile-ui-final-lock: agent/state/mobile-ui-final-lock.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. Next: Run the owner check for mobile-ui-final-lock from current HEAD.
-- P2 final-telemetry-closure-lock: agent/state/final-telemetry-closure-lock.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a. Next: Run the owner check for final-telemetry-closure-lock from current HEAD.
+- P2 overnight-wiring-integrity: agent/state/overnight-wiring-integrity.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. Next: Run the owner check for overnight-wiring-integrity from current HEAD.
+- P2 existing-algorithm-refinement: agent/state/existing-algorithm-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. Next: Run the owner check for existing-algorithm-refinement from current HEAD.
+- P2 user-loading-wallet-mobile-refinement: agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. Next: Run the owner check for user-loading-wallet-mobile-refinement from current HEAD.
+- P2 creator-drop-status-metrics: agent/state/creator-drop-status-metrics.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. Next: Run the owner check for creator-drop-status-metrics from current HEAD.
+- P2 mobile-ui-final-lock: agent/state/mobile-ui-final-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. Next: Run the owner check for mobile-ui-final-lock from current HEAD.
+- P2 final-telemetry-closure-lock: agent/state/final-telemetry-closure-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce. Next: Run the owner check for final-telemetry-closure-lock from current HEAD.
+- P2 public-beta-score: agent/state/public-beta-score.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2. Next: Run the owner check for public-beta-score from current HEAD.
+- P2 current-beta-exit-status: agent/state/current-beta-exit-status.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2. Next: Run the owner check for current-beta-exit-status from current HEAD.
 - P2 mobile_scale_residuals: 24 non-chat mobile scale patterns remain from the source sweep; no broad refactor was attempted in this final lock. Next: Handle only owner-scoped surface fixes in future passes with screenshots/manual evidence.
 
 ## Missing Evidence

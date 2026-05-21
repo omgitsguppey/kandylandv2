@@ -337,7 +337,13 @@ if (report) {
     requireIncludes(refreshPlanText, "npm run score:beta && npm run check:beta-score", "public beta score refreshPlan");
     requireIncludes(refreshPlanText, "agent/state/current-beta-exit-status.generated.json", "public beta score refreshPlan");
     requireIncludes(refreshPlanText, "agent/state/evidence-capture-status.generated.json", "public beta score refreshPlan");
-    requireIncludes(refreshPlanText, "Refresh this report from the latest code version", "public beta score refreshPlan");
+    const hasStaleRefreshPlanEntry = report.refreshPlan.some((entry: unknown) => {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) return false;
+      return (entry as { needsRefresh?: unknown }).needsRefresh === true;
+    });
+    if (hasStaleRefreshPlanEntry) {
+      requireIncludes(refreshPlanText, "Refresh this report from the latest code version", "public beta score refreshPlan");
+    }
     if (/\bHEAD\b|currentHead/u.test(refreshPlanText)) {
       failures.push("public beta score refreshPlan user-facing messages must avoid raw source-control jargon.");
     }

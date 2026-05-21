@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T22:06:11.551Z",
+  "generatedAtUtc": "2026-05-21T01:26:29.553Z",
   "reportKey": "overnight-final-integration-lock",
-  "currentHead": "97de3470792bd8dcc5259863cc164eb178b57760",
+  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
   "summary": {
     "wiringIntegrityStatus": "stale",
     "telemetryOrphanStatus": "stale",
@@ -9,109 +9,109 @@
     "algorithmRefinementStatus": "stale",
     "userLoadingStatus": "stale",
     "walletMobileScaleStatus": "stale",
-    "creatorDropStatusMetricsStatus": "passed",
+    "creatorDropStatusMetricsStatus": "stale",
     "mobileScaleSweepStatus": "source_sweep_complete_residuals_recorded",
     "chatUntouched": true,
     "navUntouched": true,
     "openPrCount": 0,
-    "dirtyFileStatus": "classified",
-    "betaScore": 41.92,
-    "betaStatus": "Stale evidence",
+    "dirtyFileStatus": "clean",
+    "betaScore": 59.74,
+    "betaStatus": "Unknown evidence",
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 6
+    "p2Count": 9
   },
   "dependencyStatus": [
     {
       "id": "overnight-wiring-integrity",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/overnight-wiring-integrity.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/overnight-wiring-integrity.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for overnight-wiring-integrity from current HEAD."
     },
     {
       "id": "existing-algorithm-refinement",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/existing-algorithm-refinement.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/existing-algorithm-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for existing-algorithm-refinement from current HEAD."
     },
     {
       "id": "user-loading-wallet-mobile-refinement",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for user-loading-wallet-mobile-refinement from current HEAD."
     },
     {
       "id": "creator-drop-status-metrics",
-      "status": "passed",
+      "status": "stale",
       "required": true,
-      "detail": "agent/state/creator-drop-status-metrics.generated.json is current.",
-      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+      "detail": "agent/state/creator-drop-status-metrics.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "nextAction": "Run the owner check for creator-drop-status-metrics from current HEAD."
     },
     {
       "id": "mobile-ui-final-lock",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for mobile-ui-final-lock from current HEAD."
     },
     {
       "id": "final-telemetry-closure-lock",
       "status": "stale",
       "required": true,
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
     },
     {
       "id": "creator-settings-control-plane",
       "status": "stale",
       "required": false,
-      "detail": "agent/state/creator-settings-control-plane.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/creator-settings-control-plane.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for creator-settings-control-plane from current HEAD."
     },
     {
       "id": "creator-pricing-wiring",
       "status": "stale",
       "required": false,
-      "detail": "agent/state/creator-pricing-wiring.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/creator-pricing-wiring.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for creator-pricing-wiring from current HEAD."
     },
     {
       "id": "creator-broadcast-timeline-prep",
       "status": "stale",
       "required": false,
-      "detail": "agent/state/creator-broadcast-timeline-prep.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/creator-broadcast-timeline-prep.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for creator-broadcast-timeline-prep from current HEAD."
     },
     {
       "id": "creator-profile-mobile-timeline",
       "status": "stale",
       "required": false,
-      "detail": "agent/state/creator-profile-mobile-timeline.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/creator-profile-mobile-timeline.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for creator-profile-mobile-timeline from current HEAD."
     },
     {
       "id": "global-marquee-truncated-titles",
       "status": "stale",
       "required": false,
-      "detail": "agent/state/global-marquee-truncated-titles.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/global-marquee-truncated-titles.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for global-marquee-truncated-titles from current HEAD."
     },
     {
       "id": "public-beta-score",
-      "status": "passed",
+      "status": "stale",
       "required": true,
-      "detail": "agent/state/public-beta-score.generated.json is current.",
-      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+      "detail": "agent/state/public-beta-score.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2.",
+      "nextAction": "Run the owner check for public-beta-score from current HEAD."
     },
     {
       "id": "current-beta-exit-status",
-      "status": "passed",
+      "status": "stale",
       "required": true,
-      "detail": "agent/state/current-beta-exit-status.generated.json is current.",
-      "nextAction": "Keep current; do not mark runtime/manual evidence complete from source-only artifacts."
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2.",
+      "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     }
   ],
   "fixesApplied": [],
@@ -120,32 +120,50 @@
     {
       "severity": "P2",
       "id": "overnight-wiring-integrity",
-      "detail": "agent/state/overnight-wiring-integrity.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/overnight-wiring-integrity.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for overnight-wiring-integrity from current HEAD."
     },
     {
       "severity": "P2",
       "id": "existing-algorithm-refinement",
-      "detail": "agent/state/existing-algorithm-refinement.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/existing-algorithm-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for existing-algorithm-refinement from current HEAD."
     },
     {
       "severity": "P2",
       "id": "user-loading-wallet-mobile-refinement",
-      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/user-loading-wallet-mobile-refinement.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for user-loading-wallet-mobile-refinement from current HEAD."
     },
     {
       "severity": "P2",
+      "id": "creator-drop-status-metrics",
+      "detail": "agent/state/creator-drop-status-metrics.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
+      "nextAction": "Run the owner check for creator-drop-status-metrics from current HEAD."
+    },
+    {
+      "severity": "P2",
       "id": "mobile-ui-final-lock",
-      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/mobile-ui-final-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for mobile-ui-final-lock from current HEAD."
     },
     {
       "severity": "P2",
       "id": "final-telemetry-closure-lock",
-      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 6aa811dfed3d8aa10435fda3811790f04d13ba2a.",
+      "detail": "agent/state/final-telemetry-closure-lock.generated.json is stale for 080ebb115fc9d917f52b2e38108634821a2712ce.",
       "nextAction": "Run the owner check for final-telemetry-closure-lock from current HEAD."
+    },
+    {
+      "severity": "P2",
+      "id": "public-beta-score",
+      "detail": "agent/state/public-beta-score.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2.",
+      "nextAction": "Run the owner check for public-beta-score from current HEAD."
+    },
+    {
+      "severity": "P2",
+      "id": "current-beta-exit-status",
+      "detail": "agent/state/current-beta-exit-status.generated.json is stale for 979fd59494a844e8e2322cb6790d3607a58b1bc2.",
+      "nextAction": "Run the owner check for current-beta-exit-status from current HEAD."
     },
     {
       "severity": "P2",
@@ -167,38 +185,7 @@
     "For future mobile scale work, fix one owner-scoped surface at a time and keep chat/navigation protected.",
     "Run npm run check:overnight-final-integration-lock after any follow-up lock refresh."
   ],
-  "changedFiles": [
-    "CHANGELOG.md",
-    "agent/state/beta-evidence-lane-prep.generated.json",
-    "agent/state/creator-drop-status-metrics.generated.json",
-    "agent/state/current-beta-exit-status.generated.json",
-    "agent/state/evidence-capture-status.generated.json",
-    "agent/state/final-pr-stale-cleanup.generated.json",
-    "agent/state/operator-revenue-smoke.generated.json",
-    "agent/state/overnight-beta-readiness-lock.generated.json",
-    "agent/state/overnight-final-integration-lock.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "agent/state/refresh-safeguards.generated.json",
-    "docs/agent-truth/beta-evidence-lane-prep.md",
-    "docs/agent-truth/creator-drop-status-metrics.md",
-    "docs/agent-truth/current-beta-exit-status.md",
-    "docs/agent-truth/evidence-capture-status.md",
-    "docs/agent-truth/final-pr-stale-cleanup.md",
-    "docs/agent-truth/operator-revenue-smoke.md",
-    "docs/agent-truth/overnight-beta-readiness-lock.md",
-    "docs/agent-truth/overnight-final-integration-lock.md",
-    "docs/agent-truth/refresh-safeguards.md",
-    "package.json",
-    "public/kandydrops-release-notes.json",
-    "scripts/agent/validate-overnight-final-integration-lock.ts",
-    "src/lib/release-notes/public-release-notes.ts",
-    "src/lib/release-notes/release-version-contract.ts"
-  ],
-  "untrackedFiles": [
-    "agent/state/final-morning-beta-lock.generated.json",
-    "docs/agent-truth/final-morning-beta-lock.md",
-    "scripts/agent/validate-final-morning-beta-lock.ts",
-    "tests/unit/final-morning-beta-lock.spec.ts"
-  ],
+  "changedFiles": [],
+  "untrackedFiles": [],
   "openPrs": []
 }

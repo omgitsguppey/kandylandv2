@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-21T00:17:33.500Z",
+  "generatedAtUtc": "2026-05-21T01:26:48.321Z",
   "reportKey": "overnight-wiring-integrity",
-  "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
   "summary": {
-    "lanesWired": 10,
+    "lanesWired": 11,
     "lanesPartial": 0,
     "lanesMissingDependency": 0,
-    "lanesStale": 2,
+    "lanesStale": 1,
     "lanesBrokenOrOrphaned": 0,
     "orphanedTelemetryFixed": 0,
     "parityConflictsFixed": 1,
@@ -21,7 +21,7 @@
     "betaExitReadyMarked": false,
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 2
+    "p2Count": 1
   },
   "lanes": [
     {
@@ -116,9 +116,9 @@
       "expectedValidator": "scripts/agent/validate-mobile-ui-final-lock.ts",
       "expectedTelemetry": "not applicable",
       "expectedArtifact": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "stale",
+      "status": "wired",
       "fixApplied": "Validated existing source wiring; no duplicate system added.",
-      "nextAction": "Regenerate mobile final lock during source-readiness signoff; do not mark visual evidence complete."
+      "nextAction": "Keep validator coverage current with future changes."
     },
     {
       "lane": "telemetry_final_lock",
@@ -175,38 +175,21 @@
   "staleArtifactFindings": [
     {
       "severity": "p2",
-      "file": "agent/state/mobile-ui-final-lock.generated.json",
-      "detail": "mobile_ui_final_lock artifact is stale relative to current HEAD but has an explicit next action."
-    },
-    {
-      "severity": "p2",
       "file": "agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json",
       "detail": "beta_health_scoring artifact is stale relative to current HEAD but has an explicit next action."
     }
   ],
   "dirtyFileClassifications": [
     {
-      "file": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "file": "agent/state/beta-evidence-gap-map.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "file": "agent/state/beta-evidence-lane-prep.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/creator-broadcast-timeline-prep.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/creator-drop-status-metrics.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/creator-pricing-wiring.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/creator-profile-mobile-timeline.generated.json",
+      "file": "agent/state/beta-freshness-language.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -214,15 +197,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/evidence-capture-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/existing-algorithm-refinement.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/final-cost-audit-lock.generated.json",
+      "file": "agent/state/final-pr-stale-cleanup.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -230,75 +205,27 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/global-marquee-truncated-titles.generated.json",
+      "file": "agent/state/mobile-ui-final-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "file": "agent/state/overnight-final-integration-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/operator-revenue-smoke.generated.json",
+      "file": "agent/state/source-truth-authority-map.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/public-beta-score.generated.json",
+      "file": "docs/agent-truth/beta-evidence-gap-map.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/refresh-safeguards.generated.json",
+      "file": "docs/agent-truth/beta-evidence-lane-prep.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/runtime-watch-time-v2.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/score-80-cost-readiness.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/score-80-refresh-pass.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/source-backed-runtime-confidence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/targeted-behavior-evidence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/analytics-cost-runtime-inventory.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/creator-broadcast-timeline-prep.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/creator-drop-status-metrics.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/creator-pricing-wiring.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/creator-profile-mobile-timeline.md",
+      "file": "docs/agent-truth/beta-freshness-language.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -306,15 +233,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/existing-algorithm-refinement.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/final-cost-audit-lock.md",
+      "file": "docs/agent-truth/final-pr-stale-cleanup.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -322,47 +241,15 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/global-marquee-truncated-titles.md",
+      "file": "docs/agent-truth/mobile-ui-final-lock.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/mobile-loading-hydration-stability.md",
+      "file": "docs/agent-truth/overnight-final-integration-lock.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/operator-revenue-smoke.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/refresh-safeguards.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/runtime-watch-time-v2.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/score-80-cost-readiness.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/score-80-refresh-pass.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/source-backed-runtime-confidence.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/targeted-behavior-evidence.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/telemetry-admin-debug-truth.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+      "file": "docs/agent-truth/source-truth-authority-map.md",
       "classification": "current_generated_artifact_to_commit"
     }
   ],
@@ -377,7 +264,6 @@
     "Kept chat and protected navigation out of this cleanup pass."
   ],
   "nextFixOrder": [
-    "mobile_ui_final_lock: Regenerate mobile final lock during source-readiness signoff; do not mark visual evidence complete.",
     "beta_health_scoring: Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready.",
     "Keep future telemetry claims tied to TELEMETRY_DEPENDENCY_GRAPH or analytics-event-contract before UI labels say tracked."
   ]

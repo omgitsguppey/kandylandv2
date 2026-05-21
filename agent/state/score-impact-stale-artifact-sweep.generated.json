@@ -1,0 +1,612 @@
+{
+  "generatedAtUtc": "2026-05-21T01:45:44.698Z",
+  "reportKey": "score-impact-stale-artifact-sweep",
+  "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+  "oldScore": 59.6,
+  "newScore": 59.74,
+  "scoreDelta": 0.14,
+  "scoreDropExplanation": null,
+  "formalEvidenceGatesUnchanged": true,
+  "staleArtifactActions": [
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "reportKey": "current-beta-exit-status",
+      "status": "refreshed_current",
+      "command": "npm run check:current-beta-exit-status",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "reportKey": "overnight-final-integration-lock",
+      "status": "blocked_failed_refresh",
+      "command": "npm run check:overnight-final-integration-lock",
+      "exitCode": 1,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Focused refresh validator failed; stale status is recorded instead of passed.",
+      "nextAction": "Fix the validator blocker and rerun npm run check:overnight-final-integration-lock."
+    },
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "reportKey": "evidence-capture-status",
+      "status": "refreshed_current",
+      "command": "npm run check:evidence-capture-status",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "reportKey": "beta-evidence-gap-map",
+      "status": "refreshed_current",
+      "command": "npm run check:beta-evidence-gap-map",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
+      "reportKey": "beta-evidence-lane-prep",
+      "status": "refreshed_current",
+      "command": "npm run check:beta-evidence-lane-prep",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/beta-freshness-language.generated.json",
+      "reportKey": "beta-freshness-language",
+      "status": "refreshed_current",
+      "command": "npm run check:beta-freshness-language",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
+      "reportKey": "final-pr-stale-cleanup",
+      "status": "refreshed_current",
+      "command": "npm run check:final-pr-stale-cleanup",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "reportKey": "source-truth-authority-map",
+      "status": "refreshed_current",
+      "command": "npm run check:source-truth-authority-map",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "reportKey": "final-telemetry-closure-lock",
+      "status": "refreshed_current",
+      "command": "npm run check:final-telemetry-closure-lock",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "reportKey": "mobile-ui-final-lock",
+      "status": "refreshed_current",
+      "command": "npm run check:mobile-ui-final-lock",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "reportKey": "creator-settings-control-plane",
+      "status": "refreshed_current",
+      "command": "npm run check:creator-settings-control-plane",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "reportKey": "creator-drop-status-metrics",
+      "status": "refreshed_current",
+      "command": "npm run check:creator-drop-status-metrics",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
+      "reportKey": "operator-revenue-smoke",
+      "status": "refreshed_current",
+      "command": "npm run check:operator-revenue-smoke",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "reportKey": "overnight-wiring-integrity",
+      "status": "refreshed_current",
+      "command": "npm run check:overnight-wiring-integrity",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "reportKey": "existing-algorithm-refinement",
+      "status": "refreshed_current",
+      "command": "npm run check:existing-algorithm-refinement",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "reportKey": "user-loading-wallet-mobile-refinement",
+      "status": "refreshed_current",
+      "command": "npm run check:user-loading-wallet-mobile-refinement",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    },
+    {
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "reportKey": "global-marquee-truncated-titles",
+      "status": "refreshed_current",
+      "command": "npm run check:global-marquee-truncated-titles",
+      "exitCode": 0,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Refresh command passed from the latest score sweep.",
+      "nextAction": "No action needed for this sweep."
+    }
+  ],
+  "refreshedArtifacts": [
+    "agent/state/current-beta-exit-status.generated.json",
+    "agent/state/evidence-capture-status.generated.json",
+    "agent/state/beta-evidence-gap-map.generated.json",
+    "agent/state/beta-evidence-lane-prep.generated.json",
+    "agent/state/beta-freshness-language.generated.json",
+    "agent/state/final-pr-stale-cleanup.generated.json",
+    "agent/state/source-truth-authority-map.generated.json",
+    "agent/state/final-telemetry-closure-lock.generated.json",
+    "agent/state/mobile-ui-final-lock.generated.json",
+    "agent/state/creator-settings-control-plane.generated.json",
+    "agent/state/creator-drop-status-metrics.generated.json",
+    "agent/state/operator-revenue-smoke.generated.json",
+    "agent/state/overnight-wiring-integrity.generated.json",
+    "agent/state/existing-algorithm-refinement.generated.json",
+    "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+    "agent/state/global-marquee-truncated-titles.generated.json"
+  ],
+  "blockedRefreshes": [
+    {
+      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "reportKey": "overnight-final-integration-lock",
+      "status": "blocked_failed_refresh",
+      "command": "npm run check:overnight-final-integration-lock",
+      "exitCode": 1,
+      "sourceVersion": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "scoreImpacting": false,
+      "reason": "Focused refresh validator failed; stale status is recorded instead of passed.",
+      "nextAction": "Fix the validator blocker and rerun npm run check:overnight-final-integration-lock."
+    }
+  ],
+  "remainingScoreImpactingStaleArtifacts": [],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "status": "M",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release beta note update."
+    },
+    {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/beta-freshness-language.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/existing-algorithm-refinement.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/refresh-safeguards.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/beta-freshness-language.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-settings-control-plane.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/existing-algorithm-refinement.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-wiring-integrity.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/refresh-safeguards.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+      "status": "M",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit refreshed score-impact artifact generated by focused validators."
+    },
+    {
+      "path": "package.json",
+      "status": "M",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped package script update."
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "status": "M",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release beta note update."
+    },
+    {
+      "path": "scripts/agent/validate-public-beta-score.ts",
+      "status": "M",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped stale artifact sweep validator/test."
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "status": "M",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release beta note update."
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "status": "M",
+      "classification": "release_artifact_expected",
+      "action": "Commit same-release beta note update."
+    },
+    {
+      "path": "agent/state/score-impact-stale-artifact-sweep.generated.json",
+      "status": "??",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit scoped stale artifact sweep report."
+    },
+    {
+      "path": "docs/agent-truth/score-impact-stale-artifact-sweep.md",
+      "status": "??",
+      "classification": "current_generated_artifact_to_commit",
+      "action": "Commit scoped stale artifact sweep report."
+    },
+    {
+      "path": "scripts/agent/validate-score-impact-stale-artifact-sweep.ts",
+      "status": "??",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped stale artifact sweep validator/test."
+    },
+    {
+      "path": "tests/unit/score-impact-stale-artifact-sweep.spec.ts",
+      "status": "??",
+      "classification": "real_source_change_needs_review",
+      "action": "Commit scoped stale artifact sweep validator/test."
+    }
+  ],
+  "openPrs": [],
+  "checksRun": [
+    {
+      "command": "npm run check:overnight-final-integration-lock",
+      "exitCode": 1
+    },
+    {
+      "command": "npm run check:beta-evidence-gap-map",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:beta-evidence-lane-prep",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:beta-freshness-language",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:final-pr-stale-cleanup",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:source-truth-authority-map",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:final-telemetry-closure-lock",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:mobile-ui-final-lock",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:creator-settings-control-plane",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:overnight-wiring-integrity",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:existing-algorithm-refinement",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:user-loading-wallet-mobile-refinement",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:global-marquee-truncated-titles",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:refresh-safeguards",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run score:beta",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:beta-score",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:current-beta-exit-status",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:evidence-capture-status",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:creator-drop-status-metrics",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check:operator-revenue-smoke",
+      "exitCode": 0
+    }
+  ],
+  "summary": {
+    "requestedLaneCount": 17,
+    "refreshedCurrentCount": 16,
+    "blockedRefreshCount": 1,
+    "remainingStaleCount": 0,
+    "dirtyFilesClassified": true,
+    "openPrsClassified": true,
+    "betaExitReadyMarked": false
+  },
+  "nextExactSteps": [
+    "Fix the overnight-final-integration-lock creator drop metrics status blocker before treating that lock as passed.",
+    "Attach formal visual/manual, deployed runtime/provider, and admin truth sample evidence before beta exit review.",
+    "Keep npm run check:refresh-safeguards and npm run score:beta together when score-impact reports change."
+  ]
+}
