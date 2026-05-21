@@ -17,6 +17,13 @@ import {
   type RefreshArtifactInput,
 } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
+import {
+  summarizeUiVisualSmokeEvidenceForScore,
+  type UiVisualSmokeMinimalReport,
+  type UiVisualSmokeReportStatus,
+  type UiVisualSmokeStatus,
+} from "../../src/lib/evidence/ui-visual-smoke-contract";
+import type { DeviceBand } from "../../src/lib/ui/mobile-scale-contract";
 import { loadDebugEvidenceForAuditDomains } from "./load-debug-evidence-for-audit";
 import { buildScore80CostReadinessFromRepo } from "./validate-score-80-cost-readiness";
 import type {
@@ -46,7 +53,10 @@ const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generate
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const ADMIN_TRUTH_SOURCE_SAMPLE_PATH = "agent/state/admin-truth-source-sample.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
+const UI_VISUAL_SMOKE_MINIMAL_PATH = "agent/state/ui-visual-smoke-minimal.generated.json";
+const UI_VISUAL_SMOKE_REQUIRED_SURFACES_EVIDENCE_KEY = "uiVisualSmoke.requiredSurfaces";
 const VISUAL_MANUAL_EVIDENCE_PATHS = [
+  UI_VISUAL_SMOKE_MINIMAL_PATH,
   "agent/state/manual-smoke-evidence.generated.json",
   "agent/state/visual-smoke-evidence.generated.json",
   "agent/state/screenshot-evidence.generated.json",
@@ -177,6 +187,79 @@ function readEvidenceArtifact(
     ],
     generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
     sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
+}
+
+function readUiVisualSmokeMinimalEvidence(root: string, filePath: string, parsed: Record<string, unknown>) {
+  const surfaces = Array.isArray(parsed.surfaces) ? parsed.surfaces : [];
+  const summary = readRecord(parsed.summary);
+  const formalGateImpact = readRecord(parsed.formalGateImpact);
+  const normalized: UiVisualSmokeMinimalReport = {
+    status: (readString(parsed.status) ?? "missing") as UiVisualSmokeReportStatus,
+    passed: readBoolean(parsed.passed) === true,
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt) ?? new Date(0).toISOString(),
+    currentHead: readString(parsed.currentHead),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+    detail: readString(parsed.detail) ?? "UI-only visual smoke evidence artifact was found.",
+    nonUiLanesBlocked: readBoolean(parsed.nonUiLanesBlocked) === true,
+    formalGateImpact: {
+      clearsVisualManualSmoke: readBoolean(formalGateImpact.clearsVisualManualSmoke) === true,
+      clearsProviderSmoke: readBoolean(formalGateImpact.clearsProviderSmoke) === true,
+      clearsDeployedRuntimeSmoke: readBoolean(formalGateImpact.clearsDeployedRuntimeSmoke) === true,
+      clearsAdminTruthSmoke: readBoolean(formalGateImpact.clearsAdminTruthSmoke) === true,
+    },
+    surfaces: surfaces.map((surface) => {
+      const record = readRecord(surface);
+      return {
+        surfaceId: readString(record.surfaceId) ?? "unknown_surface",
+        surfaceGroup: readString(record.surfaceGroup) ?? "unknown_group",
+        route: readString(record.route) ?? "unknown_route",
+        deviceBand: (readString(record.deviceBand) ?? "mobile") as DeviceBand,
+        requiresVisualSmokeReason: readString(record.requiresVisualSmokeReason) ?? "Visual smoke reason missing.",
+        screenshotArtifactPath: readString(record.screenshotArtifactPath),
+        operatorConfirmed: readBoolean(record.operatorConfirmed) === true,
+        operatorNote: readString(record.operatorNote),
+        status: (readString(record.status) ?? "missing") as UiVisualSmokeStatus,
+        blocksScoreForUiOnly: readBoolean(record.blocksScoreForUiOnly) !== false,
+      };
+    }),
+    summary: {
+      requiredSurfaceCount: readNumber(summary.requiredSurfaceCount) ?? surfaces.length,
+      surfaceGroupCount: readNumber(summary.surfaceGroupCount) ?? 0,
+      missingSurfaceIds: Array.isArray(summary.missingSurfaceIds)
+        ? summary.missingSurfaceIds.filter((value): value is string => typeof value === "string")
+        : [],
+      operatorConfirmedSurfaceIds: Array.isArray(summary.operatorConfirmedSurfaceIds)
+        ? summary.operatorConfirmedSurfaceIds.filter((value): value is string => typeof value === "string")
+        : [],
+      screenshotAttachedSurfaceIds: Array.isArray(summary.screenshotAttachedSurfaceIds)
+        ? summary.screenshotAttachedSurfaceIds.filter((value): value is string => typeof value === "string")
+        : [],
+      failedSurfaceIds: Array.isArray(summary.failedSurfaceIds)
+        ? summary.failedSurfaceIds.filter((value): value is string => typeof value === "string")
+        : [],
+      notRequiredSurfaceIds: Array.isArray(summary.notRequiredSurfaceIds)
+        ? summary.notRequiredSurfaceIds.filter((value): value is string => typeof value === "string")
+        : [],
+      statusCounts: readRecord(summary.statusCounts) as never,
+    },
+    evidence: Array.isArray(parsed.evidence)
+      ? parsed.evidence.filter((value): value is string => typeof value === "string")
+      : [],
+    nextExactSteps: Array.isArray(parsed.nextExactSteps)
+      ? parsed.nextExactSteps.filter((value): value is string => typeof value === "string")
+      : [],
+  };
+  const summarized = summarizeUiVisualSmokeEvidenceForScore(normalized);
+  return {
+    ...summarized,
+    path: filePath,
+    evidence: [
+      ...summarized.evidence,
+      `uiVisualSmoke.artifactPath=${filePath}`,
+      `uiVisualSmoke.artifactExists=${Boolean(readJsonFile(root, filePath))}`,
+      `${UI_VISUAL_SMOKE_REQUIRED_SURFACES_EVIDENCE_KEY}=exact_surface_list_required`,
+    ],
   };
 }
 
@@ -452,10 +535,21 @@ function readDebugRuntimeEvidence(root: string): PublicBetaEvidenceArtifact {
 
 function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
   const inspected: string[] = [];
+  let structuredMissingArtifact: PublicBetaEvidenceArtifact | undefined;
   for (const evidencePath of VISUAL_MANUAL_EVIDENCE_PATHS) {
     const parsed = readJsonFile(root, evidencePath);
     if (!parsed) {
       inspected.push(`${evidencePath}:missing`);
+      continue;
+    }
+
+    if (evidencePath === UI_VISUAL_SMOKE_MINIMAL_PATH) {
+      const artifact = readUiVisualSmokeMinimalEvidence(root, evidencePath, parsed);
+      inspected.push(`${evidencePath}:status=${artifact.status}:passed=${artifact.passed}`);
+      if (artifact.passed) {
+        return artifact;
+      }
+      structuredMissingArtifact = artifact;
       continue;
     }
 
@@ -479,6 +573,16 @@ function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
         sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
       };
     }
+  }
+
+  if (structuredMissingArtifact) {
+    return {
+      ...structuredMissingArtifact,
+      evidence: [
+        ...structuredMissingArtifact.evidence,
+        ...inspected,
+      ],
+    };
   }
 
   return {

@@ -1,0 +1,155 @@
+{
+  "status": "missing",
+  "passed": false,
+  "generatedAtUtc": "2026-05-21T17:23:27.603Z",
+  "currentHead": "61a1f42fbbd7036993923af4f5d2d6f15c49f39c",
+  "sourceCommit": "61a1f42fbbd7036993923af4f5d2d6f15c49f39c",
+  "detail": "UI-only visual smoke evidence is still missing for: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile.",
+  "nonUiLanesBlocked": false,
+  "formalGateImpact": {
+    "clearsVisualManualSmoke": false,
+    "clearsProviderSmoke": false,
+    "clearsDeployedRuntimeSmoke": false,
+    "clearsAdminTruthSmoke": false
+  },
+  "surfaces": [
+    {
+      "surfaceId": "user_dashboard_mobile",
+      "surfaceGroup": "user_dashboard",
+      "route": "/dashboard",
+      "deviceBand": "mobile",
+      "requiresVisualSmokeReason": "Recent activity, tasks, and dashboard density are layout-sensitive on mobile.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    },
+    {
+      "surfaceId": "wallet_mobile",
+      "surfaceGroup": "wallet",
+      "route": "/dashboard#wallet",
+      "deviceBand": "mobile",
+      "requiresVisualSmokeReason": "Wallet modal density and balance presentation are mobile layout-sensitive.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    },
+    {
+      "surfaceId": "creator_dashboard_mobile",
+      "surfaceGroup": "creator_dashboard",
+      "route": "/dashboard/creator",
+      "deviceBand": "mobile",
+      "requiresVisualSmokeReason": "Creator dashboard loading and empty-state density changed in mobile source checks.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    },
+    {
+      "surfaceId": "creator_settings_mobile",
+      "surfaceGroup": "creator_settings",
+      "route": "/dashboard/creator/settings",
+      "deviceBand": "mobile",
+      "requiresVisualSmokeReason": "Creator settings is a layout-sensitive creator tool surface.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    },
+    {
+      "surfaceId": "creator_drop_manager_mobile",
+      "surfaceGroup": "creator_drop_manager",
+      "route": "/dashboard/creator/drops",
+      "deviceBand": "mobile",
+      "requiresVisualSmokeReason": "Creator drop manager status and empty states are layout-sensitive on mobile.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    },
+    {
+      "surfaceId": "creator_profile_mobile",
+      "surfaceGroup": "creator_profile",
+      "route": "/creators/[username]",
+      "deviceBand": "mobile",
+      "requiresVisualSmokeReason": "Creator profile timeline and empty-state layout need visual confirmation.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    },
+    {
+      "surfaceId": "admin_debug_summary_mobile",
+      "surfaceGroup": "admin_debug",
+      "route": "/admin/debug",
+      "deviceBand": "mobile",
+      "requiresVisualSmokeReason": "Admin debug cockpit summary is a layout-sensitive operational UI surface.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    },
+    {
+      "surfaceId": "admin_debug_summary_desktop",
+      "surfaceGroup": "admin_debug",
+      "route": "/admin/debug",
+      "deviceBand": "desktop",
+      "requiresVisualSmokeReason": "Admin debug summary needs desktop hierarchy confirmation without raw dumps first.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    },
+    {
+      "surfaceId": "drops_user_library_mobile",
+      "surfaceGroup": "drops_user_library",
+      "route": "/dashboard/library",
+      "deviceBand": "mobile",
+      "requiresVisualSmokeReason": "Drops/user library empty and loading states are layout-sensitive on mobile.",
+      "operatorConfirmed": false,
+      "status": "missing",
+      "blocksScoreForUiOnly": true
+    }
+  ],
+  "summary": {
+    "requiredSurfaceCount": 9,
+    "surfaceGroupCount": 8,
+    "missingSurfaceIds": [
+      "user_dashboard_mobile",
+      "wallet_mobile",
+      "creator_dashboard_mobile",
+      "creator_settings_mobile",
+      "creator_drop_manager_mobile",
+      "creator_profile_mobile",
+      "admin_debug_summary_mobile",
+      "admin_debug_summary_desktop",
+      "drops_user_library_mobile"
+    ],
+    "operatorConfirmedSurfaceIds": [],
+    "screenshotAttachedSurfaceIds": [],
+    "failedSurfaceIds": [],
+    "notRequiredSurfaceIds": [],
+    "statusCounts": {
+      "missing": 9,
+      "operator_confirmed": 0,
+      "screenshot_attached": 0,
+      "failed": 0,
+      "not_required": 0
+    }
+  },
+  "evidence": [
+    "uiVisualSmoke.requiredSurfaces=user_dashboard_mobile,wallet_mobile,creator_dashboard_mobile,creator_settings_mobile,creator_drop_manager_mobile,creator_profile_mobile,admin_debug_summary_mobile,admin_debug_summary_desktop,drops_user_library_mobile",
+    "uiVisualSmoke.requiredSurfaceCount=9",
+    "uiVisualSmoke.surfaceGroupCount=8",
+    "uiVisualSmoke.blocksScoreForUiOnly=true",
+    "uiVisualSmoke.nonUiLanesBlocked=false",
+    "uiVisualSmoke.formalProviderSmokeCleared=false",
+    "uiVisualSmoke.deployedRuntimeSmokeCleared=false",
+    "uiVisualSmoke.adminTruthSmokeCleared=false"
+  ],
+  "nextExactSteps": [
+    "Attach a screenshot artifact or operator visual confirmation for user_dashboard_mobile; do not use this lane for non-UI evidence.",
+    "Attach a screenshot artifact or operator visual confirmation for wallet_mobile; do not use this lane for non-UI evidence.",
+    "Attach a screenshot artifact or operator visual confirmation for creator_dashboard_mobile; do not use this lane for non-UI evidence.",
+    "Attach a screenshot artifact or operator visual confirmation for creator_settings_mobile; do not use this lane for non-UI evidence.",
+    "Attach a screenshot artifact or operator visual confirmation for creator_drop_manager_mobile; do not use this lane for non-UI evidence.",
+    "Attach a screenshot artifact or operator visual confirmation for creator_profile_mobile; do not use this lane for non-UI evidence.",
+    "Attach a screenshot artifact or operator visual confirmation for admin_debug_summary_mobile; do not use this lane for non-UI evidence.",
+    "Attach a screenshot artifact or operator visual confirmation for admin_debug_summary_desktop; do not use this lane for non-UI evidence.",
+    "Attach a screenshot artifact or operator visual confirmation for drops_user_library_mobile; do not use this lane for non-UI evidence."
+  ],
+  "validationFailures": []
+}

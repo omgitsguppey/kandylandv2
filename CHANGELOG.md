@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.72 - 2026-05-21
+- Minimal visual smoke evidence lane
+- Added minimal UI visual smoke evidence lane.
+- Limited manual visual checks to layout-sensitive UI surfaces.
+- Kept non-UI proof algorithmic where truthful.
+
 ## 1.3.71 - 2026-05-21
 - Blocked refresh queue resolver
 - Resolved blocked score refresh queue entries.
