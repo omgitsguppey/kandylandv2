@@ -2,7 +2,7 @@
 
 Status: algorithmic_evidence_policy_ready
 
-Manual screenshot evidence is scoped to UI visual/layout confirmation. It must not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.
+Manual screenshot evidence is an operator-final checklist outside Codex. It must not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.
 
 ## Coverage
 
@@ -15,14 +15,13 @@ Manual screenshot evidence is scoped to UI visual/layout confirmation. It must n
 
 ## Formal Gates
 
-- UI visual gate cleared: false
+- UI visual confirmation handled outside Codex: true
 - Deployed runtime smoke cleared: false
 - Formal provider gate cleared: false
 - Formal admin runtime sample cleared: false
 
 ## Remaining Evidence
 
-- UI visual/manual smoke requires screenshot or operator visual evidence when UI changed.
 - Deployed runtime smoke requires a formal runtime artifact.
 - Provider smoke requires a formal provider artifact.
 - Admin truth sample requires a formal runtime/sample artifact.

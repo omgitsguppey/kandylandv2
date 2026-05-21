@@ -130,7 +130,7 @@ function writeDoc(root: string, report: ReturnType<typeof buildAlgorithmicEviden
     "",
     `Status: ${report.overallStatus}`,
     "",
-    "Manual screenshot evidence is scoped to UI visual/layout confirmation. It must not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+    "Manual screenshot evidence is an operator-final checklist outside Codex. It must not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
     "",
     "## Coverage",
     "",
@@ -139,7 +139,7 @@ function writeDoc(root: string, report: ReturnType<typeof buildAlgorithmicEviden
     "",
     "## Formal Gates",
     "",
-    `- UI visual gate cleared: ${report.formalGateImpact.uiVisualGateCleared}`,
+    `- UI visual confirmation handled outside Codex: ${!report.formalGateImpact.uiVisualGateCleared}`,
     `- Deployed runtime smoke cleared: ${report.formalGateImpact.deployedRuntimeSmokeCleared}`,
     `- Formal provider gate cleared: ${report.formalGateImpact.formalProviderGateCleared}`,
     `- Formal admin runtime sample cleared: ${report.formalGateImpact.formalAdminRuntimeSampleCleared}`,
@@ -281,10 +281,13 @@ function main() {
   if (scoreReport.runtimeHealthScore <= 55) {
     failures.push("manual screenshot gate still appears to block non-UI runtime confidence.");
   }
-  if (!visualGate?.detail.includes("UI-only")) {
-    failures.push("score report must show visual/manual evidence as UI-only.");
+  if (visualGate) {
+    failures.push("score report must not include visual/manual evidence as a Codex score gate.");
   }
-  if (!scoreReport.nuancedScoreExplanation.join("\n").includes("UI-only")) {
+  if (!scoreReport.operatorFinalChecks?.uiVisualSurfaces?.note.includes("visual confirmation handled outside Codex")) {
+    failures.push("score report must show visual/manual evidence as operator-final outside Codex.");
+  }
+  if (!scoreReport.nuancedScoreExplanation.join("\n").includes("operator-final checklist")) {
     failures.push("score report hides partial-vs-formal evidence distinction.");
   }
   if (report.formalGateImpact.formalProviderGateCleared && report.providerConfidence.confidence !== "formal") {

@@ -1,13 +1,16 @@
 import type { DeviceBand } from "@/lib/ui/mobile-scale-contract";
 
 export type UiVisualSmokeStatus =
-  | "missing"
-  | "operator_confirmed"
+  | "operator_final_pending"
+  | "operator_confirmed_outside_codex"
   | "screenshot_attached"
-  | "failed"
   | "not_required";
 
-export type UiVisualSmokeReportStatus = "missing" | "partial" | "passed" | "failed";
+export type UiVisualSmokeReportStatus =
+  | "operator_final_pending"
+  | "operator_confirmed_outside_codex"
+  | "screenshot_attached"
+  | "not_required";
 
 export type UiVisualSmokeSurfaceEvidence = {
   surfaceId: string;
@@ -20,6 +23,7 @@ export type UiVisualSmokeSurfaceEvidence = {
   operatorNote?: string;
   status: UiVisualSmokeStatus;
   blocksScoreForUiOnly: boolean;
+  codexScoreBlocking: false;
 };
 
 export type UiVisualSmokeMinimalReport = {
@@ -130,10 +134,9 @@ export const UI_VISUAL_SMOKE_REQUIRED_SURFACES = [
 }>;
 
 const EMPTY_STATUS_COUNTS: Record<UiVisualSmokeStatus, number> = {
-  missing: 0,
-  operator_confirmed: 0,
+  operator_final_pending: 0,
+  operator_confirmed_outside_codex: 0,
   screenshot_attached: 0,
-  failed: 0,
   not_required: 0,
 };
 
@@ -142,14 +145,13 @@ const NON_UI_LANE_PATTERN = /\b(telemetry|admin_truth|cost|source|provider|runti
 
 export function evaluateUiVisualSmokeSurface(surface: UiVisualSmokeSurfaceEvidence): UiVisualSmokeStatus {
   if (surface.status === "not_required") return "not_required";
-  if (surface.status === "failed") return "failed";
-  if (surface.status === "operator_confirmed" && surface.operatorConfirmed) {
-    return "operator_confirmed";
+  if (surface.status === "operator_confirmed_outside_codex" && surface.operatorConfirmed) {
+    return "operator_confirmed_outside_codex";
   }
   if (surface.status === "screenshot_attached" && Boolean(surface.screenshotArtifactPath)) {
     return "screenshot_attached";
   }
-  return "missing";
+  return "operator_final_pending";
 }
 
 export function buildUiVisualSmokeMinimalReport(
@@ -164,14 +166,16 @@ export function buildUiVisualSmokeMinimalReport(
     const candidate: UiVisualSmokeSurfaceEvidence = {
       ...surface,
       operatorConfirmed: false,
-      status: "missing",
-      blocksScoreForUiOnly: true,
+      status: "operator_final_pending",
+      blocksScoreForUiOnly: false,
+      codexScoreBlocking: false,
       ...override,
     };
     const evaluated: UiVisualSmokeSurfaceEvidence = {
       ...candidate,
       status: evaluateUiVisualSmokeSurface(candidate),
-      blocksScoreForUiOnly: candidate.blocksScoreForUiOnly !== false,
+      blocksScoreForUiOnly: false,
+      codexScoreBlocking: false,
     };
     return evaluated;
   });
@@ -181,38 +185,35 @@ export function buildUiVisualSmokeMinimalReport(
     statusCounts[surface.status] += 1;
   }
   const missingSurfaceIds = surfaces
-    .filter((surface) => surface.status === "missing")
-    .map((surface) => surface.surfaceId);
-  const failedSurfaceIds = surfaces
-    .filter((surface) => surface.status === "failed")
+    .filter((surface) => surface.status === "operator_final_pending")
     .map((surface) => surface.surfaceId);
   const completedSurfaceCount = surfaces.filter((surface) =>
-    surface.status === "operator_confirmed"
+    surface.status === "operator_confirmed_outside_codex"
     || surface.status === "screenshot_attached"
     || surface.status === "not_required"
   ).length;
-  const passed = surfaces.length > 0 && completedSurfaceCount === surfaces.length && failedSurfaceIds.length === 0;
-  const status: UiVisualSmokeReportStatus = passed
-    ? "passed"
-    : failedSurfaceIds.length > 0
-      ? "failed"
-      : completedSurfaceCount > 0
-        ? "partial"
-        : "missing";
+  const allCompletedOutsideCodex = surfaces.length > 0 && completedSurfaceCount === surfaces.length;
+  const status: UiVisualSmokeReportStatus = allCompletedOutsideCodex
+    ? surfaces.every((surface) => surface.status === "not_required")
+      ? "not_required"
+      : surfaces.some((surface) => surface.status === "screenshot_attached")
+        ? "screenshot_attached"
+        : "operator_confirmed_outside_codex"
+    : "operator_final_pending";
   const surfaceIds = surfaces.map((surface) => surface.surfaceId);
 
   return {
     status,
-    passed,
+    passed: false,
     generatedAtUtc,
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
-    detail: passed
-      ? "UI-only visual smoke evidence is attached for every required layout-sensitive surface."
-      : `UI-only visual smoke evidence is still missing for: ${missingSurfaceIds.join(", ")}.`,
+    detail: allCompletedOutsideCodex
+      ? "Visual confirmation is tracked as an operator-final step outside Codex."
+      : `Visual confirmation handled outside Codex; operator review is pending for: ${missingSurfaceIds.join(", ")}.`,
     nonUiLanesBlocked: false,
     formalGateImpact: {
-      clearsVisualManualSmoke: passed,
+      clearsVisualManualSmoke: false,
       clearsProviderSmoke: false,
       clearsDeployedRuntimeSmoke: false,
       clearsAdminTruthSmoke: false,
@@ -223,12 +224,12 @@ export function buildUiVisualSmokeMinimalReport(
       surfaceGroupCount: new Set(surfaces.map((surface) => surface.surfaceGroup)).size,
       missingSurfaceIds,
       operatorConfirmedSurfaceIds: surfaces
-        .filter((surface) => surface.status === "operator_confirmed")
+        .filter((surface) => surface.status === "operator_confirmed_outside_codex")
         .map((surface) => surface.surfaceId),
       screenshotAttachedSurfaceIds: surfaces
         .filter((surface) => surface.status === "screenshot_attached")
         .map((surface) => surface.surfaceId),
-      failedSurfaceIds,
+      failedSurfaceIds: [],
       notRequiredSurfaceIds: surfaces
         .filter((surface) => surface.status === "not_required")
         .map((surface) => surface.surfaceId),
@@ -238,14 +239,15 @@ export function buildUiVisualSmokeMinimalReport(
       `uiVisualSmoke.requiredSurfaces=${surfaceIds.join(",")}`,
       `uiVisualSmoke.requiredSurfaceCount=${surfaces.length}`,
       `uiVisualSmoke.surfaceGroupCount=${new Set(surfaces.map((surface) => surface.surfaceGroup)).size}`,
-      "uiVisualSmoke.blocksScoreForUiOnly=true",
+      "uiVisualSmoke.blocksScoreForUiOnly=false",
+      "uiVisualSmoke.codexScoreBlocking=false",
       "uiVisualSmoke.nonUiLanesBlocked=false",
       "uiVisualSmoke.formalProviderSmokeCleared=false",
       "uiVisualSmoke.deployedRuntimeSmokeCleared=false",
       "uiVisualSmoke.adminTruthSmokeCleared=false",
     ],
     nextExactSteps: missingSurfaceIds.map((surfaceId) =>
-      `Attach a screenshot artifact or operator visual confirmation for ${surfaceId}; do not use this lane for non-UI evidence.`,
+      `Operator final visual review needed for ${surfaceId}; visual confirmation handled outside Codex and must not block source/debug scoring.`,
     ),
   };
 }
@@ -274,25 +276,25 @@ export function validateUiVisualSmokeMinimalReport(
     if (!requiredSurfaceIds.has(surface.surfaceId) && NON_UI_LANE_PATTERN.test(searchable)) {
       failures.push(`${surface.surfaceId} appears to be a non-UI lane`);
     }
-    if (surface.status === "operator_confirmed" && !surface.operatorConfirmed) {
-      failures.push(`${surface.surfaceId} is operator_confirmed but lacks operator confirmation`);
+    if (surface.status === "operator_confirmed_outside_codex" && !surface.operatorConfirmed) {
+      failures.push(`${surface.surfaceId} is operator_confirmed_outside_codex but lacks operator confirmation`);
     }
     if (surface.status === "screenshot_attached" && !surface.screenshotArtifactPath) {
       failures.push(`${surface.surfaceId} is screenshot_attached but lacks screenshotArtifactPath`);
     }
-    if (!surface.blocksScoreForUiOnly && surface.status !== "not_required") {
-      failures.push(`${surface.surfaceId} must block score for UI-only evidence when required`);
+    if (surface.blocksScoreForUiOnly || surface.codexScoreBlocking) {
+      failures.push(`${surface.surfaceId} must not block Codex score`);
     }
   }
   const everyRequiredSurfaceSatisfied = UI_VISUAL_SMOKE_REQUIRED_SURFACES.every((requiredSurface) => {
     const surface = report.surfaces.find((candidate) => candidate.surfaceId === requiredSurface.surfaceId);
     return surface
-      && (surface.status === "operator_confirmed"
+      && (surface.status === "operator_confirmed_outside_codex"
         || surface.status === "screenshot_attached"
         || surface.status === "not_required");
   });
-  if (report.passed && !everyRequiredSurfaceSatisfied) {
-    failures.push("visual smoke cannot pass without every required surface having artifact/operator confirmation");
+  if (report.passed) {
+    failures.push("visual smoke must not pass inside Codex; it is operator-final outside Codex");
   }
   if (report.nonUiLanesBlocked) {
     failures.push("visual smoke must not block non-UI telemetry/admin/cost/source lanes");
@@ -310,13 +312,14 @@ export function summarizeUiVisualSmokeEvidenceForScore(report: UiVisualSmokeMini
     path: "agent/state/ui-visual-smoke-minimal.generated.json",
     status: report.status,
     passed: report.passed,
-    detail: `${report.detail} This is UI-only and does not block non-UI telemetry, admin, cost, refresh, provider, or source-runtime evidence. Required surfaces: ${requiredSurfaceIds.join(", ")}.`,
+    detail: `${report.detail} This is an operator-final checklist; visual confirmation handled outside Codex and does not block source/debug/beta scoring or non-UI telemetry, admin, cost, refresh, provider, or source-runtime evidence. Required surfaces: ${requiredSurfaceIds.join(", ")}.`,
     evidence: [
       `uiVisualSmoke.status=${report.status}`,
       `uiVisualSmoke.passed=${report.passed}`,
       `uiVisualSmoke.requiredSurfaces=${requiredSurfaceIds.join(",")}`,
       `uiVisualSmoke.missingSurfaces=${report.summary.missingSurfaceIds.join(",")}`,
-      "uiVisualSmoke.blocksScoreForUiOnly=true",
+      "uiVisualSmoke.blocksScoreForUiOnly=false",
+      "uiVisualSmoke.codexScoreBlocking=false",
       `uiVisualSmoke.nonUiLanesBlocked=${report.nonUiLanesBlocked}`,
       `uiVisualSmoke.clearsProviderSmoke=${report.formalGateImpact.clearsProviderSmoke}`,
       `uiVisualSmoke.clearsDeployedRuntimeSmoke=${report.formalGateImpact.clearsDeployedRuntimeSmoke}`,

@@ -81,8 +81,11 @@ function assertScoreIntegration() {
   if (!scorer.includes("uiVisualSmoke.requiredSurfaces")) {
     failures.push("score report does not expose exact UI visual smoke surfaces");
   }
-  if (!core.includes("UI-only") || !core.includes("non-UI telemetry")) {
-    failures.push("score report does not keep visual/manual smoke scoped to UI-only evidence");
+  if (!core.includes("operator-final checklist") || !core.includes("Non-UI runtime")) {
+    failures.push("score report does not keep visual/manual smoke scoped outside non-UI evidence");
+  }
+  if (!core.includes("operatorFinalChecks") || !core.includes("visual confirmation handled outside Codex")) {
+    failures.push("score report does not expose UI visual smoke as an operator-final checklist outside Codex");
   }
   return failures;
 }
@@ -117,10 +120,10 @@ function renderDoc(report: UiVisualSmokeMinimalReport) {
     "## Summary",
     "",
     `- Status: ${report.status}`,
-    `- Passed: ${report.passed}`,
+    `- Passed in Codex: ${report.passed}`,
     `- Required surface-device targets: ${report.summary.requiredSurfaceCount}`,
     `- Surface groups: ${report.summary.surfaceGroupCount}`,
-    `- Missing surfaces: ${report.summary.missingSurfaceIds.join(", ") || "none"}`,
+    `- Operator-final pending surfaces: ${report.summary.missingSurfaceIds.join(", ") || "none"}`,
     `- Non-UI lanes blocked: ${report.nonUiLanesBlocked}`,
     `- Clears provider smoke: ${report.formalGateImpact.clearsProviderSmoke}`,
     `- Clears deployed runtime smoke: ${report.formalGateImpact.clearsDeployedRuntimeSmoke}`,
@@ -128,7 +131,7 @@ function renderDoc(report: UiVisualSmokeMinimalReport) {
     "## Required Surfaces",
     "",
     ...report.surfaces.map((surface) =>
-      `- ${surface.surfaceId}: route=${surface.route}; device=${surface.deviceBand}; status=${surface.status}; uiOnly=${surface.blocksScoreForUiOnly}; reason=${surface.requiresVisualSmokeReason}`),
+      `- ${surface.surfaceId}: route=${surface.route}; device=${surface.deviceBand}; status=${surface.status}; codexScoreBlocking=${surface.codexScoreBlocking}; reason=${surface.requiresVisualSmokeReason}`),
     "",
     "## Excluded By Default",
     "",
@@ -140,7 +143,7 @@ function renderDoc(report: UiVisualSmokeMinimalReport) {
     "## Template",
     "",
     `- Template path: ${TEMPLATE_PATH}`,
-    "- The template is not evidence and does not clear the gate.",
+    "- The template is not evidence and does not clear provider, runtime, admin, or Codex score gates.",
     "",
     "## Next Exact Steps",
     "",

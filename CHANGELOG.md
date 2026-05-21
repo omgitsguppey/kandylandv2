@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.73 - 2026-05-21
+- Visual checks moved out of Codex score gates
+- Moved visual screenshot checks out of Codex score gates.
+- Kept UI visual review as an operator-final checklist.
+- Stopped screenshots from blocking non-UI algorithmic readiness.
+
 ## 1.3.72 - 2026-05-21
 - Minimal visual smoke evidence lane
 - Added minimal UI visual smoke evidence lane.

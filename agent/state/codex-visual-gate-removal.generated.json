@@ -1,0 +1,19 @@
+{
+  "reportKey": "codex-visual-gate-removal",
+  "generatedAtUtc": "2026-05-21T18:47:29.483Z",
+  "currentHead": "aebc21dc9923ee0bf6e174cda14d50e2ad85160d",
+  "status": "codex_visual_gate_removed",
+  "summary": {
+    "visualGateInEvidenceGates": false,
+    "visualGateInLaunchBlockers": false,
+    "visualGateInEvidenceCaps": false,
+    "operatorChecklistPresent": true,
+    "uiVisualSurfaceCount": 9,
+    "needsOperatorReview": true,
+    "passedInCodex": false,
+    "providerRuntimeAdminGatesPreserved": true,
+    "visualConfirmationHandledOutsideCodex": true
+  },
+  "visualArtifactStatus": "operator_final_pending",
+  "validationFailures": []
+}

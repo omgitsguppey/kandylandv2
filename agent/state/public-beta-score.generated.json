@@ -1,22 +1,21 @@
 {
-  "generatedAt": "2026-05-21T17:23:06.413Z",
-  "currentHead": "61a1f42fbbd7036993923af4f5d2d6f15c49f39c",
+  "generatedAt": "2026-05-21T18:47:49.983Z",
+  "currentHead": "aebc21dc9923ee0bf6e174cda14d50e2ad85160d",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
   "sourceHealthScore": 100,
   "runtimeHealthScore": 61.75,
   "evidenceCompletenessScore": 63.75,
-  "freshnessScore": 79.38,
+  "freshnessScore": 76.43,
   "costRiskScore": 42,
   "regressionRiskScore": 90,
   "launchGateStatus": "owner_review",
   "launchBlockers": [
-    "UI visual/manual smoke: Visual QA required",
     "Runtime/provider smoke: Runtime unverified",
     "Admin truth/sample evidence: Ready with smoke required"
   ],
-  "healthScore": 75.21,
+  "healthScore": 74.76,
   "healthScoreBreakdown": {
     "sourceHealth": {
       "weight": 25,
@@ -40,7 +39,7 @@
       "weight": 20,
       "score": 63.75,
       "reasons": [
-        "UI visual/manual evidence remains a launch blocker but is excluded from non-UI evidence completeness.",
+        "UI visual review is an operator-final checklist outside Codex score gates.",
         "Source safety evidenceCredit=100",
         "Runtime/provider smoke evidenceCredit=0",
         "Admin truth/sample evidence evidenceCredit=55",
@@ -49,11 +48,10 @@
     },
     "freshness": {
       "weight": 15,
-      "score": 79.38,
+      "score": 76.43,
       "reasons": [
         "Source safety freshness=fresh",
         "Targeted behavior tests freshness=fresh",
-        "UI visual/manual smoke freshness=fresh",
         "Runtime/provider smoke freshness=stale",
         "Admin truth/sample evidence freshness=fresh",
         "Report freshness and PR integrity freshness=fresh",
@@ -83,19 +81,19 @@
     "sourceHealthScore=100",
     "runtimeHealthScore=61.75",
     "evidenceCompletenessScore=63.75",
-    "freshnessScore=79.38",
+    "freshnessScore=76.43",
     "costRiskScore=42",
     "regressionRiskScore=90",
-    "launchBlockers=3"
+    "launchBlockers=2"
   ],
   "nuancedScoreExplanation": [
     "Source-ready evidence earns source health credit without becoming runtime proof.",
-    "UI-only manual visual evidence remains required for layout-sensitive UI confirmation but no longer blocks non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+    "UI visual confirmation is handled outside Codex as an operator-final checklist and does not block source/debug/beta scoring.",
     "Formal provider, deployed runtime, and admin truth artifacts remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes."
   ],
-  "overallScore": 75.21,
+  "overallScore": 74.76,
   "overallStatus": "warning",
   "readinessStatus": "Unknown evidence",
   "readinessStatusReason": "Debug evidence is empty, so absence of runtime issues is unknown.",
@@ -159,52 +157,6 @@
         "artifactEvidence[5]=formalEvidenceImpact=source_behavior_only"
       ],
       "recommendedAction": "Run the targeted validators for the changed surface and refresh the score with fresh evidence metadata."
-    },
-    {
-      "id": "visualManualSmoke",
-      "label": "UI visual/manual smoke",
-      "weight": 20,
-      "score": 0,
-      "maxScore": 20,
-      "confidence": "none",
-      "evidenceQuality": "missing",
-      "freshness": "fresh",
-      "sourceCredit": 0,
-      "runtimeCredit": 0,
-      "evidenceCredit": 0,
-      "riskPenalty": 100,
-      "capImpact": 20,
-      "gateRequiredForExit": true,
-      "blocksLaunch": true,
-      "partialReason": "UI-only visual smoke evidence is still missing for: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile. This is UI-only and does not block non-UI telemetry, admin, cost, refresh, provider, or source-runtime evidence. Required surfaces: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile.",
-      "status": "Visual QA required",
-      "detail": "UI-only visual smoke evidence is still missing for: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile. This is UI-only and does not block non-UI telemetry, admin, cost, refresh, provider, or source-runtime evidence. Required surfaces: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile. This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
-      "evidence": [
-        "artifactPath=agent/state/ui-visual-smoke-minimal.generated.json",
-        "artifactStatus=missing",
-        "artifactPassed=false",
-        "generatedAtUtc=2026-05-21T17:20:58.883Z",
-        "sourceCommit=61a1f42fbbd7036993923af4f5d2d6f15c49f39c",
-        "artifactDetail=UI-only visual smoke evidence is still missing for: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile. This is UI-only and does not block non-UI telemetry, admin, cost, refresh, provider, or source-runtime evidence. Required surfaces: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile.",
-        "uiVisualSmoke.status=missing",
-        "uiVisualSmoke.passed=false",
-        "uiVisualSmoke.requiredSurfaces=user_dashboard_mobile,wallet_mobile,creator_dashboard_mobile,creator_settings_mobile,creator_drop_manager_mobile,creator_profile_mobile,admin_debug_summary_mobile,admin_debug_summary_desktop,drops_user_library_mobile",
-        "uiVisualSmoke.missingSurfaces=user_dashboard_mobile,wallet_mobile,creator_dashboard_mobile,creator_settings_mobile,creator_drop_manager_mobile,creator_profile_mobile,admin_debug_summary_mobile,admin_debug_summary_desktop,drops_user_library_mobile",
-        "uiVisualSmoke.blocksScoreForUiOnly=true",
-        "uiVisualSmoke.nonUiLanesBlocked=false",
-        "uiVisualSmoke.clearsProviderSmoke=false",
-        "uiVisualSmoke.clearsDeployedRuntimeSmoke=false",
-        "uiVisualSmoke.artifactPath=agent/state/ui-visual-smoke-minimal.generated.json",
-        "uiVisualSmoke.artifactExists=true",
-        "uiVisualSmoke.requiredSurfaces=exact_surface_list_required",
-        "agent/state/ui-visual-smoke-minimal.generated.json:status=missing:passed=false",
-        "agent/state/manual-smoke-evidence.generated.json:missing",
-        "agent/state/visual-smoke-evidence.generated.json:missing",
-        "agent/state/screenshot-evidence.generated.json:missing",
-        "manualEvidenceScope=ui_visual_layout_only",
-        "nonUiAlgorithmicEvidence.blockedByManualScreenshot=false"
-      ],
-      "recommendedAction": "Record targeted manual or screenshot evidence only for layout-sensitive UI surfaces before calling beta exit ready."
     },
     {
       "id": "runtimeProviderSmoke",
@@ -457,7 +409,7 @@
       "evidence": [
         "nonUiAlgorithmicCoverageScore=67.83",
         "manualScreenshotBlocksNonUi=false",
-        "uiVisualGateCleared=false",
+        "uiVisualOperatorFinalChecklist=outside_codex_score",
         "deployedRuntimeSmokeCleared=false",
         "formalProviderGateCleared=false",
         "formalAdminRuntimeSampleCleared=false",
@@ -472,13 +424,11 @@
     }
   ],
   "evidenceCapsApplied": [
-    "Visual QA required: UI visual/manual smoke",
     "Runtime unverified: Runtime/provider smoke",
     "Ready with smoke required: Admin truth/sample evidence",
     "Unknown evidence: Debug/runtime evidence"
   ],
   "evidenceCapDetails": [
-    "Visual QA required: UI visual/manual smoke - UI-only visual smoke evidence is still missing for: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile. This is UI-only and does not block non-UI telemetry, admin, cost, refresh, provider, or source-runtime evidence. Required surfaces: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile. This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
     "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
     "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
     "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
@@ -486,28 +436,82 @@
   "evidenceWeights": {
     "sourceSafety": 25,
     "targetedBehaviorTests": 20,
-    "visualManualSmoke": 20,
+    "visualManualSmoke": 0,
     "runtimeProviderSmoke": 15,
     "adminTruthSamples": 10,
     "freshnessIntegrity": 10
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 60.5/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 75.21/100 currently maps to launch gate owner_review.",
+    "evidenceScoreMeaning": "Evidence score 60.5/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 74.76/100 currently maps to launch gate owner_review.",
     "missingEvidenceCaps": [
-      "Visual QA required: UI visual/manual smoke - UI-only visual smoke evidence is still missing for: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile. This is UI-only and does not block non-UI telemetry, admin, cost, refresh, provider, or source-runtime evidence. Required surfaces: user_dashboard_mobile, wallet_mobile, creator_dashboard_mobile, creator_settings_mobile, creator_drop_manager_mobile, creator_profile_mobile, admin_debug_summary_mobile, admin_debug_summary_desktop, drops_user_library_mobile. This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
       "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
       "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
     ],
     "staleReportHandling": "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
-    "sourcePassConfidence": "Source-pass lanes increase confidence, but source passing does not clear visual, provider, runtime, admin truth, or cost owner-review evidence caps.",
+    "sourcePassConfidence": "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Visual confirmation handled outside Codex as an operator-final checklist.",
     "betaExitBlockedBy": [
-      "UI visual/manual smoke: Visual QA required",
       "Runtime/provider smoke: Runtime unverified",
       "Admin truth/sample evidence: Ready with smoke required",
       "Debug/runtime evidence: Unknown evidence"
     ]
+  },
+  "operatorFinalChecks": {
+    "uiVisualSurfaces": {
+      "status": "operator_final_pending",
+      "needsOperatorReview": true,
+      "passedInCodex": false,
+      "note": "visual confirmation handled outside Codex; this checklist tracks changed UI surfaces for operator-final review and does not block Codex source/debug scoring.",
+      "sourcePath": "agent/state/ui-visual-smoke-minimal.generated.json",
+      "surfaces": [
+        {
+          "surfaceId": "user_dashboard_mobile",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        },
+        {
+          "surfaceId": "wallet_mobile",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        },
+        {
+          "surfaceId": "creator_dashboard_mobile",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        },
+        {
+          "surfaceId": "creator_settings_mobile",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        },
+        {
+          "surfaceId": "creator_drop_manager_mobile",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        },
+        {
+          "surfaceId": "creator_profile_mobile",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        },
+        {
+          "surfaceId": "admin_debug_summary_mobile",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        },
+        {
+          "surfaceId": "admin_debug_summary_desktop",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        },
+        {
+          "surfaceId": "drops_user_library_mobile",
+          "status": "operator_final_pending",
+          "needsOperatorReview": true
+        }
+      ]
+    }
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
@@ -648,7 +652,6 @@
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "recommendedNextActions": [
-    "Visual QA required: Record targeted manual or screenshot evidence only for layout-sensitive UI surfaces before calling beta exit ready.",
     "Runtime unverified: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
     "Ready with smoke required: Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
     "Unknown evidence: Do not treat empty debug evidence as proof that no runtime issue exists.",
@@ -683,7 +686,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 75.21/100 (Unknown evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 4 evidence cap(s) applied.",
+  "summary": "Public beta readiness score 74.76/100 (Unknown evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 3 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],
@@ -702,7 +705,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-05-21T17:23:06.413Z",
+      "generatedAtUtc": "2026-05-21T18:47:49.983Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -715,16 +718,16 @@
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
       "label": "Current beta exit status",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-21T17:01:57.495Z",
-      "ageHours": 0.3524772222222222,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-05-21T18:38:01.713Z",
+      "ageHours": 0.16340833333333332,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "formalEvidenceGateCanClear": false
+      "message": "Current beta exit status is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
@@ -733,7 +736,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:17:10.915Z",
-      "ageHours": 1.0987494444444443,
+      "ageHours": 2.5108522222222223,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -748,7 +751,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:54.095Z",
-      "ageHours": 1.1200883333333334,
+      "ageHours": 2.532191111111111,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -763,7 +766,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:01.610Z",
-      "ageHours": 1.1180008333333333,
+      "ageHours": 2.530103611111111,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -778,7 +781,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:08.409Z",
-      "ageHours": 1.1161122222222222,
+      "ageHours": 2.528215,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -793,7 +796,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:11.032Z",
-      "ageHours": 1.1320502777777777,
+      "ageHours": 2.5441530555555554,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -808,7 +811,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:17.002Z",
-      "ageHours": 1.1137252777777777,
+      "ageHours": 2.5258280555555555,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -823,7 +826,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:17:10.904Z",
-      "ageHours": 1.0987525,
+      "ageHours": 2.510855277777778,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -838,7 +841,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:17:11.012Z",
-      "ageHours": 1.0987225,
+      "ageHours": 2.5108252777777778,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -853,7 +856,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:24.391Z",
-      "ageHours": 1.1283394444444443,
+      "ageHours": 2.540442222222222,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -868,7 +871,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:31.762Z",
-      "ageHours": 1.1262919444444444,
+      "ageHours": 2.5383947222222223,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -883,7 +886,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:38.621Z",
-      "ageHours": 1.1243866666666666,
+      "ageHours": 2.5364894444444444,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -898,7 +901,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:45.673Z",
-      "ageHours": 1.1224277777777778,
+      "ageHours": 2.5345305555555555,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -913,7 +916,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:24.214Z",
-      "ageHours": 1.1117219444444444,
+      "ageHours": 2.5238247222222223,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -928,7 +931,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:32.982Z",
-      "ageHours": 1.1092863888888889,
+      "ageHours": 2.521389166666667,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -943,7 +946,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:43.027Z",
-      "ageHours": 1.1064961111111111,
+      "ageHours": 2.518598888888889,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -958,7 +961,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:50.997Z",
-      "ageHours": 1.1042822222222222,
+      "ageHours": 2.516385,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -968,14 +971,6 @@
     }
   ],
   "staleArtifacts": [
-    {
-      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "reportKey": "current-beta-exit-status",
-      "status": "stale_source_version",
-      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "refreshCommand": "npm run check:current-beta-exit-status"
-    },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",

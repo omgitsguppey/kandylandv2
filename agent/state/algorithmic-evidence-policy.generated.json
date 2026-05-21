@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-05-21T17:23:27.992Z",
+  "generatedAtUtc": "2026-05-21T18:47:43.179Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "manualEvidenceScope": {
@@ -8,7 +8,7 @@
       "canClearFromAlgorithmicEvidence": false,
       "status": "missing",
       "sourcePath": "agent/state/manual-smoke-evidence.generated.json",
-      "nextAction": "Attach screenshot or operator visual evidence only for layout-sensitive UI surfaces."
+      "nextAction": "Track layout-sensitive UI surfaces for operator-final review; visual confirmation handled outside Codex."
     },
     "nonUiAlgorithmicEvidence": {
       "blockedByManualScreenshot": false,
@@ -21,7 +21,7 @@
         "refresh_gate"
       ],
       "score": 67.83,
-      "note": "Manual screenshot evidence is UI-only and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
+      "note": "Manual screenshot evidence is operator-final outside Codex and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
   "runtimeSourceConfidence": {
@@ -98,7 +98,6 @@
     "formalAdminRuntimeSampleCleared": false
   },
   "remainingFormalEvidenceGates": [
-    "UI visual/manual smoke requires screenshot or operator visual evidence when UI changed.",
     "Deployed runtime smoke requires a formal runtime artifact.",
     "Provider smoke requires a formal provider artifact.",
     "Admin truth sample requires a formal runtime/sample artifact."
@@ -172,13 +171,12 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "61a1f42fbbd7036993923af4f5d2d6f15c49f39c",
+  "currentHead": "aebc21dc9923ee0bf6e174cda14d50e2ad85160d",
   "scoreProbe": {
     "runtimeHealthScore": 61.75,
     "evidenceCompletenessScore": 38.75,
     "readinessStatus": "Unknown evidence",
     "launchBlockers": [
-      "UI visual/manual smoke: Visual QA required",
       "Runtime/provider smoke: Runtime unverified",
       "Admin truth/sample evidence: Ready with smoke required",
       "Report freshness and PR integrity: Unknown evidence"

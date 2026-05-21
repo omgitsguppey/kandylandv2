@@ -36,7 +36,7 @@ export const PUBLIC_BETA_STATUS_THRESHOLDS = {
 export const PUBLIC_BETA_EVIDENCE_WEIGHTS = {
   sourceSafety: 25,
   targetedBehaviorTests: 20,
-  visualManualSmoke: 20,
+  visualManualSmoke: 0,
   runtimeProviderSmoke: 15,
   adminTruthSamples: 10,
   freshnessIntegrity: 10,

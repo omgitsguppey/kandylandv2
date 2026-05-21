@@ -134,6 +134,23 @@ export type PublicBetaScoreExplanation = {
   betaExitBlockedBy: string[];
 };
 
+export type PublicBetaOperatorFinalVisualSurface = {
+  surfaceId: string;
+  status: "operator_final_pending" | "operator_confirmed_outside_codex" | "screenshot_attached" | "not_required";
+  needsOperatorReview: boolean;
+};
+
+export type PublicBetaOperatorFinalChecks = {
+  uiVisualSurfaces: {
+    status: "operator_final_pending" | "operator_confirmed_outside_codex" | "screenshot_attached" | "not_required";
+    needsOperatorReview: boolean;
+    passedInCodex: false;
+    note: string;
+    sourcePath: string;
+    surfaces: PublicBetaOperatorFinalVisualSurface[];
+  };
+};
+
 export type PublicBetaEvidenceInput = {
   requiredReports?: PublicBetaGeneratedReportEvidence[];
   debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
@@ -230,6 +247,7 @@ export type PublicBetaScoreReport = {
   evidenceCapDetails: string[];
   evidenceWeights: typeof PUBLIC_BETA_EVIDENCE_WEIGHTS;
   scoreExplanation: PublicBetaScoreExplanation;
+  operatorFinalChecks: PublicBetaOperatorFinalChecks;
   costReadiness: PublicBetaCostReadiness;
   domainScores: Record<PublicBetaDomain, {
     weight: number;
@@ -472,8 +490,47 @@ function buildScoreExplanation(input: {
     evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score ${input.healthScore}/100 currently maps to launch gate ${input.launchGateStatus}.`,
     missingEvidenceCaps: input.evidenceCapDetails,
     staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
-    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear visual, provider, runtime, admin truth, or cost owner-review evidence caps.",
+    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear provider, runtime, admin truth, or cost owner-review evidence caps. Visual confirmation handled outside Codex as an operator-final checklist.",
     betaExitBlockedBy: blockedBy,
+  };
+}
+
+function readEvidenceListValue(artifact: PublicBetaEvidenceArtifact | undefined, key: string) {
+  const prefix = `${key}=`;
+  const entry = artifact?.evidence.find((item) => item.startsWith(prefix));
+  if (!entry) return [];
+  return entry.slice(prefix.length).split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function buildOperatorFinalChecks(visualManualEvidence?: PublicBetaEvidenceArtifact): PublicBetaOperatorFinalChecks {
+  const requiredSurfaceIds = readEvidenceListValue(visualManualEvidence, "uiVisualSmoke.requiredSurfaces");
+  const pendingSurfaceIds = readEvidenceListValue(visualManualEvidence, "uiVisualSmoke.missingSurfaces");
+  const statusText = String(visualManualEvidence?.status ?? "operator_final_pending");
+  const status: PublicBetaOperatorFinalVisualSurface["status"] =
+    statusText === "operator_confirmed_outside_codex"
+      ? "operator_confirmed_outside_codex"
+      : statusText === "screenshot_attached"
+        ? "screenshot_attached"
+        : statusText === "not_required"
+          ? "not_required"
+          : "operator_final_pending";
+  const surfaceIds = requiredSurfaceIds.length > 0 ? requiredSurfaceIds : pendingSurfaceIds;
+  const pendingSet = new Set(pendingSurfaceIds);
+  const needsOperatorReview = status === "operator_final_pending" || pendingSurfaceIds.length > 0;
+
+  return {
+    uiVisualSurfaces: {
+      status: needsOperatorReview ? "operator_final_pending" : status,
+      needsOperatorReview,
+      passedInCodex: false,
+      note: "visual confirmation handled outside Codex; this checklist tracks changed UI surfaces for operator-final review and does not block Codex source/debug scoring.",
+      sourcePath: visualManualEvidence?.path ?? "agent/state/ui-visual-smoke-minimal.generated.json",
+      surfaces: surfaceIds.map((surfaceId) => ({
+        surfaceId,
+        status: pendingSet.has(surfaceId) ? "operator_final_pending" : status,
+        needsOperatorReview: pendingSet.size === 0 ? needsOperatorReview : pendingSet.has(surfaceId),
+      })),
+    },
   };
 }
 
@@ -636,25 +693,6 @@ export function buildPublicBetaEvidenceGates(input: {
       currentHead,
       lane: "targeted_behavior",
       requiredForExit: false,
-    },
-  });
-
-  const visualManualPassed = evidenceArtifactPassed(evidence.visualManualEvidence, evidence.hasVisualManualEvidence);
-  const visualManualDetail = evidenceArtifactDetail(
-    evidence.visualManualEvidence,
-    visualManualPassed
-      ? "Visual/manual smoke evidence was supplied."
-      : "No valid visual/manual evidence artifact was supplied.",
-  );
-  const visualManualEvidence = evidence.visualManualEvidence
-    ? evidenceArtifactEvidence(evidence.visualManualEvidence)
-    : ["visualManualArtifactStatus=missing_formal_evidence"];
-  const visualQuality = resolveEvidenceQuality({
-    artifact: evidence.visualManualEvidence,
-    context: {
-      currentHead,
-      lane: "manual_smoke",
-      requiredForExit: true,
     },
   });
 
@@ -940,7 +978,7 @@ export function buildPublicBetaEvidenceGates(input: {
   const algorithmicCoverageEvidence = [
     `nonUiAlgorithmicCoverageScore=${algorithmicEvidencePolicy.nonUiAlgorithmicCoverageScore}`,
     `manualScreenshotBlocksNonUi=${algorithmicEvidencePolicy.manualEvidenceScope.nonUiAlgorithmicEvidence.blockedByManualScreenshot}`,
-    `uiVisualGateCleared=${algorithmicEvidencePolicy.formalGateImpact.uiVisualGateCleared}`,
+    "uiVisualOperatorFinalChecklist=outside_codex_score",
     `deployedRuntimeSmokeCleared=${algorithmicEvidencePolicy.formalGateImpact.deployedRuntimeSmokeCleared}`,
     `formalProviderGateCleared=${algorithmicEvidencePolicy.formalGateImpact.formalProviderGateCleared}`,
     `formalAdminRuntimeSampleCleared=${algorithmicEvidencePolicy.formalGateImpact.formalAdminRuntimeSampleCleared}`,
@@ -976,22 +1014,6 @@ export function buildPublicBetaEvidenceGates(input: {
       gateRequiredForExit: false,
       sourceCredit: Math.max(targetedQuality.partialCredit * 100, realUsageConfidenceCredit),
       runtimeCredit: 0,
-    }),
-    buildEvidenceGate({
-      id: "visualManualSmoke",
-      label: "UI visual/manual smoke",
-      weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.visualManualSmoke,
-      status: visualManualPassed ? "Ready" : "Visual QA required",
-      detail: `${visualManualDetail} This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.`,
-      evidence: [
-        ...visualManualEvidence,
-        "manualEvidenceScope=ui_visual_layout_only",
-        "nonUiAlgorithmicEvidence.blockedByManualScreenshot=false",
-      ],
-      recommendedAction: "Record targeted manual or screenshot evidence only for layout-sensitive UI surfaces before calling beta exit ready.",
-      quality: visualQuality,
-      gateRequiredForExit: true,
-      runtimeCredit: visualQuality.quality === "formal_passed" ? visualQuality.partialCredit * 100 : 0,
     }),
     buildEvidenceGate({
       id: "runtimeProviderSmoke",
@@ -1323,7 +1345,8 @@ export function buildPublicBetaScoreReport(
     || gate.id === "debugRuntimeEvidence"
     || gate.id === "algorithmicEvidenceCoverage");
   const requiredExitGates = evidenceReadiness.evidenceGates.filter((gate) => gate.gateRequiredForExit);
-  const nonUiRequiredExitGates = requiredExitGates.filter((gate) => gate.id !== "visualManualSmoke");
+  const nonUiRequiredExitGates = requiredExitGates;
+  const operatorFinalChecks = buildOperatorFinalChecks(options.evidence?.visualManualEvidence);
   const sourceHealthScore = roundScore(clamp((scannerScore * 0.7) + (average(sourceGates.map((gate) => gate.sourceCredit)) * 0.3), 0, 100));
   const runtimeHealthScore = average(runtimeRequiredGates.map((gate) => gate.runtimeCredit));
   const evidenceCompletenessScore = average(nonUiRequiredExitGates.map((gate) => gate.evidenceCredit));
@@ -1360,7 +1383,7 @@ export function buildPublicBetaScoreReport(
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.evidenceCompleteness,
       score: evidenceCompletenessScore,
       reasons: [
-        "UI visual/manual evidence remains a launch blocker but is excluded from non-UI evidence completeness.",
+        "UI visual review is an operator-final checklist outside Codex score gates.",
         ...nonUiRequiredExitGates.map((gate) => `${gate.label} evidenceCredit=${gate.evidenceCredit}`),
       ],
     },
@@ -1395,7 +1418,7 @@ export function buildPublicBetaScoreReport(
   ];
   const nuancedScoreExplanation = [
     "Source-ready evidence earns source health credit without becoming runtime proof.",
-    "UI-only manual visual evidence remains required for layout-sensitive UI confirmation but no longer blocks non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+    "UI visual confirmation is handled outside Codex as an operator-final checklist and does not block source/debug/beta scoring.",
     "Formal provider, deployed runtime, and admin truth artifacts remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
     "Owner-review cost lanes carry partial cost-risk credit and do not become passes.",
@@ -1439,6 +1462,7 @@ export function buildPublicBetaScoreReport(
     evidenceCapDetails: evidenceReadiness.evidenceCapDetails,
     evidenceWeights: PUBLIC_BETA_EVIDENCE_WEIGHTS,
     scoreExplanation,
+    operatorFinalChecks,
     costReadiness,
     domainScores,
     findings,

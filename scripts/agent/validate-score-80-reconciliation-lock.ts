@@ -90,18 +90,27 @@ function classifyChangedFile(path: string): Score80ChangedFile {
   } else if (normalized.startsWith("docs/agent-truth/") && normalized.endsWith(".md")) {
     classification = "documentation_artifact_expected";
     reason = "Generated agent-truth documentation refreshed by requested score/debug validators.";
-  } else if (normalized === "scripts/agent/validate-score-80-reconciliation-lock.ts") {
+  } else if (normalized.startsWith("agent/evidence/ui-visual-smoke/")) {
+    classification = "documentation_artifact_expected";
+    reason = "Operator-final UI visual review template/checklist retained outside Codex score gates.";
+  } else if (normalized.startsWith("scripts/agent/") && normalized.endsWith(".ts")) {
     classification = "validator_artifact_expected";
-    reason = "Dedicated reconciliation lock validator requested by this batch.";
+    reason = "Scoped score/evidence validator updated for this score cleanup batch.";
   } else if (normalized === "tests/unit/score-80-reconciliation-lock.spec.ts"
-    || normalized === "tests/unit/self-healing-refresh-queue.spec.ts") {
+    || normalized === "tests/unit/self-healing-refresh-queue.spec.ts"
+    || normalized === "tests/unit/codex-visual-gate-removal.spec.ts"
+    || normalized === "tests/unit/ui-visual-smoke-minimal.spec.ts") {
     classification = "test_artifact_expected";
-    reason = "Dedicated reconciliation/refresh queue unit coverage for this batch.";
+    reason = "Dedicated score/evidence unit coverage for this batch.";
   } else if (normalized === "src/lib/agent-score/score-80-reconciliation-lock.ts"
     || normalized === "src/lib/agent-score/self-healing-refresh-queue.ts"
+    || normalized === "src/lib/agent-score/core.ts"
+    || normalized === "src/lib/agent-score/weights.ts"
+    || normalized === "src/lib/agent-score/algorithmic-evidence-policy.ts"
+    || normalized === "src/lib/evidence/ui-visual-smoke-contract.ts"
     || normalized === "package.json") {
     classification = "real_source_change_needs_review";
-    reason = "Scoped source/package wiring required for the reconciliation lock.";
+    reason = "Scoped score/evidence source wiring required for this cleanup batch.";
   } else if (normalized.startsWith("agent/context/") || normalized.startsWith("agent/index/")) {
     classification = "unrelated_agent_context_file_to_ignore";
     reason = "Agent context output is not part of this lock unless explicitly staged.";

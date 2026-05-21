@@ -1,13 +1,69 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.72",
-  "betaReleaseCounter": 372,
+  "currentVersion": "1.3.73",
+  "betaReleaseCounter": 373,
   "channel": "beta",
   "generatedAt": "2026-05-21T17:00:32.547Z",
   "generatedAtUtc": "2026-05-21T17:00:32.547Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.73",
+      "previousVersion": "1.3.72",
+      "betaReleaseCounter": 373,
+      "previousBetaReleaseCounter": 372,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): remove visual gate from codex score",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T18:35:00.000Z",
+      "generatedAt": "2026-05-21T18:35:00.000Z",
+      "committedAtUtc": "2026-05-21T18:35:00.000Z",
+      "generatedAtUtc": "2026-05-21T18:35:00.000Z",
+      "updatedAtUtc": "2026-05-21T18:35:00.000Z",
+      "category": "Improved",
+      "title": "Visual checks moved out of Codex score gates",
+      "summary": "Moved visual screenshot checks out of Codex score gates while keeping them visible for operator review.",
+      "userFacingTitle": "Visual checks moved out of Codex score gates",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Moved visual screenshot checks out of Codex score gates.",
+        "Kept UI visual review as an operator-final checklist.",
+        "Stopped screenshots from blocking non-UI algorithmic readiness."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Reclassified UI visual smoke as an operator-final checklist and kept provider, runtime, and admin formal gates unchanged."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "UI visual smoke",
+        "Evidence scoring"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/codex-visual-gate-removal.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/ui-visual-smoke-minimal.generated.json",
+        "docs/agent-truth/codex-visual-gate-removal.md",
+        "docs/agent-truth/ui-visual-smoke-minimal.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-codex-visual-gate-removal.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/evidence/ui-visual-smoke-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/codex-visual-gate-removal.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.72",
       "previousVersion": "1.3.71",
@@ -1437,58 +1493,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/ai-debug-critic.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.48",
-      "previousVersion": "1.3.47",
-      "betaReleaseCounter": 348,
-      "previousBetaReleaseCounter": 347,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): build score backed backlog",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T02:37:25.000Z",
-      "generatedAt": "2026-05-21T04:03:07.745Z",
-      "committedAtUtc": "2026-05-21T02:37:25.000Z",
-      "generatedAtUtc": "2026-05-21T04:03:07.745Z",
-      "updatedAtUtc": "2026-05-21T04:03:07.745Z",
-      "category": "Improved",
-      "title": "Debug backlog improvements",
-      "summary": "Made debug panel output drive a structured fix backlog.",
-      "userFacingTitle": "Debug backlog improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Made debug panel output drive a structured fix backlog.",
-        "Mapped warnings and unknown evidence to owners, score impact, and exact actions.",
-        "Kept debug truth strict without clearing formal beta gates."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the debug backlog engine contract, builder, validator, generated report, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Admin Debug",
-        "Beta readiness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-backlog-engine.generated.json",
-        "docs/agent-truth/debug-backlog-engine.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-debug-backlog-engine.ts",
-        "src/lib/admin-debug-control-tower.ts",
-        "src/lib/debug/debug-backlog-builder.ts",
-        "src/lib/debug/debug-backlog-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/debug-backlog-engine.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

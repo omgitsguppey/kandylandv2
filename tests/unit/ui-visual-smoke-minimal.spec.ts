@@ -19,11 +19,11 @@ describe("UI visual smoke minimal evidence lane", () => {
     expect(report.surfaces).toHaveLength(UI_VISUAL_SMOKE_REQUIRED_SURFACES.length);
     expect(report.summary.requiredSurfaceCount).toBe(9);
     expect(report.summary.surfaceGroupCount).toBe(8);
-    expect(report.summary.statusCounts.missing).toBe(9);
+    expect(report.summary.statusCounts.operator_final_pending).toBe(9);
     expect(report.passed).toBe(false);
-    expect(report.status).toBe("missing");
+    expect(report.status).toBe("operator_final_pending");
     expect(report.nonUiLanesBlocked).toBe(false);
-    expect(report.surfaces.every((surface) => surface.blocksScoreForUiOnly)).toBe(true);
+    expect(report.surfaces.every((surface) => surface.codexScoreBlocking === false)).toBe(true);
     expect(report.surfaces.map((surface) => surface.surfaceId)).toEqual([
       "user_dashboard_mobile",
       "wallet_mobile",
@@ -53,12 +53,12 @@ describe("UI visual smoke minimal evidence lane", () => {
     const scoreEvidence = summarizeUiVisualSmokeEvidenceForScore(report);
 
     expect(scoreEvidence.passed).toBe(false);
-    expect(scoreEvidence.status).toBe("missing");
-    expect(scoreEvidence.detail).toContain("UI-only");
+    expect(scoreEvidence.status).toBe("operator_final_pending");
+    expect(scoreEvidence.detail).toContain("operator-final checklist");
     expect(scoreEvidence.detail).toContain("user_dashboard_mobile");
     expect(scoreEvidence.evidence).toEqual(expect.arrayContaining([
       "uiVisualSmoke.nonUiLanesBlocked=false",
-      "uiVisualSmoke.blocksScoreForUiOnly=true",
+      "uiVisualSmoke.codexScoreBlocking=false",
     ]));
   });
 
@@ -70,7 +70,7 @@ describe("UI visual smoke minimal evidence lane", () => {
       surfaces: [
         {
           ...report.surfaces[0],
-          status: "operator_confirmed",
+          status: "operator_confirmed_outside_codex",
           operatorConfirmed: false,
         },
         {
@@ -93,8 +93,8 @@ describe("UI visual smoke minimal evidence lane", () => {
 
     expect(validateUiVisualSmokeMinimalReport(invalid, { templateExists: false })).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("cannot pass without every required surface"),
-        expect.stringContaining("operator_confirmed but lacks operator confirmation"),
+        expect.stringContaining("must not pass inside Codex"),
+        expect.stringContaining("operator_confirmed_outside_codex but lacks operator confirmation"),
         expect.stringContaining("screenshot_attached but lacks screenshotArtifactPath"),
         expect.stringContaining("non-UI lane"),
         expect.stringContaining("protected chat/nav surface"),

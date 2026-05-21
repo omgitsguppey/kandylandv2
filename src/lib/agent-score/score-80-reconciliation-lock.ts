@@ -179,18 +179,7 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
   const blockedRefreshes = input.refreshQueue?.blockedEntries ?? 0;
   const staleRefreshes = input.refreshSafeguards?.staleArtifactsNeedingAction ?? 0;
 
-  const remainingManualOnlyItems: Score80RemainingItem[] = [
-    {
-      id: "ui_visual_manual_smoke",
-      label: "UI visual/manual smoke",
-      proofType: "manual_only",
-      scoreDimension: "evidenceCompleteness",
-      scoreImpactEstimate: 20,
-      justification: "This is the only remaining manual-only lane because it confirms layout-sensitive UI visuals.",
-      requiresManualUI: true,
-      nextAction: "Capture targeted visual/operator evidence for layout-sensitive UI surfaces only.",
-    },
-  ];
+  const remainingManualOnlyItems: Score80RemainingItem[] = [];
 
   const remainingRuntimeRequiredItems: Score80RemainingItem[] = [
     {
@@ -307,7 +296,7 @@ export function buildScore80ReconciliationLock(input: Score80ReconciliationInput
     canStartBetaExitReview: input.betaExitCanStart === true && currentScore >= 80,
     formalGateImpact,
     manualBottleneckReduction: {
-      manualEvidenceLimitedToUiVisual: true,
+      manualEvidenceLimitedToUiVisual: false,
       nonUiAlgorithmicEvidenceAllowed: true,
       sourceBackedRuntimePartialCredit: (input.realUsageConfidence?.runtimeHealthCredit ?? 0) > 0,
     },

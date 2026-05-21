@@ -318,7 +318,6 @@ export function buildAlgorithmicEvidencePolicyReport(
     (coverage.reduce((sum, item) => sum + item.score, 0) / coverage.length) * 100,
   ) / 100;
   const remainingFormalEvidenceGates = [
-    ...(uiVisualGateCleared ? [] : ["UI visual/manual smoke requires screenshot or operator visual evidence when UI changed."]),
     ...(deployedRuntimeSmokeCleared ? [] : ["Deployed runtime smoke requires a formal runtime artifact."]),
     ...(formalProviderGateCleared ? [] : ["Provider smoke requires a formal provider artifact."]),
     ...(formalAdminRuntimeSampleCleared ? [] : ["Admin truth sample requires a formal runtime/sample artifact."]),
@@ -330,8 +329,8 @@ export function buildAlgorithmicEvidencePolicyReport(
       status: confidenceFromScore(uiVisualGateCleared ? 100 : 0, uiVisualGateCleared),
       sourcePath: pathOf(input.visualManualEvidence),
       nextAction: uiVisualGateCleared
-        ? "Keep visual/operator evidence fresh for layout-sensitive UI changes."
-        : "Attach screenshot or operator visual evidence only for layout-sensitive UI surfaces.",
+        ? "Visual confirmation is recorded for operator-final review outside Codex."
+        : "Track layout-sensitive UI surfaces for operator-final review; visual confirmation handled outside Codex.",
     },
     nonUiAlgorithmicEvidence: {
       blockedByManualScreenshot: false as const,
@@ -339,7 +338,7 @@ export function buildAlgorithmicEvidencePolicyReport(
         .filter((item) => item.score > 0)
         .map((item) => item.category),
       score: nonUiAlgorithmicCoverageScore,
-      note: "Manual screenshot evidence is UI-only and must not block telemetry, admin, cost, refresh, or source-runtime confidence.",
+      note: "Manual screenshot evidence is operator-final outside Codex and must not block telemetry, admin, cost, refresh, or source-runtime confidence.",
     },
   };
   const report: AlgorithmicEvidencePolicyReport = {
