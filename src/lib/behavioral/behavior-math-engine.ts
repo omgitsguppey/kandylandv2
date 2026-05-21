@@ -10,6 +10,7 @@ import type {
   BehaviorMetricValue,
   BehaviorRawEventInput,
 } from "@/lib/behavioral/behavior-math-contract";
+import { getTelemetryEventExtensionMetadata } from "@/lib/telemetry-catalog";
 
 const METRIC_NAMES: BehaviorMetricName[] = [
   "pageViews",
@@ -95,6 +96,7 @@ function normalizeEventName(event: BehaviorRawEventInput) {
 function classifyMetric(event: BehaviorRawEventInput): BehaviorMetricName | null {
   const eventName = normalizeEventName(event);
   const eventType = `${event.eventType ?? ""}`.toLowerCase();
+  const catalogMetadata = getTelemetryEventExtensionMetadata(eventName);
 
   if (eventType === "page_view" || eventName.includes("page_view")) return "pageViews";
   if (eventType === "profile_view" || eventName.includes("creator_profile")) return "profileViews";
@@ -107,6 +109,25 @@ function classifyMetric(event: BehaviorRawEventInput): BehaviorMetricName | null
   if (eventType === "creator_interaction" || CREATOR_INTERACTION_EVENTS.has(eventName)) return "creatorInteractions";
   if (eventType === "watch" || eventName.includes("watch_session") || eventName.includes("runtime_watch")) return "watchTimeMs";
   if (eventType === "visibility" || eventName.includes("page_engaged")) return "activeTimeMs";
+
+  if (catalogMetadata) {
+    if (catalogMetadata.eventType === "profile_view") return "profileViews";
+    if (catalogMetadata.eventType === "drop_open") return "dropOpens";
+    if (catalogMetadata.eventType === "click") return "clicks";
+    if (catalogMetadata.eventType === "follow") return "followerActions";
+    if (catalogMetadata.eventType === "watch") return "watchTimeMs";
+    if (catalogMetadata.eventType === "purchase" || catalogMetadata.eventType === "conversion") return "purchaseTruthEvents";
+    if (catalogMetadata.eventType === "intent" && (catalogMetadata.feature === "wallet" || catalogMetadata.feature === "fan_pass")) return "purchaseIntent";
+    if (
+      catalogMetadata.eventType === "creator_action"
+      || catalogMetadata.eventType === "timeline_interaction"
+      || catalogMetadata.feature === "creator_profile"
+      || catalogMetadata.feature === "creator_timeline"
+      || catalogMetadata.feature === "broadcasts"
+    ) {
+      return "creatorInteractions";
+    }
+  }
 
   return null;
 }

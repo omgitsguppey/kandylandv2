@@ -1,0 +1,213 @@
+{
+  "generatedAtUtc": "2026-05-21T15:22:42.360Z",
+  "reportKey": "behavioral-extensibility-layer",
+  "currentHead": "13dc614b575932b3bc589acabe8cccb675a2f614",
+  "status": "pass",
+  "catalogEvents": 400,
+  "extensionMetadataEvents": 400,
+  "featureCount": 18,
+  "requiredFeatures": [
+    "drops",
+    "creator_profile",
+    "creator_timeline",
+    "broadcasts",
+    "fan_pass",
+    "wallet",
+    "daily_checkin",
+    "library",
+    "creator_settings",
+    "creator_drop_manager",
+    "notifications",
+    "admin_debug",
+    "search_discovery"
+  ],
+  "featureCounts": [
+    {
+      "feature": "drops",
+      "events": 75
+    },
+    {
+      "feature": "creator_profile",
+      "events": 6
+    },
+    {
+      "feature": "creator_timeline",
+      "events": 0
+    },
+    {
+      "feature": "broadcasts",
+      "events": 6
+    },
+    {
+      "feature": "fan_pass",
+      "events": 6
+    },
+    {
+      "feature": "wallet",
+      "events": 8
+    },
+    {
+      "feature": "daily_checkin",
+      "events": 26
+    },
+    {
+      "feature": "library",
+      "events": 7
+    },
+    {
+      "feature": "creator_settings",
+      "events": 9
+    },
+    {
+      "feature": "creator_drop_manager",
+      "events": 4
+    },
+    {
+      "feature": "notifications",
+      "events": 20
+    },
+    {
+      "feature": "admin_debug",
+      "events": 89
+    },
+    {
+      "feature": "search_discovery",
+      "events": 13
+    },
+    {
+      "feature": "auth",
+      "events": 44
+    },
+    {
+      "feature": "security",
+      "events": 14
+    },
+    {
+      "feature": "support",
+      "events": 18
+    },
+    {
+      "feature": "viewer",
+      "events": 7
+    },
+    {
+      "feature": "general_engagement",
+      "events": 48
+    }
+  ],
+  "sampleClassifications": {
+    "dropCardImpressionFull": {
+      "eventName": "drop_card_impression",
+      "accepted": true,
+      "signals": [
+        "impression",
+        "drop_interest"
+      ],
+      "consentAllowed": true,
+      "identityAware": true,
+      "deduped": true,
+      "materializerReady": true,
+      "debugVisible": true,
+      "metadata": {
+        "eventName": "drop_card_impression",
+        "feature": "drops",
+        "surface": "drops",
+        "eventType": "impression",
+        "consentRequirement": "full_behavioral",
+        "identityRequirement": "anonymous_or_user",
+        "persistenceLane": "analytics_event_facts",
+        "materializerLane": "drop_behavior_materializer",
+        "aggregationLane": "drop_interest_rollup",
+        "scoreEvidenceImpact": "evidenceCompleteness.runtimeHealth",
+        "debugVisibility": "debug_visible",
+        "owner": "analytics/drop-behavior",
+        "futureFeatureSafe": true,
+        "dedupeRequired": true
+      }
+    },
+    "dropCardImpressionMinimal": {
+      "eventName": "drop_card_impression",
+      "accepted": false,
+      "signals": [
+        "impression",
+        "drop_interest"
+      ],
+      "consentAllowed": false,
+      "identityAware": true,
+      "deduped": true,
+      "materializerReady": true,
+      "debugVisible": true,
+      "quarantineReason": "consent_blocked_behavioral_personalization",
+      "metadata": {
+        "eventName": "drop_card_impression",
+        "feature": "drops",
+        "surface": "drops",
+        "eventType": "impression",
+        "consentRequirement": "full_behavioral",
+        "identityRequirement": "anonymous_or_user",
+        "persistenceLane": "analytics_event_facts",
+        "materializerLane": "drop_behavior_materializer",
+        "aggregationLane": "drop_interest_rollup",
+        "scoreEvidenceImpact": "evidenceCompleteness.runtimeHealth",
+        "debugVisibility": "debug_visible",
+        "owner": "analytics/drop-behavior",
+        "futureFeatureSafe": true,
+        "dedupeRequired": true
+      }
+    },
+    "purchaseVerifiedNecessaryOnly": {
+      "eventName": "server_purchase_verified",
+      "accepted": true,
+      "signals": [
+        "conversion",
+        "monetization_interest"
+      ],
+      "consentAllowed": true,
+      "identityAware": true,
+      "deduped": true,
+      "materializerReady": true,
+      "debugVisible": true,
+      "metadata": {
+        "eventName": "server_purchase_verified",
+        "feature": "wallet",
+        "surface": "wallet",
+        "eventType": "purchase",
+        "consentRequirement": "required_integrity",
+        "identityRequirement": "authenticated_user",
+        "persistenceLane": "server_payment_truth_plus_analytics_event_facts",
+        "materializerLane": "purchase_integrity_materializer",
+        "aggregationLane": "monetization_truth_rollup",
+        "scoreEvidenceImpact": "runtimeHealth.evidenceCompleteness",
+        "debugVisibility": "debug_visible",
+        "owner": "analytics/wallet-integrity",
+        "futureFeatureSafe": true,
+        "dedupeRequired": true
+      }
+    },
+    "unregistered": {
+      "eventName": "future_feature_missing_catalog_click",
+      "accepted": false,
+      "signals": [],
+      "consentAllowed": false,
+      "identityAware": false,
+      "deduped": false,
+      "materializerReady": false,
+      "debugVisible": false,
+      "quarantineReason": "unregistered_event"
+    }
+  },
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/context/optimized-task-context.generated.json",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "src/lib/behavioral/behavior-math-engine.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/telemetry-catalog.ts"
+  ],
+  "warnings": [
+    "creator_timeline is registered for future-safe tracking but has no current catalog events"
+  ],
+  "validationFailures": []
+}

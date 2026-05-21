@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T15:07:49.658Z",
+  "generatedAtUtc": "2026-05-21T15:23:30.723Z",
   "reportKey": "consent-tracking-contract",
-  "currentHead": "f080e6eed6472953c5255371caca12eb2b884f1b",
+  "currentHead": "13dc614b575932b3bc589acabe8cccb675a2f614",
   "status": "pass",
   "consentPolicyVersion": "2026-05-consent-tracking-v1",
   "consentModes": [
@@ -50,25 +50,17 @@
   "changedFiles": [
     "CHANGELOG.md",
     "agent/context/optimized-task-context.generated.json",
+    "agent/state/analytics-ingest-firestore-closure.generated.json",
     "agent/state/behavior-math-verification.generated.json",
-    "agent/state/consent-tracking-contract.generated.json",
-    "agent/state/identity-transfer-telemetry-closure.generated.json",
-    "docs/agent-truth/identity-transfer-telemetry-closure.md",
+    "agent/state/telemetry-dependency-graph.generated.json",
+    "docs/agent-truth/analytics-ingest-firestore-closure.md",
+    "docs/agent-truth/telemetry-dependency-graph.md",
     "package.json",
     "public/kandydrops-release-notes.json",
-    "src/app/api/analytics/identity-link/route.ts",
-    "src/app/api/analytics/ingest/route.ts",
-    "src/components/Analytics/DeepTracker.tsx",
-    "src/context/AuthContext.tsx",
-    "src/lib/analytics/analytics-identity-link.ts",
-    "src/lib/analytics/identity-link-contract.ts",
-    "src/lib/behavioral/behavior-math-contract.ts",
     "src/lib/behavioral/behavior-math-engine.ts",
-    "src/lib/client-session.ts",
     "src/lib/release-notes/public-release-notes.ts",
     "src/lib/release-notes/release-version-contract.ts",
-    "src/lib/server/analytics-identity-linking.ts",
-    "src/lib/telemetry.ts"
+    "src/lib/telemetry-catalog.ts"
   ],
   "validationFailures": []
 }

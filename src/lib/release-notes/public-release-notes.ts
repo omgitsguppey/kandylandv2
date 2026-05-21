@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.64",
-  "betaReleaseCounter": 364,
+  "currentVersion": "1.3.65",
+  "betaReleaseCounter": 365,
   "channel": "beta",
   "generatedAt": "2026-05-21T15:06:33.909Z",
   "generatedAtUtc": "2026-05-21T15:06:33.909Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.65",
+      "previousVersion": "1.3.64",
+      "betaReleaseCounter": 365,
+      "previousBetaReleaseCounter": 364,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): harden behavior extensibility",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T15:20:35.641Z",
+      "generatedAt": "2026-05-21T15:20:35.641Z",
+      "committedAtUtc": "2026-05-21T15:20:35.641Z",
+      "generatedAtUtc": "2026-05-21T15:20:35.641Z",
+      "updatedAtUtc": "2026-05-21T15:20:35.641Z",
+      "category": "Improved",
+      "title": "Behavioral telemetry extensibility",
+      "summary": "Made behavioral telemetry extensible for new features while keeping consent, identity, and materializer rules explicit.",
+      "userFacingTitle": "Behavioral telemetry extensibility",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Made behavioral telemetry extensible for new features.",
+        "Required consent and identity rules for every tracked event.",
+        "Prevented new features from creating orphaned analytics."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added feature registry, signal classifier, deterministic validator, and unit coverage for catalog-gated behavior telemetry."
+      ],
+      "affectedSurfaces": [
+        "Privacy & security",
+        "Telemetry",
+        "Admin tools"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/behavioral-extensibility-layer.generated.json",
+        "docs/agent-truth/behavioral-extensibility-layer.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-behavioral-extensibility-layer.ts",
+        "src/lib/behavioral/behavior-feature-registry.ts",
+        "src/lib/behavioral/behavior-math-engine.ts",
+        "src/lib/behavioral/behavior-signal-classifier.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/behavioral-extensibility-layer.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.64",
       "previousVersion": "1.3.63",

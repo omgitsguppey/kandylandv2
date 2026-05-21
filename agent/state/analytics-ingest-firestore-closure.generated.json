@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T23:31:09.179Z",
+  "generatedAtUtc": "2026-05-21T15:23:22.027Z",
   "reportKey": "analytics-ingest-firestore-closure",
-  "currentHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
+  "currentHead": "13dc614b575932b3bc589acabe8cccb675a2f614",
   "summary": {
     "ingestContractCreated": true,
     "acceptedEventsMapped": true,

@@ -1,4 +1,9 @@
 import { BEHAVIORAL_NORMALIZED_ACTIONS } from "@/lib/behavioral/event-fact-contract";
+import {
+  resolveBehaviorFeatureForTelemetryEvent,
+  type BehaviorDebugVisibility,
+  type BehaviorFeatureId,
+} from "@/lib/behavioral/behavior-feature-registry";
 
 export type TelemetryEventCategory =
   | "auth"
@@ -88,6 +93,54 @@ export interface TelemetryEventPayloadContract {
   adminExcludedFromUserAnalytics: boolean;
   legacyDeprecated: boolean;
   missingFieldsRisk: "low" | "medium" | "high";
+}
+
+export type TelemetryEventType =
+  | "impression"
+  | "click"
+  | "intent"
+  | "interaction"
+  | "conversion"
+  | "retention"
+  | "watch"
+  | "profile_view"
+  | "drop_open"
+  | "follow"
+  | "purchase"
+  | "creator_action"
+  | "timeline_interaction"
+  | "system"
+  | "security";
+
+export type TelemetryConsentRequirement =
+  | "required_integrity"
+  | "minimal_analytics"
+  | "full_analytics"
+  | "full_behavioral";
+
+export type TelemetryIdentityRequirement =
+  | "none"
+  | "anonymous_or_user"
+  | "authenticated_user"
+  | "creator_or_user"
+  | "admin_required"
+  | "system";
+
+export interface TelemetryEventExtensionMetadata {
+  eventName: string;
+  feature: BehaviorFeatureId;
+  surface: string;
+  eventType: TelemetryEventType;
+  consentRequirement: TelemetryConsentRequirement;
+  identityRequirement: TelemetryIdentityRequirement;
+  persistenceLane: string;
+  materializerLane: string;
+  aggregationLane: string;
+  scoreEvidenceImpact: string;
+  debugVisibility: BehaviorDebugVisibility;
+  owner: string;
+  futureFeatureSafe: boolean;
+  dedupeRequired: boolean;
 }
 
 const DEFAULT_CLIENT_SOURCES: TelemetryEventSource[] = ["ga4", "client", "backend"];
@@ -1415,3 +1468,107 @@ export const TELEMETRY_EVENT_PAYLOAD_CONTRACTS = TELEMETRY_EVENT_OPTIONS.map((ev
 export const TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME = Object.fromEntries(
   TELEMETRY_EVENT_PAYLOAD_CONTRACTS.map((contract) => [contract.eventName, contract]),
 ) as Record<string, TelemetryEventPayloadContract>;
+
+function deriveTelemetryEventType(eventName: string, family: TelemetryEventFamily): TelemetryEventType {
+  if (family === "security") return "security";
+  if (family === "system" || family === "admin") return "system";
+  if (family === "purchase" || eventName.includes("purchase") || eventName.includes("paypal")) return "purchase";
+  if (family === "unlock" || eventName.includes("unlocked") || eventName.includes("completed") || eventName.includes("verified")) return "conversion";
+  if (eventName.includes("profile_view")) return "profile_view";
+  if (eventName.includes("drop_preview_opened") || eventName.includes("drop_open")) return "drop_open";
+  if (eventName.includes("followed") || eventName.includes("unfollowed")) return "follow";
+  if (eventName.includes("watch") || eventName.includes("viewer") || eventName === "file_viewed") return "watch";
+  if (eventName.includes("timeline")) return "timeline_interaction";
+  if (eventName.includes("impression") || eventName.includes("viewed") || eventName.includes("visible")) return "impression";
+  if (eventName.includes("clicked") || eventName.includes("click") || eventName.includes("selected")) return "click";
+  if (eventName.includes("creator_") || eventName.includes("broadcast")) return "creator_action";
+  if (eventName.includes("checkout") || eventName.includes("intent") || eventName.includes("opened")) return "intent";
+  if (eventName.includes("checkin") || eventName.includes("check_in") || eventName.includes("daily_task")) return "retention";
+  return "interaction";
+}
+
+function deriveConsentRequirement(eventName: string, family: TelemetryEventFamily): TelemetryConsentRequirement {
+  if (
+    family === "security"
+    || family === "auth"
+    || family === "purchase"
+    || family === "unlock"
+    || eventName.includes("purchase")
+    || eventName.includes("paypal")
+    || eventName.includes("gumdrop_balance")
+  ) {
+    return "required_integrity";
+  }
+  if (family === "admin" || family === "system" || family === "diagnostic") {
+    return "full_analytics";
+  }
+  if (
+    family === "page_view"
+    && !eventName.startsWith("semantic_")
+    && !eventName.includes("engaged")
+  ) {
+    return "minimal_analytics";
+  }
+  return "full_behavioral";
+}
+
+function deriveIdentityRequirement(contract: TelemetryEventPayloadContract): TelemetryIdentityRequirement {
+  const actorFields = contract.requiredActorFields.join(" ");
+  const eventName = contract.eventName;
+
+  if (contract.family === "admin") return "admin_required";
+  if (contract.family === "system" || contract.family === "security") return "system";
+  if (actorFields.includes("authenticated caller") || actorFields.includes("user_id|userId")) return "authenticated_user";
+  if (contract.guestAllowed) return "anonymous_or_user";
+  if (eventName.includes("creator_") || actorFields.includes("creator_id")) return "creator_or_user";
+  return "authenticated_user";
+}
+
+export function buildTelemetryEventExtensionMetadata(eventName: string): TelemetryEventExtensionMetadata | null {
+  const directOption = TELEMETRY_EVENT_OPTIONS_BY_NAME[eventName];
+  const canonicalEventName = directOption ? eventName : normalizeTelemetryEventName(eventName);
+  const option = directOption ?? TELEMETRY_EVENT_OPTIONS_BY_NAME[canonicalEventName];
+  if (!option) {
+    return null;
+  }
+
+  const family = classifyTelemetryEventFamily(canonicalEventName, option);
+  const contract = TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME[canonicalEventName]
+    ?? buildTelemetryEventPayloadContract(canonicalEventName);
+  const feature = resolveBehaviorFeatureForTelemetryEvent({
+    eventName: canonicalEventName,
+    category: option.category,
+    family,
+    modules: option.modules,
+  });
+
+  return {
+    eventName: canonicalEventName,
+    feature: feature.feature,
+    surface: feature.surface,
+    eventType: deriveTelemetryEventType(canonicalEventName, family),
+    consentRequirement: deriveConsentRequirement(canonicalEventName, family),
+    identityRequirement: deriveIdentityRequirement(contract),
+    persistenceLane: feature.defaultPersistenceLane,
+    materializerLane: feature.defaultMaterializerLane,
+    aggregationLane: feature.defaultAggregationLane,
+    scoreEvidenceImpact: feature.scoreEvidenceImpact,
+    debugVisibility: feature.debugVisibility,
+    owner: feature.owner,
+    futureFeatureSafe: feature.futureFeatureSafe,
+    dedupeRequired: contract.dedupeKeyRequired,
+  };
+}
+
+export const TELEMETRY_EVENT_EXTENSION_METADATA = TELEMETRY_EVENT_OPTIONS.map((event) =>
+  buildTelemetryEventExtensionMetadata(event.eventName),
+).filter((metadata): metadata is TelemetryEventExtensionMetadata => Boolean(metadata));
+
+export const TELEMETRY_EVENT_EXTENSION_METADATA_BY_NAME = Object.fromEntries(
+  TELEMETRY_EVENT_EXTENSION_METADATA.map((metadata) => [metadata.eventName, metadata]),
+) as Record<string, TelemetryEventExtensionMetadata>;
+
+export function getTelemetryEventExtensionMetadata(eventName: string) {
+  const canonicalEventName = normalizeTelemetryEventName(eventName);
+  return TELEMETRY_EVENT_EXTENSION_METADATA_BY_NAME[canonicalEventName] ?? null;
+}
