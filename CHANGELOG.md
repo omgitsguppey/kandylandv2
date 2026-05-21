@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.64 - 2026-05-21
+- Guest-to-user analytics handoff
+- Improved guest-to-user analytics handoff.
+- Kept behavioral attribution consent-aware.
+- Prevented double-counting across signup and login.
+
 ## 1.3.63 - 2026-05-21
 - Cookie consent tracking modes
 - Connected cookie choices to actual analytics tracking modes.

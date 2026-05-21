@@ -1,4 +1,12 @@
 import type { AnalyticsConsentState } from "@/lib/analytics/analytics-event-contract";
+import {
+  consentModeToIdentityLinkConsentState,
+  resolveIdentityLinkConfidence,
+} from "@/lib/analytics/identity-state-machine";
+import {
+  normalizeConsentMode,
+  type ConsentMode,
+} from "@/lib/privacy/consent-tracking-policy";
 
 export const GUEST_USER_IDENTITY_TRANSFER_ROUTE = "/api/analytics/identity-link";
 export const GUEST_USER_IDENTITY_LINK_STORAGE_PREFIX = "kandydrops.identityLink.sent";
@@ -32,6 +40,15 @@ export type GuestUserIdentityLink = {
   sessionId: string;
   linkedAt: string;
   reason: GuestUserIdentityLinkReason;
+  consentMode: ConsentMode;
+  consentState: AnalyticsConsentState;
+  mergeAllowed: boolean;
+  personLevelBehaviorAllowed: boolean;
+  linkageConfidence: number;
+  linkageConfidenceSource:
+    | "full_behavioral_consent"
+    | "identity_link_allowed_behavior_blocked"
+    | "blocked_by_consent_mode";
   identityLinkId: string;
   authTransitionId: string;
   actorType: "authenticated_user";
@@ -181,12 +198,15 @@ export function buildIdentityLink(input: {
   sessionId: string;
   linkedAt?: string | null;
   reason?: string | null;
+  consentMode?: ConsentMode | string | null;
 }): GuestUserIdentityLink {
   const guestId = input.guestId.trim();
   const userId = input.userId.trim();
   const sessionId = input.sessionId.trim();
   const reason = normalizeReason(input.reason);
   const linkedAt = input.linkedAt?.trim() || new Date().toISOString();
+  const consentMode = normalizeConsentMode(input.consentMode);
+  const confidence = resolveIdentityLinkConfidence(consentMode);
 
   return {
     guestId,
@@ -194,6 +214,9 @@ export function buildIdentityLink(input: {
     sessionId,
     linkedAt,
     reason,
+    consentMode,
+    consentState: consentModeToIdentityLinkConsentState(consentMode),
+    ...confidence,
     identityLinkId: buildGuestUserIdentityLinkId({ guestId, sessionId, userId }),
     authTransitionId: `auth_transition_${reason}_${cleanIdentityPart(guestId)}_${cleanIdentityPart(sessionId)}_${cleanIdentityPart(userId)}`,
     actorType: "authenticated_user",
@@ -289,12 +312,13 @@ export function buildIdentityLinkPayload(input: {
   linkedAt?: string | null;
   reason?: string | null;
   consentState?: AnalyticsConsentState;
+  consentMode?: ConsentMode | string | null;
   eligiblePastSessionIds?: string[];
 }) {
   const link = buildIdentityLink(input);
   const payload = {
     ...link,
-    consentState: input.consentState ?? "unknown",
+    consentState: input.consentState ?? link.consentState,
     eligiblePastSessionIds: Array.from(new Set([link.sessionId, ...(input.eligiblePastSessionIds ?? [])])).filter(Boolean),
   };
 

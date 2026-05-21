@@ -4,7 +4,8 @@ import { createAnalyticsEventId } from "./analytics-identifiers";
 import { buildClientTrackingDecision } from "./analytics/client-tracking-policy";
 import destr from "destr";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
-import { buildClientIdentityLinkRecord, getClientSessionId, rememberClientIdentityLink } from "./client-session";
+import { buildClientIdentityLinkRecord, getClientSessionId, readClientIdentityLinkRecord, rememberClientIdentityLink } from "./client-session";
+import { buildIdentityHandoffEventContext } from "./analytics/identity-state-machine";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { authFetch } from "./authFetch";
 import {
@@ -149,12 +150,24 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
     const privacySettings = readPrivacySettingsSnapshot();
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
     const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
+    const identityLink = readClientIdentityLinkRecord();
+    const identityContext = buildIdentityHandoffEventContext({
+        guestId: identityLink?.anonymousVisitorId ?? undefined,
+        userId: auth?.currentUser?.uid ?? undefined,
+        sessionId: getSessionId(),
+        identityLinkId: identityLink?.identityLinkId,
+        consentMode: privacySettings.consentMode,
+    });
     const viewportWidth = Math.round(window.innerWidth || 0);
     const viewportHeight = Math.round(window.innerHeight || 0);
     const enriched: Record<string, string | number | boolean> = {
         ...sanitizedParams,
         page_path: window.location.pathname,
         session_id: getSessionId(),
+        consent_mode: privacySettings.consentMode,
+        identity_state: identityContext.identityState,
+        identity_link_id: identityContext.identityLinkId ?? "",
+        person_level_behavior_allowed: identityContext.personLevelBehaviorAllowed,
         viewport_width: viewportWidth,
         viewport_height: viewportHeight,
         is_mobile_viewport: viewportWidth <= 768,

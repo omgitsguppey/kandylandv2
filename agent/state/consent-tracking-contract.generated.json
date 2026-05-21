@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T14:49:42.213Z",
+  "generatedAtUtc": "2026-05-21T15:07:49.658Z",
   "reportKey": "consent-tracking-contract",
-  "currentHead": "33d664a3913facb0ec96b61a90ebc84c27bb1000",
+  "currentHead": "f080e6eed6472953c5255371caca12eb2b884f1b",
   "status": "pass",
   "consentPolicyVersion": "2026-05-consent-tracking-v1",
   "consentModes": [
@@ -51,20 +51,24 @@
     "CHANGELOG.md",
     "agent/context/optimized-task-context.generated.json",
     "agent/state/behavior-math-verification.generated.json",
-    "agent/state/final-telemetry-closure-lock.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "docs/agent-truth/final-telemetry-closure-lock.md",
+    "agent/state/consent-tracking-contract.generated.json",
+    "agent/state/identity-transfer-telemetry-closure.generated.json",
+    "docs/agent-truth/identity-transfer-telemetry-closure.md",
     "package.json",
     "public/kandydrops-release-notes.json",
-    "src/app/api/privacy/consent/route.ts",
+    "src/app/api/analytics/identity-link/route.ts",
+    "src/app/api/analytics/ingest/route.ts",
     "src/components/Analytics/DeepTracker.tsx",
-    "src/components/CookieBanner.tsx",
-    "src/lib/analytics/client-tracking-policy.ts",
-    "src/lib/privacy-consent.ts",
+    "src/context/AuthContext.tsx",
+    "src/lib/analytics/analytics-identity-link.ts",
+    "src/lib/analytics/identity-link-contract.ts",
+    "src/lib/behavioral/behavior-math-contract.ts",
+    "src/lib/behavioral/behavior-math-engine.ts",
+    "src/lib/client-session.ts",
     "src/lib/release-notes/public-release-notes.ts",
     "src/lib/release-notes/release-version-contract.ts",
-    "src/lib/server/privacy-consent.ts",
-    "tests/unit/privacy-consent.spec.ts"
+    "src/lib/server/analytics-identity-linking.ts",
+    "src/lib/telemetry.ts"
   ],
   "validationFailures": []
 }

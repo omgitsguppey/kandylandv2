@@ -163,6 +163,7 @@
         "check:telemetry-identified-parity": "npm run score:telemetry-identified-parity && tsx scripts/agent/validate-telemetry-identified-parity.ts",
         "check:privacy-consent-truth": "tsx scripts/agent/validate-privacy-consent-truth.ts",
         "check:consent-tracking-contract": "tsx scripts/agent/validate-consent-tracking-contract.ts",
+        "check:identity-handoff-refinement": "tsx scripts/agent/validate-identity-handoff-refinement.ts",
         "check:privacy-import-export-cutover": "tsx scripts/agent/validate-privacy-import-export-cutover.ts",
         "check:identity-link-continuity": "tsx scripts/agent/validate-identity-link-continuity.ts",
         "score:tracking-surface-coverage": "tsx scripts/agent/score-tracking-surface-coverage.ts",

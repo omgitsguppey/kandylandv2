@@ -201,6 +201,18 @@ function shouldRejectPageTimeAsWatch(event: BehaviorRawEventInput) {
     && Number(event.durationMs ?? 0) > 0;
 }
 
+function shouldBlockPersonLevelBehaviorForConsent(event: BehaviorRawEventInput, metric: BehaviorMetricName) {
+  if (!event.consentMode || event.consentMode === "full_behavioral") {
+    return false;
+  }
+
+  if (metric === "pageViews" && !event.userId) {
+    return false;
+  }
+
+  return metric !== "purchaseTruthEvents";
+}
+
 export function getBehaviorMetricConfidence(metric: BehaviorMetricValue): BehaviorMetricConfidence {
   return metric.confidence;
 }
@@ -220,6 +232,7 @@ export function buildBehaviorMathReport(input: BehaviorMathInput): BehaviorMathR
   let disabledEventsExcluded = 0;
   let legacyUnknownExcluded = 0;
   let duplicateEventsDeduped = 0;
+  let consentBlockedBehaviorEvents = 0;
   let watchTimeFromPageTimeExcluded = 0;
   let linkedGuestEventsAttributedToUsers = 0;
 
@@ -261,6 +274,12 @@ export function buildBehaviorMathReport(input: BehaviorMathInput): BehaviorMathR
     const metric = classifyMetric(event);
     if (!metric) {
       eligibility[eligibilityKey] = { eligible: false, reason: "identity_only" };
+      return;
+    }
+
+    if (shouldBlockPersonLevelBehaviorForConsent(event, metric)) {
+      consentBlockedBehaviorEvents += 1;
+      eligibility[eligibilityKey] = { eligible: false, reason: "consent_blocks_person_level_behavior" };
       return;
     }
 
@@ -320,6 +339,7 @@ export function buildBehaviorMathReport(input: BehaviorMathInput): BehaviorMathR
       disabledEventsExcluded,
       legacyUnknownExcluded,
       duplicateEventsDeduped,
+      consentBlockedBehaviorEvents,
       watchTimeFromPageTimeExcluded,
       linkedGuestEventsAttributedToUsers,
     },

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T04:39:06.793Z",
+  "generatedAtUtc": "2026-05-21T15:07:49.325Z",
   "reportKey": "identity-transfer-telemetry-closure",
-  "currentHead": "0592fb8ab558c1e632e41532f19643af32207ef6",
+  "currentHead": "f080e6eed6472953c5255371caca12eb2b884f1b",
   "summary": {
     "identityStatesClosed": true,
     "identityLinkRoutePresent": true,

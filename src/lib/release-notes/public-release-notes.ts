@@ -1,13 +1,79 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.63",
-  "betaReleaseCounter": 363,
+  "currentVersion": "1.3.64",
+  "betaReleaseCounter": 364,
   "channel": "beta",
-  "generatedAt": "2026-05-21T14:47:40.397Z",
-  "generatedAtUtc": "2026-05-21T14:47:40.397Z",
+  "generatedAt": "2026-05-21T15:06:33.909Z",
+  "generatedAtUtc": "2026-05-21T15:06:33.909Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.64",
+      "previousVersion": "1.3.63",
+      "betaReleaseCounter": 364,
+      "previousBetaReleaseCounter": 363,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): refine identity handoff",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T15:06:33.909Z",
+      "generatedAt": "2026-05-21T15:06:33.909Z",
+      "committedAtUtc": "2026-05-21T15:06:33.909Z",
+      "generatedAtUtc": "2026-05-21T15:06:33.909Z",
+      "updatedAtUtc": "2026-05-21T15:06:33.909Z",
+      "category": "Improved",
+      "title": "Guest-to-user analytics handoff",
+      "summary": "Improved guest signup and login continuity while keeping behavioral attribution consent-aware.",
+      "userFacingTitle": "Guest-to-user analytics handoff",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Improved guest-to-user analytics handoff.",
+        "Kept behavioral attribution consent-aware.",
+        "Prevented double-counting across signup and login."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a consent-aware identity state machine, deterministic handoff validator, and unit coverage for signup/login linkage."
+      ],
+      "affectedSurfaces": [
+        "Privacy & security",
+        "Telemetry",
+        "Account & onboarding"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/behavior-math-verification.generated.json",
+        "agent/state/consent-tracking-contract.generated.json",
+        "agent/state/identity-handoff-refinement.generated.json",
+        "agent/state/identity-transfer-telemetry-closure.generated.json",
+        "docs/agent-truth/identity-handoff-refinement.md",
+        "docs/agent-truth/identity-transfer-telemetry-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-identity-handoff-refinement.ts",
+        "src/app/api/analytics/identity-link/route.ts",
+        "src/app/api/analytics/ingest/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/context/AuthContext.tsx",
+        "src/lib/analytics/analytics-identity-link.ts",
+        "src/lib/analytics/identity-link-contract.ts",
+        "src/lib/analytics/identity-state-machine.ts",
+        "src/lib/behavioral/behavior-math-contract.ts",
+        "src/lib/behavioral/behavior-math-engine.ts",
+        "src/lib/client-session.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/analytics-identity-linking.ts",
+        "src/lib/telemetry.ts",
+        "tests/unit/identity-handoff-refinement.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.63",
       "previousVersion": "1.3.62",
@@ -1336,54 +1402,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/source-backed-runtime-confidence.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.39",
-      "previousVersion": "1.3.38",
-      "betaReleaseCounter": 339,
-      "previousBetaReleaseCounter": 338,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): rebuild targeted behavior evidence",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T23:38:41.434Z",
-      "generatedAt": "2026-05-20T23:38:41.434Z",
-      "committedAtUtc": "2026-05-20T23:38:41.434Z",
-      "generatedAtUtc": "2026-05-20T23:38:41.434Z",
-      "updatedAtUtc": "2026-05-20T23:38:41.434Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Rebuilt targeted behavior evidence from current validators.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Rebuilt targeted behavior evidence from current validators.",
-        "Recognized completed creator, user, mobile, and telemetry source behavior work.",
-        "Kept runtime and provider evidence gates separate."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted targeted behavior evidence refresh into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Source behavior evidence",
-        "Generated reports"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/targeted-behavior-evidence.generated.json",
-        "docs/agent-truth/targeted-behavior-evidence.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-targeted-behavior-evidence.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/targeted-behavior-evidence.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

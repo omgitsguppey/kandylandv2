@@ -198,7 +198,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const privacy = readPrivacySettingsSnapshot();
-        const consentState = canUseIdentifiedAnalytics(privacy) ? "granted" : "unknown";
+        const consentMode = privacy.consentMode;
+        const identityLinkAllowed = canUseIdentifiedAnalytics(privacy);
+        const consentState = identityLinkAllowed ? "granted" : "denied";
         const identity = getClientAnalyticsIdentitySnapshot(consentState);
         if (!identity.anonymousVisitorId || !identity.sessionId) {
             return;
@@ -211,6 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             linkedAt: new Date().toISOString(),
             reason: method,
             consentState,
+            consentMode,
             eligiblePastSessionIds: [identity.sessionId],
         });
 

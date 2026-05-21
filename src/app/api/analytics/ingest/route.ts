@@ -24,6 +24,7 @@ import {
     type AnalyticsIngestFailureReason,
 } from "@/lib/analytics/ingest-contract";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { CONSENT_MODE_VALUES } from "@/lib/privacy/consent-tracking-contract";
 import { normalizeAnonymousRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
@@ -91,6 +92,8 @@ const PayloadSchema = z.object({
     anonymousVisitorId: z.string().max(160).optional(),
     sessionId: z.string().min(8).max(160).regex(CLIENT_ANALYTICS_ID_PATTERN).optional(),
     batchId: z.string().regex(ANALYTICS_BATCH_ID_PATTERN).optional(),
+    consentMode: z.enum(CONSENT_MODE_VALUES).default("full_behavioral"),
+    identityState: z.enum(["guest_behavioral"]).default("guest_behavioral"),
     events: z.array(TelemetryEventSchema).max(200), // Cap events to 200 per payload
 });
 
@@ -324,7 +327,7 @@ async function POST_handler(request: NextRequest) {
             return buildAnalyticsIngestFailureResponse(reason);
         }
 
-        const { sessionId, events } = parsed.data;
+        const { sessionId, events, consentMode, identityState } = parsed.data;
         const { sessionKey, shouldSetCookie } = getOrCreateSessionKey(request);
         const canonicalAnonymousVisitorId = resolveCanonicalGuestAnonymousVisitorId({
             clientAnonymousVisitorId: parsed.data.anonymousVisitorId,
@@ -392,7 +395,8 @@ async function POST_handler(request: NextRequest) {
                 anonymousVisitorId: canonicalAnonymousVisitorId,
                 clientSessionId: sessionId || null,
                 minuteBucket,
-                consentMode: "anonymous",
+                consentMode,
+                identityState,
                 globalPrivacyControl,
                 eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
                 trackingOrigin: "guest_client",
@@ -415,7 +419,8 @@ async function POST_handler(request: NextRequest) {
                 anonymousVisitorId: canonicalAnonymousVisitorId,
                 clientSessionId: sessionId || null,
                 minuteBucket,
-                consentMode: "anonymous",
+                consentMode,
+                identityState,
                 globalPrivacyControl,
                 eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
                 trackingOrigin: "guest_client",

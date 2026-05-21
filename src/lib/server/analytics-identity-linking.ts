@@ -47,8 +47,11 @@ export async function upsertAnalyticsIdentityLink(
     sessionIds: Array.from(new Set([input.sessionId, ...(input.eligiblePastSessionIds || [])])).filter(Boolean),
     linkedAtMs: Date.parse(input.linkedAt) || Date.now(),
     consentState: input.consentState,
+    consentMode: input.consentMode ?? "unknown",
     mergeAllowed: input.mergeAllowed,
+    personLevelBehaviorAllowed: input.personLevelBehaviorAllowed === true,
     confidence: clamp01(input.confidence),
+    linkageConfidenceSource: input.linkageConfidenceSource ?? "blocked_by_consent_mode",
     updatedAtMs: Date.now(),
   }, { merge: true });
 
@@ -58,7 +61,10 @@ export async function upsertAnalyticsIdentityLink(
     session_id: input.sessionId,
     method: input.method,
     consent_state: input.consentState,
+    consent_mode: input.consentMode ?? "unknown",
     merge_allowed: input.mergeAllowed,
+    person_level_behavior_allowed: input.personLevelBehaviorAllowed === true,
+    linkage_confidence_source: input.linkageConfidenceSource ?? "blocked_by_consent_mode",
     source_truth: "canonical",
   }, input.userId).catch(() => undefined);
 

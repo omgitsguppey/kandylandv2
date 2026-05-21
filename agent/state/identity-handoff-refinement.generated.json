@@ -1,0 +1,82 @@
+{
+  "reportKey": "identity-handoff-refinement",
+  "generatedAtUtc": "2026-05-21T15:06:50.186Z",
+  "currentHead": "f080e6eed6472953c5255371caca12eb2b884f1b",
+  "status": "pass",
+  "dependencyStatus": {
+    "consentTrackingContract": "present"
+  },
+  "stateMachine": {
+    "states": [
+      "guest_unknown_consent",
+      "guest_necessary_only",
+      "guest_minimal",
+      "guest_behavioral",
+      "signup_pending",
+      "user_logged_in",
+      "user_logged_in_linked_guest",
+      "creator_user",
+      "admin_projection",
+      "legacy_unknown"
+    ],
+    "transitions": [
+      "page_visit",
+      "consent_accept_all",
+      "consent_minimal",
+      "consent_decline",
+      "signup_start",
+      "signup_success",
+      "login_success",
+      "logout",
+      "consent_changed",
+      "account_deleted"
+    ]
+  },
+  "checks": {
+    "consentTrackingContractPresent": true,
+    "stateMachineHasSignupAndLogin": true,
+    "deterministicIdempotentLink": true,
+    "identityLinkConsentAware": true,
+    "identityRouteBlocksMinimalConsent": true,
+    "authContextPassesConsentMode": true,
+    "trackerCarriesConsentMode": true,
+    "linkedGuestNoDoubleCount": true,
+    "behaviorMathBlocksMinimalPersonBehavior": true,
+    "legacyUnknownNotKnownUser": true,
+    "consentTransitionsTested": true,
+    "noProtectedSurfacesTouched": true,
+    "fullBehaviorRequiresFullConsent": true,
+    "identityPersistenceRequiresAllowedConsent": true,
+    "trackerContextHasLinkId": true,
+    "legacyStateExists": true,
+    "noBroadReadOnLogin": true,
+    "sourceFilesUseExistingIdentityTransfer": true
+  },
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/context/optimized-task-context.generated.json",
+    "agent/state/behavior-math-verification.generated.json",
+    "agent/state/consent-tracking-contract.generated.json",
+    "agent/state/identity-transfer-telemetry-closure.generated.json",
+    "docs/agent-truth/identity-transfer-telemetry-closure.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "src/app/api/analytics/identity-link/route.ts",
+    "src/app/api/analytics/ingest/route.ts",
+    "src/components/Analytics/DeepTracker.tsx",
+    "src/context/AuthContext.tsx",
+    "src/lib/analytics/analytics-identity-link.ts",
+    "src/lib/analytics/identity-link-contract.ts",
+    "src/lib/behavioral/behavior-math-contract.ts",
+    "src/lib/behavioral/behavior-math-engine.ts",
+    "src/lib/client-session.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/server/analytics-identity-linking.ts",
+    "src/lib/telemetry.ts"
+  ],
+  "validationFailures": [],
+  "nextActions": [
+    "Keep formal runtime/provider/manual evidence gates separate; this is source-only identity continuity proof."
+  ]
+}

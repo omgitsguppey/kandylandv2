@@ -1,6 +1,7 @@
 "use client";
 
 import type { AnalyticsConsentState, AnalyticsEventSourceLane } from "@/lib/analytics/analytics-event-contract";
+import { buildGuestUserIdentityLinkId } from "@/lib/analytics/analytics-identity-link";
 
 const CLIENT_SESSION_STORAGE_KEY = "kandy_session_id";
 const LEGACY_CLIENT_SESSION_STORAGE_KEY = "kandydrops.clientSession";
@@ -189,6 +190,7 @@ export interface ClientIdentityLinkRecord {
   anonymousVisitorId: string | null;
   sessionId: string;
   userId: string;
+  identityLinkId?: string;
   linkedAt: string;
   method: "login" | "signup" | "session_restore" | "admin_link" | "import" | "unknown";
   eligiblePastSessionIds: string[];
@@ -207,11 +209,19 @@ export function buildClientIdentityLinkRecord(input: {
 }): ClientIdentityLinkRecord {
   const consentState = input.consentState ?? "unknown";
   const identity = getClientAnalyticsIdentitySnapshot(consentState);
+  const identityLinkId = identity.anonymousVisitorId
+    ? buildGuestUserIdentityLinkId({
+      guestId: identity.anonymousVisitorId,
+      sessionId: identity.sessionId,
+      userId: input.userId,
+    })
+    : undefined;
 
   return {
     anonymousVisitorId: identity.anonymousVisitorId,
     sessionId: identity.sessionId,
     userId: input.userId,
+    identityLinkId,
     linkedAt: input.linkedAt ?? new Date().toISOString(),
     method: input.method,
     eligiblePastSessionIds: input.eligiblePastSessionIds ?? [identity.sessionId],

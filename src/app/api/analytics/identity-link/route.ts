@@ -5,6 +5,8 @@ import {
   buildIdentityLink,
   type GuestUserIdentityLinkReason,
 } from "@/lib/analytics/analytics-identity-link";
+import { CONSENT_MODE_VALUES } from "@/lib/privacy/consent-tracking-contract";
+import { canPersistIdentityLink, normalizeConsentMode } from "@/lib/privacy/consent-tracking-policy";
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
 import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -19,6 +21,7 @@ const IdentityLinkSchema = z.object({
   linkedAt: z.string().min(1).max(80).optional(),
   reason: z.enum(["login", "signup", "session_restore"]).default("login"),
   consentState: z.enum(["granted", "denied", "partial", "unknown", "not_required"]).default("unknown"),
+  consentMode: z.enum(CONSENT_MODE_VALUES).default("unknown"),
   eligiblePastSessionIds: z.array(z.string().min(1).max(200)).max(25).optional(),
 });
 
@@ -53,7 +56,24 @@ async function POST_handler(request: NextRequest) {
     sessionId: parsed.data.sessionId,
     linkedAt: parsed.data.linkedAt,
     reason: parsed.data.reason,
+    consentMode: parsed.data.consentMode,
   });
+  const consentMode = normalizeConsentMode(parsed.data.consentMode);
+  const mergeAllowed = canPersistIdentityLink(consentMode) && link.mergeAllowed && parsed.data.consentState !== "denied";
+
+  if (!mergeAllowed) {
+    return NextResponse.json({
+      success: true,
+      ignored: true,
+      reason: "identity_link_blocked_by_consent",
+      identityLinkId: link.identityLinkId,
+      created: false,
+      identityState: "user_logged_in",
+      retryable: false,
+      consentMode,
+      mergeAllowed: false,
+    });
+  }
 
   // cost-bound: link-first transfer writes one association record and never scans historical guest events.
   const linkResult = await upsertAnalyticsIdentityLink({
@@ -63,9 +83,12 @@ async function POST_handler(request: NextRequest) {
     linkedAt: link.linkedAt,
     method: link.reason as GuestUserIdentityLinkReason,
     eligiblePastSessionIds: Array.from(new Set([link.sessionId, ...(parsed.data.eligiblePastSessionIds ?? [])])).filter(Boolean),
-    consentState: parsed.data.consentState,
-    mergeAllowed: parsed.data.consentState !== "denied",
-    confidence: 0.9,
+    consentState: link.consentState,
+    consentMode: link.consentMode,
+    mergeAllowed,
+    personLevelBehaviorAllowed: link.personLevelBehaviorAllowed,
+    confidence: link.linkageConfidence,
+    linkageConfidenceSource: link.linkageConfidenceSource,
     authTransitionId: link.authTransitionId,
     identityState: link.identityState,
     sourceTruth: link.sourceTruth,
@@ -76,6 +99,9 @@ async function POST_handler(request: NextRequest) {
     identityLinkId: linkResult.identityLinkId || link.identityLinkId,
     created: linkResult.created === true,
     identityState: link.identityState,
+    consentMode: link.consentMode,
+    mergeAllowed,
+    personLevelBehaviorAllowed: link.personLevelBehaviorAllowed,
     retryable: false,
   });
 }

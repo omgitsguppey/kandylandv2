@@ -117,6 +117,7 @@ export function buildGuestAnalyticsIngestPayload(
     stableBatch?: StableGuestAnalyticsBatch | null,
 ) {
     const identity = getClientAnalyticsIdentitySnapshot("granted");
+    const privacy = readPrivacySettingsSnapshot();
     const signature = buildGuestAnalyticsBatchSignature(events);
     const batchId = stableBatch?.signature === signature
         ? stableBatch.batchId
@@ -128,6 +129,8 @@ export function buildGuestAnalyticsIngestPayload(
             batchId,
             anonymousVisitorId: identity.anonymousVisitorId ?? undefined,
             sessionId: identity.sessionId,
+            consentMode: privacy.consentMode,
+            identityState: "guest_behavioral",
             events,
         },
     };

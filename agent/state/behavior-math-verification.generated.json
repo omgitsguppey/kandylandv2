@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-21T14:50:00.448Z",
+  "generatedAt": "2026-05-21T15:07:49.763Z",
   "source": "local_static_validator",
   "overallScore": 100,
   "overallStatus": "live",
@@ -15,6 +15,7 @@
       "disabledEventsExcluded": 1,
       "legacyUnknownExcluded": 1,
       "duplicateEventsDeduped": 1,
+      "consentBlockedBehaviorEvents": 0,
       "watchTimeFromPageTimeExcluded": 1,
       "linkedGuestEventsAttributedToUsers": 1
     },
