@@ -1,33 +1,82 @@
 {
-  "generatedAtUtc": "2026-05-21T01:20:31.395Z",
-  "currentHead": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+  "generatedAtUtc": "2026-05-21T02:02:17.097Z",
+  "currentHead": "8a6ce0832cc6c93943ea5a72f2acf0579329d55c",
   "adminDebugControlTowerModelPresent": true,
   "adminDebugRoutePresent": true,
+  "routeDiagnosticsPresent": true,
+  "debugEvidenceContractPresent": true,
   "summaryCardsPresent": true,
   "productionSampleAttached": false,
+  "formalRuntimeSampleAttached": false,
   "formalAdminTruthSamplePassed": false,
   "sourceTruthLabelsPresent": true,
+  "sourceTruthStatus": "source_backed",
+  "telemetryHealthLaneStatus": "partial",
+  "degradedOrUnavailableLanes": [
+    {
+      "lane": "ingest",
+      "status": "runtime_unproven",
+      "nextAction": "Open the route runtime drilldown or wait for runtime samples before treating ingest as proven."
+    },
+    {
+      "lane": "user_events",
+      "status": "runtime_unproven",
+      "nextAction": "Refresh admin analytics snapshots before reading user-event health."
+    },
+    {
+      "lane": "watch_time",
+      "status": "runtime_unproven",
+      "nextAction": "Attach or verify deployed runtime watch-session evidence before treating watch time as proven."
+    },
+    {
+      "lane": "materializers",
+      "status": "runtime_unproven",
+      "nextAction": "Use snapshot metadata before raw collections."
+    },
+    {
+      "lane": "bigquery_export",
+      "status": "config_missing",
+      "nextAction": "Configure export only in an owner-approved cloud pipeline pass."
+    },
+    {
+      "lane": "admin_snapshots",
+      "status": "unavailable",
+      "nextAction": "Run the admin analytics refresh lane before treating this as current."
+    }
+  ],
+  "criticalAdminTruthIssueCount": 0,
   "fakeHealthyStateDetected": false,
   "reportKey": "admin-truth-source-sample",
-  "sourceCommit": "979fd59494a844e8e2322cb6790d3607a58b1bc2",
+  "sourceCommit": "8a6ce0832cc6c93943ea5a72f2acf0579329d55c",
   "status": "source_ready_admin_truth_sample",
   "passed": true,
-  "launchGateImpact": "does_not_clear_admin_truth_sample",
+  "launchGateImpact": "partial_source_admin_truth_only",
   "formalEvidenceImpact": "source_admin_truth_wiring_only",
   "evidence": [
     "adminDebugControlTowerModelPresent=true",
     "adminDebugRoutePresent=true",
+    "routeDiagnosticsPresent=true",
+    "debugEvidenceContractPresent=true",
     "summaryCardsPresent=true",
     "productionSampleAttached=false",
+    "formalRuntimeSampleAttached=false",
     "formalAdminTruthSamplePassed=false",
     "sourceTruthLabelsPresent=true",
+    "sourceTruthStatus=source_backed",
+    "telemetryHealthLaneStatus=partial",
+    "degradedOrUnavailableLaneCount=6",
+    "criticalAdminTruthIssueCount=0",
     "fakeHealthyStateDetected=false",
-    "launchGateImpact=does_not_clear_admin_truth_sample"
+    "launchGateImpact=partial_source_admin_truth_only"
   ],
   "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
   "summary": {
     "adminTruthSourceReady": true,
+    "telemetryLaneCount": 6,
+    "degradedOrUnavailableLaneCount": 6,
+    "criticalAdminTruthIssueCount": 0,
     "productionSampleAttached": false,
+    "formalRuntimeSampleAttached": false,
     "formalAdminTruthSamplePassed": false
   }
 }

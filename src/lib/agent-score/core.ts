@@ -764,8 +764,14 @@ export function buildPublicBetaEvidenceGates(input: {
       currentHead,
       lane: "admin_truth_sample",
       requiredForExit: true,
+      requiresRuntimeProof: true,
     },
   });
+  const adminTruthSampleStatusLabel: PublicBetaReadinessStatus = adminTruthSamplePassed
+    ? "Ready"
+    : adminQuality.quality === "source_ready"
+      ? "Ready with smoke required"
+      : "Unknown evidence";
 
   const sourceSafetyQuality = {
     quality: input.hasCritical ? "failed" : "formal_passed",
@@ -870,12 +876,13 @@ export function buildPublicBetaEvidenceGates(input: {
       id: "adminTruthSamples",
       label: "Admin truth/sample evidence",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples,
-      status: adminTruthSamplePassed ? "Ready" : "Unknown evidence",
+      status: adminTruthSampleStatusLabel,
       detail: adminTruthSampleDetail,
       evidence: adminTruthSampleEvidence,
       recommendedAction: "Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
       quality: adminQuality,
       gateRequiredForExit: true,
+      sourceCredit: adminQuality.quality === "source_ready" ? adminQuality.partialCredit * 100 : undefined,
       runtimeCredit: adminQuality.quality === "formal_passed" ? adminQuality.partialCredit * 100 : 0,
     }),
     buildEvidenceGate({

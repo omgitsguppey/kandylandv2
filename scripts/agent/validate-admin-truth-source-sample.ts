@@ -12,18 +12,33 @@ export type AdminTruthSourceSampleReport = {
   passed: boolean;
   adminDebugControlTowerModelPresent: boolean;
   adminDebugRoutePresent: boolean;
+  routeDiagnosticsPresent: boolean;
+  debugEvidenceContractPresent: boolean;
   summaryCardsPresent: boolean;
   productionSampleAttached: boolean;
+  formalRuntimeSampleAttached: boolean;
   formalAdminTruthSamplePassed: boolean;
   sourceTruthLabelsPresent: boolean;
+  sourceTruthStatus: "source_backed" | "missing" | "unknown";
+  telemetryHealthLaneStatus: "complete" | "partial" | "missing";
+  degradedOrUnavailableLanes: Array<{
+    lane: string;
+    status: string;
+    nextAction: string;
+  }>;
+  criticalAdminTruthIssueCount: number;
   fakeHealthyStateDetected: boolean;
-  launchGateImpact: "does_not_clear_admin_truth_sample";
+  launchGateImpact: "partial_source_admin_truth_only";
   formalEvidenceImpact: "source_admin_truth_wiring_only";
   evidence: string[];
   nextAction: string;
   summary: {
     adminTruthSourceReady: boolean;
+    telemetryLaneCount: number;
+    degradedOrUnavailableLaneCount: number;
+    criticalAdminTruthIssueCount: number;
     productionSampleAttached: boolean;
+    formalRuntimeSampleAttached: boolean;
     formalAdminTruthSamplePassed: boolean;
   };
 };
@@ -52,11 +67,17 @@ function readText(relativePath: string) {
 export function buildAdminTruthSourceSampleReport(inputs: BuildInputs): AdminTruthSourceSampleReport {
   const adminTruthSourceReady = inputs.adminDebugControlTowerModelPresent
     && inputs.adminDebugRoutePresent
+    && inputs.routeDiagnosticsPresent
+    && inputs.debugEvidenceContractPresent
     && inputs.summaryCardsPresent
     && inputs.sourceTruthLabelsPresent
+    && inputs.sourceTruthStatus === "source_backed"
+    && inputs.telemetryHealthLaneStatus !== "missing"
+    && inputs.degradedOrUnavailableLanes.length > 0
     && !inputs.fakeHealthyStateDetected;
   const passed = adminTruthSourceReady
     && inputs.productionSampleAttached === false
+    && inputs.formalRuntimeSampleAttached === false
     && inputs.formalAdminTruthSamplePassed === false;
   const status = passed
     ? "source_ready_admin_truth_sample"
@@ -69,22 +90,33 @@ export function buildAdminTruthSourceSampleReport(inputs: BuildInputs): AdminTru
     sourceCommit: inputs.currentHead,
     status,
     passed,
-    launchGateImpact: "does_not_clear_admin_truth_sample",
+    launchGateImpact: "partial_source_admin_truth_only",
     formalEvidenceImpact: "source_admin_truth_wiring_only",
     evidence: [
       `adminDebugControlTowerModelPresent=${inputs.adminDebugControlTowerModelPresent}`,
       `adminDebugRoutePresent=${inputs.adminDebugRoutePresent}`,
+      `routeDiagnosticsPresent=${inputs.routeDiagnosticsPresent}`,
+      `debugEvidenceContractPresent=${inputs.debugEvidenceContractPresent}`,
       `summaryCardsPresent=${inputs.summaryCardsPresent}`,
       `productionSampleAttached=${inputs.productionSampleAttached}`,
+      `formalRuntimeSampleAttached=${inputs.formalRuntimeSampleAttached}`,
       `formalAdminTruthSamplePassed=${inputs.formalAdminTruthSamplePassed}`,
       `sourceTruthLabelsPresent=${inputs.sourceTruthLabelsPresent}`,
+      `sourceTruthStatus=${inputs.sourceTruthStatus}`,
+      `telemetryHealthLaneStatus=${inputs.telemetryHealthLaneStatus}`,
+      `degradedOrUnavailableLaneCount=${inputs.degradedOrUnavailableLanes.length}`,
+      `criticalAdminTruthIssueCount=${inputs.criticalAdminTruthIssueCount}`,
       `fakeHealthyStateDetected=${inputs.fakeHealthyStateDetected}`,
-      "launchGateImpact=does_not_clear_admin_truth_sample",
+      "launchGateImpact=partial_source_admin_truth_only",
     ],
     nextAction: "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
     summary: {
       adminTruthSourceReady,
+      telemetryLaneCount: inputs.degradedOrUnavailableLanes.length,
+      degradedOrUnavailableLaneCount: inputs.degradedOrUnavailableLanes.length,
+      criticalAdminTruthIssueCount: inputs.criticalAdminTruthIssueCount,
       productionSampleAttached: inputs.productionSampleAttached,
+      formalRuntimeSampleAttached: inputs.formalRuntimeSampleAttached,
       formalAdminTruthSamplePassed: inputs.formalAdminTruthSamplePassed,
     },
   };
@@ -95,10 +127,21 @@ export function validateAdminTruthSourceSampleReport(report: AdminTruthSourceSam
   if (report.reportKey !== "admin-truth-source-sample") failures.push("reportKey must be admin-truth-source-sample.");
   if (report.sourceCommit !== report.currentHead) failures.push("artifact must be tied to the latest code version.");
   if (report.productionSampleAttached !== false) failures.push("source sample must not claim production sample attachment.");
+  if (report.formalRuntimeSampleAttached !== false) failures.push("source sample must not claim production runtime proof.");
   if (report.formalAdminTruthSamplePassed !== false) failures.push("source sample must not clear formal admin truth sample.");
-  if (report.launchGateImpact !== "does_not_clear_admin_truth_sample") failures.push("source sample must not clear admin truth sample gate.");
+  if (report.launchGateImpact !== "partial_source_admin_truth_only") failures.push("source sample must not clear admin truth sample gate.");
   if (report.fakeHealthyStateDetected) failures.push("admin truth source sample detected fake healthy state.");
   if (!report.sourceTruthLabelsPresent) failures.push("admin truth source labels are required.");
+  if (report.sourceTruthStatus !== "source_backed") failures.push("source truth fields must be included.");
+  if (!report.routeDiagnosticsPresent) failures.push("route diagnostics source must be represented.");
+  if (!report.debugEvidenceContractPresent) failures.push("debug evidence contract source must be represented.");
+  if (report.degradedOrUnavailableLanes.length === 0) failures.push("admin truth source sample must list degraded or unavailable lanes.");
+  if (report.degradedOrUnavailableLanes.some((lane) => /healthy|live/iu.test(lane.status))) {
+    failures.push("unknown or unavailable lanes must not be marked healthy/live.");
+  }
+  if (report.criticalAdminTruthIssueCount > 0 && report.passed) {
+    failures.push("critical admin truth issues must prevent the source sample from passing.");
+  }
   return failures;
 }
 
@@ -106,7 +149,26 @@ function buildFromRepo(head: string) {
   const controlTower = readText("src/lib/admin-debug-control-tower.ts");
   const route = readText("src/app/api/admin/debug/route.ts");
   const summaryCards = readText("src/lib/admin-debug-summary-cards.ts");
+  const routeDiagnostics = readText("src/lib/server/route-diagnostics.ts");
+  const debugEvidenceContract = readText("src/lib/debug-evidence-contract.ts");
   const debugPage = readText("src/app/admin/debug/page.tsx");
+  const telemetryAdminDebugTruth = (() => {
+    try {
+      return JSON.parse(readText("agent/state/telemetry-admin-debug-truth.generated.json")) as {
+        summary?: { p0Count?: number };
+        lanes?: Array<{ id?: string; status?: string; nextAction?: string }>;
+      };
+    } catch {
+      return null;
+    }
+  })();
+  const degradedOrUnavailableLanes = (telemetryAdminDebugTruth?.lanes ?? [])
+    .filter((lane) => /degraded|unavailable|config_missing|runtime_unproven|unknown|failed/iu.test(String(lane.status ?? "")))
+    .map((lane) => ({
+      lane: String(lane.id ?? "unknown"),
+      status: String(lane.status ?? "unknown"),
+      nextAction: String(lane.nextAction ?? "Refresh the admin telemetry health lane."),
+    }));
   const joinedSource = controlTower + route + summaryCards;
   const fakeHealthyStateDetected = /missing["']?\s*\?\s*["'](?:healthy|live)["']|unknown["']?\s*\?\s*["'](?:healthy|live)["']/iu.test(joinedSource)
     || /truthState\s*:\s*["'](?:healthy|live)["'][^,\n]*(?:missing|unknown)/iu.test(joinedSource);
@@ -115,10 +177,21 @@ function buildFromRepo(head: string) {
     currentHead: head,
     adminDebugControlTowerModelPresent: controlTower.includes("buildAdminDebugControlTowerModel"),
     adminDebugRoutePresent: route.includes("GET") && route.includes("debug"),
+    routeDiagnosticsPresent: routeDiagnostics.includes("recordRouteDiagnostic") && routeDiagnostics.includes("recordDebugEvidence"),
+    debugEvidenceContractPresent: debugEvidenceContract.includes("DebugEvidenceRecord") && debugEvidenceContract.includes("DebugEvidenceAuditSummary"),
     summaryCardsPresent: summaryCards.includes("source") || summaryCards.includes("truth"),
     productionSampleAttached: false,
+    formalRuntimeSampleAttached: false,
     formalAdminTruthSamplePassed: false,
     sourceTruthLabelsPresent: /truthState|sourceTruth|source/i.test(controlTower + route + summaryCards + debugPage),
+    sourceTruthStatus: /truthState|sourceTruth|source/i.test(controlTower + route + summaryCards + debugPage) ? "source_backed" : "missing",
+    telemetryHealthLaneStatus: degradedOrUnavailableLanes.length > 0
+      ? "partial"
+      : telemetryAdminDebugTruth?.lanes?.length
+        ? "complete"
+        : "missing",
+    degradedOrUnavailableLanes,
+    criticalAdminTruthIssueCount: Number(telemetryAdminDebugTruth?.summary?.p0Count ?? 0),
     fakeHealthyStateDetected,
   });
 }
@@ -135,10 +208,18 @@ Latest code version: ${report.currentHead}
 - Status: \`${report.status}\`
 - Admin truth source ready: ${report.summary.adminTruthSourceReady}
 - Production sample attached: ${report.productionSampleAttached}
+- Formal runtime sample attached: ${report.formalRuntimeSampleAttached}
 - Formal admin truth sample passed: ${report.formalAdminTruthSamplePassed}
 - Launch gate impact: \`${report.launchGateImpact}\`
+- Telemetry health lane status: \`${report.telemetryHealthLaneStatus}\`
+- Degraded/unavailable lanes: ${report.degradedOrUnavailableLanes.length}
+- Critical admin truth issues: ${report.criticalAdminTruthIssueCount}
 
 This is source wiring evidence only. It does not replace a redacted production admin truth sample.
+
+## Degraded Or Unavailable Lanes
+
+${report.degradedOrUnavailableLanes.map((lane) => `- ${lane.lane}: ${lane.status}. Next: ${lane.nextAction}`).join("\n")}
 `;
 }
 

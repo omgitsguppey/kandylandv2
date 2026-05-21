@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.45 - 2026-05-20
+- Bug fixes and general improvements
+- Added source-backed admin truth sample evidence.
+- Kept unavailable admin lanes from appearing healthy.
+- Preserved formal admin evidence gate for runtime proof.
+
 ## 1.3.44 - 2026-05-20
 - Bug fixes and general improvements
 - Refreshed stale score-impact reports from the latest code version.

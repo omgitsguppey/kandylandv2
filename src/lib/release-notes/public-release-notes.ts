@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.44",
-  "betaReleaseCounter": 344,
+  "currentVersion": "1.3.45",
+  "betaReleaseCounter": 345,
   "channel": "beta",
-  "generatedAt": "2026-05-21T01:41:47.379Z",
-  "generatedAtUtc": "2026-05-21T01:41:47.379Z",
+  "generatedAt": "2026-05-21T01:58:23.749Z",
+  "generatedAtUtc": "2026-05-21T01:58:23.749Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.45",
+      "previousVersion": "1.3.44",
+      "betaReleaseCounter": 345,
+      "previousBetaReleaseCounter": 344,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(admin): add source truth sample",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T01:58:23.749Z",
+      "generatedAt": "2026-05-21T01:58:23.749Z",
+      "committedAtUtc": "2026-05-21T01:58:23.749Z",
+      "generatedAtUtc": "2026-05-21T01:58:23.749Z",
+      "updatedAtUtc": "2026-05-21T01:58:23.749Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added source-backed admin truth sample evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added source-backed admin truth sample evidence.",
+        "Kept unavailable admin lanes from appearing healthy.",
+        "Preserved formal admin evidence gate for runtime proof."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted admin truth source sample pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug",
+        "Beta readiness",
+        "Evidence freshness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-truth-source-sample.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/admin-truth-source-sample.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-admin-truth-source-sample.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-truth-source-sample.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.44",
       "previousVersion": "1.3.43",
@@ -1328,63 +1382,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/mobile-surface-organization.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.20",
-      "previousVersion": "1.3.19",
-      "betaReleaseCounter": 320,
-      "previousBetaReleaseCounter": 319,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(ui): stabilize mobile loading states",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T00:10:16.213Z",
-      "generatedAt": "2026-05-20T00:10:16.213Z",
-      "committedAtUtc": "2026-05-20T00:10:16.213Z",
-      "generatedAtUtc": "2026-05-20T00:10:16.213Z",
-      "updatedAtUtc": "2026-05-20T00:10:16.213Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved mobile loading and skeleton stability.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved mobile loading and skeleton stability.",
-        "Reduced layout shift during dashboard hydration.",
-        "Added stale-request guards for mobile data loading."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted mobile loading hydration stability pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "mobile UI",
-        "admin screens",
-        "creator screens",
-        "user screens"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/mobile-loading-hydration-stability.generated.json",
-        "docs/agent-truth/mobile-loading-hydration-stability.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-mobile-loading-hydration-stability.ts",
-        "src/app/admin/analytics/loading.tsx",
-        "src/app/admin/queue/page.tsx",
-        "src/app/dashboard/DashboardClient.tsx",
-        "src/app/dashboard/library/LibraryClient.tsx",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Creators/CreatorDropManager.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/ui/loading-state-contract.ts",
-        "tests/unit/mobile-loading-hydration-stability.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

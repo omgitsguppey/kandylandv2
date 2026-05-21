@@ -40,6 +40,7 @@ const RUNTIME_SMOKE_EVIDENCE_PATH = "agent/state/runtime-smoke-evidence.generate
 const SOURCE_BACKED_RUNTIME_CONFIDENCE_PATH = "agent/state/source-backed-runtime-confidence.generated.json";
 const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generated.json";
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
+const ADMIN_TRUTH_SOURCE_SAMPLE_PATH = "agent/state/admin-truth-source-sample.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
 const VISUAL_MANUAL_EVIDENCE_PATHS = [
   "agent/state/manual-smoke-evidence.generated.json",
@@ -311,9 +312,40 @@ function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
   };
 }
 
+function readAdminTruthSourceSampleEvidence(root: string): PublicBetaEvidenceArtifact | null {
+  const sourceSample = readJsonFile(root, ADMIN_TRUTH_SOURCE_SAMPLE_PATH);
+  if (!sourceSample) return null;
+  const status = readString(sourceSample.status) ?? "source_ready_admin_truth_sample";
+  const formalGatePassed = readBoolean(sourceSample.formalAdminTruthSamplePassed) === true;
+  const productionSampleAttached = readBoolean(sourceSample.productionSampleAttached) === true;
+  const sourceReady = status.includes("source_ready")
+    && formalGatePassed === false
+    && productionSampleAttached === false;
+  return {
+    path: ADMIN_TRUTH_SOURCE_SAMPLE_PATH,
+    status: sourceReady ? status : "missing_or_unknown",
+    passed: false,
+    detail: readString(sourceSample.nextAction)
+      ?? "Source-backed admin truth wiring is present; formal admin truth sample remains missing.",
+    evidence: [
+      `adminTruthSampleArtifactStatus=${status}`,
+      `sourceSampleStatus=${status}`,
+      `productionSampleAttached=${productionSampleAttached}`,
+      `formalAdminTruthSamplePassed=${formalGatePassed}`,
+      `formalRuntimeSampleAttached=${readBoolean(sourceSample.formalRuntimeSampleAttached) === true}`,
+      `launchGateImpact=${readString(sourceSample.launchGateImpact) ?? "unknown"}`,
+      ...evidenceLinesFromArray(sourceSample.evidence, "adminTruthSourceEvidence"),
+    ],
+    generatedAtUtc: readString(sourceSample.generatedAtUtc) ?? readString(sourceSample.generatedAt),
+    sourceCommit: readString(sourceSample.sourceCommit) ?? readString(sourceSample.currentHead),
+  };
+}
+
 function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact {
   const parsed = readJsonFile(root, ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH);
   if (!parsed) {
+    const sourceSample = readAdminTruthSourceSampleEvidence(root);
+    if (sourceSample) return sourceSample;
     return readEvidenceArtifact(
       root,
       ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH,
@@ -328,6 +360,10 @@ function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact 
   const freshSampleAttached = readBoolean(parsed.freshAdminTruthSampleAttached) === true;
   const adminGatePassed = readBoolean(readinessImpact.adminTruthSampleGatePassed) === true;
   const passed = freshSampleAttached && adminGatePassed && sampleCount > 0 && status !== "missing_or_unknown";
+  if (!passed) {
+    const sourceSample = readAdminTruthSourceSampleEvidence(root);
+    if (sourceSample) return sourceSample;
+  }
 
   return {
     path: ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH,

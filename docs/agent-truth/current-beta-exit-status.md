@@ -1,20 +1,20 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-21T01:38:30.729Z
+Generated: 2026-05-21T01:57:23.287Z
 
-Latest code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
+Latest code version: 8a6ce0832cc6c93943ea5a72f2acf0579329d55c
 
 ## Summary
 
 - Beta version: 1.3.42
-- Beta score: 59.74
-- Beta status: Unknown evidence
+- Beta score: 63.33
+- Beta status: Visual QA required
 - Visual evidence: source_only_screenshotEvidenceAttached_false
 - Provider smoke: missing_formal_evidence
 - Operator revenue smoke: operator_confirmed_revenue_smoke
 - Operator revenue note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
 - Runtime smoke: runtime_unverified
-- Admin truth sample: missing_or_unknown
+- Admin truth sample: source_ready_admin_truth_sample_formal_missing
 - Cloud Run cost readiness: cost_review_required
 - Cloud SQL cost readiness: not_detected_in_repo
 - Gemini/Cloud Assist cost readiness: cost_review_required
@@ -34,22 +34,22 @@ Latest code version: 6a72b1efc5d28cfbaf9809263db7a975a53fc9e3
 
 - agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/source-truth-authority-map.generated.json: Source truth authority map is current for the latest code version. Command: `npm run check:source-truth-authority-map`.
-- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock is current for the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
-- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock is current for the latest code version. Command: `npm run check:mobile-ui-final-lock`.
-- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock is current for the latest code version. Command: `npm run check:overnight-final-integration-lock`.
-- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane is current for the latest code version. Command: `npm run check:creator-settings-control-plane`.
-- agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics is current for the latest code version. Command: `npm run check:creator-drop-status-metrics`.
-- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current for the latest code version. Command: `npm run check:operator-revenue-smoke`.
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map is current for the latest code version. Command: `npm run check:beta-evidence-gap-map`.
-- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep is current for the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
-- agent/state/beta-freshness-language.generated.json: Beta freshness language is current for the latest code version. Command: `npm run check:beta-freshness-language`.
-- agent/state/final-pr-stale-cleanup.generated.json: Final PR stale cleanup is current for the latest code version. Command: `npm run check:final-pr-stale-cleanup`.
-- agent/state/overnight-wiring-integrity.generated.json: Overnight wiring integrity is current for the latest code version. Command: `npm run check:overnight-wiring-integrity`.
-- agent/state/existing-algorithm-refinement.generated.json: Existing algorithm refinement is current for the latest code version. Command: `npm run check:existing-algorithm-refinement`.
-- agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement is current for the latest code version. Command: `npm run check:user-loading-wallet-mobile-refinement`.
-- agent/state/global-marquee-truncated-titles.generated.json: Global marquee title rollout is current for the latest code version. Command: `npm run check:global-marquee-truncated-titles`.
+- agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:evidence-capture-status`.
+- agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
+- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
+- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
+- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:overnight-final-integration-lock`.
+- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
+- agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-drop-status-metrics`.
+- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
+- agent/state/beta-freshness-language.generated.json: Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-freshness-language`.
+- agent/state/final-pr-stale-cleanup.generated.json: Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-pr-stale-cleanup`.
+- agent/state/overnight-wiring-integrity.generated.json: Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:overnight-wiring-integrity`.
+- agent/state/existing-algorithm-refinement.generated.json: Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:existing-algorithm-refinement`.
+- agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:user-loading-wallet-mobile-refinement`.
+- agent/state/global-marquee-truncated-titles.generated.json: Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:global-marquee-truncated-titles`.
 
 ## Remaining Blockers
 
