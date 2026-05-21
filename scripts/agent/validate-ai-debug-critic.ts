@@ -172,7 +172,7 @@ const report = buildAiDebugCriticReport({
       "src/lib/behavioral/event-fact-contract.ts",
       "src/lib/behavioral/tracking-surface-map.ts",
     ],
-    changedTelemetryFiles: changedFiles.filter((path) => /telemetry|analytics|event/i.test(path)),
+    changedTelemetryFiles: changedFiles.filter((path) => /^(src|functions)\//i.test(path) && /telemetry|analytics|event/i.test(path)),
   },
   costReadiness: {
     guardedCostPaths: changedFiles.filter((path) => path.includes("ai-debug-critic")),

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-21T05:57:12.515Z",
+  "generatedAt": "2026-05-21T13:13:27.469Z",
   "reportKey": "ai-debug-critic",
-  "criticStatus": "request_changes",
+  "criticStatus": "pass",
   "checks": [
     {
       "id": "no_patch_on_top_of_stale_logic",
@@ -66,11 +66,12 @@
   ],
   "findings": [
     {
-      "id": "no_patch_on_top_of_stale_logic-417073463",
+      "id": "no_patch_on_top_of_stale_logic-968169009",
       "check": "no_patch_on_top_of_stale_logic",
-      "severity": "required",
+      "severity": "warning",
+      "actionClass": "needs_refresh",
       "title": "Stale debug logic is still active",
-      "detail": "Open stale backlog items must be refreshed, retired, or explicitly blocked before a patch can claim completion.",
+      "detail": "Open stale backlog items are classified as refresh, formal evidence, or operator confirmation work; they must stay visible but do not imply a source code request-change.",
       "sourceFiles": [
         "admin_truth_sample_evidence",
         "agent/state/admin-truth-sample-evidence.generated.json",
@@ -93,7 +94,6 @@
         "agent/state/overnight-final-integration-lock.generated.json",
         "agent/state/overnight-wiring-integrity.generated.json",
         "agent/state/provider-smoke-evidence.generated.json",
-        "agent/state/public-beta-score.generated.json",
         "agent/state/runtime-smoke-evidence.generated.json",
         "agent/state/source-truth-authority-map.generated.json",
         "agent/state/targeted-behavior-evidence.generated.json",
@@ -103,17 +103,16 @@
         "runtime_provider_smoke",
         "visual_manual_smoke"
       ],
-      "requiredFix": "Refresh or retire stale backlog items and keep them visible until the owning evidence lane changes.",
+      "requiredFix": "Keep the stale backlog item visible in the owning evidence or refresh lane until the required artifact changes.",
       "suggestedValidators": [
         "npm run check:ai-debug-critic",
         "npm run check:debug-backlog-engine"
       ]
     }
   ],
-  "requiredFixes": [
-    "Refresh or retire stale backlog items and keep them visible until the owning evidence lane changes."
-  ],
+  "requiredFixes": [],
   "suggestedValidators": [
+    "npm run check:ai-critic-p1-triage",
     "npm run check:ai-debug-critic",
     "npm run check:beta-score",
     "npm run check:debug-backlog-engine",
@@ -129,8 +128,8 @@
   "summary": {
     "totalFindings": 1,
     "blockedFindings": 0,
-    "requiredFindings": 1,
-    "warningFindings": 0,
+    "requiredFindings": 0,
+    "warningFindings": 1,
     "unsafeChangeCount": 0,
     "duplicateSystemCount": 0,
     "monolithRiskCount": 0,

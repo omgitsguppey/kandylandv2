@@ -1,23 +1,23 @@
 {
-  "generatedAtUtc": "2026-05-21T05:57:11.898Z",
+  "generatedAtUtc": "2026-05-21T13:12:27.344Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "efea46c8b1722b8cdbc23accf76390519a56f986",
+  "currentHead": "faa73546e65aeca5b83c99b578cd2ad7c2efd4d7",
   "oldScore": 41.92,
   "newScore": 65.8,
   "publicBetaStatus": "warning",
   "readinessStatus": "Visual QA required",
   "summary": {
-    "total": 90,
+    "total": 82,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 20,
-      "p2": 70,
+      "p2": 62,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 66,
+      "open": 58,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
@@ -28,7 +28,7 @@
     "bySource": {
       "debug_panel": 34,
       "beta_score": 7,
-      "route_diagnostics": 9,
+      "route_diagnostics": 1,
       "telemetry": 6,
       "admin_truth": 2,
       "mobile_ui": 0,
@@ -41,19 +41,19 @@
       "evidence_refresh": 50,
       "stale_retire": 15,
       "algorithm_refine": 0,
-      "route_fix": 9,
+      "route_fix": 1,
       "telemetry_closure": 6,
       "cost_guard": 5,
       "manual_required": 5,
       "no_action": 0
     },
-    "open": 66,
+    "open": 58,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 4,
     "blockedExternal": 5,
     "staleRetired": 15,
-    "sourceFixable": 20,
+    "sourceFixable": 12,
     "evidenceRefreshable": 50,
     "manualRequired": 5,
     "p0P1Open": 20
@@ -337,9 +337,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "exactNextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "sourceValidator": "npm run check:final-launch-readiness-report",
       "refreshCommand": "npm run check:final-launch-readiness-report"
     },
@@ -361,9 +361,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "evidenceReason": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "exactNextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "sourceMessage": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "sourceValidator": "npm run check:launch-pr-triage",
       "refreshCommand": "npm run check:launch-pr-triage"
     },
@@ -385,9 +385,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "exactNextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "sourceValidator": "npm run check:launch-readiness-final",
       "refreshCommand": "npm run check:launch-readiness-final"
     },
@@ -425,17 +425,17 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "freshness"
+        "evidenceCompleteness"
       ],
       "scoreImpact": 4,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead d21c3e879ee17c77af614c0d4843f6044cc19259 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "Debug source status is warning.",
       "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "sourceMessage": "Source drift: currentHead d21c3e879ee17c77af614c0d4843f6044cc19259 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "sourceMessage": "Debug source status is warning.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta"
     },
@@ -473,23 +473,23 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "freshness"
+        "evidenceCompleteness"
       ],
       "scoreImpact": 4,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "3 beta score cap reason(s) remain visible.",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "4 beta score cap reason(s) remain visible.",
       "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
-      "sourceMessage": "3 beta score cap reason(s) remain visible.",
+      "sourceMessage": "4 beta score cap reason(s) remain visible.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta"
     },
     {
-      "id": "route-diagnostic-admin-truth-samples",
-      "title": "Admin truth sample evidence is missing or unknown; Debug must not render it healthy.",
+      "id": "route-diagnostic-runtime-evidence",
+      "title": "Runtime smoke is unverified; local validators remain diagnostic only.",
       "owner": "admin_debug",
       "surface": "admin_debug",
       "severity": "p1",
@@ -502,13 +502,13 @@
       ],
       "scoreImpact": 2,
       "sourceFiles": [
-        "agent/state/admin-truth-sample-evidence.generated.json"
+        "agent/state/runtime-smoke-evidence.generated.json"
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "source_backed",
       "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
       "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Admin truth sample evidence is missing or unknown; Debug must not render it healthy.",
+      "sourceMessage": "Runtime smoke is unverified; local validators remain diagnostic only.",
       "sourceValidator": "npm run check:debug-backlog-engine"
     },
     {
@@ -926,9 +926,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "sourceValidator": "npm run check:analytics-rewire-phase-one",
       "refreshCommand": "",
       "staleRetireReason": "Debug panel item is stale without an owner refresh command."
@@ -951,9 +951,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "evidenceReason": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "exactNextAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "sourceMessage": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "sourceValidator": "npm run check:user-facing-feature-connection-audit",
       "refreshCommand": "npm run check:user-facing-feature-connection-audit"
     },
@@ -975,9 +975,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
       "sourceValidator": "npm run check:lost-data-recovery-dry-run",
       "refreshCommand": "",
       "staleRetireReason": "Debug panel item is stale without an owner refresh command."
@@ -1338,17 +1338,17 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "freshness"
+        "evidenceCompleteness"
       ],
       "scoreImpact": 1,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead d21c3e879ee17c77af614c0d4843f6044cc19259 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "Debug source status is warning.",
       "exactNextAction": "Run npm run score:beta when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead d21c3e879ee17c77af614c0d4843f6044cc19259 does not match repo HEAD 43ac3a1bcab1803949ba85f3893a68090dcfa1e4.",
+      "sourceMessage": "Debug source status is warning.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta"
     },
@@ -1546,198 +1546,6 @@
       "sourceMessage": "Targeted behavior evidence only proves focused validators; it does not prove visual/provider/runtime/admin sample evidence.",
       "sourceValidator": "npm run check:targeted-behavior-evidence",
       "refreshCommand": "npm run check:targeted-behavior-evidence"
-    },
-    {
-      "id": "route-diagnostic-report-content-protection",
-      "title": "Source artifact is missing from the Debug source chain.",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "route_diagnostics",
-      "status": "open",
-      "fixClass": "route_fix",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "regressionRisk"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/content-protection.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
-    },
-    {
-      "id": "route-diagnostic-report-debug-evidence",
-      "title": "Source artifact is missing from the Debug source chain.",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "route_diagnostics",
-      "status": "open",
-      "fixClass": "route_fix",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "regressionRisk"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/debug-evidence-pipeline.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
-    },
-    {
-      "id": "route-diagnostic-report-event-catalog",
-      "title": "Source artifact is missing from the Debug source chain.",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "route_diagnostics",
-      "status": "open",
-      "fixClass": "route_fix",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "regressionRisk"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/event-catalog-telemetry.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
-    },
-    {
-      "id": "route-diagnostic-report-gumdrop-economy",
-      "title": "Source artifact is missing from the Debug source chain.",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "route_diagnostics",
-      "status": "open",
-      "fixClass": "route_fix",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "regressionRisk"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/gumdrop-economy.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
-    },
-    {
-      "id": "route-diagnostic-report-sitewide-image",
-      "title": "Source artifact is missing from the Debug source chain.",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "route_diagnostics",
-      "status": "open",
-      "fixClass": "route_fix",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "regressionRisk"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/sitewide-image-optimization.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
-    },
-    {
-      "id": "route-diagnostic-report-support-recovery",
-      "title": "Source artifact is missing from the Debug source chain.",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "route_diagnostics",
-      "status": "open",
-      "fixClass": "route_fix",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "regressionRisk"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/support-recovery-flows.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
-    },
-    {
-      "id": "route-diagnostic-report-watch-time-truth",
-      "title": "Source artifact is missing from the Debug source chain.",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "route_diagnostics",
-      "status": "open",
-      "fixClass": "route_fix",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "regressionRisk"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/watch-time-rollup-truth.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
-    },
-    {
-      "id": "route-diagnostic-system-health",
-      "title": "Source artifact is missing from the Debug source chain.",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "route_diagnostics",
-      "status": "open",
-      "fixClass": "route_fix",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "regressionRisk"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/admin-truth.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
-      "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
     },
     {
       "id": "score-drag-regressionriskscore",

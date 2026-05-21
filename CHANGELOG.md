@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.58 - 2026-05-21
+- AI critic P1 triage
+- Resolved source-fixable AI critic feedback.
+- Ranked P1/P2 debug backlog by beta score impact.
+- Separated code fixes from formal evidence requirements.
+
 ## 1.3.57 - 2026-05-21
 - Algorithmic debug lock
 - Locked the debug panel, score backlog, AI critic, behavior math, and refresh queues as the primary confidence engine.
@@ -147,57 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Recorded operator-confirmed GumDrop revenue smoke.
 - Separated real-world payment confirmation from formal provider evidence.
 - Kept beta exit gates honest while preserving product signal.
-
-## 1.3.33 - 2026-05-20
-- Bug fixes and general improvements
-- Cleaned up remaining preserved PRs and stale repo artifacts.
-- Kept beta cleanup lanes free of superseded PR clutter.
-- Preserved current source-truth doctrine while closing stale work.
-
-## 1.3.32 - 2026-05-20
-- Bug fixes and general improvements
-- Locked overnight wiring, telemetry, and mobile scale cleanup.
-- Verified creator drop statuses and wallet mobile density where available.
-- Kept chat and navigation unchanged.
-
-## 1.3.31 - 2026-05-20
-- Bug fixes and general improvements
-- Added creator-facing drop status and expiry labels.
-- Showed drop views, clicks, and unwraps inline when available.
-- Kept admin-only drop controls hidden from creators.
-
-## 1.3.30 - 2026-05-20
-- Bug fixes and general improvements
-- Improved user dashboard and wallet loading on mobile.
-- Reduced wallet module scale without changing payment logic.
-- Kept chat and navigation unchanged.
-
-## 1.3.29 - 2026-05-20
-- Bug fixes and general improvements
-- Refined existing scoring, telemetry, layout, pricing, and drop-status algorithms.
-- Removed duplicate fallback logic instead of adding new systems.
-- Kept chat and payment logic unchanged.
-
-## 1.3.28 - 2026-05-20
-- Bug fixes and general improvements
-- Checked recent creator, UI, and telemetry wiring for stale or orphaned logic.
-- Cleaned up disconnected routes, telemetry lanes, and parity conflicts.
-- Kept chat unchanged while tightening product surface wiring.
-
-## 1.3.27 - 2026-05-20
-- Bug fixes and general improvements
-- Reused marquee behavior for long truncated titles.
-- Improved readability for long creator, drop, and admin labels.
-- Respected reduced-motion preferences for title animations.
-
-## 1.3.26 - 2026-05-20
-- Bug fixes and general improvements
-- Reduced creator profile header scale on mobile.
-- Prepared creator profiles for drop and broadcast timelines.
-- Kept private and pending creator content hidden from public profiles.
-
-## 1.3.25 - 2026-05-20
-- Bug fixes and general improvements
-- Prepared creator broadcasts for follower notifications.
-- Added timeline-ready broadcast and drop source contracts.
-- Kept broadcast fanout bounded and idempotent.

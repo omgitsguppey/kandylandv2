@@ -77,10 +77,49 @@ describe("ai debug critic", () => {
     expect(report.duplicateSystems).toContain("src/lib/debug/new-debug-backlog-copy.ts");
     expect(report.monolithRisks[0]?.file).toBe("src/components/AdminHugePanel.tsx");
     expect(report.evidenceMisclassificationRisks.length).toBeGreaterThan(0);
+    expect(report.findings.find((finding) => finding.check === "no_fake_evidence")?.actionClass).toBe("blocked_formal_evidence");
     expect(report.suggestedValidators).toEqual(expect.arrayContaining([
       "npm run check:ai-debug-critic",
       "npm run check:beta-score",
     ]));
+  });
+
+  it("does not request source changes for formal-only stale evidence gates", () => {
+    const report = buildAiDebugCriticReport({
+      changedFiles: ["src/lib/debug/ai-debug-critic.ts"],
+      proposedFixSummary: "Separates formal evidence gates from code changes without clearing runtime gates.",
+      debugBacklog: [
+        {
+          id: "stale-runtime-smoke",
+          title: "Runtime smoke is stale",
+          owner: "runtime_evidence",
+          surface: "runtime_evidence",
+          severity: "p1",
+          source: "evidence",
+          status: "open",
+          fixClass: "evidence_refresh",
+          scoreDimensionImpact: ["runtimeHealth"],
+          scoreImpact: 16,
+          sourceFiles: ["agent/state/runtime-smoke-evidence.generated.json"],
+          sourceRoute: "agent/state/runtime-smoke-evidence.generated.json",
+          evidenceStatus: "stale",
+          evidenceReason: "Formal runtime smoke artifact is stale.",
+          exactNextAction: "Attach formal deployed runtime smoke evidence before clearing this beta gate.",
+          sourceMessage: "Runtime smoke is unverified.",
+          refreshCommand: "npm run check:runtime-smoke-evidence",
+        },
+      ],
+      betaScoreBlockers: [],
+      evidenceStatus: {
+        formalArtifacts: [],
+        sourceOnlyClaims: [],
+      },
+    });
+
+    expect(report.criticStatus).toBe("pass");
+    expect(report.findings[0]?.check).toBe("no_patch_on_top_of_stale_logic");
+    expect(report.findings[0]?.actionClass).toBe("blocked_formal_evidence");
+    expect(report.findings[0]?.severity).toBe("info");
   });
 
   it("passes a source-only critic update with explicit validators and local-only AI behavior", () => {

@@ -18,6 +18,14 @@ export type AiDebugCriticCheckId =
 
 export type AiDebugCriticFindingSeverity = "blocker" | "required" | "warning" | "info";
 
+export type AiDebugCriticActionClass =
+  | "needs_code_change"
+  | "needs_evidence_artifact"
+  | "needs_refresh"
+  | "needs_operator_ui_confirmation"
+  | "blocked_formal_evidence"
+  | "no_action";
+
 export type AiDebugCriticCheck = {
   id: AiDebugCriticCheckId;
   label: string;
@@ -28,11 +36,13 @@ export type AiDebugCriticFinding = {
   id: string;
   check: AiDebugCriticCheckId;
   severity: AiDebugCriticFindingSeverity;
+  actionClass: AiDebugCriticActionClass;
   title: string;
   detail: string;
   sourceFiles: string[];
   requiredFix: string;
   suggestedValidators: string[];
+  blockedReason?: string;
 };
 
 export type AiDebugCriticMonolithRisk = {

@@ -1,11 +1,71 @@
 {
-  "currentVersion": "1.3.57",
-  "betaReleaseCounter": 357,
+  "currentVersion": "1.3.58",
+  "betaReleaseCounter": 358,
   "channel": "beta",
-  "generatedAt": "2026-05-21T07:10:00.000Z",
-  "generatedAtUtc": "2026-05-21T07:10:00.000Z",
+  "generatedAt": "2026-05-21T13:05:24.206Z",
+  "generatedAtUtc": "2026-05-21T13:05:24.206Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.58",
+      "previousVersion": "1.3.57",
+      "betaReleaseCounter": 358,
+      "previousBetaReleaseCounter": 357,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): resolve critic p1 triage",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T13:05:24.206Z",
+      "generatedAt": "2026-05-21T13:05:24.206Z",
+      "committedAtUtc": "2026-05-21T13:05:24.206Z",
+      "generatedAtUtc": "2026-05-21T13:05:24.206Z",
+      "updatedAtUtc": "2026-05-21T13:05:24.206Z",
+      "category": "Improved",
+      "title": "AI critic P1 triage",
+      "summary": "Resolved source-fixable AI critic feedback and ranked the P1/P2 debug backlog by beta score impact.",
+      "userFacingTitle": "AI critic P1 triage",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Resolved source-fixable AI critic feedback.",
+        "Ranked P1/P2 debug backlog by beta score impact.",
+        "Separated code fixes from formal evidence requirements."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the AI critic P1 triage report, validator, source action classification, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Beta scoring"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/ai-critic-p1-triage.generated.json",
+        "agent/state/ai-debug-critic.generated.json",
+        "agent/state/debug-backlog-engine.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/ai-critic-p1-triage.md",
+        "docs/agent-truth/ai-debug-critic.md",
+        "docs/agent-truth/debug-backlog-engine.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-ai-critic-p1-triage.ts",
+        "scripts/agent/validate-debug-backlog-engine.ts",
+        "src/lib/debug/ai-critic-p1-triage.ts",
+        "src/lib/debug/ai-debug-critic-contract.ts",
+        "src/lib/debug/ai-debug-critic-rules.ts",
+        "src/lib/debug/ai-debug-critic.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/ai-critic-p1-triage.spec.ts",
+        "tests/unit/ai-debug-critic.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.57",
       "previousVersion": "1.3.56",
@@ -1306,229 +1366,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/operator-revenue-smoke.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.33",
-      "previousVersion": "1.3.32",
-      "betaReleaseCounter": 333,
-      "previousBetaReleaseCounter": 332,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "chore(repo): close stale pr cleanup",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T21:02:09.979Z",
-      "generatedAt": "2026-05-20T21:02:09.979Z",
-      "committedAtUtc": "2026-05-20T21:02:09.979Z",
-      "generatedAtUtc": "2026-05-20T21:02:09.979Z",
-      "updatedAtUtc": "2026-05-20T21:02:09.979Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Cleaned up remaining preserved PRs and stale repo artifacts.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Cleaned up remaining preserved PRs and stale repo artifacts.",
-        "Kept beta cleanup lanes free of superseded PR clutter.",
-        "Preserved current source-truth doctrine while closing stale work."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted PR closure and stale artifact cleanup pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "admin analytics",
-        "repo cleanup",
-        "accessibility"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/final-pr-stale-cleanup.generated.json",
-        "docs/agent-truth/final-pr-stale-cleanup.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-pr-stale-cleanup.ts",
-        "src/components/ui/Button.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-analytics-historical-engagement.ts",
-        "tests/unit/final-pr-stale-cleanup.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.32",
-      "previousVersion": "1.3.31",
-      "betaReleaseCounter": 332,
-      "previousBetaReleaseCounter": 331,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): lock overnight integration cleanup",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T06:37:26.045Z",
-      "generatedAt": "2026-05-20T06:37:26.045Z",
-      "committedAtUtc": "2026-05-20T06:37:26.045Z",
-      "generatedAtUtc": "2026-05-20T06:37:26.045Z",
-      "updatedAtUtc": "2026-05-20T06:37:26.045Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Locked overnight wiring, telemetry, and mobile scale cleanup.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked overnight wiring, telemetry, and mobile scale cleanup.",
-        "Verified creator drop statuses and wallet mobile density where available.",
-        "Kept chat and navigation unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted overnight final integration lock into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "creator tools",
-        "wallet",
-        "mobile UI",
-        "telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/overnight-final-integration-lock.generated.json",
-        "docs/agent-truth/overnight-final-integration-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-overnight-final-integration-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/overnight-final-integration-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.31",
-      "previousVersion": "1.3.30",
-      "betaReleaseCounter": 331,
-      "previousBetaReleaseCounter": 330,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(creator): show drop status metrics",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T06:19:43.984Z",
-      "generatedAt": "2026-05-20T06:19:43.984Z",
-      "committedAtUtc": "2026-05-20T06:19:43.984Z",
-      "generatedAtUtc": "2026-05-20T06:19:43.984Z",
-      "updatedAtUtc": "2026-05-20T06:19:43.984Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added creator-facing drop status and expiry labels.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Added creator-facing drop status and expiry labels.",
-        "Showed drop views, clicks, and unwraps inline when available.",
-        "Kept admin-only drop controls hidden from creators."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Grouped 1 accepted creator drop status and inline metrics pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "creator drop manager",
-        "creator dashboard",
-        "Drops",
-        "creator metrics"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-drop-management-approval.generated.json",
-        "agent/state/creator-drop-manager-mobile-refinement.generated.json",
-        "agent/state/creator-drop-status-metrics.generated.json",
-        "agent/state/event-facts-materializer-closure.generated.json",
-        "docs/agent-truth/creator-drop-management-approval.md",
-        "docs/agent-truth/creator-drop-status-metrics.md",
-        "docs/agent-truth/event-facts-materializer-closure.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-drop-management-approval.ts",
-        "scripts/agent/validate-creator-drop-status-metrics.ts",
-        "src/app/api/creator/drops/route.ts",
-        "src/components/Creators/CreatorDropManager.tsx",
-        "src/lib/drops/drop-metrics-resolver.ts",
-        "src/lib/drops/drop-status-resolver.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/creator-drop-status-metrics.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.30",
-      "previousVersion": "1.3.29",
-      "betaReleaseCounter": 330,
-      "previousBetaReleaseCounter": 329,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(ui): refine user loading and wallet mobile scale",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-20T06:06:29.425Z",
-      "generatedAt": "2026-05-20T06:06:29.425Z",
-      "committedAtUtc": "2026-05-20T06:06:29.425Z",
-      "generatedAtUtc": "2026-05-20T06:06:29.425Z",
-      "updatedAtUtc": "2026-05-20T06:06:29.425Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved user dashboard and wallet loading on mobile.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Wallet",
-      "bullets": [
-        "Improved user dashboard and wallet loading on mobile.",
-        "Reduced wallet module scale without changing payment logic.",
-        "Kept chat and navigation unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted user loading and wallet mobile refinement pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Wallet",
-        "User dashboard",
-        "My KandyDrops",
-        "Drops loading"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/gumdrop-economy-accuracy.generated.json",
-        "agent/state/mobile-loading-hydration-stability.generated.json",
-        "agent/state/mobile-ui-final-lock.generated.json",
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-        "docs/agent-truth/mobile-loading-hydration-stability.md",
-        "docs/agent-truth/mobile-ui-final-lock.md",
-        "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-user-loading-wallet-mobile-refinement.ts",
-        "src/app/dashboard/DashboardClient.tsx",
-        "src/app/dashboard/library/LibraryClient.tsx",
-        "src/app/drops/[id]/preview/loading.tsx",
-        "src/app/drops/loading.tsx",
-        "src/components/PurchaseModal.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/user-loading-wallet-mobile-refinement.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

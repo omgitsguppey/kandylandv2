@@ -2,17 +2,17 @@
 
 Authority: structured source-backed backlog generated from debug panel, beta score, route diagnostics, telemetry/admin truth, cost, and evidence freshness lanes.
 
-Generated: 2026-05-21T05:57:11.898Z
-Current HEAD: efea46c8b1722b8cdbc23accf76390519a56f986
+Generated: 2026-05-21T13:12:27.344Z
+Current HEAD: faa73546e65aeca5b83c99b578cd2ad7c2efd4d7
 Score: 41.92 -> 65.8
 Readiness: Visual QA required
 
 ## Summary
 
-- Total backlog items: 90
+- Total backlog items: 82
 - Open P0/P1 items: 20
 - Evidence refreshable: 50
-- Source-fixable: 20
+- Source-fixable: 12
 - Manual required: 5
 - Stale retired: 15
 
@@ -36,7 +36,7 @@ Readiness: Visual QA required
 - P1 debug-panel-public-beta-score: Use the canonical beta score and cap reasons as the primary Phase 1 queue.
 - P1 debug-panel-runtime-evidence: Run formal deployed runtime smoke before marking runtime/provider smoke complete.
 - P1 debug-panel-score-cap-reasons: Work the visible cap reasons in order instead of hiding them in Debug.
-- P1 route-diagnostic-admin-truth-samples: Inspect the route diagnostic owner and fix the route source or keep the warning open.
+- P1 route-diagnostic-runtime-evidence: Inspect the route diagnostic owner and fix the route source or keep the warning open.
 - P1 stale-artifact-agent-state-overnight-final-integration-lock-generated-json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
 
 ## Stale Retired

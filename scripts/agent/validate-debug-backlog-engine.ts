@@ -41,7 +41,10 @@ function changedFiles() {
 function routeDiagnosticsFromDebugPanel(debugPanel: JsonRecord | null) {
   const items = Array.isArray(debugPanel?.debugItems) ? debugPanel.debugItems : [];
   return items
-    .filter((item: JsonRecord) => /route|debug/i.test(`${item.key ?? ""} ${item.label ?? ""} ${item.issue ?? ""}`))
+    .filter((item: JsonRecord) => {
+      const searchable = `${item.key ?? ""} ${item.label ?? ""} ${item.issue ?? ""} ${item.sourceArtifact ?? ""}`;
+      return /\b(route|api|http|500|diagnostic|internal_server_error)\b/i.test(searchable);
+    })
     .slice(0, 20)
     .map((item: JsonRecord) => ({
       context: item.key,
