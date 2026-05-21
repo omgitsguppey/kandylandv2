@@ -6,6 +6,15 @@ import { isAbsolute, join } from "node:path";
 import type { DebugEvidenceAuditSummary } from "@/lib/debug-evidence-contract";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
+import type { SelfHealingRefreshQueueEntry } from "@/lib/agent-score/self-healing-refresh-queue";
+import {
+    buildDebugOperatorCockpit,
+    type DebugOperatorAiCriticFindingInput,
+    type DebugOperatorCockpitReport,
+    type DebugOperatorLaneInput,
+    type DebugOperatorPlaybookInput,
+    type DebugOperatorWarningInput,
+} from "@/lib/debug/debug-operator-cockpit";
 
 export type AdminDebugTruthState = "live" | "stale" | "missing" | "unavailable" | "failed" | "unknown";
 export type AdminDebugSeverity = "info" | "minor" | "moderate" | "major" | "critical";
@@ -163,6 +172,7 @@ export type AdminDebugControlTowerModel = {
     nextActions: AdminDebugNextAction[];
     debugBacklog: AdminDebugBacklogItemCard[];
     debugBacklogSummary: AdminDebugBacklogSummaryCard | null;
+    operatorCockpit: DebugOperatorCockpitReport;
     debugEvidenceSource: "firestore" | "generated" | "unavailable";
     reportSource: "agent_state";
     businessSnapshot: AdminUserTruthSnapshot | null;
@@ -787,6 +797,116 @@ function readGeneratedDebugBacklog(rootDir: string): {
     }
 }
 
+function readJsonRecord(rootDir: string, relativePath: string): Record<string, unknown> | null {
+    const fullPath = join(rootDir, relativePath);
+    if (!existsSync(fullPath)) {
+        return null;
+    }
+
+    try {
+        const parsed = JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
+        return isRecord(parsed) ? parsed : null;
+    } catch {
+        return null;
+    }
+}
+
+function readGeneratedRefreshQueue(rootDir: string): SelfHealingRefreshQueueEntry[] {
+    const raw = readJsonRecord(rootDir, join("agent", "state", "self-healing-refresh-queue.generated.json"));
+    return Array.isArray(raw?.queue)
+        ? raw.queue.filter(isRecord).map((entry) => ({
+            artifact: toStringValue(entry.artifact, "unknown_artifact"),
+            staleReason: toStringValue(entry.staleReason, "unknown"),
+            refreshCommand: toStringValue(entry.refreshCommand, ""),
+            scoreImpactEstimate: toNumber(entry.scoreImpactEstimate) ?? 0,
+            owner: toStringValue(entry.owner, "repo") as SelfHealingRefreshQueueEntry["owner"],
+            dependencyOrder: toNumber(entry.dependencyOrder) ?? 0,
+            canRunAutomatically: entry.canRunAutomatically === true,
+            blockedReason: toStringValue(entry.blockedReason, ""),
+            source: toStringValue(entry.source, "refresh_plan") as SelfHealingRefreshQueueEntry["source"],
+            expectedOutcome: toStringValue(entry.expectedOutcome, ""),
+        }))
+        : [];
+}
+
+function readGeneratedAiCriticFindings(rootDir: string): DebugOperatorAiCriticFindingInput[] {
+    const raw = readJsonRecord(rootDir, join("agent", "state", "ai-debug-critic.generated.json"));
+    const findings = Array.isArray(raw?.findings) ? raw.findings : [];
+    return findings.filter(isRecord).slice(0, 8).map((finding) => ({
+        id: toStringValue(finding.id, "ai-critic-finding"),
+        severity: toStringValue(finding.severity, "required"),
+        title: toStringValue(finding.title, "AI critic finding"),
+        requiredFix: toStringValue(finding.detail, "Run npm run check:ai-debug-critic."),
+    }));
+}
+
+function readGeneratedRecoveryPlaybooks(rootDir: string): DebugOperatorPlaybookInput[] {
+    const raw = readJsonRecord(rootDir, join("agent", "state", "debug-recovery-playbooks.generated.json"));
+    const playbooks = Array.isArray(raw?.playbooks) ? raw.playbooks : [];
+    return playbooks.filter(isRecord).slice(0, 6).map((playbook) => ({
+        id: toStringValue(playbook.id, "debug-recovery-playbook"),
+        title: toStringValue(playbook.title, "Debug recovery playbook"),
+        triggerPatterns: toStringArray(playbook.triggerPatterns),
+        commands: toStringArray(playbook.commands),
+        validators: toStringArray(playbook.validators),
+        forbiddenActions: toStringArray(playbook.forbiddenActions),
+    }));
+}
+
+function buildCriticalWarnings(backlog: AdminDebugBacklogItemCard[], liveIssues: AdminDebugLiveIssueCard[]): DebugOperatorWarningInput[] {
+    const backlogWarnings = backlog
+        .filter((item) => item.status === "open" || item.status === "blocked_manual" || item.status === "blocked_external")
+        .filter((item) => item.severity === "critical" || item.severity === "p0" || item.severity === "p1")
+        .map((item) => ({
+            id: item.id,
+            severity: item.severity,
+            owner: item.owner,
+            message: item.title,
+            nextAction: item.exactNextAction,
+            truthState: item.evidenceStatus === "unknown" ? "unknown" as const : item.status === "blocked_manual" ? "degraded" as const : "failed" as const,
+        }));
+    const liveWarnings = liveIssues
+        .filter((issue) => issue.severity === "critical" || issue.severity === "error")
+        .map((issue) => ({
+            id: issue.id,
+            severity: issue.severity,
+            owner: issue.sourceSurface ?? issue.source,
+            message: issue.humanMessage,
+            nextAction: issue.actionable === false ? "Classify and keep as non-actionable evidence." : "Open live issue evidence and run the suggested debug validator.",
+            truthState: issue.truthState === "live" ? "failed" as const : issue.truthState === "missing" ? "unknown" as const : issue.truthState,
+        }));
+
+    return [...backlogWarnings, ...liveWarnings].slice(0, 10);
+}
+
+function cockpitStateFromReport(report: AdminDebugReportCard) {
+    return report.truthState === "missing" ? "unknown" as const : report.truthState;
+}
+
+function statusFromReports(reports: AdminDebugReportCard[], ids: string[], fallbackLabel: string, fallbackAction: string) {
+    const selected = reports.filter((report) => ids.some((id) => report.id.includes(id) || report.filePath.includes(id)));
+    const worst = selected.find((report) => report.truthState === "failed" || report.truthState === "missing")
+        ?? selected.find((report) => report.truthState === "stale" || report.truthState === "unknown")
+        ?? selected[0];
+    return {
+        state: worst ? cockpitStateFromReport(worst) : "unknown",
+        label: worst ? `${worst.label}: ${worst.status}` : fallbackLabel,
+        nextAction: worst?.command ?? fallbackAction,
+    };
+}
+
+function costOwnerReviewLanes(reports: AdminDebugReportCard[]): DebugOperatorLaneInput[] {
+    return reports
+        .filter((report) => report.section === "money_cost" || report.id.includes("cost"))
+        .map((report) => ({
+            id: report.id,
+            owner: "cost",
+            label: `${report.label}: ${report.status}`,
+            state: cockpitStateFromReport(report),
+            nextAction: report.command,
+        }));
+}
+
 function buildSections(reports: AdminDebugReportCard[]) {
     return reports.reduce<AdminDebugControlTowerModel["sections"]>((sections, report) => {
         sections[report.section].push(report);
@@ -865,6 +985,18 @@ export function buildAdminDebugControlTowerModel(options?: {
         suggestedValidator: finding.suggestedValidator,
         severity: finding.severity,
     }));
+    const operatorCockpit = buildDebugOperatorCockpit({
+        scoreImpactQueue: readGeneratedRefreshQueue(rootDir),
+        criticalRuntimeWarnings: buildCriticalWarnings(generatedBacklog.backlog, liveIssues),
+        adminTruthStatus: statusFromReports(reports, ["admin-truth", "admin_truth"], "Admin truth status is unknown.", "Run npm run check:admin-debug-control-tower."),
+        telemetryLaneStatus: statusFromReports(reports, ["telemetry", "behavior", "watch-time"], "Telemetry lane status is unknown.", "Run npm run check:telemetry-dependency-graph."),
+        costOwnerReviewLanes: costOwnerReviewLanes(reports),
+        aiCriticFindings: readGeneratedAiCriticFindings(rootDir),
+        recoveryPlaybooks: readGeneratedRecoveryPlaybooks(rootDir),
+    }, {
+        generatedAtUtc: new Date(nowMs).toISOString(),
+        currentHead: repoCurrentHead ?? "unknown",
+    });
 
     return {
         generatedAt: new Date(nowMs).toISOString(),
@@ -888,6 +1020,7 @@ export function buildAdminDebugControlTowerModel(options?: {
         nextActions,
         debugBacklog: generatedBacklog.backlog,
         debugBacklogSummary: generatedBacklog.summary,
+        operatorCockpit,
         debugEvidenceSource: options?.debugEvidenceSource ?? (options?.debugEvidence?.length ? "firestore" : generatedEvidence.length > 0 ? "generated" : "unavailable"),
         reportSource: "agent_state",
         businessSnapshot: null,

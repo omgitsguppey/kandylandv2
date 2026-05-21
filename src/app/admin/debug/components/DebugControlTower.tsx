@@ -11,6 +11,7 @@ import { resolveControlTowerBusinessTruthState } from "@/lib/admin-debug/control
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import { cn } from "@/lib/utils";
 import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
+import { DebugOperatorCockpit } from "./DebugOperatorCockpit";
 import { DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
 import {
     FILTERS,
@@ -183,6 +184,8 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                     </div>
                 </div>
             </div>
+
+            <DebugOperatorCockpit cockpit={model?.operatorCockpit} />
 
             {resolvedBusinessSnapshot ? (
                 <DebugControlTowerBusinessTruth

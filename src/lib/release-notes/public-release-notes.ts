@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.55",
-  "betaReleaseCounter": 355,
+  "currentVersion": "1.3.56",
+  "betaReleaseCounter": 356,
   "channel": "beta",
-  "generatedAt": "2026-05-21T06:05:00.000Z",
-  "generatedAtUtc": "2026-05-21T06:05:00.000Z",
+  "generatedAt": "2026-05-21T06:30:00.000Z",
+  "generatedAtUtc": "2026-05-21T06:30:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.56",
+      "previousVersion": "1.3.55",
+      "betaReleaseCounter": 356,
+      "previousBetaReleaseCounter": 355,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(admin): refine debug cockpit",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T06:30:00.000Z",
+      "generatedAt": "2026-05-21T06:30:00.000Z",
+      "committedAtUtc": "2026-05-21T06:30:00.000Z",
+      "generatedAtUtc": "2026-05-21T06:30:00.000Z",
+      "updatedAtUtc": "2026-05-21T06:30:00.000Z",
+      "category": "Improved",
+      "title": "Debug cockpit refinement",
+      "summary": "Refined the admin debug panel into a clearer operator cockpit.",
+      "userFacingTitle": "Debug cockpit refinement",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refined the admin debug panel into a clearer operator cockpit.",
+        "Sorted next fixes by score impact, owner, and refresh action.",
+        "Kept unknown, stale, and formal evidence states visible instead of treating them as healthy."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the debug operator cockpit model, admin debug component, generated report, validator, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Beta scoring"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/debug-backlog-engine.generated.json",
+        "agent/state/debug-operator-cockpit.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/debug-backlog-engine.md",
+        "docs/agent-truth/debug-operator-cockpit.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/agent/validate-debug-operator-cockpit.ts",
+        "src/app/admin/debug/components/DebugControlTower.tsx",
+        "src/app/admin/debug/components/DebugOperatorCockpit.tsx",
+        "src/lib/admin-debug-control-tower.ts",
+        "src/lib/debug/debug-operator-cockpit.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/debug-operator-cockpit.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.55",
       "previousVersion": "1.3.54",

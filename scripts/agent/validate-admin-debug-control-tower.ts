@@ -65,6 +65,7 @@ const notificationsHook = readRequired("src/hooks/useNotifications.ts");
 const notificationBell = readRequired("src/components/Navigation/NotificationBell.tsx");
 const notificationRuntimeBridge = readRequired("src/components/Notifications/NotificationRuntimeBridge.tsx");
 const creatorBroadcastsRoute = readRequired("src/app/api/creator/broadcasts/route.ts");
+const creatorBroadcastNotifications = readRequired("src/lib/notifications/creator-broadcast-notifications.ts");
 const creatorSubscriptionsCronRoute = readRequired("src/app/api/cron/process-creator-subscriptions/route.ts");
 const creatorOnboardingAlerts = readRequired("src/lib/server/creator-onboarding-alerts.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
@@ -696,7 +697,7 @@ for (const expected of [
   "sourceComponent: \"creator_broadcasts_route\"",
   "sourceEntityType: \"creator_broadcast\"",
 ]) {
-  requireIncludes(creatorBroadcastsRoute, expected, "Creator broadcasts must write notification ownership context");
+  requireIncludes(`${creatorBroadcastsRoute}\n${creatorBroadcastNotifications}`, expected, "Creator broadcasts must write notification ownership context");
 }
 for (const expected of [
   "buildNotificationRecord",
@@ -806,7 +807,7 @@ for (const expected of [
   "Low confidence required events",
   "Background exempt",
   "Eval eligibility excludes background, system, and identity-linkage events.",
-  "label=\"Events\" value={entry.eventCount} tone=\"neutral\" truthState=\"live\" badgeLabel=\"LOADED\"",
+  "label=\"Events\" value={entry.eventCount} tone=\"neutral\" truthState={entry ? \"live\" : \"unavailable\"} badgeLabel=\"LOADED\"",
   "Most findings are duplicate inspect-only source-context items.",
   "title=\"Actor ownership and bleed risk\"",
   "data-actor-event-count-state",
@@ -817,7 +818,7 @@ for (const expected of [
   "data-actor-bleed-risk-count",
   "data-actor-critical-count",
   "data-actor-domains",
-  "label=\"Events\" value={actor.eventCount} tone=\"neutral\" truthState=\"live\" badgeLabel=\"LOADED\"",
+  "label=\"Events\" value={actor.eventCount} tone=\"neutral\" truthState={actor ? \"live\" : \"unavailable\"} badgeLabel=\"LOADED\"",
   "Risk domains:",
   "Risk reasons",
   "Reason\" value={reason.reasonCode || \"unknown\"}",
@@ -1461,8 +1462,8 @@ for (const forbidden of [
 
 for (const expected of [
   "Recent receipts and dedupe sample",
-  "<Pill label=\"Receipts 7d\" value={data?.stats?.receiptsLast7d ?? 0} truthState=\"live\" badgeLabel=\"LOADED\" />",
-  "<Pill label=\"Recent\" value={(data?.recentReceipts || []).length} truthState=\"live\" badgeLabel=\"LOADED\" />",
+  "<Pill label=\"Receipts 7d\" value={data?.stats?.receiptsLast7d ?? 0} truthState={data ? \"live\" : \"unavailable\"} badgeLabel=\"LOADED\" />",
+  "<Pill label=\"Recent\" value={(data?.recentReceipts || []).length} truthState={data ? \"live\" : \"unavailable\"} badgeLabel=\"LOADED\" />",
   "receipt.displayLabel",
   "receipt.dedupeKeyLabel",
   "receipt.lastSeenAtUtc",
@@ -2419,6 +2420,7 @@ try {
     /^src\/app\/admin\/debug\/page\.tsx$/u,
     /^src\/app\/admin\/debug\/hooks\/useAdminAiAssistantRealtime\.ts$/u,
     /^src\/app\/admin\/debug\/components\/AdminAiAssistantRealtimePanel\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugOperatorCockpit\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugBugIntakePanel\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
@@ -2454,6 +2456,7 @@ try {
     /^src\/lib\/client-error-reporting\.ts$/u,
     /^src\/lib\/creator-lane-debug-parity\.ts$/u,
     /^src\/lib\/creator-onboarding\.ts$/u,
+    /^src\/lib\/debug\/debug-operator-cockpit\.ts$/u,
     /^src\/lib\/admin\/synthetic-creators-view-as\.ts$/u,
     /^src\/lib\/admin-moderation\.ts$/u,
     /^src\/lib\/admin-analytics-recent-commerce-feed\.ts$/u,
@@ -2540,6 +2543,7 @@ try {
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/agent\/validate-debug-operator-cockpit\.ts$/u,
     /^scripts\/agent\/validate-admin-truth\.ts$/u,
     /^scripts\/agent\/validate-notification-read-truth\.ts$/u,
     /^scripts\/agent\/validate-purchase-telemetry-truth\.ts$/u,
@@ -2573,6 +2577,7 @@ try {
     /^src\/lib\/release-notes\/public-release-notes\.ts$/u,
     /^src\/lib\/release-notes\/release-version-contract\.ts$/u,
     /^tests\/unit\/admin-debug-control-tower(?:-component)?\.spec\.tsx?$/u,
+    /^tests\/unit\/debug-operator-cockpit\.spec\.ts$/u,
     /^tests\/unit\/snapshot-admin-vendor-cost-rewire\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-display-state\.spec\.ts$/u,
     /^tests\/unit\/admin-data-validation\.spec\.ts$/u,
@@ -2596,6 +2601,8 @@ try {
     /^tests\/unit\/synthetic-creators-view-as\.spec\.ts$/u,
     /^tests\/unit\/task-observability\.spec\.ts$/u,
     /^agent\/state\/debug-evidence-index\.generated\.json$/u,
+    /^agent\/state\/debug-backlog-engine\.generated\.json$/u,
+    /^agent\/state\/public-beta-score\.generated\.json$/u,
     /^agent\/state\/analytics-rewire-phase-one\.generated\.json$/u,
     /^agent\/state\/identity-privacy-raw-ledger-rewire\.generated\.json$/u,
     /^agent\/state\/lost-data-recovery-dry-run\.generated\.json$/u,
@@ -2604,7 +2611,10 @@ try {
     /^agent\/state\/speed-security-hardening\.generated\.json$/u,
     /^agent\/state\/google-cost-bleed\.generated\.json$/u,
     /^agent\/state\/creator-lane-debug-parity\.generated\.json$/u,
+    /^agent\/state\/debug-operator-cockpit\.generated\.json$/u,
     /^docs\/agent-truth\/admin-debug-control-tower\.md$/u,
+    /^docs\/agent-truth\/debug-backlog-engine\.md$/u,
+    /^docs\/agent-truth\/debug-operator-cockpit\.md$/u,
     /^docs\/agent-truth\/admin-ai-control-tower\.md$/u,
     /^docs\/agent-truth\/payment-wallet-unlock-entitlement\.md$/u,
     /^docs\/agent-truth\/admin-user-behavior-truth\.md$/u,

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.56 - 2026-05-21
+- Debug cockpit refinement
+- Refined the admin debug panel into a clearer operator cockpit.
+- Sorted next fixes by score impact, owner, and refresh action.
+- Kept unknown, stale, and formal evidence states visible instead of treating them as healthy.
+
 ## 1.3.55 - 2026-05-21
 - Self-healing refresh queue
 - Added a self-healing refresh queue for stale beta and debug artifacts.

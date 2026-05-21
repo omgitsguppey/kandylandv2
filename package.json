@@ -83,6 +83,7 @@
         "check:beta-freshness-language": "tsx scripts/agent/validate-beta-freshness-language.ts",
         "check:refresh-safeguards": "tsx scripts/agent/validate-refresh-safeguards.ts",
         "check:self-healing-refresh-queue": "tsx scripts/agent/validate-self-healing-refresh-queue.ts",
+        "check:debug-operator-cockpit": "tsx scripts/agent/validate-debug-operator-cockpit.ts",
         "check:score-80-refresh-pass": "tsx scripts/agent/validate-score-80-refresh-pass.ts",
         "check:beta-evidence-lane-prep": "tsx scripts/agent/validate-beta-evidence-lane-prep.ts",
         "check:final-morning-beta-lock": "tsx scripts/agent/validate-final-morning-beta-lock.ts",
