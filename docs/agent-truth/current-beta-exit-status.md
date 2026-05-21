@@ -1,12 +1,12 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-21T14:14:13.820Z
+Generated: 2026-05-21T16:09:12.988Z
 
-Latest code version: bbd8d8c7da74cf60bb978373242a76e5e0f305d7
+Latest code version: f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359
 
 ## Summary
 
-- Beta version: 1.3.61
+- Beta version: 1.3.68
 - Beta score: 77.76
 - Beta status: Visual QA required
 - Visual evidence: source_only_screenshotEvidenceAttached_false
@@ -38,7 +38,7 @@ Latest code version: bbd8d8c7da74cf60bb978373242a76e5e0f305d7
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
-- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
+- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock is current for the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
 - agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
 - agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
 - agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-drop-status-metrics`.

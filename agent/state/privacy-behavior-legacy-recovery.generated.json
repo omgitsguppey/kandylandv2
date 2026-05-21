@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-21T15:55:43.910Z",
-  "generatedAtUtc": "2026-05-21T15:55:43.913Z",
+  "generatedAt": "2026-05-21T16:05:23.626Z",
+  "generatedAtUtc": "2026-05-21T16:05:23.628Z",
   "source": "local_static_validator",
   "reportKey": "privacy-behavior-legacy-recovery",
-  "currentHead": "717f24c1dd78724b26626deeb04c6c4707ef317f",
+  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
   "overallStatus": "live",
   "overallScore": 100,
   "productionReads": false,
@@ -419,20 +419,14 @@
   },
   "protectedChanges": [],
   "changedFiles": [
-    "CHANGELOG.md",
     "agent/context/optimized-task-context.generated.json",
-    "agent/state/behavior-math-verification.generated.json",
+    "agent/state/behavioral-extensibility-layer.generated.json",
+    "agent/state/consent-tracking-contract.generated.json",
+    "agent/state/cookie-banner-settings-sync.generated.json",
     "agent/state/identity-handoff-refinement.generated.json",
-    "agent/state/march-first-legacy-normalization.generated.json",
     "agent/state/public-beta-score.generated.json",
     "docs/agent-truth/identity-handoff-refinement.md",
-    "docs/agent-truth/march-first-legacy-normalization.md",
-    "package.json",
-    "public/kandydrops-release-notes.json",
-    "src/lib/admin-debug-control-tower.ts",
-    "src/lib/legacy/legacy-normalization-contract.ts",
-    "src/lib/release-notes/public-release-notes.ts",
-    "src/lib/release-notes/release-version-contract.ts"
+    "package.json"
   ],
   "findings": []
 }

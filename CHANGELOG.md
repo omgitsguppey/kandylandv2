@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.68 - 2026-05-21
+- Behavioral privacy telemetry lock
+- Locked privacy-aware behavioral telemetry.
+- Connected cookie consent to guest, signup, and logged-in analytics.
+- Made future behavioral events contract-driven instead of refactor-heavy.
+
 ## 1.3.67 - 2026-05-21
 - Legacy privacy behavior recovery
 - Added dry-run recovery for legacy privacy and behavior records.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Refreshed stale score-impact reports from the latest code version.
 - Reduced freshness and regression drag from outdated artifacts.
 - Kept formal beta evidence gates unchanged.
-
-## 1.3.43 - 2026-05-21
-- Bug fixes and general improvements
-- Prioritized debug panel warnings by beta score impact.
-- Converted debug/runtime checks into source-backed evidence.
-- Kept formal runtime and provider smoke gates honest.

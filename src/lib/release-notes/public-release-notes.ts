@@ -1,13 +1,81 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.67",
-  "betaReleaseCounter": 367,
+  "currentVersion": "1.3.68",
+  "betaReleaseCounter": 368,
   "channel": "beta",
-  "generatedAt": "2026-05-21T15:54:29.832Z",
-  "generatedAtUtc": "2026-05-21T15:54:29.832Z",
+  "generatedAt": "2026-05-21T16:08:41.892Z",
+  "generatedAtUtc": "2026-05-21T16:08:41.892Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.68",
+      "previousVersion": "1.3.67",
+      "betaReleaseCounter": 368,
+      "previousBetaReleaseCounter": 367,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(analytics): lock behavioral privacy telemetry",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T16:08:41.892Z",
+      "generatedAt": "2026-05-21T16:08:41.892Z",
+      "committedAtUtc": "2026-05-21T16:08:41.892Z",
+      "generatedAtUtc": "2026-05-21T16:08:41.892Z",
+      "updatedAtUtc": "2026-05-21T16:08:41.892Z",
+      "category": "Improved",
+      "title": "Behavioral privacy telemetry lock",
+      "summary": "Locked privacy-aware behavioral telemetry across consent, identity handoff, behavior math, legacy recovery, and future event contracts.",
+      "userFacingTitle": "Behavioral privacy telemetry lock",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Locked privacy-aware behavioral telemetry.",
+        "Connected cookie consent to guest, signup, and logged-in analytics.",
+        "Made future behavioral events contract-driven instead of refactor-heavy."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the final behavioral privacy telemetry lock report, validator, generated artifact, and unit coverage without clearing formal beta gates."
+      ],
+      "affectedSurfaces": [
+        "Privacy & security",
+        "Telemetry",
+        "Account & onboarding",
+        "Admin Debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/behavior-math-verification.generated.json",
+        "agent/state/behavioral-extensibility-layer.generated.json",
+        "agent/state/consent-tracking-contract.generated.json",
+        "agent/state/cookie-banner-settings-sync.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/debug-backlog-engine.generated.json",
+        "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
+        "agent/state/final-telemetry-closure-lock.generated.json",
+        "agent/state/identity-handoff-refinement.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/privacy-behavior-legacy-recovery.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/debug-backlog-engine.md",
+        "docs/agent-truth/final-behavioral-privacy-telemetry-lock.md",
+        "docs/agent-truth/final-telemetry-closure-lock.md",
+        "docs/agent-truth/identity-handoff-refinement.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "docs/agent-truth/privacy-behavior-legacy-recovery.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-behavioral-privacy-telemetry-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.67",
       "previousVersion": "1.3.66",
@@ -1364,66 +1432,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/score-impact-stale-artifact-sweep.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.43",
-      "previousVersion": "1.3.42",
-      "betaReleaseCounter": 343,
-      "previousBetaReleaseCounter": 342,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): triage score impact warnings",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T01:13:59.485Z",
-      "generatedAt": "2026-05-21T01:13:59.485Z",
-      "committedAtUtc": "2026-05-21T01:13:59.485Z",
-      "generatedAtUtc": "2026-05-21T01:13:59.485Z",
-      "updatedAtUtc": "2026-05-21T01:13:59.485Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Prioritized debug panel warnings by beta score impact.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Prioritized debug panel warnings by beta score impact.",
-        "Converted debug/runtime checks into source-backed evidence.",
-        "Kept formal runtime and provider smoke gates honest."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted debug panel score impact triage and runtime evidence closure pass into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug",
-        "Beta readiness",
-        "Runtime evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-truth-source-sample.generated.json",
-        "agent/state/debug-runtime-evidence.generated.json",
-        "agent/state/debug-score-impact-triage.generated.json",
-        "docs/agent-truth/admin-truth-source-sample.md",
-        "docs/agent-truth/debug-runtime-evidence.md",
-        "docs/agent-truth/debug-score-impact-triage.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-truth-source-sample.ts",
-        "scripts/agent/validate-debug-runtime-evidence.ts",
-        "scripts/agent/validate-debug-score-impact-triage.ts",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/admin-truth-source-sample.spec.ts",
-        "tests/unit/debug-runtime-evidence.spec.ts",
-        "tests/unit/debug-score-impact-triage.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

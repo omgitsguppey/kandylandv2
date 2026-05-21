@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T15:39:05.202Z",
+  "generatedAtUtc": "2026-05-21T16:05:15.166Z",
   "reportKey": "cookie-banner-settings-sync",
-  "currentHead": "28c5d750b636cdeb9698392e44804c8187865180",
+  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
   "status": "pass",
   "mobileBanner": {
     "compact320Safe": true,
@@ -26,21 +26,13 @@
   },
   "protectedChanges": [],
   "changedFiles": [
-    "CHANGELOG.md",
     "agent/context/optimized-task-context.generated.json",
+    "agent/state/behavioral-extensibility-layer.generated.json",
     "agent/state/consent-tracking-contract.generated.json",
     "agent/state/identity-handoff-refinement.generated.json",
-    "agent/state/mobile-ui-final-lock.generated.json",
     "agent/state/public-beta-score.generated.json",
     "docs/agent-truth/identity-handoff-refinement.md",
-    "docs/agent-truth/mobile-ui-final-lock.md",
-    "package.json",
-    "public/kandydrops-release-notes.json",
-    "src/components/CookieBanner.tsx",
-    "src/components/CoreLayoutWrapper.tsx",
-    "src/lib/privacy-consent.ts",
-    "src/lib/release-notes/public-release-notes.ts",
-    "src/lib/release-notes/release-version-contract.ts"
+    "package.json"
   ],
   "validationFailures": []
 }

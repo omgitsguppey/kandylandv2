@@ -1,23 +1,23 @@
 {
-  "generatedAtUtc": "2026-05-21T13:12:27.344Z",
+  "generatedAtUtc": "2026-05-21T16:05:46.126Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "faa73546e65aeca5b83c99b578cd2ad7c2efd4d7",
+  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
   "oldScore": 41.92,
-  "newScore": 65.8,
+  "newScore": 77.76,
   "publicBetaStatus": "warning",
   "readinessStatus": "Visual QA required",
   "summary": {
-    "total": 82,
+    "total": 81,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 20,
-      "p2": 62,
+      "p2": 61,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 58,
+      "open": 57,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
@@ -34,11 +34,11 @@
       "mobile_ui": 0,
       "cost": 5,
       "evidence": 26,
-      "runtime_warning": 1
+      "runtime_warning": 0
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 50,
+      "evidence_refresh": 49,
       "stale_retire": 15,
       "algorithm_refine": 0,
       "route_fix": 1,
@@ -47,66 +47,18 @@
       "manual_required": 5,
       "no_action": 0
     },
-    "open": 58,
+    "open": 57,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 4,
     "blockedExternal": 5,
     "staleRetired": 15,
     "sourceFixable": 12,
-    "evidenceRefreshable": 50,
+    "evidenceRefreshable": 49,
     "manualRequired": 5,
     "p0P1Open": 20
   },
   "backlog": [
-    {
-      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
-      "title": "Ready with smoke required: Admin truth/sample evidence",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p1",
-      "source": "admin_truth",
-      "status": "blocked_manual",
-      "fixClass": "manual_required",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 51,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "formal_missing",
-      "evidenceReason": "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceMessage": "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
-    },
-    {
-      "id": "beta-cap-visual-qa-required-visual-manual-smoke-0",
-      "title": "Visual QA required: Visual/manual smoke",
-      "owner": "beta_score",
-      "surface": "mobile_ui",
-      "severity": "p1",
-      "source": "beta_score",
-      "status": "blocked_manual",
-      "fixClass": "manual_required",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 51,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "agent/state/public-beta-score.generated.json",
-      "evidenceStatus": "formal_missing",
-      "evidenceReason": "No valid visual/manual evidence artifact was supplied.",
-      "exactNextAction": "Attach targeted manual or screenshot evidence before clearing visual/manual smoke.",
-      "sourceMessage": "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
-      "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
-    },
     {
       "id": "beta-cap-runtime-unverified-runtime-provider-smoke-1",
       "title": "Runtime unverified: Runtime/provider smoke",
@@ -119,7 +71,7 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 30.67,
+      "scoreImpact": 75.5,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -128,6 +80,54 @@
       "evidenceReason": "Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "sourceMessage": "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+      "sourceValidator": "npm run check:beta-score",
+      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
+    },
+    {
+      "id": "beta-cap-visual-qa-required-ui-visual-manual-smoke-0",
+      "title": "Visual QA required: UI visual/manual smoke",
+      "owner": "runtime_evidence",
+      "surface": "runtime_evidence",
+      "severity": "p1",
+      "source": "beta_score",
+      "status": "blocked_manual",
+      "fixClass": "manual_required",
+      "scoreDimensionImpact": [
+        "runtimeHealth"
+      ],
+      "scoreImpact": 75.5,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "sourceRoute": "agent/state/public-beta-score.generated.json",
+      "evidenceStatus": "runtime_unverified",
+      "evidenceReason": "No valid visual/manual evidence artifact was supplied. This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "sourceMessage": "Visual QA required: UI visual/manual smoke - No valid visual/manual evidence artifact was supplied. This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+      "sourceValidator": "npm run check:beta-score",
+      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
+    },
+    {
+      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
+      "title": "Ready with smoke required: Admin truth/sample evidence",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "severity": "p1",
+      "source": "admin_truth",
+      "status": "blocked_manual",
+      "fixClass": "manual_required",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ],
+      "scoreImpact": 63.75,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "sourceRoute": "/admin/debug",
+      "evidenceStatus": "formal_missing",
+      "evidenceReason": "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+      "sourceMessage": "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceValidator": "npm run check:beta-score",
       "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
     },
@@ -337,9 +337,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "exactNextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:final-launch-readiness-report",
       "refreshCommand": "npm run check:final-launch-readiness-report"
     },
@@ -361,9 +361,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "evidenceReason": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "exactNextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "sourceMessage": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:launch-pr-triage",
       "refreshCommand": "npm run check:launch-pr-triage"
     },
@@ -385,9 +385,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "exactNextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:launch-readiness-final",
       "refreshCommand": "npm run check:launch-readiness-final"
     },
@@ -425,17 +425,17 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "evidenceCompleteness"
+        "freshness"
       ],
       "scoreImpact": 4,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Debug source status is warning.",
+      "evidenceStatus": "stale",
+      "evidenceReason": "Source drift: currentHead 867d04ea8e3286532b1c6dfbcb7f2f8e31e65470 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "sourceMessage": "Debug source status is warning.",
+      "sourceMessage": "Source drift: currentHead 867d04ea8e3286532b1c6dfbcb7f2f8e31e65470 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta"
     },
@@ -473,17 +473,17 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "evidenceCompleteness"
+        "freshness"
       ],
       "scoreImpact": 4,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "4 beta score cap reason(s) remain visible.",
+      "evidenceStatus": "stale",
+      "evidenceReason": "3 beta score cap reason(s) remain visible.",
       "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
-      "sourceMessage": "4 beta score cap reason(s) remain visible.",
+      "sourceMessage": "3 beta score cap reason(s) remain visible.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta"
     },
@@ -926,9 +926,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:analytics-rewire-phase-one",
       "refreshCommand": "",
       "staleRetireReason": "Debug panel item is stale without an owner refresh command."
@@ -951,9 +951,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "evidenceReason": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "exactNextAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "sourceMessage": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:user-facing-feature-connection-audit",
       "refreshCommand": "npm run check:user-facing-feature-connection-audit"
     },
@@ -975,9 +975,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD faa73546e65aeca5b83c99b578cd2ad7c2efd4d7.",
+      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:lost-data-recovery-dry-run",
       "refreshCommand": "",
       "staleRetireReason": "Debug panel item is stale without an owner refresh command."
@@ -1338,17 +1338,17 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "evidenceCompleteness"
+        "freshness"
       ],
       "scoreImpact": 1,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "source_backed",
-      "evidenceReason": "Debug source status is warning.",
+      "evidenceStatus": "stale",
+      "evidenceReason": "Source drift: currentHead 867d04ea8e3286532b1c6dfbcb7f2f8e31e65470 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "exactNextAction": "Run npm run score:beta when this stale warning must be refreshed.",
-      "sourceMessage": "Debug source status is warning.",
+      "sourceMessage": "Source drift: currentHead 867d04ea8e3286532b1c6dfbcb7f2f8e31e65470 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta"
     },
@@ -1960,30 +1960,6 @@
       "exactNextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
       "sourceMessage": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
-    },
-    {
-      "id": "debug-runtime-unknown-evidence",
-      "title": "Debug/runtime evidence still has unknown lanes",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "runtime_warning",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "runtimeHealth",
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 0.01,
-      "sourceFiles": [
-        "agent/state/debug-runtime-evidence.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "unknown",
-      "evidenceReason": "1 unknown debug/runtime evidence lane(s) remain classified as source-backed but not deployed runtime proof.",
-      "exactNextAction": "Use this as source-backed debug/runtime evidence only; attach deployed runtime smoke before clearing runtime gates.",
-      "sourceMessage": "Unknown debug/runtime evidence remains.",
-      "sourceValidator": "npm run check:debug-runtime-evidence"
     },
     {
       "id": "score-drag-sourcehealthscore",

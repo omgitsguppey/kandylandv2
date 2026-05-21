@@ -1,7 +1,7 @@
 {
   "reportKey": "identity-handoff-refinement",
-  "generatedAtUtc": "2026-05-21T15:51:32.755Z",
-  "currentHead": "717f24c1dd78724b26626deeb04c6c4707ef317f",
+  "generatedAtUtc": "2026-05-21T16:04:58.432Z",
+  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
   "status": "pass",
   "dependencyStatus": {
     "consentTrackingContract": "present"
@@ -54,12 +54,9 @@
   },
   "changedFiles": [
     "agent/context/optimized-task-context.generated.json",
-    "agent/state/behavior-math-verification.generated.json",
-    "agent/state/march-first-legacy-normalization.generated.json",
-    "docs/agent-truth/march-first-legacy-normalization.md",
-    "package.json",
-    "src/lib/admin-debug-control-tower.ts",
-    "src/lib/legacy/legacy-normalization-contract.ts"
+    "agent/state/consent-tracking-contract.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "package.json"
   ],
   "validationFailures": [],
   "nextActions": [

@@ -2,25 +2,25 @@
 
 Authority: structured source-backed backlog generated from debug panel, beta score, route diagnostics, telemetry/admin truth, cost, and evidence freshness lanes.
 
-Generated: 2026-05-21T13:12:27.344Z
-Current HEAD: faa73546e65aeca5b83c99b578cd2ad7c2efd4d7
-Score: 41.92 -> 65.8
+Generated: 2026-05-21T16:05:46.126Z
+Current HEAD: f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359
+Score: 41.92 -> 77.76
 Readiness: Visual QA required
 
 ## Summary
 
-- Total backlog items: 82
+- Total backlog items: 81
 - Open P0/P1 items: 20
-- Evidence refreshable: 50
+- Evidence refreshable: 49
 - Source-fixable: 12
 - Manual required: 5
 - Stale retired: 15
 
 ## P0/P1 Queue
 
-- P1 beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
-- P1 beta-cap-visual-qa-required-visual-manual-smoke-0: Attach targeted manual or screenshot evidence before clearing visual/manual smoke.
 - P1 beta-cap-runtime-unverified-runtime-provider-smoke-1: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
+- P1 beta-cap-visual-qa-required-ui-visual-manual-smoke-0: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
+- P1 beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
 - P1 score-drag-runtimehealthscore: Attach deployed runtime smoke evidence before treating runtime health as proven.
 - P1 stale-artifact-debug-runtime-evidence: Attach formal evidence before clearing this beta gate.
 - P1 stale-artifact-runtime-provider-smoke: Attach formal evidence before clearing this beta gate.

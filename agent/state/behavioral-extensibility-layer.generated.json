@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T15:22:42.360Z",
+  "generatedAtUtc": "2026-05-21T16:05:07.270Z",
   "reportKey": "behavioral-extensibility-layer",
-  "currentHead": "13dc614b575932b3bc589acabe8cccb675a2f614",
+  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
   "status": "pass",
   "catalogEvents": 400,
   "extensionMetadataEvents": 400,
@@ -197,14 +197,12 @@
     }
   },
   "changedFiles": [
-    "CHANGELOG.md",
     "agent/context/optimized-task-context.generated.json",
-    "package.json",
-    "public/kandydrops-release-notes.json",
-    "src/lib/behavioral/behavior-math-engine.ts",
-    "src/lib/release-notes/public-release-notes.ts",
-    "src/lib/release-notes/release-version-contract.ts",
-    "src/lib/telemetry-catalog.ts"
+    "agent/state/consent-tracking-contract.generated.json",
+    "agent/state/identity-handoff-refinement.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "docs/agent-truth/identity-handoff-refinement.md",
+    "package.json"
   ],
   "warnings": [
     "creator_timeline is registered for future-safe tracking but has no current catalog events"
