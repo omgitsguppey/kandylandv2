@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.57 - 2026-05-21
+- Algorithmic debug lock
+- Locked the debug panel, score backlog, AI critic, behavior math, and refresh queues as the primary confidence engine.
+- Reduced manual testing bottlenecks without clearing provider, runtime, or visual proof gates.
+- Kept remaining formal evidence steps explicit for beta exit review.
+
 ## 1.3.56 - 2026-05-21
 - Debug cockpit refinement
 - Refined the admin debug panel into a clearer operator cockpit.

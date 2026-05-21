@@ -1,0 +1,52 @@
+{
+  "scoreBefore": 65.8,
+  "scoreAfter": 65.8,
+  "debugBacklogStatus": "pass",
+  "aiCriticStatus": "request_changes",
+  "behaviorMathStatus": "pass",
+  "legacyNormalizationStatus": "pass",
+  "orphanMetricStatus": "pass",
+  "realUsageConfidenceStatus": "pass",
+  "recoveryPlaybookStatus": "pass",
+  "refreshQueueStatus": "pass",
+  "operatorCockpitStatus": "pass",
+  "manualBottleneckReduction": "manual testing is no longer the default bottleneck; debug panel, telemetry, behavior math, route diagnostics, AI critic, admin truth samples, and refresh queues now drive source confidence while formal evidence gates remain manual",
+  "remainingFormalEvidenceGates": [
+    "Visual/manual smoke: Visual QA required",
+    "Runtime/provider smoke: Runtime unverified",
+    "Admin truth/sample evidence: Ready with smoke required"
+  ],
+  "remainingScoreDrag": [
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk"
+  ],
+  "p0Count": 0,
+  "p1Count": 20,
+  "p2Count": 70,
+  "nextExactSteps": [
+    "Attach targeted visual/manual smoke evidence and run npm run check:evidence-capture-status.",
+    "Attach runtime/provider smoke evidence and run npm run check:evidence-capture-status.",
+    "Attach redacted admin truth sample evidence and run npm run check:admin-truth-source-sample.",
+    "Run npm run check:self-healing-refresh-queue before trusting stale generated reports."
+  ],
+  "dependencies": {
+    "debugBacklog": true,
+    "aiCritic": true,
+    "behaviorMath": true,
+    "legacyNormalization": true,
+    "orphanMetrics": true,
+    "realUsageConfidence": true,
+    "recoveryPlaybooks": true,
+    "refreshQueue": true,
+    "operatorCockpit": true
+  },
+  "generatedAtUtc": "2026-05-21T06:00:35.532Z",
+  "reportKey": "final-algorithmic-debug-lock",
+  "currentHead": "efea46c8b1722b8cdbc23accf76390519a56f986",
+  "sourceCommit": "efea46c8b1722b8cdbc23accf76390519a56f986",
+  "overallStatus": "locked_with_formal_gates_remaining",
+  "algorithmicDebugStatus": "locked",
+  "validationFailures": []
+}

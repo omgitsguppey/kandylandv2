@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.56",
-  "betaReleaseCounter": 356,
+  "currentVersion": "1.3.57",
+  "betaReleaseCounter": 357,
   "channel": "beta",
-  "generatedAt": "2026-05-21T06:30:00.000Z",
-  "generatedAtUtc": "2026-05-21T06:30:00.000Z",
+  "generatedAt": "2026-05-21T07:10:00.000Z",
+  "generatedAtUtc": "2026-05-21T07:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.57",
+      "previousVersion": "1.3.56",
+      "betaReleaseCounter": 357,
+      "previousBetaReleaseCounter": 356,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(debug): lock algorithmic debugging",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T07:10:00.000Z",
+      "generatedAt": "2026-05-21T07:10:00.000Z",
+      "committedAtUtc": "2026-05-21T07:10:00.000Z",
+      "generatedAtUtc": "2026-05-21T07:10:00.000Z",
+      "updatedAtUtc": "2026-05-21T07:10:00.000Z",
+      "category": "Improved",
+      "title": "Algorithmic debug lock",
+      "summary": "Locked the debug panel, score backlog, AI critic, behavior math, and refresh queues as the primary confidence engine.",
+      "userFacingTitle": "Algorithmic debug lock",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked the debug panel, score backlog, AI critic, behavior math, and refresh queues as the primary confidence engine.",
+        "Reduced manual testing bottlenecks without clearing provider, runtime, or visual proof gates.",
+        "Kept remaining formal evidence steps explicit for beta exit review."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the final algorithmic debug lock report, validator, package script, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Beta scoring"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/final-algorithmic-debug-lock.generated.json",
+        "docs/agent-truth/final-algorithmic-debug-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
+        "src/lib/debug/final-algorithmic-debug-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-algorithmic-debug-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.56",
       "previousVersion": "1.3.55",

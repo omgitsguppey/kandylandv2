@@ -29,7 +29,7 @@ Status: admin debug information hierarchy. The cockpit summarizes what to fix ne
 
 - Owner: repo
 - State: stale
-- Score impact estimate: 40
+- Score impact estimate: 37
 - Next action: npm run check:beta-score
 
 ### 4. Admin Truth Status

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-21T05:23:58.217Z",
+  "generatedAt": "2026-05-21T05:57:12.515Z",
   "reportKey": "ai-debug-critic",
   "criticStatus": "request_changes",
   "checks": [
@@ -66,7 +66,7 @@
   ],
   "findings": [
     {
-      "id": "no_patch_on_top_of_stale_logic-1672078035",
+      "id": "no_patch_on_top_of_stale_logic-417073463",
       "check": "no_patch_on_top_of_stale_logic",
       "severity": "required",
       "title": "Stale debug logic is still active",
@@ -89,6 +89,7 @@
         "agent/state/launch-pr-triage.generated.json",
         "agent/state/launch-readiness-report.generated.json",
         "agent/state/mobile-ui-final-lock.generated.json",
+        "agent/state/operator-revenue-smoke.generated.json",
         "agent/state/overnight-final-integration-lock.generated.json",
         "agent/state/overnight-wiring-integrity.generated.json",
         "agent/state/provider-smoke-evidence.generated.json",

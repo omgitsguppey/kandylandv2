@@ -1,6 +1,6 @@
 # March First Legacy Normalization
 
-Generated: 2026-05-21T04:53:42.780Z
+Generated: 2026-05-21T05:57:11.904Z
 
 This is a dry-run normalization plan for legacy KandyDrops records from March 1, 2026 onward. It does not read production data, run live backfill, mutate current records, or promote unknown legacy rows into current truth.
 

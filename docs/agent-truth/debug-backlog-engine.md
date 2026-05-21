@@ -2,8 +2,8 @@
 
 Authority: structured source-backed backlog generated from debug panel, beta score, route diagnostics, telemetry/admin truth, cost, and evidence freshness lanes.
 
-Generated: 2026-05-21T05:50:30.313Z
-Current HEAD: 8d0b53405c30bf2d55d4c412616b8d9349b44f91
+Generated: 2026-05-21T05:57:11.898Z
+Current HEAD: efea46c8b1722b8cdbc23accf76390519a56f986
 Score: 41.92 -> 65.8
 Readiness: Visual QA required
 

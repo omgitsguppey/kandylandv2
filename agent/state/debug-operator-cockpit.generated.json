@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-21T05:51:49.239Z",
+  "generatedAtUtc": "2026-05-21T05:57:40.769Z",
   "reportKey": "debug-operator-cockpit",
-  "currentHead": "8d0b53405c30bf2d55d4c412616b8d9349b44f91",
-  "sourceCommit": "8d0b53405c30bf2d55d4c412616b8d9349b44f91",
+  "currentHead": "efea46c8b1722b8cdbc23accf76390519a56f986",
+  "sourceCommit": "efea46c8b1722b8cdbc23accf76390519a56f986",
   "overallStatus": "pass",
   "rawDumpDefaultOpen": false,
   "defaultSections": [
@@ -87,11 +87,11 @@
           "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
         },
         {
-          "artifact": "agent/state/public-beta-score.generated.json",
+          "artifact": "agent/state/final-launch-readiness-report.generated.json",
           "staleReason": "stale",
-          "refreshCommand": "npm run check:beta-score",
+          "refreshCommand": "npm run check:final-launch-readiness-report",
           "scoreImpactEstimate": 4,
-          "owner": "beta",
+          "owner": "repo",
           "dependencyOrder": 3,
           "canRunAutomatically": true,
           "blockedReason": "",
@@ -99,9 +99,9 @@
           "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
         },
         {
-          "artifact": "agent/state/final-launch-readiness-report.generated.json",
+          "artifact": "agent/state/launch-pr-triage.generated.json",
           "staleReason": "stale",
-          "refreshCommand": "npm run check:final-launch-readiness-report",
+          "refreshCommand": "npm run check:launch-pr-triage",
           "scoreImpactEstimate": 4,
           "owner": "repo",
           "dependencyOrder": 4,
@@ -193,7 +193,7 @@
       "operatorSummary": "Run these registered refresh commands before trusting stale snapshots.",
       "owner": "repo",
       "state": "stale",
-      "scoreImpactEstimate": 40,
+      "scoreImpactEstimate": 37,
       "nextAction": "npm run check:beta-score",
       "items": [
         {
@@ -221,24 +221,12 @@
           "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
         },
         {
-          "artifact": "agent/state/public-beta-score.generated.json",
-          "staleReason": "stale",
-          "refreshCommand": "npm run check:beta-score",
-          "scoreImpactEstimate": 4,
-          "owner": "beta",
-          "dependencyOrder": 3,
-          "canRunAutomatically": true,
-          "blockedReason": "",
-          "source": "score_impact",
-          "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
-        },
-        {
           "artifact": "agent/state/final-launch-readiness-report.generated.json",
           "staleReason": "stale",
           "refreshCommand": "npm run check:final-launch-readiness-report",
           "scoreImpactEstimate": 4,
           "owner": "repo",
-          "dependencyOrder": 4,
+          "dependencyOrder": 3,
           "canRunAutomatically": true,
           "blockedReason": "",
           "source": "score_impact",
@@ -250,7 +238,7 @@
           "refreshCommand": "npm run check:launch-pr-triage",
           "scoreImpactEstimate": 4,
           "owner": "repo",
-          "dependencyOrder": 5,
+          "dependencyOrder": 4,
           "canRunAutomatically": true,
           "blockedReason": "",
           "source": "score_impact",
@@ -262,7 +250,7 @@
           "refreshCommand": "npm run check:launch-readiness-final",
           "scoreImpactEstimate": 4,
           "owner": "repo",
-          "dependencyOrder": 6,
+          "dependencyOrder": 5,
           "canRunAutomatically": true,
           "blockedReason": "",
           "source": "score_impact",
@@ -274,7 +262,7 @@
           "refreshCommand": "npm run check:provider-smoke-evidence",
           "scoreImpactEstimate": 4,
           "owner": "runtime",
-          "dependencyOrder": 7,
+          "dependencyOrder": 6,
           "canRunAutomatically": true,
           "blockedReason": "",
           "source": "score_impact",
@@ -286,6 +274,18 @@
           "refreshCommand": "npm run check:runtime-smoke-evidence",
           "scoreImpactEstimate": 4,
           "owner": "runtime",
+          "dependencyOrder": 7,
+          "canRunAutomatically": true,
+          "blockedReason": "",
+          "source": "score_impact",
+          "expectedOutcome": "Refresh score-impact artifact and reduce freshness/regression drag if validation passes."
+        },
+        {
+          "artifact": "agent/state/admin-truth.generated.json",
+          "staleReason": "missing",
+          "refreshCommand": "npm run check:admin-truth",
+          "scoreImpactEstimate": 1,
+          "owner": "admin",
           "dependencyOrder": 8,
           "canRunAutomatically": true,
           "blockedReason": "",
@@ -354,7 +354,7 @@
       "nextAction": "Open stale backlog items must be refreshed, retired, or explicitly blocked before a patch can claim completion.",
       "items": [
         {
-          "id": "no_patch_on_top_of_stale_logic-1672078035",
+          "id": "no_patch_on_top_of_stale_logic-417073463",
           "severity": "required",
           "title": "Stale debug logic is still active",
           "requiredFix": "Open stale backlog items must be refreshed, retired, or explicitly blocked before a patch can claim completion."
