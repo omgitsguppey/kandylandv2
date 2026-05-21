@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.55 - 2026-05-21
+- Self-healing refresh queue
+- Added a self-healing refresh queue for stale beta and debug artifacts.
+- Ordered refresh commands by owner, dependency, and score impact.
+- Kept formal provider, runtime, and manual proof gates blocked until real artifacts exist.
+
 ## 1.3.54 - 2026-05-21
 - Debug recovery playbooks
 - Added debug-driven recovery playbooks for high-impact issue categories.

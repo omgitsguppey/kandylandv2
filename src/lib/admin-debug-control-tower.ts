@@ -193,6 +193,7 @@ const SEVERITY_RANK: Record<AdminDebugSeverity, number> = {
 
 export const ADMIN_DEBUG_CONTROL_TOWER_REPORTS: ReportDefinition[] = [
     { id: "public-beta-score", label: "Public Beta", section: "beta_readiness", fileName: "public-beta-score.generated.json", command: "npm run check:beta-score", required: true },
+    { id: "self-healing-refresh-queue", label: "Self-Healing Refresh Queue", section: "beta_readiness", fileName: "self-healing-refresh-queue.generated.json", command: "npm run check:self-healing-refresh-queue", required: true },
     { id: "speed-security-hardening", label: "Speed + Security", section: "beta_readiness", fileName: "speed-security-hardening.generated.json", command: "npm run check:speed-security", required: true },
     { id: "codebase-hardening", label: "Codebase Hardening", section: "beta_readiness", fileName: "codebase-hardening.generated.json", command: "npm run check:hardening", required: true },
     { id: "device-ui-dry-audit", label: "Device UI", section: "device_ui", fileName: "device-ui-dry-audit.generated.json", command: "npm run check:device-ui", required: true },

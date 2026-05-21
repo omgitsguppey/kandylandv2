@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.54",
-  "betaReleaseCounter": 354,
+  "currentVersion": "1.3.55",
+  "betaReleaseCounter": 355,
   "channel": "beta",
-  "generatedAt": "2026-05-21T05:45:00.000Z",
-  "generatedAtUtc": "2026-05-21T05:45:00.000Z",
+  "generatedAt": "2026-05-21T06:05:00.000Z",
+  "generatedAtUtc": "2026-05-21T06:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.55",
+      "previousVersion": "1.3.54",
+      "betaReleaseCounter": 355,
+      "previousBetaReleaseCounter": 354,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): add self healing refresh queue",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T06:05:00.000Z",
+      "generatedAt": "2026-05-21T06:05:00.000Z",
+      "committedAtUtc": "2026-05-21T06:05:00.000Z",
+      "generatedAtUtc": "2026-05-21T06:05:00.000Z",
+      "updatedAtUtc": "2026-05-21T06:05:00.000Z",
+      "category": "Improved",
+      "title": "Self-healing refresh queue",
+      "summary": "Added a self-healing refresh queue for stale beta and debug artifacts.",
+      "userFacingTitle": "Self-healing refresh queue",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added a self-healing refresh queue for stale beta and debug artifacts.",
+        "Ordered refresh commands by owner, dependency, and score impact.",
+        "Kept formal provider, runtime, and manual proof gates blocked until real artifacts exist."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the self-healing refresh queue contract, generated report, validator, admin debug source registration, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Beta scoring"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/refresh-safeguards.generated.json",
+        "agent/state/self-healing-refresh-queue.generated.json",
+        "docs/agent-truth/refresh-safeguards.md",
+        "docs/agent-truth/self-healing-refresh-queue.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-self-healing-refresh-queue.ts",
+        "src/lib/admin-debug-control-tower.ts",
+        "src/lib/agent-score/self-healing-refresh-queue.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/self-healing-refresh-queue.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.54",
       "previousVersion": "1.3.53",
