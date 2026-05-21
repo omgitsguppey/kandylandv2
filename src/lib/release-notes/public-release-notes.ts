@@ -1,13 +1,63 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.40",
-  "betaReleaseCounter": 340,
+  "currentVersion": "1.3.41",
+  "betaReleaseCounter": 341,
   "channel": "beta",
-  "generatedAt": "2026-05-20T23:47:59.625Z",
-  "generatedAtUtc": "2026-05-20T23:47:59.625Z",
+  "generatedAt": "2026-05-21T00:02:49.613Z",
+  "generatedAtUtc": "2026-05-21T00:02:49.613Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.41",
+      "previousVersion": "1.3.40",
+      "betaReleaseCounter": 341,
+      "previousBetaReleaseCounter": 340,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): refine cost readiness scoring",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T00:02:49.613Z",
+      "generatedAt": "2026-05-21T00:02:49.613Z",
+      "committedAtUtc": "2026-05-21T00:02:49.613Z",
+      "generatedAtUtc": "2026-05-21T00:02:49.613Z",
+      "updatedAtUtc": "2026-05-21T00:02:49.613Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Refined cost readiness scoring from current source cleanup.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refined cost readiness scoring from current source cleanup.",
+        "Separated external billing owner review from source cost readiness.",
+        "Updated route 4xx and Cloud cost scoring inputs."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted cost readiness score cleanup pass into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "Beta readiness",
+        "Cost readiness",
+        "Generated reports"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/score-80-cost-readiness.generated.json",
+        "docs/agent-truth/score-80-cost-readiness.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-score-80-cost-readiness.ts",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/score-80-cost-readiness.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.40",
       "previousVersion": "1.3.39",
@@ -1334,60 +1384,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/final-telemetry-closure-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.16",
-      "previousVersion": "1.3.15",
-      "betaReleaseCounter": 316,
-      "previousBetaReleaseCounter": 315,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(admin): simplify telemetry truth",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-19T23:20:00.000Z",
-      "generatedAt": "2026-05-19T23:20:00.000Z",
-      "committedAtUtc": "2026-05-19T23:20:00.000Z",
-      "generatedAtUtc": "2026-05-19T23:20:00.000Z",
-      "updatedAtUtc": "2026-05-19T23:20:00.000Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Simplified Admin Debug telemetry health reporting while keeping raw telemetry details behind drilldowns.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Simplified admin telemetry health reporting.",
-        "Separated live, degraded, unavailable, and unproven analytics lanes.",
-        "Kept raw telemetry details behind debug drilldowns."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted admin telemetry truth simplification into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "admin debug",
-        "admin analytics",
-        "telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/telemetry-admin-debug-truth.generated.json",
-        "docs/agent-truth/telemetry-admin-debug-truth.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-telemetry-admin-debug-truth.ts",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "src/app/admin/debug/components/DebugTelemetryHealthSummary.tsx",
-        "src/app/api/admin/debug/route.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "src/lib/server/admin-telemetry-health.ts",
-        "tests/unit/telemetry-admin-debug-truth.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

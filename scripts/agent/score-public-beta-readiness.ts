@@ -18,8 +18,8 @@ import {
 } from "../../src/lib/agent-score/refresh-safeguards";
 import { REFRESH_ARTIFACT_REGISTRY } from "../../src/lib/agent-score/refresh-registry";
 import { loadDebugEvidenceForAuditDomains } from "./load-debug-evidence-for-audit";
+import { buildScore80CostReadinessFromRepo } from "./validate-score-80-cost-readiness";
 import type {
-  PublicBetaCostReadiness,
   PublicBetaEvidenceArtifact,
   PublicBetaGeneratedReportEvidence,
 } from "../../src/lib/agent-score/core";
@@ -45,8 +45,6 @@ const VISUAL_MANUAL_EVIDENCE_PATHS = [
   "agent/state/visual-smoke-evidence.generated.json",
   "agent/state/screenshot-evidence.generated.json",
 ] as const;
-const CREATOR_DASHBOARD_COST_INVENTORY_PATH = "agent/state/creator-dashboard-error-cost-inventory.generated.json";
-const SPEED_SECURITY_HARDENING_PATH = "agent/state/speed-security-hardening.generated.json";
 
 function parseJsonObject(source: string): Record<string, unknown> {
   try {
@@ -106,10 +104,6 @@ function readBoolean(value: unknown) {
 
 function readNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-function readArray(value: unknown) {
-  return Array.isArray(value) ? value : [];
 }
 
 function readGitHead(root: string) {
@@ -412,96 +406,6 @@ function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
   };
 }
 
-function speedSecurityHasCostRisk(root: string) {
-  const parsed = readJsonFile(root, SPEED_SECURITY_HARDENING_PATH);
-  const domainScores = readRecord(parsed?.domainScores);
-  const costDomain = readRecord(domainScores.costRunawayWorkControls);
-  return (readNumber(costDomain.findingCount) ?? 0) > 0
-    || (readNumber(costDomain.majorCount) ?? 0) > 0
-    || String(costDomain.status ?? "").includes("risk");
-}
-
-function buildCostReadiness(root: string): PublicBetaCostReadiness {
-  const parsed = readJsonFile(root, CREATOR_DASHBOARD_COST_INVENTORY_PATH);
-  if (!parsed) {
-    const missing = {
-      status: "missing_inventory" as const,
-      detail: "Creator dashboard error/cost inventory is missing.",
-      evidence: [`artifactPath=${CREATOR_DASHBOARD_COST_INVENTORY_PATH}`, "artifactExists=false"],
-      blocksBetaExit: false,
-    };
-    return {
-      cloudRunCostReadiness: missing,
-      cloudSqlCostReadiness: missing,
-      geminiCloudAssistCostReadiness: missing,
-      route4xxReadiness: missing,
-    };
-  }
-
-  const summary = readRecord(parsed.summary);
-  const cloudRunFindings = readArray(parsed.cloudRunCostFindings);
-  const cloudSqlFindings = readArray(parsed.cloudSqlCostFindings);
-  const geminiFindings = readArray(parsed.geminiCloudAssistCostFindings);
-  const speedCostRisk = speedSecurityHasCostRisk(root);
-  const unexpected4xxCount = readNumber(summary.unexpected4xxCount) ?? 0;
-  const unexpected4xxFixed = readNumber(summary.unexpected4xxFixed) ?? 0;
-  const route4xxBlocked = unexpected4xxCount > unexpected4xxFixed;
-
-  return {
-    cloudRunCostReadiness: {
-      status: speedCostRisk ? "cost_review_required" : cloudRunFindings.length > 0 ? "source_inventory_complete" : "config_not_in_repo",
-      detail: speedCostRisk
-        ? "Speed/security cost findings remain, so App Hosting and Cloud Run cost readiness stays owner-review."
-        : cloudRunFindings.length > 0
-          ? "Source inventory found App Hosting/Cloud Run configuration and no P0/P1 Cloud Run blocker."
-          : "No Cloud Run/App Hosting source configuration was detected in repo.",
-      evidence: [
-        `artifactPath=${CREATOR_DASHBOARD_COST_INVENTORY_PATH}`,
-        `cloudRunCostFindings=${cloudRunFindings.length}`,
-        `speedSecurityCostReviewRequired=${speedCostRisk}`,
-      ],
-      blocksBetaExit: false,
-    },
-    cloudSqlCostReadiness: {
-      status: cloudSqlFindings.length > 0 ? "not_detected_in_repo" : "not_detected_in_repo",
-      detail: cloudSqlFindings.length > 0
-        ? "Cloud SQL appears only as the Data Connect/agent-context mirror; no creator-dashboard runtime SQL path was detected."
-        : "No Cloud SQL runtime usage was detected in repo source.",
-      evidence: [
-        `artifactPath=${CREATOR_DASHBOARD_COST_INVENTORY_PATH}`,
-        `cloudSqlCostFindings=${cloudSqlFindings.length}`,
-        "cloudSqlRuntimeUsageDetected=false",
-      ],
-      blocksBetaExit: false,
-    },
-    geminiCloudAssistCostReadiness: {
-      status: speedCostRisk || geminiFindings.length > 0 ? "cost_review_required" : "not_detected_in_repo",
-      detail: geminiFindings.length > 0
-        ? "Gemini, Cloud Assist, Vertex, or AI usage remains an owner-review cost lane; no pass is inferred from source inventory."
-        : "No Gemini, Cloud Assist, Vertex, or AI runtime usage was detected in repo source.",
-      evidence: [
-        `artifactPath=${CREATOR_DASHBOARD_COST_INVENTORY_PATH}`,
-        `geminiCloudAssistCostFindings=${geminiFindings.length}`,
-        `speedSecurityCostReviewRequired=${speedCostRisk}`,
-      ],
-      blocksBetaExit: false,
-    },
-    route4xxReadiness: {
-      status: route4xxBlocked ? "blocked" : "source_inventory_complete",
-      detail: route4xxBlocked
-        ? "Unexpected 4xx findings remain unfixed in the creator dashboard route inventory."
-        : "Expected 4xx paths are classified and the frontend-caused creator dashboard 4xx was fixed.",
-      evidence: [
-        `artifactPath=${CREATOR_DASHBOARD_COST_INVENTORY_PATH}`,
-        `expected4xxCount=${readNumber(summary.expected4xxCount) ?? 0}`,
-        `unexpected4xxCount=${unexpected4xxCount}`,
-        `unexpected4xxFixed=${unexpected4xxFixed}`,
-      ],
-      blocksBetaExit: route4xxBlocked,
-    },
-  };
-}
-
 export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesApplied = 0) {
   const currentHead = readGitHead(root);
   const generatedAtUtc = new Date().toISOString();
@@ -523,7 +427,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       providerSmokeEvidence: readProviderSmokeEvidence(root),
       runtimeSmokeEvidence: readRuntimeSmokeEvidence(root),
       adminTruthSampleEvidence: readAdminTruthSampleEvidence(root),
-      costReadiness: buildCostReadiness(root),
+      costReadiness: buildScore80CostReadinessFromRepo(root).costReadiness,
       openPrTriageFresh: true,
     },
   });

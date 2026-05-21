@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-20T23:42:15.331Z",
+  "generatedAtUtc": "2026-05-21T00:00:47.088Z",
   "reportKey": "final-telemetry-closure-lock",
-  "currentHead": "94aa3b26e38df8a77ce0c38f5143b2e75a94c805",
+  "currentHead": "d418e158af1454abfadc9433008439bee888c796",
   "summary": {
     "clientTrackingClosed": true,
     "consentToggleClosed": false,
