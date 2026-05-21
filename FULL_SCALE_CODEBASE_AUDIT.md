@@ -13871,3 +13871,27 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2026-05-06 - Read-Only GumDrop Package Metadata + Source-of-Funds Separation Audit
+
+Scope:
+- `src/components/PurchaseModal.tsx`
+- `src/lib/gumdrops-packages.ts`
+- `src/lib/gumdrop-economics.ts`
+- Visible UI package math and labels
+
+Root causes found:
+- **Visible value claim mismatch**: `src/components/PurchaseModal.tsx` was displaying the total `pkg.drops` (which inherently includes the bonus amount) alongside an explicit `+ bonus GD` badge. This created a visual double-counting illusion (e.g. users might perceive they get Total + Bonus, rather than Base + Bonus = Total).
+- The actual backend ledger (`src/lib/gumdrop-ledger.ts`) and math handlers (`deriveGumdropEconomics`) correctly split base `paidGumDrops` from `bonusGumDrops`. The drift was strictly in the frontend visual layer, not the economy internals.
+
+Hardening applied:
+- `PurchaseModal.tsx` list items now use `pkgEconomics.paidGumDrops` for the primary itemized count to accurately reflect the base product, correctly making `+ bonus GD` an additive label.
+- The King Size Bundle row in `PurchaseModal.tsx` was similarly updated to use `deriveGumdropEconomics` to extract and display the exact `paidGumDrops` and `bonusGumDrops` values instead of a hardcoded generic badge against a combined total.
+
+Verification:
+- Evaluated `isBundleGumdropAmount`, `resolveExpectedGumdropPrice`, and the ledger handlers to ensure protected boundaries were untouched.
+- Checked `tests/unit/purchase-modal-density.spec.tsx` to verify standard rendering conditions were not broken.
+
+Results:
+- Visible package paths in `PurchaseModal` are now truthful and do not imply false equivalences between total packaged drops and base paid value.
+- No protected payment paths, webhook logic, or actual spending rules were modified.
