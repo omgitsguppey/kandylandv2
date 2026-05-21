@@ -1,0 +1,378 @@
+{
+  "generatedAt": "2026-05-21T04:44:06.547Z",
+  "source": "local_static_validator",
+  "overallScore": 100,
+  "overallStatus": "live",
+  "status": "live",
+  "productionReads": false,
+  "liveBackfill": false,
+  "findingCount": 0,
+  "criticalCount": 0,
+  "report": {
+    "summary": {
+      "rawEvents": 7,
+      "eligibleEvents": 4,
+      "disabledEventsExcluded": 1,
+      "legacyUnknownExcluded": 1,
+      "duplicateEventsDeduped": 1,
+      "watchTimeFromPageTimeExcluded": 1,
+      "linkedGuestEventsAttributedToUsers": 1
+    },
+    "perSession": {
+      "session-guest": {
+        "id": "session-guest",
+        "metrics": {
+          "pageViews": {
+            "value": 1,
+            "confidence": "probable",
+            "evidence": [
+              "semantic_page_viewed"
+            ]
+          },
+          "profileViews": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "dropOpens": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "clicks": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "scrollDepth": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "activeTimeMs": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "watchTimeMs": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "followerActions": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "purchaseIntent": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "purchaseTruthEvents": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "creatorInteractions": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          }
+        },
+        "eventIds": [
+          "guest-page-1"
+        ],
+        "sourceSessions": [
+          "session-guest"
+        ],
+        "linkedGuestIds": [],
+        "confidence": "probable"
+      },
+      "session-user": {
+        "id": "session-user",
+        "metrics": {
+          "pageViews": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "profileViews": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "dropOpens": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "clicks": {
+            "value": 1,
+            "confidence": "exact",
+            "evidence": [
+              "begin_checkout"
+            ]
+          },
+          "scrollDepth": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "activeTimeMs": {
+            "value": 120000,
+            "confidence": "exact",
+            "evidence": [
+              "semantic_page_engaged"
+            ]
+          },
+          "watchTimeMs": {
+            "value": 45000,
+            "confidence": "exact",
+            "evidence": [
+              "watch_session_completed"
+            ]
+          },
+          "followerActions": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "purchaseIntent": {
+            "value": 1,
+            "confidence": "exact",
+            "evidence": [
+              "begin_checkout"
+            ]
+          },
+          "purchaseTruthEvents": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "creatorInteractions": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          }
+        },
+        "eventIds": [
+          "watch-page-duration",
+          "watch-runtime",
+          "purchase-intent"
+        ],
+        "sourceSessions": [
+          "session-user"
+        ],
+        "linkedGuestIds": [],
+        "confidence": "exact"
+      }
+    },
+    "perGuest": {},
+    "perUser": {
+      "user-1": {
+        "id": "user-1",
+        "metrics": {
+          "pageViews": {
+            "value": 1,
+            "confidence": "probable",
+            "evidence": [
+              "semantic_page_viewed"
+            ]
+          },
+          "profileViews": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "dropOpens": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "clicks": {
+            "value": 1,
+            "confidence": "exact",
+            "evidence": [
+              "begin_checkout"
+            ]
+          },
+          "scrollDepth": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "activeTimeMs": {
+            "value": 120000,
+            "confidence": "exact",
+            "evidence": [
+              "semantic_page_engaged"
+            ]
+          },
+          "watchTimeMs": {
+            "value": 45000,
+            "confidence": "exact",
+            "evidence": [
+              "watch_session_completed"
+            ]
+          },
+          "followerActions": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "purchaseIntent": {
+            "value": 1,
+            "confidence": "exact",
+            "evidence": [
+              "begin_checkout"
+            ]
+          },
+          "purchaseTruthEvents": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          },
+          "creatorInteractions": {
+            "value": 0,
+            "confidence": "unknown",
+            "evidence": []
+          }
+        },
+        "eventIds": [
+          "guest-page-1",
+          "watch-page-duration",
+          "watch-runtime",
+          "purchase-intent"
+        ],
+        "sourceSessions": [
+          "session-guest",
+          "session-user"
+        ],
+        "linkedGuestIds": [
+          "guest-1"
+        ],
+        "confidence": "exact"
+      }
+    },
+    "linkedGuestToUser": {
+      "guest-1": "user-1"
+    },
+    "legacyUnknown": [
+      {
+        "eventId": "legacy-unknown",
+        "eventName": "creator_profile_viewed",
+        "eventType": "page_view",
+        "timestampMs": 1772618460000,
+        "identityState": "unknown_legacy",
+        "trackingState": "unknown",
+        "targetCreatorId": "creator-1"
+      }
+    ],
+    "disabledExcluded": [
+      {
+        "eventId": "disabled-click",
+        "eventName": "semantic_target_clicked",
+        "eventType": "click",
+        "timestampMs": 1779271260000,
+        "sessionId": "session-disabled",
+        "anonymousVisitorId": "guest-disabled",
+        "identityState": "guest_only",
+        "trackingState": "disabled"
+      }
+    ],
+    "dedupeRules": [
+      {
+        "key": "guest-page-1:session-guest:1779271200000",
+        "eventId": "guest-page-1",
+        "reason": "event_id"
+      }
+    ],
+    "eligibility": {
+      "guest-page-1": {
+        "eligible": true,
+        "reason": "eligible"
+      },
+      "guest-page-1#1": {
+        "eligible": false,
+        "reason": "duplicate"
+      },
+      "disabled-click": {
+        "eligible": false,
+        "reason": "tracking_disabled"
+      },
+      "legacy-unknown": {
+        "eligible": false,
+        "reason": "legacy_unknown"
+      },
+      "watch-page-duration": {
+        "eligible": true,
+        "reason": "eligible"
+      },
+      "watch-runtime": {
+        "eligible": true,
+        "reason": "eligible"
+      },
+      "purchase-intent": {
+        "eligible": true,
+        "reason": "eligible"
+      }
+    },
+    "samplingRules": [
+      "raw passive events may be sampled before persistence, but persisted summarized metrics remain source-labelled",
+      "disabled tracking suppresses behavior metrics and cannot be summarized into user behavior"
+    ],
+    "summarizationRules": [
+      "aggregate by session first, then guest or user identity",
+      "linked guest events are attributed once to the resolved user",
+      "watch time comes only from watch_session_rollup evidence",
+      "purchase intent is behavioral; purchase truth remains server-owned and separate"
+    ],
+    "debugOutput": {
+      "behaviorMathHealth": "verified_local_contract",
+      "disabledTrackingHandling": "excluded_from_behavior_metrics",
+      "legacyRecoveryReadiness": "dry_run_only_from_2026_03_01",
+      "perUserConfidence": {
+        "user-1": "exact"
+      },
+      "watchTimeTruth": "watch_session_rollups_only_not_page_time"
+    }
+  },
+  "recovery": {
+    "mode": "dry_run_only",
+    "startDate": "2026-03-01",
+    "readsProduction": false,
+    "mutationsAllowed": false,
+    "records": [
+      {
+        "id": "legacy-known",
+        "eventName": "creator_profile_viewed",
+        "timestampMs": 1772323200000,
+        "userId": "user-1",
+        "sessionId": "session-1",
+        "currentCategory": "creator_interaction",
+        "confidence": "probable",
+        "duplicateRisk": "medium",
+        "action": "map_for_review"
+      },
+      {
+        "id": "legacy-weak",
+        "eventName": "mystery_interaction",
+        "timestampMs": 1772668800000,
+        "currentCategory": "unknown",
+        "confidence": "unknown",
+        "duplicateRisk": "high",
+        "action": "quarantine_unknown"
+      }
+    ],
+    "summary": {
+      "inputRecords": 2,
+      "inWindowRecords": 2,
+      "exact": 0,
+      "probable": 1,
+      "weak": 0,
+      "unknown": 1
+    }
+  },
+  "findings": []
+}

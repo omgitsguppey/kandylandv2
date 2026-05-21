@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.50 - 2026-05-21
+- Behavior math verification
+- Verified behavioral tracking math for guests, users, and linked sessions.
+- Added dry-run legacy behavior recovery from March 1.
+- Prevented disabled tracking and legacy data from polluting user metrics.
+
 ## 1.3.49 - 2026-05-21
 - Debug critic improvements
 - Added source-only AI debug critic checks.

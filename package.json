@@ -52,6 +52,7 @@
         "validate:behavioral-models": "tsx scripts/validate-behavioral-models.ts",
         "validate:behavioral-predictions": "tsx scripts/validate-behavioral-predictions.ts",
         "check:behavioral-math-calibration": "tsx scripts/agent/validate-behavioral-math-calibration.ts",
+        "check:behavior-math-verification": "tsx scripts/agent/validate-behavior-math-verification.ts",
         "check:negative-preferences": "tsx scripts/agent/validate-negative-preferences.ts",
         "check:satisfaction-signal": "tsx scripts/agent/validate-satisfaction-signal.ts",
         "check:search-intent-truth": "tsx scripts/agent/validate-search-intent-truth.ts",

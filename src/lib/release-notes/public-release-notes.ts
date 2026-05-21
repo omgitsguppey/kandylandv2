@@ -1,13 +1,73 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.49",
-  "betaReleaseCounter": 349,
+  "currentVersion": "1.3.50",
+  "betaReleaseCounter": 350,
   "channel": "beta",
-  "generatedAt": "2026-05-21T04:23:40.710Z",
-  "generatedAtUtc": "2026-05-21T04:23:40.710Z",
+  "generatedAt": "2026-05-21T04:45:00.000Z",
+  "generatedAtUtc": "2026-05-21T04:45:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.50",
+      "previousVersion": "1.3.49",
+      "betaReleaseCounter": 350,
+      "previousBetaReleaseCounter": 349,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): verify behavior math",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-21T04:45:00.000Z",
+      "generatedAt": "2026-05-21T04:45:00.000Z",
+      "committedAtUtc": "2026-05-21T04:45:00.000Z",
+      "generatedAtUtc": "2026-05-21T04:45:00.000Z",
+      "updatedAtUtc": "2026-05-21T04:45:00.000Z",
+      "category": "Improved",
+      "title": "Behavior math verification",
+      "summary": "Verified behavioral tracking math for guests, users, and linked sessions.",
+      "userFacingTitle": "Behavior math verification",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Verified behavioral tracking math for guests, users, and linked sessions.",
+        "Added dry-run legacy behavior recovery from March 1.",
+        "Prevented disabled tracking and legacy data from polluting user metrics."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the behavior math contract, local engine, dry-run legacy recovery plan, generated report, validator, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Admin Debug",
+        "Behavioral tracking"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/behavior-math-verification.generated.json",
+        "agent/state/behavioral-tracking-semantics-closure.generated.json",
+        "agent/state/event-facts-materializer-closure.generated.json",
+        "agent/state/identity-transfer-telemetry-closure.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/behavior-math-verification.md",
+        "docs/agent-truth/behavioral-tracking-semantics-closure.md",
+        "docs/agent-truth/event-facts-materializer-closure.md",
+        "docs/agent-truth/identity-transfer-telemetry-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-behavior-math-verification.ts",
+        "src/lib/admin-debug-control-tower.ts",
+        "src/lib/behavioral/behavior-math-contract.ts",
+        "src/lib/behavioral/behavior-math-engine.ts",
+        "src/lib/behavioral/legacy-behavior-recovery.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/behavior-math-verification.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.49",
       "previousVersion": "1.3.48",
