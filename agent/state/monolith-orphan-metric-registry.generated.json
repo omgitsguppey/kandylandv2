@@ -1,0 +1,453 @@
+{
+  "generatedAt": "2026-05-21T05:03:43.785Z",
+  "sourceCommit": "5e1ccedfceebc9fe56a06fa2235b1eadb6d2c36e",
+  "currentHead": "5e1ccedfceebc9fe56a06fa2235b1eadb6d2c36e",
+  "overallStatus": "pass",
+  "overallScore": 80,
+  "metricSummary": {
+    "total": 14,
+    "linked": 12,
+    "sourceReadyEvidenceGap": 1,
+    "archived": 1,
+    "uiWithoutSource": 0,
+    "producerWithoutConsumer": 0
+  },
+  "monolithSummary": {
+    "total": 5,
+    "highRisk": 5,
+    "critical": 2
+  },
+  "findings": [
+    {
+      "id": "metric-runtime_watch_time",
+      "severity": "major",
+      "title": "Runtime watch time is not a fully linked live metric",
+      "humanReadableWarning": "Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output.",
+      "filePath": "src/lib/debug/orphan-metric-registry.ts",
+      "evidence": [
+        "producer=useViewerWatchSession and viewer watch-session route; RuntimeWatchTracker is source-ready but not the persisted default path",
+        "consumer=Runtime watch-time v2 evidence, Admin Analytics watch-time health, public beta runtime proof",
+        "status=source_ready_evidence_gap"
+      ]
+    },
+    {
+      "id": "metric-external_ga4_evidence",
+      "severity": "moderate",
+      "title": "External analytics evidence is not a fully linked live metric",
+      "humanReadableWarning": "Keep external evidence archive-only unless an explicit guarded refresh artifact is produced.",
+      "filePath": "src/lib/debug/orphan-metric-registry.ts",
+      "evidence": [
+        "producer=Ga4EvidenceTracker, PostHog provider, analytics export jobs",
+        "consumer=Admin Analytics external evidence, GA4 recovery truth, beta analytics supporting evidence",
+        "status=archived"
+      ]
+    },
+    {
+      "id": "monolith-src-app-api-admin-debug-route-ts",
+      "severity": "major",
+      "title": "src/app/api/admin/debug/route.ts is a critical monolith risk",
+      "humanReadableWarning": "Extract named drilldown loaders for the highest-churn debug sections before adding more evidence lanes.",
+      "filePath": "src/app/api/admin/debug/route.ts",
+      "evidence": [
+        "lineCount=6371",
+        "owner=admin-debug",
+        "splitRecommendation=Split the all-section branch into section-specific drilldown loaders after UI callers support section-specific requests."
+      ]
+    },
+    {
+      "id": "monolith-src-app-admin-analytics-hooks-useAdminAnalyticsState-tsx",
+      "severity": "major",
+      "title": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx is a critical monolith risk",
+      "humanReadableWarning": "Split state by tab the next time a metric source or consumer changes in admin analytics.",
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "evidence": [
+        "lineCount=3082",
+        "owner=admin-analytics",
+        "splitRecommendation=Move metric fetch, freshness derivation, and tab-specific state into named admin analytics hooks."
+      ]
+    },
+    {
+      "id": "monolith-src-app-api-admin-analytics-historical-route-ts",
+      "severity": "moderate",
+      "title": "src/app/api/admin/analytics/historical/route.ts is a high monolith risk",
+      "humanReadableWarning": "When touching historical analytics, extract one cohesive validation helper instead of adding route-local branches.",
+      "filePath": "src/app/api/admin/analytics/historical/route.ts",
+      "evidence": [
+        "lineCount=2004",
+        "owner=admin-analytics",
+        "splitRecommendation=Keep routing thin and continue moving validation/math helpers into server admin-analytics modules."
+      ]
+    },
+    {
+      "id": "monolith-functions-src-behavioral-intelligence-runtime-ts",
+      "severity": "moderate",
+      "title": "functions/src/behavioral-intelligence-runtime.ts is a high monolith risk",
+      "humanReadableWarning": "Add split plan before new behavior metrics are added to the runtime materializer.",
+      "filePath": "functions/src/behavioral-intelligence-runtime.ts",
+      "evidence": [
+        "lineCount=2381",
+        "owner=behavioral-intelligence",
+        "splitRecommendation=Separate materializer orchestration from scoring feature extraction and recommendation output shaping."
+      ]
+    },
+    {
+      "id": "monolith-scripts-agent-validate-admin-debug-control-tower-ts",
+      "severity": "moderate",
+      "title": "scripts/agent/validate-admin-debug-control-tower.ts is a high monolith risk",
+      "humanReadableWarning": "Split one report-specific assertion cluster when the validator is next edited.",
+      "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "evidence": [
+        "lineCount=2581",
+        "owner=debug-validation",
+        "splitRecommendation=Move report-specific assertions into small validator modules and keep the top-level script as an orchestrator."
+      ]
+    }
+  ],
+  "validationFailures": [],
+  "metricRegistry": [
+    {
+      "metricId": "page_views",
+      "displayLabel": "Page views",
+      "producer": "PageViewEvent, DeepTracker, route-level client components",
+      "persistenceSource": "analytics_guest_batches, analytics_sessions, analytics_event_facts",
+      "materializer": "behavioral_timeline_facts from guest ingest; analytics rollups and BigQuery export from analytics_event_facts",
+      "apiRoute": "/api/analytics/ingest for anonymous batches; /api/analytics/ingest-identified for authenticated events",
+      "uiConsumer": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "analytics",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Page view and route engagement mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "page_view"
+    },
+    {
+      "metricId": "sessions",
+      "displayLabel": "Sessions",
+      "producer": "DeepTracker, AuthContext, client session helpers",
+      "persistenceSource": "analytics_sessions, analytics_guest_batches, analytics_event_facts",
+      "materializer": "session rollups, behavioral timeline facts, admin analytics snapshots",
+      "apiRoute": "/api/analytics/ingest and /api/analytics/ingest-identified",
+      "uiConsumer": "Admin Analytics audience/live pulse and Admin Debug session evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "analytics",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Session lifecycle mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "session"
+    },
+    {
+      "metricId": "guest_events",
+      "displayLabel": "Guest events",
+      "producer": "DeepTracker semantic event queue",
+      "persistenceSource": "analytics_guest_batches and analytics_sessions",
+      "materializer": "behavioral_timeline_facts writes plus later guest-to-user transfer materializers",
+      "apiRoute": "/api/analytics/ingest",
+      "uiConsumer": "Guest analytics cutover report, Admin Analytics guest bounce quality, Admin Debug guest evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "analytics",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Anonymous guest event batches mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "guest_event"
+    },
+    {
+      "metricId": "auth_transitions",
+      "displayLabel": "Auth transitions",
+      "producer": "Auth UI, onboarding flows, server auth handlers",
+      "persistenceSource": "analytics_event_facts; analytics_guest_batches before login when anonymous",
+      "materializer": "behavioral_timeline_facts, analytics rollups, admin auth outcome snapshots",
+      "apiRoute": "/api/analytics/ingest-identified for authenticated events; server trackServerEvent for canonical backend outcomes",
+      "uiConsumer": "Admin Analytics auth outcomes, onboarding performance, analytics truth layer",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "auth",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Authentication and onboarding transitions mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "auth_transition"
+    },
+    {
+      "metricId": "identity_links",
+      "displayLabel": "Identity links",
+      "producer": "analytics identity-link route and identified ingest identity_linked events",
+      "persistenceSource": "analytics_identity_links and analytics_event_facts",
+      "materializer": "guest-to-user transfer materializers, behavioral timeline facts",
+      "apiRoute": "/api/analytics/identity-link and /api/analytics/ingest-identified",
+      "uiConsumer": "Analytics identity transfer inventory, guest-user analytics cutover, Admin Debug identity evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "analytics",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Guest-to-user identity transfer mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "identity_link"
+    },
+    {
+      "metricId": "purchase_events",
+      "displayLabel": "Purchase events",
+      "producer": "Checkout UI and server purchase verification",
+      "persistenceSource": "analytics_event_facts and canonical transaction records",
+      "materializer": "commerce snapshots, analytics rollups, BigQuery export from event facts",
+      "apiRoute": "Client analytics ingest plus server trackServerEvent from purchase verification routes",
+      "uiConsumer": "Admin revenue/top drops truth, Admin Analytics commerce snapshot, beta revenue evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "commerce",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Purchase and checkout telemetry mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "purchase"
+    },
+    {
+      "metricId": "gumdrop_balance_events",
+      "displayLabel": "GumDrop balance events",
+      "producer": "Daily task pipeline, wallet/economy server handlers, ledger-backed reward flows",
+      "persistenceSource": "analytics_event_facts plus canonical GumDrop ledger/transaction truth",
+      "materializer": "task pipeline rollups, commerce/economy admin evidence, BigQuery export from event facts",
+      "apiRoute": "Canonical server task/economy handlers plus /api/analytics/ingest-identified for UI companions",
+      "uiConsumer": "Admin daily task pipeline, economy evidence, public beta score economy lane",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "economy",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep GumDrop balance and reward lifecycle mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "gumdrop_balance"
+    },
+    {
+      "metricId": "creator_interactions",
+      "displayLabel": "Creator interactions",
+      "producer": "Creator profile, Fan Pass, broadcast, chat, booking, and creator dashboard surfaces",
+      "persistenceSource": "analytics_event_facts with actor/target creator separation",
+      "materializer": "creator CRM/admin evidence, behavioral timeline facts, BigQuery export from event facts",
+      "apiRoute": "/api/analytics/ingest-identified and creator/admin server routes using trackServerEvent",
+      "uiConsumer": "Creator dashboard role boundary reports, Fan Pass CRM/broadcast evidence, Admin Analytics creator lanes",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "creator",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Creator experience and fan actions mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "creator_experience"
+    },
+    {
+      "metricId": "fan_pass_subscribers",
+      "displayLabel": "Fan Pass subscribers",
+      "producer": "Creator subscription/Fan Pass server routes and UI companions",
+      "persistenceSource": "analytics_event_facts and canonical creator subscription records",
+      "materializer": "creator CRM/subscriber materializers, admin creator evidence, BigQuery export",
+      "apiRoute": "Creator subscription server routes using trackServerEvent plus identified ingest companions",
+      "uiConsumer": "Fan Pass CRM/broadcast evidence, creator parity reports, creator dashboard stats evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "creator",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Creator subscription and Fan Pass lifecycle mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "creator_subscription"
+    },
+    {
+      "metricId": "creator_drop_submissions",
+      "displayLabel": "Creator drop submissions",
+      "producer": "Creator drop API and Admin drops review route",
+      "persistenceSource": "analytics_event_facts plus pending creator drop submission records",
+      "materializer": "creator drop management approval evidence, admin CMS workflow evidence, BigQuery export",
+      "apiRoute": "/api/creator/drops and /api/admin/drops using trackServerEvent",
+      "uiConsumer": "Creator drop management approval report, Admin Drops CMS audit, public beta creator supply evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "creator",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Creator drop submission and admin review mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "creator_drop_submission"
+    },
+    {
+      "metricId": "runtime_watch_time",
+      "displayLabel": "Runtime watch time",
+      "producer": "useViewerWatchSession and viewer watch-session route; RuntimeWatchTracker is source-ready but not the persisted default path",
+      "persistenceSource": "analytics_watch_sessions, analytics_watch_observations, analytics_event_facts companions",
+      "materializer": "watch-session rollups, runtime watch-time evidence, analytics admin snapshots",
+      "apiRoute": "/api/viewer/watch-session for persisted runtime proof; /api/analytics/ingest-identified for companion event facts",
+      "uiConsumer": "Runtime watch-time v2 evidence, Admin Analytics watch-time health, public beta runtime proof",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "runtime_unverified",
+      "owner": "viewer-runtime",
+      "orphanStatus": "source_ready_evidence_gap",
+      "debugPanelHealthClaim": "degraded",
+      "nextAction": "Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output.",
+      "sourceLaneId": "runtime_watch"
+    },
+    {
+      "metricId": "behavior_signals",
+      "displayLabel": "Behavior signals",
+      "producer": "Client interactions, recommendation surfaces, support flows, behavioral normalizers",
+      "persistenceSource": "analytics_guest_batches, analytics_event_facts, behavioral_timeline_facts",
+      "materializer": "behavioral intelligence materializers, recommendation ranker inputs, admin event mix",
+      "apiRoute": "/api/analytics/ingest, /api/analytics/ingest-identified, server trackServerEvent for canonical outcomes",
+      "uiConsumer": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "behavioral-intelligence",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Behavior and recommendation signals mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "behavior_signal"
+    },
+    {
+      "metricId": "admin_debug_evidence",
+      "displayLabel": "Admin debug evidence",
+      "producer": "Admin routes, security/moderation handlers, debug evidence pipeline, server system jobs",
+      "persistenceSource": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+      "materializer": "admin/debug snapshots, source-truth reports, BigQuery export from event facts when applicable",
+      "apiRoute": "Admin/server routes using trackServerEvent and admin evidence validators",
+      "uiConsumer": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "current",
+      "owner": "admin-debug",
+      "orphanStatus": "linked",
+      "debugPanelHealthClaim": "healthy",
+      "nextAction": "Keep Admin/debug/security evidence mapped through producer, persistence, materializer, and admin evidence consumers.",
+      "sourceLaneId": "admin_evidence"
+    },
+    {
+      "metricId": "external_ga4_evidence",
+      "displayLabel": "External analytics evidence",
+      "producer": "Ga4EvidenceTracker, PostHog provider, analytics export jobs",
+      "persistenceSource": "GA4 vendor store or exported evidence snapshot only; excluded from first-party event fact truth",
+      "materializer": "GA4 recovery truth report, admin analytics external evidence panel, BigQuery export snapshots",
+      "apiRoute": "No default Admin Data API route; explicit evidence refresh only when configured",
+      "uiConsumer": "Admin Analytics external evidence, GA4 recovery truth, beta analytics supporting evidence",
+      "scoreEvidenceConsumer": "telemetry dependency graph, public beta score, debug backlog evidence",
+      "freshness": "evidence_only",
+      "owner": "analytics-evidence",
+      "orphanStatus": "archived",
+      "debugPanelHealthClaim": "not_claimed",
+      "nextAction": "Keep external evidence archive-only unless an explicit guarded refresh artifact is produced.",
+      "archiveClassification": "external/supporting evidence only; never product truth",
+      "sourceLaneId": "external_ga4_evidence"
+    }
+  ],
+  "monolithRegistry": [
+    {
+      "filePath": "src/app/api/admin/debug/route.ts",
+      "lineCount": 6371,
+      "domainsMixed": [
+        "admin-debug",
+        "telemetry",
+        "runtime-evidence",
+        "route-diagnostics",
+        "cost-evidence"
+      ],
+      "riskLevel": "critical",
+      "splitRecommendation": "Split the all-section branch into section-specific drilldown loaders after UI callers support section-specific requests.",
+      "owner": "admin-debug",
+      "linkedMetrics": [
+        "admin_debug_evidence",
+        "runtime_watch_time",
+        "external_ga4_evidence",
+        "behavior_signals"
+      ],
+      "linkedRoutes": [
+        "/api/admin/debug"
+      ],
+      "nextAction": "Extract named drilldown loaders for the highest-churn debug sections before adding more evidence lanes."
+    },
+    {
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "lineCount": 3082,
+      "domainsMixed": [
+        "admin-analytics",
+        "state",
+        "metric-snapshots",
+        "telemetry-freshness"
+      ],
+      "riskLevel": "critical",
+      "splitRecommendation": "Move metric fetch, freshness derivation, and tab-specific state into named admin analytics hooks.",
+      "owner": "admin-analytics",
+      "linkedMetrics": [
+        "page_views",
+        "sessions",
+        "purchase_events",
+        "creator_interactions"
+      ],
+      "linkedRoutes": [
+        "/admin/analytics"
+      ],
+      "nextAction": "Split state by tab the next time a metric source or consumer changes in admin analytics."
+    },
+    {
+      "filePath": "src/app/api/admin/analytics/historical/route.ts",
+      "lineCount": 2004,
+      "domainsMixed": [
+        "admin-analytics",
+        "historical-rollups",
+        "validation",
+        "telemetry"
+      ],
+      "riskLevel": "high",
+      "splitRecommendation": "Keep routing thin and continue moving validation/math helpers into server admin-analytics modules.",
+      "owner": "admin-analytics",
+      "linkedMetrics": [
+        "page_views",
+        "sessions",
+        "behavior_signals",
+        "purchase_events"
+      ],
+      "linkedRoutes": [
+        "/api/admin/analytics/historical"
+      ],
+      "nextAction": "When touching historical analytics, extract one cohesive validation helper instead of adding route-local branches."
+    },
+    {
+      "filePath": "functions/src/behavioral-intelligence-runtime.ts",
+      "lineCount": 2381,
+      "domainsMixed": [
+        "behavioral-intelligence",
+        "recommendations",
+        "materialization",
+        "scoring"
+      ],
+      "riskLevel": "high",
+      "splitRecommendation": "Separate materializer orchestration from scoring feature extraction and recommendation output shaping.",
+      "owner": "behavioral-intelligence",
+      "linkedMetrics": [
+        "behavior_signals",
+        "runtime_watch_time",
+        "creator_interactions"
+      ],
+      "linkedRoutes": [
+        "scheduled behavioral intelligence rebuild"
+      ],
+      "nextAction": "Add split plan before new behavior metrics are added to the runtime materializer."
+    },
+    {
+      "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "lineCount": 2581,
+      "domainsMixed": [
+        "debug-validation",
+        "admin-debug",
+        "generated-report-validation"
+      ],
+      "riskLevel": "high",
+      "splitRecommendation": "Move report-specific assertions into small validator modules and keep the top-level script as an orchestrator.",
+      "owner": "debug-validation",
+      "linkedMetrics": [
+        "admin_debug_evidence",
+        "runtime_watch_time"
+      ],
+      "linkedRoutes": [
+        "npm run check:admin-debug-control-tower"
+      ],
+      "nextAction": "Split one report-specific assertion cluster when the validator is next edited."
+    }
+  ],
+  "nextActions": [
+    "Keep source-ready runtime watch-time degraded until persisted runtime evidence exists.",
+    "Split admin debug route by section-specific drilldown loaders before adding more evidence branches.",
+    "Split admin analytics state by tab-specific hooks when the next metric source changes."
+  ]
+}

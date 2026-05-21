@@ -100,6 +100,7 @@
         "repair:hardening": "tsx scripts/agent/repair-codebase-hardening-safe.ts",
         "score:code-organization": "tsx scripts/agent/score-code-organization.ts",
         "check:code-organization": "tsx scripts/agent/validate-code-organization.ts",
+        "check:monolith-orphan-metric-registry": "tsx scripts/agent/validate-monolith-orphan-metric-registry.ts",
         "score:doctrine": "tsx scripts/agent/score-doctrine-hierarchy.ts",
         "check:doctrine": "tsx scripts/agent/validate-doctrine-hierarchy.ts",
         "check:surface-doctrine-split": "tsx scripts/agent/validate-surface-doctrine-split.ts",

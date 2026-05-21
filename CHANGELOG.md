@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.52 - 2026-05-21
+- Monolith and orphan metric registry
+- Added monolith and orphan metric registry.
+- Mapped metrics from producer to UI and evidence consumers.
+- Flagged high-risk monoliths without broad refactors.
+
 ## 1.3.51 - 2026-05-21
 - Legacy data normalization plan
 - Added dry-run legacy data normalization from March 1.

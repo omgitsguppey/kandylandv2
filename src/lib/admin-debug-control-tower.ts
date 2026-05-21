@@ -206,6 +206,7 @@ export const ADMIN_DEBUG_CONTROL_TOWER_REPORTS: ReportDefinition[] = [
     { id: "sql-mirror", label: "Data Connect Mirror", section: "money_cost", fileName: "sql-mirror-status.generated.json", command: "npm run agent:sync-sql" },
     { id: "telemetry-parity", label: "Telemetry Parity", section: "telemetry_behavior", fileName: "telemetry-parity-score.generated.json", command: "npm run check:telemetry-parity-score", required: true },
     { id: "behavior-math", label: "Behavior Math", section: "telemetry_behavior", fileName: "behavior-math-verification.generated.json", command: "npm run check:behavior-math-verification", required: true },
+    { id: "monolith-orphan-metrics", label: "Monolith + Orphan Metrics", section: "telemetry_behavior", fileName: "monolith-orphan-metric-registry.generated.json", command: "npm run check:monolith-orphan-metric-registry", required: true },
     { id: "event-catalog", label: "Event Catalog", section: "telemetry_behavior", fileName: "event-catalog-telemetry-audit.generated.json", command: "npm run check:event-catalog-telemetry" },
     { id: "watch-time-truth", label: "Watch Time", section: "telemetry_behavior", fileName: "watch-time-truth.generated.json", command: "npm run check:watch-time-truth" },
     { id: "debug-evidence", label: "Debug Evidence", section: "live_issues", fileName: "debug-evidence-index.generated.json", command: "npm run check:debug-evidence-pipeline" },
