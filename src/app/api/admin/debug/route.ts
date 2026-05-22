@@ -40,6 +40,7 @@ import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminDebugSummaryPayload } from "@/lib/server/admin-debug/summary";
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
 import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
+import { buildLegacyRecoveryDebugSummary } from "@/lib/server/admin-debug/legacy-recovery-summary";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
@@ -6595,6 +6596,7 @@ export async function GET(request: NextRequest) {
             },
             identityHandoff: buildIdentityHandoffDebugSummary(),
             eventEnvelope: buildEventEnvelopeDebugSummary(),
+            legacyRecovery: buildLegacyRecoveryDebugSummary(),
             adminShellLayout: buildAdminShellLayoutDebugMetadata(request.nextUrl.pathname),
             costControls: {
                 guard: ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD,

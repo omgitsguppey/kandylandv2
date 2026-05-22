@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.80 - 2026-05-22
+- March 1 legacy event recovery
+- Added dry-run legacy event recovery from March 1.
+- Mapped older events into the new identity-aware envelope model.
+- Simplified debug legacy recovery into one lane.
+
 ## 1.3.79 - 2026-05-22
 - Event envelope normalization
 - Normalized telemetry events into a shared identity-aware envelope.

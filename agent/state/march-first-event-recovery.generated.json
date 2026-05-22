@@ -1,0 +1,247 @@
+{
+  "reportKey": "march-first-event-recovery",
+  "generatedAtUtc": "2026-05-22T22:28:14.380Z",
+  "currentHead": "a068b0c2b19ff7cc94a770a7461c3394a52fa9f1",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "liveBackfill": false,
+  "mutationsAllowed": false,
+  "fakeEventsUsed": false,
+  "dryRun": {
+    "mode": "dry_run_only",
+    "recoveryStartDate": "2026-03-01",
+    "readsProduction": false,
+    "liveBackfill": false,
+    "mutationsAllowed": false,
+    "rawRecordsIncluded": false,
+    "candidates": [
+      {
+        "legacyEventId": "validator_drop",
+        "occurredAt": "2026-03-03T00:00:00.000Z",
+        "domain": "drop_open_unwrap",
+        "action": "normalize_candidate",
+        "identityConfidence": "inferred",
+        "consentAssumption": "explicit",
+        "duplicateRisk": "low",
+        "normalizedEnvelopeCandidate": {
+          "eventId": "validator_drop",
+          "eventName": "drop_opened",
+          "eventVersion": 1,
+          "timestamp": "2026-03-03T00:00:00.000Z",
+          "featureId": "unregistered",
+          "surface": "unknown",
+          "actorKind": "guest",
+          "identityState": "guest_full_behavioral",
+          "identityConfidence": "inferred",
+          "consentMode": "full_behavioral",
+          "sessionId": "session-2",
+          "guestId": "guest-2",
+          "userRef": null,
+          "linkId": null,
+          "source": "legacy",
+          "materializerLane": "quarantine",
+          "debugVisibility": "debug_only",
+          "scoreImpact": "none",
+          "privacyClass": "unknown",
+          "metadata": {
+            "legacySource": "analytics_event_facts",
+            "legacyDomain": "drop_open_unwrap",
+            "dryRunOnly": true
+          },
+          "pipelineStatus": "quarantined",
+          "quarantineReason": "unregistered_event",
+          "unavailableGuestReason": null,
+          "includeInUserBehavior": true
+        },
+        "dryRunOnly": true,
+        "canMutateProduction": false,
+        "manualReviewReason": null,
+        "boundaryReason": null
+      },
+      {
+        "legacyEventId": "validator_payment",
+        "occurredAt": "2026-03-04T00:00:00.000Z",
+        "domain": "wallet_payment_lifecycle",
+        "action": "needs_manual_review",
+        "identityConfidence": "inferred",
+        "consentAssumption": "explicit",
+        "duplicateRisk": "high",
+        "normalizedEnvelopeCandidate": {
+          "eventId": "validator_payment",
+          "eventName": "wallet_purchase_completed",
+          "eventVersion": 1,
+          "timestamp": "2026-03-04T00:00:00.000Z",
+          "featureId": "unregistered",
+          "surface": "unknown",
+          "actorKind": "signed_in_user",
+          "identityState": "logged_in_unlinked",
+          "identityConfidence": "inferred",
+          "consentMode": "necessary_only",
+          "sessionId": "unknown_session",
+          "guestId": null,
+          "userRef": {
+            "kind": "user",
+            "id": "user-1"
+          },
+          "linkId": null,
+          "source": "legacy",
+          "materializerLane": "quarantine",
+          "debugVisibility": "debug_only",
+          "scoreImpact": "none",
+          "privacyClass": "required_integrity",
+          "metadata": {
+            "legacySource": "transactions",
+            "legacyDomain": "wallet_payment_lifecycle",
+            "dryRunOnly": true
+          },
+          "pipelineStatus": "quarantined",
+          "quarantineReason": "unregistered_event",
+          "unavailableGuestReason": null,
+          "includeInUserBehavior": false
+        },
+        "dryRunOnly": true,
+        "canMutateProduction": false,
+        "manualReviewReason": "Wallet and payment lifecycle evidence is mapped as a dry-run envelope candidate only; payment math and ledger state remain untouched.",
+        "boundaryReason": null
+      },
+      {
+        "legacyEventId": "validator_unknown",
+        "occurredAt": "2026-03-02T00:00:00.000Z",
+        "domain": "legacy_unknown",
+        "action": "archive_only",
+        "identityConfidence": "unknown",
+        "consentAssumption": "unknown_necessary_only",
+        "duplicateRisk": "high",
+        "normalizedEnvelopeCandidate": {
+          "eventId": "validator_unknown",
+          "eventName": "unknown_legacy",
+          "eventVersion": 1,
+          "timestamp": "2026-03-02T00:00:00.000Z",
+          "featureId": "unregistered",
+          "surface": "unknown",
+          "actorKind": "legacy_unknown",
+          "identityState": "legacy_unknown",
+          "identityConfidence": "unknown",
+          "consentMode": "necessary_only",
+          "sessionId": "unknown_session",
+          "guestId": null,
+          "userRef": null,
+          "linkId": null,
+          "source": "legacy",
+          "materializerLane": "quarantine",
+          "debugVisibility": "debug_only",
+          "scoreImpact": "none",
+          "privacyClass": "unknown",
+          "metadata": {
+            "legacySource": "old_events",
+            "legacyDomain": "legacy_unknown",
+            "dryRunOnly": true
+          },
+          "pipelineStatus": "quarantined",
+          "quarantineReason": "legacy_event",
+          "unavailableGuestReason": "guest_id_unavailable_legacy",
+          "includeInUserBehavior": false
+        },
+        "dryRunOnly": true,
+        "canMutateProduction": false,
+        "manualReviewReason": "Unknown or weak legacy evidence cannot become current user truth.",
+        "boundaryReason": null
+      }
+    ],
+    "summary": {
+      "inputRecords": 3,
+      "candidateCount": 3,
+      "confidenceCounts": {
+        "exact": 0,
+        "linked": 0,
+        "inferred": 2,
+        "weak": 0,
+        "unknown": 1
+      },
+      "actionCounts": {
+        "normalize_candidate": 1,
+        "link_candidate": 0,
+        "archive_only": 1,
+        "ignore": 0,
+        "needs_manual_review": 1
+      },
+      "domainCounts": {
+        "page_session": 0,
+        "wallet_payment_lifecycle": 1,
+        "drop_open_unwrap": 1,
+        "creator_profile_view": 0,
+        "fan_pass_subscription": 0,
+        "broadcasts": 0,
+        "notifications": 0,
+        "behavior_signals": 0,
+        "identity_links": 0,
+        "legacy_unknown": 1
+      },
+      "duplicateRiskCounts": {
+        "low": 1,
+        "medium": 0,
+        "high": 2
+      }
+    },
+    "mutationPrevention": {
+      "productionMutationBlocked": true,
+      "exportedMutationFunctions": [],
+      "blockedReason": "dry_run_only_no_live_backfill"
+    },
+    "debugPanel": {
+      "lane": "Legacy recovery",
+      "showCountsByConfidenceAndAction": true,
+      "rawDumpsCollapsed": true,
+      "duplicateLegacyWidgetsConsolidated": true
+    }
+  },
+  "protectedRuntimeStatus": {
+    "paymentPaypalUntouched": true,
+    "gumdropMathUntouched": true,
+    "chatNavUntouched": true
+  },
+  "checks": {
+    "recoveryDateIsMarchFirst": true,
+    "dryRunOnlyNoLiveMutation": true,
+    "noMutationExports": true,
+    "domainsCovered": true,
+    "unknownLegacyNotExactUser": true,
+    "missingConsentNotFullBehavioral": true,
+    "duplicateRiskPresent": true,
+    "everyLegacyEventHasEnvelopeCandidate": true,
+    "paymentLifecycleManualReviewOnly": true,
+    "debugPanelHasSingleLegacyRecoveryLane": true,
+    "testCoversBoundaryConsentAndUnknown": true,
+    "packageScriptPresent": true,
+    "chatNavPaymentGumdropRuntimeUntouched": true
+  },
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/march-first-event-recovery.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "docs/agent-truth/march-first-event-recovery.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "scripts/agent/validate-march-first-event-recovery.ts",
+    "src/app/api/admin/debug/route.ts",
+    "src/lib/legacy/legacy-event-recovery-contract.ts",
+    "src/lib/legacy/march-first-event-recovery.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/server/admin-debug/legacy-recovery-summary.ts",
+    "tests/unit/march-first-event-recovery.spec.ts"
+  ],
+  "validationFailures": [],
+  "debugPanelLane": {
+    "name": "Legacy recovery",
+    "rawDumpsCollapsed": true,
+    "duplicateLegacyWidgetsConsolidated": true,
+    "recoveryStartDate": "2026-03-01",
+    "mutationPrevention": "blocked"
+  },
+  "releaseNote": [
+    "Added dry-run legacy event recovery from March 1.",
+    "Mapped older events into the new identity-aware envelope model.",
+    "Simplified debug legacy recovery into one lane."
+  ]
+}

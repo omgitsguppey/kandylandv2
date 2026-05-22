@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.79",
-  "betaReleaseCounter": 379,
+  "currentVersion": "1.3.80",
+  "betaReleaseCounter": 380,
   "channel": "beta",
-  "generatedAt": "2026-05-22T21:57:34.289Z",
-  "generatedAtUtc": "2026-05-22T21:57:34.289Z",
+  "generatedAt": "2026-05-22T22:21:44.306Z",
+  "generatedAtUtc": "2026-05-22T22:21:44.306Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.80",
+      "previousVersion": "1.3.79",
+      "betaReleaseCounter": 380,
+      "previousBetaReleaseCounter": 379,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(analytics): recover legacy event envelopes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-22T22:21:44.306Z",
+      "generatedAt": "2026-05-22T22:21:44.306Z",
+      "committedAtUtc": "2026-05-22T22:21:44.306Z",
+      "generatedAtUtc": "2026-05-22T22:21:44.306Z",
+      "updatedAtUtc": "2026-05-22T22:21:44.306Z",
+      "category": "Internal Reliability",
+      "title": "March 1 legacy event recovery",
+      "summary": "Added dry-run recovery for legacy events from March 1 so older tracking evidence can be reviewed as identity-aware envelope candidates without live backfills or mutations.",
+      "userFacingTitle": "March 1 legacy event recovery",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Added dry-run legacy event recovery from March 1.",
+        "Mapped older events into the new identity-aware envelope model.",
+        "Simplified debug legacy recovery into one lane."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a dry-run legacy event recovery contract, source validator, generated evidence, admin debug summary, and focused unit coverage without changing payment, GumDrop, chat, or navigation runtime."
+      ],
+      "affectedSurfaces": [
+        "Analytics",
+        "Privacy",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/march-first-event-recovery.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/march-first-event-recovery.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-march-first-event-recovery.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/legacy/legacy-event-recovery-contract.ts",
+        "src/lib/legacy/march-first-event-recovery.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/legacy-recovery-summary.ts",
+        "tests/unit/march-first-event-recovery.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.79",
       "previousVersion": "1.3.78",
@@ -1434,60 +1488,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/debug-operator-cockpit.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.55",
-      "previousVersion": "1.3.54",
-      "betaReleaseCounter": 355,
-      "previousBetaReleaseCounter": 354,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): add self healing refresh queue",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T06:05:00.000Z",
-      "generatedAt": "2026-05-21T06:05:00.000Z",
-      "committedAtUtc": "2026-05-21T06:05:00.000Z",
-      "generatedAtUtc": "2026-05-21T06:05:00.000Z",
-      "updatedAtUtc": "2026-05-21T06:05:00.000Z",
-      "category": "Improved",
-      "title": "Self-healing refresh queue",
-      "summary": "Added a self-healing refresh queue for stale beta and debug artifacts.",
-      "userFacingTitle": "Self-healing refresh queue",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added a self-healing refresh queue for stale beta and debug artifacts.",
-        "Ordered refresh commands by owner, dependency, and score impact.",
-        "Kept formal provider, runtime, and manual proof gates blocked until real artifacts exist."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the self-healing refresh queue contract, generated report, validator, admin debug source registration, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Admin Debug",
-        "Beta scoring"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/refresh-safeguards.generated.json",
-        "agent/state/self-healing-refresh-queue.generated.json",
-        "docs/agent-truth/refresh-safeguards.md",
-        "docs/agent-truth/self-healing-refresh-queue.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-self-healing-refresh-queue.ts",
-        "src/lib/admin-debug-control-tower.ts",
-        "src/lib/agent-score/self-healing-refresh-queue.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/self-healing-refresh-queue.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }
