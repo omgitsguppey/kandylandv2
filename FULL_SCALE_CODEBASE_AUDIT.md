@@ -13871,3 +13871,47 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2026-05-22 Blocked Deliverable: Monolith File + Responsibility Boundary Audit
+
+### 1. Candidate Files
+- `src/app/api/admin/debug/route.ts` (6663 lines)
+- `src/components/Chat/ChatExperience.tsx` (3522 lines)
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (3205 lines)
+- `src/app/api/admin/users/route.ts` (3162 lines)
+- `src/lib/server/ai-drop-covers.ts` (2873 lines)
+- `src/app/api/admin/analytics/historical/route.ts` (2108 lines)
+
+### 2. Classification Labels
+- `src/app/api/admin/debug/route.ts`: **God-file risk**, **Mixed responsibility drift**
+- `src/components/Chat/ChatExperience.tsx`: **God-file risk**, **Mixed responsibility drift**
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: **God-file risk**, **Needs split for stability**
+- `src/app/api/admin/users/route.ts`: **God-file risk**
+- `src/lib/server/ai-drop-covers.ts`: **God-file risk**, **Oversized but tolerable**
+- `src/app/api/admin/analytics/historical/route.ts`: **God-file risk**
+
+### 3. Exact Blocker
+The codebase contains multiple highly critical files that exceed 2000 lines. Automated scripting and direct decomposition of these monolithic files are strictly too risky without manual human-in-the-loop validation, as they mix complex state orchestration, data fetching, transformation, telemetry, and protected backend economy/admin functionality. Attempting to split them automatically runs a high risk of breaking core product behaviors and losing context.
+
+### 4. Affected Components and Helpers
+- Admin Debug surface (`/admin/debug`)
+- Chat experience (`ChatExperience`, `useChatUnreadStatus`, `chat-realtime`)
+- Admin Analytics hook orchestration (`useAdminAnalyticsState`, `AdminAnalyticsOperationsTab`, `AdminAnalyticsCommerceTab`)
+- Admin Users API route (`/api/admin/users`)
+- AI drop cover generation backend (`ai-drop-covers`)
+- Admin Analytics historical data endpoints (`/api/admin/analytics/historical`)
+
+### 5. Precise Codex Prompt for the Blocked Remainder
+```text
+You are tasked with manually decomposing several high-risk monolithic files in the KandyDrops repository that exceed 2000 lines.
+
+The targets are:
+1. `src/app/api/admin/debug/route.ts` (6663 lines)
+2. `src/components/Chat/ChatExperience.tsx` (3522 lines)
+3. `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (3205 lines)
+4. `src/app/api/admin/users/route.ts` (3162 lines)
+5. `src/lib/server/ai-drop-covers.ts` (2873 lines)
+6. `src/app/api/admin/analytics/historical/route.ts` (2108 lines)
+
+Your goal is to carefully split these files into focused modules. For UI components like `ChatExperience.tsx`, extract complex state management into custom hooks and smaller view components (~300 lines). For API routes like `src/app/api/admin/debug/route.ts` and `src/app/api/admin/users/route.ts`, extract the handler logic into discrete controller/service files (~500 lines). Ensure you maintain all existing telemetry, error handling, and authorization boundaries without altering runtime business logic or economy/payment mechanisms.
+```
