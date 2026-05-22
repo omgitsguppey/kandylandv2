@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, type ReactNode } from "react";
 import { FUNDING, PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
 import { X, Candy, Minus, Plus } from "lucide-react";
@@ -24,6 +24,11 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import { formatCompactGd, resolveWalletBalanceSplit } from "@/lib/gumdrop-formatting";
 import { createStaleRequestGuard } from "@/lib/ui/loading-state-contract";
 import {
+  resolveBundlePromoOffer,
+  resolvePurchaseBonusPromoOffer,
+  type PurchasePromoOffer,
+} from "@/lib/wallet/purchase-promo-contract";
+import {
   buildBugReportContext,
   getSafePreviousRoute,
   resolveClientActionError,
@@ -45,6 +50,162 @@ const PACKAGES: PurchasePackage[] = FIXED_GUMDROP_PACKAGES.map((entry) => ({
 
 const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim()?.length ?? 0) > 0;
 const CHECKOUT_FLOW_KEY = "wallet_checkout";
+
+type PurchasePackageRowProps = {
+  amount: number;
+  label: string;
+  price: number;
+  promo: PurchasePromoOffer | null;
+  selected: boolean;
+  onSelect: () => void;
+  ariaLabel?: string;
+  children?: ReactNode;
+};
+
+function PurchasePromoBadge({ promo }: { promo: PurchasePromoOffer | null }) {
+  if (!promo || !promo.shouldShowOnMobile) {
+    return (
+      <span
+        aria-hidden="true"
+        className="mt-1 block h-[1.05rem] min-w-[4.8rem]"
+        data-purchase-promo-slot="reserved"
+      />
+    );
+  }
+
+  return (
+    <span
+      className={cn(
+        "mt-1 inline-flex h-[1.05rem] max-w-[6.4rem] items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap rounded-md border border-brand-purple/25 bg-brand-purple/[0.12] px-1.5 text-[8px] font-bold leading-none tracking-normal text-[#d7c4ff]",
+        promo.maxWidthClassName,
+      )}
+      data-purchase-promo-slot="reserved"
+      title={promo.label}
+    >
+      {promo.compactLabel}
+    </span>
+  );
+}
+
+function PurchasePriceBlock({ price, promo, selected }: { price: number; promo: PurchasePromoOffer | null; selected: boolean }) {
+  return (
+    <div className="flex w-[6.6rem] shrink-0 flex-col items-end justify-center" data-purchase-row-zone="price">
+      <span className={cn("text-[14px] font-bold leading-none", selected ? "text-brand-purple" : "text-white")}>
+        ${price.toFixed(2)}
+      </span>
+      <PurchasePromoBadge promo={promo} />
+    </div>
+  );
+}
+
+function PurchasePackageRow({
+  amount,
+  label,
+  price,
+  promo,
+  selected,
+  onSelect,
+  ariaLabel,
+  children,
+}: PurchasePackageRowProps) {
+  const className = cn(
+    "relative grid min-h-[3.45rem] w-full grid-cols-[2rem_minmax(0,1fr)_6.6rem] items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all",
+    selected
+      ? "border-brand-purple/55 bg-brand-purple/[0.12] ring-1 ring-brand-purple/25"
+      : "border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer",
+  );
+  const content = (
+    <>
+      <div
+        className={cn(
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
+          selected ? "bg-white/10" : "bg-black/40",
+        )}
+        data-purchase-row-zone="icon"
+      >
+        <Candy className="h-[1.125rem] w-[1.125rem] text-gray-300" />
+      </div>
+      <div className="min-w-0" data-purchase-row-zone="copy">
+        <div className="flex min-w-0 items-baseline gap-1.5">
+          <span className="truncate text-[14px] font-bold leading-none text-white">{amount.toLocaleString()}</span>
+          <span className="shrink-0 text-[9px] font-bold leading-none text-gray-500">Paid GD</span>
+        </div>
+        <p className="mt-0.5 truncate text-[10.5px] font-medium leading-tight text-gray-400">{label}</p>
+      </div>
+      <PurchasePriceBlock price={price} promo={promo} selected={selected} />
+      {children}
+    </>
+  );
+
+  if (children) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onSelect}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onSelect();
+          }
+        }}
+        aria-pressed={selected}
+        aria-label={ariaLabel}
+        data-wallet-mobile-density="compact"
+        data-payment-module-density="compact-v2"
+        className={className}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      aria-label={ariaLabel}
+      data-wallet-mobile-density="compact"
+      data-payment-module-density="compact-v2"
+      className={className}
+    >
+      {content}
+    </button>
+  );
+}
+
+function PurchaseModalHeader({
+  hasUserProfile,
+  freeGd,
+  paidGd,
+}: {
+  hasUserProfile: boolean;
+  freeGd: number;
+  paidGd: number;
+}) {
+  return (
+    <div className="text-center mb-2 pt-0.5" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
+      <div className="w-9 h-9 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-[0.9rem] mx-auto mb-1.5 flex items-center justify-center shadow-lg shadow-brand-purple/15 sm:h-11 sm:w-11 sm:rounded-2xl">
+        <Candy className="h-[1.125rem] w-[1.125rem] text-white drop-shadow-md sm:h-5 sm:w-5" />
+      </div>
+      <h2 id="purchase-wallet-title" className="text-lg font-bold text-white mb-0.5 tracking-tight">Kandy Shop Wallet</h2>
+      <p className="text-gray-400 text-[11px] font-medium mb-1.5 leading-snug">Refill GumDrops for your next unwrap.</p>
+      {hasUserProfile ? (
+        <div
+          className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full"
+          data-wallet-mobile-density="compact"
+          aria-label={`Wallet balance: ${formatCompactGd(freeGd)} free GD, ${formatCompactGd(paidGd)} paid GD`}
+        >
+          <Candy className="w-3.5 h-3.5 text-brand-purple" />
+          <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(freeGd)} free GD</span>
+          <span className="text-[11px] font-bold text-white/25" aria-hidden="true">|</span>
+          <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(paidGd)} paid GD</span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const { user, userProfile, setUserProfile } = useAuth();
@@ -503,36 +664,26 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                   supportText="Create a free profile before adding Gum Drops to your stash."
                 >
                   {!success ? (
-                    <div>
-                      <div className="text-center mb-3 pt-1" data-wallet-mobile-density="compact">
-                        <div className="w-10 h-10 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-[1rem] mx-auto mb-2 flex items-center justify-center shadow-lg shadow-brand-purple/20 sm:h-12 sm:w-12 sm:rounded-2xl">
-                          <Candy className="w-5 h-5 text-white drop-shadow-md sm:h-6 sm:w-6" />
-                        </div>
-                        <h2 id="purchase-wallet-title" className="text-xl font-bold text-white mb-0.5 tracking-tight">Kandy Shop Wallet</h2>
-                        <p className="text-gray-400 text-xs font-medium mb-2 leading-snug">Refill GumDrops for your next unwrap.</p>
-                        {userProfile && (
-                          <div
-                            className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full"
-                            data-wallet-mobile-density="compact"
-                            aria-label={`Wallet balance: ${formatCompactGd(walletBalanceSplit.freeGd)} free GD, ${formatCompactGd(walletBalanceSplit.paidGd)} paid GD`}
-                          >
-                            <Candy className="w-3.5 h-3.5 text-brand-purple" />
-                            <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(walletBalanceSplit.freeGd)} free GD</span>
-                            <span className="text-[11px] font-bold text-white/25" aria-hidden="true">|</span>
-                            <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(walletBalanceSplit.paidGd)} paid GD</span>
-                          </div>
-                        )}
-                      </div>
+                    <div data-payment-module-density="compact-v2">
+                      <PurchaseModalHeader
+                        hasUserProfile={Boolean(userProfile)}
+                        freeGd={walletBalanceSplit.freeGd}
+                        paidGd={walletBalanceSplit.paidGd}
+                      />
 
-                      <div className="flex flex-col gap-2 mb-3" data-wallet-mobile-density="compact">
-                        {packagesList.map((pkg, index) => {
+                      <div className="flex flex-col gap-1.5 mb-2" data-wallet-mobile-density="compact" data-payment-module-density="compact-v2">
+                        {packagesList.map((pkg) => {
                           const isSelected = selectedPackage.drops === pkg.drops;
                           const pkgEconomics = deriveGumdropEconomics(pkg.drops, pkg.price);
                           return (
-                            <button
+                            <PurchasePackageRow
                               key={pkg.drops}
-                              type="button"
-                              onClick={() => {
+                              amount={pkgEconomics.paidGumDrops}
+                              label={pkg.label}
+                              price={pkg.price}
+                              promo={resolvePurchaseBonusPromoOffer(pkgEconomics.bonusGumDrops)}
+                              selected={isSelected}
+                              onSelect={() => {
                                 setSelectedPackage(pkg);
                                 trackEvent("purchase_package_selected", {
                                   package_label: pkg.label,
@@ -544,87 +695,26 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   source_component: "purchase_modal",
                                 });
                               }}
-                              aria-pressed={isSelected}
-                              data-wallet-mobile-density="compact"
-                              className={cn(
-                                "relative flex items-center justify-between rounded-xl border px-3 py-2.5 w-full transition-all text-left",
-                                isSelected
-                                  ? "bg-brand-purple/15 border-brand-purple/50 ring-1 ring-brand-purple/40 shadow-sm"
-                                  : "bg-white/5 border-white/5 hover:bg-white/10 cursor-pointer"
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors", isSelected ? "bg-brand-purple/20" : "bg-black/40")}>
-                                  <Candy className={cn("h-5 w-5", isSelected ? "text-brand-purple shadow-sm" : "text-gray-400")} />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-[15px] font-bold text-white leading-none">{pkg.drops.toLocaleString()}</span>
-                                    <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
-                                    {pkgEconomics.bonusGumDrops > 0 && (
-                                      <span className="inline-flex items-center ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
-                                        +{pkgEconomics.bonusGumDrops} paid bonus GD
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-[11px] font-medium text-gray-400 mt-1">{pkg.label}</p>
-                                </div>
-                              </div>
-                              <span className={cn("shrink-0 text-[15px] font-bold", isSelected ? "text-brand-purple" : "text-white")}>
-                                ${pkg.price.toFixed(2)}
-                              </span>
-                            </button>
+                            />
                           );
                         })}
                       </div>
 
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        aria-pressed={isBundleSelected}
+                      <PurchasePackageRow
+                        amount={deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5).paidGumDrops}
+                        label="King Size Bundle"
+                        price={(customDrops / 1000) * 5}
+                        promo={resolveBundlePromoOffer(customDrops >= 5000)}
+                        selected={isBundleSelected}
                         aria-label={`Select King Size Bundle with ${customDrops.toLocaleString()} Gum Drops`}
-                        data-wallet-mobile-density="compact"
-                        onClick={() => {
+                        onSelect={() => {
                           selectBundlePackage(customDrops);
                         }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            selectBundlePackage(customDrops);
-                          }
-                        }}
-                        className={cn(
-                          "relative mt-2 mb-4 flex w-full cursor-pointer flex-col gap-2 rounded-xl border p-2.5 text-left transition-all",
-                          isBundleSelected
-                            ? "bg-brand-purple/15 border-brand-purple/50 ring-1 ring-brand-purple/40 shadow-sm"
-                            : "bg-white/5 border-white/5 hover:bg-white/10"
-                        )}
                       >
-                        <div className="flex items-center justify-between">
-                           <div className="flex items-center gap-3">
-                                <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors", isBundleSelected ? "bg-brand-purple/20" : "bg-black/40")}>
-                                  <Candy className={cn("h-5 w-5", isBundleSelected ? "text-brand-purple shadow-sm" : "text-gray-400")} />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className="text-[15px] font-bold text-white leading-none">{customDrops.toLocaleString()}</span>
-                                    <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
-                                    <span className="inline-flex items-center ml-0 sm:ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
-                                      {customDrops >= 5000 ? "Paid bundle bonus" : "Bundle bonus"}
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] font-medium text-gray-400 mt-1">King Size Bundle</p>
-                                </div>
-                           </div>
-                           <span className={cn("shrink-0 text-[15px] font-bold", isBundleSelected ? "text-brand-purple" : "text-white")}>
-                              ${((customDrops / 1000) * 5).toFixed(2)}
-                           </span>
-                        </div>
-                        
                         {isBundleSelected && (
-                           <div className="flex items-center justify-between gap-3 pt-2 mt-0.5 border-t border-white/5">
-                             <span className="text-[11px] text-gray-400 font-medium tracking-wide">Build your configuration:</span>
-                             <div className="flex shrink-0 items-center justify-between w-[130px] rounded-lg border border-white/10 bg-black/40 p-1">
+                           <div className="col-span-3 mt-1 flex items-center justify-between gap-3 border-t border-white/5 pt-1.5">
+                             <span className="text-[10px] text-gray-400 font-medium tracking-wide">Configure:</span>
+                             <div className="flex shrink-0 items-center justify-between w-[118px] rounded-lg border border-white/10 bg-black/40 p-0.5">
                                 <button
                                   aria-label="Decrease bundle size"
                                   type="button"
@@ -640,7 +730,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 >
                                   <Minus className="h-4 w-4" />
                                 </button>
-                                <div className="text-center text-xs font-bold text-gray-100 px-1">{customDrops / 1000}k</div>
+                                <div className="text-center text-[11px] font-bold text-gray-100 px-1">{customDrops / 1000}k</div>
                                 <button
                                   aria-label="Increase bundle size"
                                   type="button"
@@ -659,10 +749,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                              </div>
                            </div>
                         )}
-                      </div>
+                      </PurchasePackageRow>
 
-                      <div className="w-full relative z-10 pt-2 pb-1 border-t border-white/10 select-none">
-                        <div className="mb-3 text-[10px] font-bold text-gray-500 tracking-widest uppercase text-center flex items-center gap-3">
+                      <div className="w-full relative z-10 mt-2 pt-1.5 pb-0.5 border-t border-white/10 select-none">
+                        <div className="mb-2 text-[9px] font-bold text-gray-500 tracking-widest uppercase text-center flex items-center gap-2.5">
                            <div className="flex-1 h-[1px] bg-white/5"></div>
                            <span>Secure Checkout</span>
                            <div className="flex-1 h-[1px] bg-white/5"></div>
@@ -852,7 +942,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           </span>
                         {selectedEconomics.bonusGumDrops > 0 ? (
                           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
-                            +{selectedEconomics.bonusGumDrops} paid bonus GD
+                             +{selectedEconomics.bonusGumDrops} bonus GD
                           </span>
                         ) : null}
                         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">

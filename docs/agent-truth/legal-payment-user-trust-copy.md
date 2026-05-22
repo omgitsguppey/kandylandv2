@@ -11,7 +11,7 @@ This document is not legal advice. It records product-copy truth and consistency
 - GumDrops are currency-like product units for access inside KandyDrops, not cash.
 - Product UI should call them `GumDrops` unless a legal page intentionally quotes the existing legal wording.
 - Bonus, promo, reward, or admin-granted GumDrops must not be presented as cash value, refundable value, or revenue.
-- Purchase UI must show the USD amount and total GumDrops before checkout.
+- Purchase UI must show the USD amount, paid base GumDrops, and any bonus GumDrops before checkout.
 - Purchase UI must preserve source-of-funds truth while keeping package rows compact.
 - Unlock UI must show the GumDrops cost before the user confirms the unlock.
 - Expiration copy must distinguish public Drop availability from owned library access.
@@ -27,7 +27,7 @@ Terms and Privacy:
 
 Wallet refill:
 - `src/components/PurchaseModal.tsx` uses the canonical GumDrop economics helpers.
-- Package rows show total delivered GumDrops, USD price, and a compact bonus indicator before checkout.
+- Package rows show paid base GumDrops, USD price, and a compact bonus indicator before checkout.
 - The success state repeats credited GumDrops and secured USD amount while source-of-funds details remain in backend/admin truth.
 
 Unlock:

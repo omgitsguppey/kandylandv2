@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-05-22T14:45:00-05:00",
+  "task": "payment-module-symmetry-mobile-density",
+  "status": "source_confirmed",
+  "affectedSurface": "user-wallet-purchase-modal",
+  "summary": {
+    "paymentRuntimeUntouched": true,
+    "walletCreditingUntouched": true,
+    "gumdropMathUntouched": true,
+    "pricingAndBonusAmountsUnchanged": true,
+    "paypalProviderButtonStable": true,
+    "chatAndNavigationUntouched": true,
+    "backupPurchaseModalRemoved": true,
+    "compactDensityMarker": "compact-v2"
+  },
+  "copyChanges": [
+    "GumDrops row label shortened to Paid GD.",
+    "+50 paid bonus GD shortened to +50 bonus GD.",
+    "+100 paid bonus GD shortened to +100 bonus GD.",
+    "+500 paid bonus GD shortened to +500 bonus GD.",
+    "Paid bundle bonus shortened to 2x bonus GD."
+  ],
+  "releaseNotes": [
+    "Refined payment module copy, symmetry, and mobile density.",
+    "Shortened GumDrop bonus labels for cleaner package rows.",
+    "Kept PayPal, wallet crediting, pricing, and GumDrop math unchanged."
+  ],
+  "protectedFiles": [
+    "src/app/api/paypal/create/route.ts",
+    "src/app/api/paypal/capture/route.ts",
+    "src/app/api/wallet/packages/route.ts",
+    "src/lib/server/paypal.ts",
+    "src/components/PayPalProvider.tsx",
+    "src/lib/gumdrop-ledger.ts",
+    "src/lib/gumdrop-source-of-funds.ts",
+    "src/lib/gumdrop-economics.ts",
+    "src/lib/gumdrops-packages.ts"
+  ],
+  "validators": [
+    "npm run check:payment-module-symmetry",
+    "npm run check:wallet-density",
+    "npm run check:wallet-single-paypal-button",
+    "npm run check:payment-unlock-security",
+    "npm run check:gumdrop-source-of-funds-truth",
+    "npm run score:beta",
+    "npm run check:beta-score",
+    "npm run typecheck",
+    "npm run check:release-notes",
+    "npx vitest run tests/unit/payment-module-symmetry.spec.ts"
+  ]
+}

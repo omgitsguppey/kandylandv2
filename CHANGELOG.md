@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.77 - 2026-05-22
+- Payment module symmetry refinement
+- Refined payment module copy, symmetry, and mobile density.
+- Shortened GumDrop bonus labels for cleaner package rows.
+- Kept PayPal, wallet crediting, pricing, and GumDrop math unchanged.
+
 ## 1.3.76 - 2026-05-21
 - New additions score coverage lock
 - Verified new additions are tracked in telemetry, debug, and score systems.

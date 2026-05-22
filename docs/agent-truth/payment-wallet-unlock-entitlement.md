@@ -14,7 +14,7 @@ Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDrop
 
 Platform Economy is the top admin economic truth surface above wallet display, admin overview, and debug summaries. Any GumDrops balance, package, promo, discount, bonus, reward, spend, creator payout, expiration, forfeit, refund, or adjustment must resolve to the canonical ledger/source-of-funds model. Admin UI may summarize, but it cannot redefine economy math.
 
-The wallet modal uses compact public-beta density. Package cards show total delivered GumDrops, package label, price, and purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged.
+The wallet modal uses compact public-beta density. Package cards show paid base GumDrops as `Paid GD`, package label, price, and a compact purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged.
 
 Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons. Funding-source visibility is controlled through PayPal SDK configuration or PayPalButtons fundingSource. PayPal may still offer eligible funding methods after buyer enters PayPal; KandyDrops only controls the on-page button stack.
 
@@ -25,7 +25,7 @@ Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hi
 - PayPal capture must verify status, USD amount, expected package price, and the server-created `custom_id` user/package binding before any credit.
 - PurchaseModal renders the on-page checkout as a PayPal-only funding-source button and may also disable extra SDK funding sources through the shared `PayPalScriptProvider` options. It must not CSS-hide PayPal iframes/buttons or fall back to stacked card/paylater buttons.
 - Purchase economics still record `paidGumDrops`, `bonusGumDrops`, and delivered totals from `src/lib/gumdrop-economics.ts`, but paid-pack base and paid-pack bonus both credit purchased/paid-source balance through `src/lib/gumdrop-ledger.ts`.
-- PurchaseModal may show compact source-aware balance display and compact package cards, but it must not change package delivery totals, checkout expectedDrops, PayPal behavior, or source classification.
+- PurchaseModal may show compact source-aware balance display and compact paid-base package cards with bonus chips, but it must not change package delivery totals, checkout expectedDrops, PayPal behavior, or source classification.
 - Promo, reward, referral, onboarding, task, check-in, and admin grant Gum Drops credit reward-source balance and are not revenue.
 - Paid-pack bonus GumDrops are purchase bonus metadata and paid-source spendable balance, not reward-source balance.
 - Revenue is counted only from completed `purchase_currency` ledger rows.

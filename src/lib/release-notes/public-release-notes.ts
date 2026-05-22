@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.76",
-  "betaReleaseCounter": 376,
+  "currentVersion": "1.3.77",
+  "betaReleaseCounter": 377,
   "channel": "beta",
-  "generatedAt": "2026-05-21T19:45:00.000Z",
-  "generatedAtUtc": "2026-05-21T19:45:00.000Z",
+  "generatedAt": "2026-05-22T19:55:00.000Z",
+  "generatedAtUtc": "2026-05-22T19:55:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.77",
+      "previousVersion": "1.3.76",
+      "betaReleaseCounter": 377,
+      "previousBetaReleaseCounter": 376,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(wallet): refine purchase module symmetry",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-22T19:55:00.000Z",
+      "generatedAt": "2026-05-22T19:55:00.000Z",
+      "committedAtUtc": "2026-05-22T19:55:00.000Z",
+      "generatedAtUtc": "2026-05-22T19:55:00.000Z",
+      "updatedAtUtc": "2026-05-22T19:55:00.000Z",
+      "category": "Improved",
+      "title": "Payment module symmetry refinement",
+      "summary": "Refined the Kandy Shop Wallet package rows with shorter GumDrop labels, steadier promo slots, and compact mobile spacing while keeping checkout behavior unchanged.",
+      "userFacingTitle": "Payment module symmetry refinement",
+      "surfaceCategory": "Wallet",
+      "bullets": [
+        "Refined payment module copy, symmetry, and mobile density.",
+        "Shortened GumDrop bonus labels for cleaner package rows.",
+        "Kept PayPal, wallet crediting, pricing, and GumDrop math unchanged."
+      ],
+      "audience": "users",
+      "technicalDetails": [
+        "Added a display-only purchase promo contract, source validator, generated evidence, and focused unit coverage without changing provider runtime or economy math."
+      ],
+      "affectedSurfaces": [
+        "Wallet",
+        "Checkout display"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/payment-module-symmetry.generated.json",
+        "docs/agent-truth/legal-payment-user-trust-copy.md",
+        "docs/agent-truth/payment-module-symmetry.md",
+        "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
+        "scripts/agent/validate-payment-module-symmetry.ts",
+        "scripts/agent/validate-wallet-density.ts",
+        "src/components/PurchaseModal.tsx",
+        "src/components/PurchaseModal.tsx.bak",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/wallet/purchase-promo-contract.ts",
+        "tests/unit/payment-module-symmetry.spec.ts",
+        "tests/unit/purchase-modal-density.spec.tsx",
+        "tests/unit/purchase-modal-source-of-funds-static.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.76",
       "previousVersion": "1.3.75",
@@ -1427,61 +1484,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/real-usage-confidence.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.52",
-      "previousVersion": "1.3.51",
-      "betaReleaseCounter": 352,
-      "previousBetaReleaseCounter": 351,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): track orphan metrics",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T05:10:00.000Z",
-      "generatedAt": "2026-05-21T05:10:00.000Z",
-      "committedAtUtc": "2026-05-21T05:10:00.000Z",
-      "generatedAtUtc": "2026-05-21T05:10:00.000Z",
-      "updatedAtUtc": "2026-05-21T05:10:00.000Z",
-      "category": "Improved",
-      "title": "Monolith and orphan metric registry",
-      "summary": "Added monolith and orphan metric registry.",
-      "userFacingTitle": "Monolith and orphan metric registry",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added monolith and orphan metric registry.",
-        "Mapped metrics from producer to UI and evidence consumers.",
-        "Flagged high-risk monoliths without broad refactors."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added source-only metric and monolith registries, generated report output, Admin Debug report wiring, validator, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug",
-        "Telemetry evidence",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/monolith-orphan-metric-registry.generated.json",
-        "docs/agent-truth/monolith-orphan-metric-registry.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-monolith-orphan-metric-registry.ts",
-        "src/lib/admin-debug-control-tower.ts",
-        "src/lib/debug/monolith-risk-registry.ts",
-        "src/lib/debug/orphan-metric-registry.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/monolith-orphan-metric-registry.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
     }
   ]
-} satisfies PublicReleaseNotesDocument;
+} as const satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,

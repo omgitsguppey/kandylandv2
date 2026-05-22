@@ -164,13 +164,22 @@ describe("PurchaseModal public beta compact density", () => {
 
     expect(container.textContent).not.toMatch(/\d+ paid \+ \d+ bonus GumDrops/);
     expect(container.textContent).not.toMatch(/\d+ paid GumDrops/);
+    expect(container.textContent).toContain("Paid GD");
+    expect(container.textContent).toContain("+50 bonus GD");
+    expect(container.textContent).toContain("+100 bonus GD");
+    expect(container.textContent).toContain("+500 bonus GD");
+    expect(container.textContent).toContain("2x bonus GD");
+    expect(container.textContent).not.toContain("paid bonus GD");
+    expect(container.textContent).not.toContain("Paid bundle bonus");
     expect(container.innerHTML).not.toContain("emerald-");
-    expect(container.innerHTML).toContain("border-brand-purple/30");
-    expect(container.innerHTML).toContain("bg-brand-purple/15");
+    expect(container.innerHTML).toContain("border-brand-purple/25");
+    expect(container.innerHTML).toContain("bg-brand-purple/[0.12]");
     expect(container.querySelector("[data-wallet-density='public-beta-compact']")).toBeTruthy();
     expect(container.querySelector("[data-wallet-balance-chip='split-source']")).toBeTruthy();
     expect(container.querySelector("[data-wallet-package-subcopy='removed']")).toBeTruthy();
     expect(container.querySelector("[data-wallet-bonus-chip-theme='brand-purple']")).toBeTruthy();
+    expect(container.querySelector("[data-payment-module-density='compact-v2']")).toBeTruthy();
+    expect(container.querySelector("[data-purchase-promo-slot='reserved']")).toBeTruthy();
   });
 
   it("renders checkout in PayPal-only single button mode", async () => {

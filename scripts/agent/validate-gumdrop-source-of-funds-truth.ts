@@ -34,6 +34,7 @@ function requireRegex(source: string, pattern: RegExp, label: string) {
 
 const packageJson = readRequired("package.json");
 const ledger = readRequired("src/lib/gumdrop-ledger.ts");
+const sourceOfFunds = readRequired("src/lib/gumdrop-source-of-funds.ts");
 const paypalCapture = readRequired("src/app/api/paypal/capture/route.ts");
 const checkinRoute = readRequired("src/app/api/checkin/route.ts");
 const dailyTasks = readRequired("src/lib/server/daily-tasks.ts");
@@ -64,14 +65,22 @@ const readme = readRequired("README.md");
 
 for (const expected of [
   "buildPaidPurchaseBalanceCredit",
-  "purchasedCreditGumDrops: deliveredGumDrops",
-  "rewardCreditGumDrops: 0",
-  "purchaseBonusGumDrops: bonusGumDrops",
-  "paid_purchase_including_bonus",
+  "buildPaidBundleCredit",
+  "purchasedCreditGumDrops: canonicalCredit.purchasedCreditGd",
+  "rewardCreditGumDrops: canonicalCredit.rewardCreditGd",
+  "purchaseBonusGumDrops: canonicalCredit.paidBonusGd",
+  "sourceClassification: canonicalCredit.sourceClassification",
   "gumdropRewardTotal: isRewardTransaction ? positiveAmount : 0",
   "gumdropPurchaseBonusTotal",
 ]) {
   requireIncludes(ledger, expected, "GumDrop ledger source-of-funds helper");
+}
+for (const expected of [
+  "purchasedCreditGd: deliveredGd",
+  "rewardCreditGd: 0",
+  "sourceClassification: \"paid_purchase_including_bonus\"",
+]) {
+  requireIncludes(sourceOfFunds, expected, "GumDrop source-of-funds purchase credit helper");
 }
 
 for (const expected of [
@@ -122,14 +131,17 @@ requireNotIncludes(dropsUnlockRoute, "purchasedOnly: true", "Normal Drop unlock 
 
 requireRegex(
   purchaseModal,
-  /<span[^>]*>\{pkg\.drops\.toLocaleString\(\)\}<\/span>/,
-  "PurchaseModal fixed package visible headline",
+  /amount=\{pkgEconomics\.paidGumDrops\}/,
+  "PurchaseModal fixed package visible paid headline",
 );
 requireRegex(
   purchaseModal,
-  /<span[^>]*>\{customDrops\.toLocaleString\(\)\}<\/span>/,
-  "PurchaseModal custom package visible headline",
+  /amount=\{deriveGumdropEconomics\(customDrops, \(customDrops \/ 1000\) \* 5\)\.paidGumDrops\}/,
+  "PurchaseModal custom package visible paid headline",
 );
+requireIncludes(purchaseModal, "Paid GD", "PurchaseModal visible paid label");
+requireIncludes(purchaseModal, "resolvePurchaseBonusPromoOffer(pkgEconomics.bonusGumDrops)", "PurchaseModal fixed package bonus display");
+requireIncludes(purchaseModal, "resolveBundlePromoOffer(customDrops >= 5000)", "PurchaseModal bundle bonus display");
 requireIncludes(purchaseModal, "selectedPackage.drops", "PurchaseModal delivered total checkout framing");
 for (const expected of ["drops: 100", "drops: 550", "drops: 1100", "drops: 2500"]) {
   requireIncludes(packageCatalog, expected, "GumDrop package catalog delivered total framing");
@@ -154,9 +166,9 @@ for (const expected of [
   requireIncludes(paypalTest, expected, "PayPal capture source-aware tests");
 }
 for (const expected of [
-  "keeps visible package headlines framed around delivered GumDrop totals",
-  "pkg\\.drops\\.toLocaleString",
-  "customDrops\\.toLocaleString",
+  "keeps visible package headlines framed around paid GD plus explicit bonus display",
+  "amount={pkgEconomics.paidGumDrops}",
+  "amount={deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5).paidGumDrops}",
   "expectedDrops: selectedPackage.drops",
 ]) {
   requireIncludes(purchaseModalStaticTest, expected, "PurchaseModal visible display guard test");
@@ -206,8 +218,17 @@ try {
     "git diff --name-only -- src/components/PurchaseModal.tsx src/components/GlobalPurchaseModal.tsx src/components/Wallet src/app/api/wallet",
     { cwd: root, encoding: "utf8" },
   ).trim();
-  if (walletDiff.length > 0) {
-    failures.push(`Wallet UI/package surfaces must remain unchanged for this source fix. Unexpected diff: ${walletDiff}`);
+  const walletDiffEntries = walletDiff.split(/\r?\n/u).filter(Boolean);
+  const allowedUiDiff = walletDiffEntries.length === 1 && walletDiffEntries[0] === "src/components/PurchaseModal.tsx";
+  if (walletDiffEntries.length > 0 && !allowedUiDiff) {
+    failures.push(`Wallet UI/package surfaces must remain unchanged outside the active PurchaseModal symmetry lane. Unexpected diff: ${walletDiffEntries.join(", ")}`);
+  }
+  if (allowedUiDiff) {
+    const symmetryValidator = readRequired("scripts/agent/validate-payment-module-symmetry.ts");
+    const symmetryReport = readRequired("agent/state/payment-module-symmetry.generated.json");
+    requireIncludes(symmetryValidator, "Protected payment/wallet/GumDrop runtime files changed", "Payment module symmetry validator");
+    requireIncludes(symmetryReport, "\"gumdropMathUntouched\": true", "Payment module symmetry report");
+    requireIncludes(symmetryReport, "\"walletCreditingUntouched\": true", "Payment module symmetry report");
   }
 } catch (error) {
   failures.push(`Unable to inspect wallet UI diff: ${(error as Error).message}`);

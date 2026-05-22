@@ -35,6 +35,7 @@ function requireRegex(source: string, pattern: RegExp, label: string) {
 
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
+const paymentModuleSymmetry = readRequired("agent/state/payment-module-symmetry.generated.json");
 const formatter = readRequired("src/lib/gumdrop-formatting.ts");
 const formatterTest = readRequired("tests/unit/lib/gumdrop-formatting.spec.ts");
 const modalTest = readRequired("tests/unit/purchase-modal-density.spec.tsx");
@@ -48,12 +49,23 @@ for (const expected of [
   "data-wallet-balance-chip=\"split-source\"",
   "data-wallet-package-subcopy=\"removed\"",
   "data-wallet-bonus-chip-theme=\"brand-purple\"",
-  "formatCompactGd(walletBalanceSplit.freeGd)} free GD",
-  "formatCompactGd(walletBalanceSplit.paidGd)} paid GD",
+  "data-payment-module-density=\"compact-v2\"",
+  "formatCompactGd(freeGd)} free GD",
+  "formatCompactGd(paidGd)} paid GD",
   "aria-hidden=\"true\">|</span>",
   "resolveWalletBalanceSplit(userProfile)",
+  "Paid GD",
 ]) {
   requireIncludes(purchaseModal, expected, "PurchaseModal compact wallet density");
+}
+
+for (const expected of [
+  "+50 bonus GD",
+  "+100 bonus GD",
+  "+500 bonus GD",
+  "2x bonus GD",
+]) {
+  requireIncludes(paymentModuleSymmetry, expected, "Payment module symmetry density evidence");
 }
 
 for (const forbidden of [
@@ -64,6 +76,11 @@ for (const forbidden of [
   "${pkgEconomics.paidGumDrops.toLocaleString()} paid +",
   "${pkgEconomics.paidGumDrops.toLocaleString()} paid GumDrops",
   "paid + ${pkgEconomics.bonusGumDrops.toLocaleString()} bonus GumDrops",
+  "paid bonus GD",
+  "paid bundle bonus",
+  "Paid bundle bonus",
+  "2x Bonus GD",
+  "GUMDROPS",
 ]) {
   requireNotIncludes(purchaseModal, forbidden, "PurchaseModal package row display");
 }
@@ -117,12 +134,12 @@ for (const expected of [
 
 requireRegex(
   purchaseModal,
-  /className="relative w-full max-w-md[^"]*p-4 sm:p-5 md:p-6/,
+  /className="relative w-full max-w-\[23rem\][^"]*p-3\.5[^"]*sm:p-4 md:p-5/,
   "PurchaseModal mobile shell padding",
 );
 requireIncludes(
   purchaseModal,
-  "\"relative flex items-center justify-between rounded-xl border px-3 py-2.5 w-full transition-all text-left\"",
+  "\"relative grid min-h-[3.45rem] w-full grid-cols-[2rem_minmax(0,1fr)_6.6rem] items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-all\"",
   "PurchaseModal compact package row padding",
 );
 
