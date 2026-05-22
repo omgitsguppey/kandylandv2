@@ -6,6 +6,7 @@ import destr from "destr";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { buildClientIdentityLinkRecord, getClientSessionId, readClientIdentityLinkRecord, rememberClientIdentityLink } from "./client-session";
 import { buildEventIdentityEnvelope } from "./analytics/identity-handoff-engine";
+import { buildEventEnvelope } from "./analytics/event-envelope-builder";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { authFetch } from "./authFetch";
 import {
@@ -139,7 +140,11 @@ function getSessionId() {
     return getClientSessionId();
 }
 
-function getEnrichedEventParams(eventName: string, eventParams?: Record<string, unknown>) {
+function getEnrichedEventParams(eventName: string, eventParams?: Record<string, unknown>, options?: {
+    eventId?: string;
+    eventTimestampMs?: number;
+    sessionId?: string;
+}) {
     const sanitizedParams = sanitizeEventParams(eventParams) ?? {};
 
     if (typeof window === "undefined") {
@@ -151,20 +156,37 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
     const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
     const identityLink = readClientIdentityLinkRecord();
+    const sessionId = options?.sessionId ?? getSessionId();
+    const eventTimestampMs = options?.eventTimestampMs ?? Date.now();
     const identityEnvelope = buildEventIdentityEnvelope({
         eventName,
         guestId: identityLink?.anonymousVisitorId ?? undefined,
         userId: auth?.currentUser?.uid ?? undefined,
-        sessionId: getSessionId(),
+        sessionId,
         linkId: identityLink?.identityLinkId,
         consentMode: privacySettings.consentMode,
+    });
+    const eventEnvelope = buildEventEnvelope({
+        eventId: options?.eventId,
+        eventName,
+        timestamp: eventTimestampMs,
+        guestId: identityLink?.anonymousVisitorId ?? undefined,
+        userId: auth?.currentUser?.uid ?? undefined,
+        sessionId,
+        linkId: identityLink?.identityLinkId,
+        consentMode: privacySettings.consentMode,
+        source: "client",
+        metadata: sanitizedParams,
     });
     const viewportWidth = Math.round(window.innerWidth || 0);
     const viewportHeight = Math.round(window.innerHeight || 0);
     const enriched: Record<string, string | number | boolean> = {
         ...sanitizedParams,
         page_path: window.location.pathname,
-        session_id: getSessionId(),
+        event_id: eventEnvelope.eventId,
+        event_name: eventEnvelope.eventName,
+        event_version: eventEnvelope.eventVersion,
+        session_id: sessionId,
         consent_mode: privacySettings.consentMode,
         actor_kind: identityEnvelope.actorKind,
         identity_state: identityEnvelope.identityState,
@@ -180,10 +202,26 @@ function getEnrichedEventParams(eventName: string, eventParams?: Record<string, 
         consentMode: identityEnvelope.consentMode,
         sessionId: identityEnvelope.sessionId,
         linkId: identityEnvelope.linkId ?? "",
+        eventEnvelopeVersion: eventEnvelope.eventVersion,
+        featureId: eventEnvelope.featureId,
+        materializerLane: eventEnvelope.materializerLane,
+        debugVisibility: eventEnvelope.debugVisibility,
+        scoreImpact: eventEnvelope.scoreImpact,
+        privacyClass: eventEnvelope.privacyClass,
+        eventEnvelopePipelineStatus: eventEnvelope.pipelineStatus,
+        eventEnvelopeQuarantineReason: eventEnvelope.quarantineReason ?? "",
+        event_envelope_version: eventEnvelope.eventVersion,
+        feature_id: eventEnvelope.featureId,
+        materializer_lane: eventEnvelope.materializerLane,
+        debug_visibility: eventEnvelope.debugVisibility,
+        score_impact: eventEnvelope.scoreImpact,
+        privacy_class: eventEnvelope.privacyClass,
+        event_envelope_pipeline_status: eventEnvelope.pipelineStatus,
+        event_envelope_quarantine_reason: eventEnvelope.quarantineReason ?? "",
         viewport_width: viewportWidth,
         viewport_height: viewportHeight,
         is_mobile_viewport: viewportWidth <= 768,
-        event_timestamp_ms: Date.now(),
+        event_timestamp_ms: eventTimestampMs,
         auth_state: isAuthenticated ? "authenticated" : "guest",
         identified_analytics_allowed: allowIdentifiedAnalytics,
         privacy_data_availability_reason: privacyDataAvailabilityReason,
@@ -463,7 +501,14 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         return;
     }
 
-    const enrichedParams = getEnrichedEventParams(eventNameForDispatch, preparedEvent.enrichedParams);
+    const sessionIdForEnvelope = getSessionId();
+    const eventTimestampMsForEnvelope = Date.now();
+    const eventId = createAnalyticsEventId(sessionIdForEnvelope);
+    const enrichedParams = getEnrichedEventParams(eventNameForDispatch, preparedEvent.enrichedParams, {
+        eventId,
+        eventTimestampMs: eventTimestampMsForEnvelope,
+        sessionId: sessionIdForEnvelope,
+    });
     const gaDispatchParams = getGaDispatchParams(enrichedParams);
     const sessionId = typeof enrichedParams?.session_id === "string" ? enrichedParams.session_id : getSessionId();
     const eventTimestampMs = typeof enrichedParams?.event_timestamp_ms === "number"
@@ -494,7 +539,7 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     }
 
     enqueueIdentifiedTelemetryEvent({
-        eventId: createAnalyticsEventId(sessionId),
+        eventId,
         eventTimestampMs,
         eventName: preparedEvent.canonicalEventName,
         eventParams: enrichedParams,
@@ -541,6 +586,9 @@ export function trackIdentityLinked(input: {
         source_truth: "canonical",
         source_confidence: allowIdentifiedAnalytics ? 1 : 0.7,
     });
+    const sessionIdForEnvelope = getSessionId();
+    const eventTimestampMsForEnvelope = Date.now();
+    const eventId = createAnalyticsEventId(sessionIdForEnvelope);
     const enrichedParams = getEnrichedEventParams(preparedEvent.canonicalEventName, {
         ...preparedEvent.enrichedParams,
         consent_state: allowIdentifiedAnalytics ? "granted" : "denied",
@@ -548,6 +596,10 @@ export function trackIdentityLinked(input: {
         privacy_data_availability_reason: privacyDataAvailabilityReason,
         metric_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
         privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+    }, {
+        eventId,
+        eventTimestampMs: eventTimestampMsForEnvelope,
+        sessionId: sessionIdForEnvelope,
     });
     const sessionId = typeof enrichedParams?.session_id === "string" ? enrichedParams.session_id : getSessionId();
     const eventTimestampMs = typeof enrichedParams?.event_timestamp_ms === "number"
@@ -555,7 +607,7 @@ export function trackIdentityLinked(input: {
         : Date.now();
 
     enqueueIdentifiedTelemetryEvent({
-        eventId: createAnalyticsEventId(sessionId),
+        eventId,
         eventTimestampMs,
         eventName: preparedEvent.canonicalEventName,
         eventParams: enrichedParams,

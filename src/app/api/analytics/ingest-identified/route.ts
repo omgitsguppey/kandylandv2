@@ -20,6 +20,10 @@ import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-lin
 import { materializeUserTrackingIndexes } from "@/lib/server/user-index-materializer";
 import { resolveIdentityTransferTelemetryState } from "@/lib/analytics/identity-transfer";
 import { buildEventIdentityEnvelope } from "@/lib/analytics/identity-handoff-engine";
+import {
+    buildEventEnvelope,
+    validateEventEnvelope,
+} from "@/lib/analytics/event-envelope-builder";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 
 export const dynamic = "force-dynamic";
@@ -301,6 +305,28 @@ async function POST_handler(request: NextRequest) {
                 projectionMode: readStringParam(enrichedParams, "projection_mode", "projectionMode") || undefined,
                 performedAs: readStringParam(enrichedParams, "performed_as", "performedAs") || undefined,
             });
+            const eventEnvelope = buildEventEnvelope({
+                eventId,
+                eventName: canonicalEventName,
+                timestamp,
+                actorKind: canonicalIdentityEnvelope.actorKind,
+                identityState: canonicalIdentityEnvelope.identityState,
+                guestId: anonymousVisitorId,
+                userId: caller.uid,
+                sessionId,
+                linkId: identityLinkId,
+                consentMode: canonicalIdentityEnvelope.consentMode,
+                projectionMode: readStringParam(enrichedParams, "projection_mode", "projectionMode") || undefined,
+                performedAs: readStringParam(enrichedParams, "performed_as", "performedAs") || undefined,
+                source: "identified_api_ingest",
+                metadata: enrichedParams,
+            });
+            const eventEnvelopeValidation = validateEventEnvelope(eventEnvelope);
+            if (eventEnvelope.pipelineStatus !== "normal" || !eventEnvelopeValidation.ok) {
+                skippedUnsupported += 1;
+                skippedUnsupportedEventNames.add(rawEvent.eventName);
+                continue;
+            }
             const identityState = resolveIdentityTransferTelemetryState({
                 userId: caller.uid,
                 anonymousVisitorId,
@@ -316,6 +342,8 @@ async function POST_handler(request: NextRequest) {
                 identityConfidence: canonicalIdentityEnvelope.identityConfidence,
                 canonicalIdentityState: canonicalIdentityEnvelope.identityState,
                 consentMode: canonicalIdentityEnvelope.consentMode,
+                eventEnvelope,
+                eventEnvelopeDedupeKey: `${eventEnvelope.eventName}|${eventEnvelope.sessionId}|${eventEnvelope.eventId}`,
                 sourceIdentity: {
                     anonymousVisitorId: anonymousVisitorId || null,
                     sessionId: sessionId || null,

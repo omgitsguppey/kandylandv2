@@ -1,11 +1,69 @@
 {
-  "currentVersion": "1.3.78",
-  "betaReleaseCounter": 378,
+  "currentVersion": "1.3.79",
+  "betaReleaseCounter": 379,
   "channel": "beta",
-  "generatedAt": "2026-05-22T20:22:55.000Z",
-  "generatedAtUtc": "2026-05-22T20:22:55.000Z",
+  "generatedAt": "2026-05-22T21:57:34.289Z",
+  "generatedAtUtc": "2026-05-22T21:57:34.289Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.79",
+      "previousVersion": "1.3.78",
+      "betaReleaseCounter": 379,
+      "previousBetaReleaseCounter": 378,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): normalize event envelopes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-22T21:57:34.289Z",
+      "generatedAt": "2026-05-22T21:57:34.289Z",
+      "committedAtUtc": "2026-05-22T21:57:34.289Z",
+      "generatedAtUtc": "2026-05-22T21:57:34.289Z",
+      "updatedAtUtc": "2026-05-22T21:57:34.289Z",
+      "category": "Improved",
+      "title": "Event envelope normalization",
+      "summary": "Normalized telemetry events into a shared identity-aware envelope so guest, user, creator, wallet, drop, behavioral, and admin events follow one safer analytics shape.",
+      "userFacingTitle": "Event envelope normalization",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Normalized telemetry events into a shared identity-aware envelope.",
+        "Blocked orphaned and unregistered events from normal analytics.",
+        "Simplified debug event health into one lane."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical event envelope contract, builder, validator, generated evidence, and focused unit coverage without changing payment, GumDrop, chat, or navigation runtime."
+      ],
+      "affectedSurfaces": [
+        "Analytics",
+        "Privacy",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/event-envelope-normalization.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/event-envelope-normalization.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-event-envelope-normalization.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "src/app/api/analytics/ingest/route.ts",
+        "src/lib/analytics/event-envelope-builder.ts",
+        "src/lib/analytics/event-envelope-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/event-envelope-summary.ts",
+        "src/lib/telemetry-safety.ts",
+        "src/lib/telemetry.ts",
+        "tests/unit/event-envelope-normalization.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.78",
       "previousVersion": "1.3.77",
@@ -1428,120 +1486,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/self-healing-refresh-queue.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.54",
-      "previousVersion": "1.3.53",
-      "betaReleaseCounter": 354,
-      "previousBetaReleaseCounter": 353,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(debug): add recovery playbooks",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T05:45:00.000Z",
-      "generatedAt": "2026-05-21T05:45:00.000Z",
-      "committedAtUtc": "2026-05-21T05:45:00.000Z",
-      "generatedAtUtc": "2026-05-21T05:45:00.000Z",
-      "updatedAtUtc": "2026-05-21T05:45:00.000Z",
-      "category": "Improved",
-      "title": "Debug recovery playbooks",
-      "summary": "Added debug-driven recovery playbooks for high-impact issue categories.",
-      "userFacingTitle": "Debug recovery playbooks",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added debug-driven recovery playbooks for high-impact issue categories.",
-        "Mapped triggers to exact files, commands, fixes, validation, and forbidden actions.",
-        "Kept formal evidence gates separate from source-only recovery."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the debug recovery playbook registry, generated report, validator, package script, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Admin Debug",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/ai-debug-critic.generated.json",
-        "agent/state/debug-backlog-engine.generated.json",
-        "agent/state/debug-recovery-playbooks.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/ai-debug-critic.md",
-        "docs/agent-truth/debug-backlog-engine.md",
-        "docs/agent-truth/debug-recovery-playbooks.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-debug-recovery-playbooks.ts",
-        "src/lib/debug/recovery-playbooks.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/debug-recovery-playbooks.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.53",
-      "previousVersion": "1.3.52",
-      "betaReleaseCounter": 353,
-      "previousBetaReleaseCounter": 352,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): add real usage confidence",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T05:25:00.000Z",
-      "generatedAt": "2026-05-21T05:25:00.000Z",
-      "committedAtUtc": "2026-05-21T05:25:00.000Z",
-      "generatedAtUtc": "2026-05-21T05:25:00.000Z",
-      "updatedAtUtc": "2026-05-21T05:25:00.000Z",
-      "category": "Improved",
-      "title": "Real usage confidence scoring",
-      "summary": "Added real usage confidence scoring from validated source signals.",
-      "userFacingTitle": "Real usage confidence scoring",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added real usage confidence scoring from validated source signals.",
-        "Recognized operator-confirmed product usage without faking formal proof.",
-        "Kept manual and provider gates separate from usage confidence."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the source-only real usage confidence engine, generated evidence artifact, validator, score integration, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Admin Debug",
-        "Beta scoring"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/behavior-math-verification.generated.json",
-        "agent/state/operator-revenue-smoke.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/real-usage-confidence.generated.json",
-        "agent/state/telemetry-dependency-graph.generated.json",
-        "docs/agent-truth/behavior-math-verification.md",
-        "docs/agent-truth/operator-revenue-smoke.md",
-        "docs/agent-truth/real-usage-confidence.md",
-        "docs/agent-truth/telemetry-dependency-graph.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-real-usage-confidence.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/analytics/real-usage-confidence-engine.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/real-usage-confidence.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

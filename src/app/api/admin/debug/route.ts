@@ -39,6 +39,7 @@ import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminDebugSummaryPayload } from "@/lib/server/admin-debug/summary";
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
+import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
@@ -6593,6 +6594,7 @@ export async function GET(request: NextRequest) {
                 duplicateRefreshPrevented: true,
             },
             identityHandoff: buildIdentityHandoffDebugSummary(),
+            eventEnvelope: buildEventEnvelopeDebugSummary(),
             adminShellLayout: buildAdminShellLayoutDebugMetadata(request.nextUrl.pathname),
             costControls: {
                 guard: ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD,

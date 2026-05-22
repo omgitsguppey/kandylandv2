@@ -30,6 +30,10 @@ import {
     IDENTITY_CONFIDENCE_VALUES,
     IDENTITY_STATES,
 } from "@/lib/analytics/identity-handoff-contract";
+import {
+    buildEventEnvelope,
+    validateEventEnvelope,
+} from "@/lib/analytics/event-envelope-builder";
 import { normalizeAnonymousRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
@@ -142,6 +146,10 @@ function sanitizeTargetLabel(value: string | undefined) {
 
 function getAnalyticsIngestErrorMessage(error: unknown) {
     return error instanceof Error ? error.message : String(error);
+}
+
+function resolveGuestEnvelopeEventName(event: z.infer<typeof TelemetryEventSchema>) {
+    return event.semanticEventName || event.semanticExitEventName || event.type;
 }
 
 function currentHourKey(nowMs = Date.now()) {
@@ -351,7 +359,48 @@ async function POST_handler(request: NextRequest) {
             x: typeof event.x === "number" ? Math.floor(event.x / 24) * 24 : undefined,
             y: typeof event.y === "number" ? Math.floor(event.y / 24) * 24 : undefined,
         }));
-        const runtimeFactResults = sanitizedEvents.map((event, index) => normalizeAnonymousRuntimeFact({
+        const eventEnvelopeResults = sanitizedEvents.map((event, index) => {
+            const eventEnvelope = buildEventEnvelope({
+                eventId: `${batchId}:${index}`,
+                eventName: resolveGuestEnvelopeEventName(event),
+                timestamp: event.timestamp,
+                guestId: canonicalAnonymousVisitorId,
+                sessionId: sessionId || sessionKey,
+                consentMode,
+                actorKind,
+                identityState,
+                source: "guest_client",
+                metadata: {
+                    type: event.type,
+                    path: event.path,
+                    targetId: event.targetId,
+                    targetTag: event.targetTag,
+                    targetText: event.targetText,
+                    dropId: event.dropId,
+                    dropCategory: event.dropCategory,
+                    semanticSurfaceKey: event.semanticSurfaceKey,
+                    semanticScopeKey: event.semanticScopeKey,
+                },
+            });
+            return {
+                event,
+                eventEnvelope,
+                validation: validateEventEnvelope(eventEnvelope),
+            };
+        });
+        const acceptedEventEnvelopeResults = eventEnvelopeResults.filter((result) =>
+            result.eventEnvelope.pipelineStatus === "normal" && result.validation.ok);
+        const quarantinedEventEnvelopes = eventEnvelopeResults
+            .filter((result) => result.eventEnvelope.pipelineStatus !== "normal" || !result.validation.ok)
+            .map((result) => ({
+                eventId: result.eventEnvelope.eventId,
+                eventName: result.eventEnvelope.eventName,
+                pipelineStatus: result.eventEnvelope.pipelineStatus,
+                quarantineReason: result.eventEnvelope.quarantineReason ?? "invalid_envelope",
+                validationFindings: result.validation.findings,
+            }));
+        const acceptedSanitizedEvents = acceptedEventEnvelopeResults.map((result) => result.event);
+        const runtimeFactResults = acceptedSanitizedEvents.map((event, index) => normalizeAnonymousRuntimeFact({
             eventId: `${batchId}:${index}`,
             timestampMs: event.timestamp,
             sessionId: sessionId || sessionKey,
@@ -370,7 +419,7 @@ async function POST_handler(request: NextRequest) {
         const runtimeDiagnostics = runtimeFactResults
             .map((result) => result.diagnostic)
             .filter((diagnostic): diagnostic is RuntimeFactDiagnostic => Boolean(diagnostic));
-        const eventContracts = sanitizedEvents.map((event) => getAnalyticsIngestContract(event.type));
+        const eventContracts = acceptedSanitizedEvents.map((event) => getAnalyticsIngestContract(event.type));
         const ingestDestinations = Array.from(new Set(eventContracts.flatMap((contract) => contract.destinationLanes)));
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
@@ -379,10 +428,10 @@ async function POST_handler(request: NextRequest) {
         const dedupeKey = buildAnalyticsIngestDedupeKey({ sessionKey, batchId });
         const docRef = adminDb.collection(ANALYTICS_INGEST_FIRESTORE_COLLECTIONS.guestSessions).doc(docId);
         const guestBatchRef = adminDb.collection(ANALYTICS_INGEST_FIRESTORE_COLLECTIONS.guestBatches).doc(dedupeKey);
-        const uniquePagePaths = Array.from(new Set(sanitizedEvents.map((event) => event.path)));
-        const uniqueInteractionTypes = Array.from(new Set(sanitizedEvents.map((event) => event.type)));
-        const batchScrollDepth = sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0);
-        const hasPixelData = sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y));
+        const uniquePagePaths = Array.from(new Set(acceptedSanitizedEvents.map((event) => event.path)));
+        const uniqueInteractionTypes = Array.from(new Set(acceptedSanitizedEvents.map((event) => event.type)));
+        const batchScrollDepth = acceptedSanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0);
+        const hasPixelData = acceptedSanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y));
         const transactionResult = await adminDb.runTransaction(async (transaction) => {
             const existingBatchSnapshot = await transaction.get(guestBatchRef);
 
@@ -415,7 +464,8 @@ async function POST_handler(request: NextRequest) {
                 lastReceivedAtMs: nowMs,
                 expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_SESSION_TTL_MS),
                 batchCount: FieldValue.increment(1),
-                eventCount: FieldValue.increment(sanitizedEvents.length),
+                eventCount: FieldValue.increment(acceptedSanitizedEvents.length),
+                quarantinedEventCount: FieldValue.increment(quarantinedEventEnvelopes.length),
                 latestBatchMaxScrollDepth: batchScrollDepth,
                 latestBatchMaxScrollDepthSource: "guest_batch",
                 ...sessionArrayUpdates,
@@ -443,12 +493,16 @@ async function POST_handler(request: NextRequest) {
                 hourKey: timeKeys.hourKey,
                 minuteKey: timeKeys.minuteKey,
                 expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_GUEST_BATCH_TTL_MS),
-                eventCount: sanitizedEvents.length,
+                eventCount: acceptedSanitizedEvents.length,
+                originalEventCount: sanitizedEvents.length,
+                quarantinedEventCount: quarantinedEventEnvelopes.length,
                 pagePaths: uniquePagePaths,
                 interactionTypes: uniqueInteractionTypes,
                 maxScrollDepth: batchScrollDepth,
                 hasPixelData,
-                events: sanitizedEvents,
+                events: acceptedSanitizedEvents,
+                eventEnvelopes: acceptedEventEnvelopeResults.map((result) => result.eventEnvelope).slice(0, 50),
+                quarantinedEventEnvelopes: quarantinedEventEnvelopes.slice(0, 50),
                 runtimeFactVersion: runtimeFacts.length > 0 ? RUNTIME_FACT_CONTRACT_VERSION : "",
                 runtimeFacts: runtimeFacts.slice(0, 50),
                 normalizedActions: runtimeFacts.map((fact) => fact.normalizedAction).filter(Boolean).slice(0, 50),
@@ -494,15 +548,19 @@ async function POST_handler(request: NextRequest) {
             success: true,
             status: "accepted",
             processed: events.length,
-            acceptedEvents: events.length,
+            acceptedEvents: acceptedSanitizedEvents.length,
             droppedEvents: 0,
-            rejectedEvents: 0,
+            rejectedEvents: quarantinedEventEnvelopes.length,
             retryable: false,
             dedupeKey,
             destinations: ingestDestinations,
             firestoreCollections: ANALYTICS_INGEST_FIRESTORE_COLLECTIONS,
             behavioralTimelineFacts,
             userTrackingMaterialization,
+            eventEnvelope: {
+                pipeline: "canonical_event_envelope",
+                quarantinedEvents: quarantinedEventEnvelopes.length,
+            },
         });
         if (shouldSetCookie) {
             response.cookies.set({

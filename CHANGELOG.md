@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.79 - 2026-05-22
+- Event envelope normalization
+- Normalized telemetry events into a shared identity-aware envelope.
+- Blocked orphaned and unregistered events from normal analytics.
+- Simplified debug event health into one lane.
+
 ## 1.3.78 - 2026-05-22
 - Identity handoff spine
 - Finalized guest-to-user identity handoff contracts.
@@ -147,21 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added a self-healing refresh queue for stale beta and debug artifacts.
 - Ordered refresh commands by owner, dependency, and score impact.
 - Kept formal provider, runtime, and manual proof gates blocked until real artifacts exist.
-
-## 1.3.54 - 2026-05-21
-- Debug recovery playbooks
-- Added debug-driven recovery playbooks for high-impact issue categories.
-- Mapped triggers to exact files, commands, fixes, validation, and forbidden actions.
-- Kept formal evidence gates separate from source-only recovery.
-
-## 1.3.53 - 2026-05-21
-- Real usage confidence scoring
-- Added real usage confidence scoring from validated source signals.
-- Recognized operator-confirmed product usage without faking formal proof.
-- Kept manual and provider gates separate from usage confidence.
-
-## 1.3.52 - 2026-05-21
-- Monolith and orphan metric registry
-- Added monolith and orphan metric registry.
-- Mapped metrics from producer to UI and evidence consumers.
-- Flagged high-risk monoliths without broad refactors.

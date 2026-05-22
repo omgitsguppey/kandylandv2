@@ -8,6 +8,10 @@ const PHONE_PATTERN = /(?<!\w)(?:\+?\d[\d\s().-]{7,}\d)(?!\w)/;
 const GA_RESERVED_PREFIXES = ["firebase_", "google_", "ga_"] as const;
 const PRIORITY_KEYS = [
     "page_path",
+    "event_id",
+    "event_name",
+    "event_version",
+    "event_envelope_version",
     "session_id",
     "actor_kind",
     "identity_state",
@@ -18,6 +22,13 @@ const PRIORITY_KEYS = [
     "unavailable_guest_reason",
     "person_level_behavior_allowed",
     "event_timestamp_ms",
+    "feature_id",
+    "materializer_lane",
+    "debug_visibility",
+    "score_impact",
+    "privacy_class",
+    "event_envelope_pipeline_status",
+    "event_envelope_quarantine_reason",
     "auth_state",
     "event_category",
     "event_modules",
@@ -288,7 +299,7 @@ function sanitizeTelemetryParams(
 }
 
 export function sanitizeTelemetryParamsForBackend(eventParams?: Record<string, unknown>): SanitizedTelemetryParams {
-    const rawSanitized = sanitizeTelemetryParams(eventParams, "backend", 20);
+    const rawSanitized = sanitizeTelemetryParams(eventParams, "backend", 40);
     
     // Explicitly enforce schema versioning per observability hardening directives
     if (!rawSanitized) {

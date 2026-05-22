@@ -176,6 +176,7 @@
         "check:cookie-banner-settings-sync": "tsx scripts/agent/validate-cookie-banner-settings-sync.ts",
         "check:identity-handoff-refinement": "tsx scripts/agent/validate-identity-handoff-refinement.ts",
         "check:identity-handoff-spine": "tsx scripts/agent/validate-identity-handoff-spine.ts",
+        "check:event-envelope-normalization": "tsx scripts/agent/validate-event-envelope-normalization.ts",
         "check:privacy-import-export-cutover": "tsx scripts/agent/validate-privacy-import-export-cutover.ts",
         "check:identity-link-continuity": "tsx scripts/agent/validate-identity-link-continuity.ts",
         "score:tracking-surface-coverage": "tsx scripts/agent/score-tracking-surface-coverage.ts",
