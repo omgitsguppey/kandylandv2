@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.83",
-  "betaReleaseCounter": 383,
+  "currentVersion": "1.3.84",
+  "betaReleaseCounter": 384,
   "channel": "beta",
-  "generatedAt": "2026-05-22T23:35:00.000Z",
-  "generatedAtUtc": "2026-05-22T23:35:00.000Z",
+  "generatedAt": "2026-05-22T23:55:00.000Z",
+  "generatedAtUtc": "2026-05-22T23:55:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.84",
+      "previousVersion": "1.3.83",
+      "betaReleaseCounter": 384,
+      "previousBetaReleaseCounter": 383,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(chat): lift new message modal",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-22T23:55:00.000Z",
+      "generatedAt": "2026-05-22T23:55:00.000Z",
+      "committedAtUtc": "2026-05-22T23:55:00.000Z",
+      "generatedAtUtc": "2026-05-22T23:55:00.000Z",
+      "updatedAtUtc": "2026-05-22T23:55:00.000Z",
+      "category": "Fixed",
+      "title": "New message modal polish",
+      "summary": "Refined the Chat tab New message modal so it clears the mobile bottom navigation and uses the black frosted glass panel treatment.",
+      "userFacingTitle": "New message modal polish",
+      "surfaceCategory": "Chat & support",
+      "bullets": [
+        "Lifted the new message modal above the bottom navigation on mobile.",
+        "Matched the new message modal to the black frosted glass design.",
+        "Kept chat routing, messaging, and creator picker logic unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Updated only the New message modal presentation in ChatExperience with shared bottom-nav safe-area offset markers, black glass styling, generated evidence, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "Chat",
+        "Mobile UI"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/chat-composer-modal-lift.generated.json",
+        "docs/agent-truth/chat-composer-modal-lift.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-chat-composer-modal-lift.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/chat-composer-modal-lift.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.83",
       "previousVersion": "1.3.82",

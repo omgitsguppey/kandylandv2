@@ -88,6 +88,9 @@ const CHAT_COMPOSER_CLEAN_PADDING_PX = 72;
 const CHAT_COMPOSER_SUMMARY_PADDING_PX = 92;
 const CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME = "max-h-[min(28vh,10rem)] overflow-y-auto overscroll-y-contain";
 const CHAT_TRANSCRIPT_BOTTOM_GAP_PX = 14;
+const CHAT_NEW_MESSAGE_MODAL_BOTTOM_OFFSET = `calc(${USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET} + 0.5rem)`;
+const CHAT_NEW_MESSAGE_MODAL_IOS_BOTTOM_OFFSET = "calc(var(--kd-ios-pwa-bottom-nav-height, 56px) + var(--kd-ios-pwa-safe-bottom, env(safe-area-inset-bottom)) + 0.625rem)";
+const CHAT_NEW_MESSAGE_MODAL_LIST_BOTTOM_PADDING = "calc(1rem + env(safe-area-inset-bottom))";
 const CHAT_MEDIA_PREVIEW_STYLE = {
     maxWidth: "min(78vw, 28rem)",
     maxHeight: "32dvh",
@@ -909,10 +912,16 @@ export function ChatExperience() {
     const newMessageSheetStyle = useMemo(() => (
         isIosPwaChatShell
             ? {
-                paddingBottom: "calc(var(--kd-ios-pwa-bottom-nav-height, 56px) + var(--kd-ios-pwa-safe-bottom, 0px) + 10px)",
+                paddingBottom: CHAT_NEW_MESSAGE_MODAL_IOS_BOTTOM_OFFSET,
             } satisfies CSSProperties
-            : ({} satisfies CSSProperties)
+            : {
+                paddingBottom: CHAT_NEW_MESSAGE_MODAL_BOTTOM_OFFSET,
+            } satisfies CSSProperties
     ), [isIosPwaChatShell]);
+    const newMessageListStyle = useMemo(() => ({
+        paddingBottom: CHAT_NEW_MESSAGE_MODAL_LIST_BOTTOM_PADDING,
+        scrollPaddingBottom: CHAT_NEW_MESSAGE_MODAL_LIST_BOTTOM_PADDING,
+    }) satisfies CSSProperties, []);
     const selectedThreadIdSet = useMemo(() => new Set(selectedThreadIds), [selectedThreadIds]);
     const liveViewerRole = useMemo(() => resolveChatViewerRole({
         viewerUid: user?.uid || "",
@@ -3458,10 +3467,18 @@ export function ChatExperience() {
                 </div>
             </div>
             {composePickerOpen ? (
-                <div className="fixed inset-0 z-40 bg-black/70 px-4 py-6 backdrop-blur-[2px]" data-new-message-sheet-platform={isIosPwaChatShell ? "ios-pwa" : "default"} data-new-message-sheet-safe={isIosPwaChatShell ? "above-bottom-nav" : "default"}>
+                <div
+                    className="fixed inset-0 z-40 bg-black/72 px-4 pt-6 backdrop-blur-[2px]"
+                    data-chat-new-message-modal="true"
+                    data-chat-modal-above-bottom-nav="true"
+                    data-chat-modal-glass-skin="true"
+                    data-chat-functions-unchanged="true"
+                    data-new-message-sheet-platform={isIosPwaChatShell ? "ios-pwa" : "default"}
+                    data-new-message-sheet-safe="above-bottom-nav"
+                >
                     <div ref={composePickerRef} className="mx-auto flex h-full w-full max-w-md flex-col justify-end" style={newMessageSheetStyle}>
-                        <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#111113] shadow-[0_32px_80px_rgba(0,0,0,0.55)]">
-                            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                        <div className="overflow-hidden rounded-[2rem] border border-white/12 bg-black/88 shadow-[0_32px_90px_rgba(0,0,0,0.68)] backdrop-blur-2xl supports-[backdrop-filter]:bg-black/78">
+                            <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-5 py-4">
                                 <div>
                                     <p className="text-base font-semibold text-white">New message</p>
                                     <p className="mt-1 text-sm text-[#8f9097]">Choose a creator you already follow.</p>
@@ -3475,7 +3492,11 @@ export function ChatExperience() {
                                     <X className="h-4 w-4" />
                                 </button>
                             </div>
-                            <div className={cn("overflow-y-auto px-3 py-3", isIosPwaChatShell ? "max-h-[52vh]" : "max-h-[60vh]")}>
+                            <div
+                                className={cn("overflow-y-auto px-3 pt-3 overscroll-contain", isIosPwaChatShell ? "max-h-[52vh]" : "max-h-[56vh]")}
+                                style={newMessageListStyle}
+                                data-chat-modal-list-bottom-padding="true"
+                            >
                                 {followedCreators.length > 0 ? followedCreators.map((creator) => (
                                     <button
                                         key={creator.uid}

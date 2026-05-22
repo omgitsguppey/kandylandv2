@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.84 - 2026-05-22
+- New message modal polish
+- Lifted the new message modal above the bottom navigation on mobile.
+- Matched the new message modal to the black frosted glass design.
+- Kept chat routing, messaging, and creator picker logic unchanged.
+
 ## 1.3.83 - 2026-05-22
 - Final user tracking handoff lock
 - Locked guest-to-user tracking and per-person analytics handoff.

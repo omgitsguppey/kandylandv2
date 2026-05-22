@@ -1,0 +1,42 @@
+{
+  "generatedAtUtc": "2026-05-22T23:53:34.527Z",
+  "reportKey": "chat-composer-modal-lift",
+  "currentHead": "58929a769685124b73004b07f1795ec1dd0dd45f",
+  "status": "pass",
+  "modalComponent": "src/components/Chat/ChatExperience.tsx",
+  "bottomNavUntouched": true,
+  "topNavUntouched": true,
+  "chatFunctionsUntouched": true,
+  "creatorPickerLogicUntouched": true,
+  "bottomOffset": "CHAT_NEW_MESSAGE_MODAL_BOTTOM_OFFSET",
+  "safeAreaPolicy": "shared chat bottom-nav safe offset plus env(safe-area-inset-bottom)",
+  "glassSkin": "black frosted glass",
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/chat-composer-modal-lift.generated.json",
+    "docs/agent-truth/chat-composer-modal-lift.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "scripts/agent/validate-chat-composer-modal-lift.ts",
+    "src/components/Chat/ChatExperience.tsx",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "tests/unit/chat-composer-modal-lift.spec.ts"
+  ],
+  "checks": {
+    "modalComponentPresent": true,
+    "modalHasRequiredDataAttrs": true,
+    "modalUsesBottomNavSafeOffset": true,
+    "modalHasInternalBottomPadding": true,
+    "modalUsesBlackFrostedGlassSkin": true,
+    "modalAvoidsLightGrayPanel": true,
+    "mobileSafeAreaHandlingExists": true,
+    "bottomNavUntouched": true,
+    "topNavUntouched": true,
+    "chatFunctionsUntouched": true,
+    "creatorPickerLogicUntouched": true,
+    "paymentWalletGumdropUntouched": true,
+    "packageScriptPresent": true
+  },
+  "validationFailures": []
+}
