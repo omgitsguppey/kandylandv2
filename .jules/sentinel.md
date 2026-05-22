@@ -30,3 +30,8 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+
+## 2026-05-22 - [Open Redirect via Single/Double Backslash Protocol-Relative URLs]
+**Vulnerability:** Open redirect and SSRF bypass via URLs starting with `\\` or `\`.
+**Learning:** Even when verifying `//` and `/\\` in pathnames extracted from parsed URLs, Node and browser URL implementations can still parse inputs like `\\evil.com` to pathnames like `/` with origin `https://evil.com`, or preserve a `\\` prefix. These bypass partial protocol-relative checks and can lead to open redirects.
+**Prevention:** Always verify that `pathname` does not start with `\\` in addition to `//` and `/\\` when extracting relative paths from user-provided URLs.
