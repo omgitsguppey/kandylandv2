@@ -218,6 +218,7 @@ export function NotificationPromptBanner() {
                                 type="button"
                                 onClick={() => void handleEnable()}
                                 disabled={loading}
+                                aria-busy={loading}
                                 className="inline-flex min-h-8 items-center justify-center rounded-2xl bg-brand-purple px-4 py-2 text-[13px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                             >
                                 {loading ? "Please wait" : "Turn on notifications"}
