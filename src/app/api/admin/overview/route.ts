@@ -385,7 +385,6 @@ async function GET_handler(request: NextRequest) {
             allUsersSnapshot,
             dropsSnapshot,
             recentTransactionsSnapshot,
-            rollingTransactionsSnapshot,
             adminAdjustmentsSnapshot,
             commerceSummarySnapshot,
             commerceDailySnapshot,
@@ -420,16 +419,7 @@ async function GET_handler(request: NextRequest) {
                     .limit(RECENT_TRANSACTION_LIMIT)
                     .get(),
             }),
-            safeQueryWithDiagnostics({
-                routeName: "admin/overview",
-                channel: "commerce",
-                label: "rolling transactions",
-                issues,
-                reader: () => adminDb.collection("transactions")
-                    .where("timestamp", ">=", priorRollingStartMs)
-                    .limit(ADMIN_OVERVIEW_ROLLING_TRANSACTION_LIMIT)
-                    .get(),
-            }),
+
             safeQueryWithDiagnostics({
                 routeName: "admin/overview",
                 channel: "admin",
@@ -481,18 +471,22 @@ async function GET_handler(request: NextRequest) {
         if (dropsSnapshot.size >= ADMIN_OVERVIEW_DROP_LIMIT) {
             issues.push("Overview drop sample reached the read cap; detailed drop mix may be partial.");
         }
-        if (rollingTransactionsSnapshot.size >= ADMIN_OVERVIEW_ROLLING_TRANSACTION_LIMIT) {
-            issues.push("Rolling transaction sample reached the read cap; commerce rollups should be treated as authoritative.");
-        }
+
 
         const telemetryLogsByEvent = await fetchTelemetryLogs(ADMIN_ACTIVITY_TELEMETRY_EVENT_NAMES, adminActivityStartMs);
 
+        let dropUnlockTotals = 0;
+        let liveDropsCount = 0;
         const drops = dropsSnapshot.docs.flatMap((doc) => {
             const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
-            return normalized && !isDropHiddenFromPublic(normalized) ? [normalized] : [];
+            if (!normalized || isDropHiddenFromPublic(normalized)) return [];
+
+            dropUnlockTotals += (normalized.totalUnlocks || 0);
+            if (normalized.status === "active") liveDropsCount++;
+
+            return [normalized];
         });
         const dropTitleMap = new Map(drops.map((drop) => [drop.id, drop.title]));
-        const dropUnlockTotals = drops.reduce((sum, drop) => sum + (drop.totalUnlocks || 0), 0);
         const topDrops = [...drops]
             .sort((left, right) => (right.totalUnlocks || 0) - (left.totalUnlocks || 0))
             .slice(0, 20);
@@ -656,35 +650,7 @@ async function GET_handler(request: NextRequest) {
             }
         });
 
-        let rollingPurchaseCount = 0;
-        let priorRollingPurchaseCount = 0;
-        let rollingRevenueCents = 0;
-        let priorRollingRevenueCents = 0;
-        rollingTransactionsSnapshot.docs.forEach((doc) => {
-            try {
-                const normalized = normalizeTransactionRecord(doc.data(), doc.id);
-                const timestamp = typeof normalized.timestamp === "number"
-                    ? normalized.timestamp
-                    : toTimestampNumber(normalized.timestamp);
-                if (normalized.type !== "purchase_currency" || normalized.status !== "completed" || timestamp <= 0) {
-                    return;
-                }
 
-                const revenueCents = typeof normalized.grossRevenueCents === "number" && Number.isFinite(normalized.grossRevenueCents)
-                    ? Math.max(0, Math.round(normalized.grossRevenueCents))
-                    : 0;
-
-                if (timestamp >= currentRollingStartMs && timestamp < now) {
-                    rollingPurchaseCount += 1;
-                    rollingRevenueCents += revenueCents;
-                } else if (timestamp >= priorRollingStartMs && timestamp < priorRollingEndMs) {
-                    priorRollingPurchaseCount += 1;
-                    priorRollingRevenueCents += revenueCents;
-                }
-            } catch {
-                return;
-            }
-        });
 
         const currentDropUnlockCounts = new Map<string, number>();
         currentDropDailySnapshot.docs.forEach((doc) => {
@@ -698,13 +664,29 @@ async function GET_handler(request: NextRequest) {
             currentDropUnlockCounts.set(dropId, (currentDropUnlockCounts.get(dropId) ?? 0) + unwraps);
         });
 
-        const topUnlockDropEntry = [...currentDropUnlockCounts.entries()]
-            .sort((left, right) => right[1] - left[1])[0];
+        let topUnlockDropEntry: [string, number] | undefined;
+        let bestRevenueDay = chartSeed[0];
+        let bestUnwrapDay = chartSeed[0];
+        let revenueActiveDays = 0;
+        let unwrapActiveDays = 0;
 
-        const bestRevenueDay = [...chartSeed]
-            .sort((left, right) => right.revenue - left.revenue)[0];
-        const bestUnwrapDay = [...chartSeed]
-            .sort((left, right) => right.unwraps - left.unwraps)[0];
+        for (const entry of currentDropUnlockCounts.entries()) {
+            if (!topUnlockDropEntry || entry[1] > topUnlockDropEntry[1]) {
+                topUnlockDropEntry = entry;
+            }
+        }
+
+        for (const entry of chartSeed) {
+            if (entry.revenue > 0) revenueActiveDays++;
+            if (entry.unwraps > 0) unwrapActiveDays++;
+
+            if (!bestRevenueDay || entry.revenue > bestRevenueDay.revenue) {
+                bestRevenueDay = entry;
+            }
+            if (!bestUnwrapDay || entry.unwraps > bestUnwrapDay.unwraps) {
+                bestUnwrapDay = entry;
+            }
+        }
 
         const commerceSummary = commerceSummarySnapshot.exists
             ? (commerceSummarySnapshot.data() as Record<string, unknown>)
@@ -775,18 +757,18 @@ async function GET_handler(request: NextRequest) {
             },
             stats: {
                 totalUsers: userTruthSnapshot.totalUsers,
-                liveDrops: drops.filter((drop) => drop.status === "active").length,
+                liveDrops: liveDropsCount,
                 totalDrops: drops.length,
                 grossRevenueCents,
                 totalUnwraps,
-                currentWindowPurchases: rollingPurchaseCount,
+                currentWindowPurchases: currentPurchases,
                 currentWindowNewUsers: currentNewUsers,
                 userMetricsSnapshot: undefined,
             },
             deltas: {
                 accounts: calculateOverviewMetricDelta(currentNewUsers, previousNewUsers),
-                purchases: calculateOverviewMetricDelta(rollingPurchaseCount, priorRollingPurchaseCount),
-                revenue: calculateOverviewMetricDelta(rollingRevenueCents, priorRollingRevenueCents),
+                purchases: calculateOverviewMetricDelta(currentPurchases, previousPurchases),
+                revenue: calculateOverviewMetricDelta(currentRevenueCents, previousRevenueCents),
                 unwraps: calculateOverviewMetricDelta(currentUnwraps, previousUnwraps),
             },
             recentTransactions,
@@ -809,8 +791,8 @@ async function GET_handler(request: NextRequest) {
                 previousPurchases,
                 currentNewUsers,
                 previousNewUsers,
-                revenueActiveDays: chartSeed.filter((entry) => entry.revenue > 0).length,
-                unwrapActiveDays: chartSeed.filter((entry) => entry.unwraps > 0).length,
+                revenueActiveDays,
+                unwrapActiveDays,
                 bestRevenueDay: bestRevenueDay && bestRevenueDay.revenue > 0
                     ? {
                         key: bestRevenueDay.key,
@@ -843,7 +825,7 @@ async function GET_handler(request: NextRequest) {
                 status: issues.length > 0 ? "degraded" : "live",
                 countComposition: {
                     totalUsers: userTruthSnapshot.totalUsers,
-                    liveDrops: drops.filter((drop) => drop.status === "active").length,
+                    liveDrops: liveDropsCount,
                     totalDrops: drops.length,
                     recentTransactions: recentTransactions.length,
                     adminActivity: adminActivity.length,
