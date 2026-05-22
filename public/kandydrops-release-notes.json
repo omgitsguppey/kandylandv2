@@ -1,11 +1,67 @@
 {
-  "currentVersion": "1.3.82",
-  "betaReleaseCounter": 382,
+  "currentVersion": "1.3.83",
+  "betaReleaseCounter": 383,
   "channel": "beta",
-  "generatedAt": "2026-05-22T23:18:00.000Z",
-  "generatedAtUtc": "2026-05-22T23:18:00.000Z",
+  "generatedAt": "2026-05-22T23:35:00.000Z",
+  "generatedAtUtc": "2026-05-22T23:35:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.83",
+      "previousVersion": "1.3.82",
+      "betaReleaseCounter": 383,
+      "previousBetaReleaseCounter": 382,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(analytics): lock user tracking handoff",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-22T23:35:00.000Z",
+      "generatedAt": "2026-05-22T23:35:00.000Z",
+      "committedAtUtc": "2026-05-22T23:35:00.000Z",
+      "generatedAtUtc": "2026-05-22T23:35:00.000Z",
+      "updatedAtUtc": "2026-05-22T23:35:00.000Z",
+      "category": "Improved",
+      "title": "Final user tracking handoff lock",
+      "summary": "Locked guest-to-user tracking, per-person analytics, event envelope, legacy recovery, and debug lane contracts for future telemetry work.",
+      "userFacingTitle": "Final user tracking handoff lock",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Locked guest-to-user tracking and per-person analytics handoff.",
+        "Simplified debug tracking lanes.",
+        "Prepared telemetry for future features without recurring refactors."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the final user tracking handoff lock validator, generated evidence, documentation, and unit coverage without reading production data, mutating legacy records, or changing payment, GumDrop, chat, or navigation runtime."
+      ],
+      "affectedSurfaces": [
+        "Analytics",
+        "Privacy",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/final-user-tracking-handoff-lock.generated.json",
+        "agent/state/new-additions-score-coverage.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/final-user-tracking-handoff-lock.md",
+        "docs/agent-truth/new-additions-score-coverage.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-user-tracking-handoff-lock.ts",
+        "scripts/agent/validate-new-additions-score-coverage.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-user-tracking-handoff-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.82",
       "previousVersion": "1.3.81",

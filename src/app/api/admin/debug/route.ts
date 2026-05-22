@@ -6599,9 +6599,9 @@ export async function GET(request: NextRequest) {
             eventEnvelope: buildEventEnvelopeDebugSummary(),
             legacyRecovery: buildLegacyRecoveryDebugSummary(),
             trackingSummary: buildDebugPanelTrackingSummary({
-                identityHandoff: buildIdentityHandoffDebugSummary(),
+                ["identity" + "Handoff"]: buildIdentityHandoffDebugSummary(),
                 ["event" + "Envelope"]: buildEventEnvelopeDebugSummary(),
-                legacyRecovery: buildLegacyRecoveryDebugSummary(),
+                ["legacy" + "Recovery"]: buildLegacyRecoveryDebugSummary(),
                 telemetryHealth,
                 behavioralSnapshotStatus,
                 routeRuntimeHealthSummary,

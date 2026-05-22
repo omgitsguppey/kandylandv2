@@ -262,8 +262,11 @@ function classifyDirtyFile(path: string): DirtyFileClassification {
   if (/^agent\/context\/.+\.generated\.json$/u.test(path)) return "unrelated_agent_context_file_to_ignore";
   if (/^docs\/agent-truth\/.+\.md$/u.test(path)) return "documentation_artifact_expected";
   if (path === "scripts/agent/validate-new-additions-score-coverage.ts") return "validator_artifact_expected";
+  if (path === "scripts/agent/validate-final-user-tracking-handoff-lock.ts") return "validator_artifact_expected";
   if (path === "tests/unit/new-additions-score-coverage.spec.ts") return "test_artifact_expected";
+  if (path === "tests/unit/final-user-tracking-handoff-lock.spec.ts") return "test_artifact_expected";
   if (path === "package.json") return "real_source_change_needs_review";
+  if (path === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (
     path === "CHANGELOG.md"
     || path === "public/kandydrops-release-notes.json"

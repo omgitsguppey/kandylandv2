@@ -1,14 +1,14 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-21T19:36:19.235Z
+Generated: 2026-05-22T23:34:31.290Z
 
-Latest code version: edd31cbee1e569fa059397c4782dd9f608c02fe9
+Latest code version: b5d1e441fc59f0cf01b2fa0b96b88f82242d9100
 
 ## Summary
 
-- Beta version: 1.3.76
-- Beta score: 74.76
-- Beta status: Unknown evidence
+- Beta version: 1.3.83
+- Beta score: 55.56
+- Beta status: Stale evidence
 - Visual evidence: source_only_screenshotEvidenceAttached_false
 - Provider smoke: missing_formal_evidence
 - Operator revenue smoke: operator_confirmed_revenue_smoke

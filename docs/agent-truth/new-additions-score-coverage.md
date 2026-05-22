@@ -6,9 +6,9 @@ This finalizer does not create a new telemetry or scoring system. It verifies th
 
 ## Report
 
-- Generated at UTC: 2026-05-21T19:39:07.766Z
+- Generated at UTC: 2026-05-22T23:40:54.575Z
 - Score before: 77.76
-- Score after: 74.76
+- Score after: 55.56
 - All new additions tracked: true
 - All new additions in score: true
 - Orphaned new additions: 0
@@ -33,6 +33,7 @@ This finalizer does not create a new telemetry or scoring system. It verifies th
 
 - Runtime/provider smoke: Runtime unverified
 - Admin truth/sample evidence: Ready with smoke required
+- Report freshness and PR integrity: Stale evidence
 - Deployed runtime smoke: Attach formal deployed runtime smoke evidence; source/debug/telemetry proof remains partial only.
 - Formal provider smoke: Attach redacted formal provider smoke artifact before clearing provider readiness.
 - Refresh stale score-impact artifacts: Run the self-healing refresh queue in dependency order and keep formal evidence gates separate.
@@ -50,35 +51,21 @@ This finalizer does not create a new telemetry or scoring system. It verifies th
 ## Dirty File Classification
 
 - CHANGELOG.md: release_artifact_expected
-- agent/state/activity-verification-engine.generated.json: current_generated_artifact_to_commit
-- agent/state/behavioral-extensibility-layer.generated.json: current_generated_artifact_to_commit
-- agent/state/consent-tracking-contract.generated.json: current_generated_artifact_to_commit
-- agent/state/cookie-banner-settings-sync.generated.json: current_generated_artifact_to_commit
 - agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-operator-cockpit.generated.json: current_generated_artifact_to_commit
-- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
-- agent/state/final-algorithmic-debug-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/final-behavioral-privacy-telemetry-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-handoff-refinement.generated.json: current_generated_artifact_to_commit
+- agent/state/final-user-tracking-handoff-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/new-additions-score-coverage.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-beta-readiness-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/privacy-behavior-legacy-recovery.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/self-healing-refresh-queue.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/current-beta-exit-status.md: documentation_artifact_expected
-- docs/agent-truth/debug-operator-cockpit.md: documentation_artifact_expected
-- docs/agent-truth/final-algorithmic-debug-lock.md: documentation_artifact_expected
-- docs/agent-truth/final-behavioral-privacy-telemetry-lock.md: documentation_artifact_expected
-- docs/agent-truth/identity-handoff-refinement.md: documentation_artifact_expected
+- docs/agent-truth/final-user-tracking-handoff-lock.md: documentation_artifact_expected
 - docs/agent-truth/new-additions-score-coverage.md: documentation_artifact_expected
-- docs/agent-truth/overnight-beta-readiness-lock.md: documentation_artifact_expected
-- docs/agent-truth/privacy-behavior-legacy-recovery.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-final-user-tracking-handoff-lock.ts: validator_artifact_expected
 - scripts/agent/validate-new-additions-score-coverage.ts: validator_artifact_expected
+- src/app/api/admin/debug/route.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/new-additions-score-coverage.spec.ts: test_artifact_expected
+- tests/unit/final-user-tracking-handoff-lock.spec.ts: test_artifact_expected
 
 ## Open PR Classification
 

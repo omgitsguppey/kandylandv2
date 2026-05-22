@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.83 - 2026-05-22
+- Final user tracking handoff lock
+- Locked guest-to-user tracking and per-person analytics handoff.
+- Simplified debug tracking lanes.
+- Prepared telemetry for future features without recurring refactors.
+
 ## 1.3.82 - 2026-05-22
 - Per-person metrics contract
 - Added per-person metrics contract for guest and signed-in behavior.

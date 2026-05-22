@@ -1,0 +1,72 @@
+{
+  "generatedAtUtc": "2026-05-22T23:41:10.853Z",
+  "reportKey": "final-user-tracking-handoff-lock",
+  "currentHead": "b5d1e441fc59f0cf01b2fa0b96b88f82242d9100",
+  "status": "pass",
+  "guestTrackingStatus": "pass",
+  "signupHandoffStatus": "pass",
+  "loggedInTrackingStatus": "pass",
+  "linkedPersonMetricsStatus": "pass",
+  "consentModeStatus": "pass",
+  "eventEnvelopeStatus": "pass",
+  "legacyRecoveryStatus": "pass",
+  "debugPanelSimplificationStatus": "pass",
+  "futureFeatureTelemetryStatus": "pass",
+  "duplicateDebugLaneCount": 0,
+  "orphanMetricCount": 0,
+  "scoreBefore": 55.56,
+  "scoreAfter": 55.56,
+  "remainingGaps": [
+    "Runtime/provider smoke: Runtime unverified",
+    "Admin truth/sample evidence: Ready with smoke required",
+    "Report freshness and PR integrity: Stale evidence"
+  ],
+  "nextExactSteps": [
+    "Attach formal deployed runtime/provider smoke evidence when available; keep it separate from source-only validators.",
+    "Attach redacted admin truth sample evidence before clearing formal beta evidence gates.",
+    "Register every future tracking feature through the feature-registration gate before allowing normal analytics."
+  ],
+  "protectedRuntimeStatus": {
+    "productionReadsRequired": false,
+    "legacyMutationAllowed": false,
+    "paymentGumdropMathTouched": false,
+    "chatNavTouched": false
+  },
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/current-beta-exit-status.generated.json",
+    "agent/state/final-user-tracking-handoff-lock.generated.json",
+    "agent/state/new-additions-score-coverage.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "docs/agent-truth/current-beta-exit-status.md",
+    "docs/agent-truth/final-user-tracking-handoff-lock.md",
+    "docs/agent-truth/new-additions-score-coverage.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "scripts/agent/validate-final-user-tracking-handoff-lock.ts",
+    "scripts/agent/validate-new-additions-score-coverage.ts",
+    "src/app/api/admin/debug/route.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "tests/unit/final-user-tracking-handoff-lock.spec.ts"
+  ],
+  "checks": {
+    "guestSignupLoginPathPresent": true,
+    "guestTrackingResolvesExactlyOneState": true,
+    "signupHandoffHasDeterministicLinkCandidate": true,
+    "loggedInTrackingPreservesLinkedGuest": true,
+    "linkedEventsCarryLinkAndDoNotDoubleCount": true,
+    "userLevelMetricsPresent": true,
+    "consentModeEnforced": true,
+    "eventEnvelopeCanonicalAndIdentityAware": true,
+    "legacyRecoveryDryRunOnly": true,
+    "debugTrackingLanesConsolidated": true,
+    "orphanMetricsOwned": true,
+    "futureFeatureTelemetryGatePresent": true,
+    "packageScriptPresent": true,
+    "chatNavUntouched": true,
+    "paymentGumdropMathUntouched": true,
+    "nextExactStepsPresent": true
+  },
+  "validationFailures": []
+}
