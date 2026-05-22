@@ -1,23 +1,23 @@
 {
-  "generatedAtUtc": "2026-05-21T16:05:46.126Z",
+  "generatedAtUtc": "2026-05-22T22:46:47.401Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
+  "currentHead": "f0134b5b286ea158c9f9beaf0f118e7581f0a54d",
   "oldScore": 41.92,
-  "newScore": 77.76,
-  "publicBetaStatus": "warning",
-  "readinessStatus": "Visual QA required",
+  "newScore": 55.56,
+  "publicBetaStatus": "beta-risk",
+  "readinessStatus": "Stale evidence",
   "summary": {
-    "total": 81,
+    "total": 82,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 20,
-      "p2": 61,
+      "p2": 62,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 57,
+      "open": 58,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
@@ -27,7 +27,7 @@
     },
     "bySource": {
       "debug_panel": 34,
-      "beta_score": 7,
+      "beta_score": 8,
       "route_diagnostics": 1,
       "telemetry": 6,
       "admin_truth": 2,
@@ -38,7 +38,7 @@
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 49,
+      "evidence_refresh": 50,
       "stale_retire": 15,
       "algorithm_refine": 0,
       "route_fix": 1,
@@ -47,20 +47,20 @@
       "manual_required": 5,
       "no_action": 0
     },
-    "open": 57,
+    "open": 58,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 4,
     "blockedExternal": 5,
     "staleRetired": 15,
     "sourceFixable": 12,
-    "evidenceRefreshable": 49,
+    "evidenceRefreshable": 50,
     "manualRequired": 5,
     "p0P1Open": 20
   },
   "backlog": [
     {
-      "id": "beta-cap-runtime-unverified-runtime-provider-smoke-1",
+      "id": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
       "title": "Runtime unverified: Runtime/provider smoke",
       "owner": "provider_evidence",
       "surface": "runtime_evidence",
@@ -71,7 +71,7 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 75.5,
+      "scoreImpact": 59.75,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -84,8 +84,8 @@
       "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
     },
     {
-      "id": "beta-cap-visual-qa-required-ui-visual-manual-smoke-0",
-      "title": "Visual QA required: UI visual/manual smoke",
+      "id": "beta-cap-unknown-evidence-debug-runtime-evidence-3",
+      "title": "Unknown evidence: Debug/runtime evidence",
       "owner": "runtime_evidence",
       "surface": "runtime_evidence",
       "severity": "p1",
@@ -95,20 +95,20 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 75.5,
+      "scoreImpact": 59.75,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "agent/state/public-beta-score.generated.json",
       "evidenceStatus": "runtime_unverified",
-      "evidenceReason": "No valid visual/manual evidence artifact was supplied. This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+      "evidenceReason": "Debug evidence is empty, so absence of runtime issues is unknown.",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "sourceMessage": "Visual QA required: UI visual/manual smoke - No valid visual/manual evidence artifact was supplied. This gate is UI-only and does not block non-UI telemetry, admin, cost, refresh, or source-runtime confidence.",
+      "sourceMessage": "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown.",
       "sourceValidator": "npm run check:beta-score",
       "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
     },
     {
-      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-2",
+      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
       "title": "Ready with smoke required: Admin truth/sample evidence",
       "owner": "admin_debug",
       "surface": "admin_debug",
@@ -119,7 +119,7 @@
       "scoreDimensionImpact": [
         "evidenceCompleteness"
       ],
-      "scoreImpact": 63.75,
+      "scoreImpact": 43,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -535,6 +535,29 @@
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
+      "id": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
+      "title": "Stale evidence: Report freshness and PR integrity",
+      "owner": "beta_score",
+      "surface": "beta_score",
+      "severity": "p2",
+      "source": "beta_score",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ],
+      "scoreImpact": 43,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "sourceRoute": "agent/state/public-beta-score.generated.json",
+      "evidenceStatus": "unknown",
+      "evidenceReason": "Unknown evidence classification: 7 required generated report(s) are older than the freshness window.",
+      "exactNextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
+      "sourceMessage": "Stale evidence: Report freshness and PR integrity - 7 required generated report(s) are older than the freshness window.",
+      "sourceValidator": "npm run check:beta-score"
+    },
+    {
       "id": "score-drag-freshnessscore",
       "title": "Score drag: freshnessScore",
       "owner": "beta_score",
@@ -582,7 +605,7 @@
     },
     {
       "id": "cost-cost-risk-0",
-      "title": "cloudRunCostReadiness remains owner-review (cost_review_required).",
+      "title": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
       "owner": "cost",
       "surface": "cost",
       "severity": "p2",
@@ -600,12 +623,12 @@
       "evidenceStatus": "external_required",
       "evidenceReason": "Cost lane status is owner_review.",
       "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceMessage": "cloudRunCostReadiness remains owner-review (cost_review_required).",
+      "sourceMessage": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
       "sourceValidator": "npm run check:beta-score"
     },
     {
       "id": "cost-cost-risk-1",
-      "title": "cloudSqlCostReadiness remains owner-review (owner_review).",
+      "title": "cloudSqlCostReadiness remains source-cost/external-review tracked (owner_review_external_billing_required).",
       "owner": "cost",
       "surface": "cost",
       "severity": "p2",
@@ -623,12 +646,12 @@
       "evidenceStatus": "external_required",
       "evidenceReason": "Cost lane status is owner_review.",
       "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceMessage": "cloudSqlCostReadiness remains owner-review (owner_review).",
+      "sourceMessage": "cloudSqlCostReadiness remains source-cost/external-review tracked (owner_review_external_billing_required).",
       "sourceValidator": "npm run check:beta-score"
     },
     {
       "id": "cost-cost-risk-2",
-      "title": "geminiCloudAssistCostReadiness remains owner-review (cost_review_required).",
+      "title": "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (cost_review_required).",
       "owner": "cost",
       "surface": "cost",
       "severity": "p2",
@@ -646,12 +669,12 @@
       "evidenceStatus": "external_required",
       "evidenceReason": "Cost lane status is owner_review.",
       "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceMessage": "geminiCloudAssistCostReadiness remains owner-review (cost_review_required).",
+      "sourceMessage": "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (cost_review_required).",
       "sourceValidator": "npm run check:beta-score"
     },
     {
       "id": "cost-cost-risk-3",
-      "title": "route4xxReadiness remains owner-review (cost_review_required).",
+      "title": "route4xxReadiness remains source-cost/external-review tracked (cost_review_required).",
       "owner": "cost",
       "surface": "cost",
       "severity": "p2",
@@ -669,7 +692,7 @@
       "evidenceStatus": "external_required",
       "evidenceReason": "Cost lane status is owner_review.",
       "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceMessage": "route4xxReadiness remains owner-review (cost_review_required).",
+      "sourceMessage": "route4xxReadiness remains source-cost/external-review tracked (cost_review_required).",
       "sourceValidator": "npm run check:beta-score"
     },
     {

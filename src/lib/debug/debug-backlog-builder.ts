@@ -199,7 +199,7 @@ function buildBetaCapItems(publicBetaScore?: PublicBetaScoreInput | null): Debug
       sourceFiles: ["agent/state/public-beta-score.generated.json"],
       sourceRoute: adminTruth ? "/admin/debug" : "agent/state/public-beta-score.generated.json",
       evidenceStatus: runtime ? "runtime_unverified" : external ? "formal_missing" : "unknown",
-      evidenceReason: rawReason || cap,
+      evidenceReason: runtime || external ? rawReason || cap : `Unknown evidence classification: ${rawReason || cap}`,
       exactNextAction: adminTruth
         ? "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate."
         : runtime || provider

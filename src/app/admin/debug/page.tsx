@@ -29,6 +29,7 @@ import { DebugTabMonitoring } from "./components/DebugTabMonitoring";
 import { DebugTabInfrastructure } from "./components/DebugTabInfrastructure";
 import { DebugTabAi } from "./components/DebugTabAi";
 import { DebugTabAdvanced } from "./components/DebugTabAdvanced";
+import { DebugTrackingSummaryPanel } from "./components/DebugTrackingSummaryPanel";
 import { AI_DEBUG_ASSISTANT_MODEL, type AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
 import {
     ADMIN_DEBUG_DEFAULT_TAB,
@@ -669,9 +670,7 @@ export default function DebugConsole() {
                 )}
             />
 
-            <div data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-                {renderTabControls()}
-            </div>
+            <DebugTrackingSummaryPanel trackingSummary={data?.trackingSummary} />
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-1" data-mobile-organization="summary-first" data-admin-debug-summary="primary">
                 <StatCard label="System state" truthState={!data && isLoading ? "loading" : error ? "failed" : systemStateHealthy ? "live" : "degraded"} value={systemStateStatus} meta={systemStateMeta} copy={systemStateCopy} />
@@ -686,6 +685,10 @@ export default function DebugConsole() {
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
             {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300 sm:p-4" data-mobile-residual-cleanup="score-impact"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}
+
+            <div data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
+                {renderTabControls()}
+            </div>
 
             {activeTab === "now" ? (
                 <DebugTabNow

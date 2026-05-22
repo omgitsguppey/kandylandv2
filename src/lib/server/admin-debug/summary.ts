@@ -7,6 +7,10 @@ import { getBehavioralSnapshotStatus } from "@/lib/server/behavioral-intelligenc
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
+import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
+import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
+import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
+import { buildLegacyRecoveryDebugSummary } from "@/lib/server/admin-debug/legacy-recovery-summary";
 import { listRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import {
   listNotificationDispatchOutcomes,
@@ -140,6 +144,27 @@ export async function buildAdminDebugSummaryPayload(input: {
     "orchestration details",
     "analytics truth drilldowns",
   ];
+  const costControls = {
+    guard: ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD,
+    defaultSection: ADMIN_DEBUG_DEFAULT_SECTION,
+    fullDebugRequiresSection: "all",
+    queueHeartbeatLimit: ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT,
+    status: "bounded_initial_summary",
+    deferredSections,
+  };
+  const identityHandoff = buildIdentityHandoffDebugSummary();
+  const eventEnvelope = buildEventEnvelopeDebugSummary();
+  const legacyRecovery = buildLegacyRecoveryDebugSummary();
+  const trackingSummary = buildDebugPanelTrackingSummary({
+    identityHandoff,
+    eventEnvelope,
+    legacyRecovery,
+    telemetryHealth,
+    behavioralSnapshotStatus,
+    routeRuntimeHealthSummary,
+    runtimeWarningSummary,
+    costControls,
+  });
 
   return {
     success: true,
@@ -158,14 +183,11 @@ export async function buildAdminDebugSummaryPayload(input: {
     behavioralSnapshotStatus,
     adminMetricSnapshots,
     telemetryHealth,
-    costControls: {
-      guard: ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD,
-      defaultSection: ADMIN_DEBUG_DEFAULT_SECTION,
-      fullDebugRequiresSection: "all",
-      queueHeartbeatLimit: ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT,
-      status: "bounded_initial_summary",
-      deferredSections,
-    },
+    identityHandoff,
+    eventEnvelope,
+    legacyRecovery,
+    trackingSummary,
+    costControls,
     verification: buildServerAdminModuleVerification({
       module: "admin_debug_summary",
       canonicalSource: "route_runtime_health+runtime_warning_records+admin_metric_snapshots",

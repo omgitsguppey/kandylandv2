@@ -1,0 +1,118 @@
+"use client";
+
+import { Pill, Section } from "./DebugPrimitives";
+
+type TrackingLane = {
+    id: string;
+    label: string;
+    trackingSystem: string;
+    sourceOwner: string;
+    sourceOfTruth: string;
+    status: string;
+    severity: "p1" | "p2" | "p3" | "info";
+    scoreImpact: "high" | "medium" | "low" | "none";
+    primarySignal: string;
+    criticalCount: number;
+    warningCount: number;
+    drilldownTarget: string;
+    rawDetailsDefaultOpen: false;
+    oneSourceOfTruth: true;
+};
+
+type TrackingSummary = {
+    defaultView: "tracking_summary_lanes";
+    rawDetailsDefaultOpen: false;
+    rawDetailPolicy: "drilldown_only";
+    lanes: TrackingLane[];
+    duplicateMonitorGroups: string[];
+    validation?: {
+        duplicateTrackingSystems?: string[];
+        rawDumpsBeforeSummary?: false;
+        p1P2BacklogSurfaced?: boolean;
+    };
+};
+
+function toneForStatus(status?: string) {
+    if (status === "live") return "good" as const;
+    if (status === "failed") return "bad" as const;
+    if (status === "degraded" || status === "stale") return "warn" as const;
+    return "neutral" as const;
+}
+
+function truthForStatus(status?: string) {
+    if (status === "live") return "live" as const;
+    if (status === "failed") return "failed" as const;
+    if (status === "degraded") return "degraded" as const;
+    if (status === "stale") return "stale" as const;
+    return "unavailable" as const;
+}
+
+function labelForSeverity(severity?: string) {
+    if (severity === "p1") return "P1";
+    if (severity === "p2") return "P2";
+    if (severity === "p3") return "P3";
+    return "Info";
+}
+
+export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary: TrackingSummary | null | undefined }) {
+    const lanes = Array.isArray(trackingSummary?.lanes) ? trackingSummary.lanes : [];
+    const p1Count = lanes.filter((lane) => lane.severity === "p1").length;
+    const p2Count = lanes.filter((lane) => lane.severity === "p2").length;
+    const duplicateCount = trackingSummary?.validation?.duplicateTrackingSystems?.length ?? 0;
+    const summaryTone = duplicateCount > 0 || p1Count > 0 ? "bad" : p2Count > 0 ? "warn" : lanes.length ? "good" : "neutral";
+
+    return (
+        <Section
+            title="Tracking summary lanes"
+            subtitle="One compact source of truth for identity, consent, events, behavior, feature coverage, legacy recovery, wallet, runtime, cost, and open backlog."
+            defaultOpen
+            summary={(
+                <>
+                    <Pill label="Lanes" value={lanes.length} tone={lanes.length ? "good" : "bad"} truthState={lanes.length ? "live" : "unavailable"} />
+                    <Pill label="P1" value={p1Count} tone={p1Count > 0 ? "bad" : "good"} truthState={p1Count > 0 ? "failed" : "live"} />
+                    <Pill label="P2" value={p2Count} tone={p2Count > 0 ? "warn" : "good"} truthState={p2Count > 0 ? "degraded" : "live"} />
+                    <Pill label="Duplicates" value={duplicateCount} tone={duplicateCount > 0 ? "bad" : "good"} truthState={duplicateCount > 0 ? "failed" : "live"} />
+                    <Pill label="Raw details" value="Drilldown only" tone="neutral" truthState="cached" />
+                </>
+            )}
+        >
+            {lanes.length ? (
+                <div
+                    className="grid gap-2 md:grid-cols-2"
+                    data-admin-debug-tracking-summary="default"
+                    data-admin-debug-tracking-default-view={trackingSummary?.defaultView || "missing"}
+                    data-admin-debug-raw-default={String(Boolean(trackingSummary?.rawDetailsDefaultOpen))}
+                    data-admin-debug-raw-policy={trackingSummary?.rawDetailPolicy || "missing"}
+                    data-admin-debug-duplicate-tracking-systems={String(duplicateCount)}
+                    data-admin-debug-p1p2-backlog-surfaced={String(trackingSummary?.validation?.p1P2BacklogSurfaced === true)}
+                >
+                    {lanes.map((lane) => (
+                        <div key={lane.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-white">{lane.label}</p>
+                                    <p className="mt-1 text-xs leading-5 text-gray-400">{lane.primarySignal}</p>
+                                </div>
+                                <Pill label="Severity" value={labelForSeverity(lane.severity)} tone={lane.severity === "p1" ? "bad" : lane.severity === "p2" ? "warn" : "neutral"} truthState={truthForStatus(lane.status)} />
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                <Pill label="Status" value={lane.status} tone={toneForStatus(lane.status)} truthState={truthForStatus(lane.status)} />
+                                <Pill label="Owner" value={lane.sourceOwner} tone="neutral" truthState="cached" />
+                                <Pill label="Impact" value={lane.scoreImpact} tone={lane.scoreImpact === "high" ? summaryTone : "neutral"} truthState={truthForStatus(lane.status)} />
+                            </div>
+                            <details className="mt-3 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
+                                <summary className="cursor-pointer font-semibold text-gray-100">Source and drilldown</summary>
+                                <p className="mt-2"><span className="text-gray-500">Source owner:</span> {lane.sourceOwner}</p>
+                                <p className="mt-1"><span className="text-gray-500">Source of truth:</span> {lane.sourceOfTruth}</p>
+                                <p className="mt-1"><span className="text-gray-500">Drilldown:</span> {lane.drilldownTarget}</p>
+                                <p className="mt-1 text-gray-500">Raw tables and dumps stay collapsed until this drilldown is opened.</p>
+                            </details>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <p className="text-sm text-gray-300">Tracking summary is unavailable in this debug payload. Refresh the compact debug summary before using it for operator decisions.</p>
+            )}
+        </Section>
+    );
+}

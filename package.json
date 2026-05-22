@@ -105,6 +105,7 @@
         "check:debug-score-impact-triage": "tsx scripts/agent/validate-debug-score-impact-triage.ts",
         "check:debug-runtime-evidence": "tsx scripts/agent/validate-debug-runtime-evidence.ts",
         "check:debug-backlog-engine": "tsx scripts/agent/validate-debug-backlog-engine.ts",
+        "check:debug-tracking-simplification": "tsx scripts/agent/validate-debug-tracking-simplification.ts",
         "check:ai-debug-critic": "tsx scripts/agent/validate-ai-debug-critic.ts",
         "check:ai-critic-p1-triage": "tsx scripts/agent/validate-ai-critic-p1-triage.ts",
         "check:debug-recovery-playbooks": "tsx scripts/agent/validate-debug-recovery-playbooks.ts",

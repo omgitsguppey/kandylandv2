@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.81 - 2026-05-22
+- Debug tracking panel simplification
+- Simplified debug tracking panels into clear summary lanes.
+- Collapsed duplicate telemetry and identity monitors.
+- Kept raw debug details behind drilldowns.
+
 ## 1.3.80 - 2026-05-22
 - March 1 legacy event recovery
 - Added dry-run legacy event recovery from March 1.
