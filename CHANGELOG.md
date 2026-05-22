@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.78 - 2026-05-22
+- Identity handoff spine
+- Finalized guest-to-user identity handoff contracts.
+- Prevented double-counting across signup and login.
+- Simplified debug identity status into one source of truth.
+
 ## 1.3.77 - 2026-05-22
 - Payment module symmetry refinement
 - Refined payment module copy, symmetry, and mobile density.

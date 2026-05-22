@@ -1,0 +1,65 @@
+{
+  "reportKey": "identity-handoff-spine",
+  "generatedAtUtc": "2026-05-22T20:35:08.447Z",
+  "currentHead": "48e96ae3bca16d624a145c72406a633940050652",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "legacyMutationAllowed": false,
+  "fakeBehaviorUsed": false,
+  "protectedRuntimeStatus": {
+    "paymentWalletPaypalUntouched": true,
+    "gumdropMathUntouched": true,
+    "chatNavUntouched": true
+  },
+  "checks": {
+    "canonicalContractExists": true,
+    "requiredActorKindsPresent": true,
+    "requiredIdentityStatesPresent": true,
+    "requiredConfidenceAndReasonsPresent": true,
+    "engineExportsRequiredFunctions": true,
+    "deterministicLinkCandidate": true,
+    "minimalConsentBlocksLinkage": true,
+    "envelopeCarriesRequiredIdentityFields": true,
+    "guestEnvelopeHasUnavailableReason": true,
+    "doubleCountGuardPreventsGuestUserDupes": true,
+    "adminProjectionExcluded": true,
+    "legacyUnknownNeverExact": true,
+    "telemetryUsesCanonicalEnvelope": true,
+    "telemetrySafetyKeepsIdentityFields": true,
+    "guestTrackerUsesCanonicalEnvelope": true,
+    "anonymousIngestRequiresIdentityEnvelope": true,
+    "identifiedIngestBuildsCanonicalEnvelope": true,
+    "debugLaneConsolidated": true,
+    "testCoversSpine": true,
+    "packageScriptPresent": true,
+    "protectedSurfacesUntouched": true
+  },
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/identity-handoff-refinement.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "docs/agent-truth/identity-handoff-refinement.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "scripts/agent/validate-identity-handoff-refinement.ts",
+    "src/app/api/admin/debug/route.ts",
+    "src/app/api/analytics/ingest-identified/route.ts",
+    "src/app/api/analytics/ingest/route.ts",
+    "src/components/Analytics/DeepTracker.tsx",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/telemetry-safety.ts",
+    "src/lib/telemetry.ts"
+  ],
+  "validationFailures": [],
+  "debugPanelLane": {
+    "name": "Identity handoff",
+    "rawDumpsCollapsed": true,
+    "duplicateIdentityWidgetsConsolidated": true
+  },
+  "releaseNote": [
+    "Finalized guest-to-user identity handoff contracts.",
+    "Prevented double-counting across signup and login.",
+    "Simplified debug identity status into one source of truth."
+  ]
+}

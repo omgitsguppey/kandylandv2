@@ -175,7 +175,8 @@ function main() {
     identityLinkConsentAware: minimalLink.mergeAllowed === false && minimalLink.personLevelBehaviorAllowed === false,
     identityRouteBlocksMinimalConsent: routeSource.includes("identity_link_blocked_by_consent") && routeSource.includes("canPersistIdentityLink"),
     authContextPassesConsentMode: authSource.includes("consentMode") && authSource.includes("consentState = identityLinkAllowed ? \"granted\" : \"denied\""),
-    trackerCarriesConsentMode: trackerSource.includes("consentMode: privacy.consentMode") && trackerSource.includes("identityState: \"guest_behavioral\""),
+    trackerCarriesConsentMode: trackerSource.includes("consentMode: privacy.consentMode")
+      && (trackerSource.includes("identityState: \"guest_behavioral\"") || trackerSource.includes("identityState: identityEnvelope.identityState")),
     linkedGuestNoDoubleCount: counting.countAsKnownUser && counting.countAsAdditionalKnownUser === false,
     behaviorMathBlocksMinimalPersonBehavior: behaviorReport.summary.consentBlockedBehaviorEvents === 1 && behaviorSource.includes("consent_blocks_person_level_behavior"),
     legacyUnknownNotKnownUser: !behaviorReport.perUser.legacy_user,

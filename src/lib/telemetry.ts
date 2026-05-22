@@ -5,7 +5,7 @@ import { buildClientTrackingDecision } from "./analytics/client-tracking-policy"
 import destr from "destr";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { buildClientIdentityLinkRecord, getClientSessionId, readClientIdentityLinkRecord, rememberClientIdentityLink } from "./client-session";
-import { buildIdentityHandoffEventContext } from "./analytics/identity-state-machine";
+import { buildEventIdentityEnvelope } from "./analytics/identity-handoff-engine";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { authFetch } from "./authFetch";
 import {
@@ -139,7 +139,7 @@ function getSessionId() {
     return getClientSessionId();
 }
 
-function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
+function getEnrichedEventParams(eventName: string, eventParams?: Record<string, unknown>) {
     const sanitizedParams = sanitizeEventParams(eventParams) ?? {};
 
     if (typeof window === "undefined") {
@@ -151,11 +151,12 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
     const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
     const identityLink = readClientIdentityLinkRecord();
-    const identityContext = buildIdentityHandoffEventContext({
+    const identityEnvelope = buildEventIdentityEnvelope({
+        eventName,
         guestId: identityLink?.anonymousVisitorId ?? undefined,
         userId: auth?.currentUser?.uid ?? undefined,
         sessionId: getSessionId(),
-        identityLinkId: identityLink?.identityLinkId,
+        linkId: identityLink?.identityLinkId,
         consentMode: privacySettings.consentMode,
     });
     const viewportWidth = Math.round(window.innerWidth || 0);
@@ -165,9 +166,20 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
         page_path: window.location.pathname,
         session_id: getSessionId(),
         consent_mode: privacySettings.consentMode,
-        identity_state: identityContext.identityState,
-        identity_link_id: identityContext.identityLinkId ?? "",
-        person_level_behavior_allowed: identityContext.personLevelBehaviorAllowed,
+        actor_kind: identityEnvelope.actorKind,
+        identity_state: identityEnvelope.identityState,
+        identity_confidence: identityEnvelope.identityConfidence,
+        identity_link_id: identityEnvelope.linkId ?? "",
+        guest_id: identityEnvelope.guestId ?? "",
+        unavailable_guest_reason: identityEnvelope.unavailableGuestReason ?? "",
+        include_in_user_behavior: identityEnvelope.includeInUserBehavior,
+        person_level_behavior_allowed: identityEnvelope.linkCandidate?.personLevelBehaviorAllowed ?? false,
+        actorKind: identityEnvelope.actorKind,
+        identityState: identityEnvelope.identityState,
+        identityConfidence: identityEnvelope.identityConfidence,
+        consentMode: identityEnvelope.consentMode,
+        sessionId: identityEnvelope.sessionId,
+        linkId: identityEnvelope.linkId ?? "",
         viewport_width: viewportWidth,
         viewport_height: viewportHeight,
         is_mobile_viewport: viewportWidth <= 768,
@@ -451,7 +463,7 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         return;
     }
 
-    const enrichedParams = getEnrichedEventParams(preparedEvent.enrichedParams);
+    const enrichedParams = getEnrichedEventParams(eventNameForDispatch, preparedEvent.enrichedParams);
     const gaDispatchParams = getGaDispatchParams(enrichedParams);
     const sessionId = typeof enrichedParams?.session_id === "string" ? enrichedParams.session_id : getSessionId();
     const eventTimestampMs = typeof enrichedParams?.event_timestamp_ms === "number"
@@ -529,7 +541,7 @@ export function trackIdentityLinked(input: {
         source_truth: "canonical",
         source_confidence: allowIdentifiedAnalytics ? 1 : 0.7,
     });
-    const enrichedParams = getEnrichedEventParams({
+    const enrichedParams = getEnrichedEventParams(preparedEvent.canonicalEventName, {
         ...preparedEvent.enrichedParams,
         consent_state: allowIdentifiedAnalytics ? "granted" : "denied",
         identified_analytics_allowed: allowIdentifiedAnalytics,

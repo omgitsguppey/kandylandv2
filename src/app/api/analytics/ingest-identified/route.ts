@@ -19,6 +19,7 @@ import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-w
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
 import { materializeUserTrackingIndexes } from "@/lib/server/user-index-materializer";
 import { resolveIdentityTransferTelemetryState } from "@/lib/analytics/identity-transfer";
+import { buildEventIdentityEnvelope } from "@/lib/analytics/identity-handoff-engine";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 
 export const dynamic = "force-dynamic";
@@ -288,6 +289,18 @@ async function POST_handler(request: NextRequest) {
             const identityLinkId = readStringParam(enrichedParams, "identity_link_id", "identityLinkId");
             const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
             const sessionId = readStringParam(enrichedParams, "session_id", "sessionId");
+            const canonicalIdentityEnvelope = buildEventIdentityEnvelope({
+                eventName: canonicalEventName,
+                actorKind: readStringParam(enrichedParams, "actor_kind", "actorKind") || undefined,
+                identityState: readStringParam(enrichedParams, "identity_state", "identityState") || undefined,
+                guestId: anonymousVisitorId,
+                userId: caller.uid,
+                sessionId,
+                linkId: identityLinkId,
+                consentMode: readStringParam(enrichedParams, "consent_mode", "consentMode") || undefined,
+                projectionMode: readStringParam(enrichedParams, "projection_mode", "projectionMode") || undefined,
+                performedAs: readStringParam(enrichedParams, "performed_as", "performedAs") || undefined,
+            });
             const identityState = resolveIdentityTransferTelemetryState({
                 userId: caller.uid,
                 anonymousVisitorId,
@@ -298,12 +311,21 @@ async function POST_handler(request: NextRequest) {
                 ...finalEvent,
                 identityLinkId: identityLinkId || null,
                 identityState,
+                identityEnvelope: canonicalIdentityEnvelope,
+                actorKind: canonicalIdentityEnvelope.actorKind,
+                identityConfidence: canonicalIdentityEnvelope.identityConfidence,
+                canonicalIdentityState: canonicalIdentityEnvelope.identityState,
+                consentMode: canonicalIdentityEnvelope.consentMode,
                 sourceIdentity: {
                     anonymousVisitorId: anonymousVisitorId || null,
                     sessionId: sessionId || null,
                     userId: caller.uid,
                     identityLinkId: identityLinkId || null,
                     identityState,
+                    canonicalIdentityState: canonicalIdentityEnvelope.identityState,
+                    actorKind: canonicalIdentityEnvelope.actorKind,
+                    identityConfidence: canonicalIdentityEnvelope.identityConfidence,
+                    consentMode: canonicalIdentityEnvelope.consentMode,
                 },
             };
 

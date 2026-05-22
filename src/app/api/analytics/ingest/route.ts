@@ -25,6 +25,11 @@ import {
 } from "@/lib/analytics/ingest-contract";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { CONSENT_MODE_VALUES } from "@/lib/privacy/consent-tracking-contract";
+import {
+    ACTOR_KINDS,
+    IDENTITY_CONFIDENCE_VALUES,
+    IDENTITY_STATES,
+} from "@/lib/analytics/identity-handoff-contract";
 import { normalizeAnonymousRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
@@ -93,7 +98,10 @@ const PayloadSchema = z.object({
     sessionId: z.string().min(8).max(160).regex(CLIENT_ANALYTICS_ID_PATTERN).optional(),
     batchId: z.string().regex(ANALYTICS_BATCH_ID_PATTERN).optional(),
     consentMode: z.enum(CONSENT_MODE_VALUES).default("full_behavioral"),
-    identityState: z.enum(["guest_behavioral"]).default("guest_behavioral"),
+    actorKind: z.enum(ACTOR_KINDS).default("guest"),
+    identityState: z.enum(IDENTITY_STATES).default("guest_full_behavioral"),
+    identityConfidence: z.enum(IDENTITY_CONFIDENCE_VALUES).default("weak"),
+    unavailableGuestReason: z.string().max(120).nullable().optional(),
     events: z.array(TelemetryEventSchema).max(200), // Cap events to 200 per payload
 });
 
@@ -327,7 +335,7 @@ async function POST_handler(request: NextRequest) {
             return buildAnalyticsIngestFailureResponse(reason);
         }
 
-        const { sessionId, events, consentMode, identityState } = parsed.data;
+        const { sessionId, events, consentMode, actorKind, identityState, identityConfidence } = parsed.data;
         const { sessionKey, shouldSetCookie } = getOrCreateSessionKey(request);
         const canonicalAnonymousVisitorId = resolveCanonicalGuestAnonymousVisitorId({
             clientAnonymousVisitorId: parsed.data.anonymousVisitorId,
@@ -396,7 +404,10 @@ async function POST_handler(request: NextRequest) {
                 clientSessionId: sessionId || null,
                 minuteBucket,
                 consentMode,
+                actorKind,
                 identityState,
+                identityConfidence,
+                unavailableGuestReason: parsed.data.unavailableGuestReason ?? null,
                 globalPrivacyControl,
                 eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
                 trackingOrigin: "guest_client",
@@ -420,7 +431,10 @@ async function POST_handler(request: NextRequest) {
                 clientSessionId: sessionId || null,
                 minuteBucket,
                 consentMode,
+                actorKind,
                 identityState,
+                identityConfidence,
+                unavailableGuestReason: parsed.data.unavailableGuestReason ?? null,
                 globalPrivacyControl,
                 eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
                 trackingOrigin: "guest_client",

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { createAnalyticsBatchId } from "@/lib/analytics-identifiers";
+import { buildEventIdentityEnvelope } from "@/lib/analytics/identity-handoff-engine";
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
@@ -118,6 +119,12 @@ export function buildGuestAnalyticsIngestPayload(
 ) {
     const identity = getClientAnalyticsIdentitySnapshot("granted");
     const privacy = readPrivacySettingsSnapshot();
+    const identityEnvelope = buildEventIdentityEnvelope({
+        eventName: "semantic_page_viewed",
+        guestId: identity.anonymousVisitorId ?? undefined,
+        sessionId: identity.sessionId,
+        consentMode: privacy.consentMode,
+    });
     const signature = buildGuestAnalyticsBatchSignature(events);
     const batchId = stableBatch?.signature === signature
         ? stableBatch.batchId
@@ -130,7 +137,10 @@ export function buildGuestAnalyticsIngestPayload(
             anonymousVisitorId: identity.anonymousVisitorId ?? undefined,
             sessionId: identity.sessionId,
             consentMode: privacy.consentMode,
-            identityState: "guest_behavioral",
+            actorKind: identityEnvelope.actorKind,
+            identityState: identityEnvelope.identityState,
+            identityConfidence: identityEnvelope.identityConfidence,
+            unavailableGuestReason: identityEnvelope.unavailableGuestReason,
             events,
         },
     };
