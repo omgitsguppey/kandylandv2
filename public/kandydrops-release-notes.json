@@ -1,11 +1,63 @@
 {
-  "currentVersion": "1.3.81",
-  "betaReleaseCounter": 381,
+  "currentVersion": "1.3.82",
+  "betaReleaseCounter": 382,
   "channel": "beta",
-  "generatedAt": "2026-05-22T22:55:00.000Z",
-  "generatedAtUtc": "2026-05-22T22:55:00.000Z",
+  "generatedAt": "2026-05-22T23:18:00.000Z",
+  "generatedAtUtc": "2026-05-22T23:18:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.82",
+      "previousVersion": "1.3.81",
+      "betaReleaseCounter": 382,
+      "previousBetaReleaseCounter": 381,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): define person metrics",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-22T23:18:00.000Z",
+      "generatedAt": "2026-05-22T23:18:00.000Z",
+      "committedAtUtc": "2026-05-22T23:18:00.000Z",
+      "generatedAtUtc": "2026-05-22T23:18:00.000Z",
+      "updatedAtUtc": "2026-05-22T23:18:00.000Z",
+      "category": "Improved",
+      "title": "Per-person metrics contract",
+      "summary": "Defined how global, guest, signed-in, and linked-person analytics count product behavior with consent and identity confidence safeguards.",
+      "userFacingTitle": "Per-person metrics contract",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Added per-person metrics contract for guest and signed-in behavior.",
+        "Separated global, guest, user, and linked-person analytics.",
+        "Prevented checkout starts from counting as successful payments."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the person metrics contract, engine, validator, generated evidence, and unit coverage without reading production data or changing payment, GumDrop, chat, or navigation runtime."
+      ],
+      "affectedSurfaces": [
+        "Analytics",
+        "Privacy",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/person-metrics-contract.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/person-metrics-contract.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-person-metrics-contract.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/analytics/person-metrics-engine.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/person-metrics-contract.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.81",
       "previousVersion": "1.3.80",

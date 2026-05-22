@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.82 - 2026-05-22
+- Per-person metrics contract
+- Added per-person metrics contract for guest and signed-in behavior.
+- Separated global, guest, user, and linked-person analytics.
+- Prevented checkout starts from counting as successful payments.
+
 ## 1.3.81 - 2026-05-22
 - Debug tracking panel simplification
 - Simplified debug tracking panels into clear summary lanes.
