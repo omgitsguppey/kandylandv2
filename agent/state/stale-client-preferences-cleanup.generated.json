@@ -1,0 +1,60 @@
+{
+  "generatedAtUtc": "2026-05-23T01:27:47.025Z",
+  "reportKey": "stale-client-preferences-cleanup",
+  "status": "pass",
+  "currentHead": "69befa354add849ddcf7ed50470eba9e5ee41ad9",
+  "classification": {
+    "canonicalBackendBacked": [
+      "guest_privacy_consent_snapshot",
+      "account_settings_form_state",
+      "creator_settings_draft_state"
+    ],
+    "localUiOnlyDisplayState": [
+      "notification_prompt_dismissal",
+      "task_guidance_pending_action",
+      "telemetry_identity_link_dedupe"
+    ],
+    "staleBypass": [],
+    "legacyFallback": [],
+    "unsafeUnknown": []
+  },
+  "directStorageBypasses": [],
+  "staleSettingHelperImports": [],
+  "debugPreferenceSummary": {
+    "laneId": "settings_connection_health",
+    "status": "source_ready",
+    "totalClientPreferenceItems": 6,
+    "staleBypassCount": 0,
+    "unsafeUnknownCount": 0,
+    "sourceOfTruth": "src/lib/settings/client-preferences-contract.ts"
+  },
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/stale-client-preferences-cleanup.generated.json",
+    "docs/agent-truth/stale-client-preferences-cleanup.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "scripts/agent/validate-stale-client-preferences-cleanup.ts",
+    "src/lib/debug/debug-panel-tracking-summary.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/settings/client-preferences-contract.ts",
+    "tests/unit/stale-client-preferences-cleanup.spec.ts"
+  ],
+  "protectedSurfaceChanges": [],
+  "checks": {
+    "packageScriptPresent": true,
+    "clientPreferenceContractPresent": true,
+    "noContractedStaleBypasses": true,
+    "noPersistedLocalStorageSettingsBypass": true,
+    "noBackendTruthStoredInBrowser": true,
+    "privacyTogglesUseConsentPolicy": true,
+    "creatorSettingsUseControlPlane": true,
+    "clientDefaultCannotSilentlyOverrideServer": true,
+    "noStaleSettingsHelperImports": true,
+    "debugPanelFlagsStaleBypasses": true,
+    "featureRegistrationCovered": true,
+    "protectedSurfacesUntouched": true
+  },
+  "validationFailures": []
+}

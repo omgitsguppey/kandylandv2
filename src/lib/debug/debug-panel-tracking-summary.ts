@@ -112,6 +112,9 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const featureLaneCount = Array.isArray(input.telemetryHealth?.lanes) ? input.telemetryHealth.lanes.length : 0;
   const settingsStatus = toStatus(input.settingsConnectionParity?.status ?? "source_ready");
   const disconnectedSettings = toNumber(input.settingsConnectionParity?.disconnectedSettingCount);
+  const staleClientPreferences = toNumber(input.staleClientPreferences?.staleBypassCount);
+  const unsafeClientPreferences = toNumber(input.staleClientPreferences?.unsafeUnknownCount);
+  const settingsWarningCount = disconnectedSettings + staleClientPreferences + unsafeClientPreferences;
   const behaviorStatus = toStatus(input.behavioralSnapshotStatus?.status);
   const legacyStatus = toStatus(input.legacyRecovery?.status);
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
@@ -198,13 +201,17 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       label: "Settings connection health",
       trackingSystem: "settings_connection",
       sourceOwner: "settings",
-      sourceOfTruth: "src/lib/settings/settings-surface-contract.ts",
-      status: disconnectedSettings > 0 ? "degraded" : settingsStatus,
-      severity: severityFromCounts(0, disconnectedSettings, disconnectedSettings > 0 ? "degraded" : settingsStatus),
+      sourceOfTruth: "src/lib/settings/settings-surface-contract.ts + src/lib/settings/client-preferences-contract.ts",
+      status: settingsWarningCount > 0 ? "degraded" : settingsStatus,
+      severity: severityFromCounts(0, settingsWarningCount, settingsWarningCount > 0 ? "degraded" : settingsStatus),
       scoreImpact: "medium",
-      primarySignal: disconnectedSettings > 0 ? `${disconnectedSettings} setting(s) have honest not-configured status.` : "Account and Creator Settings share one connection contract.",
+      primarySignal: staleClientPreferences > 0
+        ? `${staleClientPreferences} stale client preference bypass(es) need cleanup.`
+        : disconnectedSettings > 0
+          ? `${disconnectedSettings} setting(s) have honest not-configured status.`
+          : "Account and Creator Settings share one connection contract with no stale client preference bypass.",
       criticalCount: 0,
-      warningCount: disconnectedSettings,
+      warningCount: settingsWarningCount,
       drilldownTarget: "/admin/debug?tab=advanced#settings-connection-health",
     }),
     makeLane({

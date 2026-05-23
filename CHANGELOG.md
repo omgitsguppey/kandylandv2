@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.88 - 2026-05-23
+- Settings preference cleanup
+- Phased out stale client-only preference truth paths.
+- Kept privacy and creator settings tied to backend contracts.
+- Added debug visibility for stale client preference bypasses.
+
 ## 1.3.87 - 2026-05-23
 - Settings route cleanup
 - Cleaned stale Settings route aliases and redirects.
