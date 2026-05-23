@@ -20,6 +20,7 @@ import {
     type ChatThreadRecord,
     type ChatViewerRole,
 } from "@/lib/chat";
+import { buildChatGatingTelemetryPayload } from "@/lib/chat/chat-gating-contract";
 import { buildNotificationRecord } from "@/lib/notification-contracts";
 import { buildNotificationDocumentId, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
 import { buildChatSoftSealScope, softOpenChatValue, softSealChatValue } from "@/lib/chat-soft-seal";
@@ -1171,6 +1172,53 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
     });
 
     const trackingResults = await Promise.allSettled([
+        Promise.resolve().then(() => trackServerEvent("chat_gating_checked", buildChatGatingTelemetryPayload({
+            eventName: "chat_gating_checked",
+            userId: input.callerUid,
+            threadId: sendResult.thread.id,
+            creatorId: sendResult.thread.creatorId,
+            messageKind: normalizeChatMessageKind(sendResult.message.messageKind),
+            status: "allowed",
+            bypass: sendResult.thread.viewerRole === "creator"
+                ? "creator_reply"
+                : sendResult.pricing.subscriberFreeChatApplies
+                    ? "fan_pass_subscriber"
+                    : null,
+            requiredPriceGd: sendResult.costGd,
+            purchasedBalanceGd: sendResult.pricing.purchasedBalanceGd,
+            paidGdShortfall: 0,
+            sourceComponent: "chat_server_send",
+        }), input.callerUid)),
+        sendResult.thread.viewerRole === "user" && sendResult.pricing.subscriberFreeChatApplies
+            ? Promise.resolve().then(() => trackServerEvent("chat_fan_pass_bypass_applied", buildChatGatingTelemetryPayload({
+                eventName: "chat_fan_pass_bypass_applied",
+                userId: input.callerUid,
+                threadId: sendResult.thread.id,
+                creatorId: sendResult.thread.creatorId,
+                messageKind: normalizeChatMessageKind(sendResult.message.messageKind),
+                status: "allowed",
+                bypass: "fan_pass_subscriber",
+                requiredPriceGd: 0,
+                purchasedBalanceGd: sendResult.pricing.purchasedBalanceGd,
+                paidGdShortfall: 0,
+                sourceComponent: "chat_server_send",
+            }), input.callerUid))
+            : Promise.resolve(null),
+        sendResult.thread.viewerRole === "creator"
+            ? Promise.resolve().then(() => trackServerEvent("chat_creator_reply_bypass_applied", buildChatGatingTelemetryPayload({
+                eventName: "chat_creator_reply_bypass_applied",
+                userId: input.callerUid,
+                threadId: sendResult.thread.id,
+                creatorId: sendResult.thread.creatorId,
+                messageKind: normalizeChatMessageKind(sendResult.message.messageKind),
+                status: "allowed",
+                bypass: "creator_reply",
+                requiredPriceGd: 0,
+                purchasedBalanceGd: 0,
+                paidGdShortfall: 0,
+                sourceComponent: "chat_server_send",
+            }), input.callerUid))
+            : Promise.resolve(null),
         Promise.resolve().then(() => trackServerEvent(
             sendResult.message.messageKind === "text" ? "creator_message_sent" : "creator_media_sent",
             {
@@ -1327,6 +1375,41 @@ export async function safeSendChatMessageForViewer(input: SendChatMessageInput) 
     try {
         return await sendChatMessageForViewer(input);
     } catch (error) {
+        if (error instanceof ChatClientError) {
+            const errorCode = typeof error.body.errorCode === "string" ? error.body.errorCode : "blocked_unknown";
+            const messageKind = normalizeChatMessageKind(input.messageKind);
+            await trackServerEvent("chat_send_blocked", buildChatGatingTelemetryPayload({
+                eventName: "chat_send_blocked",
+                userId: input.callerUid,
+                threadId: input.threadId,
+                creatorId: parseCreatorThreadId(input.threadId)?.creatorId ?? null,
+                messageKind,
+                status: errorCode === "insufficient_paid_gumdrops"
+                    ? "blocked_insufficient_paid_gd"
+                    : errorCode === "forbidden"
+                        ? "blocked_thread_visibility"
+                        : errorCode === "unauthorized"
+                            ? "blocked_auth"
+                            : "blocked_unknown",
+                errorCode,
+                requiredPriceGd: typeof error.body.requiredPriceGd === "number" ? error.body.requiredPriceGd : null,
+                purchasedBalanceGd: typeof error.body.purchasedBalanceGd === "number" ? error.body.purchasedBalanceGd : null,
+                paidGdShortfall: typeof error.body.paidGdShortfall === "number" ? error.body.paidGdShortfall : null,
+                sourceComponent: "chat_server_send",
+            }), input.callerUid).catch(() => null);
+            if (errorCode === "moderation_blocked") {
+                await trackServerEvent("chat_moderation_blocked", buildChatGatingTelemetryPayload({
+                    eventName: "chat_moderation_blocked",
+                    userId: input.callerUid,
+                    threadId: input.threadId,
+                    creatorId: parseCreatorThreadId(input.threadId)?.creatorId ?? null,
+                    messageKind,
+                    status: "blocked_moderation",
+                    errorCode,
+                    sourceComponent: "chat_server_send",
+                }), input.callerUid).catch(() => null);
+            }
+        }
         recordRouteWarning("chat/messages", "Chat message send failed", error, {
             channel: "runtime",
             detail: {

@@ -406,6 +406,14 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "chat_paid_gd_gate_viewed", label: "Chat paid GumDrops gate viewed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "chat_paid_gd_gate_primary_clicked", label: "Chat paid GumDrops gate primary CTA clicked", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "chat_paid_gd_gate_secondary_clicked", label: "Chat paid GumDrops gate secondary CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce", "navigation"] },
+  { eventName: "chat_gating_checked", label: "Chat gating checked", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "security"] },
+  { eventName: "chat_send_blocked", label: "Chat send blocked", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "security"] },
+  { eventName: "chat_insufficient_paid_gd_viewed", label: "Chat insufficient paid GumDrops viewed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
+  { eventName: "chat_purchase_cta_clicked", label: "Chat purchase CTA clicked", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
+  { eventName: "chat_media_upload_blocked", label: "Chat media upload blocked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "security"] },
+  { eventName: "chat_moderation_blocked", label: "Chat moderation blocked", category: "security", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["security", "engagement"] },
+  { eventName: "chat_fan_pass_bypass_applied", label: "Chat Fan Pass bypass applied", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
+  { eventName: "chat_creator_reply_bypass_applied", label: "Chat creator reply bypass applied", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "chat_low_paid_gd_reminder_sent", label: "Chat low paid GumDrops reminder sent", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "notifications"] },
   { eventName: "chat_low_paid_gd_reminder_reset", label: "Chat low paid GumDrops reminder reset", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "notifications"] },
   { eventName: "chat_realtime_listener_attached", label: "Chat realtime listener attached", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
@@ -1063,6 +1071,14 @@ function isChatEvent(eventName: string) {
     || eventName === "chat_paid_gd_gate_viewed"
     || eventName === "chat_paid_gd_gate_primary_clicked"
     || eventName === "chat_paid_gd_gate_secondary_clicked"
+    || eventName === "chat_gating_checked"
+    || eventName === "chat_send_blocked"
+    || eventName === "chat_insufficient_paid_gd_viewed"
+    || eventName === "chat_purchase_cta_clicked"
+    || eventName === "chat_media_upload_blocked"
+    || eventName === "chat_moderation_blocked"
+    || eventName === "chat_fan_pass_bypass_applied"
+    || eventName === "chat_creator_reply_bypass_applied"
     || eventName === "chat_low_paid_gd_reminder_sent"
     || eventName === "chat_low_paid_gd_reminder_reset"
     || eventName === "chat_realtime_listener_attached"

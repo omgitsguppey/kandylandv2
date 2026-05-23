@@ -1631,6 +1631,18 @@ export function ChatExperience() {
             required_min_paid_gd: proactivePaidGdGate?.requiredMinPaidGd,
             subscriber_free_chat_applies: proactivePaidGdGate?.subscriberFreeChatApplies,
         });
+        trackEvent("chat_insufficient_paid_gd_viewed", {
+            source_component: "chat_paid_gd_guidance_card",
+            route: "/dashboard/chat",
+            creator_id: selectedThread.creatorId,
+            creator_first_name: selectedThreadCreatorFirstName,
+            thread_id: selectedThread.id,
+            paid_balance_gd: proactivePaidGdGate?.purchasedBalanceGd,
+            required_min_paid_gd: proactivePaidGdGate?.requiredMinPaidGd,
+            paid_gd_shortfall: proactivePaidGdGate?.paidGdShortfall,
+            subscriber_free_chat_applies: proactivePaidGdGate?.subscriberFreeChatApplies,
+            debug_lane: "Chat gating/moderation",
+        });
     }, [proactivePaidGdGate, proactivePaidGdGateVisible, selectedThread, selectedThreadCreatorFirstName]);
 
     useEffect(() => {
@@ -2040,6 +2052,17 @@ export function ChatExperience() {
             required_min_paid_gd: proactivePaidGdGate?.requiredMinPaidGd,
             subscriber_free_chat_applies: proactivePaidGdGate?.subscriberFreeChatApplies,
         });
+        trackEvent("chat_purchase_cta_clicked", {
+            source_component: sourceComponent,
+            route: "/dashboard/chat",
+            creator_id: selectedThread?.creatorId,
+            creator_first_name: selectedThreadCreatorFirstName,
+            thread_id: selectedThread?.id,
+            paid_balance_gd: proactivePaidGdGate?.purchasedBalanceGd,
+            required_min_paid_gd: proactivePaidGdGate?.requiredMinPaidGd,
+            paid_gd_shortfall: insufficientFunds?.paidGdShortfall,
+            debug_lane: "Chat gating/moderation",
+        });
         openPurchaseModal(resolveChatPaidGdPurchaseTarget(proactivePaidGdGate, insufficientFunds?.paidGdShortfall));
     }, [insufficientFunds?.paidGdShortfall, openPurchaseModal, proactivePaidGdGate, selectedThread, selectedThreadCreatorFirstName]);
 
@@ -2338,6 +2361,15 @@ export function ChatExperience() {
             setComposerFile(null);
             setComposerKind("text");
             setSendErrorMessage("Only image and video files can be attached in chat.");
+            trackEvent("chat_media_upload_blocked", {
+                source_component: "chat_thread_composer",
+                route: "/dashboard/chat",
+                platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+                file_size_bytes: file.size,
+                mime_type: file.type || "application/octet-stream",
+                error_code: "unsupported_attachment_type",
+                debug_lane: "Chat gating/moderation",
+            });
             toast.error("Only image and video files can be attached in chat.");
             return;
         }
@@ -2356,6 +2388,16 @@ export function ChatExperience() {
                 max_size_bytes: maxBytes,
                 has_fan_pass: chatFanPassActive,
                 error_code: errorCode,
+            });
+            trackEvent("chat_media_upload_blocked", {
+                source_component: "chat_thread_composer",
+                route: "/dashboard/chat",
+                platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+                file_size_bytes: file.size,
+                max_size_bytes: maxBytes,
+                has_fan_pass: chatFanPassActive,
+                error_code: errorCode,
+                debug_lane: "Chat gating/moderation",
             });
             setSendErrorMessage(message);
             if (!chatFanPassActive && selectedThreadCreatorProfileHref) {
@@ -2531,6 +2573,18 @@ export function ChatExperience() {
                 subscriberFreeChatApplies: proactivePaidGdGate?.subscriberFreeChatApplies ?? false,
                 messageKind: composerKind,
             });
+            trackEvent("chat_send_blocked", {
+                source_component: "chat_thread_composer",
+                route: "/dashboard/chat",
+                creator_id: selectedThread.creatorId,
+                thread_id: selectedThread.id,
+                message_kind: composerKind,
+                error_code: "insufficient_paid_gumdrops",
+                required_price_gd: proactivePaidGdGate?.requiredMinPaidGd ?? 1,
+                purchased_balance_gd: proactivePaidGdGate?.purchasedBalanceGd ?? 0,
+                paid_gd_shortfall: proactivePaidGdGate?.paidGdShortfall ?? 1,
+                debug_lane: "Chat gating/moderation",
+            });
             return;
         }
 
@@ -2634,6 +2688,18 @@ export function ChatExperience() {
                         hasAttachment: Boolean(currentComposerFile),
                         errorCode: body.errorCode,
                         errorMessage: body.error || "Insufficient paid GumDrops.",
+                    });
+                    trackEvent("chat_send_blocked", {
+                        source_component: "chat_thread_composer",
+                        route: "/dashboard/chat",
+                        creator_id: selectedThread.creatorId,
+                        thread_id: selectedThread.id,
+                        message_kind: currentComposerKind,
+                        error_code: body.errorCode,
+                        required_price_gd: body.requiredPriceGd,
+                        purchased_balance_gd: body.purchasedBalanceGd,
+                        paid_gd_shortfall: body.paidGdShortfall,
+                        debug_lane: "Chat gating/moderation",
                     });
                     setInsufficientFunds(body as ChatInsufficientFundsPayload);
                     return;

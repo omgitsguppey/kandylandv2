@@ -46,6 +46,7 @@ import { buildTelemetryTriggerTestMatrixReport } from "@/lib/testing/telemetry-t
 import { buildUserManagementRefactorReport } from "@/lib/admin/user-management-contract";
 import { buildLegacyRecoveryDebugSummary } from "@/lib/server/admin-debug/legacy-recovery-summary";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
+import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
@@ -6607,6 +6608,9 @@ export async function GET(request: NextRequest) {
                 personMetricsHydration: buildPersonMetricsHydrationReport(),
             }),
             telemetryTriggerTestMatrix: buildTelemetryTriggerTestMatrixReport(),
+            chatGatingModeration: {
+                debugLane: buildChatGatingDebugLane(),
+            },
             legacyRecovery: buildLegacyRecoveryDebugSummary(),
             trackingSummary: buildDebugPanelTrackingSummary({
                 ["identity" + "Handoff"]: buildIdentityHandoffDebugSummary(),
@@ -6617,6 +6621,9 @@ export async function GET(request: NextRequest) {
                     personMetricsHydration: buildPersonMetricsHydrationReport(),
                 }),
                 telemetryTriggerTestMatrix: buildTelemetryTriggerTestMatrixReport(),
+                chatGatingModeration: {
+                    debugLane: buildChatGatingDebugLane(),
+                },
                 ["legacy" + "Recovery"]: buildLegacyRecoveryDebugSummary(),
                 telemetryHealth,
                 behavioralSnapshotStatus,

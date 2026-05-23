@@ -15,7 +15,7 @@ const sendMessageSchema = z.object({
     assetName: z.string().trim().max(260).optional(),
     assetMimeType: z.string().trim().max(160).optional(),
     messageKind: z.enum(["text", "image", "video"]).default("text"),
-    idempotencyKey: z.string().trim().max(180).optional(),
+    idempotencyKey: z.string().trim().min(1).max(180),
 });
 
 type RouteContext = {

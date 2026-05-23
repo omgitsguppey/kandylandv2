@@ -1,13 +1,71 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.3",
-  "betaReleaseCounter": 403,
+  "currentVersion": "1.4.4",
+  "betaReleaseCounter": 404,
   "channel": "beta",
-  "generatedAt": "2026-05-23T22:00:00.000Z",
-  "generatedAtUtc": "2026-05-23T22:00:00.000Z",
+  "generatedAt": "2026-05-23T22:30:00.000Z",
+  "generatedAtUtc": "2026-05-23T22:30:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.4",
+      "previousVersion": "1.4.3",
+      "betaReleaseCounter": 404,
+      "previousBetaReleaseCounter": 403,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(chat): harden gating moderation",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T22:30:00.000Z",
+      "generatedAt": "2026-05-23T22:30:00.000Z",
+      "committedAtUtc": "2026-05-23T22:30:00.000Z",
+      "generatedAtUtc": "2026-05-23T22:30:00.000Z",
+      "updatedAtUtc": "2026-05-23T22:30:00.000Z",
+      "category": "Improved",
+      "title": "Chat gating and moderation reliability",
+      "summary": "Improved chat reliability by confirming paid-GD gating, blocked-send telemetry, media limits, bypass states, and debug visibility.",
+      "userFacingTitle": "Chat gating and moderation reliability",
+      "surfaceCategory": "Chat & support",
+      "bullets": [
+        "Verified chat paid-GD gating and moderation enforcement.",
+        "Tracked blocked chat attempts and bypass states.",
+        "Kept GumDrop math and payment logic unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-only chat gating contracts, blocked/bypass telemetry, debug evidence, generated validation, and unit coverage without production reads, UI redesign, payment runtime changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Chat",
+        "Admin debug",
+        "Telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/chat-gating-moderation.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/chat-gating-moderation.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-chat-gating-moderation.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/chat/threads/[threadId]/messages/route.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/chat/chat-gating-contract.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "src/lib/server/chat.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/chat-gating-moderation.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.3",
       "previousVersion": "1.4.2",
@@ -1332,64 +1390,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/server/admin-debug/legacy-recovery-summary.ts",
         "tests/unit/march-first-event-recovery.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.79",
-      "previousVersion": "1.3.78",
-      "betaReleaseCounter": 379,
-      "previousBetaReleaseCounter": 378,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): normalize event envelopes",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-22T21:57:34.289Z",
-      "generatedAt": "2026-05-22T21:57:34.289Z",
-      "committedAtUtc": "2026-05-22T21:57:34.289Z",
-      "generatedAtUtc": "2026-05-22T21:57:34.289Z",
-      "updatedAtUtc": "2026-05-22T21:57:34.289Z",
-      "category": "Improved",
-      "title": "Event envelope normalization",
-      "summary": "Normalized telemetry events into a shared identity-aware envelope so guest, user, creator, wallet, drop, behavioral, and admin events follow one safer analytics shape.",
-      "userFacingTitle": "Event envelope normalization",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Normalized telemetry events into a shared identity-aware envelope.",
-        "Blocked orphaned and unregistered events from normal analytics.",
-        "Simplified debug event health into one lane."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a canonical event envelope contract, builder, validator, generated evidence, and focused unit coverage without changing payment, GumDrop, chat, or navigation runtime."
-      ],
-      "affectedSurfaces": [
-        "Analytics",
-        "Privacy",
-        "Admin debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/event-envelope-normalization.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/event-envelope-normalization.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-event-envelope-normalization.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/lib/analytics/event-envelope-builder.ts",
-        "src/lib/analytics/event-envelope-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/event-envelope-summary.ts",
-        "src/lib/telemetry-safety.ts",
-        "src/lib/telemetry.ts",
-        "tests/unit/event-envelope-normalization.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

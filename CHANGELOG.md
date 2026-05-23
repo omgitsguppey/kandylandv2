@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.4 - 2026-05-23
+- Chat gating and moderation reliability
+- Verified chat paid-GD gating and moderation enforcement.
+- Tracked blocked chat attempts and bypass states.
+- Kept GumDrop math and payment logic unchanged.
+
 ## 1.4.3 - 2026-05-23
 - Chat presence and typing reliability
 - Hardened chat typing and presence cleanup.

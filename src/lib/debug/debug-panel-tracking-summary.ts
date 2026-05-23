@@ -5,6 +5,7 @@ import {
 import {
   summarizeActionableActivitySignals,
 } from "@/lib/debug/actionable-signal-filter";
+import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -19,6 +20,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "settings_health",
   "legacy_recovery",
   "wallet_funnel",
+  "chat_gating_moderation",
   "runtime_debug_evidence",
   "cost_4xx",
   "open_p1_p2_backlog",
@@ -84,6 +86,7 @@ const TRACKING_GROUPS = [
   "settings",
   "legacy_recovery",
   "wallet_funnel",
+  "chat_gating_moderation",
   "runtime_debug",
   "cost",
   "backlog",
@@ -193,6 +196,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const behaviorStatus = toStatus(input.behavioralSnapshotStatus?.status);
   const legacyStatus = toStatus(input.legacyRecovery?.status);
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
+  const chatGating = input.chatGatingModeration?.debugLane ?? buildChatGatingDebugLane();
+  const chatGatingBlocked = toNumber(chatGating.blockedAttempts);
   const routeFailures = toNumber(input.routeRuntimeHealthSummary?.fail);
   const routeWarnings = toNumber(input.routeRuntimeHealthSummary?.warn) + toNumber(input.routeRuntimeHealthSummary?.stale);
   const runtimeFailures = toNumber(input.runtimeWarningSummary?.failed);
@@ -372,6 +377,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: walletCount > 0 ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=monitoring#wallet-funnel",
+    }),
+    makeLane({
+      id: "chat_gating_moderation",
+      label: "Chat gating/moderation",
+      trackingSystem: "chat_gating_moderation",
+      sourceOwner: "chat",
+      sourceOfTruth: "src/lib/chat/chat-gating-contract.ts",
+      status: chatGating.backendEnforcement && chatGating.sourceOfFundsTruthStatus === "purchased_only_enforced" ? "live" : "degraded",
+      severity: severityFromCounts(0, chatGating.uiOnlyGate ? 1 : 0, chatGating.backendEnforcement ? "live" : "degraded"),
+      scoreImpact: "high",
+      primarySignal: `Blocked attempts=${chatGatingBlocked}; insufficient paid GD=${toNumber(chatGating.insufficientPaidGdAttempts)}; moderation blocks=${toNumber(chatGating.moderationBlocks)}; media blocks=${toNumber(chatGating.mediaLimitBlocks)}; Fan Pass bypass=${toNumber(chatGating.bypassCounts?.fanPassSubscriber)}; creator reply bypass=${toNumber(chatGating.bypassCounts?.creatorReply)}; source-of-funds=${chatGating.sourceOfFundsTruthStatus}.`,
+      criticalCount: 0,
+      warningCount: chatGating.uiOnlyGate ? 1 : 0,
+      drilldownTarget: "/admin/debug?tab=advanced#chat-gating-moderation",
     }),
     makeLane({
       id: "runtime_debug_evidence",
