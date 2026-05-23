@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.0 - 2026-05-23
+- Non-event beta score policy
+- Stopped future activity placeholders from reducing beta score.
+- Scored actionable signal groups instead of raw debug noise.
+- Clarified below-80 dimensions by true blocker type.
+
 ## 1.3.99 - 2026-05-23
 - Debug signal grouping
 - Grouped duplicate debug and telemetry signals by root cause.

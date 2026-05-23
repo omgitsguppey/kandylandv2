@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-23T20:17:09.220Z",
-  "currentHead": "669519046fe7caeefb8641ec6d4b7281a960cea8",
+  "generatedAt": "2026-05-23T20:48:54.016Z",
+  "currentHead": "68af309084c2f2c03de01de366d6160eb5551b75",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
@@ -10,6 +10,10 @@
   "freshnessScore": 62.86,
   "costRiskScore": 42,
   "regressionRiskScore": 42,
+  "quietFutureActivityCount": 416,
+  "actionableSignalGroupCount": 15,
+  "scoreDragSignalGroupCount": 15,
+  "nonEventScorePenaltyCount": 0,
   "launchGateStatus": "owner_review",
   "launchBlockers": [
     "Runtime/provider smoke: Runtime unverified",
@@ -33,7 +37,8 @@
         "Runtime/provider smoke runtimeCredit=92",
         "Admin truth/sample evidence runtimeCredit=31",
         "Debug/runtime evidence runtimeCredit=55",
-        "Algorithmic non-UI evidence coverage runtimeCredit=92"
+        "Algorithmic non-UI evidence coverage runtimeCredit=92",
+        "Below-target runtime health reflects formal/runtime evidence requirements or broken connectivity, not future activity placeholders."
       ]
     },
     "evidenceCompleteness": {
@@ -41,6 +46,7 @@
       "score": 39,
       "reasons": [
         "UI visual review is an operator-final checklist outside Codex score gates.",
+        "Quiet future activity does not reduce evidence completeness.",
         "Source safety evidenceCredit=100",
         "Runtime/provider smoke evidenceCredit=0",
         "Admin truth/sample evidence evidenceCredit=31",
@@ -57,7 +63,8 @@
         "Admin truth/sample evidence freshness=stale",
         "Report freshness and PR integrity freshness=stale",
         "Debug/runtime evidence freshness=fresh",
-        "Algorithmic non-UI evidence coverage freshness=fresh"
+        "Algorithmic non-UI evidence coverage freshness=fresh",
+        "Freshness penalties apply to stale score-impacting artifacts only, not non-events."
       ]
     },
     "costRisk": {
@@ -78,8 +85,67 @@
         "agent/state/user-creator-ui-parity.generated.json is stale.",
         "agent/state/user-facing-feature-connection-audit.generated.json is stale.",
         "agent/state/creator-dashboard-error-cost-inventory.generated.json is stale.",
-        "Recent high-blast files changed after evidence."
+        "Recent high-blast files changed after evidence.",
+        "Regression risk is based on stale/high-blast evidence, not future activity that has not happened."
       ]
+    }
+  },
+  "scoreDimensionExplanations": {
+    "sourceHealth": {
+      "after": 91.7,
+      "target": 80,
+      "status": "meets_target",
+      "blockerType": "source_connectivity",
+      "reason": "Dimension meets target.",
+      "nextExactAction": "No score action needed for this dimension."
+    },
+    "runtimeHealth": {
+      "after": 67.5,
+      "target": 80,
+      "status": "below_target",
+      "blockerType": "formal_runtime_evidence",
+      "reason": "Runtime health is below target because formal runtime/admin evidence remains incomplete, not because future activity is absent.",
+      "nextExactAction": "Attach approved runtime/provider/admin evidence without promoting local validators to deployed proof."
+    },
+    "evidenceCompleteness": {
+      "after": 39,
+      "target": 80,
+      "status": "below_target",
+      "blockerType": "formal_runtime_evidence",
+      "reason": "Evidence completeness is below target because required formal evidence gates are incomplete, not because activity is missing.",
+      "nextExactAction": "Complete the exact formal evidence gates listed in the beta score report."
+    },
+    "freshness": {
+      "after": 62.86,
+      "target": 80,
+      "status": "below_target",
+      "blockerType": "stale_score_evidence",
+      "reason": "Freshness is below target because score-impacting evidence artifacts are stale or head-mismatched.",
+      "nextExactAction": "Refresh the stale score-impacting artifacts with targeted validators."
+    },
+    "costRisk": {
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "blockerType": "cost_owner_review",
+      "reason": "Cost risk is below target because owner-review cost lanes remain open.",
+      "nextExactAction": "Resolve owner-review cost lanes without touching payment or GumDrop runtime math."
+    },
+    "regressionRisk": {
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "blockerType": "stale_score_evidence",
+      "reason": "Regression risk is below target because stale artifacts or high-blast source changes need refreshed evidence.",
+      "nextExactAction": "Refresh targeted evidence for changed high-blast files and rerun the score validator."
+    },
+    "overallHealthScore": {
+      "after": 62.05,
+      "target": 80,
+      "status": "below_target",
+      "blockerType": "formal_runtime_evidence",
+      "reason": "Overall health follows the weighted component dimensions and launch cap.",
+      "nextExactAction": "Raise the below-target component dimensions before treating overall health as solved."
     }
   },
   "scoreDeltaDrivers": [
@@ -89,10 +155,16 @@
     "freshnessScore=62.86",
     "costRiskScore=42",
     "regressionRiskScore=42",
+    "quietFutureActivityCount=416",
+    "actionableSignalGroupCount=15",
+    "scoreDragSignalGroupCount=15",
+    "nonEventScorePenaltyCount=0",
     "launchBlockers=3"
   ],
   "nuancedScoreExplanation": [
     "Source-ready evidence earns source health credit without becoming runtime proof.",
+    "Future activity placeholders and source-ready lanes waiting for first real user events do not reduce score.",
+    "Debug signal score impact is counted from actionable groups, not raw quiet catalog rows.",
     "UI visual confirmation is handled outside Codex as an operator-final checklist and does not block source/debug/beta scoring.",
     "Formal provider, deployed runtime, and admin truth artifacts remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
@@ -102,7 +174,7 @@
   "overallStatus": "beta-risk",
   "readinessStatus": "Stale evidence",
   "readinessStatusReason": "4 required generated report(s) are older than the freshness window.",
-  "evidenceScore": 38.4,
+  "evidenceScore": 38.2,
   "evidenceGates": [
     {
       "id": "sourceSafety",
@@ -132,19 +204,19 @@
       "id": "targetedBehaviorTests",
       "label": "Targeted behavior tests",
       "weight": 20,
-      "score": 7.8,
+      "score": 7.6,
       "maxScore": 20,
       "confidence": "low",
       "evidenceQuality": "stale",
       "freshness": "stale",
       "sourceCredit": 92,
       "runtimeCredit": 0,
-      "evidenceCredit": 39,
-      "riskPenalty": 61,
+      "evidenceCredit": 38,
+      "riskPenalty": 62,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
-      "partialReason": "Evidence is 67.86h old and outside the 24h freshness window.",
+      "partialReason": "Evidence is 68.39h old and outside the 24h freshness window.",
       "status": "Ready",
       "detail": "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
       "evidence": [
@@ -210,7 +282,7 @@
         "runtimeEvidenceItems[0]=typecheck | npm run typecheck | pass | TypeScript compile safety only; does not prove deployed runtime behavior.",
         "runtimeEvidenceItems[1]=release_notes | npm run check:release-notes | pass | Beta badge evidence consistency only; does not prove deployed runtime behavior.",
         "sourceBackedRuntimeConfidenceStatus=source_ready_runtime_confidence",
-        "sourceBackedRuntimeConfidenceCredit=32",
+        "sourceBackedRuntimeConfidenceCredit=31",
         "artifactPath=agent/state/source-backed-runtime-confidence.generated.json",
         "artifactStatus=source_ready_runtime_confidence",
         "artifactPassed=true",
@@ -341,10 +413,10 @@
       "status": "Stale evidence",
       "detail": "4 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/post-economy-creator-flow-qa.generated.json (68.9h old)",
-        "agent/state/user-creator-ui-parity.generated.json (67.99h old)",
-        "agent/state/user-facing-feature-connection-audit.generated.json (68.9h old)",
-        "agent/state/creator-dashboard-error-cost-inventory.generated.json (68.2h old)"
+        "agent/state/post-economy-creator-flow-qa.generated.json (69.43h old)",
+        "agent/state/user-creator-ui-parity.generated.json (68.52h old)",
+        "agent/state/user-facing-feature-connection-audit.generated.json (69.43h old)",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json (68.73h old)"
       ],
       "recommendedAction": "Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current."
     },
@@ -442,7 +514,7 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 38.4/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 62.05/100 currently maps to launch gate owner_review.",
+    "evidenceScoreMeaning": "Evidence score 38.2/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 62.05/100 currently maps to launch gate owner_review.",
     "missingEvidenceCaps": [
       "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
@@ -704,7 +776,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-05-23T20:17:09.220Z",
+      "generatedAtUtc": "2026-05-23T20:48:54.016Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -717,16 +789,16 @@
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
       "label": "Current beta exit status",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-23T06:41:27.991Z",
-      "ageHours": 13.594785833333333,
+      "status": "current",
+      "needsRefresh": false,
+      "generatedAtUtc": "2026-05-23T20:43:17.969Z",
+      "ageHours": 0.0933463888888889,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
-      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "formalEvidenceGateCanClear": false
+      "message": "Current beta exit status is current for the latest code version.",
+      "nextAction": "No refresh needed.",
+      "formalEvidenceGateCanClear": true
     },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
@@ -735,7 +807,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-23T04:30:54.976Z",
-      "ageHours": 15.770623333333333,
+      "ageHours": 16.299733333333332,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -750,7 +822,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:54.095Z",
-      "ageHours": 52.02086805555555,
+      "ageHours": 52.549978055555556,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -765,7 +837,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:01.610Z",
-      "ageHours": 52.01878055555556,
+      "ageHours": 52.547890555555554,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -780,7 +852,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:08.409Z",
-      "ageHours": 52.016891944444446,
+      "ageHours": 52.54600194444444,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -795,7 +867,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:11.032Z",
-      "ageHours": 52.03283,
+      "ageHours": 52.56194,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -810,7 +882,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:17.002Z",
-      "ageHours": 52.014505,
+      "ageHours": 52.543615,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -825,7 +897,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:17:10.904Z",
-      "ageHours": 51.99953222222222,
+      "ageHours": 52.528642222222224,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -840,7 +912,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:17:11.012Z",
-      "ageHours": 51.99950222222222,
+      "ageHours": 52.52861222222222,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -855,7 +927,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:24.391Z",
-      "ageHours": 52.02911916666667,
+      "ageHours": 52.55822916666666,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -870,7 +942,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:31.762Z",
-      "ageHours": 52.027071666666664,
+      "ageHours": 52.55618166666667,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -885,7 +957,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:38.621Z",
-      "ageHours": 52.02516638888889,
+      "ageHours": 52.55427638888889,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -900,7 +972,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:45.673Z",
-      "ageHours": 52.0232075,
+      "ageHours": 52.5523175,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -915,7 +987,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:24.214Z",
-      "ageHours": 52.012501666666665,
+      "ageHours": 52.54161166666667,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -930,7 +1002,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:32.982Z",
-      "ageHours": 52.01006611111111,
+      "ageHours": 52.53917611111111,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -945,7 +1017,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:43.027Z",
-      "ageHours": 52.00727583333333,
+      "ageHours": 52.536385833333334,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -960,7 +1032,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:50.997Z",
-      "ageHours": 52.00506194444444,
+      "ageHours": 52.534171944444445,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -970,14 +1042,6 @@
     }
   ],
   "staleArtifacts": [
-    {
-      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "reportKey": "current-beta-exit-status",
-      "status": "stale_source_version",
-      "message": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "refreshCommand": "npm run check:current-beta-exit-status"
-    },
     {
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",

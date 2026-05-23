@@ -1,13 +1,65 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.99",
-  "betaReleaseCounter": 399,
+  "currentVersion": "1.4.0",
+  "betaReleaseCounter": 400,
   "channel": "beta",
-  "generatedAt": "2026-05-23T20:20:00.000Z",
-  "generatedAtUtc": "2026-05-23T20:20:00.000Z",
+  "generatedAt": "2026-05-23T20:40:00.000Z",
+  "generatedAtUtc": "2026-05-23T20:40:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.0",
+      "previousVersion": "1.3.99",
+      "betaReleaseCounter": 400,
+      "previousBetaReleaseCounter": 399,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): stop scoring non-events",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T20:40:00.000Z",
+      "generatedAt": "2026-05-23T20:40:00.000Z",
+      "committedAtUtc": "2026-05-23T20:40:00.000Z",
+      "generatedAtUtc": "2026-05-23T20:40:00.000Z",
+      "updatedAtUtc": "2026-05-23T20:40:00.000Z",
+      "category": "Improved",
+      "title": "Non-event beta score policy",
+      "summary": "Improved internal beta scoring so future activity placeholders no longer reduce readiness scores.",
+      "userFacingTitle": "Non-event beta score policy",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Stopped future activity placeholders from reducing beta score.",
+        "Scored actionable signal groups instead of raw debug noise.",
+        "Clarified below-80 dimensions by true blocker type."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a source-only non-event score policy, beta score report fields, validator, generated evidence, and unit coverage without fake evidence, production reads, payment changes, chat/nav changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Beta score",
+        "Admin debug",
+        "App reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/non-event-score-policy.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/non-event-score-policy.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-non-event-score-policy.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/non-event-score-policy.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/non-event-score-policy.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.99",
       "previousVersion": "1.3.98",
@@ -1352,56 +1404,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/new-additions-score-coverage.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.75",
-      "previousVersion": "1.3.74",
-      "betaReleaseCounter": 375,
-      "previousBetaReleaseCounter": 374,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): verify feature activity paths",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T19:35:00.000Z",
-      "generatedAt": "2026-05-21T19:35:00.000Z",
-      "committedAtUtc": "2026-05-21T19:35:00.000Z",
-      "generatedAtUtc": "2026-05-21T19:35:00.000Z",
-      "updatedAtUtc": "2026-05-21T19:35:00.000Z",
-      "category": "Improved",
-      "title": "Guest and user activity verification",
-      "summary": "Added consent-aware guest and user activity verification for feature paths.",
-      "userFacingTitle": "Guest and user activity verification",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added guest and user activity verification engine.",
-        "Used consent-aware activity paths to reduce manual verification.",
-        "Flagged features with activity but missing telemetry or materializers."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only activity verification engine, generated report, validator, and unit coverage without production reads or formal gate clearing."
-      ],
-      "affectedSurfaces": [
-        "Telemetry",
-        "Behavior tracking",
-        "Debug evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/activity-verification-engine.generated.json",
-        "docs/agent-truth/activity-verification-engine.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-activity-verification-engine.ts",
-        "src/lib/analytics/activity-verification-engine.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/activity-verification-engine.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

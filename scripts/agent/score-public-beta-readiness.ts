@@ -23,6 +23,7 @@ import {
   type UiVisualSmokeReportStatus,
   type UiVisualSmokeStatus,
 } from "../../src/lib/evidence/ui-visual-smoke-contract";
+import { summarizeNonEventScorePolicy } from "../../src/lib/agent-score/non-event-score-policy";
 import type { DeviceBand } from "../../src/lib/ui/mobile-scale-contract";
 import { loadDebugEvidenceForAuditDomains } from "./load-debug-evidence-for-audit";
 import { buildScore80CostReadinessFromRepo } from "./validate-score-80-cost-readiness";
@@ -50,6 +51,7 @@ const REAL_USAGE_CONFIDENCE_PATH = "agent/state/real-usage-confidence.generated.
 const REAL_USAGE_CONFIDENCE_CALIBRATION_PATH = "agent/state/real-usage-confidence-calibration.generated.json";
 const BEHAVIOR_MATH_VERIFICATION_PATH = "agent/state/behavior-math-verification.generated.json";
 const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generated.json";
+const DEBUG_SIGNAL_GROUPING_PATH = "agent/state/debug-signal-grouping.generated.json";
 const EVENT_TRANSLATION_BRIDGE_PATH = "agent/state/event-translation-bridge.generated.json";
 const PERSON_METRICS_HYDRATION_PATH = "agent/state/person-metrics-hydration.generated.json";
 const TELEMETRY_TRIGGER_TEST_MATRIX_PATH = "agent/state/telemetry-trigger-test-matrix.generated.json";
@@ -538,6 +540,26 @@ function readDebugRuntimeEvidence(root: string): PublicBetaEvidenceArtifact {
   );
 }
 
+function readNonEventScorePolicyEvidence(root: string) {
+  const parsed = readJsonFile(root, DEBUG_SIGNAL_GROUPING_PATH);
+  const groups = Array.isArray(parsed?.groups) ? parsed.groups : [];
+  return summarizeNonEventScorePolicy({
+    groups: groups.map((entry) => {
+      const record = readRecord(entry);
+      return {
+        groupId: readString(record.groupId) ?? "unknown-group",
+        actionability: (readString(record.actionability) ?? "not_actionable") as never,
+        count: readNumber(record.count) ?? 0,
+        estimatedPointImpact: readNumber(record.estimatedPointImpact),
+        scoreDimensionsAffected: Array.isArray(record.scoreDimensionsAffected)
+          ? record.scoreDimensionsAffected.filter((value): value is string => typeof value === "string")
+          : [],
+        rootCause: readString(record.rootCause),
+      };
+    }),
+  });
+}
+
 function readEventTranslationBridgeEvidence(root: string): PublicBetaEvidenceArtifact | null {
   const parsed = readJsonFile(root, EVENT_TRANSLATION_BRIDGE_PATH);
   if (!parsed) return null;
@@ -809,6 +831,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       runtimeSmokeEvidence: readRuntimeSmokeEvidence(root),
       adminTruthSampleEvidence: readAdminTruthSampleEvidence(root),
       costReadiness: buildScore80CostReadinessFromRepo(root).costReadiness,
+      nonEventScorePolicy: readNonEventScorePolicyEvidence(root),
       openPrTriageFresh: true,
     },
   });

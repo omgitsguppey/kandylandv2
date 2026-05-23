@@ -19,6 +19,12 @@ import {
   normalizeTechnicalFreshnessTerms,
 } from "./freshness-language";
 import { buildAlgorithmicEvidencePolicyReport } from "./algorithmic-evidence-policy";
+import {
+  buildBelowTargetDimensionExplanations,
+  summarizeNonEventScorePolicy,
+  type NonEventScorePolicySummary,
+  type ScoreDimensionExplanation,
+} from "./non-event-score-policy";
 import type { DebugEvidenceAuditSummary } from "../debug-evidence-contract";
 
 export type PublicBetaDomain = keyof typeof PUBLIC_BETA_DOMAIN_WEIGHTS;
@@ -173,6 +179,7 @@ export type PublicBetaEvidenceInput = {
   openPrTriageFresh?: boolean;
   runtimeCodeChangedSinceReport?: boolean;
   launchWarningCount?: number;
+  nonEventScorePolicy?: NonEventScorePolicySummary;
 };
 
 export type PublicBetaEvidenceGate = {
@@ -231,10 +238,15 @@ export type PublicBetaScoreReport = {
   freshnessScore: number;
   costRiskScore: number;
   regressionRiskScore: number;
+  quietFutureActivityCount: number;
+  actionableSignalGroupCount: number;
+  scoreDragSignalGroupCount: number;
+  nonEventScorePenaltyCount: number;
   launchGateStatus: PublicBetaLaunchGateStatus;
   launchBlockers: string[];
   healthScore: number;
   healthScoreBreakdown: PublicBetaHealthScoreBreakdown;
+  scoreDimensionExplanations: Record<PublicBetaHealthDimension | "overallHealthScore", ScoreDimensionExplanation>;
   scoreDeltaDrivers: string[];
   nuancedScoreExplanation: string[];
   overallScore: number;
@@ -1330,6 +1342,7 @@ export function buildPublicBetaScoreReport(
   });
   const costReadiness = options.evidence?.costReadiness ?? DEFAULT_COST_READINESS;
   const costScore = scoreCostReadiness(costReadiness);
+  const nonEventScorePolicy = options.evidence?.nonEventScorePolicy ?? summarizeNonEventScorePolicy();
   const regressionScore = scoreRegressionRisk({
     requiredReports: options.evidence?.requiredReports,
     runtimeCodeChangedSinceReport: options.evidence?.runtimeCodeChangedSinceReport,
@@ -1377,20 +1390,27 @@ export function buildPublicBetaScoreReport(
     runtimeHealth: {
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.runtimeHealth,
       score: runtimeHealthScore,
-      reasons: runtimeRequiredGates.map((gate) => `${gate.label} runtimeCredit=${gate.runtimeCredit}`),
+      reasons: [
+        ...runtimeRequiredGates.map((gate) => `${gate.label} runtimeCredit=${gate.runtimeCredit}`),
+        "Below-target runtime health reflects formal/runtime evidence requirements or broken connectivity, not future activity placeholders.",
+      ],
     },
     evidenceCompleteness: {
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.evidenceCompleteness,
       score: evidenceCompletenessScore,
       reasons: [
         "UI visual review is an operator-final checklist outside Codex score gates.",
+        "Quiet future activity does not reduce evidence completeness.",
         ...nonUiRequiredExitGates.map((gate) => `${gate.label} evidenceCredit=${gate.evidenceCredit}`),
       ],
     },
     freshness: {
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.freshness,
       score: freshnessScore,
-      reasons: evidenceReadiness.evidenceGates.map((gate) => `${gate.label} freshness=${gate.freshness}`),
+      reasons: [
+        ...evidenceReadiness.evidenceGates.map((gate) => `${gate.label} freshness=${gate.freshness}`),
+        "Freshness penalties apply to stale score-impacting artifacts only, not non-events.",
+      ],
     },
     costRisk: {
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.costRisk,
@@ -1400,12 +1420,26 @@ export function buildPublicBetaScoreReport(
     regressionRisk: {
       weight: PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS.regressionRisk,
       score: regressionRiskScore,
-      reasons: regressionScore.reasons.length > 0 ? regressionScore.reasons : ["No current regression freshness penalty."],
+      reasons: [
+        ...(regressionScore.reasons.length > 0 ? regressionScore.reasons : ["No current regression freshness penalty."]),
+        "Regression risk is based on stale/high-blast evidence, not future activity that has not happened.",
+      ],
     },
   };
   const healthScore = weightedHealthScore(healthScoreBreakdown);
   const launchCap = launchGateStatus === "launch_ready" ? 100 : capForReadinessStatus(evidenceReadiness.readinessStatus);
   const overallScore = roundScore(Math.min(healthScore, launchCap));
+  const scoreDimensionExplanations = buildBelowTargetDimensionExplanations({
+    metrics: {
+      sourceHealth: sourceHealthScore,
+      runtimeHealth: runtimeHealthScore,
+      evidenceCompleteness: evidenceCompletenessScore,
+      freshness: freshnessScore,
+      costRisk: costRiskScore,
+      regressionRisk: regressionRiskScore,
+      overallHealthScore: healthScore,
+    },
+  });
   const summaryStatus = readinessStatusToLegacyStatus(evidenceReadiness.readinessStatus, overallScore, criticalAutoFail);
   const scoreDeltaDrivers = [
     `sourceHealthScore=${sourceHealthScore}`,
@@ -1414,10 +1448,16 @@ export function buildPublicBetaScoreReport(
     `freshnessScore=${freshnessScore}`,
     `costRiskScore=${costRiskScore}`,
     `regressionRiskScore=${regressionRiskScore}`,
+    `quietFutureActivityCount=${nonEventScorePolicy.quietFutureActivityCount}`,
+    `actionableSignalGroupCount=${nonEventScorePolicy.actionableSignalGroupCount}`,
+    `scoreDragSignalGroupCount=${nonEventScorePolicy.scoreDragSignalGroupCount}`,
+    `nonEventScorePenaltyCount=${nonEventScorePolicy.nonEventScorePenaltyCount}`,
     launchBlockers.length > 0 ? `launchBlockers=${launchBlockers.length}` : "launchGates=clear",
   ];
   const nuancedScoreExplanation = [
     "Source-ready evidence earns source health credit without becoming runtime proof.",
+    "Future activity placeholders and source-ready lanes waiting for first real user events do not reduce score.",
+    "Debug signal score impact is counted from actionable groups, not raw quiet catalog rows.",
     "UI visual confirmation is handled outside Codex as an operator-final checklist and does not block source/debug/beta scoring.",
     "Formal provider, deployed runtime, and admin truth artifacts remain required for launch readiness.",
     "Outdated evidence, including reports generated before the latest code changes, decays freshness and raises regression risk instead of erasing source health.",
@@ -1446,10 +1486,15 @@ export function buildPublicBetaScoreReport(
     freshnessScore,
     costRiskScore,
     regressionRiskScore,
+    quietFutureActivityCount: nonEventScorePolicy.quietFutureActivityCount,
+    actionableSignalGroupCount: nonEventScorePolicy.actionableSignalGroupCount,
+    scoreDragSignalGroupCount: nonEventScorePolicy.scoreDragSignalGroupCount,
+    nonEventScorePenaltyCount: nonEventScorePolicy.nonEventScorePenaltyCount,
     launchGateStatus,
     launchBlockers,
     healthScore,
     healthScoreBreakdown,
+    scoreDimensionExplanations,
     scoreDeltaDrivers,
     nuancedScoreExplanation,
     overallScore,
