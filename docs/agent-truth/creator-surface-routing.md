@@ -9,8 +9,8 @@ Generated source: `agent/state/creator-surface-routing.generated.json`
 - `/dashboard` remains the normal user dashboard surface. Creator-role accounts redirect to `/dashboard/creator`; creators access user/library surfaces through explicit routes such as `/dashboard/library`, `/drops`, and `/experiences`.
 - `/dashboard/creator/settings` is Creator Settings / Creator Workspace. It owns broadcasts, requests, bookings, Fan Pass visibility, availability, earnings, and creator manager panels.
 - `/dashboard/creator/drops` is the creator drop management surface. Creators can submit Drops for admin approval here; it is not the user My KandyDrops library.
-- `/dashboard/settings` is user account settings only.
-- `/dashboard/profile` is profile and account identity only.
+- `/settings` is Account Settings and owns user account/privacy/security/support preferences.
+- `/dashboard/settings`, `/dashboard/profile`, `/profile/settings`, and `/account` are compatibility redirects to `/settings`.
 
 Creator operations must not detour through user settings or profile pages. User settings may show a creator migration card, but its CTA must point to Creator Settings.
 
@@ -18,7 +18,7 @@ Creator operations must not detour through user settings or profile pages. User 
 
 - Sidebar and profile dropdown label `/dashboard/creator` as `Creator Dashboard`.
 - Sidebar and profile dropdown label `/dashboard/creator/settings` as `Creator Settings`.
-- Sidebar and profile dropdown label `/dashboard/settings` as `Account Settings`; plain `Settings` is not a valid creator/account menu label.
+- Sidebar and profile dropdown label `/settings` as `Account Settings`; plain `Settings` is not a valid creator/account menu label.
 - The landing dashboard `Creator settings` pill points to `/dashboard/creator/settings`.
 - The landing dashboard drops CTA is labeled `Manage drops`, uses `data-create-drop-route-state="creator_submission"`, and points to `/dashboard/creator/drops`.
 - Legacy profile creator settings copy says `Creator settings now live in Creator Settings` and points to `/dashboard/creator/settings`.

@@ -109,7 +109,7 @@ export function buildHistoricalTrafficOverview(input: {
   const authenticatedPagePathFallbacks: Record<string, string> = {
     dashboard_viewed: "/dashboard",
     library_viewed: "/dashboard/library",
-    profile_settings_viewed: "/dashboard/profile",
+    profile_settings_viewed: "/settings",
     experience_hub_viewed: "/experiences",
     drops_page_viewed: "/drops",
     faq_page_viewed: "/faq",

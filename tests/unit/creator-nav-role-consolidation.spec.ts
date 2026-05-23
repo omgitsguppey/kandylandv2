@@ -38,7 +38,7 @@ describe("creator nav and role consolidation", () => {
 
     expect(routing).toContain('CREATOR_DASHBOARD_ROUTE = "/dashboard/creator"');
     expect(routing).toContain('CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings"');
-    expect(routing).toContain('USER_SETTINGS_ROUTE = "/dashboard/settings"');
+    expect(routing).toContain('USER_SETTINGS_ROUTE = "/settings"');
     expect(sidebar).toContain("href={CREATOR_DASHBOARD_ROUTE}");
     expect(sidebar).toContain("href={CREATOR_SETTINGS_ROUTE}");
     expect(sidebar).toContain("href={USER_SETTINGS_ROUTE}");
@@ -104,7 +104,8 @@ describe("creator nav and role consolidation", () => {
     expect(doc).toContain("| `/dashboard` | User dashboard surface |");
     expect(doc).toContain("| `/dashboard/creator` | Creator dashboard landing |");
     expect(doc).toContain("| `CREATOR_SETTINGS_ROUTE` | Creator settings/workspace |");
-    expect(doc).toContain("| `/dashboard/settings` | Account Settings |");
+    expect(doc).toContain("| `/settings` | Account Settings |");
+    expect(doc).toContain("| `/dashboard/settings`, `/dashboard/profile`, `/profile/settings`, `/account` | Account Settings redirects |");
     expect(doc).not.toMatch(/Creator Settings is the same as Account Settings/iu);
     expect(doc).not.toMatch(/creator dashboard includes user dashboard below it/iu);
   });

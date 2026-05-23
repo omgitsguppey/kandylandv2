@@ -127,14 +127,14 @@ export function buildCreatorNavRoleConsolidationReport(): CreatorNavRoleConsolid
   const routeMatrixCanonical = includesAll(routing, [
     'CREATOR_DASHBOARD_ROUTE = "/dashboard/creator"',
     'CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings"',
-    'USER_SETTINGS_ROUTE = "/dashboard/settings"',
-    'USER_PROFILE_ROUTE = "/dashboard/profile"',
+    'USER_SETTINGS_ROUTE = "/settings"',
+    'USER_PROFILE_ROUTE = "/settings"',
   ]) && includesAll(consolidationDoc, [
     "| `/dashboard` | User dashboard surface |",
     "| `/dashboard/creator` | Creator dashboard landing |",
     "| `CREATOR_SETTINGS_ROUTE` | Creator settings/workspace |",
-    "| `/dashboard/settings` | Account Settings |",
-    "| `/dashboard/profile` | Profile/account identity |",
+    "| `/settings` | Account Settings |",
+    "| `/dashboard/settings`, `/dashboard/profile`, `/profile/settings`, `/account` | Account Settings redirects |",
   ]);
   const staleDoctrineRemoved = !/Creator Settings is the same as Account Settings|creator dashboard includes user dashboard below it|public discovery visibility is creator dashboard content count truth/iu.test(docs)
     && !/raw user IDs are acceptable normal subscriber CRM labels/iu.test(docs);

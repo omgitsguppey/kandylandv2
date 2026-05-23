@@ -228,7 +228,7 @@ function applyPageSurface(summary: SessionSummary, pagePath: string) {
     summary.userSurfaces.add("library");
   }
 
-  if (pagePath.startsWith("/dashboard/profile")) {
+  if (pagePath.startsWith("/settings") || pagePath.startsWith("/dashboard/profile") || pagePath.startsWith("/dashboard/settings")) {
     summary.hasProfile = true;
     summary.userSurfaces.add("profile");
   }

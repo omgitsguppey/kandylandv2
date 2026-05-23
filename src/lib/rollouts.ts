@@ -309,7 +309,7 @@ function deriveRolloutSegments(identity: RolloutIdentity) {
     if (path.startsWith("/dashboard/library")) {
       segments.add("surface_library");
     }
-    if (path.startsWith("/dashboard/profile")) {
+    if (path.startsWith("/settings") || path.startsWith("/dashboard/profile") || path.startsWith("/dashboard/settings")) {
       segments.add("surface_profile");
     }
   }

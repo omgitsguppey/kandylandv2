@@ -1,13 +1,74 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.86",
-  "betaReleaseCounter": 386,
+  "currentVersion": "1.3.87",
+  "betaReleaseCounter": 387,
   "channel": "beta",
-  "generatedAt": "2026-05-23T00:30:41.000Z",
-  "generatedAtUtc": "2026-05-23T00:30:41.000Z",
+  "generatedAt": "2026-05-23T01:05:00.000Z",
+  "generatedAtUtc": "2026-05-23T01:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.87",
+      "previousVersion": "1.3.86",
+      "betaReleaseCounter": 387,
+      "previousBetaReleaseCounter": 386,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(settings): clean stale route aliases",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T01:05:00.000Z",
+      "generatedAt": "2026-05-23T01:05:00.000Z",
+      "committedAtUtc": "2026-05-23T01:05:00.000Z",
+      "generatedAtUtc": "2026-05-23T01:05:00.000Z",
+      "updatedAtUtc": "2026-05-23T01:05:00.000Z",
+      "category": "Fixed",
+      "title": "Settings route cleanup",
+      "summary": "Cleaned stale Settings route aliases and kept Account Settings and Creator Settings separated by canonical routes.",
+      "userFacingTitle": "Settings route cleanup",
+      "surfaceCategory": "Account & onboarding",
+      "bullets": [
+        "Cleaned stale Settings route aliases and redirects.",
+        "Separated Account Settings and Creator Settings routes.",
+        "Kept chat, navigation components, payment, and GumDrop logic unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical settings route contract, route-alias cleanup validator, generated evidence, and unit coverage while preserving existing settings control wiring, delete flow, padding, chat, navigation components, payment, wallet, PayPal, and GumDrop math."
+      ],
+      "affectedSurfaces": [
+        "Account Settings",
+        "Creator Settings",
+        "Privacy & security",
+        "Routing"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/settings-route-alias-cleanup.generated.json",
+        "docs/agent-truth/settings-route-alias-cleanup.md",
+        "docs/agent-truth/creator-nav-role-consolidation.md",
+        "docs/agent-truth/creator-surface-routing.md",
+        "docs/agent-truth/user-settings-surface.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-settings-creator-dashboard-split.ts",
+        "scripts/agent/validate-settings-route-alias-cleanup.ts",
+        "src/app/(legal)/privacy/page.tsx",
+        "src/app/dashboard/profile/page.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/creator-profile-routing.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/settings/settings-route-contract.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/settings-route-alias-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.86",
       "previousVersion": "1.3.85",
@@ -1417,58 +1478,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/server/privacy-consent.ts",
         "tests/unit/consent-tracking-contract.spec.ts",
         "tests/unit/privacy-consent.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.62",
-      "previousVersion": "1.3.61",
-      "betaReleaseCounter": 362,
-      "previousBetaReleaseCounter": 361,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): reconcile score 80 path",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T14:22:06.066Z",
-      "generatedAt": "2026-05-21T14:22:06.066Z",
-      "committedAtUtc": "2026-05-21T14:22:06.066Z",
-      "generatedAtUtc": "2026-05-21T14:22:06.066Z",
-      "updatedAtUtc": "2026-05-21T14:22:06.066Z",
-      "category": "Improved",
-      "title": "Score 80 reconciliation lock",
-      "summary": "Reconciled the score-80 path and ranked remaining blockers by true proof type.",
-      "userFacingTitle": "Score 80 reconciliation lock",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reconciled score-80 path after algorithmic evidence refinement.",
-        "Separated manual-only checks from algorithmic and runtime proof.",
-        "Ranked remaining score blockers by true proof type."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a score-80 reconciliation lock report, validator, and unit coverage without clearing formal beta gates."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Beta scoring",
-        "Debug evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/score-80-reconciliation-lock.generated.json",
-        "docs/agent-truth/score-80-reconciliation-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-score-80-reconciliation-lock.ts",
-        "src/lib/agent-score/score-80-reconciliation-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/score-80-reconciliation-lock.spec.ts",
-        "src/lib/agent-score/self-healing-refresh-queue.ts",
-        "tests/unit/self-healing-refresh-queue.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

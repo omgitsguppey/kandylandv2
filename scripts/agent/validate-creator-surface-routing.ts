@@ -20,7 +20,7 @@ export type CreatorSurfaceRoutingReport = {
   summary: {
     baseDashboardRoute: "/dashboard/creator";
     creatorSettingsRoute: "/dashboard/creator/settings";
-    userSettingsRoute: "/dashboard/settings";
+    userSettingsRoute: "/settings";
     sidebarRoutesChecked: boolean;
     navPillsChecked: boolean;
     rawErrorLeaks: number;
@@ -113,8 +113,8 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     'CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings"',
     'CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"',
     'CREATOR_DROP_ROUTE_STATE = "creator_submission"',
-    'USER_SETTINGS_ROUTE = "/dashboard/settings"',
-    'USER_PROFILE_ROUTE = "/dashboard/profile"',
+    'USER_SETTINGS_ROUTE = "/settings"',
+    'USER_PROFILE_ROUTE = "/settings"',
   ]));
 
   add(navigationFindings, {
@@ -236,7 +236,7 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     summary: {
       baseDashboardRoute: "/dashboard/creator",
       creatorSettingsRoute: "/dashboard/creator/settings",
-      userSettingsRoute: "/dashboard/settings",
+      userSettingsRoute: "/settings",
       sidebarRoutesChecked: navigationFindings.some((finding) => finding.id === "sidebar-separate-routes"),
       navPillsChecked: navigationFindings.some((finding) => finding.id === "base-dashboard-settings-pill"),
       rawErrorLeaks,

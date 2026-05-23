@@ -1,11 +1,11 @@
 {
-  "generatedAtUtc": "2026-05-20T04:13:46.674Z",
+  "generatedAtUtc": "2026-05-23T01:11:53.495Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "984b3d538b7f19013e297257f62ada0420044e14",
+  "currentHead": "17353b5ca414da32c9fa3bca2abc005fe483aa2c",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",
-    "userSettingsRoute": "/dashboard/settings",
+    "userSettingsRoute": "/settings",
     "sidebarRoutesChecked": true,
     "navPillsChecked": true,
     "rawErrorLeaks": 0,

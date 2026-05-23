@@ -69,7 +69,7 @@ export default function PrivacyPage() {
                 <FileText className="h-4 w-4 text-brand-purple" />
                 User controls
               </div>
-              <p className="text-xs leading-6 text-gray-400">Profile Settings lets you withdraw optional analytics consent, download your data, and manage notification choices.</p>
+              <p className="text-xs leading-6 text-gray-400">Account Settings lets you withdraw optional analytics consent, download your data, and manage notification choices.</p>
             </div>
             <div className="rounded-[1.3rem] border border-white/10 bg-black/25 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
@@ -125,7 +125,7 @@ export default function PrivacyPage() {
             Some processing is necessary to provide the service you request, such as authentication, core security, payment verification, and required session storage.
           </p>
           <p>
-            Optional analytics and recommendation features rely on your choices. KandyDrops keeps those settings separated by purpose inside Profile Settings so consent can be specific and easy to change.
+            Optional analytics and recommendation features rely on your choices. KandyDrops keeps those settings separated by purpose inside Account Settings so consent can be specific and easy to change.
           </p>
           <ul className="list-disc space-y-2 pl-5">
             <li><strong>Anonymous product analytics:</strong> optional and off until you enable it.</li>
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
             <li><strong>Global Privacy Control:</strong> if enabled in your browser and honored in settings, KandyDrops turns off optional analytics automatically.</li>
           </ul>
           <p>
-            You can withdraw optional consent at any time in <Link href="/dashboard/profile" className="text-brand-purple hover:underline">Profile Settings</Link>. Withdrawing consent does not turn off strictly necessary security and service-storage functions.
+            You can withdraw optional consent at any time in <Link href="/settings" className="text-brand-purple hover:underline">Account Settings</Link>. Withdrawing consent does not turn off strictly necessary security and service-storage functions.
           </p>
         </Section>
 
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
 
         <Section title="8. Your rights and choices">
           <ul className="list-disc space-y-2 pl-5">
-            <li><strong>Access and portability:</strong> use the &ldquo;Download My Data&rdquo; action in Profile Settings.</li>
+            <li><strong>Access and portability:</strong> use the &ldquo;Download My Data&rdquo; action in Account Settings.</li>
             <li><strong>Correction:</strong> update your profile details and settings from your dashboard.</li>
             <li><strong>Withdrawal of consent:</strong> turn off optional analytics or recommendation settings at any time.</li>
             <li><strong>Deletion:</strong> use the account deletion flow in the dashboard, or contact support if you cannot access your account.</li>
@@ -203,8 +203,8 @@ export default function PrivacyPage() {
           <p>
             Operational pages:
             {" "}
-            <Link href="/dashboard/profile" className="text-brand-purple hover:underline">
-              Profile Settings
+            <Link href="/settings" className="text-brand-purple hover:underline">
+              Account Settings
             </Link>
             {" | "}
             <Link href="/faq" className="text-brand-purple hover:underline">

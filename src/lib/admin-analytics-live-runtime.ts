@@ -168,7 +168,7 @@ function describePathLabel(path: string) {
   if (!path || path === "/") return "Home";
   if (path.startsWith("/dashboard/viewer")) return "Viewer";
   if (path.startsWith("/dashboard/library")) return "Library";
-  if (path.startsWith("/dashboard/profile")) return "Profile";
+  if (path.startsWith("/settings") || path.startsWith("/dashboard/profile") || path.startsWith("/dashboard/settings")) return "Account Settings";
   if (path.startsWith("/dashboard")) return "Dashboard";
   if (path.startsWith("/drops")) return "Drops";
   if (path.startsWith("/experiences")) return "Experiences";

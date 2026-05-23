@@ -1,0 +1,81 @@
+{
+  "generatedAtUtc": "2026-05-23T01:14:18.735Z",
+  "reportKey": "settings-route-alias-cleanup",
+  "status": "pass",
+  "currentHead": "17353b5ca414da32c9fa3bca2abc005fe483aa2c",
+  "canonicalRouteTable": {
+    "accountSettingsRoute": "/settings",
+    "creatorSettingsRoute": "/dashboard/creator/settings",
+    "userProfileRoute": "/settings",
+    "creatorDashboardRoute": "/dashboard/creator",
+    "creatorDropManagerRoute": "/dashboard/creator/drops",
+    "publicCreatorProfileRoutePattern": "/creators/[username]"
+  },
+  "redirectAliases": {
+    "accountSettings": [
+      "/dashboard/settings",
+      "/dashboard/profile",
+      "/profile/settings",
+      "/account"
+    ],
+    "creatorDashboard": [
+      "/creator",
+      "/creators/dashboard"
+    ],
+    "creatorSettingsMigration": [
+      "/dashboard/profile/creator"
+    ]
+  },
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/creator-surface-routing.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/settings-creator-dashboard-split.generated.json",
+    "agent/state/settings-route-alias-cleanup.generated.json",
+    "docs/agent-truth/creator-nav-role-consolidation.md",
+    "docs/agent-truth/creator-surface-routing.md",
+    "docs/agent-truth/settings-route-alias-cleanup.md",
+    "docs/agent-truth/user-settings-surface.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "scripts/agent/validate-creator-nav-role-consolidation.ts",
+    "scripts/agent/validate-creator-surface-routing.ts",
+    "scripts/agent/validate-settings-creator-dashboard-split.ts",
+    "scripts/agent/validate-settings-route-alias-cleanup.ts",
+    "scripts/agent/validate-user-creator-logic-cleanup.ts",
+    "src/app/(legal)/privacy/page.tsx",
+    "src/app/dashboard/profile/page.tsx",
+    "src/lib/admin-analytics-live-runtime.ts",
+    "src/lib/analytics-semantics.ts",
+    "src/lib/creator-profile-routing.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/rollouts.ts",
+    "src/lib/server/admin-analytics-context.ts",
+    "src/lib/server/admin-analytics-historical-traffic.ts",
+    "src/lib/server/analytics-metrics.ts",
+    "src/lib/settings/settings-route-contract.ts",
+    "src/lib/settings/settings-surface-contract.ts",
+    "src/lib/telemetry-catalog.ts",
+    "tests/unit/creator-nav-role-consolidation.spec.ts",
+    "tests/unit/settings-route-alias-cleanup.spec.ts",
+    "tests/unit/user-creator-logic-cleanup.spec.ts"
+  ],
+  "protectedChanges": [],
+  "checks": {
+    "packageScriptPresent": true,
+    "routeTableCanonical": true,
+    "routeConstantsCanonical": true,
+    "accountSettingsCanonicalOnly": true,
+    "accountAliasesRedirect": true,
+    "creatorAliasesStayCreator": true,
+    "creatorSettingsSeparated": true,
+    "legacyCreatorProfileSettingsExplained": true,
+    "labelsUnambiguous": true,
+    "featureRegistrationIncludesCanonicalAndAliases": true,
+    "splitValidatorUpdated": true,
+    "publicCreatorProfileRoutePresent": true,
+    "protectedSurfacesUntouched": true
+  },
+  "validationFailures": []
+}

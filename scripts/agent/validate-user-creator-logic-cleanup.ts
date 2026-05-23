@@ -166,7 +166,7 @@ export function buildUserCreatorLogicCleanupReport(): UserCreatorLogicCleanupRep
     'CREATOR_DASHBOARD_ROUTE = "/dashboard/creator"',
     'CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings"',
     'CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"',
-    'USER_SETTINGS_ROUTE = "/dashboard/settings"',
+    'USER_SETTINGS_ROUTE = "/settings"',
     'USER_LIBRARY_ROUTE = "/dashboard/library"',
   ]) && !/CREATOR_DROP_MANAGE_ROUTE = "\/dashboard\/library"/u.test(routing);
   const surfaceGatesNormalized = includesAll(creatorSurface, [

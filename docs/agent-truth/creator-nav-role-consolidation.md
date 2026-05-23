@@ -10,8 +10,8 @@ Validator: `npm run check:creator-nav-role-consolidation`
 | `/dashboard` | User dashboard surface | Normal users see Daily Check-In, Creator Spotlight, Recent Activity, My KandyDrops, and library modules. Creator-role accounts redirect to `/dashboard/creator` instead of stacking both dashboards. |
 | `/dashboard/creator` | Creator dashboard landing | Creator operations landing only. It must not render user reward, discovery, activity, shop, library, Owned/Locked, or locked drop modules below the creator body. |
 | `CREATOR_SETTINGS_ROUTE` | Creator settings/workspace | Canonical value is `/dashboard/creator/settings`; it owns creator operations settings, Fan Pass visibility, broadcasts, requests, bookings, availability, and earnings controls. |
-| `/dashboard/settings` | Account Settings | User/account settings surface only. It is distinct from Creator Settings and must be labeled `Account Settings` in account menus. |
-| `/dashboard/profile` | Profile/account identity | Profile identity and account-facing profile state only; creator operations should link onward to Creator Settings. |
+| `/settings` | Account Settings | User/account settings surface only. It is distinct from Creator Settings and must be labeled `Account Settings` in account menus. |
+| `/dashboard/settings`, `/dashboard/profile`, `/profile/settings`, `/account` | Account Settings redirects | Compatibility aliases only; visible account links should use `/settings`. |
 | `/dashboard/library` | User library/manage drops surface | Explicit user/library route for creators who need to manage or inspect their own KandyDrops. It is not embedded below Creator Dashboard. |
 | `/drops` | Public/user drop discovery | Fan-facing discovery and unlock surface. It does not define creator dashboard content ownership. |
 
@@ -21,7 +21,7 @@ Creator accounts can access creator operations and user/shop/drop/library surfac
 
 - Creator Dashboard nav points to `CREATOR_DASHBOARD_ROUTE` and labels that route `Creator Dashboard`.
 - Creator Settings nav points to `CREATOR_SETTINGS_ROUTE` and labels that route `Creator Settings`.
-- Account Settings nav points to `USER_SETTINGS_ROUTE` and labels that route `Account Settings`.
+- Account Settings nav points to `USER_SETTINGS_ROUTE` (`/settings`) and labels that route `Account Settings`.
 - Plain `Settings` is ambiguous and blocked for account or creator menu items.
 - Old aliases may redirect for compatibility, but visible nav should not show duplicate settings destinations.
 - Bottom nav Dashboard for creator-role accounts points to `/dashboard/creator`; normal user Dashboard remains `/dashboard`.

@@ -2,7 +2,7 @@
 
 Status: launch-hardening truth note
 
-Global User Settings owns account and app preferences only.
+Global Account Settings lives at `/settings` and owns account and app preferences only.
 
 Allowed sections:
 
@@ -28,4 +28,4 @@ Telemetry:
 Validation:
 
 - Creator tools are blocked from global user settings.
-- Settings navigation must point creators to the Creator Dashboard for creator operations.
+- Settings navigation must point users to `/settings` for Account Settings and creators to Creator Settings for creator operations.

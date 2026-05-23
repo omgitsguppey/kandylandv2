@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.87 - 2026-05-23
+- Settings route cleanup
+- Cleaned stale Settings route aliases and redirects.
+- Separated Account Settings and Creator Settings routes.
+- Kept chat, navigation components, payment, and GumDrop logic unchanged.
+
 ## 1.3.86 - 2026-05-23
 - Account and Creator Settings parity
 - Connected Account Settings and Creator Settings to backend state and telemetry.

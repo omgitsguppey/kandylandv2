@@ -262,7 +262,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "library_viewed", label: "Library viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content", "navigation"] },
     { eventName: "user_settings_viewed", label: "User settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
     { eventName: "user_settings_creator_tools_cta_clicked", label: "User settings creator tools CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
-    { eventName: "profile_settings_viewed", label: "Profile settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["user_settings_viewed"] },
+    { eventName: "profile_settings_viewed", label: "Account settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["user_settings_viewed"] },
   { eventName: "settings_surface_viewed", label: "Settings surface viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "setting_toggle_changed", label: "Setting toggle changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "setting_action_clicked", label: "Setting action clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },

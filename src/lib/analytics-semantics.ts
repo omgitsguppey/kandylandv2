@@ -145,7 +145,7 @@ const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
   terms_page_viewed: "/terms",
     dashboard_viewed: "/dashboard",
     library_viewed: "/dashboard/library",
-    profile_settings_viewed: "/dashboard/profile",
+    profile_settings_viewed: "/settings",
     support_inbox_viewed: "/dashboard/support",
     experience_hub_viewed: "/experiences",
   drops_page_viewed: "/drops",
@@ -259,13 +259,13 @@ function buildScopeDescriptor(pagePath: string, dropId?: string, dropCategory?: 
     };
   }
 
-  if (pagePath.startsWith("/dashboard/profile")) {
+  if (pagePath.startsWith("/settings") || pagePath.startsWith("/dashboard/profile")) {
     return {
       category: "user" as const,
-      scopeKey: "user_profile",
-      scopeLabel: "Profile settings",
-      surfaceKey: "user:profile",
-      surfaceLabel: "Profile settings",
+      scopeKey: "account_settings",
+      scopeLabel: "Account Settings",
+      surfaceKey: "user:account_settings",
+      surfaceLabel: "Account Settings",
     };
   }
 

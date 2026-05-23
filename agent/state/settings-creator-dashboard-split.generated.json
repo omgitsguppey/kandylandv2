@@ -1,10 +1,17 @@
 {
-  "generatedAt": "2026-05-15T13:27:56.342Z",
+  "generatedAt": "2026-05-23T01:14:26.620Z",
   "status": "pass",
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastSettingsCreatorDashboardSplit": [
-    "agent/state/settings-creator-dashboard-split.generated.json"
+    "agent/state/settings-creator-dashboard-split.generated.json",
+    "docs/agent-truth/user-settings-surface.md",
+    "package.json",
+    "scripts/agent/validate-settings-creator-dashboard-split.ts",
+    "src/app/dashboard/profile/page.tsx",
+    "src/lib/settings/settings-surface-contract.ts",
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/settings/settings-route-contract.ts"
   ],
   "requiredTargetedChecks": [
     "npm run check:settings-creator-dashboard-split",

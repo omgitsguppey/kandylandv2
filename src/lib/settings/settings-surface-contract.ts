@@ -51,7 +51,7 @@ export const SETTINGS_DEBUG_LANE = {
 } as const;
 
 const accountSource = {
-  routeSource: "/settings, /dashboard/settings, /dashboard/profile",
+  routeSource: "/settings with /dashboard/settings, /dashboard/profile, /profile/settings, and /account redirect aliases",
   componentSource: "src/components/Settings/UserSettingsPage.tsx",
   backendRouteOrAction: "/api/user/profile",
   stateSource: "users/{uid}",

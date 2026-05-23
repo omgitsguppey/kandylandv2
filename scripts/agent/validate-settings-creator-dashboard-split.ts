@@ -46,6 +46,7 @@ const files = {
   creatorSubscriptionsRoute: join(repoRoot, "src", "app", "api", "creator", "subscriptions", "route.ts"),
   profileSidebar: join(repoRoot, "src", "components", "Navigation", "ProfileSidebar.tsx"),
   profileDropdown: join(repoRoot, "src", "components", "Navigation", "ProfileDropdown.tsx"),
+  routing: join(repoRoot, "src", "lib", "creator-profile-routing.ts"),
   telemetryCatalog: join(repoRoot, "src", "lib", "telemetry-catalog.ts"),
   settingsDoc: join(repoRoot, "docs", "agent-truth", "user-settings-surface.md"),
   creatorDashboardDoc: join(repoRoot, "docs", "agent-truth", "creator-dashboard-settings.md"),
@@ -57,6 +58,7 @@ const files = {
   creatorDoctrine: join(repoRoot, "docs", "doctrine", "surfaces", "creator-ui-doctrine.md"),
   migrationPage: join(repoRoot, "src", "app", "dashboard", "profile", "creator", "page.tsx"),
   dashboardSettingsRedirect: join(repoRoot, "src", "app", "dashboard", "settings", "page.tsx"),
+  dashboardProfileRedirect: join(repoRoot, "src", "app", "dashboard", "profile", "page.tsx"),
   accountRedirect: join(repoRoot, "src", "app", "account", "page.tsx"),
   profileSettingsRedirect: join(repoRoot, "src", "app", "profile", "settings", "page.tsx"),
   creatorRedirect: join(repoRoot, "src", "app", "creator", "page.tsx"),
@@ -142,6 +144,7 @@ function validate(): SplitReport {
   const creatorSubscriptionsRoute = read(files.creatorSubscriptionsRoute);
   const profileSidebar = read(files.profileSidebar);
   const profileDropdown = read(files.profileDropdown);
+  const routing = read(files.routing);
   const telemetryCatalog = read(files.telemetryCatalog);
   const settingsDoc = read(files.settingsDoc);
   const creatorDashboardDoc = read(files.creatorDashboardDoc);
@@ -303,7 +306,7 @@ function validate(): SplitReport {
       ]) && includesAll(creatorBroadcastRoute, [
         "where(\"creatorId\", \"==\", creatorId)",
         "buildAdminCreatorProjectionReadOnlyResponse",
-        "status: \"sent\"",
+        "buildCreatorBroadcastSourceRecord",
       ]),
       evidence: ["Broadcast manager renders real collection state and the route writes live broadcast records."],
     },
@@ -326,10 +329,12 @@ function validate(): SplitReport {
         "Creator settings now live in Creator Settings.",
         "href={CREATOR_SETTINGS_ROUTE}",
       ]) && includesAll(creatorSettingsWorkspacePage, ["CreatorDashboardSettingsHub"])
-        && includesAll(creatorDashboardLanding, ["CreatorDashboardLandingRoute", "CREATOR_SETTINGS_ROUTE"])
-        && includesAll(profileSidebar, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "/settings"])
-        && includesAll(profileDropdown, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "/settings"])
+        && includesAll(creatorDashboardLanding, ["CreatorDashboardLandingRoute"])
+        && includesAll(routing, ['USER_SETTINGS_ROUTE = "/settings"', 'USER_PROFILE_ROUTE = "/settings"'])
+        && includesAll(profileSidebar, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "USER_SETTINGS_ROUTE"])
+        && includesAll(profileDropdown, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "USER_SETTINGS_ROUTE"])
         && includesAll(read(files.dashboardSettingsRedirect), ["redirect(\"/settings\")"])
+        && includesAll(read(files.dashboardProfileRedirect), ["redirect(\"/settings\")"])
         && includesAll(read(files.accountRedirect), ["redirect(\"/settings\")"])
         && includesAll(read(files.profileSettingsRedirect), ["redirect(\"/settings\")"])
         && includesAll(read(files.creatorRedirect), ["redirect(\"/dashboard/creator\")"])
