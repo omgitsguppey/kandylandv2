@@ -367,6 +367,15 @@ export function CreatorDashboardSettingsHub() {
       source_component: "CreatorDashboardSettingsHub",
       truth_state: settings?.projection?.readOnly ? "blocked" : "live",
     });
+    trackEvent("settings_surface_viewed", {
+      actor_role: userProfile?.role || "creator",
+      creator_id: creatorId,
+      target_creator_id: creatorId,
+      section: "creator",
+      settings_surface: "creator",
+      source_component: "CreatorDashboardSettingsHub",
+      truth_state: settings?.projection?.readOnly ? "blocked" : "source_ready",
+    });
   }, [creatorId, isCreatorOrProjection, settings?.projection?.readOnly, userProfile?.role]);
 
   const stats = settings?.stats ?? null;
@@ -469,6 +478,17 @@ export function CreatorDashboardSettingsHub() {
           ? body.errors.join(" ")
           : body.message || "Creator settings could not be saved.";
         setSettingsSaveError(message);
+        trackEvent("setting_save_failed", {
+          actor_role: userProfile?.role || "creator",
+          creator_id: creatorId,
+          target_creator_id: creatorId,
+          setting_id: section,
+          settings_surface: "creator",
+          section,
+          source_component: "CreatorDashboardSettingsHub",
+          truth_state: "source_ready",
+          failure_code: `http_${response.status}`,
+        });
         return;
       }
 
@@ -485,8 +505,39 @@ export function CreatorDashboardSettingsHub() {
         source_component: "CreatorDashboardSettingsHub",
         truth_state: "creator_settings_doc",
       });
+      trackEvent("creator_setting_updated", {
+        actor_role: userProfile?.role || "creator",
+        creator_id: creatorId,
+        target_creator_id: creatorId,
+        setting_id: section,
+        settings_surface: "creator",
+        section,
+        source_component: "CreatorDashboardSettingsHub",
+        truth_state: "creator_settings_doc",
+      });
+      trackEvent("setting_save_succeeded", {
+        actor_role: userProfile?.role || "creator",
+        creator_id: creatorId,
+        target_creator_id: creatorId,
+        setting_id: section,
+        settings_surface: "creator",
+        section,
+        source_component: "CreatorDashboardSettingsHub",
+        truth_state: "creator_settings_doc",
+      });
     } catch {
       setSettingsSaveError("Creator settings could not be saved. Try again.");
+      trackEvent("setting_save_failed", {
+        actor_role: userProfile?.role || "creator",
+        creator_id: creatorId,
+        target_creator_id: creatorId,
+        setting_id: section,
+        settings_surface: "creator",
+        section,
+        source_component: "CreatorDashboardSettingsHub",
+        truth_state: "source_ready",
+        failure_code: "network_or_unknown",
+      });
     } finally {
       setSavingSection(null);
     }

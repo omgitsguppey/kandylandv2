@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.86 - 2026-05-23
+- Account and Creator Settings parity
+- Connected Account Settings and Creator Settings to backend state and telemetry.
+- Cleaned up stale/conflicting settings logic.
+- Aligned Account Settings mobile padding with the app shell.
+
 ## 1.3.85 - 2026-05-22
 - Account settings delete flow
 - Added safe bottom spacing for Account Settings on mobile.

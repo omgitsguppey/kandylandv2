@@ -396,6 +396,8 @@
         "check:chat-paid-gumdrops-guidance": "tsx scripts/agent/validate-chat-paid-gumdrops-guidance.ts",
         "check:chat-composer-modal-lift": "tsx scripts/agent/validate-chat-composer-modal-lift.ts",
         "check:account-settings-delete-flow": "tsx scripts/agent/validate-account-settings-delete-flow.ts",
+        "check:settings-connection-parity": "tsx scripts/agent/validate-settings-connection-parity.ts",
+        "check:account-settings-mobile-padding": "tsx scripts/agent/validate-account-settings-mobile-padding.ts",
         "check:admin-cms-workflow": "tsx scripts/agent/validate-admin-cms-workflow.ts",
         "check:event-catalog-telemetry": "tsx scripts/agent/validate-event-catalog-telemetry.ts",
         "check:support-recovery-flows": "tsx scripts/agent/validate-support-recovery-flows.ts",

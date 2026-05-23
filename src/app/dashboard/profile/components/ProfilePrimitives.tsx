@@ -45,7 +45,7 @@ export function NavigationRow({
     
     if (href) {
         // @ts-ignore
-        return <Link href={href} className={className}>{ComponentContent}</Link>;
+        return <Link href={href} onClick={onClick} className={className}>{ComponentContent}</Link>;
     }
     return <button type="button" onClick={onClick} className={className}>{ComponentContent}</button>;
 }

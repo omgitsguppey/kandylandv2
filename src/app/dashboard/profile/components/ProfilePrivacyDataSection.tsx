@@ -3,6 +3,7 @@ import { SectionContainer, NavigationRow, ToggleRow, StaticRow, RowDivider } fro
 import type { ProfileState } from '../profile-page-types';
 import { Loader2, ShieldAlert, Download, Lock, FileText } from "lucide-react";
 import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/platform-config";
+import { trackEvent } from "@/lib/telemetry";
 
 export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
     const {
@@ -26,6 +27,31 @@ export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
         updateCreatorSettingsState, setCreatorSettingsState
     } = state;
     const isReadOnlyProjection = state.isCreatorProjectionActive;
+    const trackPrivacySetting = (settingId: string, value?: boolean) => {
+        trackEvent("setting_toggle_changed", {
+            setting_id: settingId,
+            actor_role: userProfile?.role || "user",
+            creator_id: userProfile?.uid || "",
+            target_creator_id: userProfile?.uid || "",
+            settings_surface: "privacy",
+            section: "privacy_data",
+            source_component: "ProfilePrivacyDataSection",
+            truth_state: "source_ready",
+            value: value === undefined ? "action" : String(value),
+        });
+    };
+    const trackPrivacyAction = (settingId: string) => {
+        trackEvent("setting_action_clicked", {
+            setting_id: settingId,
+            actor_role: userProfile?.role || "user",
+            creator_id: userProfile?.uid || "",
+            target_creator_id: userProfile?.uid || "",
+            settings_surface: "privacy",
+            section: "privacy_data",
+            source_component: "ProfilePrivacyDataSection",
+            truth_state: "source_ready",
+        });
+    };
 
     return (
         <SectionContainer title="Privacy & Data">
@@ -49,6 +75,7 @@ export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
                             if (isReadOnlyProjection) {
                                 return;
                             }
+                            trackPrivacySetting("anonymous_analytics", value);
                             updateForm("anonymousAnalyticsEnabled", value);
                             if (!value) {
                                 updateForm("identifiedAnalyticsEnabled", false);
@@ -65,6 +92,7 @@ export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
                             if (isReadOnlyProjection) {
                                 return;
                             }
+                            trackPrivacySetting("account_linked_analytics", value);
                             updateForm("identifiedAnalyticsEnabled", value);
                             if (value) updateForm("anonymousAnalyticsEnabled", true);
                             else updateForm("allowRecommendations", false);
@@ -79,6 +107,7 @@ export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
                             if (isReadOnlyProjection) {
                                 return;
                             }
+                            trackPrivacySetting("activity_recommendations", value);
                             updateForm("allowRecommendations", value);
                             if (value) {
                                 updateForm("anonymousAnalyticsEnabled", true);
@@ -95,6 +124,7 @@ export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
                             if (isReadOnlyProjection) {
                                 return;
                             }
+                            trackPrivacySetting("honor_global_privacy_control", value);
                             updateForm("honorGlobalPrivacyControl", value);
                         }}
                         badge={browserGpcEnabled ? "Detected" : undefined}
@@ -109,6 +139,7 @@ export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
                             if (isReadOnlyProjection) {
                                 return;
                             }
+                            trackPrivacyAction("essential_only_mode");
                             void handleWithdrawOptionalTracking();
                         }}
                     />
@@ -117,7 +148,10 @@ export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
                         label="Download My Data"
                         description="Export your account data securely as JSON."
                         icon={isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                        onClick={handleDownloadData}
+                        onClick={() => {
+                            trackPrivacyAction("download_my_data");
+                            void handleDownloadData();
+                        }}
                     />
                     <RowDivider />
                     <NavigationRow
@@ -125,6 +159,7 @@ export function ProfilePrivacyDataSection({ state }: { state: ProfileState }) {
                         description={`Last updated: ${PRIVACY_POLICY_LAST_UPDATED}`}
                         icon={<FileText className="w-4 h-4" />}
                         href="/privacy"
+                        onClick={() => trackPrivacyAction("privacy_policy")}
                     />
                 </SectionContainer>
     );

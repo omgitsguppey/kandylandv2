@@ -1,11 +1,80 @@
 {
-  "currentVersion": "1.3.85",
-  "betaReleaseCounter": 385,
+  "currentVersion": "1.3.86",
+  "betaReleaseCounter": 386,
   "channel": "beta",
-  "generatedAt": "2026-05-22T23:55:00.000Z",
-  "generatedAtUtc": "2026-05-22T23:55:00.000Z",
+  "generatedAt": "2026-05-23T00:30:41.000Z",
+  "generatedAtUtc": "2026-05-23T00:30:41.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.86",
+      "previousVersion": "1.3.85",
+      "betaReleaseCounter": 386,
+      "previousBetaReleaseCounter": 385,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(settings): finalize account creator parity",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T00:30:41.000Z",
+      "generatedAt": "2026-05-23T00:30:41.000Z",
+      "committedAtUtc": "2026-05-23T00:30:41.000Z",
+      "generatedAtUtc": "2026-05-23T00:30:41.000Z",
+      "updatedAtUtc": "2026-05-23T00:30:41.000Z",
+      "category": "Fixed",
+      "title": "Account and Creator Settings parity",
+      "summary": "Connected Account Settings and Creator Settings to backend state, telemetry, debug visibility, and shell-aligned mobile spacing.",
+      "userFacingTitle": "Account and Creator Settings parity",
+      "surfaceCategory": "Account & onboarding",
+      "bullets": [
+        "Connected Account Settings and Creator Settings to backend state and telemetry.",
+        "Cleaned up stale/conflicting settings logic.",
+        "Aligned Account Settings mobile padding with the app shell."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical settings surface contract, settings connection and mobile padding validators, generated evidence, unit coverage, and a single Settings connection health debug lane without touching chat, top nav, bottom nav, payment, wallet, PayPal, GumDrop math, booking attribution math, or Firebase rules."
+      ],
+      "affectedSurfaces": [
+        "Account Settings",
+        "Creator Settings",
+        "Privacy & security",
+        "Mobile UI",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/account-settings-mobile-padding.generated.json",
+        "agent/state/settings-connection-parity.generated.json",
+        "docs/agent-truth/account-settings-mobile-padding.md",
+        "docs/agent-truth/settings-connection-parity.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-account-settings-mobile-padding.ts",
+        "scripts/agent/validate-settings-connection-parity.ts",
+        "scripts/rewrite_profile_page.py",
+        "scripts/shred_profile.py",
+        "scripts/shred_profile_components.py",
+        "src/app/dashboard/profile/components/ProfileNotificationsSection.tsx",
+        "src/app/dashboard/profile/components/ProfilePrimitives.tsx",
+        "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+        "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+        "src/app/dashboard/profile/hooks/useProfileState.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Settings/UserSettingsPage.tsx",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/telemetry.ts",
+        "tests/unit/account-settings-mobile-padding.spec.ts",
+        "tests/unit/settings-connection-parity.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.85",
       "previousVersion": "1.3.84",
@@ -1398,363 +1467,6 @@
         "tests/unit/score-80-reconciliation-lock.spec.ts",
         "src/lib/agent-score/self-healing-refresh-queue.ts",
         "tests/unit/self-healing-refresh-queue.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.61",
-      "previousVersion": "1.3.60",
-      "betaReleaseCounter": 361,
-      "previousBetaReleaseCounter": 360,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(runtime): map smoke substitutes",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T14:06:44.755Z",
-      "generatedAt": "2026-05-21T14:06:44.755Z",
-      "committedAtUtc": "2026-05-21T14:06:44.755Z",
-      "generatedAtUtc": "2026-05-21T14:06:44.755Z",
-      "updatedAtUtc": "2026-05-21T14:06:44.755Z",
-      "category": "Improved",
-      "title": "Runtime smoke substitute matrix",
-      "summary": "Mapped runtime smoke checks to source, debug, telemetry, manual, and formal evidence lanes.",
-      "userFacingTitle": "Runtime smoke substitute matrix",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Mapped runtime smoke checks to source, debug, telemetry, manual, and formal evidence lanes.",
-        "Reduced manual testing scope to rows that need UI or deployed runtime confirmation.",
-        "Kept deployed runtime smoke as a formal gate until a real artifact exists."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the runtime smoke substitute matrix report, validator, beta score integration, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Beta scoring",
-        "Runtime evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/algorithmic-evidence-policy.generated.json",
-        "agent/state/creator-drop-status-metrics.generated.json",
-        "agent/state/debug-panel-output-triage.generated.json",
-        "agent/state/debug-runtime-evidence.generated.json",
-        "agent/state/final-telemetry-closure-lock.generated.json",
-        "agent/state/mobile-loading-hydration-stability.generated.json",
-        "agent/state/operator-revenue-smoke.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/real-usage-confidence-calibration.generated.json",
-        "agent/state/runtime-smoke-substitute-matrix.generated.json",
-        "agent/state/runtime-watch-time-v2.generated.json",
-        "agent/state/source-backed-runtime-confidence.generated.json",
-        "agent/state/telemetry-admin-debug-truth.generated.json",
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-        "docs/agent-truth/algorithmic-evidence-policy.md",
-        "docs/agent-truth/creator-drop-status-metrics.md",
-        "docs/agent-truth/debug-runtime-evidence.md",
-        "docs/agent-truth/final-telemetry-closure-lock.md",
-        "docs/agent-truth/mobile-loading-hydration-stability.md",
-        "docs/agent-truth/operator-revenue-smoke.md",
-        "docs/agent-truth/runtime-smoke-substitute-matrix.md",
-        "docs/agent-truth/runtime-watch-time-v2.md",
-        "docs/agent-truth/source-backed-runtime-confidence.md",
-        "docs/agent-truth/telemetry-admin-debug-truth.md",
-        "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-algorithmic-evidence-policy.ts",
-        "scripts/agent/validate-runtime-smoke-substitute-matrix.ts",
-        "src/lib/agent-score/algorithmic-evidence-policy.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/runtime/runtime-smoke-substitute-matrix.ts",
-        "tests/unit/runtime-smoke-substitute-matrix.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.60",
-      "previousVersion": "1.3.59",
-      "betaReleaseCounter": 360,
-      "previousBetaReleaseCounter": 359,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): calibrate real usage confidence",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T13:48:57.505Z",
-      "generatedAt": "2026-05-21T13:48:57.505Z",
-      "committedAtUtc": "2026-05-21T13:48:57.505Z",
-      "generatedAtUtc": "2026-05-21T13:48:57.505Z",
-      "updatedAtUtc": "2026-05-21T13:48:57.505Z",
-      "category": "Improved",
-      "title": "Real usage confidence calibration",
-      "summary": "Calibrated real usage confidence from behavioral and operator-confirmed signals.",
-      "userFacingTitle": "Real usage confidence calibration",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Calibrated real usage confidence from behavioral and operator-confirmed signals.",
-        "Separated observed signals from inferred source readiness.",
-        "Kept formal beta gates separate from real usage confidence."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the real usage confidence calibration report, validator, score integration, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Beta scoring",
-        "Telemetry confidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/algorithmic-evidence-policy.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/real-usage-confidence-calibration.generated.json",
-        "agent/state/real-usage-confidence.generated.json",
-        "docs/agent-truth/algorithmic-evidence-policy.md",
-        "docs/agent-truth/real-usage-confidence-calibration.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-algorithmic-evidence-policy.ts",
-        "scripts/agent/validate-real-usage-confidence-calibration.ts",
-        "src/lib/agent-score/algorithmic-evidence-policy.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/analytics/real-usage-confidence-calibration.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/real-usage-confidence-calibration.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.59",
-      "previousVersion": "1.3.58",
-      "betaReleaseCounter": 359,
-      "previousBetaReleaseCounter": 358,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): refine algorithmic evidence gates",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T13:29:27.123Z",
-      "generatedAt": "2026-05-21T13:29:27.123Z",
-      "committedAtUtc": "2026-05-21T13:29:27.123Z",
-      "generatedAtUtc": "2026-05-21T13:29:27.123Z",
-      "updatedAtUtc": "2026-05-21T13:29:27.123Z",
-      "category": "Improved",
-      "title": "Algorithmic evidence gates",
-      "summary": "Separated UI manual evidence from algorithmic runtime and telemetry confidence.",
-      "userFacingTitle": "Algorithmic evidence gates",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Separated UI manual evidence from algorithmic runtime and telemetry confidence.",
-        "Allowed source-backed evidence to improve non-UI beta health without faking formal proof.",
-        "Kept provider, runtime, and visual gates honest."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the algorithmic evidence policy report, validator, score integration, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Beta scoring",
-        "Evidence gates"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/algorithmic-evidence-policy.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/algorithmic-evidence-policy.md",
-        "docs/agent-truth/beta-health-algorithm-v2.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-algorithmic-evidence-policy.ts",
-        "src/lib/agent-score/algorithmic-evidence-policy.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/algorithmic-evidence-policy.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.58",
-      "previousVersion": "1.3.57",
-      "betaReleaseCounter": 358,
-      "previousBetaReleaseCounter": 357,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): resolve critic p1 triage",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T13:05:24.206Z",
-      "generatedAt": "2026-05-21T13:05:24.206Z",
-      "committedAtUtc": "2026-05-21T13:05:24.206Z",
-      "generatedAtUtc": "2026-05-21T13:05:24.206Z",
-      "updatedAtUtc": "2026-05-21T13:05:24.206Z",
-      "category": "Improved",
-      "title": "AI critic P1 triage",
-      "summary": "Resolved source-fixable AI critic feedback and ranked the P1/P2 debug backlog by beta score impact.",
-      "userFacingTitle": "AI critic P1 triage",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Resolved source-fixable AI critic feedback.",
-        "Ranked P1/P2 debug backlog by beta score impact.",
-        "Separated code fixes from formal evidence requirements."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the AI critic P1 triage report, validator, source action classification, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Admin Debug",
-        "Beta scoring"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/ai-critic-p1-triage.generated.json",
-        "agent/state/ai-debug-critic.generated.json",
-        "agent/state/debug-backlog-engine.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/ai-critic-p1-triage.md",
-        "docs/agent-truth/ai-debug-critic.md",
-        "docs/agent-truth/debug-backlog-engine.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-ai-critic-p1-triage.ts",
-        "scripts/agent/validate-debug-backlog-engine.ts",
-        "src/lib/debug/ai-critic-p1-triage.ts",
-        "src/lib/debug/ai-debug-critic-contract.ts",
-        "src/lib/debug/ai-debug-critic-rules.ts",
-        "src/lib/debug/ai-debug-critic.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/ai-critic-p1-triage.spec.ts",
-        "tests/unit/ai-debug-critic.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.57",
-      "previousVersion": "1.3.56",
-      "betaReleaseCounter": 357,
-      "previousBetaReleaseCounter": 356,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(debug): lock algorithmic debugging",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T07:10:00.000Z",
-      "generatedAt": "2026-05-21T07:10:00.000Z",
-      "committedAtUtc": "2026-05-21T07:10:00.000Z",
-      "generatedAtUtc": "2026-05-21T07:10:00.000Z",
-      "updatedAtUtc": "2026-05-21T07:10:00.000Z",
-      "category": "Improved",
-      "title": "Algorithmic debug lock",
-      "summary": "Locked the debug panel, score backlog, AI critic, behavior math, and refresh queues as the primary confidence engine.",
-      "userFacingTitle": "Algorithmic debug lock",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked the debug panel, score backlog, AI critic, behavior math, and refresh queues as the primary confidence engine.",
-        "Reduced manual testing bottlenecks without clearing provider, runtime, or visual proof gates.",
-        "Kept remaining formal evidence steps explicit for beta exit review."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the final algorithmic debug lock report, validator, package script, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Admin Debug",
-        "Beta scoring"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/final-algorithmic-debug-lock.generated.json",
-        "docs/agent-truth/final-algorithmic-debug-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-algorithmic-debug-lock.ts",
-        "src/lib/debug/final-algorithmic-debug-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-algorithmic-debug-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.56",
-      "previousVersion": "1.3.55",
-      "betaReleaseCounter": 356,
-      "previousBetaReleaseCounter": 355,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(admin): refine debug cockpit",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T06:30:00.000Z",
-      "generatedAt": "2026-05-21T06:30:00.000Z",
-      "committedAtUtc": "2026-05-21T06:30:00.000Z",
-      "generatedAtUtc": "2026-05-21T06:30:00.000Z",
-      "updatedAtUtc": "2026-05-21T06:30:00.000Z",
-      "category": "Improved",
-      "title": "Debug cockpit refinement",
-      "summary": "Refined the admin debug panel into a clearer operator cockpit.",
-      "userFacingTitle": "Debug cockpit refinement",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refined the admin debug panel into a clearer operator cockpit.",
-        "Sorted next fixes by score impact, owner, and refresh action.",
-        "Kept unknown, stale, and formal evidence states visible instead of treating them as healthy."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the debug operator cockpit model, admin debug component, generated report, validator, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "App experience",
-        "Admin Debug",
-        "Beta scoring"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-backlog-engine.generated.json",
-        "agent/state/debug-operator-cockpit.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/debug-backlog-engine.md",
-        "docs/agent-truth/debug-operator-cockpit.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-debug-operator-cockpit.ts",
-        "src/app/admin/debug/components/DebugControlTower.tsx",
-        "src/app/admin/debug/components/DebugOperatorCockpit.tsx",
-        "src/lib/admin-debug-control-tower.ts",
-        "src/lib/debug/debug-operator-cockpit.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/debug-operator-cockpit.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

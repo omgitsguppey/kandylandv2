@@ -2,6 +2,7 @@ import React from 'react';
 import { SectionContainer, NavigationRow, RowDivider } from './ProfilePrimitives';
 import type { ProfileState } from '../profile-page-types';
 import { Loader2, LogOut, Trash2, FileText, CircleHelp, LifeBuoy, X } from "lucide-react";
+import { trackEvent } from "@/lib/telemetry";
 
 export function ProfileSupportSafetySection({ state }: { state: ProfileState }) {
     const {
@@ -25,23 +26,41 @@ export function ProfileSupportSafetySection({ state }: { state: ProfileState }) 
         handleSendCreatorBroadcast, handleRequestCreatorPayout,
         updateCreatorSettingsState, setCreatorSettingsState
     } = state;
+    const trackSupportAction = (settingId: string) => {
+        trackEvent("setting_action_clicked", {
+            setting_id: settingId,
+            actor_role: userProfile?.role || "user",
+            creator_id: userProfile?.uid || "",
+            target_creator_id: userProfile?.uid || "",
+            settings_surface: settingId === "delete_account" ? "danger_zone" : "support",
+            section: "support_safety",
+            source_component: "ProfileSupportSafetySection",
+            truth_state: "source_ready",
+        });
+    };
 
     return (
         <>
         <SectionContainer title="Support & Safety">
-                    <NavigationRow label="FAQ" icon={<CircleHelp className="w-4 h-4" />} href="/faq" />
+                    <NavigationRow label="FAQ" icon={<CircleHelp className="w-4 h-4" />} href="/faq" onClick={() => trackSupportAction("faq")} />
                     <RowDivider />
-                    <NavigationRow label="Support" icon={<LifeBuoy className="w-4 h-4" />} href="/dashboard/support" />
+                    <NavigationRow label="Support" icon={<LifeBuoy className="w-4 h-4" />} href="/dashboard/support" onClick={() => trackSupportAction("support")} />
                     <RowDivider />
-                    <NavigationRow label="Policies" icon={<FileText className="w-4 h-4" />} href="/privacy" />
+                    <NavigationRow label="Policies" icon={<FileText className="w-4 h-4" />} href="/privacy" onClick={() => trackSupportAction("policies")} />
                     <RowDivider />
-                    <NavigationRow label="Sign out" icon={<LogOut className="w-4 h-4" />} onClick={logout} />
+                    <NavigationRow label="Sign out" icon={<LogOut className="w-4 h-4" />} onClick={() => {
+                        trackSupportAction("sign_out");
+                        void logout();
+                    }} />
                     <RowDivider />
                     <NavigationRow 
                         label="Delete Account" 
                         description="Permanently erase all your data."
                         icon={isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} 
-                        onClick={handleRequestDeletion}
+                        onClick={() => {
+                            trackSupportAction("delete_account");
+                            handleRequestDeletion();
+                        }}
                         destructive 
                     />
                 </SectionContainer>

@@ -514,16 +514,37 @@ export function useProfileState() {
             lastSavedSignatureRef.current = nextSignature;
             setSaveFeedback("Saved");
             scheduleAutosaveFeedbackReset();
+            trackEvent("setting_save_succeeded", {
+                setting_id: "account_profile_or_preferences",
+                actor_role: userProfile?.role || "user",
+                creator_id: userProfile?.uid || "",
+                target_creator_id: userProfile?.uid || "",
+                settings_surface: "account",
+                section: "account_settings",
+                source_component: "useProfileState",
+                truth_state: "source_ready",
+            });
             return true;
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to update settings.";
             setSaveFeedback(message);
             toast.error(message);
+            trackEvent("setting_save_failed", {
+                setting_id: "account_profile_or_preferences",
+                actor_role: userProfile?.role || "user",
+                creator_id: userProfile?.uid || "",
+                target_creator_id: userProfile?.uid || "",
+                settings_surface: "account",
+                section: "account_settings",
+                source_component: "useProfileState",
+                truth_state: "source_ready",
+                failure_code: "profile_save_failed",
+            });
             return false;
         } finally {
             setSaving(false);
         }
-    }, [buildSettingsPayload, isCreatorProjectionActive, scheduleAutosaveFeedbackReset, user]);
+    }, [buildSettingsPayload, isCreatorProjectionActive, scheduleAutosaveFeedbackReset, user, userProfile?.role, userProfile?.uid]);
 
     useEffect(() => {
         let cancelled = false;
@@ -643,14 +664,35 @@ export function useProfileState() {
             setSaveFeedback("Essential-only mode saved");
             scheduleAutosaveFeedbackReset();
             toast.success("Optional tracking disabled.");
+            trackEvent("setting_save_succeeded", {
+                setting_id: "essential_only_mode",
+                actor_role: userProfile?.role || "user",
+                creator_id: userProfile?.uid || "",
+                target_creator_id: userProfile?.uid || "",
+                settings_surface: "privacy",
+                section: "privacy_data",
+                source_component: "useProfileState",
+                truth_state: "source_ready",
+            });
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to update privacy settings.";
             setSaveFeedback(message);
             toast.error(message);
+            trackEvent("setting_save_failed", {
+                setting_id: "essential_only_mode",
+                actor_role: userProfile?.role || "user",
+                creator_id: userProfile?.uid || "",
+                target_creator_id: userProfile?.uid || "",
+                settings_surface: "privacy",
+                section: "privacy_data",
+                source_component: "useProfileState",
+                truth_state: "source_ready",
+                failure_code: "privacy_save_failed",
+            });
         } finally {
             setSaving(false);
         }
-    }, [formState, isCreatorProjectionActive, savePrivacyPreferences, scheduleAutosaveFeedbackReset]);
+    }, [formState, isCreatorProjectionActive, savePrivacyPreferences, scheduleAutosaveFeedbackReset, userProfile?.role, userProfile?.uid]);
 
     useEffect(() => {
         if (!user || !autosaveReadyRef.current) {
@@ -870,10 +912,20 @@ export function useProfileState() {
     const handleDownloadData = async () => {
         setIsDownloading(true);
         try {
+            trackEvent("data_export_requested", {
+                setting_id: "download_my_data",
+                actor_role: userProfile?.role || "user",
+                creator_id: userProfile?.uid || "",
+                target_creator_id: userProfile?.uid || "",
+                settings_surface: "privacy",
+                section: "privacy_data",
+                source_component: "useProfileState",
+                truth_state: "source_ready",
+            });
             const response = await authFetch("/api/user/data", { method: "GET" });
 
             if (!response.ok) {
-                throw new Error("Failed to generate data export");
+                throw new Error("We could not prepare your data export right now. Try again or contact support.");
             }
 
             // Create a blob from the JSON response
@@ -887,8 +939,29 @@ export function useProfileState() {
             a.click();
             window.URL.revokeObjectURL(url);
             toast.success("Data export downloaded securely.");
+            trackEvent("setting_save_succeeded", {
+                setting_id: "download_my_data",
+                actor_role: userProfile?.role || "user",
+                creator_id: userProfile?.uid || "",
+                target_creator_id: userProfile?.uid || "",
+                settings_surface: "privacy",
+                section: "privacy_data",
+                source_component: "useProfileState",
+                truth_state: "source_ready",
+            });
         } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error.message || "We could not prepare your data export right now. Try again or contact support.");
+            trackEvent("setting_save_failed", {
+                setting_id: "download_my_data",
+                actor_role: userProfile?.role || "user",
+                creator_id: userProfile?.uid || "",
+                target_creator_id: userProfile?.uid || "",
+                settings_surface: "privacy",
+                section: "privacy_data",
+                source_component: "useProfileState",
+                truth_state: "source_ready",
+                failure_code: "data_export_failed",
+            });
         } finally {
             setIsDownloading(false);
         }

@@ -2,6 +2,7 @@ import React from 'react';
 import { SectionContainer, ToggleRow, StaticRow, RowDivider } from './ProfilePrimitives';
 import type { ProfileState } from '../profile-page-types';
 import { ShieldAlert } from "lucide-react";
+import { trackEvent } from "@/lib/telemetry";
 
 export function ProfileNotificationsSection({ state }: { state: ProfileState }) {
     const {
@@ -25,6 +26,19 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
         updateCreatorSettingsState, setCreatorSettingsState
     } = state;
     const isReadOnlyProjection = state.isCreatorProjectionActive;
+    const trackNotificationToggle = (settingId: string, value: boolean) => {
+        trackEvent("setting_toggle_changed", {
+            setting_id: settingId,
+            actor_role: userProfile?.role || "user",
+            creator_id: userProfile?.uid || "",
+            target_creator_id: userProfile?.uid || "",
+            settings_surface: "account",
+            section: "notifications",
+            source_component: "ProfileNotificationsSection",
+            truth_state: "source_ready",
+            value: String(value),
+        });
+    };
 
     return (
         <SectionContainer title="Notifications">
@@ -44,7 +58,10 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         label="Browser push alerts"
                         description={notificationSupportMessage || "Reminders for tasks and drops."}
                         checked={formState.browserPushEnabled}
-                        onChange={(value) => void handleBrowserPushToggle(value)}
+                        onChange={(value) => {
+                            trackNotificationToggle("notification_preferences", value);
+                            void handleBrowserPushToggle(value);
+                        }}
                         disabled={notificationSetupLoading || isReadOnlyProjection}
                         badge={notificationSetupLoading ? "Wait" : undefined}
                     />
@@ -53,7 +70,10 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         label="In-app alerts"
                         description="Show task and drop alerts inside the app."
                         checked={formState.inAppEnabled}
-                        onChange={(value) => updateForm("inAppEnabled", value)}
+                        onChange={(value) => {
+                            trackNotificationToggle("notification_preferences", value);
+                            updateForm("inAppEnabled", value);
+                        }}
                         disabled={isReadOnlyProjection}
                     />
                     <RowDivider />
@@ -61,7 +81,10 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         label="New releases"
                         description="Alert me when new drops go live."
                         checked={formState.newDropAlerts}
-                        onChange={(value) => updateForm("newDropAlerts", value)}
+                        onChange={(value) => {
+                            trackNotificationToggle("notification_preferences", value);
+                            updateForm("newDropAlerts", value);
+                        }}
                         disabled={isReadOnlyProjection}
                     />
                     <RowDivider />
@@ -69,7 +92,10 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         label="Ending soon"
                         description="Warn me before drops expire."
                         checked={formState.expiringSoonAlerts}
-                        onChange={(value) => updateForm("expiringSoonAlerts", value)}
+                        onChange={(value) => {
+                            trackNotificationToggle("notification_preferences", value);
+                            updateForm("expiringSoonAlerts", value);
+                        }}
                         disabled={isReadOnlyProjection}
                     />
                 </SectionContainer>

@@ -263,6 +263,12 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "user_settings_viewed", label: "User settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
     { eventName: "user_settings_creator_tools_cta_clicked", label: "User settings creator tools CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
     { eventName: "profile_settings_viewed", label: "Profile settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["user_settings_viewed"] },
+  { eventName: "settings_surface_viewed", label: "Settings surface viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "setting_toggle_changed", label: "Setting toggle changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "setting_action_clicked", label: "Setting action clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "setting_save_succeeded", label: "Setting save succeeded", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "setting_save_failed", label: "Setting save failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "data_export_requested", label: "Data export requested", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "account_delete_clicked", label: "Account delete clicked", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
   { eventName: "account_delete_confirm_opened", label: "Account delete confirm opened", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
   { eventName: "account_delete_confirmed", label: "Account delete confirmed", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
@@ -377,6 +383,8 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "creator_broadcast_empty_state_viewed", label: "Creator broadcast empty state viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
     { eventName: "creator_settings_migrated_redirect_viewed", label: "Creator settings migrated redirect viewed", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
     { eventName: "creator_settings_updated", label: "Creator settings updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator"] },
+    { eventName: "creator_setting_updated", label: "Creator setting updated", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+    { eventName: "creator_settings_control_plane_saved", label: "Creator settings control plane saved", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"], aliases: ["creator_setting_updated"] },
     { eventName: "creator_drop_submitted", label: "Creator drop submitted", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "content"] },
     { eventName: "creator_drop_updated", label: "Creator drop updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "content"] },
     { eventName: "admin_creator_drop_reviewed", label: "Admin creator drop reviewed", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "content"] },
@@ -1259,9 +1267,17 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
   if (
     eventName === "user_settings_viewed"
     || eventName === "user_settings_creator_tools_cta_clicked"
+    || eventName === "settings_surface_viewed"
+    || eventName === "setting_toggle_changed"
+    || eventName === "setting_action_clicked"
+    || eventName === "setting_save_succeeded"
+    || eventName === "setting_save_failed"
+    || eventName === "data_export_requested"
     || eventName.startsWith("account_delete_")
     || eventName === "creator_dashboard_settings_viewed"
     || eventName === "creator_settings_section_opened"
+    || eventName === "creator_setting_updated"
+    || eventName === "creator_settings_control_plane_saved"
     || eventName === "creator_broadcast_manager_viewed"
     || eventName === "creator_broadcast_empty_state_viewed"
     || eventName === "creator_settings_migrated_redirect_viewed"

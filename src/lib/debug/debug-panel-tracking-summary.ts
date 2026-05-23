@@ -4,6 +4,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "event_envelope",
   "behavior_math",
   "feature_telemetry_coverage",
+  "settings_connection_health",
   "legacy_recovery",
   "wallet_funnel",
   "runtime_debug_evidence",
@@ -53,6 +54,7 @@ const TRACKING_GROUPS = [
   "event_envelope",
   "behavior_math",
   "feature_coverage",
+  "settings_connection",
   "legacy_recovery",
   "wallet_funnel",
   "runtime_debug",
@@ -108,6 +110,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const featureWarnings = toNumber(telemetrySummary.degraded) + toNumber(telemetrySummary.runtimeUnproven);
   const featureCritical = toNumber(telemetrySummary.unavailable) + toNumber(telemetrySummary.configMissing);
   const featureLaneCount = Array.isArray(input.telemetryHealth?.lanes) ? input.telemetryHealth.lanes.length : 0;
+  const settingsStatus = toStatus(input.settingsConnectionParity?.status ?? "source_ready");
+  const disconnectedSettings = toNumber(input.settingsConnectionParity?.disconnectedSettingCount);
   const behaviorStatus = toStatus(input.behavioralSnapshotStatus?.status);
   const legacyStatus = toStatus(input.legacyRecovery?.status);
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
@@ -188,6 +192,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: featureCritical,
       warningCount: featureWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#feature-coverage",
+    }),
+    makeLane({
+      id: "settings_connection_health",
+      label: "Settings connection health",
+      trackingSystem: "settings_connection",
+      sourceOwner: "settings",
+      sourceOfTruth: "src/lib/settings/settings-surface-contract.ts",
+      status: disconnectedSettings > 0 ? "degraded" : settingsStatus,
+      severity: severityFromCounts(0, disconnectedSettings, disconnectedSettings > 0 ? "degraded" : settingsStatus),
+      scoreImpact: "medium",
+      primarySignal: disconnectedSettings > 0 ? `${disconnectedSettings} setting(s) have honest not-configured status.` : "Account and Creator Settings share one connection contract.",
+      criticalCount: 0,
+      warningCount: disconnectedSettings,
+      drilldownTarget: "/admin/debug?tab=advanced#settings-connection-health",
     }),
     makeLane({
       id: "legacy_recovery",
