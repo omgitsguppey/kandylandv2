@@ -1,8 +1,8 @@
 # Person Metrics Contract
 
-Generated: 2026-05-22T23:19:20.416Z
+Generated: 2026-05-23T05:11:03.104Z
 Status: pass
-Current head: 5300ad76ca447a0291e87aac41f853a5d56df7d6
+Current head: fa929bd2cbbf640bd1f2f17cd15940306ffdd3e3
 
 ## Contract
 
@@ -37,6 +37,8 @@ Current head: 5300ad76ca447a0291e87aac41f853a5d56df7d6
 - follows: creator relationship facts; consent=minimal_product; confidence=linked; materializer=person_metrics.follows; owner=creator
 - notification_interactions: notification runtime and inbox telemetry; consent=minimal_product; confidence=linked; materializer=person_metrics.notification_interactions; owner=notifications
 - runtime_watch_sessions: runtime media watch sessions only; page duration is not a current-person metric; consent=behavioral; confidence=linked; materializer=person_metrics.runtime_watch_sessions; owner=viewer-runtime
+- settings_actions: settings surfaces and settings route telemetry; consent=minimal_product; confidence=weak; materializer=person_metrics.settings_actions; owner=settings
+- support_account_actions: support routes, support inbox telemetry, and account safety telemetry; consent=minimal_product; confidence=weak; materializer=person_metrics.support_account_actions; owner=support
 
 ## Checks
 
@@ -62,16 +64,25 @@ Current head: 5300ad76ca447a0291e87aac41f853a5d56df7d6
 
 - CHANGELOG.md
 - agent/state/person-metrics-contract.generated.json
+- agent/state/person-metrics-hydration.generated.json
 - agent/state/public-beta-score.generated.json
 - docs/agent-truth/person-metrics-contract.md
+- docs/agent-truth/person-metrics-hydration.md
 - package.json
 - public/kandydrops-release-notes.json
-- scripts/agent/validate-person-metrics-contract.ts
+- scripts/agent/score-public-beta-readiness.ts
+- scripts/agent/validate-person-metrics-hydration.ts
+- scripts/agent/validate-public-beta-score.ts
+- src/app/api/admin/debug/route.ts
 - src/lib/analytics/person-metrics-contract.ts
-- src/lib/analytics/person-metrics-engine.ts
+- src/lib/analytics/person-metrics-hydration.ts
+- src/lib/debug/debug-panel-tracking-summary.ts
 - src/lib/release-notes/public-release-notes.ts
 - src/lib/release-notes/release-version-contract.ts
+- src/lib/server/admin-debug/summary.ts
+- tests/unit/debug-tracking-simplification.spec.ts
 - tests/unit/person-metrics-contract.spec.ts
+- tests/unit/person-metrics-hydration.spec.ts
 
 ## Validation Failures
 

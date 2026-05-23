@@ -1,13 +1,74 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.92",
-  "betaReleaseCounter": 392,
+  "currentVersion": "1.3.93",
+  "betaReleaseCounter": 393,
   "channel": "beta",
-  "generatedAt": "2026-05-23T04:25:13.808Z",
-  "generatedAtUtc": "2026-05-23T04:25:13.808Z",
+  "generatedAt": "2026-05-23T05:05:25.492Z",
+  "generatedAtUtc": "2026-05-23T05:05:25.492Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.93",
+      "previousVersion": "1.3.92",
+      "betaReleaseCounter": 393,
+      "previousBetaReleaseCounter": 392,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): hydrate person metrics",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T05:05:25.492Z",
+      "generatedAt": "2026-05-23T05:05:25.492Z",
+      "committedAtUtc": "2026-05-23T05:05:25.492Z",
+      "generatedAtUtc": "2026-05-23T05:05:25.492Z",
+      "updatedAtUtc": "2026-05-23T05:05:25.492Z",
+      "category": "Improved",
+      "title": "Person metrics hydration reliability",
+      "summary": "Hydrated individual user metrics from canonical event envelopes.",
+      "userFacingTitle": "Person metrics hydration reliability",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Hydrated individual user metrics from canonical event envelopes.",
+        "Added confidence explanations for global, guest, user, and linked-person metrics.",
+        "Cleaned stale person-metric logic."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a source-only person metrics hydration bridge, validator, generated evidence, and debug lane without production reads, live data mutation, payment math changes, or fake metric counts."
+      ],
+      "affectedSurfaces": [
+        "Analytics",
+        "Admin debug",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/person-metrics-contract.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/person-metrics-contract.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-person-metrics-hydration.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "tests/unit/debug-tracking-simplification.spec.ts",
+        "tests/unit/person-metrics-contract.spec.ts",
+        "tests/unit/person-metrics-hydration.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.92",
       "previousVersion": "1.3.91",
@@ -1392,74 +1453,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/score-80-refresh-queue-execution.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.68",
-      "previousVersion": "1.3.67",
-      "betaReleaseCounter": 368,
-      "previousBetaReleaseCounter": 367,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(analytics): lock behavioral privacy telemetry",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T16:08:41.892Z",
-      "generatedAt": "2026-05-21T16:08:41.892Z",
-      "committedAtUtc": "2026-05-21T16:08:41.892Z",
-      "generatedAtUtc": "2026-05-21T16:08:41.892Z",
-      "updatedAtUtc": "2026-05-21T16:08:41.892Z",
-      "category": "Improved",
-      "title": "Behavioral privacy telemetry lock",
-      "summary": "Locked privacy-aware behavioral telemetry across consent, identity handoff, behavior math, legacy recovery, and future event contracts.",
-      "userFacingTitle": "Behavioral privacy telemetry lock",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Locked privacy-aware behavioral telemetry.",
-        "Connected cookie consent to guest, signup, and logged-in analytics.",
-        "Made future behavioral events contract-driven instead of refactor-heavy."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the final behavioral privacy telemetry lock report, validator, generated artifact, and unit coverage without clearing formal beta gates."
-      ],
-      "affectedSurfaces": [
-        "Privacy & security",
-        "Telemetry",
-        "Account & onboarding",
-        "Admin Debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/behavior-math-verification.generated.json",
-        "agent/state/behavioral-extensibility-layer.generated.json",
-        "agent/state/consent-tracking-contract.generated.json",
-        "agent/state/cookie-banner-settings-sync.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/debug-backlog-engine.generated.json",
-        "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
-        "agent/state/final-telemetry-closure-lock.generated.json",
-        "agent/state/identity-handoff-refinement.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/privacy-behavior-legacy-recovery.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/debug-backlog-engine.md",
-        "docs/agent-truth/final-behavioral-privacy-telemetry-lock.md",
-        "docs/agent-truth/final-telemetry-closure-lock.md",
-        "docs/agent-truth/identity-handoff-refinement.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/privacy-behavior-legacy-recovery.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-behavioral-privacy-telemetry-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

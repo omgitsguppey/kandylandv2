@@ -181,6 +181,7 @@
         "check:event-translation-bridge": "tsx scripts/agent/validate-event-translation-bridge.ts",
         "check:march-first-event-recovery": "tsx scripts/agent/validate-march-first-event-recovery.ts",
         "check:person-metrics-contract": "tsx scripts/agent/validate-person-metrics-contract.ts",
+        "check:person-metrics-hydration": "tsx scripts/agent/validate-person-metrics-hydration.ts",
         "check:final-user-tracking-handoff-lock": "tsx scripts/agent/validate-final-user-tracking-handoff-lock.ts",
         "check:privacy-import-export-cutover": "tsx scripts/agent/validate-privacy-import-export-cutover.ts",
         "check:identity-link-continuity": "tsx scripts/agent/validate-identity-link-continuity.ts",

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-22T23:19:20.416Z",
+  "generatedAtUtc": "2026-05-23T05:11:03.104Z",
   "reportKey": "person-metrics-contract",
-  "currentHead": "5300ad76ca447a0291e87aac41f853a5d56df7d6",
+  "currentHead": "fa929bd2cbbf640bd1f2f17cd15940306ffdd3e3",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -11,11 +11,11 @@
     "chatNavUntouched": true
   },
   "summary": {
-    "metricCount": 21,
-    "globalMetrics": 21,
-    "guestMetrics": 21,
-    "signedInMetrics": 21,
-    "linkedPersonMetrics": 21,
+    "metricCount": 23,
+    "globalMetrics": 23,
+    "guestMetrics": 23,
+    "signedInMetrics": 23,
+    "linkedPersonMetrics": 23,
     "behavioralMetrics": 1
   },
   "metricIds": [
@@ -39,7 +39,9 @@
     "broadcasts_clicked",
     "follows",
     "notification_interactions",
-    "runtime_watch_sessions"
+    "runtime_watch_sessions",
+    "settings_actions",
+    "support_account_actions"
   ],
   "checks": {
     "contractValidationPasses": true,
@@ -63,16 +65,25 @@
   "changedFiles": [
     "CHANGELOG.md",
     "agent/state/person-metrics-contract.generated.json",
+    "agent/state/person-metrics-hydration.generated.json",
     "agent/state/public-beta-score.generated.json",
     "docs/agent-truth/person-metrics-contract.md",
+    "docs/agent-truth/person-metrics-hydration.md",
     "package.json",
     "public/kandydrops-release-notes.json",
-    "scripts/agent/validate-person-metrics-contract.ts",
+    "scripts/agent/score-public-beta-readiness.ts",
+    "scripts/agent/validate-person-metrics-hydration.ts",
+    "scripts/agent/validate-public-beta-score.ts",
+    "src/app/api/admin/debug/route.ts",
     "src/lib/analytics/person-metrics-contract.ts",
-    "src/lib/analytics/person-metrics-engine.ts",
+    "src/lib/analytics/person-metrics-hydration.ts",
+    "src/lib/debug/debug-panel-tracking-summary.ts",
     "src/lib/release-notes/public-release-notes.ts",
     "src/lib/release-notes/release-version-contract.ts",
-    "tests/unit/person-metrics-contract.spec.ts"
+    "src/lib/server/admin-debug/summary.ts",
+    "tests/unit/debug-tracking-simplification.spec.ts",
+    "tests/unit/person-metrics-contract.spec.ts",
+    "tests/unit/person-metrics-hydration.spec.ts"
   ],
   "protectedChangedFiles": [],
   "validationFailures": []

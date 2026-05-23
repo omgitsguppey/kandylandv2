@@ -25,11 +25,13 @@ export const PERSON_METRIC_IDS = [
   "follows",
   "notification_interactions",
   "runtime_watch_sessions",
+  "settings_actions",
+  "support_account_actions",
 ] as const;
 
 export type PersonMetricId = (typeof PERSON_METRIC_IDS)[number];
 export type PersonMetricConsentDepth = "necessary_product" | "minimal_product" | "behavioral";
-export type PersonMetricDebugOwner = "analytics" | "behavioral-intelligence" | "wallet" | "commerce" | "creator" | "notifications" | "viewer-runtime";
+export type PersonMetricDebugOwner = "analytics" | "behavioral-intelligence" | "wallet" | "commerce" | "creator" | "notifications" | "viewer-runtime" | "settings" | "support";
 export type PersonMetricLegacyAction = "normalize_candidate" | "link_candidate" | "archive_only" | "needs_manual_review";
 export type PersonMetricScoreImpact = "evidence_completeness" | "runtime_health" | "behavior_confidence" | "commerce_parity" | "none";
 
@@ -353,6 +355,57 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
     debugOwner: "viewer-runtime",
     scoreEvidenceImpact: "runtime_health",
     legacyRecoveryMapping: { action: "archive_only", confidence: "weak", source: "legacy watch/session duration records" },
+  }),
+  metric({
+    id: "settings_actions",
+    label: "Settings actions",
+    eventNames: [
+      "user_settings_viewed",
+      "profile_settings_viewed",
+      "settings_surface_viewed",
+      "setting_toggle_changed",
+      "setting_action_clicked",
+      "setting_save_succeeded",
+      "setting_save_failed",
+      "creator_dashboard_settings_viewed",
+      "creator_settings_section_opened",
+      "creator_setting_updated",
+      "creator_settings_updated",
+      "creator_settings_control_plane_saved",
+      "creator_settings_migrated_redirect_viewed",
+    ],
+    sourceOfTruth: "settings surfaces and settings route telemetry",
+    consentEligibility: { depth: "minimal_product", allowedModes: MINIMAL_MODES },
+    materializer: "person_metrics.settings_actions",
+    debugOwner: "settings",
+    scoreEvidenceImpact: "evidence_completeness",
+    legacyRecoveryMapping: { action: "normalize_candidate", confidence: "weak", source: "legacy settings action events" },
+    minimumConfidence: "weak",
+  }),
+  metric({
+    id: "support_account_actions",
+    label: "Support/account actions",
+    eventNames: [
+      "support_inbox_viewed",
+      "support_ticket_created",
+      "support_thread_opened",
+      "support_reply_viewed",
+      "support_reply_sent",
+      "account_delete_clicked",
+      "account_delete_confirm_opened",
+      "account_delete_confirmed",
+      "account_delete_cancelled",
+      "account_delete_request_submitted",
+      "account_delete_failed",
+      "account_delete_completed",
+    ],
+    sourceOfTruth: "support routes, support inbox telemetry, and account safety telemetry",
+    consentEligibility: { depth: "minimal_product", allowedModes: MINIMAL_MODES },
+    materializer: "person_metrics.support_account_actions",
+    debugOwner: "support",
+    scoreEvidenceImpact: "evidence_completeness",
+    legacyRecoveryMapping: { action: "normalize_candidate", confidence: "weak", source: "legacy support/account action events" },
+    minimumConfidence: "weak",
   }),
 ];
 

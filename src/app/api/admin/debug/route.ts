@@ -41,6 +41,7 @@ import { buildAdminDebugSummaryPayload } from "@/lib/server/admin-debug/summary"
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
 import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
 import { buildEventTranslationBridgeReport } from "@/lib/analytics/event-translation-bridge";
+import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
 import { buildLegacyRecoveryDebugSummary } from "@/lib/server/admin-debug/legacy-recovery-summary";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
@@ -6599,11 +6600,13 @@ export async function GET(request: NextRequest) {
             identityHandoff: buildIdentityHandoffDebugSummary(),
             eventEnvelope: buildEventEnvelopeDebugSummary(),
             eventTranslationBridge: buildEventTranslationBridgeReport(),
+            personMetricsHydration: buildPersonMetricsHydrationReport(),
             legacyRecovery: buildLegacyRecoveryDebugSummary(),
             trackingSummary: buildDebugPanelTrackingSummary({
                 ["identity" + "Handoff"]: buildIdentityHandoffDebugSummary(),
                 ["event" + "Envelope"]: buildEventEnvelopeDebugSummary(),
                 eventTranslationBridge: buildEventTranslationBridgeReport(),
+                personMetricsHydration: buildPersonMetricsHydrationReport(),
                 ["legacy" + "Recovery"]: buildLegacyRecoveryDebugSummary(),
                 telemetryHealth,
                 behavioralSnapshotStatus,

@@ -38,6 +38,8 @@ describe("person metrics contract", () => {
       "follows",
       "notification_interactions",
       "runtime_watch_sessions",
+      "settings_actions",
+      "support_account_actions",
     ]));
 
     for (const metric of PERSON_METRIC_DEFINITIONS) {

@@ -21,6 +21,18 @@ describe("debug tracking simplification", () => {
           gaps: 0,
         },
       },
+      personMetricsHydration: {
+        status: "pass",
+        debugLane: {
+          personMetricsMapped: 23,
+          eventEnvelopesHydrated: 20,
+          globalMetricsHydrated: 20,
+          signedInMetricsHydrated: 12,
+          linkedPersonMetricsHydrated: 4,
+          lowConfidenceMetrics: 3,
+          gaps: 0,
+        },
+      },
       legacyRecovery: { status: "ready_for_dry_run_review", mutationsAllowed: false },
       telemetryHealth: {
         summary: { degraded: 1, runtimeUnproven: 1, unavailable: 0 },
@@ -42,6 +54,12 @@ describe("debug tracking simplification", () => {
     expect(summary.lanes.every((lane) => lane.sourceOwner && lane.sourceOfTruth && lane.drilldownTarget)).toBe(true);
     expect(summary.lanes.find((lane) => lane.id === "event_translation_bridge")).toMatchObject({
       label: "Event translation bridge",
+      status: "live",
+      criticalCount: 0,
+      warningCount: 0,
+    });
+    expect(summary.lanes.find((lane) => lane.id === "person_metrics_hydration")).toMatchObject({
+      label: "Person metrics hydration",
       status: "live",
       criticalCount: 0,
       warningCount: 0,
@@ -87,6 +105,18 @@ describe("debug tracking simplification", () => {
           gaps: 2,
         },
       },
+      personMetricsHydration: {
+        status: "fail",
+        debugLane: {
+          personMetricsMapped: 20,
+          eventEnvelopesHydrated: 4,
+          globalMetricsHydrated: 4,
+          signedInMetricsHydrated: 2,
+          linkedPersonMetricsHydrated: 1,
+          lowConfidenceMetrics: 6,
+          gaps: 2,
+        },
+      },
       legacyRecovery: { status: "ready_for_dry_run_review" },
       telemetryHealth: { summary: { degraded: 3, runtimeUnproven: 0, unavailable: 1 }, lanes: [{ id: "a" }] },
       behavioralSnapshotStatus: { status: "stale" },
@@ -102,6 +132,7 @@ describe("debug tracking simplification", () => {
       "consent",
       "event_envelope",
       "event_translation_bridge",
+      "person_metrics_hydration",
       "behavior_math",
       "feature_coverage",
       "settings",

@@ -8,6 +8,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "consent_tracking_mode",
   "event_envelope",
   "event_translation_bridge",
+  "person_metrics_hydration",
   "behavior_math",
   "feature_telemetry_coverage",
   "settings_health",
@@ -59,6 +60,7 @@ const TRACKING_GROUPS = [
   "consent",
   "event_envelope",
   "event_translation_bridge",
+  "person_metrics_hydration",
   "behavior_math",
   "feature_coverage",
   "settings",
@@ -122,6 +124,15 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     : eventBridgeTranslated > 0 || eventBridgeConnected > 0
       ? "live"
       : toStatus(input.eventTranslationBridge?.status);
+  const personHydration = input.personMetricsHydration?.debugLane ?? {};
+  const personHydrationGaps = toNumber(personHydration.gaps);
+  const personHydrationMapped = toNumber(personHydration.personMetricsMapped);
+  const personHydrationLowConfidence = toNumber(personHydration.lowConfidenceMetrics);
+  const personHydrationStatus = personHydrationGaps > 0
+    ? "degraded"
+    : personHydrationMapped > 0
+      ? "live"
+      : toStatus(input.personMetricsHydration?.status);
   const telemetrySummary = input.telemetryHealth?.summary ?? {};
   const featureWarnings = toNumber(telemetrySummary.degraded) + toNumber(telemetrySummary.runtimeUnproven);
   const featureCritical = toNumber(telemetrySummary.unavailable) + toNumber(telemetrySummary.configMissing);
@@ -197,6 +208,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: eventBridgeGaps,
       drilldownTarget: "/admin/debug?tab=advanced#event-translation-bridge",
+    }),
+    makeLane({
+      id: "person_metrics_hydration",
+      label: "Person metrics hydration",
+      trackingSystem: "person_metrics_hydration",
+      sourceOwner: "analytics",
+      sourceOfTruth: "src/lib/analytics/person-metrics-hydration.ts",
+      status: personHydrationStatus,
+      severity: severityFromCounts(0, personHydrationGaps, personHydrationStatus),
+      scoreImpact: "high",
+      primarySignal: `Mapped=${personHydrationMapped}; envelopes=${toNumber(personHydration.eventEnvelopesHydrated)}; global=${toNumber(personHydration.globalMetricsHydrated)}; signed-in=${toNumber(personHydration.signedInMetricsHydrated)}; linked=${toNumber(personHydration.linkedPersonMetricsHydrated)}; low-confidence=${personHydrationLowConfidence}; gaps=${personHydrationGaps}.`,
+      criticalCount: 0,
+      warningCount: personHydrationGaps,
+      drilldownTarget: "/admin/debug?tab=advanced#person-metrics-hydration",
     }),
     makeLane({
       id: "behavior_math",

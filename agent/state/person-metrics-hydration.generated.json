@@ -1,0 +1,2547 @@
+{
+  "reportKey": "person-metrics-hydration",
+  "generatedAtUtc": "2026-05-23T05:09:21.360Z",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "legacyMutationAllowed": false,
+  "fakeMetricsUsed": false,
+  "debugLane": {
+    "label": "Person metrics hydration",
+    "producersRegistered": 80,
+    "producersConnected": 23,
+    "eventEnvelopesHydrated": 32,
+    "globalMetricsHydrated": 23,
+    "guestMetricsHydrated": 0,
+    "signedInMetricsHydrated": 23,
+    "linkedPersonMetricsHydrated": 4,
+    "creatorRoleMetricsHydrated": 4,
+    "personMetricsMapped": 23,
+    "lowConfidenceMetrics": 4,
+    "gaps": 0
+  },
+  "metricStatus": {
+    "sessions": {
+      "metricId": "sessions",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "session_started",
+        "auth_session_established",
+        "auth_session_restored"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:session_started:1"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "visits": {
+      "metricId": "visits",
+      "count": 3,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "semantic_page_viewed",
+        "page_viewed",
+        "home_page_viewed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:semantic_page_viewed:2",
+        "person_metrics_validator:semantic_page_viewed:3",
+        "person_metrics_validator:semantic_page_viewed:4"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "active_days": {
+      "metricId": "active_days",
+      "count": 5,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "semantic_page_viewed",
+        "session_started",
+        "watch_session_started"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:session_started:1",
+        "person_metrics_validator:semantic_page_viewed:2",
+        "person_metrics_validator:semantic_page_viewed:3",
+        "person_metrics_validator:semantic_page_viewed:4",
+        "person_metrics_validator:watch_session_started:21"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "page_views": {
+      "metricId": "page_views",
+      "count": 3,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "semantic_page_viewed",
+        "page_viewed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:semantic_page_viewed:2",
+        "person_metrics_validator:semantic_page_viewed:3",
+        "person_metrics_validator:semantic_page_viewed:4"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "creator_profile_views": {
+      "metricId": "creator_profile_views",
+      "count": 1,
+      "confidence": "linked",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_profile_viewed",
+        "creator_profile_link_clicked"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_profile_viewed:5"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": "creator_profile_views hydrated below exact confidence (linked).",
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "drop_opens": {
+      "metricId": "drop_opens",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "drop_preview_opened",
+        "drop_preview_page_viewed",
+        "view_drop_details",
+        "drop_clicked"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:drop_preview_opened:6"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "unwraps": {
+      "metricId": "unwraps",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "drop_unwrapped",
+        "unlock_drop_success",
+        "creator_drop_unwrapped"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:drop_unwrapped:7"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "wallet_opens": {
+      "metricId": "wallet_opens",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "wallet_opened"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:wallet_opened:8"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "wallet_closes": {
+      "metricId": "wallet_closes",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "wallet_closed_incomplete"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:wallet_closed_incomplete:9"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "package_selections": {
+      "metricId": "package_selections",
+      "count": 1,
+      "confidence": "linked",
+      "provenZero": false,
+      "sourceEvents": [
+        "purchase_package_selected"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:purchase_package_selected:10"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": "package_selections hydrated below exact confidence (linked).",
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "checkout_starts": {
+      "metricId": "checkout_starts",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "begin_checkout"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:begin_checkout:11"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "payment_approvals": {
+      "metricId": "payment_approvals",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "server_purchase_verified",
+        "purchase_verified",
+        "paypal_capture_completed",
+        "purchase_completed",
+        "gumdrops_purchase_completed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:server_purchase_verified:12"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "payment_cancels": {
+      "metricId": "payment_cancels",
+      "count": 2,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "payment_canceled",
+        "paypal_checkout_canceled",
+        "wallet_closed_incomplete"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:wallet_closed_incomplete:9",
+        "person_metrics_validator:payment_canceled:13"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "payment_failures": {
+      "metricId": "payment_failures",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "gumdrops_purchase_failed",
+        "paypal_capture_failed",
+        "payment_failed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:gumdrops_purchase_failed:14"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "fan_pass_views": {
+      "metricId": "fan_pass_views",
+      "count": 1,
+      "confidence": "linked",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_fan_pass_viewed",
+        "creator_subscription_viewed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_fan_pass_viewed:15"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": "fan_pass_views hydrated below exact confidence (linked).",
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "fan_pass_purchases": {
+      "metricId": "fan_pass_purchases",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_fan_pass_started",
+        "creator_subscription_started",
+        "creator_subscription_renewed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_fan_pass_started:16"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "broadcasts_viewed": {
+      "metricId": "broadcasts_viewed",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_broadcast_detail_viewed",
+        "creator_broadcast_opened"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_broadcast_detail_viewed:17"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "broadcasts_clicked": {
+      "metricId": "broadcasts_clicked",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_broadcast_cta_clicked",
+        "notification_action_clicked"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_broadcast_cta_clicked:18"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "follows": {
+      "metricId": "follows",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_followed",
+        "creator_unfollowed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_followed:19"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "notification_interactions": {
+      "metricId": "notification_interactions",
+      "count": 1,
+      "confidence": "linked",
+      "provenZero": false,
+      "sourceEvents": [
+        "notification_opened",
+        "notification_read",
+        "notification_action_clicked",
+        "notification_mark_all_read",
+        "notification_cleared"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:notification_opened:20"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": "notification_interactions hydrated below exact confidence (linked).",
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "runtime_watch_sessions": {
+      "metricId": "runtime_watch_sessions",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "watch_session_started",
+        "watch_session_progress",
+        "watch_session_ended",
+        "viewer_watch_checkpoint"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:watch_session_started:21"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "settings_actions": {
+      "metricId": "settings_actions",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "user_settings_viewed",
+        "profile_settings_viewed",
+        "settings_surface_viewed",
+        "setting_toggle_changed",
+        "setting_action_clicked",
+        "setting_save_succeeded",
+        "setting_save_failed",
+        "creator_dashboard_settings_viewed",
+        "creator_settings_section_opened",
+        "creator_setting_updated",
+        "creator_settings_updated",
+        "creator_settings_control_plane_saved",
+        "creator_settings_migrated_redirect_viewed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:user_settings_viewed:22"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "support_account_actions": {
+      "metricId": "support_account_actions",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "support_inbox_viewed",
+        "support_ticket_created",
+        "support_thread_opened",
+        "support_reply_viewed",
+        "support_reply_sent",
+        "account_delete_clicked",
+        "account_delete_confirm_opened",
+        "account_delete_confirmed",
+        "account_delete_cancelled",
+        "account_delete_request_submitted",
+        "account_delete_failed",
+        "account_delete_completed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:support_inbox_viewed:23"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    }
+  },
+  "scopes": {
+    "global": {
+      "scope": "global",
+      "metrics": {
+        "sessions": {
+          "metricId": "sessions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "session_started",
+            "auth_session_established",
+            "auth_session_restored"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:session_started:1"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for sessions; expected producer event(s): session_started, auth_session_established, auth_session_restored."
+        },
+        "visits": {
+          "metricId": "visits",
+          "count": 3,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed",
+            "home_page_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:semantic_page_viewed:2",
+            "person_metrics_validator:semantic_page_viewed:3",
+            "person_metrics_validator:semantic_page_viewed:4"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for visits; expected producer event(s): semantic_page_viewed, page_viewed, home_page_viewed."
+        },
+        "active_days": {
+          "metricId": "active_days",
+          "count": 5,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "session_started",
+            "watch_session_started"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:session_started:1",
+            "person_metrics_validator:semantic_page_viewed:2",
+            "person_metrics_validator:semantic_page_viewed:3",
+            "person_metrics_validator:semantic_page_viewed:4",
+            "person_metrics_validator:watch_session_started:21"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
+        },
+        "page_views": {
+          "metricId": "page_views",
+          "count": 3,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:semantic_page_viewed:2",
+            "person_metrics_validator:semantic_page_viewed:3",
+            "person_metrics_validator:semantic_page_viewed:4"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for page_views; expected producer event(s): semantic_page_viewed, page_viewed."
+        },
+        "creator_profile_views": {
+          "metricId": "creator_profile_views",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_profile_viewed",
+            "creator_profile_link_clicked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_profile_viewed:5"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
+        },
+        "drop_opens": {
+          "metricId": "drop_opens",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_preview_opened",
+            "drop_preview_page_viewed",
+            "view_drop_details",
+            "drop_clicked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:drop_preview_opened:6"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for drop_opens; expected producer event(s): drop_preview_opened, drop_preview_page_viewed, view_drop_details, drop_clicked."
+        },
+        "unwraps": {
+          "metricId": "unwraps",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_unwrapped",
+            "unlock_drop_success",
+            "creator_drop_unwrapped"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:drop_unwrapped:7"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, unlock_drop_success, creator_drop_unwrapped."
+        },
+        "wallet_opens": {
+          "metricId": "wallet_opens",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_opened"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:wallet_opened:8"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_opens; expected producer event(s): wallet_opened."
+        },
+        "wallet_closes": {
+          "metricId": "wallet_closes",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:wallet_closed_incomplete:9"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_closes; expected producer event(s): wallet_closed_incomplete."
+        },
+        "package_selections": {
+          "metricId": "package_selections",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "purchase_package_selected"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:purchase_package_selected:10"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for package_selections; expected producer event(s): purchase_package_selected."
+        },
+        "checkout_starts": {
+          "metricId": "checkout_starts",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "begin_checkout"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:begin_checkout:11"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for checkout_starts; expected producer event(s): begin_checkout."
+        },
+        "payment_approvals": {
+          "metricId": "payment_approvals",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "server_purchase_verified",
+            "purchase_verified",
+            "paypal_capture_completed",
+            "purchase_completed",
+            "gumdrops_purchase_completed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:server_purchase_verified:12"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_approvals; expected producer event(s): server_purchase_verified, purchase_verified, paypal_capture_completed, purchase_completed, gumdrops_purchase_completed."
+        },
+        "payment_cancels": {
+          "metricId": "payment_cancels",
+          "count": 2,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "payment_canceled",
+            "paypal_checkout_canceled",
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:wallet_closed_incomplete:9",
+            "person_metrics_validator:payment_canceled:13"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_cancels; expected producer event(s): payment_canceled, paypal_checkout_canceled, wallet_closed_incomplete."
+        },
+        "payment_failures": {
+          "metricId": "payment_failures",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "gumdrops_purchase_failed",
+            "paypal_capture_failed",
+            "payment_failed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:gumdrops_purchase_failed:14"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_failures; expected producer event(s): gumdrops_purchase_failed, paypal_capture_failed, payment_failed."
+        },
+        "fan_pass_views": {
+          "metricId": "fan_pass_views",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_viewed",
+            "creator_subscription_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_fan_pass_viewed:15"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed."
+        },
+        "fan_pass_purchases": {
+          "metricId": "fan_pass_purchases",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_started",
+            "creator_subscription_started",
+            "creator_subscription_renewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_fan_pass_started:16"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed."
+        },
+        "broadcasts_viewed": {
+          "metricId": "broadcasts_viewed",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_detail_viewed",
+            "creator_broadcast_opened"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_broadcast_detail_viewed:17"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_viewed; expected producer event(s): creator_broadcast_detail_viewed, creator_broadcast_opened."
+        },
+        "broadcasts_clicked": {
+          "metricId": "broadcasts_clicked",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_cta_clicked",
+            "notification_action_clicked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_broadcast_cta_clicked:18"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_clicked; expected producer event(s): creator_broadcast_cta_clicked, notification_action_clicked."
+        },
+        "follows": {
+          "metricId": "follows",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_followed",
+            "creator_unfollowed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_followed:19"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
+        },
+        "notification_interactions": {
+          "metricId": "notification_interactions",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "notification_opened",
+            "notification_read",
+            "notification_action_clicked",
+            "notification_mark_all_read",
+            "notification_cleared"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:notification_opened:20"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+        },
+        "runtime_watch_sessions": {
+          "metricId": "runtime_watch_sessions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "watch_session_started",
+            "watch_session_progress",
+            "watch_session_ended",
+            "viewer_watch_checkpoint"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:watch_session_started:21"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+        },
+        "settings_actions": {
+          "metricId": "settings_actions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "user_settings_viewed",
+            "profile_settings_viewed",
+            "settings_surface_viewed",
+            "setting_toggle_changed",
+            "setting_action_clicked",
+            "setting_save_succeeded",
+            "setting_save_failed",
+            "creator_dashboard_settings_viewed",
+            "creator_settings_section_opened",
+            "creator_setting_updated",
+            "creator_settings_updated",
+            "creator_settings_control_plane_saved",
+            "creator_settings_migrated_redirect_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:user_settings_viewed:22"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+        },
+        "support_account_actions": {
+          "metricId": "support_account_actions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "support_inbox_viewed",
+            "support_ticket_created",
+            "support_thread_opened",
+            "support_reply_viewed",
+            "support_reply_sent",
+            "account_delete_clicked",
+            "account_delete_confirm_opened",
+            "account_delete_confirmed",
+            "account_delete_cancelled",
+            "account_delete_request_submitted",
+            "account_delete_failed",
+            "account_delete_completed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:support_inbox_viewed:23"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        }
+      },
+      "totalCount": 32,
+      "lowConfidenceCount": 4
+    },
+    "guest": {
+      "scope": "guest",
+      "metrics": {
+        "sessions": {
+          "metricId": "sessions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "session_started",
+            "auth_session_established",
+            "auth_session_restored"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for sessions; expected producer event(s): session_started, auth_session_established, auth_session_restored."
+        },
+        "visits": {
+          "metricId": "visits",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed",
+            "home_page_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for visits; expected producer event(s): semantic_page_viewed, page_viewed, home_page_viewed."
+        },
+        "active_days": {
+          "metricId": "active_days",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "session_started",
+            "watch_session_started"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
+        },
+        "page_views": {
+          "metricId": "page_views",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for page_views; expected producer event(s): semantic_page_viewed, page_viewed."
+        },
+        "creator_profile_views": {
+          "metricId": "creator_profile_views",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_profile_viewed",
+            "creator_profile_link_clicked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
+        },
+        "drop_opens": {
+          "metricId": "drop_opens",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_preview_opened",
+            "drop_preview_page_viewed",
+            "view_drop_details",
+            "drop_clicked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for drop_opens; expected producer event(s): drop_preview_opened, drop_preview_page_viewed, view_drop_details, drop_clicked."
+        },
+        "unwraps": {
+          "metricId": "unwraps",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_unwrapped",
+            "unlock_drop_success",
+            "creator_drop_unwrapped"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, unlock_drop_success, creator_drop_unwrapped."
+        },
+        "wallet_opens": {
+          "metricId": "wallet_opens",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_opened"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_opens; expected producer event(s): wallet_opened."
+        },
+        "wallet_closes": {
+          "metricId": "wallet_closes",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_closes; expected producer event(s): wallet_closed_incomplete."
+        },
+        "package_selections": {
+          "metricId": "package_selections",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "purchase_package_selected"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for package_selections; expected producer event(s): purchase_package_selected."
+        },
+        "checkout_starts": {
+          "metricId": "checkout_starts",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "begin_checkout"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for checkout_starts; expected producer event(s): begin_checkout."
+        },
+        "payment_approvals": {
+          "metricId": "payment_approvals",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "server_purchase_verified",
+            "purchase_verified",
+            "paypal_capture_completed",
+            "purchase_completed",
+            "gumdrops_purchase_completed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_approvals; expected producer event(s): server_purchase_verified, purchase_verified, paypal_capture_completed, purchase_completed, gumdrops_purchase_completed."
+        },
+        "payment_cancels": {
+          "metricId": "payment_cancels",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "payment_canceled",
+            "paypal_checkout_canceled",
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_cancels; expected producer event(s): payment_canceled, paypal_checkout_canceled, wallet_closed_incomplete."
+        },
+        "payment_failures": {
+          "metricId": "payment_failures",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "gumdrops_purchase_failed",
+            "paypal_capture_failed",
+            "payment_failed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_failures; expected producer event(s): gumdrops_purchase_failed, paypal_capture_failed, payment_failed."
+        },
+        "fan_pass_views": {
+          "metricId": "fan_pass_views",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_viewed",
+            "creator_subscription_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed."
+        },
+        "fan_pass_purchases": {
+          "metricId": "fan_pass_purchases",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_started",
+            "creator_subscription_started",
+            "creator_subscription_renewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed."
+        },
+        "broadcasts_viewed": {
+          "metricId": "broadcasts_viewed",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_detail_viewed",
+            "creator_broadcast_opened"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_viewed; expected producer event(s): creator_broadcast_detail_viewed, creator_broadcast_opened."
+        },
+        "broadcasts_clicked": {
+          "metricId": "broadcasts_clicked",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_cta_clicked",
+            "notification_action_clicked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_clicked; expected producer event(s): creator_broadcast_cta_clicked, notification_action_clicked."
+        },
+        "follows": {
+          "metricId": "follows",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_followed",
+            "creator_unfollowed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
+        },
+        "notification_interactions": {
+          "metricId": "notification_interactions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "notification_opened",
+            "notification_read",
+            "notification_action_clicked",
+            "notification_mark_all_read",
+            "notification_cleared"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+        },
+        "runtime_watch_sessions": {
+          "metricId": "runtime_watch_sessions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "watch_session_started",
+            "watch_session_progress",
+            "watch_session_ended",
+            "viewer_watch_checkpoint"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+        },
+        "settings_actions": {
+          "metricId": "settings_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "user_settings_viewed",
+            "profile_settings_viewed",
+            "settings_surface_viewed",
+            "setting_toggle_changed",
+            "setting_action_clicked",
+            "setting_save_succeeded",
+            "setting_save_failed",
+            "creator_dashboard_settings_viewed",
+            "creator_settings_section_opened",
+            "creator_setting_updated",
+            "creator_settings_updated",
+            "creator_settings_control_plane_saved",
+            "creator_settings_migrated_redirect_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+        },
+        "support_account_actions": {
+          "metricId": "support_account_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "support_inbox_viewed",
+            "support_ticket_created",
+            "support_thread_opened",
+            "support_reply_viewed",
+            "support_reply_sent",
+            "account_delete_clicked",
+            "account_delete_confirm_opened",
+            "account_delete_confirmed",
+            "account_delete_cancelled",
+            "account_delete_request_submitted",
+            "account_delete_failed",
+            "account_delete_completed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        }
+      },
+      "totalCount": 0,
+      "lowConfidenceCount": 23
+    },
+    "signedIn": {
+      "scope": "signedIn",
+      "metrics": {
+        "sessions": {
+          "metricId": "sessions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "session_started",
+            "auth_session_established",
+            "auth_session_restored"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:session_started:1"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for sessions; expected producer event(s): session_started, auth_session_established, auth_session_restored."
+        },
+        "visits": {
+          "metricId": "visits",
+          "count": 3,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed",
+            "home_page_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:semantic_page_viewed:2",
+            "person_metrics_validator:semantic_page_viewed:3",
+            "person_metrics_validator:semantic_page_viewed:4"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for visits; expected producer event(s): semantic_page_viewed, page_viewed, home_page_viewed."
+        },
+        "active_days": {
+          "metricId": "active_days",
+          "count": 5,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "session_started",
+            "watch_session_started"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:session_started:1",
+            "person_metrics_validator:semantic_page_viewed:2",
+            "person_metrics_validator:semantic_page_viewed:3",
+            "person_metrics_validator:semantic_page_viewed:4",
+            "person_metrics_validator:watch_session_started:21"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
+        },
+        "page_views": {
+          "metricId": "page_views",
+          "count": 3,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:semantic_page_viewed:2",
+            "person_metrics_validator:semantic_page_viewed:3",
+            "person_metrics_validator:semantic_page_viewed:4"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for page_views; expected producer event(s): semantic_page_viewed, page_viewed."
+        },
+        "creator_profile_views": {
+          "metricId": "creator_profile_views",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_profile_viewed",
+            "creator_profile_link_clicked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_profile_viewed:5"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
+        },
+        "drop_opens": {
+          "metricId": "drop_opens",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_preview_opened",
+            "drop_preview_page_viewed",
+            "view_drop_details",
+            "drop_clicked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:drop_preview_opened:6"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for drop_opens; expected producer event(s): drop_preview_opened, drop_preview_page_viewed, view_drop_details, drop_clicked."
+        },
+        "unwraps": {
+          "metricId": "unwraps",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_unwrapped",
+            "unlock_drop_success",
+            "creator_drop_unwrapped"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:drop_unwrapped:7"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, unlock_drop_success, creator_drop_unwrapped."
+        },
+        "wallet_opens": {
+          "metricId": "wallet_opens",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_opened"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:wallet_opened:8"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_opens; expected producer event(s): wallet_opened."
+        },
+        "wallet_closes": {
+          "metricId": "wallet_closes",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:wallet_closed_incomplete:9"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_closes; expected producer event(s): wallet_closed_incomplete."
+        },
+        "package_selections": {
+          "metricId": "package_selections",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "purchase_package_selected"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:purchase_package_selected:10"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for package_selections; expected producer event(s): purchase_package_selected."
+        },
+        "checkout_starts": {
+          "metricId": "checkout_starts",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "begin_checkout"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:begin_checkout:11"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for checkout_starts; expected producer event(s): begin_checkout."
+        },
+        "payment_approvals": {
+          "metricId": "payment_approvals",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "server_purchase_verified",
+            "purchase_verified",
+            "paypal_capture_completed",
+            "purchase_completed",
+            "gumdrops_purchase_completed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:server_purchase_verified:12"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_approvals; expected producer event(s): server_purchase_verified, purchase_verified, paypal_capture_completed, purchase_completed, gumdrops_purchase_completed."
+        },
+        "payment_cancels": {
+          "metricId": "payment_cancels",
+          "count": 2,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "payment_canceled",
+            "paypal_checkout_canceled",
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:wallet_closed_incomplete:9",
+            "person_metrics_validator:payment_canceled:13"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_cancels; expected producer event(s): payment_canceled, paypal_checkout_canceled, wallet_closed_incomplete."
+        },
+        "payment_failures": {
+          "metricId": "payment_failures",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "gumdrops_purchase_failed",
+            "paypal_capture_failed",
+            "payment_failed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:gumdrops_purchase_failed:14"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_failures; expected producer event(s): gumdrops_purchase_failed, paypal_capture_failed, payment_failed."
+        },
+        "fan_pass_views": {
+          "metricId": "fan_pass_views",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_viewed",
+            "creator_subscription_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_fan_pass_viewed:15"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed."
+        },
+        "fan_pass_purchases": {
+          "metricId": "fan_pass_purchases",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_started",
+            "creator_subscription_started",
+            "creator_subscription_renewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_fan_pass_started:16"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed."
+        },
+        "broadcasts_viewed": {
+          "metricId": "broadcasts_viewed",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_detail_viewed",
+            "creator_broadcast_opened"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_broadcast_detail_viewed:17"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_viewed; expected producer event(s): creator_broadcast_detail_viewed, creator_broadcast_opened."
+        },
+        "broadcasts_clicked": {
+          "metricId": "broadcasts_clicked",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_cta_clicked",
+            "notification_action_clicked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_broadcast_cta_clicked:18"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_clicked; expected producer event(s): creator_broadcast_cta_clicked, notification_action_clicked."
+        },
+        "follows": {
+          "metricId": "follows",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_followed",
+            "creator_unfollowed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_followed:19"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
+        },
+        "notification_interactions": {
+          "metricId": "notification_interactions",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "notification_opened",
+            "notification_read",
+            "notification_action_clicked",
+            "notification_mark_all_read",
+            "notification_cleared"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:notification_opened:20"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+        },
+        "runtime_watch_sessions": {
+          "metricId": "runtime_watch_sessions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "watch_session_started",
+            "watch_session_progress",
+            "watch_session_ended",
+            "viewer_watch_checkpoint"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:watch_session_started:21"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+        },
+        "settings_actions": {
+          "metricId": "settings_actions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "user_settings_viewed",
+            "profile_settings_viewed",
+            "settings_surface_viewed",
+            "setting_toggle_changed",
+            "setting_action_clicked",
+            "setting_save_succeeded",
+            "setting_save_failed",
+            "creator_dashboard_settings_viewed",
+            "creator_settings_section_opened",
+            "creator_setting_updated",
+            "creator_settings_updated",
+            "creator_settings_control_plane_saved",
+            "creator_settings_migrated_redirect_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:user_settings_viewed:22"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+        },
+        "support_account_actions": {
+          "metricId": "support_account_actions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "support_inbox_viewed",
+            "support_ticket_created",
+            "support_thread_opened",
+            "support_reply_viewed",
+            "support_reply_sent",
+            "account_delete_clicked",
+            "account_delete_confirm_opened",
+            "account_delete_confirmed",
+            "account_delete_cancelled",
+            "account_delete_request_submitted",
+            "account_delete_failed",
+            "account_delete_completed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:support_inbox_viewed:23"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        }
+      },
+      "totalCount": 32,
+      "lowConfidenceCount": 4
+    },
+    "linkedPerson": {
+      "scope": "linkedPerson",
+      "metrics": {
+        "sessions": {
+          "metricId": "sessions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "session_started",
+            "auth_session_established",
+            "auth_session_restored"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for sessions; expected producer event(s): session_started, auth_session_established, auth_session_restored."
+        },
+        "visits": {
+          "metricId": "visits",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed",
+            "home_page_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for visits; expected producer event(s): semantic_page_viewed, page_viewed, home_page_viewed."
+        },
+        "active_days": {
+          "metricId": "active_days",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "session_started",
+            "watch_session_started"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
+        },
+        "page_views": {
+          "metricId": "page_views",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for page_views; expected producer event(s): semantic_page_viewed, page_viewed."
+        },
+        "creator_profile_views": {
+          "metricId": "creator_profile_views",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_profile_viewed",
+            "creator_profile_link_clicked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_profile_viewed:5"
+          ],
+          "suppressedDuplicateCount": 1,
+          "missingSourceExplanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
+        },
+        "drop_opens": {
+          "metricId": "drop_opens",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_preview_opened",
+            "drop_preview_page_viewed",
+            "view_drop_details",
+            "drop_clicked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for drop_opens; expected producer event(s): drop_preview_opened, drop_preview_page_viewed, view_drop_details, drop_clicked."
+        },
+        "unwraps": {
+          "metricId": "unwraps",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_unwrapped",
+            "unlock_drop_success",
+            "creator_drop_unwrapped"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, unlock_drop_success, creator_drop_unwrapped."
+        },
+        "wallet_opens": {
+          "metricId": "wallet_opens",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_opened"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_opens; expected producer event(s): wallet_opened."
+        },
+        "wallet_closes": {
+          "metricId": "wallet_closes",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_closes; expected producer event(s): wallet_closed_incomplete."
+        },
+        "package_selections": {
+          "metricId": "package_selections",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "purchase_package_selected"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:purchase_package_selected:10"
+          ],
+          "suppressedDuplicateCount": 1,
+          "missingSourceExplanation": "Missing producer activity for package_selections; expected producer event(s): purchase_package_selected."
+        },
+        "checkout_starts": {
+          "metricId": "checkout_starts",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "begin_checkout"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for checkout_starts; expected producer event(s): begin_checkout."
+        },
+        "payment_approvals": {
+          "metricId": "payment_approvals",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "server_purchase_verified",
+            "purchase_verified",
+            "paypal_capture_completed",
+            "purchase_completed",
+            "gumdrops_purchase_completed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_approvals; expected producer event(s): server_purchase_verified, purchase_verified, paypal_capture_completed, purchase_completed, gumdrops_purchase_completed."
+        },
+        "payment_cancels": {
+          "metricId": "payment_cancels",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "payment_canceled",
+            "paypal_checkout_canceled",
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_cancels; expected producer event(s): payment_canceled, paypal_checkout_canceled, wallet_closed_incomplete."
+        },
+        "payment_failures": {
+          "metricId": "payment_failures",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "gumdrops_purchase_failed",
+            "paypal_capture_failed",
+            "payment_failed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_failures; expected producer event(s): gumdrops_purchase_failed, paypal_capture_failed, payment_failed."
+        },
+        "fan_pass_views": {
+          "metricId": "fan_pass_views",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_viewed",
+            "creator_subscription_viewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_fan_pass_viewed:15"
+          ],
+          "suppressedDuplicateCount": 1,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed."
+        },
+        "fan_pass_purchases": {
+          "metricId": "fan_pass_purchases",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_started",
+            "creator_subscription_started",
+            "creator_subscription_renewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed."
+        },
+        "broadcasts_viewed": {
+          "metricId": "broadcasts_viewed",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_detail_viewed",
+            "creator_broadcast_opened"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_viewed; expected producer event(s): creator_broadcast_detail_viewed, creator_broadcast_opened."
+        },
+        "broadcasts_clicked": {
+          "metricId": "broadcasts_clicked",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_cta_clicked",
+            "notification_action_clicked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_clicked; expected producer event(s): creator_broadcast_cta_clicked, notification_action_clicked."
+        },
+        "follows": {
+          "metricId": "follows",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_followed",
+            "creator_unfollowed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
+        },
+        "notification_interactions": {
+          "metricId": "notification_interactions",
+          "count": 1,
+          "confidence": "linked",
+          "provenZero": false,
+          "sourceEvents": [
+            "notification_opened",
+            "notification_read",
+            "notification_action_clicked",
+            "notification_mark_all_read",
+            "notification_cleared"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:notification_opened:20"
+          ],
+          "suppressedDuplicateCount": 1,
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+        },
+        "runtime_watch_sessions": {
+          "metricId": "runtime_watch_sessions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "watch_session_started",
+            "watch_session_progress",
+            "watch_session_ended",
+            "viewer_watch_checkpoint"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+        },
+        "settings_actions": {
+          "metricId": "settings_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "user_settings_viewed",
+            "profile_settings_viewed",
+            "settings_surface_viewed",
+            "setting_toggle_changed",
+            "setting_action_clicked",
+            "setting_save_succeeded",
+            "setting_save_failed",
+            "creator_dashboard_settings_viewed",
+            "creator_settings_section_opened",
+            "creator_setting_updated",
+            "creator_settings_updated",
+            "creator_settings_control_plane_saved",
+            "creator_settings_migrated_redirect_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+        },
+        "support_account_actions": {
+          "metricId": "support_account_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "support_inbox_viewed",
+            "support_ticket_created",
+            "support_thread_opened",
+            "support_reply_viewed",
+            "support_reply_sent",
+            "account_delete_clicked",
+            "account_delete_confirm_opened",
+            "account_delete_confirmed",
+            "account_delete_cancelled",
+            "account_delete_request_submitted",
+            "account_delete_failed",
+            "account_delete_completed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        }
+      },
+      "totalCount": 4,
+      "lowConfidenceCount": 23
+    },
+    "creatorRole": {
+      "scope": "creatorRole",
+      "metrics": {
+        "sessions": {
+          "metricId": "sessions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "session_started",
+            "auth_session_established",
+            "auth_session_restored"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for sessions; expected producer event(s): session_started, auth_session_established, auth_session_restored."
+        },
+        "visits": {
+          "metricId": "visits",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed",
+            "home_page_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for visits; expected producer event(s): semantic_page_viewed, page_viewed, home_page_viewed."
+        },
+        "active_days": {
+          "metricId": "active_days",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "session_started",
+            "watch_session_started"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:watch_session_started:21"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
+        },
+        "page_views": {
+          "metricId": "page_views",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "semantic_page_viewed",
+            "page_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for page_views; expected producer event(s): semantic_page_viewed, page_viewed."
+        },
+        "creator_profile_views": {
+          "metricId": "creator_profile_views",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_profile_viewed",
+            "creator_profile_link_clicked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
+        },
+        "drop_opens": {
+          "metricId": "drop_opens",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_preview_opened",
+            "drop_preview_page_viewed",
+            "view_drop_details",
+            "drop_clicked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for drop_opens; expected producer event(s): drop_preview_opened, drop_preview_page_viewed, view_drop_details, drop_clicked."
+        },
+        "unwraps": {
+          "metricId": "unwraps",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "drop_unwrapped",
+            "unlock_drop_success",
+            "creator_drop_unwrapped"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:drop_unwrapped:7"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, unlock_drop_success, creator_drop_unwrapped."
+        },
+        "wallet_opens": {
+          "metricId": "wallet_opens",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_opened"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_opens; expected producer event(s): wallet_opened."
+        },
+        "wallet_closes": {
+          "metricId": "wallet_closes",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for wallet_closes; expected producer event(s): wallet_closed_incomplete."
+        },
+        "package_selections": {
+          "metricId": "package_selections",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "purchase_package_selected"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for package_selections; expected producer event(s): purchase_package_selected."
+        },
+        "checkout_starts": {
+          "metricId": "checkout_starts",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "begin_checkout"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for checkout_starts; expected producer event(s): begin_checkout."
+        },
+        "payment_approvals": {
+          "metricId": "payment_approvals",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "server_purchase_verified",
+            "purchase_verified",
+            "paypal_capture_completed",
+            "purchase_completed",
+            "gumdrops_purchase_completed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_approvals; expected producer event(s): server_purchase_verified, purchase_verified, paypal_capture_completed, purchase_completed, gumdrops_purchase_completed."
+        },
+        "payment_cancels": {
+          "metricId": "payment_cancels",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "payment_canceled",
+            "paypal_checkout_canceled",
+            "wallet_closed_incomplete"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_cancels; expected producer event(s): payment_canceled, paypal_checkout_canceled, wallet_closed_incomplete."
+        },
+        "payment_failures": {
+          "metricId": "payment_failures",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "gumdrops_purchase_failed",
+            "paypal_capture_failed",
+            "payment_failed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:gumdrops_purchase_failed:14"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for payment_failures; expected producer event(s): gumdrops_purchase_failed, paypal_capture_failed, payment_failed."
+        },
+        "fan_pass_views": {
+          "metricId": "fan_pass_views",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_viewed",
+            "creator_subscription_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed."
+        },
+        "fan_pass_purchases": {
+          "metricId": "fan_pass_purchases",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_fan_pass_started",
+            "creator_subscription_started",
+            "creator_subscription_renewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed."
+        },
+        "broadcasts_viewed": {
+          "metricId": "broadcasts_viewed",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_detail_viewed",
+            "creator_broadcast_opened"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_viewed; expected producer event(s): creator_broadcast_detail_viewed, creator_broadcast_opened."
+        },
+        "broadcasts_clicked": {
+          "metricId": "broadcasts_clicked",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_broadcast_cta_clicked",
+            "notification_action_clicked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for broadcasts_clicked; expected producer event(s): creator_broadcast_cta_clicked, notification_action_clicked."
+        },
+        "follows": {
+          "metricId": "follows",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_followed",
+            "creator_unfollowed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
+        },
+        "notification_interactions": {
+          "metricId": "notification_interactions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "notification_opened",
+            "notification_read",
+            "notification_action_clicked",
+            "notification_mark_all_read",
+            "notification_cleared"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+        },
+        "runtime_watch_sessions": {
+          "metricId": "runtime_watch_sessions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "watch_session_started",
+            "watch_session_progress",
+            "watch_session_ended",
+            "viewer_watch_checkpoint"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:watch_session_started:21"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+        },
+        "settings_actions": {
+          "metricId": "settings_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "user_settings_viewed",
+            "profile_settings_viewed",
+            "settings_surface_viewed",
+            "setting_toggle_changed",
+            "setting_action_clicked",
+            "setting_save_succeeded",
+            "setting_save_failed",
+            "creator_dashboard_settings_viewed",
+            "creator_settings_section_opened",
+            "creator_setting_updated",
+            "creator_settings_updated",
+            "creator_settings_control_plane_saved",
+            "creator_settings_migrated_redirect_viewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+        },
+        "support_account_actions": {
+          "metricId": "support_account_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "support_inbox_viewed",
+            "support_ticket_created",
+            "support_thread_opened",
+            "support_reply_viewed",
+            "support_reply_sent",
+            "account_delete_clicked",
+            "account_delete_confirm_opened",
+            "account_delete_confirmed",
+            "account_delete_cancelled",
+            "account_delete_request_submitted",
+            "account_delete_failed",
+            "account_delete_completed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        }
+      },
+      "totalCount": 4,
+      "lowConfidenceCount": 19
+    }
+  },
+  "lowConfidenceMetrics": [
+    {
+      "metricId": "creator_profile_views",
+      "count": 1,
+      "confidence": "linked",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_profile_viewed",
+        "creator_profile_link_clicked"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_profile_viewed:5"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": "creator_profile_views hydrated below exact confidence (linked).",
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    {
+      "metricId": "fan_pass_views",
+      "count": 1,
+      "confidence": "linked",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_fan_pass_viewed",
+        "creator_subscription_viewed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_fan_pass_viewed:15"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": "fan_pass_views hydrated below exact confidence (linked).",
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    {
+      "metricId": "notification_interactions",
+      "count": 1,
+      "confidence": "linked",
+      "provenZero": false,
+      "sourceEvents": [
+        "notification_opened",
+        "notification_read",
+        "notification_action_clicked",
+        "notification_mark_all_read",
+        "notification_cleared"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:notification_opened:20"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": "notification_interactions hydrated below exact confidence (linked).",
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    {
+      "metricId": "package_selections",
+      "count": 1,
+      "confidence": "linked",
+      "provenZero": false,
+      "sourceEvents": [
+        "purchase_package_selected"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:purchase_package_selected:10"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": "package_selections hydrated below exact confidence (linked).",
+      "missingProducer": null,
+      "missingBridge": null
+    }
+  ],
+  "missingHydration": [],
+  "legacySummary": {
+    "candidatesReviewed": 1,
+    "candidatesHydrated": 0,
+    "exactPromotionsBlocked": 1,
+    "unknownLegacyArchived": 1
+  },
+  "validation": {
+    "checkoutStartCountsAsPaymentSuccess": false,
+    "pageTimeCountsAsWatchTime": false,
+    "duplicateGuestUserCountsSuppressed": 4,
+    "unknownLegacyBecameExact": false,
+    "zeroWithoutProvenZero": false
+  },
+  "scoreImpactByDimension": {
+    "sourceHealth": {
+      "before": 80,
+      "after": 84,
+      "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
+    },
+    "runtimeHealth": {
+      "before": 80,
+      "after": 83,
+      "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
+    },
+    "evidenceCompleteness": {
+      "before": 80,
+      "after": 84,
+      "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
+    },
+    "freshness": {
+      "before": 80,
+      "after": 84,
+      "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
+    },
+    "costRisk": {
+      "before": 80,
+      "after": 84,
+      "reason": "Hydration is source-only and does not add production reads or live data mutation."
+    },
+    "regressionRisk": {
+      "before": 80,
+      "after": 84,
+      "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
+    }
+  },
+  "currentHead": "fa929bd2cbbf640bd1f2f17cd15940306ffdd3e3",
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/person-metrics-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-person-metrics-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-public-beta-score.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/server/admin-debug/summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/debug-tracking-simplification.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/person-metrics-contract.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/person-metrics-hydration.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "activeOldLogic": [],
+  "validationFailures": []
+}

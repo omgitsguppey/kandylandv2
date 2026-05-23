@@ -51,6 +51,7 @@ const REAL_USAGE_CONFIDENCE_CALIBRATION_PATH = "agent/state/real-usage-confidenc
 const BEHAVIOR_MATH_VERIFICATION_PATH = "agent/state/behavior-math-verification.generated.json";
 const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generated.json";
 const EVENT_TRANSLATION_BRIDGE_PATH = "agent/state/event-translation-bridge.generated.json";
+const PERSON_METRICS_HYDRATION_PATH = "agent/state/person-metrics-hydration.generated.json";
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const ADMIN_TRUTH_SOURCE_SAMPLE_PATH = "agent/state/admin-truth-source-sample.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
@@ -578,12 +579,51 @@ function readEventTranslationBridgeEvidence(root: string): PublicBetaEvidenceArt
   };
 }
 
+function readPersonMetricsHydrationEvidence(root: string): PublicBetaEvidenceArtifact | null {
+  const parsed = readJsonFile(root, PERSON_METRICS_HYDRATION_PATH);
+  if (!parsed) return null;
+
+  const debugLane = readRecord(parsed.debugLane);
+  const readLaneNumber = (key: string) => readNumber(debugLane[key]) ?? readNumber(parsed[key]) ?? 0;
+  const status = readString(parsed.status) ?? "missing_or_unknown";
+  const gapCount = readLaneNumber("gaps");
+  const sourceReady = status === "pass"
+    && gapCount === 0
+    && readBoolean(parsed.productionReadsRequired) === false
+    && readBoolean(parsed.legacyMutationAllowed) === false
+    && readBoolean(parsed.fakeMetricsUsed) === false;
+
+  return {
+    path: PERSON_METRICS_HYDRATION_PATH,
+    status: sourceReady ? "source_ready_person_metrics_hydration" : status,
+    passed: false,
+    detail: sourceReady
+      ? "Person metrics hydration is source-ready for canonical envelopes, linked guest/user confidence, debug evidence, and score inputs without claiming future real activity as proven."
+      : "Person metrics hydration evidence is missing required source-ready guardrails.",
+    evidence: [
+      `personMetricsHydration.status=${status}`,
+      `personMetricsHydration.producersRegistered=${readLaneNumber("producersRegistered")}`,
+      `personMetricsHydration.producersConnected=${readLaneNumber("producersConnected")}`,
+      `personMetricsHydration.eventEnvelopesHydrated=${readLaneNumber("eventEnvelopesHydrated")}`,
+      `personMetricsHydration.personMetricsMapped=${readLaneNumber("personMetricsMapped")}`,
+      `personMetricsHydration.lowConfidenceMetrics=${readLaneNumber("lowConfidenceMetrics")}`,
+      `personMetricsHydration.gapCount=${gapCount}`,
+      "launchGateImpact=does_not_clear_deployed_runtime_smoke",
+      "legacyImpact=unknown_legacy_never_exact_user_truth",
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
+}
+
 function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvidenceArtifact {
   const debugRuntime = readDebugRuntimeEvidence(root);
   const currentHead = readGitHead(root);
   const debugSourceReady = String(debugRuntime.status).includes("source_ready")
     && (!debugRuntime.sourceCommit || !currentHead || debugRuntime.sourceCommit === currentHead);
   if (debugSourceReady) return debugRuntime;
+  const personMetricsHydration = readPersonMetricsHydrationEvidence(root);
+  if (personMetricsHydration?.status === "source_ready_person_metrics_hydration") return personMetricsHydration;
   return readEventTranslationBridgeEvidence(root) ?? debugRuntime;
 }
 

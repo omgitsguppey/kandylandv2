@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.93 - 2026-05-23
+- Person metrics hydration reliability
+- Hydrated individual user metrics from canonical event envelopes.
+- Added confidence explanations for global, guest, user, and linked-person metrics.
+- Cleaned stale person-metric logic.
+
 ## 1.3.92 - 2026-05-23
 - Event translation bridge reliability
 - Connected tracked events to feature activity, person metrics, debug evidence, and score inputs.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Executed safe score-impact refresh queue.
 - Cleared stale artifact drag without changing formal evidence gates.
 - Kept in-flight privacy telemetry work isolated.
-
-## 1.3.68 - 2026-05-21
-- Behavioral privacy telemetry lock
-- Locked privacy-aware behavioral telemetry.
-- Connected cookie consent to guest, signup, and logged-in analytics.
-- Made future behavioral events contract-driven instead of refactor-heavy.
