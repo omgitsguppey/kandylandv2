@@ -5263,11 +5263,25 @@ export async function GET(request: NextRequest) {
                 || right.taskIds.length - left.taskIds.length
                 || left.eventName.localeCompare(right.eventName);
         });
+        // Bolt Optimization: Precompute maps to avoid O(N^2) array.find scans in loop
+        const runtimeTaskSourceParityRowsMap = new Map(
+            runtimeTaskSourceParityRows.map(row => [row.taskId, row])
+        );
+
+        const sharedEventGroupsByTaskId = new Map<string, SharedTaskEventGroup>();
+        for (const group of sharedEventGroups) {
+            for (const taskId of group.taskIds) {
+                if (!sharedEventGroupsByTaskId.has(taskId)) {
+                    sharedEventGroupsByTaskId.set(taskId, group);
+                }
+            }
+        }
+
         const alignmentWarnings: TaskTelemetryAlignmentWarning[] = [];
         runtimeTaskAudit.distribution.forEach((entry) => {
             const definition = taskDefinitionsById.get(entry.taskId);
-            const sourceParity = runtimeTaskSourceParityRows.find((row) => row.taskId === entry.taskId);
-            const sharedGroup = sharedEventGroups.find((group) => group.taskIds.includes(entry.taskId));
+            const sourceParity = runtimeTaskSourceParityRowsMap.get(entry.taskId);
+            const sharedGroup = sharedEventGroupsByTaskId.get(entry.taskId);
 
             if (sharedGroup && (sharedGroup.ambiguityState === "partial" || sharedGroup.ambiguityState === "unsafe_shared_event")) {
                 alignmentWarnings.push({
@@ -5371,9 +5385,18 @@ export async function GET(request: NextRequest) {
             receiptCount: number;
             assignedCount: number;
         }>());
+        // Bolt Optimization: Precompute a map grouping shared events by event name
+        // This turns O(N^2) array.find scans into O(1) Map lookups in the telemetry alignment loop.
+        const sharedEventGroupsByEventName = new Map<string, SharedTaskEventGroup>();
+        for (const group of sharedEventGroups) {
+            if (!sharedEventGroupsByEventName.has(group.eventName)) {
+                sharedEventGroupsByEventName.set(group.eventName, group);
+            }
+        }
+
         const taskTelemetryMappingRows: TaskTelemetryMappingRow[] = Array.from(telemetryAlignmentByCanonicalEvent.values()).map((entry) => {
             const affectedDefinitions = taskDefinitionsByCanonicalEvent.get(entry.eventName) || [];
-            const sharedGroup = sharedEventGroups.find((group) => group.eventName === entry.eventName);
+            const sharedGroup = sharedEventGroupsByEventName.get(entry.eventName);
             const purpose = classifyTaskTelemetryEventPurpose(entry.eventName);
             const expectedMapping = purpose === "task_trigger"
                 || (purpose === "notification_event" && (entry.eventName === "notification_read" || entry.eventName === "notification_opened"))

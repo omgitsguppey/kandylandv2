@@ -25,3 +25,10 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+## 2024-05-18 - Nested array filters in admin dashboard loops
+**Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
+**Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2024-05-18 - Replacing `Array.find` and `Array.includes` inside loops with Maps
+**Learning:** In `src/app/api/admin/debug/route.ts`, multiple `Array.find` iterations were executing inside loops across large collections (`runtimeTaskAudit.distribution` over `runtimeTaskSourceParityRows` and `sharedEventGroups`), leading to `O(N^2)` time complexity.
+**Action:** Replaced these nested searches by precomputing `Map` lookups (e.g., `sharedEventGroupsByTaskId`) immediately before the loop execution. Specifically for arrays matching multiple criteria or returning the first match via `Array.find()`, populating the Map using `if (!map.has(key))` ensures the exact behavior of `find()` is preserved without `O(N)` per-iteration costs.
