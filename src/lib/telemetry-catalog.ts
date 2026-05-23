@@ -421,6 +421,11 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "chat_message_sent", label: "Chat message sent", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_thread_unread_updated", label: "Chat thread unread updated", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_thread_read_marked", label: "Chat thread read marked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_typing_started", label: "Chat typing started", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_typing_stopped", label: "Chat typing stopped", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_presence_connected", label: "Chat presence connected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_presence_disconnected", label: "Chat presence disconnected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_presence_error", label: "Chat presence error", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_ios_pwa_shell_applied", label: "Chat iOS PWA shell applied", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_bottom_anchor_restored", label: "Chat bottom anchor restored", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_media_file_rejected_size", label: "Chat media file rejected by size", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
@@ -1072,7 +1077,12 @@ function isChatEvent(eventName: string) {
     || eventName === "chat_message_send_failed"
     || eventName === "chat_message_sent"
     || eventName === "chat_thread_unread_updated"
-    || eventName === "chat_thread_read_marked";
+    || eventName === "chat_thread_read_marked"
+    || eventName === "chat_typing_started"
+    || eventName === "chat_typing_stopped"
+    || eventName === "chat_presence_connected"
+    || eventName === "chat_presence_disconnected"
+    || eventName === "chat_presence_error";
 }
 
 function isOnboardingEvent(eventName: string, option?: TelemetryEventOption) {

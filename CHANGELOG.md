@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.3 - 2026-05-23
+- Chat presence and typing reliability
+- Hardened chat typing and presence cleanup.
+- Reduced typing write spam with throttled ephemeral state.
+- Added debug visibility for presence health.
+
 ## 1.4.2 - 2026-05-23
 - Chat realtime reliability
 - Hardened chat realtime listener scope and cleanup.

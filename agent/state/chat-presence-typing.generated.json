@@ -1,0 +1,262 @@
+{
+  "reportKey": "chat-presence-typing",
+  "generatedAtUtc": "2026-05-23T22:03:11.920Z",
+  "currentHead": "9a7b8270db20d358dae7876e061a22c823c2421d",
+  "productionReadsRequired": false,
+  "liveDataMutationAllowed": false,
+  "deployRequired": false,
+  "sourceValidation": {
+    "onDisconnectAttached": true,
+    "usesTypingController": true,
+    "noPerKeystrokeTypingWrites": true,
+    "timeoutStopsTyping": true,
+    "blurStopsTyping": true,
+    "sendStopsTyping": true,
+    "unmountStopsTyping": true,
+    "presenceErrorsDebugVisible": true,
+    "telemetryNotPerKeystroke": true,
+    "failures": []
+  },
+  "contract": {
+    "storage": {
+      "root": "chat_presence",
+      "presencePathPattern": "chat_presence/{creatorId}/{userId}/{uid}",
+      "typingPathPattern": "chat_presence/{creatorId}/{userId}/{uid}/typing"
+    },
+    "payloadFields": [
+      "typing",
+      "activeAt",
+      "role",
+      "threadId",
+      "userId"
+    ],
+    "presence": {
+      "activeAtField": "activeAt",
+      "ttlMs": 45000,
+      "heartbeatMs": 30000
+    },
+    "typing": {
+      "typingField": "typing",
+      "writeThrottleMs": 3000,
+      "stopTimeoutMs": 4000,
+      "maxStaleTypingMs": 10000
+    },
+    "cleanup": {
+      "onDisconnectRemove": true,
+      "clearOnTimeout": true,
+      "clearOnBlur": true,
+      "clearOnSend": true,
+      "clearOnClose": true,
+      "clearOnUnmount": true
+    },
+    "costControls": {
+      "throttleTypingWrites": true,
+      "telemetrySampled": true,
+      "noDurableTypingMessages": true,
+      "noPerKeystrokeWrites": true,
+      "rtdbPresenceOnly": true
+    },
+    "debugStatus": {
+      "lane": "Chat presence/typing",
+      "errorCountField": "presenceTypingErrorCount",
+      "costRisk": "bounded"
+    }
+  },
+  "telemetryEvents": [
+    {
+      "eventName": "chat_typing_started",
+      "featureId": "support",
+      "surface": "chat",
+      "debugLane": "Chat presence/typing",
+      "sampled": true,
+      "perKeystrokeAllowed": false,
+      "debugVisible": true,
+      "consentAware": true,
+      "identityAware": true
+    },
+    {
+      "eventName": "chat_typing_stopped",
+      "featureId": "support",
+      "surface": "chat",
+      "debugLane": "Chat presence/typing",
+      "sampled": true,
+      "perKeystrokeAllowed": false,
+      "debugVisible": true,
+      "consentAware": true,
+      "identityAware": true
+    },
+    {
+      "eventName": "chat_presence_connected",
+      "featureId": "support",
+      "surface": "chat",
+      "debugLane": "Chat presence/typing",
+      "sampled": true,
+      "perKeystrokeAllowed": false,
+      "debugVisible": true,
+      "consentAware": true,
+      "identityAware": true
+    },
+    {
+      "eventName": "chat_presence_disconnected",
+      "featureId": "support",
+      "surface": "chat",
+      "debugLane": "Chat presence/typing",
+      "sampled": true,
+      "perKeystrokeAllowed": false,
+      "debugVisible": true,
+      "consentAware": true,
+      "identityAware": true
+    },
+    {
+      "eventName": "chat_presence_error",
+      "featureId": "support",
+      "surface": "chat",
+      "debugLane": "Chat presence/typing",
+      "sampled": true,
+      "perKeystrokeAllowed": false,
+      "debugVisible": true,
+      "consentAware": true,
+      "identityAware": true
+    }
+  ],
+  "debugLane": {
+    "lane": "Chat presence/typing",
+    "onDisconnectAttached": true,
+    "writeThrottleActive": true,
+    "staleTypingCleanupActive": true,
+    "errorCount": 0,
+    "costRisk": "bounded",
+    "scoreDimensionsAffected": [
+      "runtimeHealth",
+      "evidenceCompleteness",
+      "costRisk"
+    ],
+    "label": "Chat presence/typing"
+  },
+  "scoreImpactByDimension": {
+    "sourceHealth": {
+      "before": 91.7,
+      "after": 91.7,
+      "target": 80,
+      "status": "target_met",
+      "reason": "Chat presence hardening does not negatively affect this dimension.",
+      "nextExactAction": "No score action needed for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 67.25,
+      "after": 67.25,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat typing and presence are bounded, ephemeral, self-cleaning, and debug-visible; below-target movement still depends on formal runtime/evidence/cost gates.",
+      "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
+    },
+    "evidenceCompleteness": {
+      "before": 38.75,
+      "after": 38.75,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat typing and presence are bounded, ephemeral, self-cleaning, and debug-visible; below-target movement still depends on formal runtime/evidence/cost gates.",
+      "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
+    },
+    "freshness": {
+      "before": 62.86,
+      "after": 62.86,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat presence hardening does not negatively affect this dimension.",
+      "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat typing and presence are bounded, ephemeral, self-cleaning, and debug-visible; below-target movement still depends on formal runtime/evidence/cost gates.",
+      "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
+    },
+    "regressionRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat presence hardening does not negatively affect this dimension.",
+      "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
+    }
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/chat-presence-typing.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/chat-presence-typing.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-presence-typing.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/chat/chat-presence-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/chat/chat-typing-controller.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/chat-presence-typing.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "oldLogicClassification": [
+    {
+      "reference": "ChatExperience direct per-change typing write",
+      "classification": "superseded",
+      "reason": "Typing writes now pass through the throttled controller before RTDB writes."
+    },
+    {
+      "reference": "ChatExperience RTDB onDisconnect presence cleanup",
+      "classification": "still_required",
+      "reason": "Presence stays ephemeral and self-cleaning through RTDB onDisconnect and unmount removal."
+    },
+    {
+      "reference": "ChatExperience counterpart presence read",
+      "classification": "still_required",
+      "reason": "Counterpart presence remains a participant-scoped RTDB read and is normalized for stale typing expiry."
+    }
+  ],
+  "validationFailures": []
+}

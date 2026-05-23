@@ -77,6 +77,18 @@ import {
     type ChatRealtimePropagationState,
 } from "@/lib/chat/chat-realtime-contract";
 import {
+    CHAT_PRESENCE_CONTRACT,
+    buildChatPresencePayload,
+    buildChatPresenceTelemetryPayload,
+    normalizeChatPresenceSnapshot,
+    type ChatPresenceTelemetryEventName,
+} from "@/lib/chat/chat-presence-contract";
+import {
+    createChatTypingControllerState,
+    resolveChatTypingIntent,
+    type ChatTypingIntentReason,
+} from "@/lib/chat/chat-typing-controller";
+import {
     buildChatRealtimeTelemetryPayload,
     type ChatRealtimeTelemetryEventName,
 } from "@/lib/chat/chat-realtime-telemetry";
@@ -402,6 +414,19 @@ function deferChatRealtimeTelemetry(input: {
 }) {
     scheduleChatPostPaintTask(() => {
         trackEvent(input.eventName, buildChatRealtimeTelemetryPayload(input));
+    });
+}
+
+function deferChatPresenceTelemetry(input: {
+    eventName: ChatPresenceTelemetryEventName;
+    userId?: string | null;
+    threadId?: string | null;
+    typing?: boolean | null;
+    reason?: string | null;
+    errorMessage?: string | null;
+}) {
+    scheduleChatPostPaintTask(() => {
+        trackEvent(input.eventName, buildChatPresenceTelemetryPayload(input));
     });
 }
 
@@ -757,6 +782,7 @@ export function ChatExperience() {
     const [sendWarningMessage, setSendWarningMessage] = useState<string | null>(null);
     const markReadRef = useRef<string | null>(null);
     const typingResetTimerRef = useRef<number | null>(null);
+    const typingControllerStateRef = useRef(createChatTypingControllerState());
     const messageListRef = useRef<HTMLDivElement | null>(null);
     const shouldStickToBottomRef = useRef(true);
     const initialBottomAnchoredThreadRef = useRef<string | null>(null);
@@ -2148,28 +2174,67 @@ export function ChatExperience() {
         let cancelled = false;
         let heartbeatTimer: number | null = null;
 
-        const syncPresence = (typing: boolean) => set(ownPresenceRef, {
+        const syncPresence = (typing: boolean, reason: ChatTypingIntentReason) => set(ownPresenceRef, buildChatPresencePayload({
             typing,
             activeAt: Date.now(),
             role: selectedThread.viewerRole,
+            threadId: selectedThreadId,
+            userId: user.uid,
             displayName: userProfile?.displayName || user.displayName || user.email || "User",
-        }).catch((error) => {
+        })).catch((error) => {
             if (!cancelled) {
+                deferChatPresenceTelemetry({
+                    eventName: "chat_presence_error",
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    typing,
+                    reason,
+                    errorMessage: error instanceof Error ? error.message : String(error),
+                });
                 deferChatRealtimeIssue("chat presence write", error, {
                     threadId: selectedThreadId,
                 });
             }
         });
 
-        void onDisconnect(ownPresenceRef).remove().catch(() => undefined);
-        void syncPresence(false);
+        void onDisconnect(ownPresenceRef).remove().then(() => {
+            if (!cancelled) {
+                deferChatPresenceTelemetry({
+                    eventName: "chat_presence_connected",
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    typing: false,
+                    reason: "connect",
+                });
+            }
+        }).catch((error) => {
+            if (!cancelled) {
+                deferChatPresenceTelemetry({
+                    eventName: "chat_presence_error",
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    typing: false,
+                    reason: "on_disconnect",
+                    errorMessage: error instanceof Error ? error.message : String(error),
+                });
+            }
+        });
+        void syncPresence(false, "clear");
         heartbeatTimer = window.setInterval(() => {
-            void syncPresence(false);
-        }, 15_000);
+            void syncPresence(typingControllerStateRef.current.currentTyping, "input");
+        }, CHAT_PRESENCE_CONTRACT.presence.heartbeatMs);
 
         const unsubscribe = onValue(counterpartPresenceRef, (snapshot) => {
-            setPresence((snapshot.val() as PresenceSnapshot | null) ?? null);
+            setPresence(normalizeChatPresenceSnapshot(snapshot.val(), Date.now()));
         }, (error) => {
+            deferChatPresenceTelemetry({
+                eventName: "chat_presence_error",
+                userId: user.uid,
+                threadId: selectedThreadId,
+                typing: false,
+                reason: "read",
+                errorMessage: error instanceof Error ? error.message : String(error),
+            });
             deferChatRealtimeIssue("chat presence read", error, {
                 threadId: selectedThreadId,
             });
@@ -2183,40 +2248,81 @@ export function ChatExperience() {
             if (typingResetTimerRef.current) {
                 window.clearTimeout(typingResetTimerRef.current);
             }
+            typingControllerStateRef.current.currentTyping = false;
+            void syncPresence(false, "unmount");
+            deferChatPresenceTelemetry({
+                eventName: "chat_presence_disconnected",
+                userId: user.uid,
+                threadId: selectedThreadId,
+                typing: false,
+                reason: "unmount",
+            });
             void remove(ownPresenceRef).catch(() => undefined);
             unsubscribe();
         };
     }, [selectedThread, selectedThreadId, user, userProfile?.displayName]);
 
-    const pushTypingState = useCallback((typing: boolean) => {
+    const pushTypingState = useCallback((typing: boolean, reason: ChatTypingIntentReason = "input") => {
         if (!selectedThreadId || !user) {
             return;
         }
 
+        const nowMs = Date.now();
+        const decision = resolveChatTypingIntent({
+            state: typingControllerStateRef.current,
+            nextTyping: typing,
+            nowMs,
+            reason,
+        });
+        if (!decision.shouldWrite) {
+            return;
+        }
+
         const ownPresenceRef = ref(rtdb, buildChatPresenceMemberPath(selectedThreadId, user.uid));
-        void set(ownPresenceRef, {
-            typing,
-            activeAt: Date.now(),
+        const nextTyping = decision.writePayload?.typing ?? typing;
+        void set(ownPresenceRef, buildChatPresencePayload({
+            typing: nextTyping,
+            activeAt: decision.writePayload?.activeAt ?? nowMs,
             role: selectedThread?.viewerRole || "user",
+            threadId: selectedThreadId,
+            userId: user.uid,
             displayName: userProfile?.displayName || user.displayName || user.email || "User",
-        }).catch((error) => {
+        })).catch((error) => {
+            deferChatPresenceTelemetry({
+                eventName: "chat_presence_error",
+                userId: user.uid,
+                threadId: selectedThreadId,
+                typing: nextTyping,
+                reason,
+                errorMessage: error instanceof Error ? error.message : String(error),
+            });
             deferChatRealtimeIssue("chat typing write", error, {
                 threadId: selectedThreadId,
             });
         });
+        if (decision.telemetryEvent) {
+            deferChatPresenceTelemetry({
+                eventName: decision.telemetryEvent,
+                userId: user.uid,
+                threadId: selectedThreadId,
+                typing: nextTyping,
+                reason,
+            });
+        }
     }, [selectedThread?.viewerRole, selectedThreadId, user, userProfile?.displayName]);
 
     const handleComposerTextChange = useCallback((value: string) => {
         setComposerText(value);
-        pushTypingState(value.trim().length > 0);
+        const hasText = value.trim().length > 0;
+        pushTypingState(hasText, hasText ? "input" : "clear");
 
         if (typingResetTimerRef.current) {
             window.clearTimeout(typingResetTimerRef.current);
         }
 
         typingResetTimerRef.current = window.setTimeout(() => {
-            pushTypingState(false);
-        }, 2_000);
+            pushTypingState(false, "timeout");
+        }, CHAT_PRESENCE_CONTRACT.typing.stopTimeoutMs);
     }, [pushTypingState]);
 
     const handleSelectFile = useCallback((file: File | null) => {
@@ -2474,7 +2580,7 @@ export function ChatExperience() {
             } : current);
             setComposerText("");
             setComposerKind("text");
-            pushTypingState(false);
+            pushTypingState(false, "send");
             deferChatRealtimeTelemetry({
                 eventName: "chat_message_optimistic_rendered",
                 userId: user?.uid,
@@ -2550,7 +2656,7 @@ export function ChatExperience() {
                 setComposerText("");
                 setComposerFile(null);
                 setComposerKind("text");
-                pushTypingState(false);
+                pushTypingState(false, "send");
             }
             if (body.message && body.thread) {
                 const persistedMessage = body.message;
@@ -3553,6 +3659,7 @@ export function ChatExperience() {
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
+                                                onBlur={() => pushTypingState(false, "blur")}
                                                 onKeyDown={handleComposerKeyDown}
                                                 rows={1}
                                                 disabled={composerBlockedByPaidGdGate}

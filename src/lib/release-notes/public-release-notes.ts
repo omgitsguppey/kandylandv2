@@ -1,13 +1,66 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.2",
-  "betaReleaseCounter": 402,
+  "currentVersion": "1.4.3",
+  "betaReleaseCounter": 403,
   "channel": "beta",
-  "generatedAt": "2026-05-23T21:35:00.000Z",
-  "generatedAtUtc": "2026-05-23T21:35:00.000Z",
+  "generatedAt": "2026-05-23T22:00:00.000Z",
+  "generatedAtUtc": "2026-05-23T22:00:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.3",
+      "previousVersion": "1.4.2",
+      "betaReleaseCounter": 403,
+      "previousBetaReleaseCounter": 402,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(chat): harden typing presence",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T22:00:00.000Z",
+      "generatedAt": "2026-05-23T22:00:00.000Z",
+      "committedAtUtc": "2026-05-23T22:00:00.000Z",
+      "generatedAtUtc": "2026-05-23T22:00:00.000Z",
+      "updatedAtUtc": "2026-05-23T22:00:00.000Z",
+      "category": "Improved",
+      "title": "Chat presence and typing reliability",
+      "summary": "Improved chat presence by keeping typing state ephemeral, throttled, self-cleaning, and visible to debug health checks.",
+      "userFacingTitle": "Chat presence and typing reliability",
+      "surfaceCategory": "Chat & support",
+      "bullets": [
+        "Hardened chat typing and presence cleanup.",
+        "Reduced typing write spam with throttled ephemeral state.",
+        "Added debug visibility for presence health."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-only chat presence and typing contracts, throttled typing controller logic, debug evidence, generated validation, and unit coverage without production reads, UI redesign, payment changes, nav changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Chat",
+        "Admin debug",
+        "Telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/chat-presence-typing.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/chat-presence-typing.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-chat-presence-typing.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/chat/chat-presence-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/chat-presence-typing.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.2",
       "previousVersion": "1.4.1",
@@ -1337,68 +1390,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/telemetry-safety.ts",
         "src/lib/telemetry.ts",
         "tests/unit/event-envelope-normalization.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.78",
-      "previousVersion": "1.3.77",
-      "betaReleaseCounter": 378,
-      "previousBetaReleaseCounter": 377,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): finalize identity handoff spine",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-22T20:22:55.000Z",
-      "generatedAt": "2026-05-22T20:22:55.000Z",
-      "committedAtUtc": "2026-05-22T20:22:55.000Z",
-      "generatedAtUtc": "2026-05-22T20:22:55.000Z",
-      "updatedAtUtc": "2026-05-22T20:22:55.000Z",
-      "category": "Improved",
-      "title": "Identity handoff spine",
-      "summary": "Finalized the guest-to-user tracking spine so events carry one current identity state, respect consent, and avoid duplicate user counts.",
-      "userFacingTitle": "Identity handoff spine",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Finalized guest-to-user identity handoff contracts.",
-        "Prevented double-counting across signup and login.",
-        "Simplified debug identity status into one source of truth."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a canonical identity handoff contract, event envelope builder, source validator, generated evidence, and focused unit coverage without changing payment, wallet, GumDrop, chat, or navigation runtime."
-      ],
-      "affectedSurfaces": [
-        "Analytics",
-        "Privacy",
-        "Admin debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/identity-handoff-refinement.generated.json",
-        "agent/state/identity-handoff-spine.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/identity-handoff-refinement.md",
-        "docs/agent-truth/identity-handoff-spine.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-identity-handoff-refinement.ts",
-        "scripts/agent/validate-identity-handoff-spine.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/components/Analytics/DeepTracker.tsx",
-        "src/lib/analytics/identity-handoff-contract.ts",
-        "src/lib/analytics/identity-handoff-engine.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/identity-handoff-summary.ts",
-        "src/lib/telemetry-safety.ts",
-        "src/lib/telemetry.ts",
-        "tests/unit/identity-handoff-spine.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }
