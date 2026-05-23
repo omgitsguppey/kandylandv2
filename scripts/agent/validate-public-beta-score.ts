@@ -287,6 +287,7 @@ if (report) {
       || gate.evidence.join("\n").includes("source_ready_event_translation_bridge")
       || gate.evidence.join("\n").includes("source_ready_person_metrics_hydration")
       || gate.evidence.join("\n").includes("source_ready_telemetry_trigger_test_matrix")
+      || gate.evidence.join("\n").includes("source_ready_user_management_refactor")
     ));
   const debugEvidence = report.debugEvidence ?? {};
   const debugEvidenceEmpty = Object.values(debugEvidence).every((entries) => Array.isArray(entries) && entries.length === 0);

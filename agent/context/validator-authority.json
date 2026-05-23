@@ -2563,6 +2563,22 @@
       ],
       "reason": "scripts/agent/validate-telemetry-trigger-test-matrix.ts is an active canonical validator for telemetry trigger coverage contracts."
     },
+    "scripts/agent/validate-user-management-refactor.ts": {
+      "surface": "user-management",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/admin/user-management-contract.ts",
+        "src/app/admin/users/page.tsx",
+        "src/app/api/admin/users/route.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts"
+      ],
+      "packageScripts": [
+        "check:user-management-refactor"
+      ],
+      "reason": "scripts/agent/validate-user-management-refactor.ts validates the admin user-management summary, metrics hydration UI, debug lane, and protected runtime boundaries."
+    },
     "scripts/agent/validate-test-fixtures-demo.ts": {
       "surface": "repo-governance",
       "authority": "canonical_contract",
@@ -7198,6 +7214,23 @@
       "reason": "check:telemetry-trigger-test-matrix validates telemetry trigger coverage from source action to score input.",
       "legacyReference": false
     },
+    "check:user-management-refactor": {
+      "surface": "user-management",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/admin/user-management-contract.ts",
+        "src/app/admin/users/page.tsx",
+        "src/app/api/admin/users/route.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-user-management-refactor.ts"
+      ],
+      "reason": "check:user-management-refactor validates the admin user-management summary, metrics hydration UI, debug lane, and protected runtime boundaries.",
+      "legacyReference": false
+    },
     "score:tracking-surface-coverage": {
       "surface": "behavioral-intelligence",
       "authority": "supporting_score",
@@ -7349,10 +7382,10 @@
     }
   },
   "summary": {
-    "validatorCount": 253,
-    "packageScriptCount": 245,
+    "validatorCount": 254,
+    "packageScriptCount": 246,
     "byStatus": {
-      "canonical": 191,
+      "canonical": 192,
       "supporting": 58,
       "blocked": 2,
       "legacy": 1,

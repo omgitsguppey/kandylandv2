@@ -9,6 +9,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "event_envelope",
   "event_translation_bridge",
   "person_metrics_hydration",
+  "user_management",
   "testing_coverage",
   "behavior_math",
   "feature_telemetry_coverage",
@@ -62,6 +63,7 @@ const TRACKING_GROUPS = [
   "event_envelope",
   "event_translation_bridge",
   "person_metrics_hydration",
+  "user_management",
   "testing_coverage",
   "behavior_math",
   "feature_coverage",
@@ -135,6 +137,14 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     : personHydrationMapped > 0
       ? "live"
       : toStatus(input.personMetricsHydration?.status);
+  const userManagement = input.userManagementRefactor?.debugLane ?? {};
+  const userManagementLowConfidence = toNumber(userManagement.lowConfidenceMetrics);
+  const userManagementSummarized = toNumber(userManagement.usersSummarized);
+  const userManagementStatus = userManagementLowConfidence > 0
+    ? "degraded"
+    : userManagementSummarized > 0 || input.userManagementRefactor?.routePolicy?.summaryFirstMode === true
+      ? "live"
+      : toStatus(input.userManagementRefactor?.status);
   const testingCoverage = input.telemetryTriggerTestMatrix?.debugLane ?? {};
   const testingCoverageTotal = toNumber(testingCoverage.totalTriggers);
   const testingCoverageCovered = toNumber(testingCoverage.coveredTriggers);
@@ -236,6 +246,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: personHydrationGaps,
       drilldownTarget: "/admin/debug?tab=advanced#person-metrics-hydration",
+    }),
+    makeLane({
+      id: "user_management",
+      label: "User management",
+      trackingSystem: "user_management",
+      sourceOwner: "admin",
+      sourceOfTruth: "src/lib/admin/user-management-contract.ts",
+      status: userManagementStatus,
+      severity: severityFromCounts(0, userManagementLowConfidence, userManagementStatus),
+      scoreImpact: "high",
+      primarySignal: `Summaries=${userManagementSummarized}; low-confidence=${userManagementLowConfidence}; raw-before-summary=${String(Boolean(userManagement.rawDumpsBeforeSummary))}; duplicate-sections=${toNumber(userManagement.duplicateUserMetricSections)}; summary-first=${String(input.userManagementRefactor?.routePolicy?.summaryFirstMode === true)}.`,
+      criticalCount: 0,
+      warningCount: userManagementLowConfidence,
+      drilldownTarget: "/admin/users#user-management-summary",
     }),
     makeLane({
       id: "testing_coverage",

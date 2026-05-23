@@ -1,0 +1,517 @@
+{
+  "reportKey": "user-management-refactor",
+  "generatedAtUtc": "2026-05-23T06:35:24.458Z",
+  "currentHead": "200055192734aeab1ddf31dadf7961a753ed4832",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "liveDataMutationAllowed": false,
+  "defaultView": "compact_user_list",
+  "detailViewSections": [
+    "identity_handoff",
+    "consent_tracking",
+    "activity_metrics",
+    "wallet_payment_funnel",
+    "drops_unwraps",
+    "support_account_safety",
+    "debug_telemetry_confidence"
+  ],
+  "summaries": [
+    {
+      "identity": {
+        "userId": "validator_user",
+        "displayName": "Validator User",
+        "email": "validator@example.com",
+        "username": "validator",
+        "identityConfidence": "exact"
+      },
+      "accountState": {
+        "status": "active",
+        "verified": true,
+        "onboarded": true,
+        "source": "users"
+      },
+      "creatorRole": {
+        "role": "creator",
+        "visible": true,
+        "applicationStatus": "creator_approved"
+      },
+      "guestLinkStatus": {
+        "visible": true,
+        "state": "not_linked",
+        "source": "identity handoff summary unavailable in list mode"
+      },
+      "consentMode": {
+        "visible": true,
+        "mode": "full_behavioral",
+        "source": "users.privacySettings.allowRecommendations+identifiedAnalyticsEnabled"
+      },
+      "activitySummary": {
+        "state": "live",
+        "totalEvents": 8,
+        "sessions": 2,
+        "visits": 0,
+        "activeDays": 0,
+        "pageViews": 5,
+        "provenZero": false,
+        "missingSource": null
+      },
+      "personMetricConfidence": {
+        "source": "person_metrics_hydration",
+        "mappedMetrics": 24,
+        "lowConfidenceCount": 24,
+        "lowConfidenceMetrics": [
+          {
+            "metricId": "active_days",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "semantic_page_viewed",
+            "missingBridge": "person_metrics.active_days",
+            "missingMaterializer": "person_metrics.active_days",
+            "explanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
+          },
+          {
+            "metricId": "broadcasts_clicked",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "creator_broadcast_cta_clicked",
+            "missingBridge": "person_metrics.broadcasts_clicked",
+            "missingMaterializer": "person_metrics.broadcasts_clicked",
+            "explanation": "Missing producer activity for broadcasts_clicked; expected producer event(s): creator_broadcast_cta_clicked, notification_action_clicked."
+          },
+          {
+            "metricId": "broadcasts_viewed",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "creator_broadcast_detail_viewed",
+            "missingBridge": "person_metrics.broadcasts_viewed",
+            "missingMaterializer": "person_metrics.broadcasts_viewed",
+            "explanation": "Missing producer activity for broadcasts_viewed; expected producer event(s): creator_broadcast_detail_viewed, creator_broadcast_opened."
+          },
+          {
+            "metricId": "checkout_starts",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "begin_checkout",
+            "missingBridge": "person_metrics.checkout_starts",
+            "missingMaterializer": "person_metrics.checkout_starts",
+            "explanation": "Missing producer activity for checkout_starts; expected producer event(s): begin_checkout."
+          },
+          {
+            "metricId": "creator_drop_manager_actions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "creator_drop_submitted",
+            "missingBridge": "person_metrics.creator_drop_manager_actions",
+            "missingMaterializer": "person_metrics.creator_drop_manager_actions",
+            "explanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
+          },
+          {
+            "metricId": "creator_profile_views",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "creator_profile_viewed",
+            "missingBridge": "person_metrics.creator_profile_views",
+            "missingMaterializer": "person_metrics.creator_profile_views",
+            "explanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
+          },
+          {
+            "metricId": "drop_opens",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "drop_preview_opened",
+            "missingBridge": "person_metrics.drop_opens",
+            "missingMaterializer": "person_metrics.drop_opens",
+            "explanation": "Missing producer activity for drop_opens; expected producer event(s): drop_preview_opened, drop_preview_page_viewed, view_drop_details, drop_clicked."
+          },
+          {
+            "metricId": "fan_pass_purchases",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "creator_fan_pass_started",
+            "missingBridge": "person_metrics.fan_pass_purchases",
+            "missingMaterializer": "person_metrics.fan_pass_purchases",
+            "explanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed."
+          },
+          {
+            "metricId": "fan_pass_views",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "creator_fan_pass_viewed",
+            "missingBridge": "person_metrics.fan_pass_views",
+            "missingMaterializer": "person_metrics.fan_pass_views",
+            "explanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed."
+          },
+          {
+            "metricId": "follows",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "creator_followed",
+            "missingBridge": "person_metrics.follows",
+            "missingMaterializer": "person_metrics.follows",
+            "explanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
+          },
+          {
+            "metricId": "notification_interactions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "notification_opened",
+            "missingBridge": "person_metrics.notification_interactions",
+            "missingMaterializer": "person_metrics.notification_interactions",
+            "explanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
+          },
+          {
+            "metricId": "package_selections",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "purchase_package_selected",
+            "missingBridge": "person_metrics.package_selections",
+            "missingMaterializer": "person_metrics.package_selections",
+            "explanation": "Missing producer activity for package_selections; expected producer event(s): purchase_package_selected."
+          },
+          {
+            "metricId": "page_views",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "semantic_page_viewed",
+            "missingBridge": "person_metrics.page_views",
+            "missingMaterializer": "person_metrics.page_views",
+            "explanation": "Missing producer activity for page_views; expected producer event(s): semantic_page_viewed, page_viewed."
+          },
+          {
+            "metricId": "payment_approvals",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "server_purchase_verified",
+            "missingBridge": "person_metrics.payment_approvals",
+            "missingMaterializer": "person_metrics.payment_approvals",
+            "explanation": "Missing producer activity for payment_approvals; expected producer event(s): server_purchase_verified, purchase_verified, paypal_capture_completed, purchase_completed, gumdrops_purchase_completed."
+          },
+          {
+            "metricId": "payment_cancels",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "payment_canceled",
+            "missingBridge": "person_metrics.payment_cancels",
+            "missingMaterializer": "person_metrics.payment_cancels",
+            "explanation": "Missing producer activity for payment_cancels; expected producer event(s): payment_canceled, paypal_checkout_canceled, wallet_closed_incomplete."
+          },
+          {
+            "metricId": "payment_failures",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "gumdrops_purchase_failed",
+            "missingBridge": "person_metrics.payment_failures",
+            "missingMaterializer": "person_metrics.payment_failures",
+            "explanation": "Missing producer activity for payment_failures; expected producer event(s): gumdrops_purchase_failed, paypal_capture_failed, payment_failed."
+          },
+          {
+            "metricId": "runtime_watch_sessions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "watch_session_started",
+            "missingBridge": "person_metrics.runtime_watch_sessions",
+            "missingMaterializer": "person_metrics.runtime_watch_sessions",
+            "explanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+          },
+          {
+            "metricId": "sessions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "session_started",
+            "missingBridge": "person_metrics.sessions",
+            "missingMaterializer": "person_metrics.sessions",
+            "explanation": "Missing producer activity for sessions; expected producer event(s): session_started, auth_session_established, auth_session_restored."
+          },
+          {
+            "metricId": "settings_actions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "user_settings_viewed",
+            "missingBridge": "person_metrics.settings_actions",
+            "missingMaterializer": "person_metrics.settings_actions",
+            "explanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
+          },
+          {
+            "metricId": "support_account_actions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "support_inbox_viewed",
+            "missingBridge": "person_metrics.support_account_actions",
+            "missingMaterializer": "person_metrics.support_account_actions",
+            "explanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+          },
+          {
+            "metricId": "unwraps",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "drop_unwrapped",
+            "missingBridge": "person_metrics.unwraps",
+            "missingMaterializer": "person_metrics.unwraps",
+            "explanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, unlock_drop_success, creator_drop_unwrapped."
+          },
+          {
+            "metricId": "visits",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "semantic_page_viewed",
+            "missingBridge": "person_metrics.visits",
+            "missingMaterializer": "person_metrics.visits",
+            "explanation": "Missing producer activity for visits; expected producer event(s): semantic_page_viewed, page_viewed, home_page_viewed."
+          },
+          {
+            "metricId": "wallet_closes",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "wallet_closed_incomplete",
+            "missingBridge": "person_metrics.wallet_closes",
+            "missingMaterializer": "person_metrics.wallet_closes",
+            "explanation": "Missing producer activity for wallet_closes; expected producer event(s): wallet_closed_incomplete."
+          },
+          {
+            "metricId": "wallet_opens",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "wallet_opened",
+            "missingBridge": "person_metrics.wallet_opens",
+            "missingMaterializer": "person_metrics.wallet_opens",
+            "explanation": "Missing producer activity for wallet_opens; expected producer event(s): wallet_opened."
+          }
+        ]
+      },
+      "walletPaymentConfidence": {
+        "walletOpens": 0,
+        "packageSelections": 0,
+        "checkoutStarts": 0,
+        "paymentApprovals": 0,
+        "paymentCancels": 0,
+        "paymentFailures": 0,
+        "confidence": "unknown",
+        "source": "server purchase verification facts"
+      },
+      "dropUnwrapMetrics": {
+        "dropOpens": 0,
+        "unwraps": 0,
+        "creatorProfileViews": 0,
+        "source": "person_metrics_hydration+analytics_users_rollup"
+      },
+      "supportAccountSafety": {
+        "status": "clean",
+        "supportAccountActions": 0,
+        "securityFlags": 0,
+        "source": "users.securityFlags+person_metrics_hydration"
+      },
+      "telemetryDebugStatus": {
+        "debugLane": "User management",
+        "status": "partial",
+        "lowConfidenceFirst": true,
+        "rawRowsPolicy": "drilldown_only",
+        "source": "src/lib/admin/user-management-contract.ts"
+      },
+      "lastActivity": {
+        "timestampMs": 1779518071226,
+        "source": "analytics_users_rollup",
+        "freshness": "recent"
+      },
+      "rawEventsDefaultOpen": false
+    }
+  ],
+  "debugLane": {
+    "label": "User management",
+    "usersSummarized": 1,
+    "lowConfidenceMetrics": 24,
+    "rawDumpsBeforeSummary": false,
+    "duplicateUserMetricSections": 0,
+    "summaryFirstRoute": true,
+    "missingHydrationExplanations": 24
+  },
+  "routePolicy": {
+    "defaultMode": "summary",
+    "broadRawReadsDefault": false,
+    "summaryFirstMode": true,
+    "productionReadTests": false
+  },
+  "validation": {
+    "rawDumpsBeforeSummary": false,
+    "duplicateUserMetricSections": 0,
+    "guestUserLinkStatusVisible": true,
+    "consentModeVisible": true,
+    "metricConfidenceVisible": true,
+    "chatNavPaymentRuntimeChanged": false
+  },
+  "scoreImpactByDimension": {
+    "sourceHealth": {
+      "before": 79,
+      "after": 83,
+      "reason": "User management now shows summary-first metrics with low-confidence source explanations."
+    },
+    "runtimeHealth": {
+      "before": 79,
+      "after": 83,
+      "reason": "User management now shows summary-first metrics with low-confidence source explanations."
+    },
+    "evidenceCompleteness": {
+      "before": 79,
+      "after": 83,
+      "reason": "User management now shows summary-first metrics with low-confidence source explanations."
+    },
+    "freshness": {
+      "before": 79,
+      "after": 83,
+      "reason": "User management now shows summary-first metrics with low-confidence source explanations."
+    },
+    "costRisk": {
+      "before": 80,
+      "after": 84,
+      "reason": "Default user management route remains summary-first and does not add production reads."
+    },
+    "regressionRisk": {
+      "before": 79,
+      "after": 83,
+      "reason": "User management now shows summary-first metrics with low-confidence source explanations."
+    }
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/context/validator-authority.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-management-refactor.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-management-refactor.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-public-beta-score.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-user-management-refactor.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/admin/users/page.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/admin/user-management-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/server/admin-debug/summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/user-management-refactor.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "oldUserManagementLogic": [],
+  "validationFailures": []
+}

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.95 - 2026-05-23
+- User management metrics refactor
+- Refactored user management around identity, activity, and confidence summaries.
+- Connected individual user metrics to hydration and debug lanes.
+- Reduced raw user-management sprawl.
+
 ## 1.3.94 - 2026-05-23
 - Telemetry trigger coverage
 - Added telemetry trigger coverage from user action to score input.

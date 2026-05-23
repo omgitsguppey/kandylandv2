@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-05-23T05:56:33.824Z
+Generated: 2026-05-23T06:35:24.487Z
 Status: pass
-Current head: d97ea4f1b2862e4179b625b3b1ddd13f96feb4c1
+Current head: 200055192734aeab1ddf31dadf7961a753ed4832
 
 ## Contract
 
@@ -61,34 +61,27 @@ Current head: d97ea4f1b2862e4179b625b3b1ddd13f96feb4c1
 
 - CHANGELOG.md: release_artifact_expected
 - agent/context/validator-authority.json: validator_artifact_expected
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
+- agent/state/user-management-refactor.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
+- docs/agent-truth/user-management-refactor.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
 - scripts/agent/score-public-beta-readiness.ts: real_source_change_needs_review
-- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
-- scripts/agent/validate-person-metrics-hydration.ts: validator_artifact_expected
 - scripts/agent/validate-public-beta-score.ts: validator_artifact_expected
-- scripts/agent/validate-telemetry-trigger-test-matrix.ts: validator_artifact_expected
+- scripts/agent/validate-user-management-refactor.ts: validator_artifact_expected
+- src/app/admin/users/page.tsx: real_source_change_needs_review
 - src/app/api/admin/debug/route.ts: real_source_change_needs_review
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
+- src/lib/admin/user-management-contract.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - src/lib/server/admin-debug/summary.ts: real_source_change_needs_review
-- src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/debug-tracking-simplification.spec.ts: test_artifact_expected
-- tests/unit/telemetry-trigger-test-matrix.spec.ts: test_artifact_expected
+- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

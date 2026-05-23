@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
 import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3, Activity, ChevronLeft, ChevronRight } from "lucide-react";
@@ -37,6 +37,7 @@ import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 import { useAdminUsersRealtime } from "@/hooks/useAdminUsersRealtime";
 import { buildAdminUsersPageData } from "@/lib/server/admin-page-data-loader";
+import { buildUserManagementSummary } from "@/lib/admin/user-management-contract";
 import type { 
     AdminBehaviorLeaderboardFilter,
     AdminBehaviorLeaderboardPanel,
@@ -506,6 +507,17 @@ export default function UserManagementPage() {
         usersRealtimePulse,
         behaviorLeaderboard,
     });
+    const userManagementSummaries = useMemo(() => {
+        return filteredUsers.map((user) => buildUserManagementSummary({
+            user,
+            analytics: getUserAnalytics(user.uid) ?? null,
+            summary,
+        }));
+    }, [filteredUsers, summary, userAnalytics]);
+    const userManagementSummaryById = useMemo(() => {
+        return new Map(userManagementSummaries.map((entry) => [entry.identity.userId, entry]));
+    }, [userManagementSummaries]);
+    const lowConfidenceUsers = userManagementSummaries.filter((entry) => entry.personMetricConfidence.lowConfidenceCount > 0 || entry.activitySummary.state === "collecting");
     const userSummaryTruthState = pageData.truthState;
     const usersRealtimePulseTruthState = pageData.realtimePulseTruthState;
     const getOnboardingBadge = (user: UserProfile, analytics?: UserAnalytics) =>
@@ -980,6 +992,63 @@ export default function UserManagementPage() {
                         </div>
                     </div>
 
+                    <div
+                        className="grid gap-3 md:grid-cols-3"
+                        data-admin-user-management-summary-lane="identity-activity-confidence"
+                    >
+                        <div className="rounded-xl border border-white/10 bg-black/25 p-3" data-admin-user-management-identity-handoff="summary">
+                            <div className="flex items-center justify-between gap-2">
+                                <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Identity handoff</p>
+                                <AdminTruthBadge
+                                    state={userManagementSummaries.length ? "live" : loading ? "refreshing" : "unavailable"}
+                                    pendingInitialLoad={loading}
+                                    hasUsableValue={userManagementSummaries.length > 0}
+                                    className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                                />
+                            </div>
+                            <p className="mt-2 text-sm font-bold text-white">
+                                {userManagementSummaries.filter((entry) => entry.identity.identityConfidence === "exact").length} exact / {userManagementSummaries.length} shown
+                            </p>
+                            <p className="mt-1 text-[11px] leading-5 text-gray-400">
+                                Guest link status is visible per row. Raw user/event rows stay behind detail actions.
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-black/25 p-3" data-admin-user-management-consent-mode="summary">
+                            <div className="flex items-center justify-between gap-2">
+                                <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Consent/tracking</p>
+                                <AdminTruthBadge
+                                    state={userManagementSummaries.some((entry) => entry.consentMode.mode === "unavailable") ? "degraded" : userManagementSummaries.length ? "live" : "unavailable"}
+                                    pendingInitialLoad={loading}
+                                    hasUsableValue={userManagementSummaries.length > 0}
+                                    className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                                />
+                            </div>
+                            <p className="mt-2 text-sm font-bold text-white">
+                                {userManagementSummaries.filter((entry) => entry.consentMode.mode !== "unavailable").length} consent records visible
+                            </p>
+                            <p className="mt-1 text-[11px] leading-5 text-gray-400">
+                                Behavioral metrics remain unavailable when consent or source materialization is missing.
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-black/25 p-3" data-admin-user-management-metric-confidence="summary">
+                            <div className="flex items-center justify-between gap-2">
+                                <p className="text-xs font-black uppercase tracking-[0.08em] text-gray-400">Metric confidence</p>
+                                <AdminTruthBadge
+                                    state={lowConfidenceUsers.length ? "degraded" : userManagementSummaries.length ? "live" : "unavailable"}
+                                    pendingInitialLoad={loading}
+                                    hasUsableValue={userManagementSummaries.length > 0}
+                                    className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                                />
+                            </div>
+                            <p className="mt-2 text-sm font-bold text-white">
+                                {lowConfidenceUsers.length} collecting / low-confidence rows
+                            </p>
+                            <p className="mt-1 text-[11px] leading-5 text-gray-400">
+                                Missing metrics show their producer, bridge, or materializer in the user detail drilldown.
+                            </p>
+                        </div>
+                    </div>
+
                     {/* Desktop Users Table */}
                     <div className="hidden md:block glass-panel rounded-2xl overflow-hidden border border-white/5">
                         <div className="overflow-x-auto">
@@ -1024,6 +1093,7 @@ export default function UserManagementPage() {
                                                 personalizedOutputShown: true,
                                             });
                                             const onboardingBadge = getOnboardingBadge(user, analytics);
+                                            const managementSummary = userManagementSummaryById.get(user.uid);
                                             return (
                                             <tr key={user.uid} className="transition-colors">
                                                 <td className="p-4">
@@ -1061,6 +1131,9 @@ export default function UserManagementPage() {
                                                         <span className={`px-2 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${onboardingBadge.className}`}>
                                                             {onboardingBadge.label}
                                                         </span>
+                                                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
+                                                            {managementSummary?.guestLinkStatus.state.replace(/_/g, " ") ?? "link unknown"}
+                                                        </span>
                                                     </div>
                                                 </td>
                                                 <td className="p-4 font-mono text-brand-purple">
@@ -1091,6 +1164,20 @@ export default function UserManagementPage() {
                                                             <div className="text-[10px] text-gray-500">
                                                                 {(getBehaviorAvailabilityLabel(behaviorRollup) ?? valueExplanation.statusLabel ?? engagementExplanation.statusLabel ?? "No recent signal")} / {behaviorRollup?.issues.length ?? 0} issues
                                                             </div>
+                                                            <div className="flex flex-wrap gap-1.5 text-[10px] text-gray-400">
+                                                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
+                                                                    {managementSummary?.consentMode.mode.replace(/_/g, " ") ?? "consent unknown"}
+                                                                </span>
+                                                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
+                                                                    {managementSummary?.personMetricConfidence.lowConfidenceCount ?? 0} low confidence
+                                                                </span>
+                                                            </div>
+                                                            <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[10px] text-gray-400">
+                                                                <summary className="cursor-pointer font-bold text-gray-200">Metric source</summary>
+                                                                <p className="mt-1">Activity: {managementSummary?.activitySummary.state ?? "unknown"} / {managementSummary?.lastActivity.source ?? "not loaded"}</p>
+                                                                <p className="mt-1">Wallet: {managementSummary?.walletPaymentConfidence.source ?? "not loaded"}</p>
+                                                                <p className="mt-1">Missing: {managementSummary?.personMetricConfidence.lowConfidenceMetrics[0]?.explanation ?? "none"}</p>
+                                                            </details>
                                                         </div>
                                                     ) : (
                                                         <button
@@ -1185,6 +1272,7 @@ export default function UserManagementPage() {
                                     personalizedOutputShown: true,
                                 });
                                 const onboardingBadge = getOnboardingBadge(user, analytics);
+                                const managementSummary = userManagementSummaryById.get(user.uid);
                                 return (
                                 <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
                                     {/* Background Accent based on Role/Status */}
@@ -1223,6 +1311,9 @@ export default function UserManagementPage() {
                                                 <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${onboardingBadge.className}`}>
                                                     {onboardingBadge.label}
                                                 </span>
+                                                <span className="px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold uppercase tracking-wider text-gray-300">
+                                                    {managementSummary?.guestLinkStatus.state.replace(/_/g, " ") ?? "link unknown"}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -1252,6 +1343,16 @@ export default function UserManagementPage() {
                                             >
                                                 <div className="col-span-2 flex justify-end">
                                                     <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0.5 text-[8px] tracking-[0.08em]" />
+                                                </div>
+                                                <div className="col-span-2 grid gap-2 rounded-lg border border-white/10 bg-black/20 p-2 text-[10px] text-gray-300">
+                                                    <div className="flex justify-between gap-2">
+                                                        <span className="text-gray-500">Consent</span>
+                                                        <span>{managementSummary?.consentMode.mode.replace(/_/g, " ") ?? "unknown"}</span>
+                                                    </div>
+                                                    <div className="flex justify-between gap-2">
+                                                        <span className="text-gray-500">Confidence</span>
+                                                        <span>{managementSummary?.personMetricConfidence.lowConfidenceCount ?? 0} low-confidence</span>
+                                                    </div>
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>

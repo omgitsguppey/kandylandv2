@@ -1,11 +1,69 @@
 {
-  "currentVersion": "1.3.94",
-  "betaReleaseCounter": 394,
+  "currentVersion": "1.3.95",
+  "betaReleaseCounter": 395,
   "channel": "beta",
-  "generatedAt": "2026-05-23T05:40:10.585Z",
-  "generatedAtUtc": "2026-05-23T05:40:10.585Z",
+  "generatedAt": "2026-05-23T06:27:28.503Z",
+  "generatedAtUtc": "2026-05-23T06:27:28.503Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.95",
+      "previousVersion": "1.3.94",
+      "betaReleaseCounter": 395,
+      "previousBetaReleaseCounter": 394,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(admin): refactor user management metrics",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T06:27:28.503Z",
+      "generatedAt": "2026-05-23T06:27:28.503Z",
+      "committedAtUtc": "2026-05-23T06:27:28.503Z",
+      "generatedAtUtc": "2026-05-23T06:27:28.503Z",
+      "updatedAtUtc": "2026-05-23T06:27:28.503Z",
+      "category": "Improved",
+      "title": "User management metrics refactor",
+      "summary": "Refactored user management around identity, activity, and confidence summaries.",
+      "userFacingTitle": "User management metrics refactor",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refactored user management around identity, activity, and confidence summaries.",
+        "Connected individual user metrics to hydration and debug lanes.",
+        "Reduced raw user-management sprawl."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a source-only user management contract, validator, generated evidence, debug lane, and compact admin summary UI without production reads, payment changes, chat/nav changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Admin users",
+        "Admin debug",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/context/validator-authority.json",
+        "agent/state/user-management-refactor.generated.json",
+        "docs/agent-truth/user-management-refactor.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "scripts/agent/validate-user-management-refactor.ts",
+        "src/app/admin/users/page.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/admin/user-management-contract.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "tests/unit/user-management-refactor.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.94",
       "previousVersion": "1.3.93",
@@ -1354,80 +1412,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/blocked-refresh-queue-resolver.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.70",
-      "previousVersion": "1.3.69",
-      "betaReleaseCounter": 370,
-      "previousBetaReleaseCounter": 369,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(beta): close source cost review",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T16:48:48.601Z",
-      "generatedAt": "2026-05-21T16:48:48.601Z",
-      "committedAtUtc": "2026-05-21T16:48:48.601Z",
-      "generatedAtUtc": "2026-05-21T16:48:48.601Z",
-      "updatedAtUtc": "2026-05-21T16:48:48.601Z",
-      "category": "Improved",
-      "title": "Source cost review closure",
-      "summary": "Refined source-verifiable cost lanes while keeping external billing review separate.",
-      "userFacingTitle": "Source cost review closure",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refined cost owner-review lanes using source guard evidence.",
-        "Separated external billing review from source cost readiness.",
-        "Reduced generic cost-risk drag without claiming fake savings."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only cost owner-review classifier and routed beta cost scoring through guarded source statuses without external billing claims."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "Cost readiness",
-        "Admin Debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/admin-analytics-debug-cost-reduction.generated.json",
-        "agent/state/bigquery-cloud-pipeline-closure.generated.json",
-        "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-        "agent/state/cost-4xx-reduction.generated.json",
-        "agent/state/cost-owner-review-source-closure.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/final-cost-audit-lock.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/scheduled-runtime-cost-reduction.generated.json",
-        "agent/state/score-80-cost-readiness.generated.json",
-        "docs/agent-truth/admin-analytics-debug-cost-reduction.md",
-        "docs/agent-truth/bigquery-cloud-pipeline-closure.md",
-        "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
-        "docs/agent-truth/cost-4xx-reduction.md",
-        "docs/agent-truth/cost-owner-review-source-closure.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/final-cost-audit-lock.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/scheduled-runtime-cost-reduction.md",
-        "docs/agent-truth/score-80-cost-readiness.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-cost-owner-review-source-closure.ts",
-        "scripts/agent/validate-score-80-cost-readiness.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/cost/cost-owner-review-classifier.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/cost-owner-review-source-closure.spec.ts",
-        "tests/unit/score-80-cost-readiness.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

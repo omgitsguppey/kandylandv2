@@ -53,6 +53,7 @@ const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generate
 const EVENT_TRANSLATION_BRIDGE_PATH = "agent/state/event-translation-bridge.generated.json";
 const PERSON_METRICS_HYDRATION_PATH = "agent/state/person-metrics-hydration.generated.json";
 const TELEMETRY_TRIGGER_TEST_MATRIX_PATH = "agent/state/telemetry-trigger-test-matrix.generated.json";
+const USER_MANAGEMENT_REFACTOR_PATH = "agent/state/user-management-refactor.generated.json";
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const ADMIN_TRUTH_SOURCE_SAMPLE_PATH = "agent/state/admin-truth-source-sample.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
@@ -662,6 +663,46 @@ function readTelemetryTriggerTestMatrixEvidence(root: string): PublicBetaEvidenc
   };
 }
 
+function readUserManagementRefactorEvidence(root: string): PublicBetaEvidenceArtifact | null {
+  const parsed = readJsonFile(root, USER_MANAGEMENT_REFACTOR_PATH);
+  if (!parsed) return null;
+
+  const debugLane = readRecord(parsed.debugLane);
+  const routePolicy = readRecord(parsed.routePolicy);
+  const validation = readRecord(parsed.validation);
+  const readLaneNumber = (key: string) => readNumber(debugLane[key]) ?? readNumber(parsed[key]) ?? 0;
+  const status = readString(parsed.status) ?? "missing_or_unknown";
+  const sourceReady = status === "pass"
+    && readBoolean(parsed.productionReadsRequired) === false
+    && readBoolean(parsed.liveDataMutationAllowed) === false
+    && readBoolean(routePolicy.summaryFirstMode) === true
+    && readBoolean(routePolicy.broadRawReadsDefault) === false
+    && readBoolean(validation.chatNavPaymentRuntimeChanged) === false
+    && readBoolean(debugLane.rawDumpsBeforeSummary) === false
+    && readLaneNumber("duplicateUserMetricSections") === 0;
+
+  return {
+    path: USER_MANAGEMENT_REFACTOR_PATH,
+    status: sourceReady ? "source_ready_user_management_refactor" : status,
+    passed: false,
+    detail: sourceReady
+      ? "User management is source-ready for compact identity, account, consent, activity, person metric confidence, debug lane, and summary-first route evidence without clearing deployed runtime proof."
+      : "User management refactor evidence is missing required source-ready guardrails.",
+    evidence: [
+      `userManagementRefactor.status=${status}`,
+      `userManagementRefactor.usersSummarized=${readLaneNumber("usersSummarized")}`,
+      `userManagementRefactor.lowConfidenceMetrics=${readLaneNumber("lowConfidenceMetrics")}`,
+      `userManagementRefactor.rawDumpsBeforeSummary=${readBoolean(debugLane.rawDumpsBeforeSummary) === true}`,
+      `userManagementRefactor.duplicateUserMetricSections=${readLaneNumber("duplicateUserMetricSections")}`,
+      `userManagementRefactor.summaryFirstRoute=${readBoolean(routePolicy.summaryFirstMode) === true}`,
+      "launchGateImpact=does_not_clear_deployed_runtime_smoke",
+      "protectedRuntime=chat_nav_payment_gumdrop_untouched",
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
+}
+
 function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvidenceArtifact {
   const debugRuntime = readDebugRuntimeEvidence(root);
   const currentHead = readGitHead(root);
@@ -672,6 +713,8 @@ function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvi
   if (personMetricsHydration?.status === "source_ready_person_metrics_hydration") return personMetricsHydration;
   const telemetryTriggerTestMatrix = readTelemetryTriggerTestMatrixEvidence(root);
   if (telemetryTriggerTestMatrix?.status === "source_ready_telemetry_trigger_test_matrix") return telemetryTriggerTestMatrix;
+  const userManagementRefactor = readUserManagementRefactorEvidence(root);
+  if (userManagementRefactor?.status === "source_ready_user_management_refactor") return userManagementRefactor;
   return readEventTranslationBridgeEvidence(root) ?? debugRuntime;
 }
 
