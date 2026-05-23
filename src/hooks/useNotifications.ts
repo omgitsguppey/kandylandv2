@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuthIdentity } from "@/context/AuthContext";
+import { createAutoHealingObserver } from "@/lib/self-healing";
+import { USER_RUNTIME_COLLECTION } from "@/lib/platform-config";
 import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent, listenForClientRuntimeEvent } from "@/hooks/client-runtime";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import {
@@ -113,13 +115,67 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
 
         let lastFetchedAt = 0;
 
+
         const refreshOnDemand = () => {
             lastFetchedAt = Date.now();
             void fetchNotifications();
         };
 
+        let unsubscribeUserRuntime: (() => void) | undefined;
+        let sawUserRuntimeSnapshot = false;
+
+        const subscribeToUserRuntime = async () => {
+            try {
+                const [{ doc, onSnapshot }, { db }] = await Promise.all([
+                    import("firebase/firestore"),
+                    import("@/lib/firebase-data"),
+                ]);
+
+                if (cancelled) {
+                    return;
+                }
+
+                const observerControl = createAutoHealingObserver(() => {
+                    return onSnapshot(
+                        doc(db, USER_RUNTIME_COLLECTION, currentUserId),
+                        (snapshot: import("firebase/firestore").DocumentSnapshot) => {
+                            if (cancelled) return;
+                            if (!sawUserRuntimeSnapshot) {
+                                sawUserRuntimeSnapshot = true;
+                                return;
+                            }
+
+                            const data = snapshot.data() as { notificationsVersion?: number } | undefined;
+                            if (typeof data?.notificationsVersion === "number") {
+                                refreshOnDemand();
+                            }
+                        },
+                        (error: unknown) => {
+                            if (cancelled) return;
+                            observerControl.triggerReconnect(error);
+                        },
+                    );
+                }, (error: unknown) => {
+                    if (cancelled) return;
+                    reportRealtimeIssue("notifications runtime subscription failed", error, {
+                        userId: currentUserId,
+                        message: error instanceof Error ? error.message : String(error),
+                    });
+                });
+
+                unsubscribeUserRuntime = () => observerControl.cleanup();
+            } catch (error) {
+                reportRealtimeIssue("notifications runtime setup failed", error, {
+                    userId: currentUserId,
+                    message: error instanceof Error ? error.message : String(error),
+                });
+            }
+        };
+
         void fetchNotifications();
+        void subscribeToUserRuntime();
         lastFetchedAt = Date.now();
+
 
         const refreshOnVisible = () => {
             if (document.visibilityState === "visible" && Date.now() - lastFetchedAt > 120_000) {
@@ -140,6 +196,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             window.removeEventListener("focus", refreshOnVisible);
             removeNotificationsSyncListener();
             document.removeEventListener("visibilitychange", refreshOnVisible);
+            unsubscribeUserRuntime?.();
         };
     }, [enabled, userId]);
 

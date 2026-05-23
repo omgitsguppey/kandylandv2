@@ -4788,6 +4788,22 @@ Warnings / follow-up:
 Cleanup:
 - No generated build/UI artifact cleanup was required for this pass.
 
+### 58. Hardening of Realtime User-Facing Surfaces
+
+- Approximate date: Canonicalized and recorded on today
+- Status: Active
+- Problem/context: Some realtime/live surfaces (Notifications, Recent Activity expanded view, Creator Discovery Rail follow state) exhibited stale state or required a manual refresh for full reconciliation due to missing Firebase realtime listeners or disjointed cache models.
+- Decision made: Connect missing surfaces (e.g., `useNotifications`, `CreatorDiscoveryRail`) directly to `USER_RUNTIME_COLLECTION` to properly auto-reconcile on state change without manual action. Corrected expanded view states in Recent Activity to fallback truthfully when arrays are missing.
+- What became canonical:
+  - `useNotifications` listens to `USER_RUNTIME_COLLECTION` and triggers a refresh when `notificationsVersion` updates.
+  - `RecentActivityFeed` expanded view falls back to showing `summaryActivity` while history loads.
+  - `CreatorDiscoveryRail` sets up an `onSnapshot` listener on `USER_RUNTIME_COLLECTION` and triggers a creator load if `profileVersion` or general `version` is bumped.
+- Truth lives in:
+  - `src/hooks/useNotifications.ts`
+  - `src/components/Dashboard/RecentActivityFeed.tsx`
+  - `src/components/CreatorDiscoveryRail.tsx`
+- What is now disallowed or deprecated: Relying entirely on manual interactions (e.g., window focus/visibility changes) to trigger state updates for user-facing realtime components where server reconciliation implies live state.
+
 
 ## [2026-04-18 #18] Verification Blocker Remediation + Runtime Continuity Truth Alignment
 
