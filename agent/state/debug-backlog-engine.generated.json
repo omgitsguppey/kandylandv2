@@ -1,62 +1,62 @@
 {
-  "generatedAtUtc": "2026-05-22T22:46:47.401Z",
+  "generatedAtUtc": "2026-05-23T06:57:56.010Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "f0134b5b286ea158c9f9beaf0f118e7581f0a54d",
+  "currentHead": "a817e6e36f47ff3ecc71cd643737f18dc70558a3",
   "oldScore": 41.92,
-  "newScore": 55.56,
+  "newScore": 63.15,
   "publicBetaStatus": "beta-risk",
   "readinessStatus": "Stale evidence",
   "summary": {
-    "total": 82,
+    "total": 80,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
-      "p1": 20,
-      "p2": 62,
+      "p1": 19,
+      "p2": 61,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 58,
+      "open": 57,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
-      "blocked_manual": 4,
+      "blocked_manual": 3,
       "blocked_external": 5,
       "stale_retired": 15
     },
     "bySource": {
       "debug_panel": 34,
-      "beta_score": 8,
+      "beta_score": 7,
       "route_diagnostics": 1,
       "telemetry": 6,
       "admin_truth": 2,
       "mobile_ui": 0,
       "cost": 5,
-      "evidence": 26,
+      "evidence": 25,
       "runtime_warning": 0
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 50,
+      "evidence_refresh": 49,
       "stale_retire": 15,
       "algorithm_refine": 0,
       "route_fix": 1,
       "telemetry_closure": 6,
       "cost_guard": 5,
-      "manual_required": 5,
+      "manual_required": 4,
       "no_action": 0
     },
-    "open": 58,
+    "open": 57,
     "fixed": 0,
     "deferred": 0,
-    "blockedManual": 4,
+    "blockedManual": 3,
     "blockedExternal": 5,
     "staleRetired": 15,
     "sourceFixable": 12,
-    "evidenceRefreshable": 50,
-    "manualRequired": 5,
-    "p0P1Open": 20
+    "evidenceRefreshable": 49,
+    "manualRequired": 4,
+    "p0P1Open": 19
   },
   "backlog": [
     {
@@ -71,7 +71,7 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 59.75,
+      "scoreImpact": 70.25,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -80,30 +80,6 @@
       "evidenceReason": "Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "sourceMessage": "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
-      "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
-    },
-    {
-      "id": "beta-cap-unknown-evidence-debug-runtime-evidence-3",
-      "title": "Unknown evidence: Debug/runtime evidence",
-      "owner": "runtime_evidence",
-      "surface": "runtime_evidence",
-      "severity": "p1",
-      "source": "beta_score",
-      "status": "blocked_manual",
-      "fixClass": "manual_required",
-      "scoreDimensionImpact": [
-        "runtimeHealth"
-      ],
-      "scoreImpact": 59.75,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "agent/state/public-beta-score.generated.json",
-      "evidenceStatus": "runtime_unverified",
-      "evidenceReason": "Debug evidence is empty, so absence of runtime issues is unknown.",
-      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "sourceMessage": "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown.",
       "sourceValidator": "npm run check:beta-score",
       "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
     },
@@ -119,7 +95,7 @@
       "scoreDimensionImpact": [
         "evidenceCompleteness"
       ],
-      "scoreImpact": 43,
+      "scoreImpact": 41.75,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -546,15 +522,15 @@
       "scoreDimensionImpact": [
         "evidenceCompleteness"
       ],
-      "scoreImpact": 43,
+      "scoreImpact": 41.75,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "agent/state/public-beta-score.generated.json",
       "evidenceStatus": "unknown",
-      "evidenceReason": "Unknown evidence classification: 7 required generated report(s) are older than the freshness window.",
+      "evidenceReason": "Unknown evidence classification: 4 required generated report(s) are older than the freshness window.",
       "exactNextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
-      "sourceMessage": "Stale evidence: Report freshness and PR integrity - 7 required generated report(s) are older than the freshness window.",
+      "sourceMessage": "Stale evidence: Report freshness and PR integrity - 4 required generated report(s) are older than the freshness window.",
       "sourceValidator": "npm run check:beta-score"
     },
     {
@@ -1707,29 +1683,6 @@
       "exactNextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
       "sourceMessage": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
       "refreshCommand": "npm run check:creator-settings-control-plane"
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
-      "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/current-beta-exit-status.generated.json"
-      ],
-      "sourceRoute": "agent/state/current-beta-exit-status.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-      "sourceMessage": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
       "id": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",

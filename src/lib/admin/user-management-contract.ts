@@ -490,7 +490,11 @@ export function classifyUserManagementDirtyFile(path: string): UserManagementDir
   if (normalized === "agent/state/user-management-refactor.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/user-management-refactor.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-user-management-refactor.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-new-additions-score-coverage.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/admin/user-management-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/users/page.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/user/[userId]/page.tsx") return "real_source_change_needs_review";
@@ -499,6 +503,8 @@ export function classifyUserManagementDirtyFile(path: string): UserManagementDir
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";

@@ -2,24 +2,23 @@
 
 Authority: structured source-backed backlog generated from debug panel, beta score, route diagnostics, telemetry/admin truth, cost, and evidence freshness lanes.
 
-Generated: 2026-05-22T22:46:47.401Z
-Current HEAD: f0134b5b286ea158c9f9beaf0f118e7581f0a54d
-Score: 41.92 -> 55.56
+Generated: 2026-05-23T06:57:56.010Z
+Current HEAD: a817e6e36f47ff3ecc71cd643737f18dc70558a3
+Score: 41.92 -> 63.15
 Readiness: Stale evidence
 
 ## Summary
 
-- Total backlog items: 82
-- Open P0/P1 items: 20
-- Evidence refreshable: 50
+- Total backlog items: 80
+- Open P0/P1 items: 19
+- Evidence refreshable: 49
 - Source-fixable: 12
-- Manual required: 5
+- Manual required: 4
 - Stale retired: 15
 
 ## P0/P1 Queue
 
 - P1 beta-cap-runtime-unverified-runtime-provider-smoke-0: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- P1 beta-cap-unknown-evidence-debug-runtime-evidence-3: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
 - P1 beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
 - P1 score-drag-runtimehealthscore: Attach deployed runtime smoke evidence before treating runtime health as proven.
 - P1 stale-artifact-debug-runtime-evidence: Attach formal evidence before clearing this beta gate.

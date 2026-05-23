@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.96 - 2026-05-23
+- Improved internal beta reliability
+- Improved internal beta reliability for testing, tracking, and score reporting.
+- Reduced false waiting-on-activity states.
+- Reported score progress by dimension, not just overall.
+
 ## 1.3.95 - 2026-05-23
 - User management metrics refactor
 - Refactored user management around identity, activity, and confidence summaries.

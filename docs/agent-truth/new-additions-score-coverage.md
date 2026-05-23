@@ -6,9 +6,9 @@ This finalizer does not create a new telemetry or scoring system. It verifies th
 
 ## Report
 
-- Generated at UTC: 2026-05-22T23:40:54.575Z
+- Generated at UTC: 2026-05-23T06:57:03.536Z
 - Score before: 77.76
-- Score after: 55.56
+- Score after: 58.26
 - All new additions tracked: true
 - All new additions in score: true
 - Orphaned new additions: 0
@@ -51,21 +51,51 @@ This finalizer does not create a new telemetry or scoring system. It verifies th
 ## Dirty File Classification
 
 - CHANGELOG.md: release_artifact_expected
+- agent/state/activity-verification-engine.generated.json: current_generated_artifact_to_commit
 - agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
-- agent/state/final-user-tracking-handoff-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-backlog-engine.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-tracking-simplification.generated.json: current_generated_artifact_to_commit
+- agent/state/event-envelope-normalization.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/final-behavioral-privacy-telemetry-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/final-testing-tracking-telemetry-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-handoff-spine.generated.json: current_generated_artifact_to_commit
+- agent/state/march-first-event-recovery.generated.json: current_generated_artifact_to_commit
 - agent/state/new-additions-score-coverage.generated.json: current_generated_artifact_to_commit
+- agent/state/overnight-beta-readiness-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-contract.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
+- agent/state/user-management-refactor.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/current-beta-exit-status.md: documentation_artifact_expected
-- docs/agent-truth/final-user-tracking-handoff-lock.md: documentation_artifact_expected
+- docs/agent-truth/debug-backlog-engine.md: documentation_artifact_expected
+- docs/agent-truth/debug-tracking-simplification.md: documentation_artifact_expected
+- docs/agent-truth/event-envelope-normalization.md: documentation_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/final-behavioral-privacy-telemetry-lock.md: documentation_artifact_expected
+- docs/agent-truth/final-testing-tracking-telemetry-lock.md: documentation_artifact_expected
+- docs/agent-truth/identity-handoff-spine.md: documentation_artifact_expected
+- docs/agent-truth/march-first-event-recovery.md: documentation_artifact_expected
 - docs/agent-truth/new-additions-score-coverage.md: documentation_artifact_expected
+- docs/agent-truth/overnight-beta-readiness-lock.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-contract.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
+- docs/agent-truth/user-management-refactor.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-final-user-tracking-handoff-lock.ts: validator_artifact_expected
+- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
+- scripts/agent/validate-final-testing-tracking-telemetry-lock.ts: validator_artifact_expected
 - scripts/agent/validate-new-additions-score-coverage.ts: validator_artifact_expected
-- src/app/api/admin/debug/route.ts: real_source_change_needs_review
+- src/lib/admin/user-management-contract.ts: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/final-user-tracking-handoff-lock.spec.ts: test_artifact_expected
+- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
+- tests/unit/final-testing-tracking-telemetry-lock.spec.ts: test_artifact_expected
 
 ## Open PR Classification
 
