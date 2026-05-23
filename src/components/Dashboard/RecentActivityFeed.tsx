@@ -634,9 +634,9 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
         setCurrentPage(1);
     }, [searchValue]);
 
-    const scopedHistoryActivities = useMemo(
-        () => (loadedForUserId === userId ? historyActivities : []),
-        [historyActivities, loadedForUserId, userId],
+        const scopedHistoryActivities = useMemo(
+        () => (loadedForUserId === userId ? (historyActivities.length ? historyActivities : summaryActivity ? [summaryActivity] : []) : []),
+        [historyActivities, loadedForUserId, userId, summaryActivity],
     );
     const summary = useMemo(
         () => (loadedForUserId === userId ? summaryActivity : null),

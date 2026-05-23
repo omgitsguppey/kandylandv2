@@ -8,6 +8,10 @@ import { CheckCircle2, Loader2, Sparkles, Users } from "lucide-react";
 import { useAuthIdentity, useAuthLoading } from "@/context/AuthContext";
 import { useUIActions } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
+import { createAutoHealingObserver } from "@/lib/self-healing";
+import { USER_RUNTIME_COLLECTION } from "@/lib/platform-config";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase-data";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     buildCreatorDiscoveryNavigationParams,
@@ -558,10 +562,48 @@ export function CreatorDiscoveryRail({
             void loadCreators();
         }
 
+        let unsubscribeRuntime: (() => void) | undefined;
+        let sawRuntimeSnapshot = false;
+
+        if (user) {
+            const observerControl = createAutoHealingObserver(() => {
+                return onSnapshot(
+                    doc(db, USER_RUNTIME_COLLECTION, user.uid),
+                    (snapshot) => {
+                        if (cancelled) return;
+                        if (!sawRuntimeSnapshot) {
+                            sawRuntimeSnapshot = true;
+                            return;
+                        }
+                        const data = snapshot.data() as { profileVersion?: number; version?: number } | undefined;
+                        if (typeof data?.profileVersion === "number" || typeof data?.version === "number") {
+                            void loadCreators();
+                        }
+                    },
+                    (error: unknown) => {
+                        if (cancelled) return;
+                        observerControl.triggerReconnect(error);
+                    }
+                );
+            }, (error: unknown) => {
+                if (cancelled) return;
+                reportClientIssue({
+                    channel: "ui",
+                    severity: "warn",
+                    message: "Creator discovery runtime subscription failed",
+                    error,
+                    detail: { surface, userId: user.uid },
+                    consoleLabel: "[CreatorDiscoveryRail] runtime subscription failed",
+                });
+            });
+            unsubscribeRuntime = () => observerControl.cleanup();
+        }
+
         return () => {
             cancelled = true;
             abortController.abort();
             idleCleanup?.();
+            unsubscribeRuntime?.();
         };
     }, [authSettled, initialCreatorKey, initialCreators, surface, user]);
 
