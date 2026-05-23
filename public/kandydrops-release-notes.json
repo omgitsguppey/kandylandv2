@@ -1,11 +1,64 @@
 {
-  "currentVersion": "1.4.1",
-  "betaReleaseCounter": 401,
+  "currentVersion": "1.4.2",
+  "betaReleaseCounter": 402,
   "channel": "beta",
-  "generatedAt": "2026-05-23T21:10:00.000Z",
-  "generatedAtUtc": "2026-05-23T21:10:00.000Z",
+  "generatedAt": "2026-05-23T21:35:00.000Z",
+  "generatedAtUtc": "2026-05-23T21:35:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.2",
+      "previousVersion": "1.4.1",
+      "betaReleaseCounter": 402,
+      "previousBetaReleaseCounter": 401,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(chat): harden realtime propagation",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T21:35:00.000Z",
+      "generatedAt": "2026-05-23T21:35:00.000Z",
+      "committedAtUtc": "2026-05-23T21:35:00.000Z",
+      "generatedAtUtc": "2026-05-23T21:35:00.000Z",
+      "updatedAtUtc": "2026-05-23T21:35:00.000Z",
+      "category": "Improved",
+      "title": "Chat realtime reliability",
+      "summary": "Improved chat reliability by tightening realtime listener scope, cleanup, and message propagation evidence.",
+      "userFacingTitle": "Chat realtime reliability",
+      "surfaceCategory": "Chat & support",
+      "bullets": [
+        "Hardened chat realtime listener scope and cleanup.",
+        "Added chat message propagation telemetry.",
+        "Kept chat UI and payment/GumDrop logic unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-only chat realtime listener contracts, propagation telemetry, debug evidence, generated validation, and unit coverage without production reads, UI redesign, payment changes, wallet changes, nav changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Chat",
+        "Admin debug",
+        "Telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/chat-realtime-cost-control.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/chat-realtime-cost-control.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-chat-realtime-cost-control.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/chat/chat-realtime-contract.ts",
+        "src/lib/chat/chat-realtime-telemetry.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/chat-realtime-cost-control.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.1",
       "previousVersion": "1.4.0",
@@ -1344,63 +1397,6 @@
         "src/lib/telemetry-safety.ts",
         "src/lib/telemetry.ts",
         "tests/unit/identity-handoff-spine.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.77",
-      "previousVersion": "1.3.76",
-      "betaReleaseCounter": 377,
-      "previousBetaReleaseCounter": 376,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(wallet): refine purchase module symmetry",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-22T19:55:00.000Z",
-      "generatedAt": "2026-05-22T19:55:00.000Z",
-      "committedAtUtc": "2026-05-22T19:55:00.000Z",
-      "generatedAtUtc": "2026-05-22T19:55:00.000Z",
-      "updatedAtUtc": "2026-05-22T19:55:00.000Z",
-      "category": "Improved",
-      "title": "Payment module symmetry refinement",
-      "summary": "Refined the Kandy Shop Wallet package rows with shorter GumDrop labels, steadier promo slots, and compact mobile spacing while keeping checkout behavior unchanged.",
-      "userFacingTitle": "Payment module symmetry refinement",
-      "surfaceCategory": "Wallet",
-      "bullets": [
-        "Refined payment module copy, symmetry, and mobile density.",
-        "Shortened GumDrop bonus labels for cleaner package rows.",
-        "Kept PayPal, wallet crediting, pricing, and GumDrop math unchanged."
-      ],
-      "audience": "users",
-      "technicalDetails": [
-        "Added a display-only purchase promo contract, source validator, generated evidence, and focused unit coverage without changing provider runtime or economy math."
-      ],
-      "affectedSurfaces": [
-        "Wallet",
-        "Checkout display"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/payment-module-symmetry.generated.json",
-        "docs/agent-truth/legal-payment-user-trust-copy.md",
-        "docs/agent-truth/payment-module-symmetry.md",
-        "docs/agent-truth/payment-wallet-unlock-entitlement.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
-        "scripts/agent/validate-payment-module-symmetry.ts",
-        "scripts/agent/validate-wallet-density.ts",
-        "src/components/PurchaseModal.tsx",
-        "src/components/PurchaseModal.tsx.bak",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/wallet/purchase-promo-contract.ts",
-        "tests/unit/payment-module-symmetry.spec.ts",
-        "tests/unit/purchase-modal-density.spec.tsx",
-        "tests/unit/purchase-modal-source-of-funds-static.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

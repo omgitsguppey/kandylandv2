@@ -408,9 +408,19 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "chat_paid_gd_gate_secondary_clicked", label: "Chat paid GumDrops gate secondary CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce", "navigation"] },
   { eventName: "chat_low_paid_gd_reminder_sent", label: "Chat low paid GumDrops reminder sent", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "notifications"] },
   { eventName: "chat_low_paid_gd_reminder_reset", label: "Chat low paid GumDrops reminder reset", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "notifications"] },
+  { eventName: "chat_realtime_listener_attached", label: "Chat realtime listener attached", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_realtime_listener_detached", label: "Chat realtime listener detached", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_realtime_listener_error", label: "Chat realtime listener error", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_message_send_attempted", label: "Chat message send attempted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_message_api_accepted", label: "Chat message API accepted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_message_optimistic_rendered", label: "Chat message optimistic rendered", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_message_listener_observed", label: "Chat message listener observed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_message_reconciled", label: "Chat message reconciled", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_message_reconcile_failed", label: "Chat message reconcile failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_message_send_failed", label: "Chat message send failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_message_sent", label: "Chat message sent", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_thread_unread_updated", label: "Chat thread unread updated", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_thread_read_marked", label: "Chat thread read marked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_ios_pwa_shell_applied", label: "Chat iOS PWA shell applied", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_bottom_anchor_restored", label: "Chat bottom anchor restored", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_media_file_rejected_size", label: "Chat media file rejected by size", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
@@ -1050,9 +1060,19 @@ function isChatEvent(eventName: string) {
     || eventName === "chat_paid_gd_gate_secondary_clicked"
     || eventName === "chat_low_paid_gd_reminder_sent"
     || eventName === "chat_low_paid_gd_reminder_reset"
+    || eventName === "chat_realtime_listener_attached"
+    || eventName === "chat_realtime_listener_detached"
+    || eventName === "chat_realtime_listener_error"
     || eventName === "chat_message_send_attempted"
+    || eventName === "chat_message_api_accepted"
+    || eventName === "chat_message_optimistic_rendered"
+    || eventName === "chat_message_listener_observed"
+    || eventName === "chat_message_reconciled"
+    || eventName === "chat_message_reconcile_failed"
     || eventName === "chat_message_send_failed"
-    || eventName === "chat_message_sent";
+    || eventName === "chat_message_sent"
+    || eventName === "chat_thread_unread_updated"
+    || eventName === "chat_thread_read_marked";
 }
 
 function isOnboardingEvent(eventName: string, option?: TelemetryEventOption) {

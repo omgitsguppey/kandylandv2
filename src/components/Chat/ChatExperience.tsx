@@ -71,6 +71,16 @@ import { cn } from "@/lib/utils";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
 import { CHAT_MEDIA_LIMIT_BYTES_DEFAULT, CHAT_MEDIA_LIMIT_BYTES_FAN_PASS } from "@/lib/chat/chat-media-limits";
 import {
+    CHAT_MESSAGE_LISTENER_LIMIT,
+    CHAT_THREAD_LISTENER_LIMIT,
+    type ChatRealtimeListenerScope,
+    type ChatRealtimePropagationState,
+} from "@/lib/chat/chat-realtime-contract";
+import {
+    buildChatRealtimeTelemetryPayload,
+    type ChatRealtimeTelemetryEventName,
+} from "@/lib/chat/chat-realtime-telemetry";
+import {
     CHAT_LIST_CONTROL_HEIGHT,
     CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET,
     CHAT_LIST_CONTROLS_BOTTOM_OFFSET,
@@ -378,6 +388,23 @@ function deferChatMessageSentTelemetry(input: ChatTelemetryPayloadInput) {
     });
 }
 
+function deferChatRealtimeTelemetry(input: {
+    eventName: ChatRealtimeTelemetryEventName;
+    userId?: string | null;
+    threadId?: string | null;
+    messageId?: string | null;
+    listenerScope?: ChatRealtimeListenerScope | null;
+    propagationState?: ChatRealtimePropagationState | null;
+    sourceComponent?: string | null;
+    errorCode?: string | null;
+    errorMessage?: string | null;
+    documentLimit?: number | null;
+}) {
+    scheduleChatPostPaintTask(() => {
+        trackEvent(input.eventName, buildChatRealtimeTelemetryPayload(input));
+    });
+}
+
 type PresenceSnapshot = {
     typing?: boolean;
     activeAt?: number;
@@ -396,8 +423,6 @@ type LoadThreadDetailOptions = {
 };
 
 const MESSAGE_GROUP_GAP_MS = 15 * 60_000;
-const CHAT_THREAD_LISTENER_LIMIT = 250;
-const CHAT_MESSAGE_LISTENER_LIMIT = 250;
 const CHAT_THREAD_LIST_SCOPE = "chat thread list";
 const CHAT_MESSAGES_SCOPE = "chat messages";
 const CHAT_REALTIME_SCOPES = [
@@ -1707,6 +1732,14 @@ export function ChatExperience() {
 
         const observerControl = createAutoHealingObserver(() => {
             if (!active) return;
+            deferChatRealtimeTelemetry({
+                eventName: "chat_realtime_listener_attached",
+                userId: user.uid,
+                listenerScope: "viewer_scoped_thread_list",
+                propagationState: "stale",
+                sourceComponent: "chat_thread_list",
+                documentLimit: CHAT_THREAD_LISTENER_LIMIT,
+            });
             return onSnapshot(
                 query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid), limit(CHAT_THREAD_LISTENER_LIMIT)),
                 (snapshot) => {
@@ -1739,6 +1772,16 @@ export function ChatExperience() {
                         .filter((thread) => isChatThreadVisibleToViewer(thread, thread.viewerRole))
                         .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
+                    if (nextThreads.some((thread) => thread.unreadCount > 0)) {
+                        deferChatRealtimeTelemetry({
+                            eventName: "chat_thread_unread_updated",
+                            userId: user.uid,
+                            listenerScope: "viewer_scoped_thread_list",
+                            propagationState: "listener_observed",
+                            sourceComponent: "chat_thread_list",
+                            documentLimit: CHAT_THREAD_LISTENER_LIMIT,
+                        });
+                    }
                     setThreads((current) => mergeThreads(
                         nextThreads,
                         selectedDetailThreadRef.current ?? current.find((thread) => thread.id === selectedThreadIdRef.current) ?? null,
@@ -1746,6 +1789,14 @@ export function ChatExperience() {
                 },
                 (error: unknown) => {
                     if (!active) return;
+                    deferChatRealtimeTelemetry({
+                        eventName: "chat_realtime_listener_error",
+                        userId: user.uid,
+                        listenerScope: "viewer_scoped_thread_list",
+                        propagationState: "failed",
+                        sourceComponent: "chat_thread_list",
+                        errorMessage: error instanceof Error ? error.message : String(error),
+                    });
                     observerControl.triggerReconnect(error);
                 },
             );
@@ -1757,6 +1808,14 @@ export function ChatExperience() {
 
         return () => {
             active = false;
+            deferChatRealtimeTelemetry({
+                eventName: "chat_realtime_listener_detached",
+                userId: user.uid,
+                listenerScope: "viewer_scoped_thread_list",
+                propagationState: "stale",
+                sourceComponent: "chat_thread_list",
+                documentLimit: CHAT_THREAD_LISTENER_LIMIT,
+            });
             observerControl.cleanup();
         };
     }, [creatorId, liveViewerRole, user, userProfile]);
@@ -1770,6 +1829,15 @@ export function ChatExperience() {
 
         const observerControl = createAutoHealingObserver(() => {
             if (!active) return;
+            deferChatRealtimeTelemetry({
+                eventName: "chat_realtime_listener_attached",
+                userId: user.uid,
+                threadId: selectedThreadId,
+                listenerScope: "selected_thread_messages_only",
+                propagationState: "stale",
+                sourceComponent: "chat_thread_messages",
+                documentLimit: CHAT_MESSAGE_LISTENER_LIMIT,
+            });
             return onSnapshot(
                 query(
                     collection(db, CHAT_COLLECTIONS.messages),
@@ -1792,6 +1860,16 @@ export function ChatExperience() {
                         })
                         .sort((left, right) => (left.createdAt || 0) - (right.createdAt || 0));
     
+                    deferChatRealtimeTelemetry({
+                        eventName: "chat_message_listener_observed",
+                        userId: user.uid,
+                        threadId: selectedThreadId,
+                        messageId: nextMessages[nextMessages.length - 1]?.id ?? null,
+                        listenerScope: "selected_thread_messages_only",
+                        propagationState: "listener_observed",
+                        sourceComponent: "chat_thread_messages",
+                        documentLimit: CHAT_MESSAGE_LISTENER_LIMIT,
+                    });
                     setSelectedDetail((current) => current ? {
                         ...current,
                         messages: nextMessages,
@@ -1799,6 +1877,15 @@ export function ChatExperience() {
                 },
                 (error: unknown) => {
                     if (!active) return;
+                    deferChatRealtimeTelemetry({
+                        eventName: "chat_realtime_listener_error",
+                        userId: user.uid,
+                        threadId: selectedThreadId,
+                        listenerScope: "selected_thread_messages_only",
+                        propagationState: "failed",
+                        sourceComponent: "chat_thread_messages",
+                        errorMessage: error instanceof Error ? error.message : String(error),
+                    });
                     observerControl.triggerReconnect(error);
                 },
             );
@@ -1810,6 +1897,15 @@ export function ChatExperience() {
 
         return () => {
             active = false;
+            deferChatRealtimeTelemetry({
+                eventName: "chat_realtime_listener_detached",
+                userId: user.uid,
+                threadId: selectedThreadId,
+                listenerScope: "selected_thread_messages_only",
+                propagationState: "stale",
+                sourceComponent: "chat_thread_messages",
+                documentLimit: CHAT_MESSAGE_LISTENER_LIMIT,
+            });
             observerControl.cleanup();
         };
     }, [liveViewerRole, selectedThreadId, user, userProfile]);
@@ -1830,6 +1926,15 @@ export function ChatExperience() {
         }
 
         markReadRef.current = markerKey;
+        deferChatRealtimeTelemetry({
+            eventName: "chat_thread_read_marked",
+            userId: user?.uid,
+            threadId: selectedThreadId,
+            messageId: latestMessage.id,
+            listenerScope: "selected_thread_messages_only",
+            propagationState: "listener_observed",
+            sourceComponent: "chat_thread_messages",
+        });
         void authFetch(`/api/chat/threads/${encodeURIComponent(selectedThreadId)}/read`, {
             method: "POST",
         }).catch((error) => {
@@ -2370,6 +2475,15 @@ export function ChatExperience() {
             setComposerText("");
             setComposerKind("text");
             pushTypingState(false);
+            deferChatRealtimeTelemetry({
+                eventName: "chat_message_optimistic_rendered",
+                userId: user?.uid,
+                threadId: selectedThreadId,
+                messageId: optimisticId,
+                listenerScope: "selected_thread_messages_only",
+                propagationState: "optimistic_rendered",
+                sourceComponent: "chat_thread_composer",
+            });
         }
 
         try {
@@ -2422,6 +2536,16 @@ export function ChatExperience() {
                 throw new Error(buildChatSendErrorMessage(body));
             }
 
+            deferChatRealtimeTelemetry({
+                eventName: "chat_message_api_accepted",
+                userId: user?.uid,
+                threadId: selectedThreadId,
+                messageId: body.message?.id ?? optimisticId,
+                listenerScope: "selected_thread_messages_only",
+                propagationState: "send_api_accepted",
+                sourceComponent: "chat_thread_composer",
+            });
+
             if (currentComposerFile) {
                 setComposerText("");
                 setComposerFile(null);
@@ -2441,6 +2565,15 @@ export function ChatExperience() {
                     current.map((thread) => thread.id === persistedThread.id ? persistedThread : thread),
                     persistedThread,
                 ));
+                deferChatRealtimeTelemetry({
+                    eventName: "chat_message_reconciled",
+                    userId: user?.uid,
+                    threadId: selectedThreadId,
+                    messageId: persistedMessage.id,
+                    listenerScope: "selected_thread_messages_only",
+                    propagationState: "reconciled",
+                    sourceComponent: "chat_thread_composer",
+                });
             }
             deferChatMessageSentTelemetry({
                 sourceComponent: "chat_thread_composer",
@@ -2479,6 +2612,16 @@ export function ChatExperience() {
                 idempotencyKey,
                 messageKind: currentComposerKind,
                 hasAttachment: Boolean(currentComposerFile),
+                errorMessage: message,
+            });
+            deferChatRealtimeTelemetry({
+                eventName: "chat_message_reconcile_failed",
+                userId: user?.uid,
+                threadId: selectedThreadId,
+                messageId: optimisticId,
+                listenerScope: "selected_thread_messages_only",
+                propagationState: "failed",
+                sourceComponent: "chat_thread_composer",
                 errorMessage: message,
             });
             setSendErrorMessage(message);

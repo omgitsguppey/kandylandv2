@@ -190,6 +190,7 @@
         "check:debug-signal-grouping": "tsx scripts/agent/validate-debug-signal-grouping.ts",
         "check:non-event-score-policy": "tsx scripts/agent/validate-non-event-score-policy.ts",
         "check:final-signal-zero-lock": "tsx scripts/agent/validate-final-signal-zero-lock.ts",
+        "check:chat-realtime-cost-control": "tsx scripts/agent/validate-chat-realtime-cost-control.ts",
         "check:final-user-tracking-handoff-lock": "tsx scripts/agent/validate-final-user-tracking-handoff-lock.ts",
         "check:privacy-import-export-cutover": "tsx scripts/agent/validate-privacy-import-export-cutover.ts",
         "check:identity-link-continuity": "tsx scripts/agent/validate-identity-link-continuity.ts",

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.2 - 2026-05-23
+- Chat realtime reliability
+- Hardened chat realtime listener scope and cleanup.
+- Added chat message propagation telemetry.
+- Kept chat UI and payment/GumDrop logic unchanged.
+
 ## 1.4.1 - 2026-05-23
 - Signal zero lock
 - Locked future activity signals out of actionable debug noise.
