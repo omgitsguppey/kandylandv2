@@ -81,6 +81,19 @@ export function sanitizeUsername(value: string): string {
     return value.toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9_]/g, "");
 }
 
+export function getAccountDeletionFailureMessage(status?: number, serverMessage?: unknown) {
+    if (status === 401 || status === 403) {
+        return "Account deletion could not start because your account session is missing. Sign in again and retry.";
+    }
+
+    const normalizedMessage = typeof serverMessage === "string" ? serverMessage.toLowerCase() : "";
+    if (status === 503 && normalizedMessage.includes("pending")) {
+        return "Your deletion started, but final cleanup needs support review. Contact support if you can still access the account.";
+    }
+
+    return "We could not submit the deletion request right now. Try again or contact support.";
+}
+
 export function buildFormState(params: any): ProfileSettingsFormState {
     return {
         displayName: (params.displayName ?? "").trim(),
@@ -139,6 +152,8 @@ export function useProfileState() {
     const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+    const [deletionFeedback, setDeletionFeedback] = useState<string | null>(null);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [notificationSetupLoading, setNotificationSetupLoading] = useState(false);
     const [notificationSupportMessage, setNotificationSupportMessage] = useState<string | null>(null);
@@ -724,34 +739,133 @@ export function useProfileState() {
         }
     };
 
-    const handleRequestDeletion = async () => {
+    const buildAccountDeleteTelemetryParams = useCallback((extra?: Record<string, unknown>) => ({
+        section: "support_safety",
+        source_component: "ProfileSupportSafetySection",
+        route: "/dashboard/profile",
+        deletion_mode: "immediate_server_delete",
+        truth_state: "source_ready",
+        ...extra,
+    }), []);
+
+    const handleRequestDeletion = useCallback(() => {
         if (isCreatorProjectionActive) {
             toast.error("Creator dashboard is read-only in admin projection.");
             return;
         }
 
-        const confirmed = window.confirm("Are you incredibly sure? This will permanently delete your account, your KandyDrops collection, and your entire data profile. This cannot be undone.");
-        if (!confirmed) {
+        trackEvent("account_delete_clicked", buildAccountDeleteTelemetryParams());
+        setDeletionFeedback(null);
+        setDeleteConfirmationOpen(true);
+        trackEvent("account_delete_confirm_opened", buildAccountDeleteTelemetryParams());
+    }, [buildAccountDeleteTelemetryParams, isCreatorProjectionActive]);
+
+    const handleCancelAccountDeletion = useCallback(() => {
+        setDeleteConfirmationOpen(false);
+        setDeletionFeedback(null);
+        trackEvent("account_delete_cancelled", buildAccountDeleteTelemetryParams());
+    }, [buildAccountDeleteTelemetryParams]);
+
+    const handleConfirmAccountDeletion = useCallback(async () => {
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
             return;
         }
 
+        if (!user) {
+            const message = getAccountDeletionFailureMessage(401);
+            setDeletionFeedback(message);
+            toast.error(message);
+            trackEvent("account_delete_failed", buildAccountDeleteTelemetryParams({ failure_code: "missing_session" }));
+            reportClientIssue({
+                channel: "auth",
+                severity: "warn",
+                message: "Account deletion flow failed",
+                humanMessage: message,
+                error: new Error(message),
+                detail: {
+                    source: "profile_page",
+                    action: "delete_account",
+                    route: "/api/user/delete",
+                    status: 401,
+                    debugLane: "account_safety",
+                    deletionMode: "immediate_server_delete",
+                },
+                fingerprint: "account-delete-flow-missing-session",
+                consoleLabel: "[Profile] account deletion missing session",
+            });
+            return;
+        }
+
+        trackEvent("account_delete_confirmed", buildAccountDeleteTelemetryParams());
         setIsDeleting(true);
         try {
+            trackEvent("account_delete_request_submitted", buildAccountDeleteTelemetryParams());
             const response = await authFetch("/api/user/delete", { method: "DELETE" });
-            const data = await response.json();
+            const data = await response.json().catch(() => ({})) as { error?: string; message?: string; success?: boolean };
 
             if (!response.ok) {
-                throw new Error(data.error || "Failed to delete account");
+                const message = getAccountDeletionFailureMessage(response.status, data.message || data.error);
+                setDeletionFeedback(message);
+                trackEvent("account_delete_failed", buildAccountDeleteTelemetryParams({
+                    failure_code: `http_${response.status}`,
+                    status: response.status,
+                }));
+                reportClientIssue({
+                    channel: "auth",
+                    severity: "error",
+                    message: "Account deletion flow failed",
+                    humanMessage: message,
+                    error: new Error(message),
+                    detail: {
+                        source: "profile_page",
+                        action: "delete_account",
+                        route: "/api/user/delete",
+                        status: response.status,
+                        debugLane: "account_safety",
+                        deletionMode: "immediate_server_delete",
+                    },
+                    fingerprint: "account-delete-flow-route-failed",
+                    consoleLabel: "[Profile] account deletion failed",
+                });
+                toast.error(message);
+                return;
             }
 
-            toast.success("Account permanently deleted.");
-            await logout(); // Kick them out immediately
-        } catch (error: any) {
-            toast.error(error.message);
+            trackEvent("account_delete_completed", buildAccountDeleteTelemetryParams({
+                request_outcome: "completed",
+            }));
+            toast.success("Account deleted. You have been signed out.");
+            setDeleteConfirmationOpen(false);
+            await logout();
+            if (typeof window !== "undefined") {
+                window.location.assign("/");
+            }
+        } catch (error: unknown) {
+            const message = getAccountDeletionFailureMessage();
+            setDeletionFeedback(message);
+            trackEvent("account_delete_failed", buildAccountDeleteTelemetryParams({ failure_code: "network_or_unknown" }));
+            reportClientIssue({
+                channel: "auth",
+                severity: "error",
+                message: "Account deletion flow failed",
+                humanMessage: message,
+                error,
+                detail: {
+                    source: "profile_page",
+                    action: "delete_account",
+                    route: "/api/user/delete",
+                    debugLane: "account_safety",
+                    deletionMode: "immediate_server_delete",
+                },
+                fingerprint: "account-delete-flow-network-failed",
+                consoleLabel: "[Profile] account deletion failed",
+            });
+            toast.error(message);
         } finally {
             setIsDeleting(false);
         }
-    };
+    }, [buildAccountDeleteTelemetryParams, isCreatorProjectionActive, logout, user]);
 
     const handleDownloadData = async () => {
         setIsDownloading(true);
@@ -886,7 +1000,7 @@ export function useProfileState() {
     return {
     user, userProfile, logout,
     formState, updateForm, saving, saveFeedback,
-    isDownloading, isDeleting, isUploadingAvatar,
+    isDownloading, isDeleting, deleteConfirmationOpen, deletionFeedback, isUploadingAvatar,
     notificationSetupLoading, notificationSupportMessage,
     runtimeOrigin, creatorSettingsState, creatorSettingsLoading,
     creatorStats, creatorBroadcasts, creatorBroadcastMessage,
@@ -899,7 +1013,7 @@ export function useProfileState() {
     profileIdentityLabel, profileIdentityDetail,
     avatarFallback, referralLink,
     handleBrowserPushToggle, handleWithdrawOptionalTracking,
-    handleDownloadData, handleRequestDeletion, creatorSettingsNotice,
+    handleDownloadData, handleRequestDeletion, handleCancelAccountDeletion, handleConfirmAccountDeletion, creatorSettingsNotice,
     handleChangeAvatar, handleSaveCreatorSettings,
     handleSendCreatorBroadcast, handleRequestCreatorPayout,
     updateCreatorSettingsState, setCreatorSettingsState

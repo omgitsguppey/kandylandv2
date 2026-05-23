@@ -55,6 +55,13 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "watch_score_computed",
     "creator_followed",
     "feedback_submitted",
+    "account_delete_clicked",
+    "account_delete_confirm_opened",
+    "account_delete_confirmed",
+    "account_delete_cancelled",
+    "account_delete_request_submitted",
+    "account_delete_failed",
+    "account_delete_completed",
 ]);
 const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;
 const IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS = 1_500;

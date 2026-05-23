@@ -263,6 +263,13 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "user_settings_viewed", label: "User settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
     { eventName: "user_settings_creator_tools_cta_clicked", label: "User settings creator tools CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
     { eventName: "profile_settings_viewed", label: "Profile settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["user_settings_viewed"] },
+  { eventName: "account_delete_clicked", label: "Account delete clicked", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
+  { eventName: "account_delete_confirm_opened", label: "Account delete confirm opened", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
+  { eventName: "account_delete_confirmed", label: "Account delete confirmed", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
+  { eventName: "account_delete_cancelled", label: "Account delete cancelled", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
+  { eventName: "account_delete_request_submitted", label: "Account delete request submitted", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
+  { eventName: "account_delete_failed", label: "Account delete failed", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement", "runtime"] },
+  { eventName: "account_delete_completed", label: "Account delete completed", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth", "engagement"] },
   { eventName: "support_inbox_viewed", label: "Support inbox viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "support_ticket_created", label: "Support ticket created", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["engagement"], aliases: ["support_ticket_submitted"] },
   { eventName: "support_thread_opened", label: "Support thread opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], auditCoveredBy: ["support_reply_viewed"] },
@@ -1252,6 +1259,7 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
   if (
     eventName === "user_settings_viewed"
     || eventName === "user_settings_creator_tools_cta_clicked"
+    || eventName.startsWith("account_delete_")
     || eventName === "creator_dashboard_settings_viewed"
     || eventName === "creator_settings_section_opened"
     || eventName === "creator_broadcast_manager_viewed"

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.85 - 2026-05-22
+- Account settings delete flow
+- Added safe bottom spacing for Account Settings on mobile.
+- Finalized the Delete Account flow with confirmation and clear failure states.
+- Kept Report issue, navigation, chat, payment, and GumDrop logic unchanged.
+
 ## 1.3.84 - 2026-05-22
 - New message modal polish
 - Lifted the new message modal above the bottom navigation on mobile.

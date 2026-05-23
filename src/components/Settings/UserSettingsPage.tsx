@@ -1,7 +1,8 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Link from "next/link";
-import { ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 import { useProfileState } from "@/app/dashboard/profile/hooks/useProfileState";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -12,11 +13,18 @@ import { ProfileProfileSection } from "@/app/dashboard/profile/components/Profil
 import { ProfileSupportSafetySection } from "@/app/dashboard/profile/components/ProfileSupportSafetySection";
 import { CREATOR_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
 import { trackEvent } from "@/lib/telemetry";
+import { USER_MOBILE_FLOATING_CONTROL_BOTTOM_OFFSET } from "@/lib/user-mobile-shell";
+
+const ACCOUNT_SETTINGS_BOTTOM_SAFE_PADDING =
+  `calc(${USER_MOBILE_FLOATING_CONTROL_BOTTOM_OFFSET} + env(safe-area-inset-bottom) + 5.5rem)`;
 
 export function UserSettingsPage() {
   const state = useProfileState();
   const actorRole = state.userProfile?.role || "user";
   const creatorId = state.userProfile?.uid || "";
+  const accountSettingsShellStyle = {
+    "--account-settings-bottom-safe-padding": ACCOUNT_SETTINGS_BOTTOM_SAFE_PADDING,
+  } as CSSProperties;
 
   if (!state.userProfile) {
     return (
@@ -29,7 +37,13 @@ export function UserSettingsPage() {
   const showCreatorCta = state.userProfile?.role === "creator";
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-lg bg-black pb-4">
+    <div
+      className="mx-auto min-h-screen w-full max-w-lg bg-black pb-[var(--account-settings-bottom-safe-padding)] [scroll-padding-bottom:var(--account-settings-bottom-safe-padding)]"
+      data-account-settings-bottom-safe="true"
+      data-report-issue-chip-untouched="true"
+      data-delete-account-visible-above-floating-actions="true"
+      style={accountSettingsShellStyle}
+    >
       <PageViewEvent
         eventName="user_settings_viewed"
         eventParams={{
