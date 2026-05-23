@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.97 - 2026-05-23
+- Beta activity signal cleanup
+- Reclassified future user activity placeholders as quiet catalog items.
+- Stopped source-ready future activity from appearing as actionable debug noise.
+- Kept broken telemetry paths actionable.
+
 ## 1.3.96 - 2026-05-23
 - Improved internal beta reliability
 - Improved internal beta reliability for testing, tracking, and score reporting.

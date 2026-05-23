@@ -2,6 +2,9 @@ import {
   SETTINGS_HEALTH_COMPONENTS,
   SETTINGS_HEALTH_DEBUG_LANE,
 } from "@/lib/debug/settings-debug-validator-authority";
+import {
+  summarizeActionableActivitySignals,
+} from "@/lib/debug/actionable-signal-filter";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -47,6 +50,17 @@ export type DebugTrackingSummary = {
   rawDetailsDefaultOpen: false;
   rawDetailPolicy: "drilldown_only";
   lanes: DebugTrackingSummaryLane[];
+  futureActivityCatalog: {
+    label: "Future activity catalog";
+    defaultOpen: false;
+    hiddenFromDefaultWarnings: true;
+    quietFutureActivityCount: number;
+    actionableActivitySignalCount: number;
+    brokenActivityPathCount: number;
+    scoreDragActivityCount: number;
+    drilldownTarget: string;
+    sourceOfTruth: string;
+  };
   duplicateMonitorGroups: string[];
   validation: {
     duplicateTrackingSystems: string[];
@@ -123,7 +137,17 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const eventBridgeGaps = toNumber(eventBridge.gaps);
   const eventBridgeTranslated = toNumber(eventBridge.eventEnvelopesTranslated);
   const eventBridgeConnected = toNumber(eventBridge.producersConnected);
-  const eventBridgeStatus = eventBridgeGaps > 0
+  const activitySignalSummary = summarizeActionableActivitySignals(
+    Array.isArray(input.futureActivitySignalReclassification?.classifiedSignals)
+      ? input.futureActivitySignalReclassification.classifiedSignals
+      : Array.isArray(input.futureActivitySignalReclassification?.signals)
+        ? input.futureActivitySignalReclassification.signals
+        : Array.isArray(input.eventTranslationBridge?.waitingOnActivity)
+          ? input.eventTranslationBridge.waitingOnActivity
+          : [],
+  );
+  const eventBridgeActionableSignals = activitySignalSummary.actionableActivitySignalCount;
+  const eventBridgeStatus = eventBridgeGaps + eventBridgeActionableSignals > 0
     ? "degraded"
     : eventBridgeTranslated > 0 || eventBridgeConnected > 0
       ? "live"
@@ -226,11 +250,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       sourceOwner: "analytics",
       sourceOfTruth: "src/lib/analytics/event-translation-bridge.ts",
       status: eventBridgeStatus,
-      severity: severityFromCounts(0, eventBridgeGaps, eventBridgeStatus),
+      severity: severityFromCounts(0, eventBridgeGaps + eventBridgeActionableSignals, eventBridgeStatus),
       scoreImpact: "high",
-      primarySignal: `Producers ${eventBridgeConnected}/${toNumber(eventBridge.producersRegistered)} connected; envelopes=${eventBridgeTranslated}; materializers=${toNumber(eventBridge.materializersMapped)}; person metrics=${toNumber(eventBridge.personMetricsMapped)}; gaps=${eventBridgeGaps}.`,
+      primarySignal: `Producers ${eventBridgeConnected}/${toNumber(eventBridge.producersRegistered)} connected; envelopes=${eventBridgeTranslated}; materializers=${toNumber(eventBridge.materializersMapped)}; person metrics=${toNumber(eventBridge.personMetricsMapped)}; gaps=${eventBridgeGaps}; actionable activity signals=${eventBridgeActionableSignals}; quiet future catalog=${activitySignalSummary.quietFutureActivityCount}.`,
       criticalCount: 0,
-      warningCount: eventBridgeGaps,
+      warningCount: eventBridgeGaps + eventBridgeActionableSignals,
       drilldownTarget: "/admin/debug?tab=advanced#event-translation-bridge",
     }),
     makeLane({
@@ -409,6 +433,17 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     rawDetailsDefaultOpen: false,
     rawDetailPolicy: "drilldown_only",
     lanes,
+    futureActivityCatalog: {
+      label: "Future activity catalog",
+      defaultOpen: false,
+      hiddenFromDefaultWarnings: true,
+      quietFutureActivityCount: activitySignalSummary.quietFutureActivityCount,
+      actionableActivitySignalCount: activitySignalSummary.actionableActivitySignalCount,
+      brokenActivityPathCount: activitySignalSummary.brokenActivityPathCount,
+      scoreDragActivityCount: activitySignalSummary.scoreDragActivityCount,
+      drilldownTarget: "/admin/debug?tab=advanced#future-activity-catalog",
+      sourceOfTruth: "src/lib/debug/future-activity-classifier.ts",
+    },
     duplicateMonitorGroups: TRACKING_GROUPS,
     validation: {
       duplicateTrackingSystems,

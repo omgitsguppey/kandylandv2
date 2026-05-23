@@ -3,6 +3,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
+import {
+  summarizeActionableActivitySignals,
+  type ActionableActivitySignalSummary,
+} from "@/lib/debug/actionable-signal-filter";
+
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/final-testing-tracking-telemetry-lock.generated.json";
 const DOC_PATH = "docs/agent-truth/final-testing-tracking-telemetry-lock.md";
@@ -27,6 +32,7 @@ type DirtyFileClassification =
   | "test_artifact_expected"
   | "release_artifact_expected"
   | "refreshed_dependency_artifact"
+  | "unrelated_agent_context_file_to_ignore"
   | "real_source_change_needs_review"
   | "protected_runtime_change"
   | "unsafe_unknown";
@@ -52,11 +58,20 @@ export type FinalTestingTrackingTelemetryLockReport = {
   userManagementStatus: string;
   debugSimplificationStatus: string;
   waitingOnActivityLanes: {
-    total: number;
-    futureActivityPending: number;
-    falseWaitingCount: number;
     scoreDragLanes: Array<{ reason: string; nextAction: string }>;
+    actionableActivitySignalCount: number;
+    quietFutureActivityCount: number;
+    brokenActivityPathCount: number;
+    scoreDragActivityCount: number;
   };
+  activitySignalSummary: Pick<ActionableActivitySignalSummary,
+    | "totalSignalCount"
+    | "actionableActivitySignalCount"
+    | "quietFutureActivityCount"
+    | "brokenActivityPathCount"
+    | "scoreDragActivityCount"
+    | "evidenceGateOnlyCount"
+  >;
   orphanMetricCount: number | null;
   duplicateValidatorCount: number | null;
   staleLogicRemoved: {
@@ -183,14 +198,25 @@ function loadArtifacts(): FinalLockArtifacts {
 
 function classifyDirtyFile(path: string): DirtyFileClassification {
   const normalized = path.replace(/\\/gu, "/");
+  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === REPORT_PATH || normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/future-activity-signal-reclassification.generated.json") return "current_generated_artifact_to_commit";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "refreshed_dependency_artifact";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/future-activity-signal-reclassification.md") return "documentation_artifact_expected";
   if (normalized.startsWith("docs/agent-truth/") && normalized.endsWith(".md")) return "refreshed_dependency_artifact";
   if (normalized === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-future-activity-signal-reclassification.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/future-activity-signal-reclassification.spec.ts") return "test_artifact_expected";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-new-additions-score-coverage.ts") return "validator_artifact_expected";
+  if (normalized === "src/lib/debug/future-activity-classifier.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/actionable-signal-filter.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/admin/user-management-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
@@ -260,6 +286,7 @@ function buildMetrics(artifacts: FinalLockArtifacts) {
 
 function buildWaitingSummary(eventTranslation: JsonRecord | undefined) {
   const waiting = arrayValue<JsonRecord>(eventTranslation?.waitingOnActivity);
+  const activitySignalSummary = summarizeActionableActivitySignals(waiting);
   const scoreDragLanes = waiting
     .filter((entry) => entry.scoreDrag === true)
     .map((entry) => ({
@@ -267,10 +294,23 @@ function buildWaitingSummary(eventTranslation: JsonRecord | undefined) {
       nextAction: stringValue(entry.nextAction, "Classify the exact missing producer, bridge, or materializer."),
     }));
   return {
-    total: waiting.length,
-    futureActivityPending: waiting.filter((entry) => entry.scoreDrag === false && stringValue(entry.reason).includes("future_real_activity_pending")).length,
-    falseWaitingCount: scoreDragLanes.length,
     scoreDragLanes,
+    actionableActivitySignalCount: activitySignalSummary.actionableActivitySignalCount,
+    quietFutureActivityCount: activitySignalSummary.quietFutureActivityCount,
+    brokenActivityPathCount: activitySignalSummary.brokenActivityPathCount,
+    scoreDragActivityCount: activitySignalSummary.scoreDragActivityCount,
+  };
+}
+
+function buildActivitySignalSummary(eventTranslation: JsonRecord | undefined) {
+  const summary = summarizeActionableActivitySignals(arrayValue<JsonRecord>(eventTranslation?.waitingOnActivity));
+  return {
+    totalSignalCount: summary.totalSignalCount,
+    actionableActivitySignalCount: summary.actionableActivitySignalCount,
+    quietFutureActivityCount: summary.quietFutureActivityCount,
+    brokenActivityPathCount: summary.brokenActivityPathCount,
+    scoreDragActivityCount: summary.scoreDragActivityCount,
+    evidenceGateOnlyCount: summary.evidenceGateOnlyCount,
   };
 }
 
@@ -326,6 +366,7 @@ export function buildFinalTestingTrackingTelemetryLockReport(options: BuildOptio
     userManagementStatus: statusOf(artifacts.userManagementRefactor),
     debugSimplificationStatus: statusOf(artifacts.debugTrackingSimplification),
     waitingOnActivityLanes: buildWaitingSummary(artifacts.eventTranslation),
+    activitySignalSummary: buildActivitySignalSummary(artifacts.eventTranslation),
     orphanMetricCount: orphanMetricCount(artifacts.monolithOrphanMetricRegistry),
     duplicateValidatorCount: duplicateValidatorCount(artifacts.telemetryTriggerTestMatrix),
     staleLogicRemoved: {
@@ -355,8 +396,14 @@ export function validateFinalTestingTrackingTelemetryLockReport(report: FinalTes
       failures.push(`${dimension} is below 80 and lacks an exact next action.`);
     }
   }
-  if (report.waitingOnActivityLanes.falseWaitingCount > 0) {
+  if (report.waitingOnActivityLanes.scoreDragActivityCount > 0) {
     failures.push("waiting-on-activity remains as score drag even though the source bridge exists.");
+  }
+  if (typeof report.activitySignalSummary.actionableActivitySignalCount !== "number") {
+    failures.push("actionableActivitySignalCount is not reported.");
+  }
+  if (report.activitySignalSummary.scoreDragActivityCount > 0) {
+    failures.push("quiet future activity still affects score negatively.");
   }
   if (report.personMetricsHydrationStatus !== "pass") {
     failures.push("user metrics confidence is missing or not hydrated across the board.");
@@ -402,7 +449,10 @@ function renderDoc(report: FinalTestingTrackingTelemetryLockReport) {
     `- Telemetry trigger coverage: ${report.triggerTestCoverageStatus}`,
     `- User management refactor: ${report.userManagementStatus}`,
     `- Debug simplification: ${report.debugSimplificationStatus}`,
-    `- Waiting-on-activity score-drag lanes: ${report.waitingOnActivityLanes.falseWaitingCount}`,
+    `- Actionable activity signal count: ${report.activitySignalSummary.actionableActivitySignalCount}`,
+    `- Quiet future activity count: ${report.activitySignalSummary.quietFutureActivityCount}`,
+    `- Broken activity path count: ${report.activitySignalSummary.brokenActivityPathCount}`,
+    `- Score-drag activity count: ${report.activitySignalSummary.scoreDragActivityCount}`,
     `- Orphan metric count: ${report.orphanMetricCount ?? "unknown"}`,
     `- Duplicate validator count: ${report.duplicateValidatorCount ?? "unknown"}`,
     "",
@@ -436,7 +486,7 @@ function main() {
   }
   console.log(
     `Final testing tracking telemetry lock passed: overall=${report.metrics.overallHealthScore.after}, ` +
-      `source=${report.metrics.sourceHealth.after}, waitingScoreDrag=${report.waitingOnActivityLanes.falseWaitingCount}.`,
+      `source=${report.metrics.sourceHealth.after}, actionableActivitySignals=${report.activitySignalSummary.actionableActivitySignalCount}, quietFuture=${report.activitySignalSummary.quietFutureActivityCount}.`,
   );
 }
 

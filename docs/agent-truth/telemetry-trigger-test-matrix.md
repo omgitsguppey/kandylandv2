@@ -1,8 +1,8 @@
 # Telemetry Trigger Test Matrix
 
-Generated: 2026-05-23T06:56:53.025Z
+Generated: 2026-05-23T19:33:27.979Z
 Status: pass
-Current head: a817e6e36f47ff3ecc71cd643737f18dc70558a3
+Current head: 7436c77c58d8873952a130244cf8117ee99660db
 
 ## Contract
 
@@ -85,52 +85,13 @@ Current head: a817e6e36f47ff3ecc71cd643737f18dc70558a3
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
-- agent/state/activity-verification-engine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-backlog-engine.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/final-behavioral-privacy-telemetry-lock.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/final-testing-tracking-telemetry-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/identity-handoff-spine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/march-first-event-recovery.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/new-additions-score-coverage.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-contract.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/future-activity-signal-reclassification.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
-- agent/state/user-management-refactor.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-backlog-engine.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/final-behavioral-privacy-telemetry-lock.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/final-testing-tracking-telemetry-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/identity-handoff-spine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/march-first-event-recovery.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/new-additions-score-coverage.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-contract.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
-- docs/agent-truth/user-management-refactor.md: stale_generated_artifact_to_regenerate
-- package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
-- scripts/agent/validate-final-testing-tracking-telemetry-lock.ts: validator_artifact_expected
-- scripts/agent/validate-new-additions-score-coverage.ts: validator_artifact_expected
-- src/lib/admin/user-management-contract.ts: real_source_change_needs_review
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/final-testing-tracking-telemetry-lock.spec.ts: test_artifact_expected
+- docs/agent-truth/future-activity-signal-reclassification.md: documentation_artifact_expected
 
 ## Validation Failures
 

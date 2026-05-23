@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.96",
-  "betaReleaseCounter": 396,
+  "currentVersion": "1.3.97",
+  "betaReleaseCounter": 397,
   "channel": "beta",
-  "generatedAt": "2026-05-23T06:48:17.048Z",
-  "generatedAtUtc": "2026-05-23T06:48:17.048Z",
+  "generatedAt": "2026-05-23T19:04:34.035Z",
+  "generatedAtUtc": "2026-05-23T19:04:34.035Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.97",
+      "previousVersion": "1.3.96",
+      "betaReleaseCounter": 397,
+      "previousBetaReleaseCounter": 396,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): quiet future activity signals",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T19:04:34.035Z",
+      "generatedAt": "2026-05-23T19:04:34.035Z",
+      "committedAtUtc": "2026-05-23T19:04:34.035Z",
+      "generatedAtUtc": "2026-05-23T19:04:34.035Z",
+      "updatedAtUtc": "2026-05-23T19:04:34.035Z",
+      "category": "Improved",
+      "title": "Beta activity signal cleanup",
+      "summary": "Improved internal beta reliability for activity signal reporting.",
+      "userFacingTitle": "Beta activity signal cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reclassified future user activity placeholders as quiet catalog items.",
+        "Stopped source-ready future activity from appearing as actionable debug noise.",
+        "Kept broken telemetry paths actionable."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-only future activity classifiers, actionable signal filtering, final lock reporting, generated evidence, and unit coverage without production reads, fake activity, payment changes, chat/nav changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Admin debug",
+        "Analytics",
+        "App reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/future-activity-signal-reclassification.generated.json",
+        "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+        "docs/agent-truth/future-activity-signal-reclassification.md",
+        "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
+        "package.json",
+        "scripts/agent/validate-future-activity-signal-reclassification.ts",
+        "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+        "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
+        "src/lib/debug/actionable-signal-filter.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/debug/future-activity-classifier.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/future-activity-signal-reclassification.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.96",
       "previousVersion": "1.3.95",
@@ -1353,59 +1407,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/codex-visual-gate-removal.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.72",
-      "previousVersion": "1.3.71",
-      "betaReleaseCounter": 372,
-      "previousBetaReleaseCounter": 371,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): add visual smoke lane",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T17:20:00.000Z",
-      "generatedAt": "2026-05-21T17:20:00.000Z",
-      "committedAtUtc": "2026-05-21T17:20:00.000Z",
-      "generatedAtUtc": "2026-05-21T17:20:00.000Z",
-      "updatedAtUtc": "2026-05-21T17:20:00.000Z",
-      "category": "Improved",
-      "title": "Minimal visual smoke evidence lane",
-      "summary": "Added a targeted visual smoke evidence lane for layout-sensitive UI surfaces.",
-      "userFacingTitle": "Minimal visual smoke evidence lane",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added minimal UI visual smoke evidence lane.",
-        "Limited manual visual checks to layout-sensitive UI surfaces.",
-        "Kept non-UI proof algorithmic where truthful."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a missing-by-default UI visual smoke contract, template, validator, and beta score wiring without clearing visual/manual smoke."
-      ],
-      "affectedSurfaces": [
-        "Beta readiness",
-        "UI visual smoke",
-        "Evidence scoring"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/evidence/ui-visual-smoke/README.md",
-        "agent/evidence/ui-visual-smoke/template.json",
-        "agent/state/ui-visual-smoke-minimal.generated.json",
-        "docs/agent-truth/ui-visual-smoke-minimal.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-ui-visual-smoke-minimal.ts",
-        "src/lib/evidence/ui-visual-smoke-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/ui-visual-smoke-minimal.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

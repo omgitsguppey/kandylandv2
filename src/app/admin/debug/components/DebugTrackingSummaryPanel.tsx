@@ -24,6 +24,17 @@ type TrackingSummary = {
     rawDetailsDefaultOpen: false;
     rawDetailPolicy: "drilldown_only";
     lanes: TrackingLane[];
+    futureActivityCatalog?: {
+        label: "Future activity catalog";
+        defaultOpen: false;
+        hiddenFromDefaultWarnings: true;
+        quietFutureActivityCount: number;
+        actionableActivitySignalCount: number;
+        brokenActivityPathCount: number;
+        scoreDragActivityCount: number;
+        drilldownTarget: string;
+        sourceOfTruth: string;
+    };
     duplicateMonitorGroups: string[];
     validation?: {
         duplicateTrackingSystems?: string[];
@@ -59,6 +70,7 @@ export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary
     const p1Count = lanes.filter((lane) => lane.severity === "p1").length;
     const p2Count = lanes.filter((lane) => lane.severity === "p2").length;
     const duplicateCount = trackingSummary?.validation?.duplicateTrackingSystems?.length ?? 0;
+    const futureCatalog = trackingSummary?.futureActivityCatalog;
     const summaryTone = duplicateCount > 0 || p1Count > 0 ? "bad" : p2Count > 0 ? "warn" : lanes.length ? "good" : "neutral";
 
     return (
@@ -109,6 +121,26 @@ export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary
                             </details>
                         </div>
                     ))}
+                    {futureCatalog ? (
+                        <details
+                            className="md:col-span-2 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-gray-300"
+                            open={futureCatalog.defaultOpen}
+                            data-admin-debug-future-activity-catalog="collapsed"
+                            data-admin-debug-quiet-future-activity-count={String(futureCatalog.quietFutureActivityCount)}
+                            data-admin-debug-actionable-activity-signal-count={String(futureCatalog.actionableActivitySignalCount)}
+                        >
+                            <summary className="cursor-pointer text-sm font-semibold text-gray-100">{futureCatalog.label}</summary>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                <Pill label="Quiet" value={futureCatalog.quietFutureActivityCount} tone="neutral" truthState="cached" />
+                                <Pill label="Actionable" value={futureCatalog.actionableActivitySignalCount} tone={futureCatalog.actionableActivitySignalCount > 0 ? "bad" : "good"} truthState={futureCatalog.actionableActivitySignalCount > 0 ? "failed" : "live"} />
+                                <Pill label="Broken" value={futureCatalog.brokenActivityPathCount} tone={futureCatalog.brokenActivityPathCount > 0 ? "bad" : "good"} truthState={futureCatalog.brokenActivityPathCount > 0 ? "failed" : "live"} />
+                                <Pill label="Score drag" value={futureCatalog.scoreDragActivityCount} tone={futureCatalog.scoreDragActivityCount > 0 ? "bad" : "good"} truthState={futureCatalog.scoreDragActivityCount > 0 ? "failed" : "live"} />
+                            </div>
+                            <p className="mt-2 text-gray-500">Quiet future activity is hidden from default warnings. Broken producers, bridges, materializers, metric consumers, and debug mappings stay actionable.</p>
+                            <p className="mt-1"><span className="text-gray-500">Source of truth:</span> {futureCatalog.sourceOfTruth}</p>
+                            <p className="mt-1"><span className="text-gray-500">Drilldown:</span> {futureCatalog.drilldownTarget}</p>
+                        </details>
+                    ) : null}
                 </div>
             ) : (
                 <p className="text-sm text-gray-300">Tracking summary is unavailable in this debug payload. Refresh the compact debug summary before using it for operator decisions.</p>

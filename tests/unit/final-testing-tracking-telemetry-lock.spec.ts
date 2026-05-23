@@ -79,7 +79,7 @@ describe("final testing tracking telemetry lock", () => {
     expect(report.metrics.runtimeHealth.nextExactAction).toContain("runtime");
     expect(report.orphanMetricCount).toBe(0);
     expect(report.duplicateValidatorCount).toBe(0);
-    expect(report.waitingOnActivityLanes.falseWaitingCount).toBe(0);
+    expect(report.waitingOnActivityLanes.scoreDragActivityCount).toBe(0);
     expect(validateFinalTestingTrackingTelemetryLockReport(report)).toEqual([]);
   });
 

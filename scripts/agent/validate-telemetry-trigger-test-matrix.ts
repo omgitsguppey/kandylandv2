@@ -65,7 +65,14 @@ function classifyOldTestLogic(): OldTestLogicClassification[] {
   return trackedFiles().flatMap<OldTestLogicClassification>((path) => {
     if (!existsSync(join(ROOT, path))) return [];
     if (!/^(scripts|tests)\//u.test(path)) return [];
-    if (path === VALIDATOR_PATH || path === DOC_PATH || path === "tests/unit/telemetry-trigger-test-matrix.spec.ts") return [];
+    if (
+      path === VALIDATOR_PATH
+      || path === DOC_PATH
+      || path === "tests/unit/telemetry-trigger-test-matrix.spec.ts"
+      || path === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts"
+      || path === "scripts/agent/validate-future-activity-signal-reclassification.ts"
+      || path === "tests/unit/future-activity-signal-reclassification.spec.ts"
+    ) return [];
     const source = read(path);
     const normalized = path.toLowerCase();
     if (/duplicate_validator|duplicate.*telemetry.*validator|stale.*telemetry.*validator/iu.test(source) && !normalized.includes("telemetry-trigger-test-matrix")) {

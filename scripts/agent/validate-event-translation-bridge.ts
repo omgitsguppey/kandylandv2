@@ -60,6 +60,9 @@ function findActiveOldLogic() {
     if (path === "tests/unit/event-translation-bridge.spec.ts") return false;
     if (path === "src/lib/analytics/event-translation-bridge.ts") return false;
     if (path === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return false;
+    if (path === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts") return false;
+    if (path === "scripts/agent/validate-future-activity-signal-reclassification.ts") return false;
+    if (path === "tests/unit/future-activity-signal-reclassification.spec.ts") return false;
     return oldLogicPattern.test(read(path));
   });
 }

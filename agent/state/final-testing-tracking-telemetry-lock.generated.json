@@ -1,17 +1,8 @@
 {
   "reportKey": "final-testing-tracking-telemetry-lock",
-  "generatedAtUtc": "2026-05-23T07:00:38.960Z",
-  "currentHead": "a817e6e36f47ff3ecc71cd643737f18dc70558a3",
+  "generatedAtUtc": "2026-05-23T19:33:06.073Z",
+  "currentHead": "7436c77c58d8873952a130244cf8117ee99660db",
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 59.75,
-    "evidenceCompleteness": 43,
-    "freshness": 48.57,
-    "costRisk": 42,
-    "regressionRisk": 6,
-    "overallHealthScore": 55.56
-  },
-  "scoreAfter": {
     "sourceHealth": 91.7,
     "runtimeHealth": 70.25,
     "evidenceCompleteness": 41.75,
@@ -19,6 +10,15 @@
     "costRisk": 42,
     "regressionRisk": 42,
     "overallHealthScore": 63.15
+  },
+  "scoreAfter": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 67.75,
+    "evidenceCompleteness": 39.25,
+    "freshness": 62.86,
+    "costRisk": 42,
+    "regressionRisk": 42,
+    "overallHealthScore": 62.15
   },
   "metrics": {
     "sourceHealth": {
@@ -29,21 +29,21 @@
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "runtimeHealth": {
-      "before": 59.75,
-      "after": 70.25,
+      "before": 70.25,
+      "after": 67.75,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof."
     },
     "evidenceCompleteness": {
-      "before": 43,
-      "after": 41.75,
+      "before": 41.75,
+      "after": 39.25,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
     },
     "freshness": {
-      "before": 48.57,
+      "before": 62.86,
       "after": 62.86,
       "target": 80,
       "status": "below_target",
@@ -57,15 +57,15 @@
       "nextExactAction": "Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads."
     },
     "regressionRisk": {
-      "before": 6,
+      "before": 42,
       "after": 42,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Resolve stale/formal regression evidence gates with targeted validators before treating the release as score-80 locked."
     },
     "overallHealthScore": {
-      "before": 55.56,
-      "after": 63.15,
+      "before": 63.15,
+      "after": 62.15,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Complete every below-target dimension next action, then rerun score:beta and check:beta-score."
@@ -77,10 +77,19 @@
   "userManagementStatus": "pass",
   "debugSimplificationStatus": "pass",
   "waitingOnActivityLanes": {
-    "total": 416,
-    "futureActivityPending": 416,
-    "falseWaitingCount": 0,
-    "scoreDragLanes": []
+    "scoreDragLanes": [],
+    "actionableActivitySignalCount": 0,
+    "quietFutureActivityCount": 416,
+    "brokenActivityPathCount": 0,
+    "scoreDragActivityCount": 0
+  },
+  "activitySignalSummary": {
+    "totalSignalCount": 416,
+    "actionableActivitySignalCount": 0,
+    "quietFutureActivityCount": 416,
+    "brokenActivityPathCount": 0,
+    "scoreDragActivityCount": 0,
+    "evidenceGateOnlyCount": 0
   },
   "orphanMetricCount": 0,
   "duplicateValidatorCount": 0,
@@ -109,12 +118,12 @@
   "remainingGaps": [
     {
       "dimension": "runtimeHealth",
-      "reason": "runtimeHealth is 70.25, below the score-80 target.",
+      "reason": "runtimeHealth is 67.75, below the score-80 target.",
       "nextAction": "Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof."
     },
     {
       "dimension": "evidenceCompleteness",
-      "reason": "evidenceCompleteness is 41.75, below the score-80 target.",
+      "reason": "evidenceCompleteness is 39.25, below the score-80 target.",
       "nextAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
     },
     {
@@ -134,7 +143,7 @@
     },
     {
       "dimension": "overallHealthScore",
-      "reason": "overallHealthScore is 63.15, below the score-80 target.",
+      "reason": "overallHealthScore is 62.15, below the score-80 target.",
       "nextAction": "Complete every below-target dimension next action, then rerun score:beta and check:beta-score."
     }
   ],
@@ -148,188 +157,16 @@
   ],
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/activity-verification-engine.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/debug-backlog-engine.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "path": "agent/state/future-activity-signal-reclassification.generated.json",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/march-first-event-recovery.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/new-additions-score-coverage.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/person-metrics-contract.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "refreshed_dependency_artifact"
     },
     {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "agent/state/user-management-refactor.generated.json",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/final-behavioral-privacy-telemetry-lock.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
+      "path": "docs/agent-truth/future-activity-signal-reclassification.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/march-first-event-recovery.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/new-additions-score-coverage.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-contract.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "docs/agent-truth/user-management-refactor.md",
-      "classification": "refreshed_dependency_artifact"
-    },
-    {
-      "path": "package.json",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-event-translation-bridge.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-new-additions-score-coverage.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/admin/user-management-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/final-testing-tracking-telemetry-lock.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "protectedChanges": [],
