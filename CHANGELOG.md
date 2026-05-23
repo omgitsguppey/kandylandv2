@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.90 - 2026-05-23
+- Profile settings contract hardening
+- Hardened Account Settings profile saves around one backend profile contract.
+- Blocked stale profile writes from changing server-owned account fields.
+- Kept Delete Account, Creator Settings, chat, navigation, payment, and GumDrop logic unchanged.
+
 ## 1.3.89 - 2026-05-23
 - Support and policy surface cleanup
 - Connected FAQ, Support, Policies, Privacy Policy, and Download My Data to canonical trust surfaces.

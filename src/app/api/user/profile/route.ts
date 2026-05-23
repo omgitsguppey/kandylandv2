@@ -8,11 +8,17 @@ import { PRIVACY_POLICY_VERSION } from "@/lib/platform-config";
 import { normalizeUsername } from "@/lib/user-utils";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
-import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { trackServerEvent } from "@/lib/server/analytics";
+import {
+    USER_PROFILE_HUMAN_ERRORS,
+    buildCanonicalUserProfileResponse,
+    getServerOnlyUserProfilePayloadKeys,
+    sanitizeUserProfileWritePayload,
+} from "@/lib/user/user-profile-contract";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",
@@ -165,7 +171,18 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const payload = await request.json();
+        const rawPayload = await request.json();
+        const blockedServerOnlyKeys = getServerOnlyUserProfilePayloadKeys(rawPayload);
+        const sanitizedPayload = sanitizeUserProfileWritePayload(rawPayload);
+        if (!sanitizedPayload.ok) {
+            const serverOnlyFieldError = USER_PROFILE_HUMAN_ERRORS.serverOnlyField;
+            return NextResponse.json({
+                error: blockedServerOnlyKeys.length > 0 ? serverOnlyFieldError : sanitizedPayload.error,
+                blockedFields: blockedServerOnlyKeys,
+            }, { status: sanitizedPayload.status });
+        }
+
+        const payload = sanitizedPayload.payload;
         const updates: Record<string, unknown> = {};
 
         if (typeof payload.displayName === "string" && payload.displayName.trim().length > 0) {
@@ -235,12 +252,6 @@ async function PUT_handler(request: NextRequest) {
         }
 
         const existingUserData = userSnap.data() ?? {};
-        if (payload.creatorSettings !== undefined) {
-            if (!isCreatorRole(existingUserData.role)) {
-                return NextResponse.json({ error: "Creator settings are only available for creator accounts." }, { status: 403 });
-            }
-            updates.creatorSettings = normalizeCreatorSettings(payload.creatorSettings);
-        }
         const existingFcmTokens = Array.isArray(existingUserData.fcmTokens)
             ? existingUserData.fcmTokens.filter((entry): entry is string => typeof entry === "string")
             : [];
@@ -266,7 +277,7 @@ async function PUT_handler(request: NextRequest) {
         }
 
         if (Object.keys(updates).length === 0) {
-            return NextResponse.json({ error: "No valid updates provided" }, { status: 400 });
+            return NextResponse.json({ error: USER_PROFILE_HUMAN_ERRORS.noValidUpdates }, { status: 400 });
         }
 
         const username = typeof existingUserData.username === "string" && existingUserData.username.trim().length > 0
@@ -303,6 +314,14 @@ async function PUT_handler(request: NextRequest) {
                 transaction_id: `${caller.uid}:browser_push_enabled`,
             });
         }
+
+        await trackServerEvent("setting_save_succeeded", {
+            source: "profile_api",
+            route: "/api/user/profile",
+            settings_surface: "account",
+            setting_id: "account_profile",
+            changed_field_count: Object.keys(updates).length,
+        }, caller.uid);
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -342,10 +361,10 @@ export async function GET(request: NextRequest) {
             return finalize(buildNotFoundResponse("user", "User not found"));
         }
 
-        return finalize(NextResponse.json({
-            success: true,
+        return finalize(NextResponse.json(buildCanonicalUserProfileResponse({
+            userId: caller.uid,
             profile: userSnapshot.data() ?? null,
-        }));
+        })));
     } catch (error) {
         return finalize(handleApiError(error, "Profile.GET"), error);
     }
@@ -368,7 +387,18 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const { username, dateOfBirth, bio, photoURL } = await request.json();
+        const rawPayload = await request.json();
+        const blockedServerOnlyKeys = getServerOnlyUserProfilePayloadKeys(rawPayload);
+        const sanitizedPayload = sanitizeUserProfileWritePayload(rawPayload);
+        if (!sanitizedPayload.ok) {
+            const serverOnlyFieldError = USER_PROFILE_HUMAN_ERRORS.serverOnlyField;
+            return NextResponse.json({
+                error: blockedServerOnlyKeys.length > 0 ? serverOnlyFieldError : sanitizedPayload.error,
+                blockedFields: blockedServerOnlyKeys,
+            }, { status: sanitizedPayload.status });
+        }
+
+        const { username, dateOfBirth, bio, photoURL } = sanitizedPayload.payload;
         const userId = caller.uid;
 
         if (username) {
@@ -396,6 +426,10 @@ async function POST_handler(request: NextRequest) {
         if (bio !== undefined) updates.bio = bio;
         if (photoURL) updates.photoURL = photoURL;
 
+        if (Object.keys(updates).length === 0) {
+            return NextResponse.json({ error: USER_PROFILE_HUMAN_ERRORS.noValidUpdates }, { status: 400 });
+        }
+
         const userRef = adminDb.collection("users").doc(userId);
         if (typeof updates.username === "string") {
             const userSnap = await userRef.get();
@@ -419,6 +453,14 @@ async function POST_handler(request: NextRequest) {
         } else {
             await userRef.update(updates);
         }
+
+        await trackServerEvent("setting_save_succeeded", {
+            source: "profile_api",
+            route: "/api/user/profile",
+            settings_surface: "account",
+            setting_id: "account_profile",
+            changed_field_count: Object.keys(updates).length,
+        }, caller.uid);
 
         return NextResponse.json({ success: true });
     } catch (error) {

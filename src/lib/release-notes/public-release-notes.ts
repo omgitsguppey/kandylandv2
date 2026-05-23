@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.89",
-  "betaReleaseCounter": 389,
+  "currentVersion": "1.3.90",
+  "betaReleaseCounter": 390,
   "channel": "beta",
-  "generatedAt": "2026-05-23T01:50:00.000Z",
-  "generatedAtUtc": "2026-05-23T01:50:00.000Z",
+  "generatedAt": "2026-05-23T02:05:00.000Z",
+  "generatedAtUtc": "2026-05-23T02:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.90",
+      "previousVersion": "1.3.89",
+      "betaReleaseCounter": 390,
+      "previousBetaReleaseCounter": 389,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(user): harden profile settings contract",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T02:05:00.000Z",
+      "generatedAt": "2026-05-23T02:05:00.000Z",
+      "committedAtUtc": "2026-05-23T02:05:00.000Z",
+      "generatedAtUtc": "2026-05-23T02:05:00.000Z",
+      "updatedAtUtc": "2026-05-23T02:05:00.000Z",
+      "category": "Fixed",
+      "title": "Profile settings contract hardening",
+      "summary": "Hardened Account Settings profile saves around one backend profile contract.",
+      "userFacingTitle": "Profile settings contract hardening",
+      "surfaceCategory": "Account & onboarding",
+      "bullets": [
+        "Hardened Account Settings profile saves around one backend profile contract.",
+        "Blocked stale profile writes from changing server-owned account fields.",
+        "Kept Delete Account, Creator Settings, chat, navigation, payment, and GumDrop logic unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a user profile API contract, validator, generated evidence, and unit coverage while keeping profile reads and writes caller-scoped through /api/user/profile."
+      ],
+      "affectedSurfaces": [
+        "Account Settings",
+        "User profile API",
+        "Privacy & security"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/user-profile-api-contract.generated.json",
+        "docs/agent-truth/user-profile-api-contract.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-user-profile-api-contract.ts",
+        "src/app/api/user/profile/route.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/user/user-profile-contract.ts",
+        "tests/unit/user-profile-api-contract.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.89",
       "previousVersion": "1.3.88",
@@ -1406,126 +1457,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/cookie-banner-settings-sync.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.65",
-      "previousVersion": "1.3.64",
-      "betaReleaseCounter": 365,
-      "previousBetaReleaseCounter": 364,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): harden behavior extensibility",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T15:20:35.641Z",
-      "generatedAt": "2026-05-21T15:20:35.641Z",
-      "committedAtUtc": "2026-05-21T15:20:35.641Z",
-      "generatedAtUtc": "2026-05-21T15:20:35.641Z",
-      "updatedAtUtc": "2026-05-21T15:20:35.641Z",
-      "category": "Improved",
-      "title": "Behavioral telemetry extensibility",
-      "summary": "Made behavioral telemetry extensible for new features while keeping consent, identity, and materializer rules explicit.",
-      "userFacingTitle": "Behavioral telemetry extensibility",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Made behavioral telemetry extensible for new features.",
-        "Required consent and identity rules for every tracked event.",
-        "Prevented new features from creating orphaned analytics."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added feature registry, signal classifier, deterministic validator, and unit coverage for catalog-gated behavior telemetry."
-      ],
-      "affectedSurfaces": [
-        "Privacy & security",
-        "Telemetry",
-        "Admin tools"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/behavioral-extensibility-layer.generated.json",
-        "docs/agent-truth/behavioral-extensibility-layer.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-behavioral-extensibility-layer.ts",
-        "src/lib/behavioral/behavior-feature-registry.ts",
-        "src/lib/behavioral/behavior-math-engine.ts",
-        "src/lib/behavioral/behavior-signal-classifier.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/behavioral-extensibility-layer.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.64",
-      "previousVersion": "1.3.63",
-      "betaReleaseCounter": 364,
-      "previousBetaReleaseCounter": 363,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): refine identity handoff",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T15:06:33.909Z",
-      "generatedAt": "2026-05-21T15:06:33.909Z",
-      "committedAtUtc": "2026-05-21T15:06:33.909Z",
-      "generatedAtUtc": "2026-05-21T15:06:33.909Z",
-      "updatedAtUtc": "2026-05-21T15:06:33.909Z",
-      "category": "Improved",
-      "title": "Guest-to-user analytics handoff",
-      "summary": "Improved guest signup and login continuity while keeping behavioral attribution consent-aware.",
-      "userFacingTitle": "Guest-to-user analytics handoff",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Improved guest-to-user analytics handoff.",
-        "Kept behavioral attribution consent-aware.",
-        "Prevented double-counting across signup and login."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a consent-aware identity state machine, deterministic handoff validator, and unit coverage for signup/login linkage."
-      ],
-      "affectedSurfaces": [
-        "Privacy & security",
-        "Telemetry",
-        "Account & onboarding"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/behavior-math-verification.generated.json",
-        "agent/state/consent-tracking-contract.generated.json",
-        "agent/state/identity-handoff-refinement.generated.json",
-        "agent/state/identity-transfer-telemetry-closure.generated.json",
-        "docs/agent-truth/identity-handoff-refinement.md",
-        "docs/agent-truth/identity-transfer-telemetry-closure.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-identity-handoff-refinement.ts",
-        "src/app/api/analytics/identity-link/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/components/Analytics/DeepTracker.tsx",
-        "src/context/AuthContext.tsx",
-        "src/lib/analytics/analytics-identity-link.ts",
-        "src/lib/analytics/identity-link-contract.ts",
-        "src/lib/analytics/identity-state-machine.ts",
-        "src/lib/behavioral/behavior-math-contract.ts",
-        "src/lib/behavioral/behavior-math-engine.ts",
-        "src/lib/client-session.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/analytics-identity-linking.ts",
-        "src/lib/telemetry.ts",
-        "tests/unit/identity-handoff-refinement.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

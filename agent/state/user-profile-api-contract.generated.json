@@ -1,0 +1,39 @@
+{
+  "generatedAtUtc": "2026-05-23T02:10:38.917Z",
+  "currentHead": "51da7d18c9e5bac87510dd2ebed4bbcf0813c2ad",
+  "status": "passed",
+  "sourceOfTruth": "src/app/api/user/profile/route.ts",
+  "contractPath": "src/lib/user/user-profile-contract.ts",
+  "canonicalRoute": "/api/user/profile",
+  "staleProfileRoutes": [],
+  "changedFiles": [
+    "CHANGELOG.md",
+    "agent/state/identity-handoff-spine.generated.json",
+    "agent/state/settings-connection-parity.generated.json",
+    "agent/state/user-profile-api-contract.generated.json",
+    "docs/agent-truth/identity-handoff-spine.md",
+    "docs/agent-truth/settings-connection-parity.md",
+    "docs/agent-truth/user-profile-api-contract.md",
+    "package.json",
+    "public/kandydrops-release-notes.json",
+    "scripts/agent/validate-user-profile-api-contract.ts",
+    "src/app/api/user/profile/route.ts",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/user/user-profile-contract.ts",
+    "tests/unit/user-profile-api-contract.spec.ts"
+  ],
+  "checks": {
+    "packageScriptPresent": true,
+    "contractDeclaresFieldBoundaries": true,
+    "profileResponseShapeCanonical": true,
+    "arbitraryUserIdBlocked": true,
+    "writableServerOnlySeparated": true,
+    "accountSettingsCanonicalConsumer": true,
+    "diagnosticsAndHumanErrors": true,
+    "staleRoutesRemoved": true,
+    "featureRegisteredAndTelemetry": true,
+    "protectedSurfacesUntouched": true
+  },
+  "failures": []
+}
