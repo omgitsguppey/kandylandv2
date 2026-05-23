@@ -45,6 +45,9 @@ function normalizeActionUrl(url: string | undefined): string | undefined {
     if (/^(javascript|data|vbscript):/i.test(normalizedSchemeCheck)) {
         return undefined;
     }
+    if (normalizedSchemeCheck.startsWith("//") || normalizedSchemeCheck.startsWith("\\")) {
+        return undefined;
+    }
 
     try {
         const parsed = new URL(trimmedUrl, ADMIN_DROP_URL_BASE);
@@ -53,7 +56,7 @@ function normalizeActionUrl(url: string | undefined): string | undefined {
         }
 
         if (parsed.origin === ADMIN_DROP_URL_BASE) {
-            if (parsed.pathname.startsWith("//") || parsed.pathname.startsWith("/\\")) {
+            if (parsed.pathname.startsWith("//") || parsed.pathname.startsWith("/\\") || parsed.pathname.startsWith("\\")) {
                 return undefined;
             }
             return `${parsed.pathname}${parsed.search}${parsed.hash}`;

@@ -262,6 +262,7 @@
         "check:pr-cleanup-final": "tsx scripts/agent/validate-pr-cleanup-final.ts",
         "check:open-pr-final-action": "tsx scripts/agent/validate-open-pr-final-action.ts",
         "check:final-open-pr-zero": "tsx scripts/agent/validate-final-open-pr-zero.ts",
+        "check:open-pr-finalization": "tsx scripts/agent/validate-open-pr-finalization.ts",
         "check:final-cost-audit-lock": "tsx scripts/agent/validate-final-cost-audit-lock.ts",
         "check:analytics-rewire-phase-one": "tsx scripts/agent/validate-analytics-rewire-phase-one.ts",
         "check:identity-privacy-raw-ledger-rewire": "tsx scripts/agent/validate-identity-privacy-raw-ledger-rewire.ts",

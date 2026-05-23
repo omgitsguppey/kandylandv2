@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.91 - 2026-05-23
+- Notification and security reliability fixes
+- Resolved open PR backlog by merging, cherry-picking, or closing stale work.
+- Integrated safe security, accessibility, and admin performance fixes.
+- Closed superseded monolith/analytics PRs where current doctrine already covers them.
+
 ## 1.3.90 - 2026-05-23
 - Profile settings contract hardening
 - Hardened Account Settings profile saves around one backend profile contract.

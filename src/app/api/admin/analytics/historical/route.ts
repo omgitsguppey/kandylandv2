@@ -1360,8 +1360,32 @@ async function GET_handler(request: NextRequest) {
                     acc.bonusValueUsd += economics.bonusValueUsd;
                     acc.deliveredGumDrops += economics.deliveredGumDrops;
                     acc.bonusGumDrops += economics.bonusGumDrops;
+
+                    const explicitFee = toNumber(transaction.paypalFeeUsd);
+                    if (explicitFee > 0) {
+                        acc.paymentFeesUsd += explicitFee;
+                    } else {
+                        const grossRevenueUsd = toNumber(transaction.grossRevenueUsd ?? transaction.cost);
+                        const netRevenueUsd = toNumber(transaction.netRevenueUsd);
+                        if (grossRevenueUsd > 0 && netRevenueUsd > 0 && grossRevenueUsd >= netRevenueUsd) {
+                            acc.paymentFeesUsd += grossRevenueUsd - netRevenueUsd;
+                        }
+                    }
+
+                    acc.promoDiscountUsd += toNumber(transaction.discountUsd);
+                    acc.paidBaseDeliveredGd += toNumber(transaction.paidGumDrops);
+                    acc.paidBonusDeliveredGd += toNumber(transaction.bonusGumDrops);
                 } else if (transaction.type === "unlock_content") {
-                    acc.gdSpent += Math.abs(toNumber(transaction.amount));
+                    const totalSpent = Math.max(0, Math.abs(toNumber(transaction.amount)));
+                    const paidSpent = Math.max(0, toNumber(transaction.purchasedAmountSpent));
+                    const rewardSpent = Math.max(0, toNumber(transaction.rewardAmountSpent));
+                    const knownSpent = Math.min(totalSpent, paidSpent + rewardSpent);
+
+                    acc.gdSpent += totalSpent;
+                    acc.spendSourceBreakdown.paidGdSpent += paidSpent;
+                    acc.spendSourceBreakdown.rewardFreeGdSpent += rewardSpent;
+                    acc.spendSourceBreakdown.unknownSourceGdSpent += Math.max(0, totalSpent - knownSpent);
+                    acc.spendSourceBreakdown.knownBreakdownCount += transaction.ledgerSource || paidSpent > 0 || rewardSpent > 0 ? 1 : 0;
                 }
 
                 return acc;
@@ -1372,6 +1396,16 @@ async function GET_handler(request: NextRequest) {
                 deliveredGumDrops: 0,
                 bonusGumDrops: 0,
                 gdSpent: 0,
+                paymentFeesUsd: 0,
+                promoDiscountUsd: 0,
+                paidBaseDeliveredGd: 0,
+                paidBonusDeliveredGd: 0,
+                spendSourceBreakdown: {
+                    paidGdSpent: 0,
+                    rewardFreeGdSpent: 0,
+                    unknownSourceGdSpent: 0,
+                    knownBreakdownCount: 0,
+                },
             });
             const commerceTotals = period === "all" && commerceSummarySnapshot.exists
                 ? {
@@ -1383,51 +1417,16 @@ async function GET_handler(request: NextRequest) {
                     gdSpent: Math.max(toNumber(commerceSummaryData.spendGdTotal), derivedCommerceTotals.gdSpent),
                 }
                 : derivedCommerceTotals;
-            const paymentFeesUsd = completedPurchaseTransactions.reduce((sum, transaction) => {
-                const explicitFee = toNumber(transaction.paypalFeeUsd);
-                if (explicitFee > 0) {
-                    return sum + explicitFee;
-                }
-                const grossRevenueUsd = toNumber(transaction.grossRevenueUsd ?? transaction.cost);
-                const netRevenueUsd = toNumber(transaction.netRevenueUsd);
-                if (grossRevenueUsd > 0 && netRevenueUsd > 0 && grossRevenueUsd >= netRevenueUsd) {
-                    return sum + (grossRevenueUsd - netRevenueUsd);
-                }
-                return sum;
-            }, 0);
-            const promoDiscountUsd = completedPurchaseTransactions.reduce(
-                (sum, transaction) => sum + toNumber(transaction.discountUsd),
-                0,
-            );
-            const paidBaseDeliveredGd = completedPurchaseTransactions.reduce(
-                (sum, transaction) => sum + toNumber(transaction.paidGumDrops),
-                0,
-            );
-            const paidBonusDeliveredGd = completedPurchaseTransactions.reduce(
-                (sum, transaction) => sum + toNumber(transaction.bonusGumDrops),
-                0,
-            );
+            const paymentFeesUsd = derivedCommerceTotals.paymentFeesUsd;
+            const promoDiscountUsd = derivedCommerceTotals.promoDiscountUsd;
+            const paidBaseDeliveredGd = derivedCommerceTotals.paidBaseDeliveredGd;
+            const paidBonusDeliveredGd = derivedCommerceTotals.paidBonusDeliveredGd;
             const paidSourceDeliveredGd = paidBaseDeliveredGd + paidBonusDeliveredGd;
             const rewardDeliveredGd = Math.max(
                 0,
                 commerceTotals.deliveredGumDrops - paidSourceDeliveredGd,
             );
-            const spendSourceBreakdown = unlockTransactions.reduce((acc, transaction) => {
-                const totalSpent = Math.max(0, Math.abs(toNumber(transaction.amount)));
-                const paidSpent = Math.max(0, toNumber(transaction.purchasedAmountSpent));
-                const rewardSpent = Math.max(0, toNumber(transaction.rewardAmountSpent));
-                const knownSpent = Math.min(totalSpent, paidSpent + rewardSpent);
-                acc.paidGdSpent += paidSpent;
-                acc.rewardFreeGdSpent += rewardSpent;
-                acc.unknownSourceGdSpent += Math.max(0, totalSpent - knownSpent);
-                acc.knownBreakdownCount += transaction.ledgerSource || paidSpent > 0 || rewardSpent > 0 ? 1 : 0;
-                return acc;
-            }, {
-                paidGdSpent: 0,
-                rewardFreeGdSpent: 0,
-                unknownSourceGdSpent: 0,
-                knownBreakdownCount: 0,
-            });
+            const spendSourceBreakdown = derivedCommerceTotals.spendSourceBreakdown;
             const commerceScope = period === "all"
                 ? "lifetime"
                 : period === "30d"

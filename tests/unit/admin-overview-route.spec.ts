@@ -198,6 +198,25 @@ vi.mock("@/lib/drop-read-models", () => ({
 
 vi.mock("@/lib/server/admin-overview-users", () => ({
     buildAdminOverviewUserNameMap: mockState.buildUserMap,
+    buildAdminOverviewUserIdentityMap: async ({ userIds }: { userIds: Iterable<string> }) => {
+        const userNameMap = await mockState.buildUserMap({ userIds }) as Map<string, string>;
+        return new Map<string, {
+            userId: string;
+            userDisplayName: string;
+            username: string;
+            shortUserId: string;
+            userIdentityState: "resolved";
+        }>(Array.from(userNameMap.entries()).map(([userId, userDisplayName]) => [
+            userId,
+            {
+                userId,
+                userDisplayName,
+                username: userDisplayName,
+                shortUserId: userId,
+                userIdentityState: "resolved",
+            },
+        ]));
+    },
 }));
 
 vi.mock("@/lib/server/admin-analytics-shared", () => ({
@@ -478,7 +497,7 @@ describe("GET /api/admin/overview", () => {
         expect(payload.stats.grossRevenueCents).toBe(500);
         expect(payload.stats.totalUnwraps).toBe(9);
         expect(payload.deltas.accounts.percentChange).toBeNull();
-        expect(payload.truthNotes.platformPulse).toContain("scoped");
+        expect(payload.truthNotes.platformPulse).toContain("rolling 30-day window");
         expect(payload.adminActivity).toEqual([]);
     });
 });

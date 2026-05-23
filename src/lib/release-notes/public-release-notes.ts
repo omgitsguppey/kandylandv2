@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.90",
-  "betaReleaseCounter": 390,
+  "currentVersion": "1.3.91",
+  "betaReleaseCounter": 391,
   "channel": "beta",
-  "generatedAt": "2026-05-23T02:05:00.000Z",
-  "generatedAtUtc": "2026-05-23T02:05:00.000Z",
+  "generatedAt": "2026-05-23T02:50:00.000Z",
+  "generatedAtUtc": "2026-05-23T02:50:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.91",
+      "previousVersion": "1.3.90",
+      "betaReleaseCounter": 391,
+      "previousBetaReleaseCounter": 390,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "chore(repo): finalize open prs",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T02:50:00.000Z",
+      "generatedAt": "2026-05-23T02:50:00.000Z",
+      "committedAtUtc": "2026-05-23T02:50:00.000Z",
+      "generatedAtUtc": "2026-05-23T02:50:00.000Z",
+      "updatedAtUtc": "2026-05-23T02:50:00.000Z",
+      "category": "Fixed",
+      "title": "Notification and security reliability fixes",
+      "summary": "Improved notification accessibility and tightened redirect safety while cleaning up stale PR backlog work.",
+      "userFacingTitle": "Notification and security reliability fixes",
+      "surfaceCategory": "Notifications",
+      "bullets": [
+        "Resolved open PR backlog by merging, cherry-picking, or closing stale work.",
+        "Integrated safe security, accessibility, and admin performance fixes.",
+        "Closed superseded monolith/analytics PRs where current doctrine already covers them."
+      ],
+      "audience": "users",
+      "technicalDetails": [
+        "Ported code-only fixes from PRs #278, #281, #282, and #283, closed PR #279 as superseded, and added an open PR finalization validator/report lane without landing Jules scratch notes."
+      ],
+      "affectedSurfaces": [
+        "Notifications",
+        "Privacy & security",
+        "Admin tools",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/open-pr-finalization.generated.json",
+        "docs/agent-truth/open-pr-finalization.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-open-pr-finalization.ts",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/overview/route.ts",
+        "src/components/Dashboard/NotificationPromptBanner.tsx",
+        "src/lib/admin-drop-form.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/open-pr-finalization.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.90",
       "previousVersion": "1.3.89",
@@ -1400,75 +1457,14 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/privacy-behavior-legacy-recovery.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.66",
-      "previousVersion": "1.3.65",
-      "betaReleaseCounter": 366,
-      "previousBetaReleaseCounter": 365,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(privacy): sync cookie banner tracking",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T15:37:04.441Z",
-      "generatedAt": "2026-05-21T15:37:04.441Z",
-      "committedAtUtc": "2026-05-21T15:37:04.441Z",
-      "generatedAtUtc": "2026-05-21T15:37:04.441Z",
-      "updatedAtUtc": "2026-05-21T15:37:04.441Z",
-      "category": "Improved",
-      "title": "Cookie banner settings sync",
-      "summary": "Improved the mobile cookie banner and carried guest cookie choices into account privacy settings after signup or login.",
-      "userFacingTitle": "Cookie banner settings sync",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Improved mobile cookie banner readability.",
-        "Connected cookie choices to privacy tracking settings.",
-        "Synced guest consent through signup and login."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added deterministic validation and unit coverage for mobile cookie banner tracking-mode sync."
-      ],
-      "affectedSurfaces": [
-        "Privacy & security",
-        "Account & onboarding",
-        "Telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/consent-tracking-contract.generated.json",
-        "agent/state/cookie-banner-settings-sync.generated.json",
-        "agent/state/identity-handoff-refinement.generated.json",
-        "agent/state/mobile-ui-final-lock.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/cookie-banner-settings-sync.md",
-        "docs/agent-truth/identity-handoff-refinement.md",
-        "docs/agent-truth/mobile-ui-final-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-cookie-banner-settings-sync.ts",
-        "src/components/CookieBanner.tsx",
-        "src/components/CoreLayoutWrapper.tsx",
-        "src/lib/privacy-consent.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/cookie-banner-settings-sync.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
     }
   ]
-} as const satisfies PublicReleaseNotesDocument;
+} satisfies PublicReleaseNotesDocument;
+
+export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
-  appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
-  currentVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,
+  appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
   releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
-  channel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
 } as const;
-
-export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;

@@ -1,0 +1,158 @@
+{
+  "generatedAtUtc": "2026-05-23T02:55:32.725Z",
+  "currentHead": "e0598ed46461b065c0c0217904c41f012fac938a",
+  "openPrsBefore": [
+    {
+      "number": 283,
+      "title": "🛡️ Sentinel: HIGH Fix Open Redirect via Protocol-Relative URLs",
+      "headRefName": "sentinel-fix-open-redirect-backslash-12944273181752173864",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-22T15:07:58Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/283"
+    },
+    {
+      "number": 282,
+      "title": "🎨 Palette: Add aria-busy to NotificationPromptBanner loading state",
+      "headRefName": "palette-add-aria-busy-to-notification-banner-10837936927124237696",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-22T13:54:52Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/282"
+    },
+    {
+      "number": 281,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "headRefName": "fix/high-roi-hotspots-admin-overview-1890459222260025234",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-22T06:09:57Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/281"
+    },
+    {
+      "number": 279,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "headRefName": "jules-monolith-audit-9925348100502251984",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-22T05:14:04Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/279"
+    },
+    {
+      "number": 278,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "headRefName": "jules-11994101092319445340-c8418fdc",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-21T06:09:58Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/278"
+    }
+  ],
+  "handledPrs": [
+    {
+      "number": 283,
+      "title": "🛡️ Sentinel: HIGH Fix Open Redirect via Protocol-Relative URLs",
+      "action": "partially_integrated_then_closed",
+      "reason": "Ported the source security fix into current main and excluded the .jules scratch note.",
+      "filesTouched": [
+        "src/lib/admin-drop-form.ts",
+        "tests/unit/admin-drop-form.spec.ts"
+      ],
+      "validatorsRun": [
+        "npx vitest run tests/unit/admin-drop-form.spec.ts"
+      ]
+    },
+    {
+      "number": 282,
+      "title": "🎨 Palette: Add aria-busy to NotificationPromptBanner loading state",
+      "action": "partially_integrated_then_closed",
+      "reason": "Ported the aria-busy loading-state fix and excluded the .Jules scratch note.",
+      "filesTouched": [
+        "src/components/Dashboard/NotificationPromptBanner.tsx",
+        "tests/unit/open-pr-finalization.spec.ts"
+      ],
+      "validatorsRun": [
+        "npx vitest run tests/unit/open-pr-finalization.spec.ts"
+      ]
+    },
+    {
+      "number": 281,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "action": "partially_integrated_then_closed",
+      "reason": "Manually ported the compatible admin overview duplicate-read and duplicate-loop optimization onto current main.",
+      "filesTouched": [
+        "src/app/api/admin/overview/route.ts",
+        "tests/unit/admin-overview-route.spec.ts"
+      ],
+      "validatorsRun": [
+        "npx vitest run tests/unit/admin-overview.spec.ts tests/unit/admin-overview-route.spec.ts"
+      ]
+    },
+    {
+      "number": 279,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "action": "closed_superseded",
+      "reason": "The patch only appended broad monolith notes to FULL_SCALE_CODEBASE_AUDIT.md and is superseded by current monolith/orphan/debug registry lanes.",
+      "filesTouched": [],
+      "validatorsRun": [
+        "gh pr diff 279 --repo omgitsguppey/kandylandv2 --patch"
+      ]
+    },
+    {
+      "number": 278,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "action": "partially_integrated_then_closed",
+      "reason": "Manually ported the compatible admin analytics historical duplicate reduce/some cleanup while preserving current telemetry and score fields.",
+      "filesTouched": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "validatorsRun": [
+        "npx vitest run tests/unit/admin-analytics-historical-engagement.spec.ts tests/unit/admin-analytics-historical-traffic.spec.ts"
+      ]
+    }
+  ],
+  "openPrsAfter": [],
+  "unclassifiedPrCount": 0,
+  "scratchFilesLanded": [],
+  "scoreBefore": 55.36,
+  "scoreAfter": 55.36,
+  "globalValidatorsRun": [
+    "npm run typecheck",
+    "npm run check:release-notes",
+    "npm run check:feature-registration-gate",
+    "npm run check:debug-backlog-engine",
+    "npm run check:score-80-reconciliation-lock",
+    "npm run check:beta-score",
+    "npm run score:beta",
+    "npm run check:open-pr-finalization",
+    "npx vitest run tests/unit/open-pr-finalization.spec.ts"
+  ],
+  "dirtyFilesClassified": [
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/open-pr-finalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/open-pr-finalization.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-open-pr-finalization.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/open-pr-finalization.spec.ts",
+      "classification": "real_source_change_needs_review"
+    }
+  ]
+}

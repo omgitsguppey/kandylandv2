@@ -143,5 +143,15 @@ describe("admin drop form helpers", () => {
             contentUrls: [],
             actionUrl: "https://kandydrops.invalid/\\evil.com",
         })).toThrowError(/Use a relative path or an http\/https URL/u);
+
+        expect(() => dropFormSchema.parse({
+            ...defaults,
+            title: "Open Redirect",
+            description: "This promo description is comfortably long enough.",
+            imageUrl: "https://example.com/cover.jpg",
+            type: "promo",
+            contentUrls: [],
+            actionUrl: "\\\\evil.com/drop",
+        })).toThrowError(/Use a relative path or an http\/https URL/u);
     });
 });
