@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.99 - 2026-05-23
+- Debug signal grouping
+- Grouped duplicate debug and telemetry signals by root cause.
+- Collapsed future activity catalog noise by default.
+- Reduced P1/P2 counts to actionable groups.
+
 ## 1.3.98 - 2026-05-23
 - Debug signal actionability scoring
 - Added actionability scoring for debug and telemetry signals.

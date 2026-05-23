@@ -10,6 +10,10 @@ import type {
 import {
   scoreDebugSignalActionability,
 } from "./debug-signal-actionability";
+import {
+  groupDebugSignals,
+  summarizeDebugSignalGroups,
+} from "./debug-signal-grouping";
 
 type RecordLike = Record<string, unknown>;
 
@@ -591,6 +595,25 @@ export function summarizeDebugBacklog(items: DebugBacklogItem[]): DebugBacklogSu
     fixClass: item.fixClass,
     dedupeKey: item.dedupeKey,
   })));
+  const groupedSignals = groupDebugSignals(items.map((item) => ({
+    signalId: item.id,
+    signalType: item.source,
+    severity: item.severity,
+    actionability: item.actionability ?? "informational",
+    rootCause: item.evidenceStatus === "formal_missing" || item.evidenceStatus === "runtime_unverified" || item.evidenceStatus === "external_required"
+      ? "blocked_formal_evidence"
+      : item.fixClass,
+    featureId: item.surface,
+    eventFamily: item.source,
+    metricFamily: item.scoreDimensionImpact.join(","),
+    scoreDimensionsAffected: item.scoreDimensionImpact,
+    owner: item.owner,
+    estimatedPointImpact: item.estimatedPointImpact ?? item.scoreImpact,
+    nextAction: item.exactNextAction,
+    sourceFiles: item.sourceFiles,
+    validator: item.sourceValidator,
+  })));
+  const groupedSummary = summarizeDebugSignalGroups(groupedSignals, items.length);
   return {
     total: items.length,
     bySeverity: countBy(items.map((item) => item.severity), ["critical", "p0", "p1", "p2", "p3", "info"]),
@@ -607,6 +630,13 @@ export function summarizeDebugBacklog(items: DebugBacklogItem[]): DebugBacklogSu
     evidenceRefreshable: fixClasses.filter((fixClass) => fixClass === "evidence_refresh").length,
     manualRequired: fixClasses.filter((fixClass) => fixClass === "manual_required").length,
     p0P1Open: items.filter((item) => ["critical", "p0", "p1"].includes(item.severity) && ["open", "blocked_manual", "blocked_external"].includes(item.status)).length,
+    p0P1GroupOpen: groupedSignals.filter((group) => ["critical", "p0", "p1"].includes(group.severity) && !group.hiddenByDefault).length,
+    p2GroupOpen: groupedSignals.filter((group) => group.severity === "p2" && !group.hiddenByDefault).length,
+    p1P2GroupOpen: groupedSignals.filter((group) => ["critical", "p0", "p1", "p2"].includes(group.severity) && !group.hiddenByDefault).length,
+    rawP1P2SignalCount: groupedSummary.rawP1P2SignalCount,
+    groupedSignalCount: groupedSummary.groupedSignalCount,
+    defaultVisibleGroups: groupedSummary.defaultVisibleGroupCount,
+    hiddenByDefaultGroups: groupedSummary.hiddenByDefaultGroupCount,
     defaultVisible: actionability.defaultVisibleCount,
     hiddenByDefault: actionability.hiddenByDefaultCount,
     quietFutureActivity: actionability.quietFutureActivityCount,

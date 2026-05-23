@@ -104,6 +104,13 @@ export type DebugBacklogSummary = {
   evidenceRefreshable: number;
   manualRequired: number;
   p0P1Open: number;
+  p0P1GroupOpen?: number;
+  p2GroupOpen?: number;
+  p1P2GroupOpen?: number;
+  rawP1P2SignalCount?: number;
+  groupedSignalCount?: number;
+  defaultVisibleGroups?: number;
+  hiddenByDefaultGroups?: number;
   defaultVisible: number;
   hiddenByDefault: number;
   quietFutureActivity: number;

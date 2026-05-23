@@ -187,6 +187,7 @@
         "check:final-testing-tracking-telemetry-lock": "tsx scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
         "check:future-activity-signal-reclassification": "tsx scripts/agent/validate-future-activity-signal-reclassification.ts",
         "check:debug-signal-actionability": "tsx scripts/agent/validate-debug-signal-actionability.ts",
+        "check:debug-signal-grouping": "tsx scripts/agent/validate-debug-signal-grouping.ts",
         "check:final-user-tracking-handoff-lock": "tsx scripts/agent/validate-final-user-tracking-handoff-lock.ts",
         "check:privacy-import-export-cutover": "tsx scripts/agent/validate-privacy-import-export-cutover.ts",
         "check:identity-link-continuity": "tsx scripts/agent/validate-identity-link-continuity.ts",

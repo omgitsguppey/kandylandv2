@@ -197,7 +197,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const routeWarnings = toNumber(input.routeRuntimeHealthSummary?.warn) + toNumber(input.routeRuntimeHealthSummary?.stale);
   const runtimeFailures = toNumber(input.runtimeWarningSummary?.failed);
   const runtimeWarnings = toNumber(input.runtimeWarningSummary?.degraded) + toNumber(input.runtimeWarningSummary?.total);
-  const p1P2Open = toNumber(input.debugBacklogSummary?.p0P1Open ?? input.controlTower?.debugBacklogSummary?.p0P1Open);
+  const p1P2Open = toNumber(input.debugBacklogSummary?.p1P2GroupOpen ?? input.debugBacklogSummary?.p0P1GroupOpen ?? input.debugBacklogSummary?.p0P1Open ?? input.controlTower?.debugBacklogSummary?.p1P2GroupOpen ?? input.controlTower?.debugBacklogSummary?.p0P1Open);
   const backlogOpen = toNumber(input.debugBacklogSummary?.open ?? input.controlTower?.debugBacklogSummary?.open);
 
   const lanes: DebugTrackingSummaryLane[] = [
@@ -410,7 +410,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       status: p1P2Open > 0 ? "degraded" : backlogOpen > 0 ? "stale" : "live",
       severity: p1P2Open > 0 ? "p1" : backlogOpen > 0 ? "p2" : "info",
       scoreImpact: p1P2Open > 0 ? "high" : backlogOpen > 0 ? "medium" : "none",
-      primarySignal: p1P2Open > 0 ? `${p1P2Open} open P1/P2 backlog item(s).` : `${backlogOpen} open lower-priority backlog item(s).`,
+      primarySignal: p1P2Open > 0 ? `${p1P2Open} open P1/P2 backlog group(s).` : `${backlogOpen} open lower-priority backlog item(s).`,
       criticalCount: p1P2Open,
       warningCount: Math.max(0, backlogOpen - p1P2Open),
       drilldownTarget: "/admin/debug?tab=actions#backlog",
