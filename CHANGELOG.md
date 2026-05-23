@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.98 - 2026-05-23
+- Debug signal actionability scoring
+- Added actionability scoring for debug and telemetry signals.
+- Collapsed duplicate and non-actionable future activity signals.
+- Focused debug output on score-impacting work.
+
 ## 1.3.97 - 2026-05-23
 - Beta activity signal cleanup
 - Reclassified future user activity placeholders as quiet catalog items.

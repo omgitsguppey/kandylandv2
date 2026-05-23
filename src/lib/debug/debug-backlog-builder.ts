@@ -7,6 +7,9 @@ import type {
   ScoreDimensionImpact,
   DebugBacklogSummary,
 } from "./debug-backlog-contract";
+import {
+  scoreDebugSignalActionability,
+} from "./debug-signal-actionability";
 
 type RecordLike = Record<string, unknown>;
 
@@ -160,16 +163,49 @@ function normalizeStatus(value: unknown): DebugBacklogStatus {
   return "open";
 }
 
-function makeItem(input: Omit<DebugBacklogItem, "sourceFiles" | "scoreDimensionImpact" | "scoreImpact"> & {
+function makeItem(input: Omit<DebugBacklogItem,
+  "sourceFiles"
+  | "scoreDimensionImpact"
+  | "scoreImpact"
+  | "actionability"
+  | "estimatedPointImpact"
+  | "defaultVisible"
+  | "dedupeKey"
+  | "duplicateChildren"
+> & {
   sourceFiles: string[] | string;
   scoreDimensionImpact: ScoreDimensionImpact[] | ScoreDimensionImpact;
   scoreImpact?: number;
 }): DebugBacklogItem {
+  const scoreDimensionImpact = Array.isArray(input.scoreDimensionImpact) ? input.scoreDimensionImpact : [input.scoreDimensionImpact];
+  const scoreImpact = Number(toNumber(input.scoreImpact, 0).toFixed(2));
+  const sourceFiles = Array.isArray(input.sourceFiles) ? input.sourceFiles.filter(Boolean) : [input.sourceFiles].filter(Boolean);
+  const actionabilitySummary = scoreDebugSignalActionability([{
+    signalId: input.id,
+    signalType: input.source,
+    severity: input.severity,
+    scoreDimensionsAffected: scoreDimensionImpact,
+    scoreImpact,
+    owner: input.owner,
+    nextAction: input.exactNextAction,
+    sourceFiles,
+    validator: input.sourceValidator,
+    sourceMessage: input.sourceMessage,
+    evidenceStatus: input.evidenceStatus,
+    fixClass: input.fixClass,
+  }]);
+  const actionability = actionabilitySummary.defaultVisibleSignals[0] ?? actionabilitySummary.hiddenSignals[0];
+
   return {
     ...input,
-    sourceFiles: Array.isArray(input.sourceFiles) ? input.sourceFiles.filter(Boolean) : [input.sourceFiles].filter(Boolean),
-    scoreDimensionImpact: Array.isArray(input.scoreDimensionImpact) ? input.scoreDimensionImpact : [input.scoreDimensionImpact],
-    scoreImpact: Number(toNumber(input.scoreImpact, 0).toFixed(2)),
+    sourceFiles,
+    scoreDimensionImpact,
+    scoreImpact,
+    actionability: actionability.actionability,
+    estimatedPointImpact: actionability.estimatedPointImpact,
+    defaultVisible: actionability.defaultVisible,
+    dedupeKey: actionability.dedupeKey,
+    duplicateChildren: actionability.duplicateChildren,
   };
 }
 
@@ -472,14 +508,41 @@ function buildDebugPanelItems(debugPanelItems?: Array<RecordLike>): DebugBacklog
 }
 
 function dedupeBacklog(items: DebugBacklogItem[]) {
+  const scored = scoreDebugSignalActionability(items.map((item) => ({
+    signalId: item.id,
+    signalType: item.source,
+    severity: item.severity,
+    scoreDimensionsAffected: item.scoreDimensionImpact,
+    scoreImpact: item.scoreImpact,
+    owner: item.owner,
+    nextAction: item.exactNextAction,
+    sourceFiles: item.sourceFiles,
+    validator: item.sourceValidator,
+    sourceMessage: item.sourceMessage,
+    evidenceStatus: item.evidenceStatus,
+    fixClass: item.fixClass,
+    dedupeKey: item.dedupeKey,
+  })));
+  const scoredById = new Map([...scored.defaultVisibleSignals, ...scored.hiddenSignals].map((signal) => [signal.signalId, signal]));
+  const duplicateIds = new Set([...scored.defaultVisibleSignals, ...scored.hiddenSignals].flatMap((signal) => signal.duplicateChildren));
   const seen = new Set<string>();
   const output: DebugBacklogItem[] = [];
   for (const item of items) {
-    if (seen.has(item.id)) {
+    if (seen.has(item.id) || duplicateIds.has(item.id)) {
       continue;
     }
     seen.add(item.id);
-    output.push(item);
+    const actionability = scoredById.get(item.id);
+    output.push(actionability ? {
+      ...item,
+      severity: actionability.severity,
+      actionability: actionability.actionability,
+      estimatedPointImpact: actionability.estimatedPointImpact,
+      defaultVisible: actionability.defaultVisible,
+      dedupeKey: actionability.dedupeKey,
+      duplicateChildren: actionability.duplicateChildren,
+      sourceFiles: actionability.sourceFiles.length ? actionability.sourceFiles : item.sourceFiles,
+    } : item);
   }
   return output.sort((left, right) => {
     const rank: Record<DebugBacklogSeverity, number> = { critical: 6, p0: 5, p1: 4, p2: 3, p3: 2, info: 1 };
@@ -513,6 +576,21 @@ function countBy<T extends string>(values: readonly T[], allValues: readonly T[]
 export function summarizeDebugBacklog(items: DebugBacklogItem[]): DebugBacklogSummary {
   const statuses = items.map((item) => item.status);
   const fixClasses = items.map((item) => item.fixClass);
+  const actionability = scoreDebugSignalActionability(items.map((item) => ({
+    signalId: item.id,
+    signalType: item.source,
+    severity: item.severity,
+    scoreDimensionsAffected: item.scoreDimensionImpact,
+    scoreImpact: item.scoreImpact,
+    owner: item.owner,
+    nextAction: item.exactNextAction,
+    sourceFiles: item.sourceFiles,
+    validator: item.sourceValidator,
+    sourceMessage: item.sourceMessage,
+    evidenceStatus: item.evidenceStatus,
+    fixClass: item.fixClass,
+    dedupeKey: item.dedupeKey,
+  })));
   return {
     total: items.length,
     bySeverity: countBy(items.map((item) => item.severity), ["critical", "p0", "p1", "p2", "p3", "info"]),
@@ -529,6 +607,13 @@ export function summarizeDebugBacklog(items: DebugBacklogItem[]): DebugBacklogSu
     evidenceRefreshable: fixClasses.filter((fixClass) => fixClass === "evidence_refresh").length,
     manualRequired: fixClasses.filter((fixClass) => fixClass === "manual_required").length,
     p0P1Open: items.filter((item) => ["critical", "p0", "p1"].includes(item.severity) && ["open", "blocked_manual", "blocked_external"].includes(item.status)).length,
+    defaultVisible: actionability.defaultVisibleCount,
+    hiddenByDefault: actionability.hiddenByDefaultCount,
+    quietFutureActivity: actionability.quietFutureActivityCount,
+    duplicateSignalsCollapsed: actionability.duplicateSignalCount,
+    formalGates: actionability.formalGateCount,
+    scoreImpacting: actionability.scoreImpactingCount,
+    byActionability: actionability.byActionability,
   };
 }
 
@@ -548,6 +633,16 @@ export function validateDebugBacklog(items: DebugBacklogItem[]): string[] {
     if (!item.sourceRoute) failures.push(`${item.id} lacks sourceRoute.`);
     if (!item.scoreDimensionImpact.length) failures.push(`${item.id} lacks scoreDimensionImpact.`);
     if (!item.fixClass) failures.push(`${item.id} lacks fixClass.`);
+    if (!item.actionability) failures.push(`${item.id} lacks actionability.`);
+    if (item.actionability === "quiet_future_activity" && ["critical", "p0", "p1", "p2"].includes(item.severity)) {
+      failures.push(`${item.id} quiet future activity appears as P1/P2.`);
+    }
+    if (item.actionability === "quiet_future_activity" && item.defaultVisible === true) {
+      failures.push(`${item.id} quiet future activity is default visible.`);
+    }
+    if (item.actionability && ["fix_now", "score_impacting", "formal_gate"].includes(item.actionability) && item.scoreDimensionImpact.length > 0 && toNumber(item.estimatedPointImpact) <= 0) {
+      failures.push(`${item.id} score-impacting signal lacks estimatedPointImpact.`);
+    }
     if (!item.evidenceStatus) failures.push(`${item.id} lacks evidenceStatus.`);
     if (item.evidenceStatus === "unknown" && !item.evidenceReason) {
       failures.push(`${item.id} unknown evidence lacks reason.`);

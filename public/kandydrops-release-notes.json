@@ -1,11 +1,62 @@
 {
-  "currentVersion": "1.3.97",
-  "betaReleaseCounter": 397,
+  "currentVersion": "1.3.98",
+  "betaReleaseCounter": 398,
   "channel": "beta",
   "generatedAt": "2026-05-23T19:04:34.035Z",
   "generatedAtUtc": "2026-05-23T19:04:34.035Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.98",
+      "previousVersion": "1.3.97",
+      "betaReleaseCounter": 398,
+      "previousBetaReleaseCounter": 397,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): score signal actionability",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T19:50:00.000Z",
+      "generatedAt": "2026-05-23T19:50:00.000Z",
+      "committedAtUtc": "2026-05-23T19:50:00.000Z",
+      "generatedAtUtc": "2026-05-23T19:50:00.000Z",
+      "updatedAtUtc": "2026-05-23T19:50:00.000Z",
+      "category": "Improved",
+      "title": "Debug signal actionability scoring",
+      "summary": "Improved internal beta reliability for debug signal prioritization.",
+      "userFacingTitle": "Debug signal actionability scoring",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added actionability scoring for debug and telemetry signals.",
+        "Collapsed duplicate and non-actionable future activity signals.",
+        "Focused debug output on score-impacting work."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-only debug signal actionability scoring, backlog integration, generated evidence, and unit coverage without production reads, fake evidence, payment changes, chat/nav changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Admin debug",
+        "Analytics",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/debug-signal-actionability.generated.json",
+        "docs/agent-truth/debug-signal-actionability.md",
+        "package.json",
+        "scripts/agent/validate-debug-signal-actionability.ts",
+        "scripts/agent/validate-debug-backlog-engine.ts",
+        "src/lib/debug/debug-signal-actionability.ts",
+        "src/lib/debug/debug-backlog-builder.ts",
+        "src/lib/debug/debug-backlog-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/debug-signal-actionability.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.97",
       "previousVersion": "1.3.96",

@@ -1,8 +1,8 @@
 # Debug Tracking Simplification
 
-Generated: 2026-05-23T19:33:04.782Z
+Generated: 2026-05-23T19:59:03.407Z
 Status: pass
-Current head: 7436c77c58d8873952a130244cf8117ee99660db
+Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 
 ## Contract
 
@@ -32,9 +32,28 @@ Current head: 7436c77c58d8873952a130244cf8117ee99660db
 
 ## Changed Files
 
+- CHANGELOG.md
+- agent/context/optimized-task-context.generated.json
+- agent/state/debug-backlog-engine.generated.json
+- agent/state/debug-signal-actionability.generated.json
+- agent/state/debug-tracking-simplification.generated.json
 - agent/state/future-activity-signal-reclassification.generated.json
-- agent/state/public-beta-score.generated.json
+- docs/agent-truth/debug-backlog-engine.md
+- docs/agent-truth/debug-signal-actionability.md
+- docs/agent-truth/debug-tracking-simplification.md
 - docs/agent-truth/future-activity-signal-reclassification.md
+- package.json
+- public/kandydrops-release-notes.json
+- scripts/agent/validate-debug-backlog-engine.ts
+- scripts/agent/validate-debug-signal-actionability.ts
+- scripts/agent/validate-future-activity-signal-reclassification.ts
+- src/lib/debug/debug-backlog-builder.ts
+- src/lib/debug/debug-backlog-contract.ts
+- src/lib/debug/debug-signal-actionability.ts
+- src/lib/release-notes/public-release-notes.ts
+- src/lib/release-notes/release-version-contract.ts
+- tests/unit/debug-backlog-engine.spec.ts
+- tests/unit/debug-signal-actionability.spec.ts
 
 ## Validation Failures
 

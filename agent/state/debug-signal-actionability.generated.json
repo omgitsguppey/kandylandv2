@@ -1,0 +1,2312 @@
+{
+  "reportKey": "debug-signal-actionability",
+  "generatedAtUtc": "2026-05-23T20:00:29.457Z",
+  "currentHead": "1eeb1b65ff5a54ae0549e6be3550413c566289db",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "fakeEvidenceUsed": false,
+  "formalGateImpact": {
+    "clearsFormalProvider": false,
+    "clearsDeployedRuntime": false,
+    "clearsFormalAdminTruth": false
+  },
+  "scoreBefore": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 67.75,
+    "evidenceCompleteness": 39.25,
+    "freshness": 62.86,
+    "costRisk": 42,
+    "regressionRisk": 42,
+    "overallHealthScore": 62.15
+  },
+  "scoreAfter": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 67.75,
+    "evidenceCompleteness": 39.25,
+    "freshness": 62.86,
+    "costRisk": 42,
+    "regressionRisk": 42,
+    "overallHealthScore": 62.15
+  },
+  "metrics": {
+    "sourceHealth": {
+      "before": 91.7,
+      "after": 91.7,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 67.75,
+      "after": 67.75,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof."
+    },
+    "evidenceCompleteness": {
+      "before": 39.25,
+      "after": 39.25,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
+    },
+    "freshness": {
+      "before": 62.86,
+      "after": 62.86,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Refresh stale generated reports listed in the public beta score refresh plan, then rerun score:beta and check:beta-score."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads."
+    },
+    "regressionRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve stale/formal regression evidence gates with targeted validators before treating the release as score-80 locked."
+    },
+    "overallHealthScore": {
+      "before": 62.15,
+      "after": 62.15,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Complete every below-target dimension next action, then rerun score:beta and check:beta-score."
+    }
+  },
+  "backlogSummary": {
+    "total": 42,
+    "bySeverity": {
+      "critical": 0,
+      "p0": 0,
+      "p1": 14,
+      "p2": 28,
+      "p3": 0,
+      "info": 0
+    },
+    "byStatus": {
+      "open": 37,
+      "fixed": 0,
+      "deferred": 0,
+      "not_applicable": 0,
+      "blocked_manual": 2,
+      "blocked_external": 2,
+      "stale_retired": 1
+    },
+    "bySource": {
+      "debug_panel": 14,
+      "beta_score": 7,
+      "route_diagnostics": 0,
+      "telemetry": 0,
+      "admin_truth": 1,
+      "mobile_ui": 0,
+      "cost": 2,
+      "evidence": 18,
+      "runtime_warning": 0
+    },
+    "byFixClass": {
+      "source_fix": 0,
+      "evidence_refresh": 36,
+      "stale_retire": 1,
+      "algorithm_refine": 0,
+      "route_fix": 0,
+      "telemetry_closure": 0,
+      "cost_guard": 2,
+      "manual_required": 3,
+      "no_action": 0
+    },
+    "open": 37,
+    "fixed": 0,
+    "deferred": 0,
+    "blockedManual": 2,
+    "blockedExternal": 2,
+    "staleRetired": 1,
+    "sourceFixable": 2,
+    "evidenceRefreshable": 36,
+    "manualRequired": 3,
+    "p0P1Open": 14,
+    "defaultVisible": 42,
+    "hiddenByDefault": 0,
+    "quietFutureActivity": 0,
+    "duplicateSignalsCollapsed": 0,
+    "formalGates": 7,
+    "scoreImpacting": 41,
+    "byActionability": {
+      "fix_now": 0,
+      "score_impacting": 34,
+      "evidence_required": 1,
+      "formal_gate": 7,
+      "quiet_future_activity": 0,
+      "informational": 0,
+      "duplicate": 0,
+      "superseded": 0,
+      "not_actionable": 0
+    }
+  },
+  "actionabilitySummary": {
+    "totalSignals": 42,
+    "uniqueSignals": 42,
+    "defaultVisibleCount": 42,
+    "hiddenByDefaultCount": 0,
+    "quietFutureActivityCount": 0,
+    "duplicateSignalCount": 0,
+    "formalGateCount": 7,
+    "scoreImpactingCount": 41,
+    "byActionability": {
+      "fix_now": 0,
+      "score_impacting": 34,
+      "evidence_required": 1,
+      "formal_gate": 7,
+      "quiet_future_activity": 0,
+      "informational": 0,
+      "duplicate": 0,
+      "superseded": 0,
+      "not_actionable": 0
+    },
+    "defaultVisibleSignals": [
+      {
+        "signalId": "stale-artifact-runtime-provider-smoke",
+        "signalType": "evidence",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 16.33,
+        "owner": "evidence",
+        "nextAction": "Attach formal evidence before clearing this beta gate.",
+        "sourceFiles": [
+          "runtime_provider_smoke",
+          "debug_runtime_evidence",
+          "visual_manual_smoke",
+          "admin_truth_sample_evidence"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|attach-formal-evidence-before-clearing-this-beta-gate-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-evidencecompletenessscore",
+        "signalType": "beta_score",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 12,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-final-launch-readiness",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/final-launch-readiness-report.generated.json"
+        ],
+        "validator": "npm run check:final-launch-readiness-report",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-final-launch-readiness-report-when-this-stale-warning-must-be-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-launch-pr-triage",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/launch-pr-triage.generated.json"
+        ],
+        "validator": "npm run check:launch-pr-triage",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-launch-pr-triage-when-this-stale-warning-must-be-refreshed-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-launch-readiness",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/launch-readiness-report.generated.json"
+        ],
+        "validator": "npm run check:launch-readiness-final",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-launch-readiness-final-when-this-stale-warning-must-be-refresh",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-public-beta-score",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-score-cap-reasons",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
+        "signalType": "evidence",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "evidence",
+        "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+        "sourceFiles": [
+          "agent/state/overnight-final-integration-lock.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-final-integration-lock-was-generated-from-an-older-code-version-refres",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 39.25,
+        "owner": "beta_score",
+        "nextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|refresh-the-owning-evidence-artifact-and-keep-the-beta-cap-visible-until-evidenc",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-freshnessscore",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 7.07,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|freshness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-costriskscore",
+        "signalType": "cost",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "costRisk"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "cost",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|cost|cost|costRisk|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1.8,
+        "owner": "evidence",
+        "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+        "sourceFiles": [
+          "agent/state/beta-evidence-gap-map.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-gap-map-was-generated-from-an-older-code-version-refresh-this-repo",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1.6,
+        "owner": "evidence",
+        "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+        "sourceFiles": [
+          "agent/state/beta-evidence-lane-prep.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-lane-prep-was-generated-from-an-older-code-version-refresh-this-re",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-beta-freshness-language-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1.4,
+        "owner": "evidence",
+        "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+        "sourceFiles": [
+          "agent/state/beta-freshness-language.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-freshness-language-was-generated-from-an-older-code-version-refresh-this-re",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-final-pr-stale-cleanup-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1.2,
+        "owner": "evidence",
+        "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+        "sourceFiles": [
+          "agent/state/final-pr-stale-cleanup.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|final-pr-stale-cleanup-was-generated-from-an-older-code-version-refresh-this-rep",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-analytics-rewire",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
+        "sourceFiles": [
+          "agent/state/analytics-rewire-phase-one.generated.json",
+          "agent/state/lost-data-recovery-dry-run.generated.json",
+          "agent/state/speed-security-hardening.generated.json",
+          "agent/state/codebase-hardening.generated.json",
+          "agent/state/device-ui-dry-audit.generated.json",
+          "agent/state/device-layout-score.generated.json",
+          "agent/state/hydration-performance.generated.json",
+          "agent/state/google-cost-bleed.generated.json",
+          "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+          "agent/state/sql-mirror-status.generated.json",
+          "agent/state/telemetry-parity-score.generated.json",
+          "agent/state/precatch-runtime-issues.generated.json",
+          "agent/state/creator-lane-debug-parity.generated.json",
+          "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+          "agent/state/orphaned-logic-score.generated.json"
+        ],
+        "validator": "npm run check:analytics-rewire-phase-one",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|leave-the-item-labeled-as-evidence-or-archive-until-a-focused-refresh-command-ex",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-creator-connection-audit",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/user-facing-feature-connection-audit.generated.json"
+        ],
+        "validator": "npm run check:user-facing-feature-connection-audit",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-user-facing-feature-connection-audit-when-this-stale-warning-m",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-report-public-beta-score",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run score:beta when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-report-sitewide-image",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Keep missing state visible until an owning generator is identified.",
+        "sourceFiles": [
+          "agent/state/sitewide-image-optimization.generated.json",
+          "agent/state/content-protection.generated.json",
+          "agent/state/gumdrop-economy.generated.json",
+          "agent/state/event-catalog-telemetry.generated.json",
+          "agent/state/watch-time-rollup-truth.generated.json",
+          "agent/state/debug-evidence-pipeline.generated.json",
+          "agent/state/support-recovery-flows.generated.json"
+        ],
+        "validator": "npm run check:sitewide-image-optimization",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|keep-missing-state-visible-until-an-owning-generator-is-identified-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-system-health",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:admin-truth if that command owns the missing artifact; otherwise keep the Debug state missing.",
+        "sourceFiles": [
+          "agent/state/admin-truth.generated.json"
+        ],
+        "validator": "npm run check:admin-truth",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|run-npm-run-check-admin-truth-if-that-command-owns-the-missing-artifact-otherwis",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-targeted-behavior-evidence",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.",
+        "sourceFiles": [
+          "agent/state/targeted-behavior-evidence.generated.json"
+        ],
+        "validator": "npm run check:targeted-behavior-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-targeted-behavior-as-one-gate-only-keep-visual-provider-runtime-and-admin-sa",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-regressionriskscore",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "regressionRisk"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|regressionRisk|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-creator-drop-status-metrics-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+        "sourceFiles": [
+          "agent/state/creator-drop-status-metrics.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-drop-status-metrics-was-generated-from-an-older-code-version-refresh-thi",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-creator-settings-control-plane-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+        "sourceFiles": [
+          "agent/state/creator-settings-control-plane.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-settings-control-plane-was-generated-from-an-older-code-version-refresh-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+        "sourceFiles": [
+          "agent/state/current-beta-exit-status.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+        "sourceFiles": [
+          "agent/state/evidence-capture-status.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|evidence-capture-status-was-generated-from-an-older-code-version-refresh-this-re",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-existing-algorithm-refinement-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+        "sourceFiles": [
+          "agent/state/existing-algorithm-refinement.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|existing-algorithm-refinement-was-generated-from-an-older-code-version-refresh-t",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-final-telemetry-closure-lock-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+        "sourceFiles": [
+          "agent/state/final-telemetry-closure-lock.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|telemetry-closure-lock-was-generated-from-an-older-code-version-refresh-this-rep",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-global-marquee-truncated-titles-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+        "sourceFiles": [
+          "agent/state/global-marquee-truncated-titles.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|global-marquee-title-rollout-was-generated-from-an-older-code-version-refresh-th",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+        "sourceFiles": [
+          "agent/state/mobile-ui-final-lock.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|mobile-ui-final-lock-was-generated-from-an-older-code-version-refresh-this-repor",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
+        "sourceFiles": [
+          "agent/state/operator-revenue-smoke.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|operator-revenue-smoke-was-generated-from-an-older-code-version-refresh-this-rep",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-overnight-wiring-integrity-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+        "sourceFiles": [
+          "agent/state/overnight-wiring-integrity.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-wiring-integrity-was-generated-from-an-older-code-version-refresh-this",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-source-truth-authority-map-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+        "sourceFiles": [
+          "agent/state/source-truth-authority-map.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|source-truth-authority-map-was-generated-from-an-older-code-version-refresh-this",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+        "sourceFiles": [
+          "agent/state/user-loading-wallet-mobile-refinement.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|user-loading-and-wallet-mobile-refinement-was-generated-from-an-older-code-versi",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-sourcehealthscore",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "evidence_required",
+        "scoreDimensionsAffected": [
+          "sourceHealth"
+        ],
+        "estimatedPointImpact": 0,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "evidence_required|beta_score|beta_score|sourceHealth|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "runtimeHealth"
+        ],
+        "estimatedPointImpact": 67.75,
+        "owner": "provider_evidence",
+        "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 39.25,
+        "owner": "admin_debug",
+        "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-runtimehealthscore",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "runtimeHealth"
+        ],
+        "estimatedPointImpact": 16.33,
+        "owner": "runtime_evidence",
+        "nextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|beta_score|runtime_evidence|runtimeHealth|attach-deployed-runtime-smoke-evidence-before-treating-runtime-health-as-proven-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-admin-truth-samples",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
+        "sourceFiles": [
+          "agent/state/admin-truth-sample-evidence.generated.json"
+        ],
+        "validator": "npm run check:admin-truth-sample-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-a-fresh-first-party-admin-truth-sample-before-upgrading-this-gate-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-provider-smoke",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
+        "sourceFiles": [
+          "agent/state/provider-smoke-evidence.generated.json"
+        ],
+        "validator": "npm run check:provider-smoke-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-or-generate-formal-provider-smoke-evidence-do-not-convert-operator-report",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-runtime-evidence",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
+        "sourceFiles": [
+          "agent/state/runtime-smoke-evidence.generated.json"
+        ],
+        "validator": "npm run check:runtime-smoke-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|run-formal-deployed-runtime-smoke-before-marking-runtime-provider-smoke-complete",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "cost-cost-risk-0",
+        "signalType": "formal_gate",
+        "severity": "p2",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "costRisk"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "cost",
+        "nextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|cost|cost|costRisk|keep-this-cost-lane-in-owner-review-until-external-billing-provider-evidence-is-",
+        "duplicateChildren": []
+      }
+    ],
+    "hiddenSignals": [],
+    "validationFailures": []
+  },
+  "defaultDebugPanel": {
+    "visibleActionability": [
+      "fix_now",
+      "score_impacting",
+      "evidence_required",
+      "formal_gate"
+    ],
+    "hiddenActionability": [
+      "quiet_future_activity",
+      "informational",
+      "duplicate",
+      "superseded",
+      "not_actionable"
+    ],
+    "quietFutureActivityDefaultVisible": false
+  },
+  "prioritizedSignals": [
+    {
+      "id": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
+      "title": "Runtime unverified: Runtime/provider smoke",
+      "severity": "p1",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 67.75,
+      "owner": "provider_evidence",
+      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "scoreDimensionImpact": [
+        "runtimeHealth"
+      ]
+    },
+    {
+      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
+      "title": "Ready with smoke required: Admin truth/sample evidence",
+      "severity": "p1",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 39.25,
+      "owner": "admin_debug",
+      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "id": "score-drag-runtimehealthscore",
+      "title": "Score drag: runtimeHealthScore",
+      "severity": "p1",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 16.33,
+      "owner": "runtime_evidence",
+      "exactNextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+      "scoreDimensionImpact": [
+        "runtimeHealth"
+      ]
+    },
+    {
+      "id": "stale-artifact-runtime-provider-smoke",
+      "title": "Stale artifact: runtime_provider_smoke",
+      "severity": "p1",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 16.33,
+      "owner": "evidence",
+      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "score-drag-evidencecompletenessscore",
+      "title": "Score drag: evidenceCompletenessScore",
+      "severity": "p1",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 12,
+      "owner": "beta_score",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "id": "debug-panel-admin-truth-samples",
+      "title": "Admin truth samples",
+      "severity": "p1",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "debug-panel-final-launch-readiness",
+      "title": "Final launch readiness",
+      "severity": "p1",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "exactNextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "debug-panel-launch-pr-triage",
+      "title": "Launch PR triage",
+      "severity": "p1",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "exactNextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "debug-panel-launch-readiness",
+      "title": "Launch readiness",
+      "severity": "p1",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "exactNextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "debug-panel-provider-smoke",
+      "title": "Provider smoke",
+      "severity": "p1",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "exactNextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "debug-panel-public-beta-score",
+      "title": "Public beta score",
+      "severity": "p1",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "debug-panel-runtime-evidence",
+      "title": "Runtime evidence",
+      "severity": "p1",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "debug-panel-score-cap-reasons",
+      "title": "Score cap reasons",
+      "severity": "p1",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
+      "title": "Stale artifact: agent/state/overnight-final-integration-lock.generated.json",
+      "severity": "p1",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "owner": "evidence",
+      "exactNextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
+      "title": "Stale evidence: Report freshness and PR integrity",
+      "severity": "p2",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 39.25,
+      "owner": "beta_score",
+      "exactNextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "id": "score-drag-freshnessscore",
+      "title": "Score drag: freshnessScore",
+      "severity": "p2",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 7.07,
+      "owner": "beta_score",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "score-drag-costriskscore",
+      "title": "Score drag: costRiskScore",
+      "severity": "p2",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "owner": "cost",
+      "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "scoreDimensionImpact": [
+        "costRisk"
+      ]
+    },
+    {
+      "id": "cost-cost-risk-0",
+      "title": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
+      "severity": "p2",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 2,
+      "owner": "cost",
+      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
+      "scoreDimensionImpact": [
+        "costRisk"
+      ]
+    },
+    {
+      "id": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
+      "title": "Stale artifact: agent/state/beta-evidence-gap-map.generated.json",
+      "severity": "p2",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1.8,
+      "owner": "evidence",
+      "exactNextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    },
+    {
+      "id": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
+      "title": "Stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
+      "severity": "p2",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1.6,
+      "owner": "evidence",
+      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
+    }
+  ],
+  "duplicateParents": [
+    {
+      "id": "stale-artifact-runtime-provider-smoke",
+      "duplicateChildren": [
+        "stale-artifact-debug-runtime-evidence",
+        "stale-artifact-visual-manual-smoke",
+        "stale-artifact-admin-truth-sample-evidence"
+      ]
+    },
+    {
+      "id": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json"
+      ]
+    },
+    {
+      "id": "cost-cost-risk-0",
+      "duplicateChildren": [
+        "cost-cost-risk-1",
+        "cost-cost-risk-2",
+        "cost-cost-risk-3"
+      ]
+    },
+    {
+      "id": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json"
+      ]
+    },
+    {
+      "id": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json"
+      ]
+    },
+    {
+      "id": "stale-artifact-agent-state-beta-freshness-language-generated-json",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-beta-freshness-language-generated-json"
+      ]
+    },
+    {
+      "id": "stale-artifact-agent-state-final-pr-stale-cleanup-generated-json",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-final-pr-stale-cleanup-generated-json"
+      ]
+    },
+    {
+      "id": "debug-panel-analytics-rewire",
+      "duplicateChildren": [
+        "debug-panel-recovery-evidence",
+        "debug-panel-report-speed-security",
+        "debug-panel-report-codebase-hardening",
+        "debug-panel-report-device-ui",
+        "debug-panel-report-device-layout",
+        "debug-panel-report-hydration",
+        "debug-panel-report-google-cost",
+        "debug-panel-report-cloud-cost",
+        "debug-panel-report-sql-mirror",
+        "debug-panel-report-telemetry-parity",
+        "debug-panel-report-precatch-runtime",
+        "debug-panel-report-creator-lane",
+        "debug-panel-report-creator-lane-legacy",
+        "debug-panel-report-orphaned-logic"
+      ]
+    },
+    {
+      "id": "debug-panel-report-sitewide-image",
+      "duplicateChildren": [
+        "debug-panel-report-content-protection",
+        "debug-panel-report-gumdrop-economy",
+        "debug-panel-report-event-catalog",
+        "debug-panel-report-watch-time-truth",
+        "debug-panel-report-debug-evidence",
+        "debug-panel-report-support-recovery"
+      ]
+    }
+  ],
+  "oldLogicClassification": [
+    {
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/admin-analytics-debug-cost-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/admin-analytics-monolith-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/ai-critic-p1-triage.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/ai-debug-critic.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/analytics-cadence-cost-policy.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/analytics-cost-hot-path-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/analytics-hot-path-cost-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/analytics-identity-transfer-inventory.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/analytics-ingest-firestore-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/analytics-semantics-final-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/behavioral-tracking-semantics-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/beta-freshness-language.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/beta-health-algorithm-v2.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/bigquery-cloud-pipeline-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/blocked-refresh-queue-resolver.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/bug-report-reward-flow.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/cost-4xx-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-broadcast-timeline-prep.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-dashboard-overview-stats.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-dashboard-role-boundary.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-drop-management-approval.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-drop-manager-mobile-refinement.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-fan-pass-crm-broadcast.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-landing-dashboard-mobile.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-lane-debug-parity.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-nav-role-consolidation.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-pricing-wiring.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-profile-mobile-timeline.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-settings-source-health.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/creator-surface-routing.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-operator-cockpit.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-recovery-playbooks.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-score-impact-triage.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/device-layout-score.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/error-handling-final-readiness.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/error-language-contract.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/error-truth-debug-visibility.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/event-facts-materializer-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/external-analytics-truth-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-algorithmic-debug-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-cost-audit-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-morning-beta-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/future-activity-signal-reclassification.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/ga4-recovery-truth.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/global-cost-surfaces.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/guest-user-identity-transfer.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/human-error-surface-wiring.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/identity-transfer-telemetry-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/lost-data-recovery-dry-run.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/march-first-event-recovery.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/march-first-legacy-normalization.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/mobile-hardcoded-css-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/mobile-residual-score-impact.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/mobile-surface-organization.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/mobile-ui-scaling-doctrine.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/orphaned-logic-score.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/phase-one-score-ui-triage.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/privacy-behavior-legacy-recovery.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/product-surface-integrity.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/refresh-safeguards.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/repo-doctrine-reset.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/route-diagnostics-error-map.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/runtime-watch-time-v2.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/scheduled-runtime-cost-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/score-80-refresh-pass.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/score-80-refresh-queue-execution.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/score-impact-stale-artifact-sweep.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/self-healing-refresh-queue.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/telemetry-dependency-graph.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/user-creator-logic-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/user-creator-ui-parity.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/user-creator-visual-confirmation.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/user-management-refactor.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "docs/agent-truth/admin-analytics-hot-cache.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/admin-debug-control-tower.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/admin-revenue-trends.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/analytics-truth-layer-v2.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/ast-grep-rules.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/debug-evidence-pipeline.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/debug-recovery-playbooks.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/future-activity-signal-reclassification.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/doctrine/surfaces/admin-debug-control-tower-doctrine.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/lost-data-recovery-dry-run.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/score-global-cost-surfaces.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/score-orphaned-logic.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-ai-critic-p1-triage.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-ai-debug-critic.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-ingest-firestore-closure.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-semantics-final-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-blocked-refresh-queue-resolver.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-bug-report-reward-flow.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-creator-drop-manager-mobile-refinement.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-creator-nav-role-consolidation.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-creator-profile-mobile-timeline.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-debug-backlog-engine.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-tracking-simplification.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-error-handling-final-readiness.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-event-facts-materializer-closure.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-existing-algorithm-refinement.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-final-cost-audit-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-final-morning-beta-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-final-pr-stale-cleanup.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-final-user-tracking-handoff-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-global-cost-surfaces.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-global-marquee-truncated-titles.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-guest-user-identity-transfer.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-march-first-legacy-normalization.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-mobile-loading-hydration-stability.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-orphaned-logic.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-overnight-final-integration-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-overnight-wiring-integrity.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-person-metrics-hydration.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-phase-one-score-ui-triage.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-privacy-behavior-legacy-recovery.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-privacy-consent-truth.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-repo-doctrine-reset.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-repo-spring-cleaning-rewire.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-route-diagnostics-error-map.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-runtime-watch-time-v2.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-refresh-queue-execution.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-settings-debug-validator-authority.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-source-truth-authority-map.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-telemetry-trigger-test-matrix.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-user-creator-logic-cleanup.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-user-management-refactor.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugTabActions.tsx",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/app/api/analytics/ingest-identified/route.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/admin/user-management-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/analytics/legacy-recovery-reconciler.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/debug/actionable-signal-filter.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/ai-critic-p1-triage.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/debug/ai-debug-critic-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/debug/ai-debug-critic-rules.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/debug/ai-debug-critic.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/debug/debug-backlog-builder.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-backlog-contract.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/future-activity-classifier.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/recovery-playbooks.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/hydration-performance-score.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/legacy/legacy-normalization-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/legacy/march-first-recovery-plan.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/legacy/privacy-behavior-legacy-recovery.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/server/admin-debug/event-envelope-summary.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/server/admin-orchestration-repairs.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/server/admin-orchestration.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/server/ai-debug-assistant.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/server/global-cost-surface-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/settings/settings-surface-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/admin-orchestration.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/ai-debug-assistant.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/ai-debug-critic.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/analytics-semantics-final-lock.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/blocked-refresh-queue-resolver.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/debug-backlog-engine.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/debug-tracking-simplification.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/error-handling-final-readiness.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/error-truth-debug-visibility.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/future-activity-signal-reclassification.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/march-first-legacy-normalization.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/person-metrics-hydration.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/score-80-reconciliation-lock.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/score-80-refresh-queue-execution.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/source-truth-authority-map.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/user-management-refactor.spec.ts",
+      "classification": "superseded"
+    }
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/future-activity-signal-reclassification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/debug-backlog-engine.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-actionability.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/future-activity-signal-reclassification.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "package.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-backlog-engine.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-actionability.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/debug/debug-backlog-builder.ts",
+      "classification": "debug_backlog_source_change"
+    },
+    {
+      "path": "src/lib/debug/debug-backlog-contract.ts",
+      "classification": "debug_backlog_source_change"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-actionability.ts",
+      "classification": "actionability_source_change"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/debug-backlog-engine.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/debug-signal-actionability.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

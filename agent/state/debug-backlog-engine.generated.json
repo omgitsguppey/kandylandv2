@@ -1,62 +1,1067 @@
 {
-  "generatedAtUtc": "2026-05-23T06:57:56.010Z",
+  "generatedAtUtc": "2026-05-23T19:59:20.025Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "a817e6e36f47ff3ecc71cd643737f18dc70558a3",
+  "currentHead": "1eeb1b65ff5a54ae0549e6be3550413c566289db",
   "oldScore": 41.92,
-  "newScore": 63.15,
+  "newScore": 62.15,
   "publicBetaStatus": "beta-risk",
   "readinessStatus": "Stale evidence",
   "summary": {
-    "total": 80,
+    "total": 50,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
-      "p1": 19,
-      "p2": 61,
+      "p1": 16,
+      "p2": 34,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 57,
+      "open": 44,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
       "blocked_manual": 3,
-      "blocked_external": 5,
-      "stale_retired": 15
+      "blocked_external": 2,
+      "stale_retired": 1
     },
     "bySource": {
-      "debug_panel": 34,
+      "debug_panel": 14,
       "beta_score": 7,
       "route_diagnostics": 1,
       "telemetry": 6,
       "admin_truth": 2,
       "mobile_ui": 0,
-      "cost": 5,
-      "evidence": 25,
+      "cost": 2,
+      "evidence": 18,
       "runtime_warning": 0
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 49,
-      "stale_retire": 15,
+      "evidence_refresh": 36,
+      "stale_retire": 1,
       "algorithm_refine": 0,
       "route_fix": 1,
       "telemetry_closure": 6,
-      "cost_guard": 5,
+      "cost_guard": 2,
       "manual_required": 4,
       "no_action": 0
     },
-    "open": 57,
+    "open": 44,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 3,
-    "blockedExternal": 5,
-    "staleRetired": 15,
-    "sourceFixable": 12,
-    "evidenceRefreshable": 49,
+    "blockedExternal": 2,
+    "staleRetired": 1,
+    "sourceFixable": 9,
+    "evidenceRefreshable": 36,
     "manualRequired": 4,
-    "p0P1Open": 19
+    "p0P1Open": 16,
+    "defaultVisible": 50,
+    "hiddenByDefault": 0,
+    "quietFutureActivity": 0,
+    "duplicateSignalsCollapsed": 0,
+    "formalGates": 8,
+    "scoreImpacting": 49,
+    "byActionability": {
+      "fix_now": 0,
+      "score_impacting": 41,
+      "evidence_required": 1,
+      "formal_gate": 8,
+      "quiet_future_activity": 0,
+      "informational": 0,
+      "duplicate": 0,
+      "superseded": 0,
+      "not_actionable": 0
+    }
+  },
+  "actionabilitySummary": {
+    "totalSignals": 50,
+    "uniqueSignals": 50,
+    "defaultVisibleCount": 50,
+    "hiddenByDefaultCount": 0,
+    "quietFutureActivityCount": 0,
+    "duplicateSignalCount": 0,
+    "formalGateCount": 8,
+    "scoreImpactingCount": 49,
+    "byActionability": {
+      "fix_now": 0,
+      "score_impacting": 41,
+      "evidence_required": 1,
+      "formal_gate": 8,
+      "quiet_future_activity": 0,
+      "informational": 0,
+      "duplicate": 0,
+      "superseded": 0,
+      "not_actionable": 0
+    },
+    "defaultVisibleSignals": [
+      {
+        "signalId": "stale-artifact-runtime-provider-smoke",
+        "signalType": "evidence",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 16.33,
+        "owner": "evidence",
+        "nextAction": "Attach formal evidence before clearing this beta gate.",
+        "sourceFiles": [
+          "runtime_provider_smoke",
+          "debug_runtime_evidence",
+          "visual_manual_smoke",
+          "admin_truth_sample_evidence"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|attach-formal-evidence-before-clearing-this-beta-gate-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-evidencecompletenessscore",
+        "signalType": "beta_score",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 12,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-final-launch-readiness",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/final-launch-readiness-report.generated.json"
+        ],
+        "validator": "npm run check:final-launch-readiness-report",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-final-launch-readiness-report-when-this-stale-warning-must-be-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-launch-pr-triage",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/launch-pr-triage.generated.json"
+        ],
+        "validator": "npm run check:launch-pr-triage",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-launch-pr-triage-when-this-stale-warning-must-be-refreshed-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-launch-readiness",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/launch-readiness-report.generated.json"
+        ],
+        "validator": "npm run check:launch-readiness-final",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-launch-readiness-final-when-this-stale-warning-must-be-refresh",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-public-beta-score",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-score-cap-reasons",
+        "signalType": "debug_panel",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "route-diagnostic-runtime-evidence",
+        "signalType": "route_diagnostics",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "runtimeHealth",
+          "regressionRisk"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "admin_debug",
+        "nextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
+        "sourceFiles": [
+          "agent/state/runtime-smoke-evidence.generated.json"
+        ],
+        "validator": "npm run check:debug-backlog-engine",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|route_diagnostics|admin_debug|runtimeHealth,regressionRisk|inspect-the-route-diagnostic-owner-and-fix-the-route-source-or-keep-the-warning-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
+        "signalType": "evidence",
+        "severity": "p1",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "evidence",
+        "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+        "sourceFiles": [
+          "agent/state/overnight-final-integration-lock.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-final-integration-lock-was-generated-from-an-older-code-version-refres",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 39.25,
+        "owner": "beta_score",
+        "nextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|refresh-the-owning-evidence-artifact-and-keep-the-beta-cap-visible-until-evidenc",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-freshnessscore",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 7.07,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|freshness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-costriskscore",
+        "signalType": "cost",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "costRisk"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "cost",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|cost|cost|costRisk|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "telemetry-lane-telemetry-lane-admin-snapshots",
+        "signalType": "telemetry",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "telemetry",
+        "nextAction": "Run the admin analytics refresh lane before treating this as current.",
+        "sourceFiles": [
+          "agent/state/telemetry-admin-debug-truth.generated.json"
+        ],
+        "validator": "npm run check:telemetry-admin-debug-truth",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|run-the-admin-analytics-refresh-lane-before-treating-this-as-current-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "telemetry-lane-telemetry-lane-bigquery-export",
+        "signalType": "telemetry",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "telemetry",
+        "nextAction": "Configure export only in an owner-approved cloud pipeline pass.",
+        "sourceFiles": [
+          "agent/state/telemetry-admin-debug-truth.generated.json"
+        ],
+        "validator": "npm run check:telemetry-admin-debug-truth",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|configure-export-only-in-an-owner-approved-cloud-pipeline-pass-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "telemetry-lane-telemetry-lane-ingest",
+        "signalType": "telemetry",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "telemetry",
+        "nextAction": "Open the route runtime drilldown or wait for runtime samples before treating ingest as proven.",
+        "sourceFiles": [
+          "agent/state/telemetry-admin-debug-truth.generated.json"
+        ],
+        "validator": "npm run check:telemetry-admin-debug-truth",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|open-the-route-runtime-drilldown-or-wait-for-runtime-samples-before-treating-ing",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "telemetry-lane-telemetry-lane-materializers",
+        "signalType": "telemetry",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "telemetry",
+        "nextAction": "Use snapshot metadata before raw collections.",
+        "sourceFiles": [
+          "agent/state/telemetry-admin-debug-truth.generated.json"
+        ],
+        "validator": "npm run check:telemetry-admin-debug-truth",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|use-snapshot-metadata-before-raw-collections-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "telemetry-lane-telemetry-lane-user-events",
+        "signalType": "telemetry",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "telemetry",
+        "nextAction": "Refresh admin analytics snapshots before reading user-event health.",
+        "sourceFiles": [
+          "agent/state/telemetry-admin-debug-truth.generated.json"
+        ],
+        "validator": "npm run check:telemetry-admin-debug-truth",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|refresh-admin-analytics-snapshots-before-reading-user-event-health-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "telemetry-lane-telemetry-lane-watch-time",
+        "signalType": "telemetry",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "telemetry",
+        "nextAction": "Attach or verify deployed runtime watch-session evidence before treating watch time as proven.",
+        "sourceFiles": [
+          "agent/state/telemetry-admin-debug-truth.generated.json"
+        ],
+        "validator": "npm run check:telemetry-admin-debug-truth",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|attach-or-verify-deployed-runtime-watch-session-evidence-before-treating-watch-t",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1.8,
+        "owner": "evidence",
+        "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+        "sourceFiles": [
+          "agent/state/beta-evidence-gap-map.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-gap-map-was-generated-from-an-older-code-version-refresh-this-repo",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1.6,
+        "owner": "evidence",
+        "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+        "sourceFiles": [
+          "agent/state/beta-evidence-lane-prep.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-lane-prep-was-generated-from-an-older-code-version-refresh-this-re",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-beta-freshness-language-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1.4,
+        "owner": "evidence",
+        "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+        "sourceFiles": [
+          "agent/state/beta-freshness-language.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-freshness-language-was-generated-from-an-older-code-version-refresh-this-re",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-artifact-agent-state-final-pr-stale-cleanup-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1.2,
+        "owner": "evidence",
+        "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
+        "sourceFiles": [
+          "agent/state/final-pr-stale-cleanup.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|final-pr-stale-cleanup-was-generated-from-an-older-code-version-refresh-this-rep",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-analytics-rewire",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
+        "sourceFiles": [
+          "agent/state/analytics-rewire-phase-one.generated.json",
+          "agent/state/lost-data-recovery-dry-run.generated.json",
+          "agent/state/speed-security-hardening.generated.json",
+          "agent/state/codebase-hardening.generated.json",
+          "agent/state/device-ui-dry-audit.generated.json",
+          "agent/state/device-layout-score.generated.json",
+          "agent/state/hydration-performance.generated.json",
+          "agent/state/google-cost-bleed.generated.json",
+          "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+          "agent/state/sql-mirror-status.generated.json",
+          "agent/state/telemetry-parity-score.generated.json",
+          "agent/state/precatch-runtime-issues.generated.json",
+          "agent/state/creator-lane-debug-parity.generated.json",
+          "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+          "agent/state/orphaned-logic-score.generated.json"
+        ],
+        "validator": "npm run check:analytics-rewire-phase-one",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|leave-the-item-labeled-as-evidence-or-archive-until-a-focused-refresh-command-ex",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-creator-connection-audit",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/user-facing-feature-connection-audit.generated.json"
+        ],
+        "validator": "npm run check:user-facing-feature-connection-audit",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-user-facing-feature-connection-audit-when-this-stale-warning-m",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-report-public-beta-score",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run score:beta when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-report-sitewide-image",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Keep missing state visible until an owning generator is identified.",
+        "sourceFiles": [
+          "agent/state/sitewide-image-optimization.generated.json",
+          "agent/state/content-protection.generated.json",
+          "agent/state/gumdrop-economy.generated.json",
+          "agent/state/event-catalog-telemetry.generated.json",
+          "agent/state/watch-time-rollup-truth.generated.json",
+          "agent/state/debug-evidence-pipeline.generated.json",
+          "agent/state/support-recovery-flows.generated.json"
+        ],
+        "validator": "npm run check:sitewide-image-optimization",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|keep-missing-state-visible-until-an-owning-generator-is-identified-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-system-health",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run check:admin-truth if that command owns the missing artifact; otherwise keep the Debug state missing.",
+        "sourceFiles": [
+          "agent/state/admin-truth.generated.json"
+        ],
+        "validator": "npm run check:admin-truth",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|run-npm-run-check-admin-truth-if-that-command-owns-the-missing-artifact-otherwis",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-targeted-behavior-evidence",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.",
+        "sourceFiles": [
+          "agent/state/targeted-behavior-evidence.generated.json"
+        ],
+        "validator": "npm run check:targeted-behavior-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-targeted-behavior-as-one-gate-only-keep-visual-provider-runtime-and-admin-sa",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-regressionriskscore",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "regressionRisk"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|beta_score|beta_score|regressionRisk|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-creator-drop-status-metrics-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+        "sourceFiles": [
+          "agent/state/creator-drop-status-metrics.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-drop-status-metrics-was-generated-from-an-older-code-version-refresh-thi",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-creator-settings-control-plane-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+        "sourceFiles": [
+          "agent/state/creator-settings-control-plane.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-settings-control-plane-was-generated-from-an-older-code-version-refresh-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+        "sourceFiles": [
+          "agent/state/current-beta-exit-status.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+        "sourceFiles": [
+          "agent/state/evidence-capture-status.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|evidence-capture-status-was-generated-from-an-older-code-version-refresh-this-re",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-existing-algorithm-refinement-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+        "sourceFiles": [
+          "agent/state/existing-algorithm-refinement.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|existing-algorithm-refinement-was-generated-from-an-older-code-version-refresh-t",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-final-telemetry-closure-lock-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+        "sourceFiles": [
+          "agent/state/final-telemetry-closure-lock.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|telemetry-closure-lock-was-generated-from-an-older-code-version-refresh-this-rep",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-global-marquee-truncated-titles-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+        "sourceFiles": [
+          "agent/state/global-marquee-truncated-titles.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|global-marquee-title-rollout-was-generated-from-an-older-code-version-refresh-th",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+        "sourceFiles": [
+          "agent/state/mobile-ui-final-lock.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|mobile-ui-final-lock-was-generated-from-an-older-code-version-refresh-this-repor",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
+        "sourceFiles": [
+          "agent/state/operator-revenue-smoke.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|operator-revenue-smoke-was-generated-from-an-older-code-version-refresh-this-rep",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-overnight-wiring-integrity-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+        "sourceFiles": [
+          "agent/state/overnight-wiring-integrity.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-wiring-integrity-was-generated-from-an-older-code-version-refresh-this",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-source-truth-authority-map-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+        "sourceFiles": [
+          "agent/state/source-truth-authority-map.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|source-truth-authority-map-was-generated-from-an-older-code-version-refresh-this",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+        "sourceFiles": [
+          "agent/state/user-loading-wallet-mobile-refinement.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|user-loading-and-wallet-mobile-refinement-was-generated-from-an-older-code-versi",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-sourcehealthscore",
+        "signalType": "beta_score",
+        "severity": "p2",
+        "actionability": "evidence_required",
+        "scoreDimensionsAffected": [
+          "sourceHealth"
+        ],
+        "estimatedPointImpact": 0,
+        "owner": "beta_score",
+        "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "evidence_required|beta_score|beta_score|sourceHealth|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "runtimeHealth"
+        ],
+        "estimatedPointImpact": 67.75,
+        "owner": "provider_evidence",
+        "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 39.25,
+        "owner": "admin_debug",
+        "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "score-drag-runtimehealthscore",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "runtimeHealth"
+        ],
+        "estimatedPointImpact": 16.33,
+        "owner": "runtime_evidence",
+        "nextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
+        "sourceFiles": [
+          "agent/state/score-80-path-lock.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|beta_score|runtime_evidence|runtimeHealth|attach-deployed-runtime-smoke-evidence-before-treating-runtime-health-as-proven-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "admin-truth-formal-sample-required",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 4.5,
+        "owner": "admin_debug",
+        "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth gate.",
+        "sourceFiles": [
+          "agent/state/admin-truth-source-sample.generated.json",
+          "src/lib/admin-debug-control-tower.ts"
+        ],
+        "validator": "npm run check:admin-truth-source-sample",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-production-admin-truth-sample-before-clearing-the-formal-admin",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-admin-truth-samples",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
+        "sourceFiles": [
+          "agent/state/admin-truth-sample-evidence.generated.json"
+        ],
+        "validator": "npm run check:admin-truth-sample-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-a-fresh-first-party-admin-truth-sample-before-upgrading-this-gate-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-provider-smoke",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
+        "sourceFiles": [
+          "agent/state/provider-smoke-evidence.generated.json"
+        ],
+        "validator": "npm run check:provider-smoke-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-or-generate-formal-provider-smoke-evidence-do-not-convert-operator-report",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-runtime-evidence",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 4,
+        "owner": "admin_debug",
+        "nextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
+        "sourceFiles": [
+          "agent/state/runtime-smoke-evidence.generated.json"
+        ],
+        "validator": "npm run check:runtime-smoke-evidence",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|run-formal-deployed-runtime-smoke-before-marking-runtime-provider-smoke-complete",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "cost-cost-risk-0",
+        "signalType": "formal_gate",
+        "severity": "p2",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "costRisk"
+        ],
+        "estimatedPointImpact": 2,
+        "owner": "cost",
+        "nextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|cost|cost|costRisk|keep-this-cost-lane-in-owner-review-until-external-billing-provider-evidence-is-",
+        "duplicateChildren": []
+      }
+    ],
+    "hiddenSignals": [],
+    "validationFailures": []
   },
   "backlog": [
     {
@@ -71,7 +1076,7 @@
       "scoreDimensionImpact": [
         "runtimeHealth"
       ],
-      "scoreImpact": 70.25,
+      "scoreImpact": 67.75,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -81,7 +1086,12 @@
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "sourceMessage": "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
+      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation.",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 67.75,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
+      "duplicateChildren": []
     },
     {
       "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
@@ -95,7 +1105,7 @@
       "scoreDimensionImpact": [
         "evidenceCompleteness"
       ],
-      "scoreImpact": 41.75,
+      "scoreImpact": 39.25,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -105,7 +1115,12 @@
       "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceMessage": "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
       "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation."
+      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation.",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 39.25,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
+      "duplicateChildren": []
     },
     {
       "id": "score-drag-runtimehealthscore",
@@ -129,30 +1144,12 @@
       "exactNextAction": "Attach deployed runtime smoke evidence before treating runtime health as proven.",
       "sourceMessage": "Source-backed runtime confidence helps, but deployed runtime smoke remains missing.",
       "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Requires deployed runtime proof."
-    },
-    {
-      "id": "stale-artifact-debug-runtime-evidence",
-      "title": "Stale artifact: debug_runtime_evidence",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p1",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 16.33,
-      "sourceFiles": [
-        "debug_runtime_evidence"
-      ],
-      "sourceRoute": "debug_runtime_evidence",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Unknown evidence: Debug/runtime evidence",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceMessage": "Attach formal evidence before clearing this beta gate.",
-      "refreshCommand": "Attach deployed runtime smoke evidence, then run npm run check:evidence-capture-status"
+      "blockedReason": "Requires deployed runtime proof.",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 16.33,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|beta_score|runtime_evidence|runtimeHealth|attach-deployed-runtime-smoke-evidence-before-treating-runtime-health-as-proven-",
+      "duplicateChildren": []
     },
     {
       "id": "stale-artifact-runtime-provider-smoke",
@@ -168,14 +1165,26 @@
       ],
       "scoreImpact": 16.33,
       "sourceFiles": [
-        "runtime_provider_smoke"
+        "runtime_provider_smoke",
+        "debug_runtime_evidence",
+        "visual_manual_smoke",
+        "admin_truth_sample_evidence"
       ],
       "sourceRoute": "runtime_provider_smoke",
       "evidenceStatus": "stale",
       "evidenceReason": "Runtime unverified: Runtime/provider smoke",
       "exactNextAction": "Attach formal evidence before clearing this beta gate.",
       "sourceMessage": "Attach formal evidence before clearing this beta gate.",
-      "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status"
+      "refreshCommand": "Attach formal provider smoke evidence, then run npm run check:evidence-capture-status",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 16.33,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|attach-formal-evidence-before-clearing-this-beta-gate-",
+      "duplicateChildren": [
+        "stale-artifact-debug-runtime-evidence",
+        "stale-artifact-visual-manual-smoke",
+        "stale-artifact-admin-truth-sample-evidence"
+      ]
     },
     {
       "id": "score-drag-evidencecompletenessscore",
@@ -198,53 +1207,12 @@
       "evidenceReason": "Formal manual, provider, runtime, and admin truth evidence is still missing.",
       "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceMessage": "Formal manual, provider, runtime, and admin truth evidence is still missing.",
-      "sourceValidator": "npm run check:beta-score"
-    },
-    {
-      "id": "stale-artifact-admin-truth-sample-evidence",
-      "title": "Stale artifact: admin_truth_sample_evidence",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p1",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 12,
-      "sourceFiles": [
-        "admin_truth_sample_evidence"
-      ],
-      "sourceRoute": "admin_truth_sample_evidence",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Unknown evidence: Admin truth/sample evidence",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceMessage": "Attach formal evidence before clearing this beta gate.",
-      "refreshCommand": "Attach admin truth sample evidence, then run npm run check:evidence-capture-status"
-    },
-    {
-      "id": "stale-artifact-visual-manual-smoke",
-      "title": "Stale artifact: visual_manual_smoke",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p1",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 12,
-      "sourceFiles": [
-        "visual_manual_smoke"
-      ],
-      "sourceRoute": "visual_manual_smoke",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Visual QA required: Visual/manual smoke",
-      "exactNextAction": "Attach formal evidence before clearing this beta gate.",
-      "sourceMessage": "Attach formal evidence before clearing this beta gate.",
-      "refreshCommand": "Attach manual screenshot evidence, then run npm run check:evidence-capture-status"
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 12,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+      "duplicateChildren": []
     },
     {
       "id": "admin-truth-formal-sample-required",
@@ -269,7 +1237,12 @@
       "exactNextAction": "Attach a redacted production admin truth sample before clearing the formal admin truth gate.",
       "sourceMessage": "source_ready_admin_truth_sample",
       "sourceValidator": "npm run check:admin-truth-source-sample",
-      "blockedReason": "Manual production evidence is required."
+      "blockedReason": "Manual production evidence is required.",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 4.5,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-production-admin-truth-sample-before-clearing-the-formal-admin",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-admin-truth-samples",
@@ -293,7 +1266,12 @@
       "exactNextAction": "Attach a fresh first-party admin truth sample before upgrading this gate.",
       "sourceMessage": "Admin truth sample evidence is missing or unknown; Debug must not render it healthy.",
       "sourceValidator": "npm run check:admin-truth-sample-evidence",
-      "refreshCommand": "npm run check:admin-truth-sample-evidence"
+      "refreshCommand": "npm run check:admin-truth-sample-evidence",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-a-fresh-first-party-admin-truth-sample-before-upgrading-this-gate-",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-final-launch-readiness",
@@ -317,7 +1295,12 @@
       "exactNextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
       "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:final-launch-readiness-report",
-      "refreshCommand": "npm run check:final-launch-readiness-report"
+      "refreshCommand": "npm run check:final-launch-readiness-report",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-final-launch-readiness-report-when-this-stale-warning-must-be-",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-launch-pr-triage",
@@ -341,7 +1324,12 @@
       "exactNextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
       "sourceMessage": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:launch-pr-triage",
-      "refreshCommand": "npm run check:launch-pr-triage"
+      "refreshCommand": "npm run check:launch-pr-triage",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-launch-pr-triage-when-this-stale-warning-must-be-refreshed-",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-launch-readiness",
@@ -365,7 +1353,12 @@
       "exactNextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
       "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:launch-readiness-final",
-      "refreshCommand": "npm run check:launch-readiness-final"
+      "refreshCommand": "npm run check:launch-readiness-final",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-launch-readiness-final-when-this-stale-warning-must-be-refresh",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-provider-smoke",
@@ -389,7 +1382,12 @@
       "exactNextAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
       "sourceMessage": "Operator-reported PayPal smoke is tracked but is not formal provider smoke evidence.",
       "sourceValidator": "npm run check:provider-smoke-evidence",
-      "refreshCommand": "npm run check:provider-smoke-evidence"
+      "refreshCommand": "npm run check:provider-smoke-evidence",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|attach-or-generate-formal-provider-smoke-evidence-do-not-convert-operator-report",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-public-beta-score",
@@ -413,7 +1411,12 @@
       "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
       "sourceMessage": "Source drift: currentHead 867d04ea8e3286532b1c6dfbcb7f2f8e31e65470 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:beta-score",
-      "refreshCommand": "npm run score:beta"
+      "refreshCommand": "npm run score:beta",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-runtime-evidence",
@@ -437,7 +1440,12 @@
       "exactNextAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
       "sourceMessage": "Runtime smoke is unverified; local validators remain diagnostic only.",
       "sourceValidator": "npm run check:runtime-smoke-evidence",
-      "refreshCommand": "npm run check:runtime-smoke-evidence"
+      "refreshCommand": "npm run check:runtime-smoke-evidence",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|debug_panel|admin_debug|freshness|run-formal-deployed-runtime-smoke-before-marking-runtime-provider-smoke-complete",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-score-cap-reasons",
@@ -461,7 +1469,12 @@
       "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
       "sourceMessage": "3 beta score cap reason(s) remain visible.",
       "sourceValidator": "npm run check:beta-score",
-      "refreshCommand": "npm run score:beta"
+      "refreshCommand": "npm run score:beta",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
+      "duplicateChildren": []
     },
     {
       "id": "route-diagnostic-runtime-evidence",
@@ -485,7 +1498,12 @@
       "evidenceReason": "Route diagnostic was emitted by the server diagnostic path.",
       "exactNextAction": "Inspect the route diagnostic owner and fix the route source or keep the warning open.",
       "sourceMessage": "Runtime smoke is unverified; local validators remain diagnostic only.",
-      "sourceValidator": "npm run check:debug-backlog-engine"
+      "sourceValidator": "npm run check:debug-backlog-engine",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|route_diagnostics|admin_debug|runtimeHealth,regressionRisk|inspect-the-route-diagnostic-owner-and-fix-the-route-source-or-keep-the-warning-",
+      "duplicateChildren": []
     },
     {
       "id": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
@@ -508,7 +1526,14 @@
       "evidenceReason": "stale_source_version",
       "exactNextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
       "sourceMessage": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-      "refreshCommand": "npm run check:overnight-final-integration-lock"
+      "refreshCommand": "npm run check:overnight-final-integration-lock",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-final-integration-lock-was-generated-from-an-older-code-version-refres",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json"
+      ]
     },
     {
       "id": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
@@ -522,7 +1547,7 @@
       "scoreDimensionImpact": [
         "evidenceCompleteness"
       ],
-      "scoreImpact": 41.75,
+      "scoreImpact": 39.25,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
@@ -531,7 +1556,12 @@
       "evidenceReason": "Unknown evidence classification: 4 required generated report(s) are older than the freshness window.",
       "exactNextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
       "sourceMessage": "Stale evidence: Report freshness and PR integrity - 4 required generated report(s) are older than the freshness window.",
-      "sourceValidator": "npm run check:beta-score"
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 39.25,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|refresh-the-owning-evidence-artifact-and-keep-the-beta-cap-visible-until-evidenc",
+      "duplicateChildren": []
     },
     {
       "id": "score-drag-freshnessscore",
@@ -554,7 +1584,12 @@
       "evidenceReason": "Stale or missing generated evidence reports still decay freshness.",
       "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceMessage": "Stale or missing generated evidence reports still decay freshness.",
-      "sourceValidator": "npm run check:beta-score"
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 7.07,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|beta_score|beta_score|freshness|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+      "duplicateChildren": []
     },
     {
       "id": "score-drag-costriskscore",
@@ -577,7 +1612,12 @@
       "evidenceReason": "Source cost readiness is partial while external billing owner review remains separate.",
       "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceMessage": "Source cost readiness is partial while external billing owner review remains separate.",
-      "sourceValidator": "npm run check:beta-score"
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|cost|cost|costRisk|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+      "duplicateChildren": []
     },
     {
       "id": "cost-cost-risk-0",
@@ -600,76 +1640,16 @@
       "evidenceReason": "Cost lane status is owner_review.",
       "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
       "sourceMessage": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
-      "sourceValidator": "npm run check:beta-score"
-    },
-    {
-      "id": "cost-cost-risk-1",
-      "title": "cloudSqlCostReadiness remains source-cost/external-review tracked (owner_review_external_billing_required).",
-      "owner": "cost",
-      "surface": "cost",
-      "severity": "p2",
-      "source": "cost",
-      "status": "blocked_external",
-      "fixClass": "cost_guard",
-      "scoreDimensionImpact": [
-        "costRisk"
-      ],
-      "scoreImpact": 2,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "external_required",
-      "evidenceReason": "Cost lane status is owner_review.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceMessage": "cloudSqlCostReadiness remains source-cost/external-review tracked (owner_review_external_billing_required).",
-      "sourceValidator": "npm run check:beta-score"
-    },
-    {
-      "id": "cost-cost-risk-2",
-      "title": "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (cost_review_required).",
-      "owner": "cost",
-      "surface": "cost",
-      "severity": "p2",
-      "source": "cost",
-      "status": "blocked_external",
-      "fixClass": "cost_guard",
-      "scoreDimensionImpact": [
-        "costRisk"
-      ],
-      "scoreImpact": 2,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "external_required",
-      "evidenceReason": "Cost lane status is owner_review.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceMessage": "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (cost_review_required).",
-      "sourceValidator": "npm run check:beta-score"
-    },
-    {
-      "id": "cost-cost-risk-3",
-      "title": "route4xxReadiness remains source-cost/external-review tracked (cost_review_required).",
-      "owner": "cost",
-      "surface": "cost",
-      "severity": "p2",
-      "source": "cost",
-      "status": "blocked_external",
-      "fixClass": "cost_guard",
-      "scoreDimensionImpact": [
-        "costRisk"
-      ],
-      "scoreImpact": 2,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "external_required",
-      "evidenceReason": "Cost lane status is owner_review.",
-      "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceMessage": "route4xxReadiness remains source-cost/external-review tracked (cost_review_required).",
-      "sourceValidator": "npm run check:beta-score"
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|cost|cost|costRisk|keep-this-cost-lane-in-owner-review-until-external-billing-provider-evidence-is-",
+      "duplicateChildren": [
+        "cost-cost-risk-1",
+        "cost-cost-risk-2",
+        "cost-cost-risk-3"
+      ]
     },
     {
       "id": "telemetry-lane-telemetry-lane-admin-snapshots",
@@ -693,7 +1673,12 @@
       "evidenceReason": "Telemetry lane status is unavailable.",
       "exactNextAction": "Run the admin analytics refresh lane before treating this as current.",
       "sourceMessage": "Telemetry lane telemetry-lane-admin-snapshots is unavailable.",
-      "sourceValidator": "npm run check:telemetry-admin-debug-truth"
+      "sourceValidator": "npm run check:telemetry-admin-debug-truth",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|run-the-admin-analytics-refresh-lane-before-treating-this-as-current-",
+      "duplicateChildren": []
     },
     {
       "id": "telemetry-lane-telemetry-lane-bigquery-export",
@@ -717,7 +1702,12 @@
       "evidenceReason": "Telemetry lane status is config_missing.",
       "exactNextAction": "Configure export only in an owner-approved cloud pipeline pass.",
       "sourceMessage": "Telemetry lane telemetry-lane-bigquery-export is config_missing.",
-      "sourceValidator": "npm run check:telemetry-admin-debug-truth"
+      "sourceValidator": "npm run check:telemetry-admin-debug-truth",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|configure-export-only-in-an-owner-approved-cloud-pipeline-pass-",
+      "duplicateChildren": []
     },
     {
       "id": "telemetry-lane-telemetry-lane-ingest",
@@ -741,7 +1731,12 @@
       "evidenceReason": "Telemetry lane status is runtime_unproven.",
       "exactNextAction": "Open the route runtime drilldown or wait for runtime samples before treating ingest as proven.",
       "sourceMessage": "Telemetry lane telemetry-lane-ingest is runtime_unproven.",
-      "sourceValidator": "npm run check:telemetry-admin-debug-truth"
+      "sourceValidator": "npm run check:telemetry-admin-debug-truth",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|open-the-route-runtime-drilldown-or-wait-for-runtime-samples-before-treating-ing",
+      "duplicateChildren": []
     },
     {
       "id": "telemetry-lane-telemetry-lane-materializers",
@@ -765,7 +1760,12 @@
       "evidenceReason": "Telemetry lane status is runtime_unproven.",
       "exactNextAction": "Use snapshot metadata before raw collections.",
       "sourceMessage": "Telemetry lane telemetry-lane-materializers is runtime_unproven.",
-      "sourceValidator": "npm run check:telemetry-admin-debug-truth"
+      "sourceValidator": "npm run check:telemetry-admin-debug-truth",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|use-snapshot-metadata-before-raw-collections-",
+      "duplicateChildren": []
     },
     {
       "id": "telemetry-lane-telemetry-lane-user-events",
@@ -789,7 +1789,12 @@
       "evidenceReason": "Telemetry lane status is runtime_unproven.",
       "exactNextAction": "Refresh admin analytics snapshots before reading user-event health.",
       "sourceMessage": "Telemetry lane telemetry-lane-user-events is runtime_unproven.",
-      "sourceValidator": "npm run check:telemetry-admin-debug-truth"
+      "sourceValidator": "npm run check:telemetry-admin-debug-truth",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|refresh-admin-analytics-snapshots-before-reading-user-event-health-",
+      "duplicateChildren": []
     },
     {
       "id": "telemetry-lane-telemetry-lane-watch-time",
@@ -813,7 +1818,12 @@
       "evidenceReason": "Telemetry lane status is runtime_unproven.",
       "exactNextAction": "Attach or verify deployed runtime watch-session evidence before treating watch time as proven.",
       "sourceMessage": "Telemetry lane telemetry-lane-watch-time is runtime_unproven.",
-      "sourceValidator": "npm run check:telemetry-admin-debug-truth"
+      "sourceValidator": "npm run check:telemetry-admin-debug-truth",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|telemetry|telemetry|runtimeHealth,evidenceCompleteness|attach-or-verify-deployed-runtime-watch-session-evidence-before-treating-watch-t",
+      "duplicateChildren": []
     },
     {
       "id": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
@@ -836,7 +1846,14 @@
       "evidenceReason": "stale_source_version",
       "exactNextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
       "sourceMessage": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "refreshCommand": "npm run check:beta-evidence-gap-map"
+      "refreshCommand": "npm run check:beta-evidence-gap-map",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1.8,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-gap-map-was-generated-from-an-older-code-version-refresh-this-repo",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json"
+      ]
     },
     {
       "id": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
@@ -859,7 +1876,14 @@
       "evidenceReason": "stale_source_version",
       "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
       "sourceMessage": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
+      "refreshCommand": "npm run check:beta-evidence-lane-prep",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1.6,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-evidence-lane-prep-was-generated-from-an-older-code-version-refresh-this-re",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json"
+      ]
     },
     {
       "id": "stale-artifact-agent-state-beta-freshness-language-generated-json",
@@ -882,7 +1906,14 @@
       "evidenceReason": "stale_source_version",
       "exactNextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
       "sourceMessage": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
-      "refreshCommand": "npm run check:beta-freshness-language"
+      "refreshCommand": "npm run check:beta-freshness-language",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1.4,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|beta-freshness-language-was-generated-from-an-older-code-version-refresh-this-re",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-beta-freshness-language-generated-json"
+      ]
     },
     {
       "id": "stale-artifact-agent-state-final-pr-stale-cleanup-generated-json",
@@ -905,7 +1936,14 @@
       "evidenceReason": "stale_source_version",
       "exactNextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
       "sourceMessage": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
-      "refreshCommand": "npm run check:final-pr-stale-cleanup"
+      "refreshCommand": "npm run check:final-pr-stale-cleanup",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1.2,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|final-pr-stale-cleanup-was-generated-from-an-older-code-version-refresh-this-rep",
+      "duplicateChildren": [
+        "stale-refresh-plan-agent-state-final-pr-stale-cleanup-generated-json"
+      ]
     },
     {
       "id": "debug-panel-analytics-rewire",
@@ -921,7 +1959,21 @@
       ],
       "scoreImpact": 1,
       "sourceFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json"
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/codebase-hardening.generated.json",
+        "agent/state/device-ui-dry-audit.generated.json",
+        "agent/state/device-layout-score.generated.json",
+        "agent/state/hydration-performance.generated.json",
+        "agent/state/google-cost-bleed.generated.json",
+        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+        "agent/state/sql-mirror-status.generated.json",
+        "agent/state/telemetry-parity-score.generated.json",
+        "agent/state/precatch-runtime-issues.generated.json",
+        "agent/state/creator-lane-debug-parity.generated.json",
+        "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+        "agent/state/orphaned-logic-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
@@ -930,7 +1982,27 @@
       "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:analytics-rewire-phase-one",
       "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
+      "staleRetireReason": "Debug panel item is stale without an owner refresh command.",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|leave-the-item-labeled-as-evidence-or-archive-until-a-focused-refresh-command-ex",
+      "duplicateChildren": [
+        "debug-panel-recovery-evidence",
+        "debug-panel-report-speed-security",
+        "debug-panel-report-codebase-hardening",
+        "debug-panel-report-device-ui",
+        "debug-panel-report-device-layout",
+        "debug-panel-report-hydration",
+        "debug-panel-report-google-cost",
+        "debug-panel-report-cloud-cost",
+        "debug-panel-report-sql-mirror",
+        "debug-panel-report-telemetry-parity",
+        "debug-panel-report-precatch-runtime",
+        "debug-panel-report-creator-lane",
+        "debug-panel-report-creator-lane-legacy",
+        "debug-panel-report-orphaned-logic"
+      ]
     },
     {
       "id": "debug-panel-creator-connection-audit",
@@ -954,378 +2026,12 @@
       "exactNextAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed.",
       "sourceMessage": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:user-facing-feature-connection-audit",
-      "refreshCommand": "npm run check:user-facing-feature-connection-audit"
-    },
-    {
-      "id": "debug-panel-recovery-evidence",
-      "title": "Recovery evidence",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/lost-data-recovery-dry-run.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
-      "sourceValidator": "npm run check:lost-data-recovery-dry-run",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-cloud-cost",
-      "title": "Generated report freshness: Cloud cost",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:cloud-cost",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-codebase-hardening",
-      "title": "Generated report freshness: codebase hardening",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/codebase-hardening.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:hardening",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-content-protection",
-      "title": "Generated report freshness: content protection",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/content-protection.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "missing",
-      "evidenceReason": "Source artifact is missing from the Debug source chain.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:content-protection",
-      "refreshCommand": ""
-    },
-    {
-      "id": "debug-panel-report-creator-lane",
-      "title": "Generated report freshness: creator lane parity",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/creator-lane-debug-parity.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:creator-lane-debug-parity",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-creator-lane-legacy",
-      "title": "Generated report freshness: creator lane legacy",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/creator-lane-legacy-truth-inventory.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:creator-lane-legacy-truth-inventory",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-debug-evidence",
-      "title": "Generated report freshness: debug evidence pipeline",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/debug-evidence-pipeline.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "missing",
-      "evidenceReason": "Source artifact is missing from the Debug source chain.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:debug-evidence-pipeline",
-      "refreshCommand": ""
-    },
-    {
-      "id": "debug-panel-report-device-layout",
-      "title": "Generated report freshness: device layout score",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/device-layout-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:device-layout-score",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-device-ui",
-      "title": "Generated report freshness: device UI dry audit",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/device-ui-dry-audit.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:device-ui",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-event-catalog",
-      "title": "Generated report freshness: event catalog",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/event-catalog-telemetry.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "missing",
-      "evidenceReason": "Source artifact is missing from the Debug source chain.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:event-catalog-telemetry",
-      "refreshCommand": ""
-    },
-    {
-      "id": "debug-panel-report-google-cost",
-      "title": "Generated report freshness: Google cost",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/google-cost-bleed.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:google-cost",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-gumdrop-economy",
-      "title": "Generated report freshness: GumDrop economy",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/gumdrop-economy.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "missing",
-      "evidenceReason": "Source artifact is missing from the Debug source chain.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:gumdrop-economy",
-      "refreshCommand": ""
-    },
-    {
-      "id": "debug-panel-report-hydration",
-      "title": "Generated report freshness: hydration performance",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/hydration-performance.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:hydration-performance",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-orphaned-logic",
-      "title": "Generated report freshness: orphaned logic",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/orphaned-logic-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:orphaned-logic",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-precatch-runtime",
-      "title": "Generated report freshness: precatch runtime issues",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/precatch-runtime-issues.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run precheck:runtime-issues",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
+      "refreshCommand": "npm run check:user-facing-feature-connection-audit",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-check-user-facing-feature-connection-audit-when-this-stale-warning-m",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-report-public-beta-score",
@@ -1349,7 +2055,12 @@
       "exactNextAction": "Run npm run score:beta when this stale warning must be refreshed.",
       "sourceMessage": "Source drift: currentHead 867d04ea8e3286532b1c6dfbcb7f2f8e31e65470 does not match repo HEAD 7d9e42b90fb20bf0672ec4b9a602f183c3050b1d.",
       "sourceValidator": "npm run check:beta-score",
-      "refreshCommand": "npm run score:beta"
+      "refreshCommand": "npm run score:beta",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-report-sitewide-image",
@@ -1365,80 +2076,12 @@
       ],
       "scoreImpact": 1,
       "sourceFiles": [
-        "agent/state/sitewide-image-optimization.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "missing",
-      "evidenceReason": "Source artifact is missing from the Debug source chain.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:sitewide-image-optimization",
-      "refreshCommand": ""
-    },
-    {
-      "id": "debug-panel-report-speed-security",
-      "title": "Generated report freshness: speed/security hardening",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/speed-security-hardening.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:speed-security",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-sql-mirror",
-      "title": "Generated report freshness: SQL mirror",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/sql-mirror-status.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:generated-report-authority",
-      "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-support-recovery",
-      "title": "Generated report freshness: support recovery",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
+        "agent/state/sitewide-image-optimization.generated.json",
+        "agent/state/content-protection.generated.json",
+        "agent/state/gumdrop-economy.generated.json",
+        "agent/state/event-catalog-telemetry.generated.json",
+        "agent/state/watch-time-rollup-truth.generated.json",
+        "agent/state/debug-evidence-pipeline.generated.json",
         "agent/state/support-recovery-flows.generated.json"
       ],
       "sourceRoute": "/admin/debug",
@@ -1446,57 +2089,20 @@
       "evidenceReason": "Source artifact is missing from the Debug source chain.",
       "exactNextAction": "Keep missing state visible until an owning generator is identified.",
       "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:support-recovery-flows",
-      "refreshCommand": ""
-    },
-    {
-      "id": "debug-panel-report-telemetry-parity",
-      "title": "Generated report freshness: telemetry parity",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "stale_retired",
-      "fixClass": "stale_retire",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/telemetry-parity-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Generated report is older than the 24 hour freshness window.",
-      "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Generated report is older than the 24 hour freshness window.",
-      "sourceValidator": "npm run check:telemetry-parity-score",
+      "sourceValidator": "npm run check:sitewide-image-optimization",
       "refreshCommand": "",
-      "staleRetireReason": "Debug panel item is stale without an owner refresh command."
-    },
-    {
-      "id": "debug-panel-report-watch-time-truth",
-      "title": "Generated report freshness: watch-time truth",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p2",
-      "source": "debug_panel",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/watch-time-rollup-truth.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "missing",
-      "evidenceReason": "Source artifact is missing from the Debug source chain.",
-      "exactNextAction": "Keep missing state visible until an owning generator is identified.",
-      "sourceMessage": "Source artifact is missing from the Debug source chain.",
-      "sourceValidator": "npm run check:watch-time-rollup-truth",
-      "refreshCommand": ""
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|keep-missing-state-visible-until-an-owning-generator-is-identified-",
+      "duplicateChildren": [
+        "debug-panel-report-content-protection",
+        "debug-panel-report-gumdrop-economy",
+        "debug-panel-report-event-catalog",
+        "debug-panel-report-watch-time-truth",
+        "debug-panel-report-debug-evidence",
+        "debug-panel-report-support-recovery"
+      ]
     },
     {
       "id": "debug-panel-system-health",
@@ -1520,7 +2126,12 @@
       "exactNextAction": "Run npm run check:admin-truth if that command owns the missing artifact; otherwise keep the Debug state missing.",
       "sourceMessage": "Source artifact is missing from the Debug source chain.",
       "sourceValidator": "npm run check:admin-truth",
-      "refreshCommand": "npm run check:admin-truth"
+      "refreshCommand": "npm run check:admin-truth",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|run-npm-run-check-admin-truth-if-that-command-owns-the-missing-artifact-otherwis",
+      "duplicateChildren": []
     },
     {
       "id": "debug-panel-targeted-behavior-evidence",
@@ -1544,7 +2155,12 @@
       "exactNextAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate.",
       "sourceMessage": "Targeted behavior evidence only proves focused validators; it does not prove visual/provider/runtime/admin sample evidence.",
       "sourceValidator": "npm run check:targeted-behavior-evidence",
-      "refreshCommand": "npm run check:targeted-behavior-evidence"
+      "refreshCommand": "npm run check:targeted-behavior-evidence",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-targeted-behavior-as-one-gate-only-keep-visual-provider-runtime-and-admin-sa",
+      "duplicateChildren": []
     },
     {
       "id": "score-drag-regressionriskscore",
@@ -1567,76 +2183,12 @@
       "evidenceReason": "Recent high-blast source changes keep regression risk from reaching zero.",
       "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceMessage": "Recent high-blast source changes keep regression risk from reaching zero.",
-      "sourceValidator": "npm run check:beta-score"
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-evidence-gap-map.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/beta-evidence-gap-map.generated.json"
-      ],
-      "sourceRoute": "agent/state/beta-evidence-gap-map.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "sourceMessage": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:beta-evidence-gap-map"
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/beta-evidence-lane-prep.generated.json"
-      ],
-      "sourceRoute": "agent/state/beta-evidence-lane-prep.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "sourceMessage": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-beta-freshness-language-generated-json",
-      "title": "Refresh stale artifact: agent/state/beta-freshness-language.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/beta-freshness-language.generated.json"
-      ],
-      "sourceRoute": "agent/state/beta-freshness-language.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
-      "sourceMessage": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:beta-freshness-language"
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|beta_score|beta_score|regressionRisk|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-creator-drop-status-metrics-generated-json",
@@ -1659,7 +2211,12 @@
       "evidenceReason": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
       "sourceMessage": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:creator-drop-status-metrics"
+      "refreshCommand": "npm run check:creator-drop-status-metrics",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-drop-status-metrics-was-generated-from-an-older-code-version-refresh-thi",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-creator-settings-control-plane-generated-json",
@@ -1682,7 +2239,40 @@
       "evidenceReason": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
       "sourceMessage": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:creator-settings-control-plane"
+      "refreshCommand": "npm run check:creator-settings-control-plane",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-settings-control-plane-was-generated-from-an-older-code-version-refresh-",
+      "duplicateChildren": []
+    },
+    {
+      "id": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
+      "title": "Refresh stale artifact: agent/state/current-beta-exit-status.generated.json",
+      "owner": "evidence",
+      "surface": "agent_state",
+      "severity": "p2",
+      "source": "evidence",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "freshness"
+      ],
+      "scoreImpact": 1,
+      "sourceFiles": [
+        "agent/state/current-beta-exit-status.generated.json"
+      ],
+      "sourceRoute": "agent/state/current-beta-exit-status.generated.json",
+      "evidenceStatus": "stale",
+      "evidenceReason": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "exactNextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "sourceMessage": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version.",
+      "refreshCommand": "npm run check:current-beta-exit-status",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
@@ -1705,7 +2295,12 @@
       "evidenceReason": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
       "sourceMessage": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:evidence-capture-status"
+      "refreshCommand": "npm run check:evidence-capture-status",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|evidence-capture-status-was-generated-from-an-older-code-version-refresh-this-re",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-existing-algorithm-refinement-generated-json",
@@ -1728,30 +2323,12 @@
       "evidenceReason": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
       "sourceMessage": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:existing-algorithm-refinement"
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-final-pr-stale-cleanup-generated-json",
-      "title": "Refresh stale artifact: agent/state/final-pr-stale-cleanup.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/final-pr-stale-cleanup.generated.json"
-      ],
-      "sourceRoute": "agent/state/final-pr-stale-cleanup.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
-      "sourceMessage": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:final-pr-stale-cleanup"
+      "refreshCommand": "npm run check:existing-algorithm-refinement",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|existing-algorithm-refinement-was-generated-from-an-older-code-version-refresh-t",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-final-telemetry-closure-lock-generated-json",
@@ -1774,7 +2351,12 @@
       "evidenceReason": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
       "sourceMessage": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:final-telemetry-closure-lock"
+      "refreshCommand": "npm run check:final-telemetry-closure-lock",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|telemetry-closure-lock-was-generated-from-an-older-code-version-refresh-this-rep",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-global-marquee-truncated-titles-generated-json",
@@ -1797,7 +2379,12 @@
       "evidenceReason": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
       "sourceMessage": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:global-marquee-truncated-titles"
+      "refreshCommand": "npm run check:global-marquee-truncated-titles",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|global-marquee-title-rollout-was-generated-from-an-older-code-version-refresh-th",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
@@ -1820,7 +2407,12 @@
       "evidenceReason": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
       "sourceMessage": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:mobile-ui-final-lock"
+      "refreshCommand": "npm run check:mobile-ui-final-lock",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|mobile-ui-final-lock-was-generated-from-an-older-code-version-refresh-this-repor",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
@@ -1843,30 +2435,12 @@
       "evidenceReason": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
       "sourceMessage": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:operator-revenue-smoke"
-    },
-    {
-      "id": "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json",
-      "title": "Refresh stale artifact: agent/state/overnight-final-integration-lock.generated.json",
-      "owner": "evidence",
-      "surface": "agent_state",
-      "severity": "p2",
-      "source": "evidence",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "freshness"
-      ],
-      "scoreImpact": 1,
-      "sourceFiles": [
-        "agent/state/overnight-final-integration-lock.generated.json"
-      ],
-      "sourceRoute": "agent/state/overnight-final-integration-lock.generated.json",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version.",
-      "exactNextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-      "sourceMessage": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:overnight-final-integration-lock"
+      "refreshCommand": "npm run check:operator-revenue-smoke",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|operator-revenue-smoke-was-generated-from-an-older-code-version-refresh-this-rep",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-overnight-wiring-integrity-generated-json",
@@ -1889,7 +2463,12 @@
       "evidenceReason": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
       "sourceMessage": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:overnight-wiring-integrity"
+      "refreshCommand": "npm run check:overnight-wiring-integrity",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-wiring-integrity-was-generated-from-an-older-code-version-refresh-this",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-source-truth-authority-map-generated-json",
@@ -1912,7 +2491,12 @@
       "evidenceReason": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
       "sourceMessage": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:source-truth-authority-map"
+      "refreshCommand": "npm run check:source-truth-authority-map",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|source-truth-authority-map-was-generated-from-an-older-code-version-refresh-this",
+      "duplicateChildren": []
     },
     {
       "id": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
@@ -1935,7 +2519,12 @@
       "evidenceReason": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
       "exactNextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
       "sourceMessage": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version.",
-      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
+      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|user-loading-and-wallet-mobile-refinement-was-generated-from-an-older-code-versi",
+      "duplicateChildren": []
     },
     {
       "id": "score-drag-sourcehealthscore",
@@ -1958,7 +2547,12 @@
       "evidenceReason": "Source health is affected by failed or stale implemented source validators.",
       "exactNextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "sourceMessage": "Source health is affected by failed or stale implemented source validators.",
-      "sourceValidator": "npm run check:beta-score"
+      "sourceValidator": "npm run check:beta-score",
+      "actionability": "evidence_required",
+      "estimatedPointImpact": 0,
+      "defaultVisible": true,
+      "dedupeKey": "evidence_required|beta_score|beta_score|sourceHealth|work-the-score-dimension-owner-lane-and-refresh-score-80-path-lock-",
+      "duplicateChildren": []
     }
   ],
   "fixedThisPass": [

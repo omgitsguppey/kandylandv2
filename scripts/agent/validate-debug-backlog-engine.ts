@@ -7,6 +7,7 @@ import {
   summarizeDebugBacklog,
   validateDebugBacklog,
 } from "../../src/lib/debug/debug-backlog-builder";
+import { scoreDebugSignalActionability } from "../../src/lib/debug/debug-signal-actionability";
 import type { DebugBacklogItem } from "../../src/lib/debug/debug-backlog-contract";
 
 const root = process.cwd();
@@ -110,6 +111,21 @@ function buildReport() {
     publicBetaStatus: publicBeta?.overallStatus ?? publicBeta?.status ?? "unknown",
     readinessStatus: publicBeta?.readinessStatus ?? "unknown",
     summary: summarizeDebugBacklog(backlog),
+    actionabilitySummary: scoreDebugSignalActionability(backlog.map((item: DebugBacklogItem) => ({
+      signalId: item.id,
+      signalType: item.source,
+      severity: item.severity,
+      scoreDimensionsAffected: item.scoreDimensionImpact,
+      scoreImpact: item.scoreImpact,
+      owner: item.owner,
+      nextAction: item.exactNextAction,
+      sourceFiles: item.sourceFiles,
+      validator: item.sourceValidator,
+      sourceMessage: item.sourceMessage,
+      evidenceStatus: item.evidenceStatus,
+      fixClass: item.fixClass,
+      dedupeKey: item.dedupeKey,
+    }))),
     backlog,
     fixedThisPass: Array.isArray(debugScore?.fixedThisPass) ? debugScore.fixedThisPass : [],
     deferred: Array.isArray(debugScore?.deferred) ? debugScore.deferred : [],
@@ -124,6 +140,7 @@ function buildReport() {
 
 function validateCoverage(report: ReturnType<typeof buildReport>) {
   const failures = validateDebugBacklog(report.backlog);
+  failures.push(...report.actionabilitySummary.validationFailures);
   const debugPanel = readJson("agent/state/debug-panel-output-triage.generated.json");
   const debugItems = Array.isArray(debugPanel?.debugItems) ? debugPanel.debugItems : [];
   const activeDebugItems = debugItems.filter((item: JsonRecord) => !["live", "archive"].includes(String(item.uiTruthState ?? "").toLowerCase()));
@@ -136,6 +153,15 @@ function validateCoverage(report: ReturnType<typeof buildReport>) {
   }
 
   for (const item of report.backlog) {
+    if (!item.actionability) {
+      failures.push(`${item.id} lacks actionability.`);
+    }
+    if (item.actionability === "quiet_future_activity" && (item.defaultVisible || ["critical", "p0", "p1", "p2"].includes(item.severity))) {
+      failures.push(`${item.id} quiet future activity appears in default P1/P2 backlog.`);
+    }
+    if (item.actionability && ["fix_now", "score_impacting", "formal_gate"].includes(item.actionability) && item.scoreDimensionImpact.length > 0 && (item.estimatedPointImpact ?? 0) <= 0) {
+      failures.push(`${item.id} score-impacting signal lacks estimatedPointImpact.`);
+    }
     if (item.evidenceStatus === "unknown" && !/unknown|classif|source-backed|not deployed/i.test(item.evidenceReason)) {
       failures.push(`${item.id} unknown evidence lacks reason.`);
     }
@@ -184,6 +210,10 @@ function writeDoc(report: ReturnType<typeof buildReport>) {
     `- Source-fixable: ${report.summary.sourceFixable}`,
     `- Manual required: ${report.summary.manualRequired}`,
     `- Stale retired: ${report.summary.staleRetired}`,
+    `- Default-visible actionability signals: ${report.summary.defaultVisible}`,
+    `- Hidden-by-default actionability signals: ${report.summary.hiddenByDefault}`,
+    `- Quiet future activity: ${report.summary.quietFutureActivity}`,
+    `- Duplicate signals collapsed: ${report.summary.duplicateSignalsCollapsed}`,
     "",
     "## P0/P1 Queue",
     "",

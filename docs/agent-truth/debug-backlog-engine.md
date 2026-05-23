@@ -2,30 +2,31 @@
 
 Authority: structured source-backed backlog generated from debug panel, beta score, route diagnostics, telemetry/admin truth, cost, and evidence freshness lanes.
 
-Generated: 2026-05-23T06:57:56.010Z
-Current HEAD: a817e6e36f47ff3ecc71cd643737f18dc70558a3
-Score: 41.92 -> 63.15
+Generated: 2026-05-23T19:59:20.025Z
+Current HEAD: 1eeb1b65ff5a54ae0549e6be3550413c566289db
+Score: 41.92 -> 62.15
 Readiness: Stale evidence
 
 ## Summary
 
-- Total backlog items: 80
-- Open P0/P1 items: 19
-- Evidence refreshable: 49
-- Source-fixable: 12
+- Total backlog items: 50
+- Open P0/P1 items: 16
+- Evidence refreshable: 36
+- Source-fixable: 9
 - Manual required: 4
-- Stale retired: 15
+- Stale retired: 1
+- Default-visible actionability signals: 50
+- Hidden-by-default actionability signals: 0
+- Quiet future activity: 0
+- Duplicate signals collapsed: 0
 
 ## P0/P1 Queue
 
 - P1 beta-cap-runtime-unverified-runtime-provider-smoke-0: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
 - P1 beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
 - P1 score-drag-runtimehealthscore: Attach deployed runtime smoke evidence before treating runtime health as proven.
-- P1 stale-artifact-debug-runtime-evidence: Attach formal evidence before clearing this beta gate.
 - P1 stale-artifact-runtime-provider-smoke: Attach formal evidence before clearing this beta gate.
 - P1 score-drag-evidencecompletenessscore: Work the score dimension owner lane and refresh score-80 path lock.
-- P1 stale-artifact-admin-truth-sample-evidence: Attach formal evidence before clearing this beta gate.
-- P1 stale-artifact-visual-manual-smoke: Attach formal evidence before clearing this beta gate.
 - P1 admin-truth-formal-sample-required: Attach a redacted production admin truth sample before clearing the formal admin truth gate.
 - P1 debug-panel-admin-truth-samples: Attach a fresh first-party admin truth sample before upgrading this gate.
 - P1 debug-panel-final-launch-readiness: Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.
@@ -41,20 +42,6 @@ Readiness: Stale evidence
 ## Stale Retired
 
 - debug-panel-analytics-rewire: Debug panel item is stale without an owner refresh command.
-- debug-panel-recovery-evidence: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-cloud-cost: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-codebase-hardening: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-creator-lane: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-creator-lane-legacy: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-device-layout: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-device-ui: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-google-cost: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-hydration: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-orphaned-logic: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-precatch-runtime: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-speed-security: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-sql-mirror: Debug panel item is stale without an owner refresh command.
-- debug-panel-report-telemetry-parity: Debug panel item is stale without an owner refresh command.
 
 ## Strict Gates
 

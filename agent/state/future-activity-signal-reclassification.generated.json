@@ -1,7 +1,7 @@
 {
   "reportKey": "future-activity-signal-reclassification",
-  "generatedAtUtc": "2026-05-23T19:34:53.907Z",
-  "currentHead": "7436c77c58d8873952a130244cf8117ee99660db",
+  "generatedAtUtc": "2026-05-23T19:59:10.849Z",
+  "currentHead": "1eeb1b65ff5a54ae0549e6be3550413c566289db",
   "status": "pass",
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
@@ -10104,6 +10104,10 @@
       "classification": "still_required"
     },
     {
+      "path": "docs/agent-truth/debug-backlog-engine.md",
+      "classification": "quiet_catalog_only"
+    },
+    {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "still_required"
     },
@@ -10118,6 +10122,10 @@
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-backlog-engine.ts",
+      "classification": "quiet_catalog_only"
     },
     {
       "path": "scripts/agent/validate-event-translation-bridge.ts",
@@ -10156,6 +10164,10 @@
       "classification": "still_required"
     },
     {
+      "path": "src/lib/debug/debug-backlog-builder.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
       "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "still_required"
     },
@@ -10178,31 +10190,35 @@
   ],
   "dirtyFiles": [
     {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/debug-tracking-simplification.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/future-activity-signal-reclassification.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
+      "path": "docs/agent-truth/debug-backlog-engine.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "path": "docs/agent-truth/debug-signal-actionability.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -10210,24 +10226,56 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/future-activity-signal-reclassification.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "package.json",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-backlog-engine.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-actionability.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/debug/debug-backlog-builder.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-backlog-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-actionability.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/debug-backlog-engine.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/debug-signal-actionability.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "validationFailures": []

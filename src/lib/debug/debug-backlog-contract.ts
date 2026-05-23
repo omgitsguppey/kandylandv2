@@ -39,6 +39,17 @@ export type DebugBacklogStatus =
   | "blocked_external"
   | "stale_retired";
 
+export type DebugSignalActionability =
+  | "fix_now"
+  | "score_impacting"
+  | "evidence_required"
+  | "formal_gate"
+  | "quiet_future_activity"
+  | "informational"
+  | "duplicate"
+  | "superseded"
+  | "not_actionable";
+
 export type DebugBacklogEvidenceStatus =
   | "source_backed"
   | "formal_missing"
@@ -60,6 +71,11 @@ export type DebugBacklogItem = {
   fixClass: DebugFixClass;
   scoreDimensionImpact: ScoreDimensionImpact[];
   scoreImpact: number;
+  actionability?: DebugSignalActionability;
+  estimatedPointImpact?: number;
+  defaultVisible?: boolean;
+  dedupeKey?: string;
+  duplicateChildren?: string[];
   sourceFiles: string[];
   sourceRoute: string;
   evidenceStatus: DebugBacklogEvidenceStatus;
@@ -88,4 +104,11 @@ export type DebugBacklogSummary = {
   evidenceRefreshable: number;
   manualRequired: number;
   p0P1Open: number;
+  defaultVisible: number;
+  hiddenByDefault: number;
+  quietFutureActivity: number;
+  duplicateSignalsCollapsed: number;
+  formalGates: number;
+  scoreImpacting: number;
+  byActionability: Record<DebugSignalActionability, number>;
 };
