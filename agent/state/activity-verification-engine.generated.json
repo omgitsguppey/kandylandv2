@@ -1,7 +1,7 @@
 {
   "reportKey": "activity-verification-engine",
-  "generatedAtUtc": "2026-05-21T19:31:11.704Z",
-  "currentHead": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+  "generatedAtUtc": "2026-05-23T04:19:21.124Z",
+  "currentHead": "f49a143750581716ed2be20a8ac2c0097f1d5e21",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -32,7 +32,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "user_dashboard",
@@ -48,7 +48,7 @@
       "verificationStatus": "verified_by_activity",
       "confidenceScore": 86,
       "evidence": [
-        "telemetryEvents=81",
+        "telemetryEvents=86",
         "materializerLanes=3",
         "debugVisible=true",
         "consentMode=full_behavioral",
@@ -100,7 +100,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "creator_dashboard",
@@ -116,13 +116,13 @@
       "verificationStatus": "source_ready_no_activity",
       "confidenceScore": 58,
       "evidence": [
-        "telemetryEvents=25",
+        "telemetryEvents=27",
         "materializerLanes=4",
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "creator_settings",
@@ -138,13 +138,13 @@
       "verificationStatus": "source_ready_no_activity",
       "confidenceScore": 58,
       "evidence": [
-        "telemetryEvents=9",
+        "telemetryEvents=11",
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "creator_drop_manager",
@@ -166,7 +166,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "creator_profile",
@@ -211,7 +211,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "fan_pass",
@@ -233,7 +233,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "admin_debug",
@@ -255,7 +255,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "analytics_telemetry",
@@ -271,7 +271,7 @@
       "verificationStatus": "verified_by_activity",
       "confidenceScore": 86,
       "evidence": [
-        "telemetryEvents=131",
+        "telemetryEvents=144",
         "materializerLanes=5",
         "debugVisible=true",
         "consentMode=full_behavioral",
@@ -294,7 +294,7 @@
       "verificationStatus": "verified_by_activity",
       "confidenceScore": 86,
       "evidence": [
-        "telemetryEvents=92",
+        "telemetryEvents=104",
         "materializerLanes=2",
         "debugVisible=true",
         "consentMode=full_behavioral",
@@ -317,7 +317,7 @@
       "verificationStatus": "verified_by_activity",
       "confidenceScore": 86,
       "evidence": [
-        "telemetryEvents=136",
+        "telemetryEvents=142",
         "materializerLanes=4",
         "debugVisible=true",
         "consentMode=full_behavioral",
@@ -342,13 +342,13 @@
       "verificationStatus": "source_ready_no_activity",
       "confidenceScore": 58,
       "evidence": [
-        "telemetryEvents=110",
+        "telemetryEvents=111",
         "materializerLanes=3",
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "daily_checkin",
@@ -370,7 +370,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "notifications",
@@ -392,7 +392,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "auth_identity",
@@ -408,13 +408,13 @@
       "verificationStatus": "source_ready_no_activity",
       "confidenceScore": 58,
       "evidence": [
-        "telemetryEvents=44",
+        "telemetryEvents=51",
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "support",
@@ -436,7 +436,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "security",
@@ -458,7 +458,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     },
     {
       "featureId": "search_discovery",
@@ -480,7 +480,7 @@
         "consentMode=full_behavioral",
         "activityEvents=0"
       ],
-      "nextAction": "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+      "nextAction": "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
     }
   ],
   "debugBacklogItems": [],
@@ -496,17 +496,12 @@
   "validationFailures": [],
   "changedFiles": [
     "agent/context/optimized-task-context.generated.json",
-    "agent/state/behavioral-extensibility-layer.generated.json",
-    "agent/state/consent-tracking-contract.generated.json",
-    "agent/state/cookie-banner-settings-sync.generated.json",
-    "agent/state/feature-registration-gate.generated.json",
-    "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
-    "agent/state/identity-handoff-refinement.generated.json",
-    "agent/state/privacy-behavior-legacy-recovery.generated.json",
-    "docs/agent-truth/final-behavioral-privacy-telemetry-lock.md",
-    "docs/agent-truth/identity-handoff-refinement.md",
-    "docs/agent-truth/privacy-behavior-legacy-recovery.md",
-    "package.json"
+    "package.json",
+    "src/app/api/admin/debug/route.ts",
+    "src/lib/analytics/activity-verification-engine.ts",
+    "src/lib/debug/debug-panel-tracking-summary.ts",
+    "src/lib/server/admin-debug/summary.ts",
+    "tests/unit/debug-tracking-simplification.spec.ts"
   ],
   "protectedChanges": []
 }

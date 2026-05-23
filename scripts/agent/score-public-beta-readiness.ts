@@ -50,6 +50,7 @@ const REAL_USAGE_CONFIDENCE_PATH = "agent/state/real-usage-confidence.generated.
 const REAL_USAGE_CONFIDENCE_CALIBRATION_PATH = "agent/state/real-usage-confidence-calibration.generated.json";
 const BEHAVIOR_MATH_VERIFICATION_PATH = "agent/state/behavior-math-verification.generated.json";
 const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generated.json";
+const EVENT_TRANSLATION_BRIDGE_PATH = "agent/state/event-translation-bridge.generated.json";
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const ADMIN_TRUTH_SOURCE_SAMPLE_PATH = "agent/state/admin-truth-source-sample.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
@@ -534,6 +535,58 @@ function readDebugRuntimeEvidence(root: string): PublicBetaEvidenceArtifact {
   );
 }
 
+function readEventTranslationBridgeEvidence(root: string): PublicBetaEvidenceArtifact | null {
+  const parsed = readJsonFile(root, EVENT_TRANSLATION_BRIDGE_PATH);
+  if (!parsed) return null;
+
+  const summary = readRecord(parsed.summary);
+  const readSummaryNumber = (key: string) => readNumber(summary[key]) ?? readNumber(parsed[key]) ?? 0;
+  const formalGateImpact = readRecord(parsed.formalGateImpact);
+  const status = readString(parsed.status) ?? "missing_or_unknown";
+  const gapCount = readSummaryNumber("gapCount");
+  const sourceReady = status === "pass"
+    && gapCount === 0
+    && readBoolean(parsed.productionReadsRequired) === false
+    && readBoolean(parsed.legacyMutationAllowed) === false
+    && readBoolean(parsed.fakeActivityUsed) === false
+    && readBoolean(formalGateImpact.clearsFormalProvider) === false
+    && readBoolean(formalGateImpact.clearsDeployedRuntime) === false
+    && readBoolean(formalGateImpact.clearsFormalAdminTruth) === false;
+
+  return {
+    path: EVENT_TRANSLATION_BRIDGE_PATH,
+    status: sourceReady ? "source_ready_event_translation_bridge" : status,
+    passed: false,
+    detail: sourceReady
+      ? "Event translation bridge is source-ready for raw events, envelopes, feature activity, person metrics, debug evidence, and score inputs without clearing deployed runtime proof."
+      : "Event translation bridge evidence is missing required source-ready guardrails.",
+    evidence: [
+      `eventTranslationBridge.status=${status}`,
+      `eventTranslationBridge.producersRegistered=${readSummaryNumber("producersRegistered")}`,
+      `eventTranslationBridge.producersConnected=${readSummaryNumber("producersConnected")}`,
+      `eventTranslationBridge.eventEnvelopesTranslated=${readSummaryNumber("eventEnvelopesTranslated")}`,
+      `eventTranslationBridge.materializersMapped=${readSummaryNumber("materializersMapped")}`,
+      `eventTranslationBridge.personMetricsMapped=${readSummaryNumber("personMetricsMapped")}`,
+      `eventTranslationBridge.gapCount=${gapCount}`,
+      "launchGateImpact=does_not_clear_deployed_runtime_smoke",
+      `eventTranslationBridge.clearsFormalProvider=${readBoolean(formalGateImpact.clearsFormalProvider) === true}`,
+      `eventTranslationBridge.clearsDeployedRuntime=${readBoolean(formalGateImpact.clearsDeployedRuntime) === true}`,
+      `eventTranslationBridge.clearsFormalAdminTruth=${readBoolean(formalGateImpact.clearsFormalAdminTruth) === true}`,
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
+}
+
+function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvidenceArtifact {
+  const debugRuntime = readDebugRuntimeEvidence(root);
+  const currentHead = readGitHead(root);
+  const debugSourceReady = String(debugRuntime.status).includes("source_ready")
+    && (!debugRuntime.sourceCommit || !currentHead || debugRuntime.sourceCommit === currentHead);
+  if (debugSourceReady) return debugRuntime;
+  return readEventTranslationBridgeEvidence(root) ?? debugRuntime;
+}
+
 function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
   const inspected: string[] = [];
   let structuredMissingArtifact: PublicBetaEvidenceArtifact | undefined;
@@ -613,7 +666,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
     debugEvidence,
     evidence: {
       requiredReports: collectGeneratedReportEvidence(root),
-      debugRuntimeEvidenceArtifact: readDebugRuntimeEvidence(root),
+      debugRuntimeEvidenceArtifact: readDebugRuntimeOrEventTranslationEvidence(root),
       runtimeSmokeSubstituteMatrixEvidence: readRuntimeSmokeSubstituteMatrixEvidence(root),
       targetedBehaviorEvidence: readTargetedBehaviorEvidence(root),
       sourceBackedRuntimeConfidenceEvidence: readSourceBackedRuntimeConfidenceEvidence(root),

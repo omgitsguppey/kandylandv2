@@ -10,6 +10,17 @@ describe("debug tracking simplification", () => {
     const summary = buildDebugPanelTrackingSummary({
       identityHandoff: { status: "live", duplicateCountGuardActive: true },
       eventEnvelope: { status: "live", missingEnvelopeFieldsByFeature: [] },
+      eventTranslationBridge: {
+        status: "pass",
+        debugLane: {
+          producersRegistered: 160,
+          producersConnected: 160,
+          eventEnvelopesTranslated: 160,
+          materializersMapped: 160,
+          personMetricsMapped: 22,
+          gaps: 0,
+        },
+      },
       legacyRecovery: { status: "ready_for_dry_run_review", mutationsAllowed: false },
       telemetryHealth: {
         summary: { degraded: 1, runtimeUnproven: 1, unavailable: 0 },
@@ -29,6 +40,12 @@ describe("debug tracking simplification", () => {
     expect(summary.lanes.map((lane) => lane.id).sort()).toEqual([...DEBUG_TRACKING_SUMMARY_LANE_IDS].sort());
     expect(new Set(summary.lanes.map((lane) => lane.trackingSystem)).size).toBe(summary.lanes.length);
     expect(summary.lanes.every((lane) => lane.sourceOwner && lane.sourceOfTruth && lane.drilldownTarget)).toBe(true);
+    expect(summary.lanes.find((lane) => lane.id === "event_translation_bridge")).toMatchObject({
+      label: "Event translation bridge",
+      status: "live",
+      criticalCount: 0,
+      warningCount: 0,
+    });
   });
 
   it("sorts critical tracking lanes first without hiding p1 or p2 backlog", () => {
@@ -59,6 +76,17 @@ describe("debug tracking simplification", () => {
     const summary = buildDebugPanelTrackingSummary({
       identityHandoff: { status: "degraded" },
       eventEnvelope: { status: "degraded", missingEnvelopeFieldsByFeature: [{ featureId: "x", missingFields: ["consentMode"] }] },
+      eventTranslationBridge: {
+        status: "fail",
+        debugLane: {
+          producersRegistered: 10,
+          producersConnected: 8,
+          eventEnvelopesTranslated: 9,
+          materializersMapped: 8,
+          personMetricsMapped: 4,
+          gaps: 2,
+        },
+      },
       legacyRecovery: { status: "ready_for_dry_run_review" },
       telemetryHealth: { summary: { degraded: 3, runtimeUnproven: 0, unavailable: 1 }, lanes: [{ id: "a" }] },
       behavioralSnapshotStatus: { status: "stale" },
@@ -73,6 +101,7 @@ describe("debug tracking simplification", () => {
       "identity",
       "consent",
       "event_envelope",
+      "event_translation_bridge",
       "behavior_math",
       "feature_coverage",
       "settings",

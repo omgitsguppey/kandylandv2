@@ -7,6 +7,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
   "consent_tracking_mode",
   "event_envelope",
+  "event_translation_bridge",
   "behavior_math",
   "feature_telemetry_coverage",
   "settings_health",
@@ -57,6 +58,7 @@ const TRACKING_GROUPS = [
   "identity",
   "consent",
   "event_envelope",
+  "event_translation_bridge",
   "behavior_math",
   "feature_coverage",
   "settings",
@@ -111,6 +113,15 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     ? input.eventEnvelope.missingEnvelopeFieldsByFeature.length
     : 0;
   const eventStatus = eventMissingCount > 0 ? "degraded" : toStatus(input.eventEnvelope?.status);
+  const eventBridge = input.eventTranslationBridge?.debugLane ?? {};
+  const eventBridgeGaps = toNumber(eventBridge.gaps);
+  const eventBridgeTranslated = toNumber(eventBridge.eventEnvelopesTranslated);
+  const eventBridgeConnected = toNumber(eventBridge.producersConnected);
+  const eventBridgeStatus = eventBridgeGaps > 0
+    ? "degraded"
+    : eventBridgeTranslated > 0 || eventBridgeConnected > 0
+      ? "live"
+      : toStatus(input.eventTranslationBridge?.status);
   const telemetrySummary = input.telemetryHealth?.summary ?? {};
   const featureWarnings = toNumber(telemetrySummary.degraded) + toNumber(telemetrySummary.runtimeUnproven);
   const featureCritical = toNumber(telemetrySummary.unavailable) + toNumber(telemetrySummary.configMissing);
@@ -172,6 +183,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: eventMissingCount,
       drilldownTarget: "/admin/debug?tab=advanced#event-envelope",
+    }),
+    makeLane({
+      id: "event_translation_bridge",
+      label: "Event translation bridge",
+      trackingSystem: "event_translation_bridge",
+      sourceOwner: "analytics",
+      sourceOfTruth: "src/lib/analytics/event-translation-bridge.ts",
+      status: eventBridgeStatus,
+      severity: severityFromCounts(0, eventBridgeGaps, eventBridgeStatus),
+      scoreImpact: "high",
+      primarySignal: `Producers ${eventBridgeConnected}/${toNumber(eventBridge.producersRegistered)} connected; envelopes=${eventBridgeTranslated}; materializers=${toNumber(eventBridge.materializersMapped)}; person metrics=${toNumber(eventBridge.personMetricsMapped)}; gaps=${eventBridgeGaps}.`,
+      criticalCount: 0,
+      warningCount: eventBridgeGaps,
+      drilldownTarget: "/admin/debug?tab=advanced#event-translation-bridge",
     }),
     makeLane({
       id: "behavior_math",

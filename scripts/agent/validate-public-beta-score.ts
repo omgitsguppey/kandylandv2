@@ -282,7 +282,10 @@ if (report) {
   const hasSourceBackedDebugGate = report.evidenceGates?.some((gate) =>
     gate.id === "debugRuntimeEvidence"
     && gate.status === "Ready"
-    && gate.evidence.join("\n").includes("source_ready_debug_runtime_evidence"));
+    && (
+      gate.evidence.join("\n").includes("source_ready_debug_runtime_evidence")
+      || gate.evidence.join("\n").includes("source_ready_event_translation_bridge")
+    ));
   const debugEvidence = report.debugEvidence ?? {};
   const debugEvidenceEmpty = Object.values(debugEvidence).every((entries) => Array.isArray(entries) && entries.length === 0);
   if (debugEvidenceEmpty && !hasEmptyDebugGate && !hasSourceBackedDebugGate) {

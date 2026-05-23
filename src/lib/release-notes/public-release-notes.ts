@@ -1,13 +1,77 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.91",
-  "betaReleaseCounter": 391,
+  "currentVersion": "1.3.92",
+  "betaReleaseCounter": 392,
   "channel": "beta",
-  "generatedAt": "2026-05-23T02:50:00.000Z",
-  "generatedAtUtc": "2026-05-23T02:50:00.000Z",
+  "generatedAt": "2026-05-23T04:25:13.808Z",
+  "generatedAtUtc": "2026-05-23T04:25:13.808Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.92",
+      "previousVersion": "1.3.91",
+      "betaReleaseCounter": 392,
+      "previousBetaReleaseCounter": 391,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): bridge event translation",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T04:25:13.808Z",
+      "generatedAt": "2026-05-23T04:25:13.808Z",
+      "committedAtUtc": "2026-05-23T04:25:13.808Z",
+      "generatedAtUtc": "2026-05-23T04:25:13.808Z",
+      "updatedAtUtc": "2026-05-23T04:25:13.808Z",
+      "category": "Improved",
+      "title": "Event translation bridge reliability",
+      "summary": "Connected tracked events to feature activity, person metrics, debug evidence, and score inputs.",
+      "userFacingTitle": "Event translation bridge reliability",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Connected tracked events to feature activity, person metrics, debug evidence, and score inputs.",
+        "Reduced false waiting-on-activity states.",
+        "Cleaned stale event translation logic."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the source-level event translation bridge and validator covering raw events, envelopes, feature activity, person metrics, debug evidence, and score dimensions."
+      ],
+      "affectedSurfaces": [
+        "Analytics",
+        "Admin debug",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/activity-verification-engine.generated.json",
+        "agent/state/debug-tracking-simplification.generated.json",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/gumdrop-economy-accuracy.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/debug-tracking-simplification.md",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/evidence-capture-status.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-event-translation-bridge.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/analytics/activity-verification-engine.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "tests/unit/debug-tracking-simplification.spec.ts",
+        "tests/unit/event-translation-bridge.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.91",
       "previousVersion": "1.3.90",
@@ -1396,65 +1460,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/final-behavioral-privacy-telemetry-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.67",
-      "previousVersion": "1.3.66",
-      "betaReleaseCounter": 367,
-      "previousBetaReleaseCounter": 366,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(privacy): recover legacy behavior states",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T15:54:29.832Z",
-      "generatedAt": "2026-05-21T15:54:29.832Z",
-      "committedAtUtc": "2026-05-21T15:54:29.832Z",
-      "generatedAtUtc": "2026-05-21T15:54:29.832Z",
-      "updatedAtUtc": "2026-05-21T15:54:29.832Z",
-      "category": "Improved",
-      "title": "Legacy privacy behavior recovery",
-      "summary": "Added dry-run recovery for legacy privacy and behavior records while keeping unknown consent and orphaned data out of current truth.",
-      "userFacingTitle": "Legacy privacy behavior recovery",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Added dry-run recovery for legacy privacy and behavior records.",
-        "Kept unknown legacy consent from becoming full behavioral tracking.",
-        "Mapped orphaned behavior data without mutating production."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a dry-run legacy privacy behavior mapper, admin debug report registration, deterministic validator, generated report, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "Privacy & security",
-        "Telemetry",
-        "Admin Debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/behavior-math-verification.generated.json",
-        "agent/state/identity-handoff-refinement.generated.json",
-        "agent/state/march-first-legacy-normalization.generated.json",
-        "agent/state/privacy-behavior-legacy-recovery.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/identity-handoff-refinement.md",
-        "docs/agent-truth/march-first-legacy-normalization.md",
-        "docs/agent-truth/privacy-behavior-legacy-recovery.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-privacy-behavior-legacy-recovery.ts",
-        "src/lib/admin-debug-control-tower.ts",
-        "src/lib/legacy/legacy-normalization-contract.ts",
-        "src/lib/legacy/privacy-behavior-legacy-recovery.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/privacy-behavior-legacy-recovery.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

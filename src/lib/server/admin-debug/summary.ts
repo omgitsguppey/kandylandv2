@@ -7,6 +7,7 @@ import { getBehavioralSnapshotStatus } from "@/lib/server/behavioral-intelligenc
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
+import { buildEventTranslationBridgeReport } from "@/lib/analytics/event-translation-bridge";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
 import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
@@ -154,10 +155,14 @@ export async function buildAdminDebugSummaryPayload(input: {
   };
   const identityHandoff = buildIdentityHandoffDebugSummary();
   const eventEnvelope = buildEventEnvelopeDebugSummary();
+  const eventTranslationBridge = buildEventTranslationBridgeReport({
+    generatedAtUtc: new Date(nowMs).toISOString(),
+  });
   const legacyRecovery = buildLegacyRecoveryDebugSummary();
   const trackingSummary = buildDebugPanelTrackingSummary({
     identityHandoff,
     eventEnvelope,
+    eventTranslationBridge,
     legacyRecovery,
     telemetryHealth,
     behavioralSnapshotStatus,
@@ -185,6 +190,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     telemetryHealth,
     identityHandoff,
     eventEnvelope,
+    eventTranslationBridge,
     legacyRecovery,
     trackingSummary,
     costControls,

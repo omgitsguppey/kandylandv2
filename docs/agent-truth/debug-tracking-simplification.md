@@ -1,8 +1,8 @@
 # Debug Tracking Simplification
 
-Generated: 2026-05-23T02:29:34.116Z
+Generated: 2026-05-23T04:31:31.505Z
 Status: pass
-Current head: 002ddfd5d2b36ce35f61306aa47f7dab41f101ab
+Current head: f49a143750581716ed2be20a8ac2c0097f1d5e21
 
 ## Contract
 
@@ -32,29 +32,35 @@ Current head: 002ddfd5d2b36ce35f61306aa47f7dab41f101ab
 
 ## Changed Files
 
-- agent/context/validator-authority.json
-- agent/context/validator-map.json
-- agent/state/debug-tracking-simplification.generated.json
+- CHANGELOG.md
+- agent/context/optimized-task-context.generated.json
+- agent/state/activity-verification-engine.generated.json
+- agent/state/creator-experience-simplification.generated.json
+- agent/state/event-envelope-normalization.generated.json
+- agent/state/event-translation-bridge.generated.json
+- agent/state/evidence-capture-status.generated.json
+- agent/state/feature-registration-gate.generated.json
+- agent/state/gumdrop-economy-accuracy.generated.json
+- agent/state/person-metrics-contract.generated.json
 - agent/state/public-beta-score.generated.json
-- agent/state/settings-connection-parity.generated.json
-- agent/state/settings-debug-validator-authority.generated.json
-- agent/state/stale-client-preferences-cleanup.generated.json
-- docs/agent-truth/debug-tracking-simplification.md
-- docs/agent-truth/settings-connection-parity.md
-- docs/agent-truth/settings-debug-validator-authority.md
-- docs/agent-truth/stale-client-preferences-cleanup.md
+- docs/agent-truth/event-envelope-normalization.md
+- docs/agent-truth/event-translation-bridge.md
+- docs/agent-truth/evidence-capture-status.md
+- docs/agent-truth/feature-registration-gate.md
+- docs/agent-truth/person-metrics-contract.md
 - package.json
-- scripts/agent/validate-settings-connection-parity.ts
-- scripts/agent/validate-settings-debug-validator-authority.ts
-- scripts/agent/validate-stale-client-preferences-cleanup.ts
+- public/kandydrops-release-notes.json
+- scripts/agent/score-public-beta-readiness.ts
+- scripts/agent/validate-event-translation-bridge.ts
+- src/app/api/admin/debug/route.ts
+- src/lib/analytics/activity-verification-engine.ts
+- src/lib/analytics/event-translation-bridge.ts
 - src/lib/debug/debug-panel-tracking-summary.ts
-- src/lib/debug/settings-debug-validator-authority.ts
-- src/lib/settings/client-preferences-contract.ts
-- src/lib/settings/settings-surface-contract.ts
+- src/lib/release-notes/public-release-notes.ts
+- src/lib/release-notes/release-version-contract.ts
+- src/lib/server/admin-debug/summary.ts
 - tests/unit/debug-tracking-simplification.spec.ts
-- tests/unit/settings-connection-parity.spec.ts
-- tests/unit/settings-debug-validator-authority.spec.ts
-- tests/unit/stale-client-preferences-cleanup.spec.ts
+- tests/unit/event-translation-bridge.spec.ts
 
 ## Validation Failures
 

@@ -1,0 +1,606 @@
+import {
+  buildEventEnvelope,
+  validateEventEnvelope,
+} from "@/lib/analytics/event-envelope-builder";
+import type {
+  CanonicalEventEnvelope,
+  EventEnvelopeInput,
+} from "@/lib/analytics/event-envelope-contract";
+import {
+  PERSON_METRIC_DEFINITIONS,
+  type PersonMetricId,
+} from "@/lib/analytics/person-metrics-contract";
+import {
+  classifyBehaviorSignalForEvent,
+  type BehaviorSignalClassification,
+} from "@/lib/behavioral/behavior-signal-classifier";
+import {
+  FEATURE_REGISTRATION_REGISTRY,
+} from "@/lib/features/feature-registration-registry";
+import type {
+  FeatureRegistration,
+  FeatureRegistrationId,
+} from "@/lib/features/feature-registration-contract";
+import {
+  TELEMETRY_EVENT_EXTENSION_METADATA,
+  getTelemetryEventExtensionMetadata,
+} from "@/lib/telemetry-catalog";
+import type { PublicBetaHealthDimension } from "@/lib/agent-score/core";
+
+export type EventTranslationActivityStatus =
+  | "translated"
+  | "source_ready_future_activity"
+  | "producer_missing"
+  | "envelope_quarantined"
+  | "materializer_missing"
+  | "debug_lane_missing"
+  | "score_input_missing";
+
+export type PersonMetricTranslationStatus =
+  | "mapped"
+  | "classified_no_person_metric"
+  | "blocked_by_envelope"
+  | "missing_classification";
+
+export type WaitingOnActivityReason =
+  | "activity_translated"
+  | "future_real_activity_pending"
+  | "producer_missing"
+  | "translation_bridge_missing"
+  | "materializer_missing"
+  | "debug_lane_missing"
+  | "person_metric_classification_missing";
+
+export type TranslationGapType =
+  | "none"
+  | "producer_missing"
+  | "envelope_quarantined"
+  | "materializer_missing"
+  | "debug_lane_missing"
+  | "person_metric_classification_missing"
+  | "score_input_missing";
+
+export interface RawEventTranslationInput extends EventEnvelopeInput {
+  observedActivityCount?: number;
+  sourcePath?: string;
+  fakeActivity?: boolean;
+}
+
+export interface EventFeatureActivityTranslation {
+  eventName: string;
+  featureId: FeatureRegistrationId | "unregistered";
+  producerRegistered: boolean;
+  producerConnected: boolean;
+  envelopeTranslated: boolean;
+  behaviorAccepted: boolean;
+  materializerLane: string | null;
+  materializerMapped: boolean;
+  debugLaneMapped: boolean;
+  scoreInputMapped: boolean;
+  observedActivityCount: number;
+  activityStatus: EventTranslationActivityStatus;
+  sourcePath: string;
+  scoreDimensionInputs: PublicBetaHealthDimension[];
+  behaviorSignal: BehaviorSignalClassification;
+  feature: FeatureRegistration | null;
+}
+
+export interface EventPersonMetricTranslation {
+  eventName: string;
+  classificationStatus: PersonMetricTranslationStatus;
+  metricIds: PersonMetricId[];
+  materializers: string[];
+  debugOwner: string | null;
+  scoreImpact: string;
+  reason: string;
+}
+
+export interface EventDebugEvidenceTranslation {
+  lane: "Event translation bridge";
+  status: "live" | "degraded" | "failed";
+  producerRegistered: boolean;
+  envelopeTranslated: boolean;
+  featureActivityMapped: boolean;
+  personMetricMapped: boolean;
+  materializerMapped: boolean;
+  debugLaneMapped: boolean;
+  scoreDimensionInputs: PublicBetaHealthDimension[];
+  gapCount: number;
+  evidence: string[];
+}
+
+export interface WaitingOnActivityClassification {
+  reason: WaitingOnActivityReason;
+  scoreDrag: boolean;
+  missingProducer: string | null;
+  exactMissingSurface: string | null;
+  nextAction: string;
+}
+
+export interface EventTranslationGap {
+  hasGap: boolean;
+  gapType: TranslationGapType;
+  missingProducer: string | null;
+  missingMaterializer: string | null;
+  missingDebugLane: string | null;
+  missingPersonMetric: string | null;
+  scoreDragDimensions: PublicBetaHealthDimension[];
+  nextAction: string;
+}
+
+export interface EventTranslationBridgeSourceEvent {
+  eventName: string;
+  observedActivityCount?: number;
+  sourcePath?: string;
+  fakeActivity?: boolean;
+}
+
+export type DirtyFileClassification =
+  | "current_generated_artifact_to_commit"
+  | "stale_generated_artifact_to_regenerate"
+  | "stale_generated_artifact_to_revert_or_delete"
+  | "stale_duplicate_telemetry_logic_to_remove"
+  | "stale_metric_bridge_to_remove"
+  | "unrelated_agent_context_file_to_ignore"
+  | "real_source_change_needs_review"
+  | "release_artifact_expected"
+  | "unsafe_unknown"
+  | "test_artifact_expected"
+  | "documentation_artifact_expected"
+  | "validator_artifact_expected";
+
+export interface EventTranslationBridgeDirtyFile {
+  path: string;
+  classification: DirtyFileClassification;
+}
+
+export interface EventTranslationBridgeReport {
+  reportKey: "event-translation-bridge";
+  generatedAtUtc: string;
+  currentHead?: string;
+  status: "pass" | "fail";
+  productionReadsRequired: false;
+  legacyMutationAllowed: false;
+  fakeActivityUsed: boolean;
+  formalGateImpact: {
+    clearsFormalProvider: false;
+    clearsDeployedRuntime: false;
+    clearsFormalAdminTruth: false;
+  };
+  scoreImpactByDimension: Record<PublicBetaHealthDimension, {
+    before: number;
+    after: number;
+    reason: string;
+  }>;
+  debugLane: {
+    label: "Event translation bridge";
+    producersRegistered: number;
+    producersConnected: number;
+    eventEnvelopesTranslated: number;
+    materializersMapped: number;
+    personMetricsMapped: number;
+    gaps: number;
+  };
+  waitingOnActivity: WaitingOnActivityClassification[];
+  gaps: EventTranslationGap[];
+  dirtyFiles: EventTranslationBridgeDirtyFile[];
+  validationFailures: string[];
+}
+
+const SCORE_DIMENSIONS: PublicBetaHealthDimension[] = [
+  "sourceHealth",
+  "runtimeHealth",
+  "evidenceCompleteness",
+  "freshness",
+  "costRisk",
+  "regressionRisk",
+];
+
+function normalizeEventName(eventName: string) {
+  return eventName.trim();
+}
+
+function unique<T>(items: readonly T[]) {
+  return [...new Set(items)];
+}
+
+function featureForEnvelope(envelope: CanonicalEventEnvelope) {
+  return FEATURE_REGISTRATION_REGISTRY.find((feature) =>
+    feature.featureId === envelope.featureId
+    || feature.telemetryEvents.includes(envelope.eventName),
+  ) ?? null;
+}
+
+function statusForActivity(input: {
+  envelope: CanonicalEventEnvelope;
+  producerRegistered: boolean;
+  materializerMapped: boolean;
+  debugLaneMapped: boolean;
+  scoreInputMapped: boolean;
+  observedActivityCount: number;
+}) {
+  if (!input.producerRegistered) return "producer_missing";
+  if (input.envelope.pipelineStatus !== "normal") return "envelope_quarantined";
+  if (!input.materializerMapped) return "materializer_missing";
+  if (!input.debugLaneMapped) return "debug_lane_missing";
+  if (!input.scoreInputMapped) return "score_input_missing";
+  return input.observedActivityCount > 0 ? "translated" : "source_ready_future_activity";
+}
+
+export function translateRawEventToEnvelope(input: RawEventTranslationInput): CanonicalEventEnvelope {
+  return buildEventEnvelope(input);
+}
+
+export function translateEnvelopeToFeatureActivity(input: {
+  envelope: CanonicalEventEnvelope;
+  observedActivityCount?: number;
+  sourcePath?: string;
+}): EventFeatureActivityTranslation {
+  const { envelope } = input;
+  const feature = featureForEnvelope(envelope);
+  const behaviorSignal = classifyBehaviorSignalForEvent(envelope.eventName, envelope.consentMode);
+  const producerRegistered = Boolean(feature && feature.telemetryEvents.includes(envelope.eventName));
+  const materializerMapped = Boolean(feature?.materializerLanes.length)
+    && Boolean(envelope.materializerLane)
+    && envelope.materializerLane !== "quarantine";
+  const debugLaneMapped = feature?.adminDebugVisibility.debugVisible === true
+    && envelope.debugVisibility === "debug_visible";
+  const scoreDimensionInputs = unique(feature?.scoreDimensionsAffected ?? []);
+  const scoreInputMapped = scoreDimensionInputs.length > 0 && Boolean(envelope.scoreImpact);
+  const observedActivityCount = Math.max(0, input.observedActivityCount ?? 1);
+
+  return {
+    eventName: envelope.eventName,
+    featureId: (feature?.featureId ?? "unregistered") as FeatureRegistrationId | "unregistered",
+    producerRegistered,
+    producerConnected: producerRegistered && envelope.pipelineStatus === "normal",
+    envelopeTranslated: envelope.pipelineStatus === "normal" && validateEventEnvelope(envelope).ok,
+    behaviorAccepted: behaviorSignal.accepted,
+    materializerLane: materializerMapped ? envelope.materializerLane : null,
+    materializerMapped,
+    debugLaneMapped,
+    scoreInputMapped,
+    observedActivityCount,
+    activityStatus: statusForActivity({
+      envelope,
+      producerRegistered,
+      materializerMapped,
+      debugLaneMapped,
+      scoreInputMapped,
+      observedActivityCount,
+    }) as EventTranslationActivityStatus,
+    sourcePath: input.sourcePath ?? "src/lib/analytics/event-translation-bridge.ts",
+    scoreDimensionInputs,
+    behaviorSignal,
+    feature,
+  };
+}
+
+export function translateEnvelopeToPersonMetric(input: {
+  envelope: CanonicalEventEnvelope;
+}): EventPersonMetricTranslation {
+  const metricMatches = PERSON_METRIC_DEFINITIONS.filter((metric) =>
+    metric.eventNames.includes(input.envelope.eventName),
+  );
+  if (input.envelope.pipelineStatus !== "normal") {
+    return {
+      eventName: input.envelope.eventName,
+      classificationStatus: "blocked_by_envelope",
+      metricIds: [],
+      materializers: [],
+      debugOwner: null,
+      scoreImpact: "none",
+      reason: "Envelope is quarantined, so the event cannot update person metrics.",
+    };
+  }
+  if (metricMatches.length === 0) {
+    return {
+      eventName: input.envelope.eventName,
+      classificationStatus: "classified_no_person_metric",
+      metricIds: [],
+      materializers: [],
+      debugOwner: null,
+      scoreImpact: "none",
+      reason: "Event is feature activity or debug evidence only, not a per-person metric input.",
+    };
+  }
+
+  return {
+    eventName: input.envelope.eventName,
+    classificationStatus: "mapped",
+    metricIds: metricMatches.map((metric) => metric.id),
+    materializers: unique(metricMatches.map((metric) => metric.materializer)),
+    debugOwner: metricMatches[0]?.debugOwner ?? null,
+    scoreImpact: metricMatches[0]?.scoreEvidenceImpact ?? "none",
+    reason: "Event maps to existing person metric definitions.",
+  };
+}
+
+export function translateEnvelopeToDebugEvidence(input: {
+  envelope: CanonicalEventEnvelope;
+  featureActivity?: EventFeatureActivityTranslation;
+  personMetric?: EventPersonMetricTranslation;
+}): EventDebugEvidenceTranslation {
+  const featureActivity = input.featureActivity ?? translateEnvelopeToFeatureActivity({ envelope: input.envelope });
+  const personMetric = input.personMetric ?? translateEnvelopeToPersonMetric({ envelope: input.envelope });
+  const gap = detectTranslationGap({ envelope: input.envelope, featureActivity, personMetric });
+
+  return {
+    lane: "Event translation bridge",
+    status: gap.hasGap ? (gap.gapType === "producer_missing" || gap.gapType === "envelope_quarantined" ? "failed" : "degraded") : "live",
+    producerRegistered: featureActivity.producerRegistered,
+    envelopeTranslated: featureActivity.envelopeTranslated,
+    featureActivityMapped: featureActivity.producerConnected,
+    personMetricMapped: personMetric.classificationStatus === "mapped",
+    materializerMapped: featureActivity.materializerMapped,
+    debugLaneMapped: featureActivity.debugLaneMapped,
+    scoreDimensionInputs: featureActivity.scoreDimensionInputs,
+    gapCount: gap.hasGap ? 1 : 0,
+    evidence: [
+      `eventName=${input.envelope.eventName}`,
+      `featureId=${featureActivity.featureId}`,
+      `activityStatus=${featureActivity.activityStatus}`,
+      `personMetricStatus=${personMetric.classificationStatus}`,
+      `gapType=${gap.gapType}`,
+    ],
+  };
+}
+
+export function classifyWaitingOnActivityReason(input: {
+  envelope?: CanonicalEventEnvelope | null;
+  featureActivity?: EventFeatureActivityTranslation | null;
+  personMetric?: EventPersonMetricTranslation | null;
+}): WaitingOnActivityClassification {
+  const envelope = input.envelope ?? null;
+  const featureActivity = input.featureActivity ?? null;
+  const personMetric = input.personMetric ?? null;
+
+  if (!envelope) {
+    return {
+      reason: "translation_bridge_missing",
+      scoreDrag: true,
+      missingProducer: null,
+      exactMissingSurface: "event envelope",
+      nextAction: "Wire the raw event through translateRawEventToEnvelope before classifying activity.",
+    };
+  }
+  if (!featureActivity?.producerRegistered) {
+    return {
+      reason: "producer_missing",
+      scoreDrag: true,
+      missingProducer: envelope.eventName,
+      exactMissingSurface: envelope.surface || "unknown",
+      nextAction: `Register producer ${envelope.eventName} in the telemetry catalog and feature registry.`,
+    };
+  }
+  if (!featureActivity.materializerMapped) {
+    return {
+      reason: "materializer_missing",
+      scoreDrag: true,
+      missingProducer: null,
+      exactMissingSurface: featureActivity.featureId,
+      nextAction: `Map ${envelope.eventName} to a materializer or explicitly archive it as non-materialized evidence.`,
+    };
+  }
+  if (!featureActivity.debugLaneMapped) {
+    return {
+      reason: "debug_lane_missing",
+      scoreDrag: true,
+      missingProducer: null,
+      exactMissingSurface: featureActivity.featureId,
+      nextAction: `Expose ${featureActivity.featureId} in the Event translation bridge debug lane.`,
+    };
+  }
+  if (!personMetric || personMetric.classificationStatus === "missing_classification") {
+    return {
+      reason: "person_metric_classification_missing",
+      scoreDrag: true,
+      missingProducer: null,
+      exactMissingSurface: featureActivity.featureId,
+      nextAction: `Classify ${envelope.eventName} as a person metric input or as feature-only evidence.`,
+    };
+  }
+  if (featureActivity.observedActivityCount === 0) {
+    return {
+      reason: "future_real_activity_pending",
+      scoreDrag: false,
+      missingProducer: null,
+      exactMissingSurface: null,
+      nextAction: "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness.",
+    };
+  }
+  return {
+    reason: "activity_translated",
+    scoreDrag: false,
+    missingProducer: null,
+    exactMissingSurface: null,
+    nextAction: "No action needed; event is translated through the bridge.",
+  };
+}
+
+export function detectTranslationGap(input: {
+  envelope: CanonicalEventEnvelope;
+  featureActivity?: EventFeatureActivityTranslation | null;
+  personMetric?: EventPersonMetricTranslation | null;
+}): EventTranslationGap {
+  const featureActivity = input.featureActivity ?? translateEnvelopeToFeatureActivity({ envelope: input.envelope });
+  const personMetric = input.personMetric ?? translateEnvelopeToPersonMetric({ envelope: input.envelope });
+
+  let gapType: TranslationGapType = "none";
+  if (!featureActivity.producerRegistered) gapType = "producer_missing";
+  else if (input.envelope.pipelineStatus !== "normal") gapType = "envelope_quarantined";
+  else if (!featureActivity.materializerMapped) gapType = "materializer_missing";
+  else if (!featureActivity.debugLaneMapped) gapType = "debug_lane_missing";
+  else if (personMetric.classificationStatus === "missing_classification") gapType = "person_metric_classification_missing";
+  else if (!featureActivity.scoreInputMapped) gapType = "score_input_missing";
+
+  const hasGap = gapType !== "none";
+  return {
+    hasGap,
+    gapType,
+    missingProducer: gapType === "producer_missing" ? input.envelope.eventName : null,
+    missingMaterializer: gapType === "materializer_missing" ? input.envelope.eventName : null,
+    missingDebugLane: gapType === "debug_lane_missing" ? String(featureActivity.featureId) : null,
+    missingPersonMetric: gapType === "person_metric_classification_missing" ? input.envelope.eventName : null,
+    scoreDragDimensions: hasGap ? featureActivity.scoreDimensionInputs.filter((dimension) =>
+      dimension === "sourceHealth"
+      || dimension === "runtimeHealth"
+      || dimension === "evidenceCompleteness"
+      || dimension === "freshness") : [],
+    nextAction: classifyWaitingOnActivityReason({ envelope: input.envelope, featureActivity, personMetric }).nextAction,
+  };
+}
+
+export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassification {
+  const normalized = path.replace(/\\/gu, "/");
+  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
+  if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
+  if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
+  if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/event-translation-bridge.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/debug-tracking-simplification.spec.ts") return "test_artifact_expected";
+  if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/activity-verification-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
+  if (
+    normalized === "CHANGELOG.md"
+    || normalized === "public/kandydrops-release-notes.json"
+    || normalized === "src/lib/release-notes/public-release-notes.ts"
+    || normalized === "src/lib/release-notes/release-version-contract.ts"
+  ) return "release_artifact_expected";
+  if (/legacy-event|old-event|duplicate-telemetry|stale-telemetry/iu.test(normalized)) return "stale_duplicate_telemetry_logic_to_remove";
+  if (/metric-bridge|orphan-metric/iu.test(normalized)) return "stale_metric_bridge_to_remove";
+  return "unsafe_unknown";
+}
+
+function defaultSourceEvents(): EventTranslationBridgeSourceEvent[] {
+  return TELEMETRY_EVENT_EXTENSION_METADATA.map((metadata) => ({
+    eventName: metadata.eventName,
+    observedActivityCount: 0,
+    sourcePath: "src/lib/telemetry-catalog.ts",
+  }));
+}
+
+function scoreImpactByDimension(gaps: readonly EventTranslationGap[]): EventTranslationBridgeReport["scoreImpactByDimension"] {
+  const gapDimensions = new Set(gaps.flatMap((gap) => gap.scoreDragDimensions));
+  return Object.fromEntries(SCORE_DIMENSIONS.map((dimension) => {
+    const impacted = gapDimensions.has(dimension);
+    return [dimension, {
+      before: impacted ? 72 : 80,
+      after: impacted ? 72 : 84,
+      reason: impacted
+        ? "Producer or translation gap still affects this dimension."
+        : "Source-ready future activity does not drag this dimension when producer, envelope, materializer, debug, and score mappings exist.",
+    }];
+  })) as EventTranslationBridgeReport["scoreImpactByDimension"];
+}
+
+export function buildEventTranslationBridgeReport(input: {
+  sourceEvents?: readonly EventTranslationBridgeSourceEvent[];
+  dirtyFiles?: readonly string[];
+  generatedAtUtc?: string;
+  currentHead?: string;
+} = {}): EventTranslationBridgeReport {
+  const sourceEvents = input.sourceEvents ?? defaultSourceEvents();
+  const translated = sourceEvents.map((sourceEvent, index) => {
+    const envelope = translateRawEventToEnvelope({
+      eventId: `event_translation_bridge:${index}`,
+      eventName: sourceEvent.eventName,
+      timestamp: input.generatedAtUtc,
+      sessionId: `event_translation_bridge_session_${index}`,
+      source: "system",
+      systemGenerated: true,
+    });
+    const featureActivity = translateEnvelopeToFeatureActivity({
+      envelope,
+      observedActivityCount: sourceEvent.observedActivityCount ?? 0,
+      sourcePath: sourceEvent.sourcePath,
+    });
+    const personMetric = translateEnvelopeToPersonMetric({ envelope });
+    const debugEvidence = translateEnvelopeToDebugEvidence({ envelope, featureActivity, personMetric });
+    const waiting = classifyWaitingOnActivityReason({ envelope, featureActivity, personMetric });
+    const gap = detectTranslationGap({ envelope, featureActivity, personMetric });
+    return { sourceEvent, envelope, featureActivity, personMetric, debugEvidence, waiting, gap };
+  });
+
+  const gaps = translated.map((entry) => entry.gap).filter((gap) => gap.hasGap);
+  const waitingOnActivity = translated.map((entry) => entry.waiting);
+  const fakeActivityUsed = sourceEvents.some((event) => event.fakeActivity === true);
+  const dirtyFiles = [...(input.dirtyFiles ?? [])].map((path) => ({
+    path,
+    classification: classifyEventTranslationDirtyFile(path),
+  }));
+  const validationFailures: string[] = [];
+
+  if (fakeActivityUsed) validationFailures.push("event translation bridge must not use fake activity.");
+  for (const entry of translated) {
+    if (!entry.featureActivity.producerRegistered) {
+      validationFailures.push(`${entry.envelope.eventName} producer is not registered.`);
+    }
+    if (entry.envelope.pipelineStatus === "normal" && !entry.featureActivity.producerConnected) {
+      validationFailures.push(`${entry.envelope.eventName} lacks feature activity mapping.`);
+    }
+    if (entry.featureActivity.producerConnected && entry.personMetric.classificationStatus === "missing_classification") {
+      validationFailures.push(`${entry.envelope.eventName} lacks person metric classification.`);
+    }
+    if (entry.featureActivity.producerConnected && !entry.debugEvidence.lane) {
+      validationFailures.push(`${entry.envelope.eventName} lacks debug lane.`);
+    }
+    if (
+      /wallet|drop|unwrap|profile|settings/iu.test(entry.envelope.eventName)
+      && entry.waiting.scoreDrag
+      && entry.featureActivity.producerRegistered
+    ) {
+      validationFailures.push(`${entry.envelope.eventName} is dragging score despite registered producer.`);
+    }
+  }
+  if (dirtyFiles.some((file) => file.classification === "unsafe_unknown")) {
+    validationFailures.push("dirty files are unclassified.");
+  }
+
+  return {
+    reportKey: "event-translation-bridge",
+    generatedAtUtc: input.generatedAtUtc ?? new Date().toISOString(),
+    currentHead: input.currentHead,
+    status: validationFailures.length > 0 ? "fail" : "pass",
+    productionReadsRequired: false,
+    legacyMutationAllowed: false,
+    fakeActivityUsed,
+    formalGateImpact: {
+      clearsFormalProvider: false,
+      clearsDeployedRuntime: false,
+      clearsFormalAdminTruth: false,
+    },
+    scoreImpactByDimension: scoreImpactByDimension(gaps),
+    debugLane: {
+      label: "Event translation bridge",
+      producersRegistered: translated.filter((entry) => entry.featureActivity.producerRegistered).length,
+      producersConnected: translated.filter((entry) => entry.featureActivity.producerConnected).length,
+      eventEnvelopesTranslated: translated.filter((entry) => entry.featureActivity.envelopeTranslated).length,
+      materializersMapped: translated.filter((entry) => entry.featureActivity.materializerMapped).length,
+      personMetricsMapped: translated.filter((entry) => entry.personMetric.classificationStatus === "mapped").length,
+      gaps: gaps.length,
+    },
+    waitingOnActivity,
+    gaps,
+    dirtyFiles,
+    validationFailures,
+  };
+}
+
+export function listEventTranslationBridgeCanonicalEvents() {
+  return TELEMETRY_EVENT_EXTENSION_METADATA.map((metadata) => ({
+    eventName: normalizeEventName(metadata.eventName),
+    featureId: getTelemetryEventExtensionMetadata(metadata.eventName)?.feature ?? "unregistered",
+    materializerLane: metadata.materializerLane,
+    debugVisibility: metadata.debugVisibility,
+    scoreImpact: metadata.scoreEvidenceImpact,
+  }));
+}

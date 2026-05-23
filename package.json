@@ -178,6 +178,7 @@
         "check:identity-handoff-refinement": "tsx scripts/agent/validate-identity-handoff-refinement.ts",
         "check:identity-handoff-spine": "tsx scripts/agent/validate-identity-handoff-spine.ts",
         "check:event-envelope-normalization": "tsx scripts/agent/validate-event-envelope-normalization.ts",
+        "check:event-translation-bridge": "tsx scripts/agent/validate-event-translation-bridge.ts",
         "check:march-first-event-recovery": "tsx scripts/agent/validate-march-first-event-recovery.ts",
         "check:person-metrics-contract": "tsx scripts/agent/validate-person-metrics-contract.ts",
         "check:final-user-tracking-handoff-lock": "tsx scripts/agent/validate-final-user-tracking-handoff-lock.ts",

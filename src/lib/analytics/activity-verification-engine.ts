@@ -283,7 +283,7 @@ function verifyFeature(feature: FeatureRegistration, events: readonly ActivitySo
     nextAction: verificationStatus === "verified_by_activity"
       ? "Use this as source-backed activity confidence only; keep formal runtime/provider/admin gates separate."
       : verificationStatus === "source_ready_no_activity"
-        ? "Wait for source-backed or operator-confirmed activity before treating this as activity verified."
+        ? "Producer, materializer, debug, and score paths are source-ready; wait for real future activity without dragging runtime, evidence, or freshness."
         : "Resolve the surfaced activity verification backlog item before counting this feature path.",
   };
 }

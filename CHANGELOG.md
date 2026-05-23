@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.92 - 2026-05-23
+- Event translation bridge reliability
+- Connected tracked events to feature activity, person metrics, debug evidence, and score inputs.
+- Reduced false waiting-on-activity states.
+- Cleaned stale event translation logic.
+
 ## 1.3.91 - 2026-05-23
 - Notification and security reliability fixes
 - Resolved open PR backlog by merging, cherry-picking, or closing stale work.
@@ -147,81 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Locked privacy-aware behavioral telemetry.
 - Connected cookie consent to guest, signup, and logged-in analytics.
 - Made future behavioral events contract-driven instead of refactor-heavy.
-
-## 1.3.67 - 2026-05-21
-- Legacy privacy behavior recovery
-- Added dry-run recovery for legacy privacy and behavior records.
-- Kept unknown legacy consent from becoming full behavioral tracking.
-- Mapped orphaned behavior data without mutating production.
-
-## 1.3.66 - 2026-05-21
-- Cookie banner settings sync
-- Improved mobile cookie banner readability.
-- Connected cookie choices to privacy tracking settings.
-- Synced guest consent through signup and login.
-
-## 1.3.65 - 2026-05-21
-- Behavioral telemetry extensibility
-- Made behavioral telemetry extensible for new features.
-- Required consent and identity rules for every tracked event.
-- Prevented new features from creating orphaned analytics.
-
-## 1.3.64 - 2026-05-21
-- Guest-to-user analytics handoff
-- Improved guest-to-user analytics handoff.
-- Kept behavioral attribution consent-aware.
-- Prevented double-counting across signup and login.
-
-## 1.3.63 - 2026-05-21
-- Cookie consent tracking modes
-- Connected cookie choices to actual analytics tracking modes.
-- Made the cookie banner readable on mobile.
-- Separated minimal analytics from full behavioral tracking.
-
-## 1.3.62 - 2026-05-21
-- Score 80 reconciliation lock
-- Reconciled score-80 path after algorithmic evidence refinement.
-- Separated manual-only checks from algorithmic and runtime proof.
-- Ranked remaining score blockers by true proof type.
-
-## 1.3.61 - 2026-05-21
-- Runtime smoke substitute matrix
-- Mapped runtime smoke checks to source, debug, telemetry, manual, and formal evidence lanes.
-- Reduced manual testing scope to rows that need UI or deployed runtime confirmation.
-- Kept deployed runtime smoke as a formal gate until a real artifact exists.
-
-## 1.3.60 - 2026-05-21
-- Real usage confidence calibration
-- Calibrated real usage confidence from behavioral and operator-confirmed signals.
-- Separated observed signals from inferred source readiness.
-- Kept formal beta gates separate from real usage confidence.
-
-## 1.3.59 - 2026-05-21
-- Algorithmic evidence gates
-- Separated UI manual evidence from algorithmic runtime and telemetry confidence.
-- Allowed source-backed evidence to improve non-UI beta health without faking formal proof.
-- Kept provider, runtime, and visual gates honest.
-
-## 1.3.58 - 2026-05-21
-- AI critic P1 triage
-- Resolved source-fixable AI critic feedback.
-- Ranked P1/P2 debug backlog by beta score impact.
-- Separated code fixes from formal evidence requirements.
-
-## 1.3.57 - 2026-05-21
-- Algorithmic debug lock
-- Locked the debug panel, score backlog, AI critic, behavior math, and refresh queues as the primary confidence engine.
-- Reduced manual testing bottlenecks without clearing provider, runtime, or visual proof gates.
-- Kept remaining formal evidence steps explicit for beta exit review.
-
-## 1.3.56 - 2026-05-21
-- Debug cockpit refinement
-- Refined the admin debug panel into a clearer operator cockpit.
-- Sorted next fixes by score impact, owner, and refresh action.
-- Kept unknown, stale, and formal evidence states visible instead of treating them as healthy.
-
-## 1.3.55 - 2026-05-21
-- Self-healing refresh queue
-- Added a self-healing refresh queue for stale beta and debug artifacts.
-- Ordered refresh commands by owner, dependency, and score impact.
-- Kept formal provider, runtime, and manual proof gates blocked until real artifacts exist.
