@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.89 - 2026-05-23
+- Support and policy surface cleanup
+- Connected FAQ, Support, Policies, Privacy Policy, and Download My Data to canonical trust surfaces.
+- Consolidated policy links so Account Settings avoids dead or duplicated placeholder pages.
+- Added debug visibility for support and policy surface health.
+
 ## 1.3.88 - 2026-05-23
 - Settings preference cleanup
 - Phased out stale client-only preference truth paths.

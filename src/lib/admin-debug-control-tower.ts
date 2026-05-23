@@ -223,6 +223,7 @@ export const ADMIN_DEBUG_CONTROL_TOWER_REPORTS: ReportDefinition[] = [
     { id: "watch-time-truth", label: "Watch Time", section: "telemetry_behavior", fileName: "watch-time-truth.generated.json", command: "npm run check:watch-time-truth" },
     { id: "debug-evidence", label: "Debug Evidence", section: "live_issues", fileName: "debug-evidence-index.generated.json", command: "npm run check:debug-evidence-pipeline" },
     { id: "precatch-runtime", label: "Pre-catcher", section: "live_issues", fileName: "precatch-runtime-issues.generated.json", command: "npm run precheck:runtime-issues" },
+    { id: "support_policy_surface_health", label: "Support + Policy Surfaces", section: "support_creator", fileName: "support-policy-surface-cleanup.generated.json", command: "npm run check:support-policy-surface-cleanup" },
     { id: "support-recovery", label: "Support Recovery", section: "support_creator", fileName: "support-recovery-flow-audit.generated.json", command: "npm run check:support-recovery-flows" },
     { id: "creator-lane", label: "Creator Lane", section: "support_creator", fileName: "creator-lane-debug-parity.generated.json", command: "npm run score:creator-lane-debug-parity" },
     { id: "creator-lane-legacy", label: "Creator Lane Legacy", section: "support_creator", fileName: "creator-lane-legacy-truth-inventory.generated.json", command: "npm run check:creator-lane-legacy-truth-inventory" },

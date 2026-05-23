@@ -508,7 +508,8 @@
         "agent:tooling-check": "echo 'See /control-tower/19-TOOL-AVAILABILITY-MAP.yaml for verified tools and fallback plans.'",
         "agent:jules-schedule": "echo 'See /control-tower/18-JULES-RECURRING-TASKS.md for the Jules execution cadence.'",
         "agent:test": "vitest related --config vitest.contracts.config.ts --run",
-        "check:stale-client-preferences-cleanup": "tsx scripts/agent/validate-stale-client-preferences-cleanup.ts"
+        "check:stale-client-preferences-cleanup": "tsx scripts/agent/validate-stale-client-preferences-cleanup.ts",
+        "check:support-policy-surface-cleanup": "tsx scripts/agent/validate-support-policy-surface-cleanup.ts"
     },
     "dependencies": {
         "@axe-core/react": "^4.11.2",

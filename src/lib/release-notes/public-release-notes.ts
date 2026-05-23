@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.88",
-  "betaReleaseCounter": 388,
+  "currentVersion": "1.3.89",
+  "betaReleaseCounter": 389,
   "channel": "beta",
-  "generatedAt": "2026-05-23T01:30:00.000Z",
-  "generatedAtUtc": "2026-05-23T01:30:00.000Z",
+  "generatedAt": "2026-05-23T01:50:00.000Z",
+  "generatedAtUtc": "2026-05-23T01:50:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.89",
+      "previousVersion": "1.3.88",
+      "betaReleaseCounter": 389,
+      "previousBetaReleaseCounter": 388,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(settings): consolidate support policy surfaces",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T01:50:00.000Z",
+      "generatedAt": "2026-05-23T01:50:00.000Z",
+      "committedAtUtc": "2026-05-23T01:50:00.000Z",
+      "generatedAtUtc": "2026-05-23T01:50:00.000Z",
+      "updatedAtUtc": "2026-05-23T01:50:00.000Z",
+      "category": "Fixed",
+      "title": "Support and policy surface cleanup",
+      "summary": "Connected support, FAQ, policy, privacy, and data export links to canonical trust surfaces with debug visibility.",
+      "userFacingTitle": "Support and policy surface cleanup",
+      "surfaceCategory": "Account & onboarding",
+      "bullets": [
+        "Connected FAQ, Support, Policies, Privacy Policy, and Download My Data to canonical trust surfaces.",
+        "Consolidated policy links so Account Settings avoids dead or duplicated placeholder pages.",
+        "Added debug visibility for support and policy surface health."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a support policy surface contract, validator, generated evidence, and unit coverage while preserving Delete Account, account settings padding, chat, navigation components, payment, wallet, PayPal, and GumDrop math."
+      ],
+      "affectedSurfaces": [
+        "Account Settings",
+        "Support",
+        "FAQ",
+        "Privacy & security",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/support-policy-surface-cleanup.generated.json",
+        "docs/agent-truth/support-policy-surface-cleanup.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-support-policy-surface-cleanup.ts",
+        "src/lib/admin-debug-control-tower.ts",
+        "src/lib/features/feature-registration-registry.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/support-policy/support-policy-surface-contract.ts",
+        "tests/unit/support-policy-surface-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.88",
       "previousVersion": "1.3.87",
