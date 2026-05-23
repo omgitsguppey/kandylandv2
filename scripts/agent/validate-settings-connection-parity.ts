@@ -147,9 +147,9 @@ function main() {
       "creator_setting_updated",
     ]),
     debugLanePresent: contract.includes("SETTINGS_DEBUG_LANE")
-      && contract.includes("settings_connection_health")
-      && debugSummary.includes("settings_connection_health")
-      && debugSummary.includes("Settings connection health"),
+      && contract.includes("settings_health")
+      && debugSummary.includes("settings_health")
+      && debugSummary.includes("Settings health"),
     privacyTogglesUseConsentPolicy: profileState.includes("persistPrivacySettingsSnapshot")
       && userProfileRoute.includes("normalizePrivacySettings")
       && privacySection.includes("honor_global_privacy_control"),
@@ -220,7 +220,7 @@ function main() {
     "- Account Settings owns account, privacy, support, sign out, data export, and delete account controls.",
     "- Creator Settings owns creator profile, Fan Pass, GumDrop experiences, broadcasts, timeline, pricing, and Drop Manager handoffs.",
     "- The canonical map is `src/lib/settings/settings-surface-contract.ts`; it indexes existing routes instead of creating duplicate settings APIs.",
-    "- The debug source is one `Settings connection health` lane.",
+    "- The debug source is one `Settings health` lane.",
     "",
     "## Account Settings Items",
     "",

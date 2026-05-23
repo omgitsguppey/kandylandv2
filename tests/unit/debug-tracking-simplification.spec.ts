@@ -75,6 +75,7 @@ describe("debug tracking simplification", () => {
       "event_envelope",
       "behavior_math",
       "feature_coverage",
+      "settings",
       "legacy_recovery",
       "wallet_funnel",
       "runtime_debug",

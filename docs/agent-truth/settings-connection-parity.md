@@ -1,15 +1,15 @@
 # Settings Connection Parity
 
-Generated: 2026-05-23T00:43:57.743Z
+Generated: 2026-05-23T02:30:18.344Z
 Status: pass
-Head: 41548a214020ae5be78fc5b546d61b6c5b48fb40
+Head: 002ddfd5d2b36ce35f61306aa47f7dab41f101ab
 
 ## Summary
 
 - Account Settings owns account, privacy, support, sign out, data export, and delete account controls.
 - Creator Settings owns creator profile, Fan Pass, GumDrop experiences, broadcasts, timeline, pricing, and Drop Manager handoffs.
 - The canonical map is `src/lib/settings/settings-surface-contract.ts`; it indexes existing routes instead of creating duplicate settings APIs.
-- The debug source is one `Settings connection health` lane.
+- The debug source is one `Settings health` lane.
 
 ## Account Settings Items
 

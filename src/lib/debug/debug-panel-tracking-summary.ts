@@ -1,10 +1,15 @@
+import {
+  SETTINGS_HEALTH_COMPONENTS,
+  SETTINGS_HEALTH_DEBUG_LANE,
+} from "@/lib/debug/settings-debug-validator-authority";
+
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
   "consent_tracking_mode",
   "event_envelope",
   "behavior_math",
   "feature_telemetry_coverage",
-  "settings_connection_health",
+  "settings_health",
   "legacy_recovery",
   "wallet_funnel",
   "runtime_debug_evidence",
@@ -54,7 +59,7 @@ const TRACKING_GROUPS = [
   "event_envelope",
   "behavior_math",
   "feature_coverage",
-  "settings_connection",
+  "settings",
   "legacy_recovery",
   "wallet_funnel",
   "runtime_debug",
@@ -197,11 +202,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       drilldownTarget: "/admin/debug?tab=advanced#feature-coverage",
     }),
     makeLane({
-      id: "settings_connection_health",
-      label: "Settings connection health",
-      trackingSystem: "settings_connection",
-      sourceOwner: "settings",
-      sourceOfTruth: "src/lib/settings/settings-surface-contract.ts + src/lib/settings/client-preferences-contract.ts",
+      id: SETTINGS_HEALTH_DEBUG_LANE.laneId,
+      label: "Settings health",
+      trackingSystem: "settings",
+      sourceOwner: SETTINGS_HEALTH_DEBUG_LANE.sourceOwner,
+      sourceOfTruth: SETTINGS_HEALTH_DEBUG_LANE.sourceOfTruth,
       status: settingsWarningCount > 0 ? "degraded" : settingsStatus,
       severity: severityFromCounts(0, settingsWarningCount, settingsWarningCount > 0 ? "degraded" : settingsStatus),
       scoreImpact: "medium",
@@ -209,10 +214,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
         ? `${staleClientPreferences} stale client preference bypass(es) need cleanup.`
         : disconnectedSettings > 0
           ? `${disconnectedSettings} setting(s) have honest not-configured status.`
-          : "Account and Creator Settings share one connection contract with no stale client preference bypass.",
+          : `${SETTINGS_HEALTH_COMPONENTS.length} settings health component(s) summarize Account/Creator parity, route aliases, stale client preferences, support/policy links, profile API, and delete-flow status.`,
       criticalCount: 0,
       warningCount: settingsWarningCount,
-      drilldownTarget: "/admin/debug?tab=advanced#settings-connection-health",
+      drilldownTarget: SETTINGS_HEALTH_DEBUG_LANE.drilldownTarget,
     }),
     makeLane({
       id: "legacy_recovery",

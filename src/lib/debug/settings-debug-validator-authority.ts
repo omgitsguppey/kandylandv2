@@ -1,0 +1,210 @@
+export const SETTINGS_DEBUG_VALIDATOR_AUTHORITY_VERSION = "2026.05.settings-debug-validator-authority.1";
+
+export type SettingsValidatorStatus = "active" | "superseded" | "deprecated";
+
+export type SettingsValidatorAuthorityRecord = {
+  id: string;
+  script: string;
+  packageScript: string;
+  artifactPath: string;
+  owner: "settings";
+  authority: "canonical_contract" | "supporting_contract" | "superseded_contract";
+  status: SettingsValidatorStatus;
+  runOrder: number | null;
+  ownedComponents: string[];
+  supersededBy?: string[];
+  reason: string;
+};
+
+export type SettingsHealthComponent = {
+  id: string;
+  label: string;
+  activeValidator: string;
+  artifactPath: string;
+  sourceOwner: "settings" | "account_safety" | "support";
+  scoreAuthority: "active" | "supporting";
+};
+
+export const SETTINGS_HEALTH_DEBUG_LANE = {
+  laneId: "settings_health",
+  label: "Settings health",
+  sourceOwner: "settings",
+  sourceOfTruth: "src/lib/debug/settings-debug-validator-authority.ts",
+  drilldownTarget: "/admin/debug?tab=advanced#settings-health",
+  rawDetailsDefaultOpen: false,
+  oneSourceOfTruth: true,
+} as const;
+
+export const SETTINGS_HEALTH_COMPONENTS: SettingsHealthComponent[] = [
+  {
+    id: "settings_connection_parity",
+    label: "Account/Creator settings parity",
+    activeValidator: "check:settings-connection-parity",
+    artifactPath: "agent/state/settings-connection-parity.generated.json",
+    sourceOwner: "settings",
+    scoreAuthority: "active",
+  },
+  {
+    id: "settings_route_alias_cleanup",
+    label: "Route alias status",
+    activeValidator: "check:settings-route-alias-cleanup",
+    artifactPath: "agent/state/settings-route-alias-cleanup.generated.json",
+    sourceOwner: "settings",
+    scoreAuthority: "active",
+  },
+  {
+    id: "stale_client_preferences_cleanup",
+    label: "Stale client preference status",
+    activeValidator: "check:stale-client-preferences-cleanup",
+    artifactPath: "agent/state/stale-client-preferences-cleanup.generated.json",
+    sourceOwner: "settings",
+    scoreAuthority: "active",
+  },
+  {
+    id: "support_policy_surface_cleanup",
+    label: "Support/policy surface status",
+    activeValidator: "check:support-policy-surface-cleanup",
+    artifactPath: "agent/state/support-policy-surface-cleanup.generated.json",
+    sourceOwner: "support",
+    scoreAuthority: "supporting",
+  },
+  {
+    id: "user_profile_api_contract",
+    label: "Profile API status",
+    activeValidator: "check:user-profile-api-contract",
+    artifactPath: "agent/state/user-profile-api-contract.generated.json",
+    sourceOwner: "settings",
+    scoreAuthority: "active",
+  },
+  {
+    id: "account_settings_delete_flow",
+    label: "Delete flow status",
+    activeValidator: "check:account-settings-delete-flow",
+    artifactPath: "agent/state/account-settings-delete-flow.generated.json",
+    sourceOwner: "account_safety",
+    scoreAuthority: "supporting",
+  },
+] as const;
+
+export const ACTIVE_SETTINGS_VALIDATORS: SettingsValidatorAuthorityRecord[] = [
+  {
+    id: "settings_connection_parity",
+    script: "scripts/agent/validate-settings-connection-parity.ts",
+    packageScript: "check:settings-connection-parity",
+    artifactPath: "agent/state/settings-connection-parity.generated.json",
+    owner: "settings",
+    authority: "canonical_contract",
+    status: "active",
+    runOrder: 10,
+    ownedComponents: ["settings_connection_parity"],
+    reason: "Canonical account and creator settings surface connection validator.",
+  },
+  {
+    id: "settings_route_alias_cleanup",
+    script: "scripts/agent/validate-settings-route-alias-cleanup.ts",
+    packageScript: "check:settings-route-alias-cleanup",
+    artifactPath: "agent/state/settings-route-alias-cleanup.generated.json",
+    owner: "settings",
+    authority: "canonical_contract",
+    status: "active",
+    runOrder: 20,
+    ownedComponents: ["settings_route_alias_cleanup"],
+    reason: "Canonical route alias and surface split cleanup validator.",
+  },
+  {
+    id: "stale_client_preferences_cleanup",
+    script: "scripts/agent/validate-stale-client-preferences-cleanup.ts",
+    packageScript: "check:stale-client-preferences-cleanup",
+    artifactPath: "agent/state/stale-client-preferences-cleanup.generated.json",
+    owner: "settings",
+    authority: "canonical_contract",
+    status: "active",
+    runOrder: 30,
+    ownedComponents: ["stale_client_preferences_cleanup"],
+    reason: "Canonical client preference bypass validator.",
+  },
+  {
+    id: "support_policy_surface_cleanup",
+    script: "scripts/agent/validate-support-policy-surface-cleanup.ts",
+    packageScript: "check:support-policy-surface-cleanup",
+    artifactPath: "agent/state/support-policy-surface-cleanup.generated.json",
+    owner: "settings",
+    authority: "supporting_contract",
+    status: "active",
+    runOrder: 40,
+    ownedComponents: ["support_policy_surface_cleanup"],
+    reason: "Support and policy route health is summarized under Settings health.",
+  },
+  {
+    id: "user_profile_api_contract",
+    script: "scripts/agent/validate-user-profile-api-contract.ts",
+    packageScript: "check:user-profile-api-contract",
+    artifactPath: "agent/state/user-profile-api-contract.generated.json",
+    owner: "settings",
+    authority: "canonical_contract",
+    status: "active",
+    runOrder: 50,
+    ownedComponents: ["user_profile_api_contract"],
+    reason: "Canonical user profile API contract for Account Settings profile state.",
+  },
+  {
+    id: "account_settings_delete_flow",
+    script: "scripts/agent/validate-account-settings-delete-flow.ts",
+    packageScript: "check:account-settings-delete-flow",
+    artifactPath: "agent/state/account-settings-delete-flow.generated.json",
+    owner: "settings",
+    authority: "supporting_contract",
+    status: "active",
+    runOrder: 60,
+    ownedComponents: ["account_settings_delete_flow"],
+    reason: "Account safety status is displayed in the Settings health lane without owning delete implementation.",
+  },
+  {
+    id: "settings_debug_validator_authority",
+    script: "scripts/agent/validate-settings-debug-validator-authority.ts",
+    packageScript: "check:settings-debug-validator-authority",
+    artifactPath: "agent/state/settings-debug-validator-authority.generated.json",
+    owner: "settings",
+    authority: "canonical_contract",
+    status: "active",
+    runOrder: 70,
+    ownedComponents: SETTINGS_HEALTH_COMPONENTS.map((component) => component.id),
+    reason: "Canonical authority validator for settings debug and validator ownership.",
+  },
+] as const;
+
+export const SUPERSEDED_SETTINGS_VALIDATORS: SettingsValidatorAuthorityRecord[] = [
+  {
+    id: "settings_creator_dashboard_split",
+    script: "scripts/agent/validate-settings-creator-dashboard-split.ts",
+    packageScript: "check:settings-creator-dashboard-split",
+    artifactPath: "agent/state/settings-creator-dashboard-split.generated.json",
+    owner: "settings",
+    authority: "superseded_contract",
+    status: "superseded",
+    runOrder: null,
+    ownedComponents: ["settings_connection_parity", "settings_route_alias_cleanup"],
+    supersededBy: ["check:settings-connection-parity", "check:settings-route-alias-cleanup"],
+    reason: "The old combined split check is retained as a compatibility check only; active authority now lives in parity and route alias validators.",
+  },
+] as const;
+
+export const DEPRECATED_SETTINGS_ARTIFACTS = [
+  {
+    artifactPath: "agent/state/settings-creator-dashboard-split.generated.json",
+    status: "superseded",
+    replacementArtifacts: [
+      "agent/state/settings-connection-parity.generated.json",
+      "agent/state/settings-route-alias-cleanup.generated.json",
+    ],
+    scoreAuthority: "excluded_from_settings_health_score",
+  },
+] as const;
+
+export function getSettingsValidatorAuthorityRecords() {
+  return [...ACTIVE_SETTINGS_VALIDATORS, ...SUPERSEDED_SETTINGS_VALIDATORS];
+}
+
+export function getActiveSettingsValidatorPackageScripts() {
+  return ACTIVE_SETTINGS_VALIDATORS.map((validator) => validator.packageScript);
+}

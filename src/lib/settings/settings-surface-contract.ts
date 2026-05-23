@@ -41,11 +41,11 @@ export const SETTINGS_TELEMETRY_EVENTS = [
 ] as const;
 
 export const SETTINGS_DEBUG_LANE = {
-  laneId: "settings_connection_health",
-  label: "Settings connection health",
+  laneId: "settings_health",
+  label: "Settings health",
   sourceOwner: "settings",
-  sourceOfTruth: "src/lib/settings/settings-surface-contract.ts",
-  drilldownTarget: "/admin/debug?tab=advanced#settings-connection-health",
+  sourceOfTruth: "src/lib/debug/settings-debug-validator-authority.ts",
+  drilldownTarget: "/admin/debug?tab=advanced#settings-health",
   rawDetailsDefaultOpen: false,
   oneSourceOfTruth: true,
 } as const;
@@ -275,7 +275,7 @@ export const SETTINGS_SURFACE_ITEMS = [
     defaultValue: "confirmation required",
     saveBehavior: "connected",
     telemetryEvents: ["account_delete_clicked", "account_delete_confirm_opened", "account_delete_confirmed", "account_delete_request_submitted", "account_delete_failed", "account_delete_completed"],
-    debugVisibility: "account_safety, settings_connection_health",
+    debugVisibility: "account_safety, settings_health",
     consentImpact: "required_integrity",
     accountSafetyImpact: "high",
     userFacingImpact: "Starts confirmed authenticated account deletion.",

@@ -25,7 +25,7 @@ export type ClientPreferenceItem = {
   backendRouteOrContract: string;
   consentPolicy: string;
   featureRegistrationId: string;
-  debugVisibility: "settings_connection_health";
+  debugVisibility: "settings_health";
   canPersistAcrossSessions: boolean;
   mayHydrateSettingsTruth: false;
   staleBypassRisk: "none" | "low" | "medium" | "high";
@@ -33,7 +33,7 @@ export type ClientPreferenceItem = {
 };
 
 export const SETTINGS_CLIENT_PREFERENCE_DEBUG_LANE = {
-  laneId: "settings_connection_health",
+  laneId: "settings_health",
   sourceOwner: "settings",
   sourceOfTruth: "src/lib/settings/client-preferences-contract.ts",
   staleBypassPolicy: "Local browser storage may mirror consent or remember UI-only drafts/dismissals, but it cannot become account or creator settings truth.",
@@ -51,7 +51,7 @@ export const SETTINGS_CLIENT_PREFERENCE_ITEMS: ClientPreferenceItem[] = [
     backendRouteOrContract: "src/lib/privacy/consent-tracking-policy.ts + /api/privacy/consent + /api/user/profile",
     consentPolicy: "consent-tracking-policy",
     featureRegistrationId: "cookie_consent_privacy",
-    debugVisibility: "settings_connection_health",
+    debugVisibility: "settings_health",
     canPersistAcrossSessions: true,
     mayHydrateSettingsTruth: false,
     staleBypassRisk: "low",
@@ -67,7 +67,7 @@ export const SETTINGS_CLIENT_PREFERENCE_ITEMS: ClientPreferenceItem[] = [
     backendRouteOrContract: "/api/user/profile",
     consentPolicy: "consent-tracking-policy for privacy fields",
     featureRegistrationId: "user_dashboard",
-    debugVisibility: "settings_connection_health",
+    debugVisibility: "settings_health",
     canPersistAcrossSessions: false,
     mayHydrateSettingsTruth: false,
     staleBypassRisk: "none",
@@ -83,7 +83,7 @@ export const SETTINGS_CLIENT_PREFERENCE_ITEMS: ClientPreferenceItem[] = [
     backendRouteOrContract: "src/lib/creator-settings/creator-settings-contract.ts + /api/creator/settings",
     consentPolicy: "required account integrity; not optional behavioral tracking",
     featureRegistrationId: "creator_settings",
-    debugVisibility: "settings_connection_health",
+    debugVisibility: "settings_health",
     canPersistAcrossSessions: false,
     mayHydrateSettingsTruth: false,
     staleBypassRisk: "none",
@@ -99,7 +99,7 @@ export const SETTINGS_CLIENT_PREFERENCE_ITEMS: ClientPreferenceItem[] = [
     backendRouteOrContract: "/api/user/profile",
     consentPolicy: "required account integrity",
     featureRegistrationId: "user_dashboard",
-    debugVisibility: "settings_connection_health",
+    debugVisibility: "settings_health",
     canPersistAcrossSessions: true,
     mayHydrateSettingsTruth: false,
     staleBypassRisk: "low",
@@ -115,7 +115,7 @@ export const SETTINGS_CLIENT_PREFERENCE_ITEMS: ClientPreferenceItem[] = [
     backendRouteOrContract: "src/lib/task-guidance.ts",
     consentPolicy: "not a tracking preference",
     featureRegistrationId: "user_dashboard",
-    debugVisibility: "settings_connection_health",
+    debugVisibility: "settings_health",
     canPersistAcrossSessions: false,
     mayHydrateSettingsTruth: false,
     staleBypassRisk: "none",
@@ -131,7 +131,7 @@ export const SETTINGS_CLIENT_PREFERENCE_ITEMS: ClientPreferenceItem[] = [
     backendRouteOrContract: "src/lib/analytics/analytics-identity-link.ts",
     consentPolicy: "identity handoff consent policy",
     featureRegistrationId: "analytics_telemetry",
-    debugVisibility: "settings_connection_health",
+    debugVisibility: "settings_health",
     canPersistAcrossSessions: true,
     mayHydrateSettingsTruth: false,
     staleBypassRisk: "low",

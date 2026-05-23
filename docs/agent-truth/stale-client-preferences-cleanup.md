@@ -1,8 +1,8 @@
 # Stale Client Preferences Cleanup
 
-Generated: 2026-05-23T01:27:47.025Z
+Generated: 2026-05-23T02:24:18.145Z
 Status: pass
-Head: 69befa354add849ddcf7ed50470eba9e5ee41ad9
+Head: 002ddfd5d2b36ce35f61306aa47f7dab41f101ab
 
 ## Result
 
@@ -10,7 +10,7 @@ Head: 69befa354add849ddcf7ed50470eba9e5ee41ad9
 - Creator settings remain backend-backed through `/api/creator/settings` and `src/lib/creator-settings/creator-settings-contract.ts`.
 - Local storage is limited to consent mirroring, telemetry duplicate prevention, and UI-only dismissal/draft state.
 - No persisted localStorage setting bypasses backend truth.
-- Debug visibility stays in the `Settings connection health` lane and can surface stale client preference bypass counts.
+- Debug visibility stays in the `Settings health` lane and can surface stale client preference bypass counts.
 
 ## Inventory
 

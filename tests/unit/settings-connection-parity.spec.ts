@@ -50,7 +50,7 @@ describe("settings connection parity", () => {
     });
 
     expect(contract).toContain("SETTINGS_DEBUG_LANE");
-    expect(contract).toContain("settings_connection_health");
+    expect(contract).toContain("settings_health");
   });
 
   it("keeps old profile rewrite generators removed instead of retaining duplicate settings logic", () => {

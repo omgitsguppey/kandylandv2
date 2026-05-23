@@ -140,9 +140,9 @@ function main() {
       && includesAll(coreLayout, ["persistPrivacySettingsSnapshot({", "userProfile.privacySettings", "preserveTimestamp: true"])
       && includesAll(creatorHub, ["setDraftSettings(body.settings ?? null)", "settingsState === \"configured\""]),
     noStaleSettingsHelperImports: staleSettingHelperImports.length === 0,
-    debugPanelFlagsStaleBypasses: includesAll(debugSummary, ["staleClientPreferences", "stale client preference bypass", "client-preferences-contract.ts"])
-      && settingsContract.includes("settings_connection_health")
-      && debugPreferenceSummary.laneId === "settings_connection_health",
+    debugPanelFlagsStaleBypasses: includesAll(debugSummary, ["staleClientPreferences", "stale client preference bypass", "SETTINGS_HEALTH_COMPONENTS"])
+      && settingsContract.includes("settings_health")
+      && debugPreferenceSummary.laneId === "settings_health",
     featureRegistrationCovered: featureRegistry.includes('featureId: "user_dashboard"')
       && featureRegistry.includes('featureId: "creator_settings"')
       && featureRegistry.includes('featureId: "cookie_consent_privacy"'),
@@ -188,7 +188,7 @@ function main() {
     "- Creator settings remain backend-backed through `/api/creator/settings` and `src/lib/creator-settings/creator-settings-contract.ts`.",
     "- Local storage is limited to consent mirroring, telemetry duplicate prevention, and UI-only dismissal/draft state.",
     "- No persisted localStorage setting bypasses backend truth.",
-    "- Debug visibility stays in the `Settings connection health` lane and can surface stale client preference bypass counts.",
+    "- Debug visibility stays in the `Settings health` lane and can surface stale client preference bypass counts.",
     "",
     "## Inventory",
     "",

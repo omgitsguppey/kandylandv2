@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-23T01:27:47.025Z",
+  "generatedAtUtc": "2026-05-23T02:24:18.145Z",
   "reportKey": "stale-client-preferences-cleanup",
   "status": "pass",
-  "currentHead": "69befa354add849ddcf7ed50470eba9e5ee41ad9",
+  "currentHead": "002ddfd5d2b36ce35f61306aa47f7dab41f101ab",
   "classification": {
     "canonicalBackendBacked": [
       "guest_privacy_consent_snapshot",
@@ -21,7 +21,7 @@
   "directStorageBypasses": [],
   "staleSettingHelperImports": [],
   "debugPreferenceSummary": {
-    "laneId": "settings_connection_health",
+    "laneId": "settings_health",
     "status": "source_ready",
     "totalClientPreferenceItems": 6,
     "staleBypassCount": 0,
@@ -29,16 +29,25 @@
     "sourceOfTruth": "src/lib/settings/client-preferences-contract.ts"
   },
   "changedFiles": [
-    "CHANGELOG.md",
+    "agent/context/optimized-task-context.generated.json",
+    "agent/context/validator-authority.json",
+    "agent/context/validator-map.json",
+    "agent/state/settings-connection-parity.generated.json",
+    "agent/state/settings-debug-validator-authority.generated.json",
     "agent/state/stale-client-preferences-cleanup.generated.json",
+    "docs/agent-truth/settings-connection-parity.md",
+    "docs/agent-truth/settings-debug-validator-authority.md",
     "docs/agent-truth/stale-client-preferences-cleanup.md",
     "package.json",
-    "public/kandydrops-release-notes.json",
+    "scripts/agent/validate-settings-connection-parity.ts",
+    "scripts/agent/validate-settings-debug-validator-authority.ts",
     "scripts/agent/validate-stale-client-preferences-cleanup.ts",
     "src/lib/debug/debug-panel-tracking-summary.ts",
-    "src/lib/release-notes/public-release-notes.ts",
-    "src/lib/release-notes/release-version-contract.ts",
+    "src/lib/debug/settings-debug-validator-authority.ts",
     "src/lib/settings/client-preferences-contract.ts",
+    "src/lib/settings/settings-surface-contract.ts",
+    "tests/unit/settings-connection-parity.spec.ts",
+    "tests/unit/settings-debug-validator-authority.spec.ts",
     "tests/unit/stale-client-preferences-cleanup.spec.ts"
   ],
   "protectedSurfaceChanges": [],

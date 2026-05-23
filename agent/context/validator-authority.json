@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-05-08T03:02:51.184Z",
+  "updatedAt": "2026-05-23T02:20:52.966Z",
   "defaultAffectedAuditBlockedStatuses": [
     "legacy",
     "blocked"
@@ -3466,6 +3466,118 @@
         "check:deployment"
       ],
       "reason": "scripts/verify-deployment.ts is an active canonical validator for repo-governance contracts."
+    },
+    "scripts/agent/validate-settings-connection-parity.ts": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "packageScripts": [
+        "check:settings-connection-parity"
+      ],
+      "reason": "Canonical account and creator settings surface connection validator."
+    },
+    "scripts/agent/validate-settings-route-alias-cleanup.ts": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "packageScripts": [
+        "check:settings-route-alias-cleanup"
+      ],
+      "reason": "Canonical settings route alias and surface split cleanup validator."
+    },
+    "scripts/agent/validate-stale-client-preferences-cleanup.ts": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "packageScripts": [
+        "check:stale-client-preferences-cleanup"
+      ],
+      "reason": "Canonical stale client preference bypass validator."
+    },
+    "scripts/agent/validate-support-policy-surface-cleanup.ts": {
+      "surface": "settings",
+      "authority": "supporting_contract",
+      "status": "supporting",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "packageScripts": [
+        "check:support-policy-surface-cleanup"
+      ],
+      "reason": "Support and policy route health feeds the consolidated Settings health lane."
+    },
+    "scripts/agent/validate-user-profile-api-contract.ts": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "packageScripts": [
+        "check:user-profile-api-contract"
+      ],
+      "reason": "Canonical user profile API contract validator for Account Settings profile truth."
+    },
+    "scripts/agent/validate-account-settings-delete-flow.ts": {
+      "surface": "settings",
+      "authority": "supporting_contract",
+      "status": "supporting",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "packageScripts": [
+        "check:account-settings-delete-flow"
+      ],
+      "reason": "Account safety delete-flow status feeds the consolidated Settings health lane."
+    },
+    "scripts/agent/validate-settings-debug-validator-authority.ts": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "packageScripts": [
+        "check:settings-debug-validator-authority"
+      ],
+      "reason": "Canonical settings validator authority and debug lane validator."
+    },
+    "scripts/agent/validate-settings-creator-dashboard-split.ts": {
+      "surface": "settings",
+      "authority": "superseded_contract",
+      "status": "superseded",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "packageScripts": [
+        "check:settings-creator-dashboard-split"
+      ],
+      "reason": "Superseded by check:settings-connection-parity and check:settings-route-alias-cleanup; retained only for compatibility."
     }
   },
   "packageScripts": {
@@ -7083,16 +7195,137 @@
       ],
       "reason": "score:validator-authority is supporting evidence for canonical agent-context contracts.",
       "legacyReference": false
+    },
+    "check:settings-connection-parity": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-settings-connection-parity.ts"
+      ],
+      "reason": "check:settings-connection-parity aggregates settings validator authority evidence.",
+      "legacyReference": false
+    },
+    "check:settings-route-alias-cleanup": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-settings-route-alias-cleanup.ts"
+      ],
+      "reason": "check:settings-route-alias-cleanup aggregates settings validator authority evidence.",
+      "legacyReference": false
+    },
+    "check:stale-client-preferences-cleanup": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-stale-client-preferences-cleanup.ts"
+      ],
+      "reason": "check:stale-client-preferences-cleanup aggregates settings validator authority evidence.",
+      "legacyReference": false
+    },
+    "check:support-policy-surface-cleanup": {
+      "surface": "settings",
+      "authority": "supporting_contract",
+      "status": "supporting",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-support-policy-surface-cleanup.ts"
+      ],
+      "reason": "check:support-policy-surface-cleanup aggregates settings validator authority evidence.",
+      "legacyReference": false
+    },
+    "check:user-profile-api-contract": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-user-profile-api-contract.ts"
+      ],
+      "reason": "check:user-profile-api-contract aggregates settings validator authority evidence.",
+      "legacyReference": false
+    },
+    "check:account-settings-delete-flow": {
+      "surface": "settings",
+      "authority": "supporting_contract",
+      "status": "supporting",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-account-settings-delete-flow.ts"
+      ],
+      "reason": "check:account-settings-delete-flow aggregates settings validator authority evidence.",
+      "legacyReference": false
+    },
+    "check:settings-debug-validator-authority": {
+      "surface": "settings",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-settings-debug-validator-authority.ts"
+      ],
+      "reason": "check:settings-debug-validator-authority aggregates settings validator authority evidence.",
+      "legacyReference": false
+    },
+    "check:settings-creator-dashboard-split": {
+      "surface": "settings",
+      "authority": "superseded_contract",
+      "status": "superseded",
+      "canonicalContracts": [
+        "src/lib/debug/settings-debug-validator-authority.ts",
+        "src/lib/settings/settings-surface-contract.ts",
+        "src/lib/settings/client-preferences-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-settings-creator-dashboard-split.ts"
+      ],
+      "reason": "check:settings-creator-dashboard-split aggregates settings validator authority evidence.",
+      "legacyReference": true
     }
   },
   "summary": {
-    "validatorCount": 244,
-    "packageScriptCount": 236,
+    "validatorCount": 252,
+    "packageScriptCount": 244,
     "byStatus": {
-      "canonical": 185,
-      "supporting": 56,
+      "canonical": 190,
+      "supporting": 58,
+      "blocked": 2,
       "legacy": 1,
-      "blocked": 2
+      "superseded": 1
     }
   }
 }

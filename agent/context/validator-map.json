@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T04:00:55.422Z",
+  "generatedAt": "2026-05-23T02:20:53.002Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 244,
+  "validatorCount": 252,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -29,6 +29,7 @@
     "legacy-phaseout",
     "moderation",
     "repo-governance",
+    "settings",
     "speed-security",
     "support",
     "telemetry",
@@ -319,6 +320,15 @@
       "check:watch-time-rollup-truth",
       "check:watch-time-truth",
       "check:watch-time-truth-v2"
+    ],
+    "settings": [
+      "check:account-settings-delete-flow",
+      "check:settings-connection-parity",
+      "check:settings-debug-validator-authority",
+      "check:settings-route-alias-cleanup",
+      "check:stale-client-preferences-cleanup",
+      "check:support-policy-surface-cleanup",
+      "check:user-profile-api-contract"
     ]
   },
   "validators": {
@@ -565,7 +575,15 @@
     "score:tracking-surface-coverage": "behavioral-intelligence",
     "score:validator-authority": "user-management",
     "validate:behavioral-models": "ai-panel",
-    "validate:behavioral-predictions": "behavioral-intelligence"
+    "validate:behavioral-predictions": "behavioral-intelligence",
+    "check:settings-connection-parity": "settings",
+    "check:settings-route-alias-cleanup": "settings",
+    "check:stale-client-preferences-cleanup": "settings",
+    "check:support-policy-surface-cleanup": "settings",
+    "check:user-profile-api-contract": "settings",
+    "check:account-settings-delete-flow": "settings",
+    "check:settings-debug-validator-authority": "settings",
+    "check:settings-creator-dashboard-split": "settings"
   },
   "unmappedPackageScripts": []
 }

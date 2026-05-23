@@ -14,10 +14,10 @@ describe("stale client preferences cleanup", () => {
     const contract = await import("../../src/lib/settings/client-preferences-contract");
 
     expect(contract.SETTINGS_CLIENT_PREFERENCE_CONTRACT_VERSION).toBe("2026.05.stale-client-preferences.1");
-    expect(contract.SETTINGS_CLIENT_PREFERENCE_DEBUG_LANE.laneId).toBe("settings_connection_health");
+    expect(contract.SETTINGS_CLIENT_PREFERENCE_DEBUG_LANE.laneId).toBe("settings_health");
     expect(contract.SETTINGS_CLIENT_PREFERENCE_ITEMS.some((item) => item.classification === "stale_bypass")).toBe(false);
     expect(contract.SETTINGS_CLIENT_PREFERENCE_ITEMS.some((item) => item.storageRole === "backend_truth")).toBe(false);
-    expect(contract.SETTINGS_CLIENT_PREFERENCE_ITEMS.every((item) => item.debugVisibility === "settings_connection_health")).toBe(true);
+    expect(contract.SETTINGS_CLIENT_PREFERENCE_ITEMS.every((item) => item.debugVisibility === "settings_health")).toBe(true);
   });
 
   it("keeps privacy and creator settings writes on canonical backend contracts", () => {
