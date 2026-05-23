@@ -52,6 +52,7 @@ const BEHAVIOR_MATH_VERIFICATION_PATH = "agent/state/behavior-math-verification.
 const DEBUG_RUNTIME_EVIDENCE_PATH = "agent/state/debug-runtime-evidence.generated.json";
 const EVENT_TRANSLATION_BRIDGE_PATH = "agent/state/event-translation-bridge.generated.json";
 const PERSON_METRICS_HYDRATION_PATH = "agent/state/person-metrics-hydration.generated.json";
+const TELEMETRY_TRIGGER_TEST_MATRIX_PATH = "agent/state/telemetry-trigger-test-matrix.generated.json";
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const ADMIN_TRUTH_SOURCE_SAMPLE_PATH = "agent/state/admin-truth-source-sample.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
@@ -616,6 +617,51 @@ function readPersonMetricsHydrationEvidence(root: string): PublicBetaEvidenceArt
   };
 }
 
+function readTelemetryTriggerTestMatrixEvidence(root: string): PublicBetaEvidenceArtifact | null {
+  const parsed = readJsonFile(root, TELEMETRY_TRIGGER_TEST_MATRIX_PATH);
+  if (!parsed) return null;
+
+  const debugLane = readRecord(parsed.debugLane);
+  const readLaneNumber = (key: string) => readNumber(debugLane[key]) ?? readNumber(parsed[key]) ?? 0;
+  const formalGateImpact = readRecord(parsed.formalGateImpact);
+  const status = readString(parsed.status) ?? "missing_or_unknown";
+  const missingTriggerTests = readLaneNumber("missingTriggerTests");
+  const uiOnlyTests = readLaneNumber("uiOnlyTests");
+  const waitingGaps = readLaneNumber("waitingOnActivityDeterministicGaps");
+  const sourceReady = status === "pass"
+    && missingTriggerTests === 0
+    && uiOnlyTests === 0
+    && waitingGaps === 0
+    && readBoolean(parsed.productionReadsRequired) === false
+    && readBoolean(parsed.liveDataMutationAllowed) === false
+    && readBoolean(formalGateImpact.clearsFormalProvider) === false
+    && readBoolean(formalGateImpact.clearsDeployedRuntime) === false
+    && readBoolean(formalGateImpact.clearsFormalAdminTruth) === false;
+
+  return {
+    path: TELEMETRY_TRIGGER_TEST_MATRIX_PATH,
+    status: sourceReady ? "source_ready_telemetry_trigger_test_matrix" : status,
+    passed: false,
+    detail: sourceReady
+      ? "Telemetry trigger test matrix is source-ready for user action, envelope, feature activity, person metric, debug lane, and score input coverage without clearing deployed runtime proof."
+      : "Telemetry trigger test matrix evidence is missing required deterministic coverage guardrails.",
+    evidence: [
+      `telemetryTriggerTestMatrix.status=${status}`,
+      `telemetryTriggerTestMatrix.totalTriggers=${readLaneNumber("totalTriggers")}`,
+      `telemetryTriggerTestMatrix.coveredTriggers=${readLaneNumber("coveredTriggers")}`,
+      `telemetryTriggerTestMatrix.missingTriggerTests=${missingTriggerTests}`,
+      `telemetryTriggerTestMatrix.uiOnlyTests=${uiOnlyTests}`,
+      `telemetryTriggerTestMatrix.waitingOnActivityDeterministicGaps=${waitingGaps}`,
+      "launchGateImpact=does_not_clear_deployed_runtime_smoke",
+      `telemetryTriggerTestMatrix.clearsFormalProvider=${readBoolean(formalGateImpact.clearsFormalProvider) === true}`,
+      `telemetryTriggerTestMatrix.clearsDeployedRuntime=${readBoolean(formalGateImpact.clearsDeployedRuntime) === true}`,
+      `telemetryTriggerTestMatrix.clearsFormalAdminTruth=${readBoolean(formalGateImpact.clearsFormalAdminTruth) === true}`,
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
+}
+
 function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvidenceArtifact {
   const debugRuntime = readDebugRuntimeEvidence(root);
   const currentHead = readGitHead(root);
@@ -624,6 +670,8 @@ function readDebugRuntimeOrEventTranslationEvidence(root: string): PublicBetaEvi
   if (debugSourceReady) return debugRuntime;
   const personMetricsHydration = readPersonMetricsHydrationEvidence(root);
   if (personMetricsHydration?.status === "source_ready_person_metrics_hydration") return personMetricsHydration;
+  const telemetryTriggerTestMatrix = readTelemetryTriggerTestMatrixEvidence(root);
+  if (telemetryTriggerTestMatrix?.status === "source_ready_telemetry_trigger_test_matrix") return telemetryTriggerTestMatrix;
   return readEventTranslationBridgeEvidence(root) ?? debugRuntime;
 }
 

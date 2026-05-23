@@ -426,6 +426,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_call_booking_created", label: "Creator call booking created", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_live_time_booked", label: "Creator live time booked", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_call_booking_completed", label: "Creator call booking completed", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
+  { eventName: "creator_fan_pass_viewed", label: "Creator Fan Pass viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_fan_pass_started", label: "Creator Fan Pass started", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_subscription_started", label: "Creator subscription started", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_subscription_renewed", label: "Creator subscription renewed", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },

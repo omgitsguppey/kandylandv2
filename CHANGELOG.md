@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.94 - 2026-05-23
+- Telemetry trigger coverage
+- Added telemetry trigger coverage from user action to score input.
+- Reduced waiting-on-activity gaps with deterministic tests.
+- Cleaned stale and duplicate tracking validators.
+
 ## 1.3.93 - 2026-05-23
 - Person metrics hydration reliability
 - Hydrated individual user metrics from canonical event envelopes.

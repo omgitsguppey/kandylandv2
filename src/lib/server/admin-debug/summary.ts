@@ -9,6 +9,7 @@ import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analy
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildEventTranslationBridgeReport } from "@/lib/analytics/event-translation-bridge";
 import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
+import { buildTelemetryTriggerTestMatrixReport } from "@/lib/testing/telemetry-trigger-test-matrix";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
 import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
@@ -162,12 +163,16 @@ export async function buildAdminDebugSummaryPayload(input: {
   const personMetricsHydration = buildPersonMetricsHydrationReport({
     generatedAtUtc: new Date(nowMs).toISOString(),
   });
+  const telemetryTriggerTestMatrix = buildTelemetryTriggerTestMatrixReport({
+    generatedAtUtc: new Date(nowMs).toISOString(),
+  });
   const legacyRecovery = buildLegacyRecoveryDebugSummary();
   const trackingSummary = buildDebugPanelTrackingSummary({
     identityHandoff,
     eventEnvelope,
     eventTranslationBridge,
     personMetricsHydration,
+    telemetryTriggerTestMatrix,
     legacyRecovery,
     telemetryHealth,
     behavioralSnapshotStatus,
@@ -197,6 +202,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     eventEnvelope,
     eventTranslationBridge,
     personMetricsHydration,
+    telemetryTriggerTestMatrix,
     legacyRecovery,
     trackingSummary,
     costControls,

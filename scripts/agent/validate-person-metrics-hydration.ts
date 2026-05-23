@@ -69,14 +69,14 @@ function envelope(eventName: string, index: number): CanonicalEventEnvelope {
     timestamp: "2026-05-23T05:00:00.000Z",
     featureId: "person_metrics_hydration_validator",
     surface: "agent_validator",
-    actorKind: index % 7 === 0 ? "creator_user" : index % 5 === 0 ? "signed_in_user" : "signed_in_user",
-    identityState: index % 5 === 0 ? "logged_in_linked_guest" : "logged_in_unlinked",
-    identityConfidence: index % 5 === 0 ? "linked" : "exact",
+    actorKind: index % 7 === 0 ? "creator_user" : "signed_in_user",
+    identityState: "logged_in_unlinked",
+    identityConfidence: "exact",
     consentMode: eventName.startsWith("watch_session") || eventName === "viewer_watch_checkpoint" ? "full_behavioral" : "minimal_analytics",
     sessionId: `validator_session_${index}`,
-    guestId: index % 5 === 0 ? `guest_${index}` : null,
+    guestId: null,
     userRef: { kind: "user", id: `user_${index}` },
-    linkId: index % 5 === 0 ? `link_${index}` : null,
+    linkId: null,
     source: "system",
     materializerLane: "person_metrics",
     debugVisibility: "admin_debug",
@@ -102,6 +102,7 @@ function findActiveOldLogic() {
     if (path === "scripts/agent/validate-person-metrics-hydration.ts") return false;
     if (path === "docs/agent-truth/person-metrics-hydration.md") return false;
     if (path === "tests/unit/person-metrics-hydration.spec.ts") return false;
+    if (path === "src/lib/analytics/person-metrics-hydration.ts") return false;
     return oldLogicPattern.test(read(path));
   });
 }

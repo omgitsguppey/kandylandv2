@@ -2548,6 +2548,21 @@
       ],
       "reason": "scripts/agent/validate-telemetry-parity-score.ts is an active canonical validator for telemetry contracts."
     },
+    "scripts/agent/validate-telemetry-trigger-test-matrix.ts": {
+      "surface": "telemetry",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/testing/telemetry-trigger-test-matrix.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts"
+      ],
+      "packageScripts": [
+        "check:telemetry-trigger-test-matrix"
+      ],
+      "reason": "scripts/agent/validate-telemetry-trigger-test-matrix.ts is an active canonical validator for telemetry trigger coverage contracts."
+    },
     "scripts/agent/validate-test-fixtures-demo.ts": {
       "surface": "repo-governance",
       "authority": "canonical_contract",
@@ -7167,6 +7182,22 @@
       "reason": "score:telemetry-identified-parity is supporting evidence for canonical telemetry contracts.",
       "legacyReference": false
     },
+    "check:telemetry-trigger-test-matrix": {
+      "surface": "telemetry",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "src/lib/testing/telemetry-trigger-test-matrix.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-telemetry-trigger-test-matrix.ts"
+      ],
+      "reason": "check:telemetry-trigger-test-matrix validates telemetry trigger coverage from source action to score input.",
+      "legacyReference": false
+    },
     "score:tracking-surface-coverage": {
       "surface": "behavioral-intelligence",
       "authority": "supporting_score",
@@ -7318,10 +7349,10 @@
     }
   },
   "summary": {
-    "validatorCount": 252,
-    "packageScriptCount": 244,
+    "validatorCount": 253,
+    "packageScriptCount": 245,
     "byStatus": {
-      "canonical": 190,
+      "canonical": 191,
       "supporting": 58,
       "blocked": 2,
       "legacy": 1,

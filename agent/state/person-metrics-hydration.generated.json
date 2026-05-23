@@ -1,22 +1,22 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-05-23T05:09:21.360Z",
+  "generatedAtUtc": "2026-05-23T05:56:33.824Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeMetricsUsed": false,
   "debugLane": {
     "label": "Person metrics hydration",
-    "producersRegistered": 80,
-    "producersConnected": 23,
-    "eventEnvelopesHydrated": 32,
-    "globalMetricsHydrated": 23,
+    "producersRegistered": 86,
+    "producersConnected": 24,
+    "eventEnvelopesHydrated": 33,
+    "globalMetricsHydrated": 24,
     "guestMetricsHydrated": 0,
-    "signedInMetricsHydrated": 23,
-    "linkedPersonMetricsHydrated": 4,
+    "signedInMetricsHydrated": 24,
+    "linkedPersonMetricsHydrated": 0,
     "creatorRoleMetricsHydrated": 4,
-    "personMetricsMapped": 23,
-    "lowConfidenceMetrics": 4,
+    "personMetricsMapped": 24,
+    "lowConfidenceMetrics": 0,
     "gaps": 0
   },
   "metricStatus": {
@@ -110,7 +110,7 @@
     "creator_profile_views": {
       "metricId": "creator_profile_views",
       "count": 1,
-      "confidence": "linked",
+      "confidence": "exact",
       "provenZero": false,
       "sourceEvents": [
         "creator_profile_viewed",
@@ -122,7 +122,7 @@
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
       "state": "hydrated",
-      "lowConfidenceReason": "creator_profile_views hydrated below exact confidence (linked).",
+      "lowConfidenceReason": null,
       "missingProducer": null,
       "missingBridge": null
     },
@@ -206,7 +206,7 @@
     "package_selections": {
       "metricId": "package_selections",
       "count": 1,
-      "confidence": "linked",
+      "confidence": "exact",
       "provenZero": false,
       "sourceEvents": [
         "purchase_package_selected"
@@ -217,7 +217,7 @@
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
       "state": "hydrated",
-      "lowConfidenceReason": "package_selections hydrated below exact confidence (linked).",
+      "lowConfidenceReason": null,
       "missingProducer": null,
       "missingBridge": null
     },
@@ -305,7 +305,7 @@
     "fan_pass_views": {
       "metricId": "fan_pass_views",
       "count": 1,
-      "confidence": "linked",
+      "confidence": "exact",
       "provenZero": false,
       "sourceEvents": [
         "creator_fan_pass_viewed",
@@ -317,7 +317,7 @@
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
       "state": "hydrated",
-      "lowConfidenceReason": "fan_pass_views hydrated below exact confidence (linked).",
+      "lowConfidenceReason": null,
       "missingProducer": null,
       "missingBridge": null
     },
@@ -401,14 +401,15 @@
     "notification_interactions": {
       "metricId": "notification_interactions",
       "count": 1,
-      "confidence": "linked",
+      "confidence": "exact",
       "provenZero": false,
       "sourceEvents": [
         "notification_opened",
         "notification_read",
         "notification_action_clicked",
         "notification_mark_all_read",
-        "notification_cleared"
+        "notification_cleared",
+        "notification_prompt_banner_viewed"
       ],
       "hydratedEventIds": [
         "person_metrics_validator:notification_opened:20"
@@ -416,7 +417,7 @@
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
       "state": "hydrated",
-      "lowConfidenceReason": "notification_interactions hydrated below exact confidence (linked).",
+      "lowConfidenceReason": null,
       "missingProducer": null,
       "missingBridge": null
     },
@@ -459,7 +460,8 @@
         "creator_setting_updated",
         "creator_settings_updated",
         "creator_settings_control_plane_saved",
-        "creator_settings_migrated_redirect_viewed"
+        "creator_settings_migrated_redirect_viewed",
+        "cookie_consent_updated"
       ],
       "hydratedEventIds": [
         "person_metrics_validator:user_settings_viewed:22"
@@ -482,6 +484,7 @@
         "support_thread_opened",
         "support_reply_viewed",
         "support_reply_sent",
+        "data_export_requested",
         "account_delete_clicked",
         "account_delete_confirm_opened",
         "account_delete_confirmed",
@@ -492,6 +495,26 @@
       ],
       "hydratedEventIds": [
         "person_metrics_validator:support_inbox_viewed:23"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
+    "creator_drop_manager_actions": {
+      "metricId": "creator_drop_manager_actions",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "creator_drop_submitted",
+        "creator_drop_updated",
+        "admin_creator_drop_reviewed"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:creator_drop_submitted:24"
       ],
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
@@ -579,7 +602,7 @@
         "creator_profile_views": {
           "metricId": "creator_profile_views",
           "count": 1,
-          "confidence": "linked",
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "creator_profile_viewed",
@@ -655,7 +678,7 @@
         "package_selections": {
           "metricId": "package_selections",
           "count": 1,
-          "confidence": "linked",
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "purchase_package_selected"
@@ -734,7 +757,7 @@
         "fan_pass_views": {
           "metricId": "fan_pass_views",
           "count": 1,
-          "confidence": "linked",
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "creator_fan_pass_viewed",
@@ -810,20 +833,21 @@
         "notification_interactions": {
           "metricId": "notification_interactions",
           "count": 1,
-          "confidence": "linked",
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "notification_opened",
             "notification_read",
             "notification_action_clicked",
             "notification_mark_all_read",
-            "notification_cleared"
+            "notification_cleared",
+            "notification_prompt_banner_viewed"
           ],
           "hydratedEventIds": [
             "person_metrics_validator:notification_opened:20"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
         },
         "runtime_watch_sessions": {
           "metricId": "runtime_watch_sessions",
@@ -860,13 +884,14 @@
             "creator_setting_updated",
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
-            "creator_settings_migrated_redirect_viewed"
+            "creator_settings_migrated_redirect_viewed",
+            "cookie_consent_updated"
           ],
           "hydratedEventIds": [
             "person_metrics_validator:user_settings_viewed:22"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -879,6 +904,7 @@
             "support_thread_opened",
             "support_reply_viewed",
             "support_reply_sent",
+            "data_export_requested",
             "account_delete_clicked",
             "account_delete_confirm_opened",
             "account_delete_confirmed",
@@ -891,11 +917,27 @@
             "person_metrics_validator:support_inbox_viewed:23"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        },
+        "creator_drop_manager_actions": {
+          "metricId": "creator_drop_manager_actions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_drop_submitted",
+            "creator_drop_updated",
+            "admin_creator_drop_reviewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_drop_submitted:24"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
         }
       },
-      "totalCount": 32,
-      "lowConfidenceCount": 4
+      "totalCount": 33,
+      "lowConfidenceCount": 0
     },
     "guest": {
       "scope": "guest",
@@ -1165,11 +1207,12 @@
             "notification_read",
             "notification_action_clicked",
             "notification_mark_all_read",
-            "notification_cleared"
+            "notification_cleared",
+            "notification_prompt_banner_viewed"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
         },
         "runtime_watch_sessions": {
           "metricId": "runtime_watch_sessions",
@@ -1204,11 +1247,12 @@
             "creator_setting_updated",
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
-            "creator_settings_migrated_redirect_viewed"
+            "creator_settings_migrated_redirect_viewed",
+            "cookie_consent_updated"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -1221,6 +1265,7 @@
             "support_thread_opened",
             "support_reply_viewed",
             "support_reply_sent",
+            "data_export_requested",
             "account_delete_clicked",
             "account_delete_confirm_opened",
             "account_delete_confirmed",
@@ -1231,11 +1276,25 @@
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        },
+        "creator_drop_manager_actions": {
+          "metricId": "creator_drop_manager_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_drop_submitted",
+            "creator_drop_updated",
+            "admin_creator_drop_reviewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
         }
       },
       "totalCount": 0,
-      "lowConfidenceCount": 23
+      "lowConfidenceCount": 24
     },
     "signedIn": {
       "scope": "signedIn",
@@ -1314,7 +1373,7 @@
         "creator_profile_views": {
           "metricId": "creator_profile_views",
           "count": 1,
-          "confidence": "linked",
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "creator_profile_viewed",
@@ -1390,7 +1449,7 @@
         "package_selections": {
           "metricId": "package_selections",
           "count": 1,
-          "confidence": "linked",
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "purchase_package_selected"
@@ -1469,7 +1528,7 @@
         "fan_pass_views": {
           "metricId": "fan_pass_views",
           "count": 1,
-          "confidence": "linked",
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "creator_fan_pass_viewed",
@@ -1545,20 +1604,21 @@
         "notification_interactions": {
           "metricId": "notification_interactions",
           "count": 1,
-          "confidence": "linked",
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "notification_opened",
             "notification_read",
             "notification_action_clicked",
             "notification_mark_all_read",
-            "notification_cleared"
+            "notification_cleared",
+            "notification_prompt_banner_viewed"
           ],
           "hydratedEventIds": [
             "person_metrics_validator:notification_opened:20"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
         },
         "runtime_watch_sessions": {
           "metricId": "runtime_watch_sessions",
@@ -1595,13 +1655,14 @@
             "creator_setting_updated",
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
-            "creator_settings_migrated_redirect_viewed"
+            "creator_settings_migrated_redirect_viewed",
+            "cookie_consent_updated"
           ],
           "hydratedEventIds": [
             "person_metrics_validator:user_settings_viewed:22"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -1614,6 +1675,7 @@
             "support_thread_opened",
             "support_reply_viewed",
             "support_reply_sent",
+            "data_export_requested",
             "account_delete_clicked",
             "account_delete_confirm_opened",
             "account_delete_confirmed",
@@ -1626,11 +1688,27 @@
             "person_metrics_validator:support_inbox_viewed:23"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        },
+        "creator_drop_manager_actions": {
+          "metricId": "creator_drop_manager_actions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_drop_submitted",
+            "creator_drop_updated",
+            "admin_creator_drop_reviewed"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:creator_drop_submitted:24"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
         }
       },
-      "totalCount": 32,
-      "lowConfidenceCount": 4
+      "totalCount": 33,
+      "lowConfidenceCount": 0
     },
     "linkedPerson": {
       "scope": "linkedPerson",
@@ -1692,17 +1770,15 @@
         },
         "creator_profile_views": {
           "metricId": "creator_profile_views",
-          "count": 1,
-          "confidence": "linked",
+          "count": 0,
+          "confidence": "unknown",
           "provenZero": false,
           "sourceEvents": [
             "creator_profile_viewed",
             "creator_profile_link_clicked"
           ],
-          "hydratedEventIds": [
-            "person_metrics_validator:creator_profile_viewed:5"
-          ],
-          "suppressedDuplicateCount": 1,
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
         },
         "drop_opens": {
@@ -1760,16 +1836,14 @@
         },
         "package_selections": {
           "metricId": "package_selections",
-          "count": 1,
-          "confidence": "linked",
+          "count": 0,
+          "confidence": "unknown",
           "provenZero": false,
           "sourceEvents": [
             "purchase_package_selected"
           ],
-          "hydratedEventIds": [
-            "person_metrics_validator:purchase_package_selected:10"
-          ],
-          "suppressedDuplicateCount": 1,
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for package_selections; expected producer event(s): purchase_package_selected."
         },
         "checkout_starts": {
@@ -1830,17 +1904,15 @@
         },
         "fan_pass_views": {
           "metricId": "fan_pass_views",
-          "count": 1,
-          "confidence": "linked",
+          "count": 0,
+          "confidence": "unknown",
           "provenZero": false,
           "sourceEvents": [
             "creator_fan_pass_viewed",
             "creator_subscription_viewed"
           ],
-          "hydratedEventIds": [
-            "person_metrics_validator:creator_fan_pass_viewed:15"
-          ],
-          "suppressedDuplicateCount": 1,
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed."
         },
         "fan_pass_purchases": {
@@ -1898,21 +1970,20 @@
         },
         "notification_interactions": {
           "metricId": "notification_interactions",
-          "count": 1,
-          "confidence": "linked",
+          "count": 0,
+          "confidence": "unknown",
           "provenZero": false,
           "sourceEvents": [
             "notification_opened",
             "notification_read",
             "notification_action_clicked",
             "notification_mark_all_read",
-            "notification_cleared"
+            "notification_cleared",
+            "notification_prompt_banner_viewed"
           ],
-          "hydratedEventIds": [
-            "person_metrics_validator:notification_opened:20"
-          ],
-          "suppressedDuplicateCount": 1,
-          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
         },
         "runtime_watch_sessions": {
           "metricId": "runtime_watch_sessions",
@@ -1947,11 +2018,12 @@
             "creator_setting_updated",
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
-            "creator_settings_migrated_redirect_viewed"
+            "creator_settings_migrated_redirect_viewed",
+            "cookie_consent_updated"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -1964,6 +2036,7 @@
             "support_thread_opened",
             "support_reply_viewed",
             "support_reply_sent",
+            "data_export_requested",
             "account_delete_clicked",
             "account_delete_confirm_opened",
             "account_delete_confirmed",
@@ -1974,11 +2047,25 @@
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        },
+        "creator_drop_manager_actions": {
+          "metricId": "creator_drop_manager_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_drop_submitted",
+            "creator_drop_updated",
+            "admin_creator_drop_reviewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
         }
       },
-      "totalCount": 4,
-      "lowConfidenceCount": 23
+      "totalCount": 0,
+      "lowConfidenceCount": 24
     },
     "creatorRole": {
       "scope": "creatorRole",
@@ -2254,11 +2341,12 @@
             "notification_read",
             "notification_action_clicked",
             "notification_mark_all_read",
-            "notification_cleared"
+            "notification_cleared",
+            "notification_prompt_banner_viewed"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared."
+          "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
         },
         "runtime_watch_sessions": {
           "metricId": "runtime_watch_sessions",
@@ -2295,11 +2383,12 @@
             "creator_setting_updated",
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
-            "creator_settings_migrated_redirect_viewed"
+            "creator_settings_migrated_redirect_viewed",
+            "cookie_consent_updated"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -2312,6 +2401,7 @@
             "support_thread_opened",
             "support_reply_viewed",
             "support_reply_sent",
+            "data_export_requested",
             "account_delete_clicked",
             "account_delete_confirm_opened",
             "account_delete_confirmed",
@@ -2322,93 +2412,28 @@
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+          "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
+        },
+        "creator_drop_manager_actions": {
+          "metricId": "creator_drop_manager_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "creator_drop_submitted",
+            "creator_drop_updated",
+            "admin_creator_drop_reviewed"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
         }
       },
       "totalCount": 4,
-      "lowConfidenceCount": 19
+      "lowConfidenceCount": 20
     }
   },
-  "lowConfidenceMetrics": [
-    {
-      "metricId": "creator_profile_views",
-      "count": 1,
-      "confidence": "linked",
-      "provenZero": false,
-      "sourceEvents": [
-        "creator_profile_viewed",
-        "creator_profile_link_clicked"
-      ],
-      "hydratedEventIds": [
-        "person_metrics_validator:creator_profile_viewed:5"
-      ],
-      "suppressedDuplicateCount": 0,
-      "missingSourceExplanation": "",
-      "state": "hydrated",
-      "lowConfidenceReason": "creator_profile_views hydrated below exact confidence (linked).",
-      "missingProducer": null,
-      "missingBridge": null
-    },
-    {
-      "metricId": "fan_pass_views",
-      "count": 1,
-      "confidence": "linked",
-      "provenZero": false,
-      "sourceEvents": [
-        "creator_fan_pass_viewed",
-        "creator_subscription_viewed"
-      ],
-      "hydratedEventIds": [
-        "person_metrics_validator:creator_fan_pass_viewed:15"
-      ],
-      "suppressedDuplicateCount": 0,
-      "missingSourceExplanation": "",
-      "state": "hydrated",
-      "lowConfidenceReason": "fan_pass_views hydrated below exact confidence (linked).",
-      "missingProducer": null,
-      "missingBridge": null
-    },
-    {
-      "metricId": "notification_interactions",
-      "count": 1,
-      "confidence": "linked",
-      "provenZero": false,
-      "sourceEvents": [
-        "notification_opened",
-        "notification_read",
-        "notification_action_clicked",
-        "notification_mark_all_read",
-        "notification_cleared"
-      ],
-      "hydratedEventIds": [
-        "person_metrics_validator:notification_opened:20"
-      ],
-      "suppressedDuplicateCount": 0,
-      "missingSourceExplanation": "",
-      "state": "hydrated",
-      "lowConfidenceReason": "notification_interactions hydrated below exact confidence (linked).",
-      "missingProducer": null,
-      "missingBridge": null
-    },
-    {
-      "metricId": "package_selections",
-      "count": 1,
-      "confidence": "linked",
-      "provenZero": false,
-      "sourceEvents": [
-        "purchase_package_selected"
-      ],
-      "hydratedEventIds": [
-        "person_metrics_validator:purchase_package_selected:10"
-      ],
-      "suppressedDuplicateCount": 0,
-      "missingSourceExplanation": "",
-      "state": "hydrated",
-      "lowConfidenceReason": "package_selections hydrated below exact confidence (linked).",
-      "missingProducer": null,
-      "missingBridge": null
-    }
-  ],
+  "lowConfidenceMetrics": [],
   "missingHydration": [],
   "legacySummary": {
     "candidatesReviewed": 1,
@@ -2419,7 +2444,7 @@
   "validation": {
     "checkoutStartCountsAsPaymentSuccess": false,
     "pageTimeCountsAsWatchTime": false,
-    "duplicateGuestUserCountsSuppressed": 4,
+    "duplicateGuestUserCountsSuppressed": 0,
     "unknownLegacyBecameExact": false,
     "zeroWithoutProvenZero": false
   },
@@ -2431,7 +2456,7 @@
     },
     "runtimeHealth": {
       "before": 80,
-      "after": 83,
+      "after": 84,
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     },
     "evidenceCompleteness": {
@@ -2455,14 +2480,22 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "fa929bd2cbbf640bd1f2f17cd15940306ffdd3e3",
+  "currentHead": "d97ea4f1b2862e4179b625b3b1ddd13f96feb4c1",
   "dirtyFiles": [
     {
       "path": "CHANGELOG.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/person-metrics-contract.generated.json",
+      "path": "agent/context/validator-authority.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -2474,11 +2507,23 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/person-metrics-contract.md",
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -2494,6 +2539,10 @@
       "classification": "real_source_change_needs_review"
     },
     {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
       "path": "scripts/agent/validate-person-metrics-hydration.ts",
       "classification": "validator_artifact_expected"
     },
@@ -2502,7 +2551,15 @@
       "classification": "validator_artifact_expected"
     },
     {
+      "path": "scripts/agent/validate-telemetry-trigger-test-matrix.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
       "path": "src/app/api/admin/debug/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -2530,15 +2587,19 @@
       "classification": "real_source_change_needs_review"
     },
     {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
       "path": "tests/unit/debug-tracking-simplification.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/person-metrics-contract.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/person-metrics-hydration.spec.ts",
+      "path": "tests/unit/telemetry-trigger-test-matrix.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

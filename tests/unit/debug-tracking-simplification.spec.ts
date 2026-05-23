@@ -33,6 +33,16 @@ describe("debug tracking simplification", () => {
           gaps: 0,
         },
       },
+      telemetryTriggerTestMatrix: {
+        status: "pass",
+        debugLane: {
+          totalTriggers: 23,
+          coveredTriggers: 23,
+          missingTriggerTests: 0,
+          uiOnlyTests: 0,
+          waitingOnActivityDeterministicGaps: 0,
+        },
+      },
       legacyRecovery: { status: "ready_for_dry_run_review", mutationsAllowed: false },
       telemetryHealth: {
         summary: { degraded: 1, runtimeUnproven: 1, unavailable: 0 },
@@ -60,6 +70,12 @@ describe("debug tracking simplification", () => {
     });
     expect(summary.lanes.find((lane) => lane.id === "person_metrics_hydration")).toMatchObject({
       label: "Person metrics hydration",
+      status: "live",
+      criticalCount: 0,
+      warningCount: 0,
+    });
+    expect(summary.lanes.find((lane) => lane.id === "testing_coverage")).toMatchObject({
+      label: "Testing coverage",
       status: "live",
       criticalCount: 0,
       warningCount: 0,
@@ -117,6 +133,16 @@ describe("debug tracking simplification", () => {
           gaps: 2,
         },
       },
+      telemetryTriggerTestMatrix: {
+        status: "pass",
+        debugLane: {
+          totalTriggers: 23,
+          coveredTriggers: 23,
+          missingTriggerTests: 0,
+          uiOnlyTests: 0,
+          waitingOnActivityDeterministicGaps: 0,
+        },
+      },
       legacyRecovery: { status: "ready_for_dry_run_review" },
       telemetryHealth: { summary: { degraded: 3, runtimeUnproven: 0, unavailable: 1 }, lanes: [{ id: "a" }] },
       behavioralSnapshotStatus: { status: "stale" },
@@ -133,6 +159,7 @@ describe("debug tracking simplification", () => {
       "event_envelope",
       "event_translation_bridge",
       "person_metrics_hydration",
+      "testing_coverage",
       "behavior_math",
       "feature_coverage",
       "settings",

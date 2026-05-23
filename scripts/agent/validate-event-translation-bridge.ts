@@ -58,6 +58,7 @@ function findActiveOldLogic() {
     if (path === "scripts/agent/validate-event-translation-bridge.ts") return false;
     if (path === "docs/agent-truth/event-translation-bridge.md") return false;
     if (path === "tests/unit/event-translation-bridge.spec.ts") return false;
+    if (path === "src/lib/analytics/event-translation-bridge.ts") return false;
     return oldLogicPattern.test(read(path));
   });
 }

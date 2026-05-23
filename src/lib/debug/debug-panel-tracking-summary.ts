@@ -9,6 +9,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "event_envelope",
   "event_translation_bridge",
   "person_metrics_hydration",
+  "testing_coverage",
   "behavior_math",
   "feature_telemetry_coverage",
   "settings_health",
@@ -61,6 +62,7 @@ const TRACKING_GROUPS = [
   "event_envelope",
   "event_translation_bridge",
   "person_metrics_hydration",
+  "testing_coverage",
   "behavior_math",
   "feature_coverage",
   "settings",
@@ -133,6 +135,18 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     : personHydrationMapped > 0
       ? "live"
       : toStatus(input.personMetricsHydration?.status);
+  const testingCoverage = input.telemetryTriggerTestMatrix?.debugLane ?? {};
+  const testingCoverageTotal = toNumber(testingCoverage.totalTriggers);
+  const testingCoverageCovered = toNumber(testingCoverage.coveredTriggers);
+  const testingCoverageMissing = toNumber(testingCoverage.missingTriggerTests);
+  const testingCoverageUiOnly = toNumber(testingCoverage.uiOnlyTests);
+  const testingCoverageWaitingGaps = toNumber(testingCoverage.waitingOnActivityDeterministicGaps);
+  const testingCoverageWarnings = testingCoverageMissing + testingCoverageUiOnly + testingCoverageWaitingGaps;
+  const testingCoverageStatus = testingCoverageWarnings > 0
+    ? "degraded"
+    : testingCoverageTotal > 0 && testingCoverageCovered >= testingCoverageTotal
+      ? "live"
+      : toStatus(input.telemetryTriggerTestMatrix?.status);
   const telemetrySummary = input.telemetryHealth?.summary ?? {};
   const featureWarnings = toNumber(telemetrySummary.degraded) + toNumber(telemetrySummary.runtimeUnproven);
   const featureCritical = toNumber(telemetrySummary.unavailable) + toNumber(telemetrySummary.configMissing);
@@ -222,6 +236,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: personHydrationGaps,
       drilldownTarget: "/admin/debug?tab=advanced#person-metrics-hydration",
+    }),
+    makeLane({
+      id: "testing_coverage",
+      label: "Testing coverage",
+      trackingSystem: "testing_coverage",
+      sourceOwner: "analytics",
+      sourceOfTruth: "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      status: testingCoverageStatus,
+      severity: severityFromCounts(0, testingCoverageWarnings, testingCoverageStatus),
+      scoreImpact: "high",
+      primarySignal: `Covered=${testingCoverageCovered}/${testingCoverageTotal}; missing=${testingCoverageMissing}; ui-only=${testingCoverageUiOnly}; waiting-gaps=${testingCoverageWaitingGaps}.`,
+      criticalCount: 0,
+      warningCount: testingCoverageWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#testing-coverage",
     }),
     makeLane({
       id: "behavior_math",

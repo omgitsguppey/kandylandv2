@@ -27,6 +27,7 @@ export const PERSON_METRIC_IDS = [
   "runtime_watch_sessions",
   "settings_actions",
   "support_account_actions",
+  "creator_drop_manager_actions",
 ] as const;
 
 export type PersonMetricId = (typeof PERSON_METRIC_IDS)[number];
@@ -337,7 +338,7 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
   metric({
     id: "notification_interactions",
     label: "Notification interactions",
-    eventNames: ["notification_opened", "notification_read", "notification_action_clicked", "notification_mark_all_read", "notification_cleared"],
+    eventNames: ["notification_opened", "notification_read", "notification_action_clicked", "notification_mark_all_read", "notification_cleared", "notification_prompt_banner_viewed"],
     sourceOfTruth: "notification runtime and inbox telemetry",
     consentEligibility: { depth: "minimal_product", allowedModes: MINIMAL_MODES },
     materializer: "person_metrics.notification_interactions",
@@ -373,6 +374,7 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
       "creator_settings_updated",
       "creator_settings_control_plane_saved",
       "creator_settings_migrated_redirect_viewed",
+      "cookie_consent_updated",
     ],
     sourceOfTruth: "settings surfaces and settings route telemetry",
     consentEligibility: { depth: "minimal_product", allowedModes: MINIMAL_MODES },
@@ -391,6 +393,7 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
       "support_thread_opened",
       "support_reply_viewed",
       "support_reply_sent",
+      "data_export_requested",
       "account_delete_clicked",
       "account_delete_confirm_opened",
       "account_delete_confirmed",
@@ -405,6 +408,22 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
     debugOwner: "support",
     scoreEvidenceImpact: "evidence_completeness",
     legacyRecoveryMapping: { action: "normalize_candidate", confidence: "weak", source: "legacy support/account action events" },
+    minimumConfidence: "weak",
+  }),
+  metric({
+    id: "creator_drop_manager_actions",
+    label: "Creator drop manager actions",
+    eventNames: [
+      "creator_drop_submitted",
+      "creator_drop_updated",
+      "admin_creator_drop_reviewed",
+    ],
+    sourceOfTruth: "creator drop manager telemetry and canonical creator drop route facts",
+    consentEligibility: { depth: "minimal_product", allowedModes: MINIMAL_MODES },
+    materializer: "person_metrics.creator_drop_manager_actions",
+    debugOwner: "creator",
+    scoreEvidenceImpact: "evidence_completeness",
+    legacyRecoveryMapping: { action: "normalize_candidate", confidence: "weak", source: "legacy creator drop manager events" },
     minimumConfidence: "weak",
   }),
 ];
