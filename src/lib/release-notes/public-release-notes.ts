@@ -1,13 +1,61 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.0",
-  "betaReleaseCounter": 400,
+  "currentVersion": "1.4.1",
+  "betaReleaseCounter": 401,
   "channel": "beta",
-  "generatedAt": "2026-05-23T20:40:00.000Z",
-  "generatedAtUtc": "2026-05-23T20:40:00.000Z",
+  "generatedAt": "2026-05-23T21:10:00.000Z",
+  "generatedAtUtc": "2026-05-23T21:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.1",
+      "previousVersion": "1.4.0",
+      "betaReleaseCounter": 401,
+      "previousBetaReleaseCounter": 400,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(debug): lock signal zero",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-23T21:10:00.000Z",
+      "generatedAt": "2026-05-23T21:10:00.000Z",
+      "committedAtUtc": "2026-05-23T21:10:00.000Z",
+      "generatedAtUtc": "2026-05-23T21:10:00.000Z",
+      "updatedAtUtc": "2026-05-23T21:10:00.000Z",
+      "category": "Improved",
+      "title": "Signal zero lock",
+      "summary": "Improved internal beta reliability by keeping future activity out of actionable debug noise.",
+      "userFacingTitle": "Signal zero lock",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked future activity signals out of actionable debug noise.",
+        "Reduced false waiting-on-activity and non-event score penalties to zero.",
+        "Reported score progress by dimension with exact next actions."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added the source-only final signal zero lock report, validator, and unit coverage without fake activity, production reads, payment changes, chat/nav changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Admin debug",
+        "Beta score",
+        "App reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/final-signal-zero-lock.generated.json",
+        "docs/agent-truth/final-signal-zero-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-signal-zero-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-signal-zero-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.0",
       "previousVersion": "1.3.99",
@@ -1355,55 +1403,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/payment-module-symmetry.spec.ts",
         "tests/unit/purchase-modal-density.spec.tsx",
         "tests/unit/purchase-modal-source-of-funds-static.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.76",
-      "previousVersion": "1.3.75",
-      "betaReleaseCounter": 376,
-      "previousBetaReleaseCounter": 375,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): lock new addition score coverage",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-21T19:45:00.000Z",
-      "generatedAt": "2026-05-21T19:45:00.000Z",
-      "committedAtUtc": "2026-05-21T19:45:00.000Z",
-      "generatedAtUtc": "2026-05-21T19:45:00.000Z",
-      "updatedAtUtc": "2026-05-21T19:45:00.000Z",
-      "category": "Improved",
-      "title": "New additions score coverage lock",
-      "summary": "Verified new privacy, behavior, telemetry, debug, and score additions stay covered without moving manual visual review back into Codex score gates.",
-      "userFacingTitle": "New additions score coverage lock",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Verified new additions are tracked in telemetry, debug, and score systems.",
-        "Closed orphaned score coverage for privacy and behavioral telemetry work.",
-        "Kept manual visual review outside Codex score blocking."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only score coverage finalizer, generated report, validator, and unit coverage over existing telemetry/debug/score artifacts."
-      ],
-      "affectedSurfaces": [
-        "Telemetry",
-        "Debug evidence",
-        "Beta readiness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/new-additions-score-coverage.generated.json",
-        "docs/agent-truth/new-additions-score-coverage.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-new-additions-score-coverage.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/new-additions-score-coverage.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.1 - 2026-05-23
+- Signal zero lock
+- Locked future activity signals out of actionable debug noise.
+- Reduced false waiting-on-activity and non-event score penalties to zero.
+- Reported score progress by dimension with exact next actions.
+
 ## 1.4.0 - 2026-05-23
 - Non-event beta score policy
 - Stopped future activity placeholders from reducing beta score.

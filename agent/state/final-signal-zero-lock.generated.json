@@ -1,0 +1,456 @@
+{
+  "generatedAtUtc": "2026-05-23T21:14:44.004Z",
+  "currentHead": "c336603a599743fe37f601a9721e861aa54f9763",
+  "scoreBefore": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 67.75,
+    "evidenceCompleteness": 39.25,
+    "freshness": 62.86,
+    "costRisk": 42,
+    "regressionRisk": 42,
+    "overallHealthScore": 62.15
+  },
+  "scoreAfter": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 67.5,
+    "evidenceCompleteness": 39,
+    "freshness": 62.86,
+    "costRisk": 42,
+    "regressionRisk": 42,
+    "overallHealthScore": 62.05
+  },
+  "metrics": {
+    "sourceHealth": {
+      "before": 91.7,
+      "after": 91.7,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No score action needed for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 67.75,
+      "after": 67.5,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Attach approved runtime/provider/admin evidence without promoting local validators to deployed proof."
+    },
+    "evidenceCompleteness": {
+      "before": 39.25,
+      "after": 39,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Complete the exact formal evidence gates listed in the beta score report."
+    },
+    "freshness": {
+      "before": 62.86,
+      "after": 62.86,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Refresh the stale score-impacting artifacts with targeted validators."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve owner-review cost lanes without touching payment or GumDrop runtime math."
+    },
+    "regressionRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Refresh targeted evidence for changed high-blast files and rerun the score validator."
+    },
+    "overallHealthScore": {
+      "before": 62.15,
+      "after": 62.05,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Raise the below-target component dimensions before treating overall health as solved."
+    }
+  },
+  "rawFutureActivityCount": 416,
+  "quietFutureActivityCount": 416,
+  "actionableFutureActivityCount": 0,
+  "falseWaitingCount": 0,
+  "scoreDragActivityCount": 0,
+  "brokenActivityPathCount": 0,
+  "actionableSignalGroupCount": 15,
+  "p1GroupCount": 9,
+  "p2GroupCount": 6,
+  "quietFutureP1P2GroupCount": 0,
+  "nonEventScorePenaltyCount": 0,
+  "remainingBrokenPaths": [],
+  "remainingFormalGates": [
+    "Formal evidence gate: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+    "Formal evidence gate: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+    "Formal evidence gate: Attach deployed runtime smoke evidence before treating runtime health as proven.",
+    "Formal evidence gate: Attach a fresh first-party admin truth sample before upgrading this gate.",
+    "Formal evidence gate: Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass.",
+    "Formal evidence gate: Run formal deployed runtime smoke before marking runtime/provider smoke complete.",
+    "Formal evidence gate: Keep this cost lane in owner review until external billing/provider evidence is attached.",
+    "Runtime/provider smoke: Runtime unverified",
+    "Admin truth/sample evidence: Ready with smoke required",
+    "Report freshness and PR integrity: Stale evidence"
+  ],
+  "remainingBelow80Dimensions": [
+    {
+      "dimension": "runtimeHealth",
+      "score": 67.5,
+      "nextExactAction": "Attach approved runtime/provider/admin evidence without promoting local validators to deployed proof."
+    },
+    {
+      "dimension": "evidenceCompleteness",
+      "score": 39,
+      "nextExactAction": "Complete the exact formal evidence gates listed in the beta score report."
+    },
+    {
+      "dimension": "freshness",
+      "score": 62.86,
+      "nextExactAction": "Refresh the stale score-impacting artifacts with targeted validators."
+    },
+    {
+      "dimension": "costRisk",
+      "score": 42,
+      "nextExactAction": "Resolve owner-review cost lanes without touching payment or GumDrop runtime math."
+    },
+    {
+      "dimension": "regressionRisk",
+      "score": 42,
+      "nextExactAction": "Refresh targeted evidence for changed high-blast files and rerun the score validator."
+    },
+    {
+      "dimension": "overallHealthScore",
+      "score": 62.05,
+      "nextExactAction": "Raise the below-target component dimensions before treating overall health as solved."
+    }
+  ],
+  "nextExactSteps": [
+    "runtimeHealth: Attach approved runtime/provider/admin evidence without promoting local validators to deployed proof.",
+    "evidenceCompleteness: Complete the exact formal evidence gates listed in the beta score report.",
+    "freshness: Refresh the stale score-impacting artifacts with targeted validators.",
+    "costRisk: Resolve owner-review cost lanes without touching payment or GumDrop runtime math.",
+    "regressionRisk: Refresh targeted evidence for changed high-blast files and rerun the score validator.",
+    "overallHealthScore: Raise the below-target component dimensions before treating overall health as solved.",
+    "Keep quiet future activity hidden from default debug warnings and visible only in the collapsed future activity catalog.",
+    "Do not clear formal provider/runtime/admin gates without approved evidence."
+  ],
+  "defaultDebugPanel": {
+    "rawRowsDefaultVisible": false,
+    "futureActivityCatalogCollapsed": true
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "validator_script_expected"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/final-signal-zero-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/final-signal-zero-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "remainingReferenceClassification": [
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-telemetry-trigger-test-matrix.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/non-event-score-policy.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/debug-signal-grouping.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/future-activity-signal-reclassification.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-testing-tracking-telemetry-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/non-event-score-policy.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-signal-zero-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-signal-zero-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-signal-grouping.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    }
+  ],
+  "validationFailures": []
+}
