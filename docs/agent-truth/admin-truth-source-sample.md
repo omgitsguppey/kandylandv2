@@ -1,8 +1,8 @@
 # Admin Truth Source Sample
 
-Generated: 2026-05-24T17:36:22.336Z
+Generated: 2026-05-24T18:03:42.778Z
 
-Latest code version: 5c126a7df36e39be20ab55b40ce5d14c04779fb5
+Latest code version: 6d038e7f7d9b7cef83d276f39bd968df83bb988d
 
 ## Summary
 

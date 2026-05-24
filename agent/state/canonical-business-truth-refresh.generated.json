@@ -1,0 +1,44 @@
+{
+  "generatedAtUtc": "2026-05-24T18:03:11.571Z",
+  "reportKey": "canonical-business-truth-refresh",
+  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
+  "refreshPolicy": "bounded_snapshot_only",
+  "productionReadRequired": false,
+  "safeRefreshCommands": [
+    "npm run check:admin-truth-source-sample",
+    "npm run check:admin-debug-control-tower",
+    "npm run check:formal-evidence-bridge"
+  ],
+  "metricSources": {
+    "users": {
+      "path": "AdminUserTruthSnapshot.totalUsers",
+      "sourceClass": "admin_snapshot_canonical"
+    },
+    "purchases": {
+      "path": "AdminUserTruthSnapshot.verifiedPurchases",
+      "sourceClass": "operator_confirmed_provider_formal_missing"
+    },
+    "revenue": {
+      "path": "AdminUserTruthSnapshot.totalRevenueUsd",
+      "sourceClass": "operator_confirmed_provider_formal_missing"
+    },
+    "unwraps": {
+      "path": "AdminUserTruthSnapshot.trackedUnwraps",
+      "sourceClass": "admin_snapshot_canonical",
+      "duplicatePolicy": "deduped_admin_snapshot"
+    },
+    "watch": {
+      "path": "AdminUserTruthSnapshot.validWatchTimeMs",
+      "sourceClass": "valid_watch_time",
+      "canUsePageTime": false
+    }
+  },
+  "confidenceScore": 74,
+  "sourceFreshness": "stale",
+  "staleReason": "stale source inputs",
+  "nextExactSteps": [
+    "Refresh admin truth source sample with npm run check:admin-truth-source-sample.",
+    "Keep formal admin sample required until redacted first-party evidence is attached.",
+    "Review 74% confidence before calling business truth healthy."
+  ]
+}

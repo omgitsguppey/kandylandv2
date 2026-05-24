@@ -1,0 +1,23 @@
+# Recovery Playbook CTA Cleanup
+
+Generated Batch 8 cleanup evidence. Business truth remains separate from ops-health and generic recovery playbooks stay collapsed unless they match active issues.
+
+```json
+{
+  "generatedAtUtc": "2026-05-24T18:03:19.454Z",
+  "reportKey": "recovery-playbook-cta-cleanup",
+  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
+  "recoveryPlaybookStatusBefore": "degraded",
+  "recoveryPlaybookStatusAfter": "collapsed_no_active_issue",
+  "visiblePlaybooksBefore": 3,
+  "visiblePlaybooksAfter": 0,
+  "collapsedPlaybooks": [
+    "stale_artifact_recovery",
+    "debug_runtime_unknown_recovery",
+    "admin_truth_unknown_recovery"
+  ],
+  "fixFirstPlaybooks": [],
+  "genericScoreBetaVisible": false,
+  "formalPlaybooksTreatedAsSourceEdits": false
+}
+```

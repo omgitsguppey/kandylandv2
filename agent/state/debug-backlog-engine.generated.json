@@ -1,23 +1,23 @@
 {
-  "generatedAtUtc": "2026-05-24T17:36:13.489Z",
+  "generatedAtUtc": "2026-05-24T18:04:18.105Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "5c126a7df36e39be20ab55b40ce5d14c04779fb5",
+  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
   "oldScore": 41.92,
   "newScore": 79,
   "publicBetaStatus": "beta-risk",
   "readinessStatus": "Stale evidence",
   "summary": {
-    "total": 50,
+    "total": 51,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 17,
-      "p2": 33,
+      "p2": 34,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 43,
+      "open": 44,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
@@ -33,12 +33,12 @@
       "admin_truth": 2,
       "mobile_ui": 0,
       "cost": 2,
-      "evidence": 17,
+      "evidence": 18,
       "runtime_warning": 0
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 35,
+      "evidence_refresh": 36,
       "stale_retire": 1,
       "algorithm_refine": 0,
       "route_fix": 1,
@@ -47,32 +47,32 @@
       "manual_required": 5,
       "no_action": 0
     },
-    "open": 43,
+    "open": 44,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 4,
     "blockedExternal": 2,
     "staleRetired": 1,
     "sourceFixable": 9,
-    "evidenceRefreshable": 35,
+    "evidenceRefreshable": 36,
     "manualRequired": 5,
     "p0P1Open": 17,
     "p0P1GroupOpen": 8,
     "p2GroupOpen": 8,
     "p1P2GroupOpen": 16,
-    "rawP1P2SignalCount": 50,
+    "rawP1P2SignalCount": 51,
     "groupedSignalCount": 16,
     "defaultVisibleGroups": 16,
     "hiddenByDefaultGroups": 0,
-    "defaultVisible": 50,
+    "defaultVisible": 51,
     "hiddenByDefault": 0,
     "quietFutureActivity": 0,
     "duplicateSignalsCollapsed": 0,
     "formalGates": 9,
-    "scoreImpacting": 49,
+    "scoreImpacting": 50,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 40,
+      "score_impacting": 41,
       "evidence_required": 1,
       "formal_gate": 9,
       "quiet_future_activity": 0,
@@ -83,17 +83,17 @@
     }
   },
   "actionabilitySummary": {
-    "totalSignals": 50,
-    "uniqueSignals": 50,
-    "defaultVisibleCount": 50,
+    "totalSignals": 51,
+    "uniqueSignals": 51,
+    "defaultVisibleCount": 51,
     "hiddenByDefaultCount": 0,
     "quietFutureActivityCount": 0,
     "duplicateSignalCount": 0,
     "formalGateCount": 9,
-    "scoreImpactingCount": 49,
+    "scoreImpactingCount": 50,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 40,
+      "score_impacting": 41,
       "evidence_required": 1,
       "formal_gate": 9,
       "quiet_future_activity": 0,
@@ -729,6 +729,24 @@
         ],
         "defaultVisible": true,
         "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
+        "signalType": "evidence",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "freshness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "evidence",
+        "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+        "sourceFiles": [
+          "agent/state/evidence-capture-status.generated.json"
+        ],
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|evidence|evidence|freshness|evidence-capture-status-was-generated-from-an-older-code-version-refresh-this-re",
         "duplicateChildren": []
       },
       {
@@ -2308,6 +2326,34 @@
       "estimatedPointImpact": 1,
       "defaultVisible": true,
       "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
+      "duplicateChildren": []
+    },
+    {
+      "id": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
+      "title": "Refresh stale artifact: agent/state/evidence-capture-status.generated.json",
+      "owner": "evidence",
+      "surface": "agent_state",
+      "severity": "p2",
+      "source": "evidence",
+      "status": "open",
+      "fixClass": "evidence_refresh",
+      "scoreDimensionImpact": [
+        "freshness"
+      ],
+      "scoreImpact": 1,
+      "sourceFiles": [
+        "agent/state/evidence-capture-status.generated.json"
+      ],
+      "sourceRoute": "agent/state/evidence-capture-status.generated.json",
+      "evidenceStatus": "stale",
+      "evidenceReason": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "exactNextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "sourceMessage": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "refreshCommand": "npm run check:evidence-capture-status",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1,
+      "defaultVisible": true,
+      "dedupeKey": "score_impacting|evidence|evidence|freshness|evidence-capture-status-was-generated-from-an-older-code-version-refresh-this-re",
       "duplicateChildren": []
     },
     {

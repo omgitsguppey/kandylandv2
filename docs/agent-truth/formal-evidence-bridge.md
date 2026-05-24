@@ -1,8 +1,8 @@
 # Formal Evidence Bridge
 
-Generated: 2026-05-24T17:36:06.508Z
+Generated: 2026-05-24T18:03:55.865Z
 
-Current head: 5c126a7df36e39be20ab55b40ce5d14c04779fb5
+Current head: 6d038e7f7d9b7cef83d276f39bd968df83bb988d
 
 ## Summary
 

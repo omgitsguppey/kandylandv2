@@ -3,6 +3,10 @@
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
+import {
+  classifyCanonicalBusinessTruthStatus,
+  type CanonicalBusinessTruthStatus,
+} from "@/lib/debug/canonical-business-truth-status";
 
 function SummaryMetric({ label, value }: { label: string; value: string | number }) {
   return (
@@ -40,6 +44,18 @@ function formatRelative(value?: number | null) {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
+function statusToTruthState(status: CanonicalBusinessTruthStatus, fallback: AdminTruthState): AdminTruthState {
+  if (status === "healthy_current") return "live";
+  if (status === "low_confidence_review" || status === "formal_admin_sample_required") return "review";
+  if (status === "source_ready_stale_snapshot" || status === "stale_artifact_refresh_required") return "stale";
+  if (status === "source_missing_actionable") return "unavailable";
+  return fallback;
+}
+
+function labelSourceClass(value: string) {
+  return value.replace(/_/gu, " ");
+}
+
 export function DebugControlTowerBusinessTruth({
   businessSnapshot,
   truthState,
@@ -47,11 +63,34 @@ export function DebugControlTowerBusinessTruth({
   businessSnapshot: AdminUserTruthSnapshot;
   truthState: AdminTruthState;
 }) {
+  const statusDecision = classifyCanonicalBusinessTruthStatus({
+    generatedAt: businessSnapshot.generatedAt,
+    sourceFreshness: businessSnapshot.sourceFreshness,
+    sourceTruth: businessSnapshot.sourceTruth,
+    confidenceScore: businessSnapshot.confidenceScore,
+    issues: businessSnapshot.issues,
+    totalUsers: businessSnapshot.totalUsers,
+    verifiedPurchases: businessSnapshot.verifiedPurchases,
+    totalRevenueUsd: businessSnapshot.totalRevenueUsd,
+    trackedUnwraps: businessSnapshot.trackedUnwraps,
+    validWatchTimeMs: businessSnapshot.validWatchTimeMs,
+    formalAdminSampleStatus: businessSnapshot.issues.some((issue) => /formal|sample/iu.test(issue.message))
+      ? "missing_formal_artifact"
+      : null,
+    watchTimeSource: businessSnapshot.sourceTruthBreakdown.watchTime === "legacy_fallback"
+      ? "legacy_page_duration"
+      : businessSnapshot.validWatchTimeMs > 0
+        ? "valid_watch_time"
+        : "unavailable",
+  });
+  const badgeState = statusToTruthState(statusDecision.status, truthState);
+
   return (
     <div
       className="rounded-[1.2rem] border border-white/10 bg-black/25 p-3"
       data-debug-report-source="canonical-business-truth"
-      data-debug-truth-state={truthState}
+      data-debug-truth-state={badgeState}
+      data-business-truth-status={statusDecision.status}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -60,7 +99,7 @@ export function DebugControlTowerBusinessTruth({
             User, purchase, revenue, unwrap, and watch metrics come from the admin-user truth snapshot and do not inherit ops-health status.
           </p>
         </div>
-        <AdminTruthBadge state={truthState} />
+        <AdminTruthBadge state={badgeState} />
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
         <SummaryMetric label="Users" value={businessSnapshot.totalUsers} />
@@ -81,6 +120,22 @@ export function DebugControlTowerBusinessTruth({
         </span>
         <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
           generated {formatRelative(businessSnapshot.generatedAt)}
+        </span>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-300">
+        <span className="rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2.5 py-1 text-yellow-200">
+          {statusDecision.freshnessExplanation}
+        </span>
+        {statusDecision.confidenceReviewRequired ? (
+          <span className="rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 px-2.5 py-1 text-fuchsia-100">
+            Confidence {businessSnapshot.confidenceScore}%: review required
+          </span>
+        ) : null}
+        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+          Revenue source: {labelSourceClass(statusDecision.revenueSourceClass)}
+        </span>
+        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+          Watch source: {labelSourceClass(statusDecision.watchSourceClass)}
         </span>
       </div>
       {businessSnapshot.issues.length > 0 ? (

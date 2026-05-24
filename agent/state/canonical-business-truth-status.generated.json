@@ -1,0 +1,19 @@
+{
+  "generatedAtUtc": "2026-05-24T18:02:57.916Z",
+  "reportKey": "canonical-business-truth-status",
+  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
+  "status": "low_confidence_review",
+  "sourceFreshness": "stale",
+  "confidenceScore": 74,
+  "freshnessCause": "stale source inputs",
+  "freshnessExplanation": "Snapshot stale: source inputs stale even though the report was generated recently.",
+  "opsHealthInherited": false,
+  "refreshCommand": "npm run check:admin-truth-source-sample",
+  "revenueSourceClass": "operator_confirmed_provider_formal_missing",
+  "purchaseSourceClass": "operator_confirmed_provider_formal_missing",
+  "watchSourceClass": "valid_watch_time",
+  "watchMetricCanUsePageTime": false,
+  "nextExactSteps": [
+    "Confidence 74%: review required; refresh the bounded admin truth source sample."
+  ]
+}

@@ -593,7 +593,11 @@
         "check:control-tower-report-freshness-cleanup": "tsx scripts/agent/validate-control-tower-report-freshness-cleanup.ts",
         "check:control-tower-formal-gate-display": "tsx scripts/agent/validate-control-tower-formal-gate-display.ts",
         "check:control-tower-operator-queue-cleanup": "tsx scripts/agent/validate-control-tower-operator-queue-cleanup.ts",
-        "check:debug-cockpit-batch7-control-tower-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch7-control-tower-cleanup.ts"
+        "check:debug-cockpit-batch7-control-tower-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch7-control-tower-cleanup.ts",
+        "check:canonical-business-truth-status": "tsx scripts/agent/validate-canonical-business-truth-status.ts",
+        "check:canonical-business-truth-refresh": "tsx scripts/agent/validate-canonical-business-truth-refresh.ts",
+        "check:recovery-playbook-cta-cleanup": "tsx scripts/agent/validate-recovery-playbook-cta-cleanup.ts",
+        "check:debug-cockpit-batch8-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch8-cleanup.ts"
     },
     "dependencies": {
         "@axe-core/react": "^4.11.2",

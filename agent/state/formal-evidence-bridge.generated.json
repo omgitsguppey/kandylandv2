@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T17:36:06.508Z",
+  "generatedAtUtc": "2026-05-24T18:03:55.865Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "5c126a7df36e39be20ab55b40ce5d14c04779fb5",
+  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,

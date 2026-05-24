@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T16:01:35.524Z",
+  "generatedAtUtc": "2026-05-24T18:04:02.886Z",
   "reportKey": "drop-watch-time-accuracy",
-  "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -193,23 +193,27 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "agent/state/canonical-business-truth-refresh.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/canonical-business-truth-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/current-beta-exit-status.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "path": "agent/state/debug-cockpit-batch8-cleanup.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -217,23 +221,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/empty-live-lane-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/identity-handoff-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/notification-pwa-score-lock.generated.json",
+      "path": "agent/state/formal-evidence-bridge.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -241,23 +229,11 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/pwa-service-worker-safety.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/pwa-service-worker-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/session-bounce-calculation.generated.json",
+      "path": "agent/state/recovery-playbook-cta-cleanup.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -265,27 +241,27 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/tracking-lane-freshness-display-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/user-journey-behavioral-intelligence.generated.json",
+      "path": "docs/agent-truth/admin-truth-source-sample.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/wallet-funnel-sample-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/canonical-business-truth-refresh.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/canonical-business-truth-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/current-beta-exit-status.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch3-cleanup.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/debug-backlog-engine.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "path": "docs/agent-truth/debug-cockpit-batch8-cleanup.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -293,23 +269,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/empty-live-lane-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/notification-pwa-score-lock.md",
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -317,19 +277,7 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/pwa-service-worker-safety.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/pwa-service-worker-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/session-bounce-calculation.md",
+      "path": "docs/agent-truth/recovery-playbook-cta-cleanup.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -337,31 +285,27 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/tracking-lane-freshness-display-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-journey-behavioral-intelligence.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/wallet-funnel-sample-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "package.json",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts",
+      "path": "scripts/agent/business-truth-recovery-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch3-cleanup.ts",
+      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-canonical-business-truth-refresh.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-canonical-business-truth-status.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-cockpit-batch8-cleanup.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -369,27 +313,7 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-empty-live-lane-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-identity-handoff-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-notification-pwa-score-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-pwa-service-worker-safety.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-pwa-service-worker-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-session-bounce-calculation.ts",
+      "path": "scripts/agent/validate-recovery-playbook-cta-cleanup.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -397,67 +321,31 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-tracking-lane-freshness-display-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-wallet-funnel-sample-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "path": "src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "path": "src/lib/debug/canonical-business-truth-status.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "path": "src/lib/debug/recovery-playbook-visibility.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/empty-live-lane-classifier.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/pwa/pwa-service-worker-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/debug-cockpit-batch3-cleanup.spec.ts",
+      "path": "tests/unit/canonical-business-truth-refresh.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/empty-live-lane-status-cleanup.spec.ts",
+      "path": "tests/unit/canonical-business-truth-status.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/identity-handoff-status-cleanup.spec.ts",
+      "path": "tests/unit/debug-cockpit-batch8-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/pwa-service-worker-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/tracking-lane-freshness-display-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/wallet-funnel-sample-cleanup.spec.ts",
+      "path": "tests/unit/recovery-playbook-cta-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

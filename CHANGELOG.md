@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.38 - 2026-05-24
+
+- Cleaned recovery playbook CTAs and canonical business truth status.
+- Separated stale business snapshots from ops-health failures.
+- Added source-class clarity for revenue, purchases, unwraps, and watch metrics.
+
 ## 1.4.37 - 2026-05-24
 
 - Cleaned Control Tower canonical score, evidence, and operator queue display.
