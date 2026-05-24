@@ -20,6 +20,26 @@ const PRECACHE_URLS = [
     "/icon-192x192.png",
     "/icon-512x512.png",
 ];
+const FORBIDDEN_CACHE_PATH_PREFIXES = [
+    "/api/paypal",
+    "/api/checkout",
+    "/api/wallet",
+    "/api/chat",
+    "/api/creator/messages",
+    "/api/auth",
+    "/api/user",
+    "/api/notifications",
+    "/api/admin",
+    "/__/auth",
+    "/__/firebase",
+    "/dashboard/chat",
+    "/dashboard/library",
+    "/dashboard/wallet",
+    "/wallet",
+    "/checkout",
+    "/admin",
+    "/creator/private",
+];
 const SEARCH_PARAMS = new URL(self.location).searchParams;
 const CACHE_VERSION = normalizeCacheVersion(SEARCH_PARAMS.get("v") || SEARCH_PARAMS.get("build") || DEFAULT_CACHE_VERSION);
 const APP_SHELL_CACHE = `${CACHE_NAME_PREFIXES.appShell}${CACHE_VERSION}`;
@@ -108,6 +128,10 @@ function shouldHandleNavigationCache(pathname) {
     return false;
 }
 
+function shouldBypassServiceWorkerCache(pathname) {
+    return FORBIDDEN_CACHE_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
 firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
@@ -193,6 +217,7 @@ self.addEventListener("fetch", (event) => {
     const requestUrl = new URL(request.url);
     if (
         requestUrl.origin !== self.location.origin
+        || shouldBypassServiceWorkerCache(requestUrl.pathname)
         || requestUrl.pathname.startsWith("/api/")
         || requestUrl.pathname.startsWith("/__/")
     ) {

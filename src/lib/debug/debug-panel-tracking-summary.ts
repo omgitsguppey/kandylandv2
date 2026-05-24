@@ -15,6 +15,7 @@ import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-led
 import { buildNotificationPermissionDebugLane } from "@/lib/notifications/notification-permission-contract";
 import { buildPushTokenDebugLane } from "@/lib/notifications/push-token-contract";
 import { buildNotificationTargetingDebugLane } from "@/lib/notifications/notification-intent-contract";
+import { buildPwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -33,6 +34,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "notification_permission",
   "push_token_health",
   "notification_targeting",
+  "pwa_service_worker",
   "daily_tasks_reset",
   "daily_task_guidance_health",
   "daily_task_lifecycle",
@@ -108,6 +110,7 @@ const TRACKING_GROUPS = [
   "notification_permission",
   "push_token_health",
   "notification_targeting",
+  "pwa_service_worker",
   "daily_tasks_reset",
   "daily_task_guidance_health",
   "daily_task_lifecycle",
@@ -251,6 +254,13 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     + toNumber(notificationTargeting.blockedByMissingToken)
     + toNumber(notificationTargeting.blockedByConsent)
     + (notificationTargeting.telemetryStatus === "mapped" ? 0 : 1);
+  const pwaServiceWorker = input.pwaServiceWorkerSafety?.debugLane ?? buildPwaServiceWorkerDebugLane();
+  const pwaServiceWorkerWarnings = (pwaServiceWorker.registered ? 0 : 1)
+    + (pwaServiceWorker.notificationCompatible ? 0 : 1)
+    + (pwaServiceWorker.forbiddenCacheSafe ? 0 : 1)
+    + (pwaServiceWorker.offlineFallbackSafe ? 0 : 1)
+    + (pwaServiceWorker.staleShellRisk === "low" ? 0 : 1)
+    + (pwaServiceWorker.telemetryStatus === "mapped" ? 0 : 1);
   const dailyTasksReset = input.dailyTasksResetTruth?.debugLane ?? buildDailyTaskDebugLane();
   const dailyTaskGuidanceHealth = input.dailyTaskGuidanceRouteAudit?.debugLane ?? buildTaskGuidanceHealthLane();
   const dailyTaskLifecycle = input.dailyTaskLifecycleTelemetry?.debugLane ?? buildDailyTaskLifecycleDebugLane();
@@ -504,6 +514,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: notificationTargetingWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#notification-targeting",
+    }),
+    makeLane({
+      id: "pwa_service_worker",
+      label: "PWA/service worker",
+      trackingSystem: "pwa_service_worker",
+      sourceOwner: "notifications",
+      sourceOfTruth: "src/lib/pwa/pwa-service-worker-contract.ts",
+      status: pwaServiceWorker.status === "unavailable" ? "unavailable" : pwaServiceWorker.status === "degraded" ? "degraded" : "live",
+      severity: severityFromCounts(pwaServiceWorker.forbiddenCacheSafe ? 0 : 1, pwaServiceWorkerWarnings, pwaServiceWorker.status === "unavailable" ? "unavailable" : pwaServiceWorker.status === "degraded" ? "degraded" : "live"),
+      scoreImpact: "medium",
+      primarySignal: `Registered=${String(pwaServiceWorker.registered)}; updateAvailable=${String(pwaServiceWorker.updateAvailable)}; notificationCompatible=${String(pwaServiceWorker.notificationCompatible)}; forbiddenCacheSafe=${String(pwaServiceWorker.forbiddenCacheSafe)}; offlineFallbackSafe=${String(pwaServiceWorker.offlineFallbackSafe)}; staleShellRisk=${pwaServiceWorker.staleShellRisk}; telemetry=${pwaServiceWorker.telemetryStatus}.`,
+      criticalCount: pwaServiceWorker.forbiddenCacheSafe ? 0 : 1,
+      warningCount: pwaServiceWorkerWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#pwa-service-worker",
     }),
     makeLane({
       id: "daily_tasks_reset",

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.19 - 2026-05-24
+- PWA service worker safety
+- Hardened PWA service worker registration, update, and offline safety.
+- Blocked sensitive wallet, chat, and private content from unsafe caching.
+- Added PWA/service worker debug visibility.
+
 ## 1.4.18 - 2026-05-24
 - Notification targeting intent
 - Added notification delivery intent and targeting contracts.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Refactored user management around identity, activity, and confidence summaries.
 - Connected individual user metrics to hydration and debug lanes.
 - Reduced raw user-management sprawl.
-
-## 1.3.94 - 2026-05-23
-- Telemetry trigger coverage
-- Added telemetry trigger coverage from user action to score input.
-- Reduced waiting-on-activity gaps with deterministic tests.
-- Cleaned stale and duplicate tracking validators.

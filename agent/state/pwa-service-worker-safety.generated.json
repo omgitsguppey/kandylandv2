@@ -1,0 +1,223 @@
+{
+  "generatedAtUtc": "2026-05-24T07:13:08.097Z",
+  "currentHead": "4c731e97",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "providerCallsRequired": false,
+  "deployRequired": false,
+  "realPushNotificationsSent": false,
+  "serviceWorkerSafetyStatus": {
+    "serviceWorkerStatus": "registered",
+    "registrationStatus": "registered",
+    "updateStatus": "current",
+    "offlineSupportStatus": "offline_fallback_safe",
+    "cachePolicy": {
+      "strategy": "public_shell_only",
+      "precacheUrls": [
+        "/",
+        "/drops",
+        "/offline",
+        "/manifest.json",
+        "/candy-main.svg",
+        "/candy-3d-glass.png",
+        "/icon-192x192.png",
+        "/icon-512x512.png"
+      ],
+      "runtimeCacheAllowed": [
+        "/",
+        "/drops",
+        "/creators",
+        "/privacy",
+        "/terms",
+        "/offline"
+      ],
+      "forbiddenCachePaths": [
+        "/api/paypal",
+        "/api/checkout",
+        "/api/wallet",
+        "/api/chat",
+        "/api/creator/messages",
+        "/api/auth",
+        "/api/user",
+        "/api/notifications",
+        "/api/admin",
+        "/__/auth",
+        "/__/firebase",
+        "/dashboard/chat",
+        "/dashboard/library",
+        "/dashboard/wallet",
+        "/wallet",
+        "/checkout",
+        "/admin",
+        "/creator/private"
+      ],
+      "forbiddenCacheSafe": true,
+      "offlineFallbackShowsPrivateTruth": false
+    },
+    "notificationCompatibility": "compatible",
+    "standaloneMode": "standalone-pwa",
+    "mobileSafeAreaImpact": "contract_applied",
+    "staleShellRisk": "low",
+    "debugVisibility": "debug_visible"
+  },
+  "debugLane": {
+    "lane": "PWA/service worker",
+    "label": "PWA/service worker",
+    "status": "live",
+    "registered": true,
+    "updateAvailable": false,
+    "notificationCompatible": true,
+    "forbiddenCacheSafe": true,
+    "offlineFallbackSafe": true,
+    "staleShellRisk": "low",
+    "telemetryStatus": "mapped",
+    "rawDetailsCollapsedByDefault": true
+  },
+  "forbiddenCachePaths": [
+    "/api/paypal",
+    "/api/checkout",
+    "/api/wallet",
+    "/api/chat",
+    "/api/creator/messages",
+    "/api/auth",
+    "/api/user",
+    "/api/notifications",
+    "/api/admin",
+    "/__/auth",
+    "/__/firebase",
+    "/dashboard/chat",
+    "/dashboard/library",
+    "/dashboard/wallet",
+    "/wallet",
+    "/checkout",
+    "/admin",
+    "/creator/private"
+  ],
+  "telemetryEvents": [
+    "pwa_service_worker_registration_started",
+    "pwa_service_worker_registered",
+    "pwa_service_worker_registration_failed",
+    "pwa_update_available",
+    "pwa_update_applied",
+    "pwa_offline_seen",
+    "pwa_install_prompt_seen",
+    "pwa_install_prompt_accepted",
+    "pwa_install_prompt_dismissed"
+  ],
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreDimensionImpact": {
+    "sourceHealth": "PWA service worker safety now has an explicit source contract, forbidden cache policy, telemetry map, unit test, and validator.",
+    "runtimeHealth": "Registration/update/offline states are wired for source-side telemetry and debug; deployed runtime smoke remains separate.",
+    "evidenceCompleteness": "Debug lane reports registration, update availability, notification compatibility, forbidden cache safety, offline fallback, and stale shell risk.",
+    "freshness": "PWA safety artifact is regenerated from current source at the current head.",
+    "costRisk": "No provider sends, deployment, production reads, or broad route fanout are performed.",
+    "regressionRisk": "Focused unit and validator coverage guard sensitive cache paths, update/offline telemetry, and debug visibility.",
+    "overallHealthScore": "Improves PWA readiness evidence without clearing formal runtime/provider gates."
+  },
+  "oldLogicClassification": [
+    {
+      "reference": "public/firebase-messaging-sw.js runtime cache",
+      "classification": "still_required_public_shell_only"
+    },
+    {
+      "reference": "agent/state/pwa-service-worker-audit.generated.json",
+      "classification": "stale_generated_artifact_to_reuse_as_prior_evidence"
+    },
+    {
+      "reference": "docs/agent-truth/pwa-service-worker-mobile.md",
+      "classification": "still_required_doctrine"
+    }
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/pwa-service-worker-safety.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/pwa-service-worker-safety.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/firebase-messaging-sw.js",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-pwa-service-worker-safety.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/components/PwaRuntimeBridge.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/pwa/pwa-service-worker-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/pwa/pwa-update-telemetry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/pwa-service-worker-safety.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

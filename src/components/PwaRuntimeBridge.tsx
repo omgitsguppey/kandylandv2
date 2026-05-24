@@ -3,10 +3,57 @@
 import { useEffect } from "react";
 
 import { KANDYDROPS_APP_UPDATE_EVENT, registerAppServiceWorker } from "@/lib/firebase-messaging";
+import { detectDeviceDisplayMode } from "@/lib/device-layout-contract";
+import {
+    classifyPwaServiceWorkerSafety,
+    type PwaServiceWorkerSafetyInput,
+} from "@/lib/pwa/pwa-service-worker-contract";
+import { trackPwaServiceWorkerEvent } from "@/lib/pwa/pwa-update-telemetry";
 import { PUBLIC_APP_VERSION } from "@/lib/release-notes/public-release-notes";
+import { trackEvent } from "@/lib/telemetry";
 
 const BUILD_REFRESH_SESSION_KEY = "kandydrops.build-refresh.version";
 let singletonFreshnessWatcherMounted = false;
+
+function resolveNotificationPermissionState() {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+        return "unsupported" as const;
+    }
+
+    return Notification.permission === "granted"
+        ? "granted"
+        : Notification.permission === "denied"
+            ? "denied"
+            : "default";
+}
+
+function emitPwaEvent(eventName: Parameters<typeof trackPwaServiceWorkerEvent>[0]["eventName"], overrides: Partial<PwaServiceWorkerSafetyInput> = {}) {
+    const safety = classifyPwaServiceWorkerSafety({
+        serviceWorkerSupported: typeof window !== "undefined" && "serviceWorker" in navigator,
+        registrationAttempted: true,
+        offlineFallbackAvailable: true,
+        forbiddenCachePathSafe: true,
+        notificationPermissionState: resolveNotificationPermissionState(),
+        pushTokenStatus: "missing",
+        displayMode: detectDeviceDisplayMode(),
+        mobileSafeAreaContractApplied: true,
+        staleShellRiskSignals: [],
+        ...overrides,
+    });
+
+    trackPwaServiceWorkerEvent({
+        eventName,
+        serviceWorkerStatus: safety.serviceWorkerStatus,
+        registrationStatus: safety.registrationStatus,
+        updateStatus: safety.updateStatus,
+        offlineSupportStatus: safety.offlineSupportStatus,
+        notificationCompatibility: safety.notificationCompatibility,
+        standaloneMode: safety.standaloneMode,
+        mobileSafeAreaImpact: safety.mobileSafeAreaImpact,
+        route: typeof window === "undefined" ? "/" : window.location.pathname,
+        sourceComponent: "PwaRuntimeBridge",
+    }, trackEvent);
+}
 
 async function fetchManifestNoStore() {
     if (typeof window === "undefined") {
@@ -29,7 +76,15 @@ async function fetchManifestNoStore() {
 
 export function PwaRuntimeBridge() {
     useEffect(() => {
-        void registerAppServiceWorker();
+        emitPwaEvent("pwa_service_worker_registration_started", {
+            registrationAttempted: true,
+        });
+        void registerAppServiceWorker().then((registration) => {
+            emitPwaEvent(registration ? "pwa_service_worker_registered" : "pwa_service_worker_registration_failed", {
+                registered: Boolean(registration),
+                registrationFailed: !registration,
+            });
+        });
     }, []);
 
     useEffect(() => {
@@ -50,6 +105,24 @@ export function PwaRuntimeBridge() {
         const handleUpdateAvailable = () => {
             // Keep this update flow silent for public user surfaces.
             markCurrentBuildSeen();
+            emitPwaEvent("pwa_update_available", {
+                registered: true,
+                updateAvailable: true,
+                staleShellRiskSignals: ["service_worker_update_available"],
+            });
+        };
+
+        const handleOffline = () => {
+            emitPwaEvent("pwa_offline_seen", {
+                registered: true,
+                offlineFallbackAvailable: true,
+            });
+        };
+
+        const handleBeforeInstallPrompt = () => {
+            emitPwaEvent("pwa_install_prompt_seen", {
+                registered: true,
+            });
         };
 
         markCurrentBuildSeen();
@@ -58,8 +131,12 @@ export function PwaRuntimeBridge() {
         });
 
         window.addEventListener(KANDYDROPS_APP_UPDATE_EVENT, handleUpdateAvailable);
+        window.addEventListener("offline", handleOffline);
+        window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
         return () => {
             window.removeEventListener(KANDYDROPS_APP_UPDATE_EVENT, handleUpdateAvailable);
+            window.removeEventListener("offline", handleOffline);
+            window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
             singletonFreshnessWatcherMounted = false;
         };
     }, []);
