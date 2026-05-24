@@ -1,13 +1,85 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.26",
-  "betaReleaseCounter": 426,
+  "currentVersion": "1.4.27",
+  "betaReleaseCounter": 427,
   "channel": "beta",
-  "generatedAt": "2026-05-24T10:03:54.639Z",
-  "generatedAtUtc": "2026-05-24T10:03:54.639Z",
+  "generatedAt": "2026-05-24T10:35:00.000Z",
+  "generatedAtUtc": "2026-05-24T10:35:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.27",
+      "previousVersion": "1.4.26",
+      "betaReleaseCounter": 427,
+      "previousBetaReleaseCounter": 426,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): improve session bounce",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T10:35:00.000Z",
+      "generatedAt": "2026-05-24T10:35:00.000Z",
+      "committedAtUtc": "2026-05-24T10:35:00.000Z",
+      "generatedAtUtc": "2026-05-24T10:35:00.000Z",
+      "updatedAtUtc": "2026-05-24T10:35:00.000Z",
+      "category": "Improved",
+      "title": "Session and bounce accuracy",
+      "summary": "Improved session time and bounce calculations by separating active, idle, and hidden time while preserving guest-to-user continuity.",
+      "userFacingTitle": "Session and bounce accuracy",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved session time and bounce calculations.",
+        "Separated active, idle, and hidden session time.",
+        "Linked guest and user sessions without double-counting."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Analytics",
+        "Admin debug",
+        "Behavior tracking"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/feature-registration-gate.generated.json",
+        "agent/state/global-user-dedupe-normalization.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/session-bounce-calculation.generated.json",
+        "agent/state/telemetry-trigger-test-matrix.generated.json",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/feature-registration-gate.md",
+        "docs/agent-truth/global-user-dedupe-normalization.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "docs/agent-truth/session-bounce-calculation.md",
+        "docs/agent-truth/telemetry-trigger-test-matrix.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-global-user-dedupe-normalization.ts",
+        "scripts/agent/validate-session-bounce-calculation.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/session-metrics-contract.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/behavioral/event-fact-contract.ts",
+        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/testing/telemetry-trigger-test-matrix.ts",
+        "tests/unit/session-bounce-calculation.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "Added source-only session metrics contracts, active/idle/hidden timing rules, debug reporting, validator coverage, and unit tests without changing chat, auth, tasks, payment, or GumDrop math."
+      ]
+    },
     {
       "version": "1.4.26",
       "previousVersion": "1.4.25",
@@ -6199,59 +6271,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/telemetry-catalog.ts",
         "tests/unit/chat-presence-typing.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.2",
-      "previousVersion": "1.4.1",
-      "betaReleaseCounter": 402,
-      "previousBetaReleaseCounter": 401,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(chat): harden realtime propagation",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T21:35:00.000Z",
-      "generatedAt": "2026-05-23T21:35:00.000Z",
-      "committedAtUtc": "2026-05-23T21:35:00.000Z",
-      "generatedAtUtc": "2026-05-23T21:35:00.000Z",
-      "updatedAtUtc": "2026-05-23T21:35:00.000Z",
-      "category": "Improved",
-      "title": "Chat realtime reliability",
-      "summary": "Improved chat reliability by tightening realtime listener scope, cleanup, and message propagation evidence.",
-      "userFacingTitle": "Chat realtime reliability",
-      "surfaceCategory": "Chat & support",
-      "bullets": [
-        "Hardened chat realtime listener scope and cleanup.",
-        "Added chat message propagation telemetry.",
-        "Kept chat UI and payment/GumDrop logic unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added source-only chat realtime listener contracts, propagation telemetry, debug evidence, generated validation, and unit coverage without production reads, UI redesign, payment changes, wallet changes, nav changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Chat",
-        "Admin debug",
-        "Telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/chat-realtime-cost-control.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/chat-realtime-cost-control.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-chat-realtime-cost-control.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/lib/chat/chat-realtime-contract.ts",
-        "src/lib/chat/chat-realtime-telemetry.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/chat-realtime-cost-control.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

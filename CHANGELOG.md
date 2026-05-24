@@ -4,6 +4,18 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.27 - 2026-05-24
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
+## 1.4.27 - 2026-05-24
+- Session and bounce accuracy
+- Improved session time and bounce calculations.
+- Separated active, idle, and hidden session time.
+- Linked guest and user sessions without double-counting.
+
 ## 1.4.26 - 2026-05-24
 - Drop watch time accuracy
 - Improved drop watch time accuracy with active playback and visibility rules.
@@ -147,9 +159,3 @@ Showing the last 25 public updates in pages of 5.
 - Hardened chat typing and presence cleanup.
 - Reduced typing write spam with throttled ephemeral state.
 - Added debug visibility for presence health.
-
-## 1.4.2 - 2026-05-23
-- Chat realtime reliability
-- Hardened chat realtime listener scope and cleanup.
-- Added chat message propagation telemetry.
-- Kept chat UI and payment/GumDrop logic unchanged.

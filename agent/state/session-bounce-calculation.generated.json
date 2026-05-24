@@ -1,0 +1,240 @@
+{
+  "generatedAtUtc": "2026-05-24T10:36:41.214Z",
+  "reportKey": "session-bounce-calculation",
+  "currentHead": "7594711347e5902fd476e64b4b276d9c175429de",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "legacyMutationAllowed": false,
+  "fakeSessionActivityUsed": false,
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "metrics": {
+    "sourceHealth": {
+      "before": 92.5,
+      "after": 92.5,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No session/bounce score action needed for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 84.2,
+      "after": 84.2,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No session/bounce score action needed for this dimension."
+    },
+    "evidenceCompleteness": {
+      "before": 69.6,
+      "after": 69.6,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence."
+    },
+    "freshness": {
+      "before": 83.75,
+      "after": 83.75,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No session/bounce score action needed for this dimension."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence."
+    },
+    "regressionRisk": {
+      "before": 86,
+      "after": 86,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No session/bounce score action needed for this dimension."
+    },
+    "overallHealthScore": {
+      "before": 79.25,
+      "after": 79.25,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence."
+    }
+  },
+  "telemetryEvents": [
+    "session_started",
+    "session_activity_tick",
+    "session_meaningful_interaction",
+    "session_closed",
+    "session_bounced",
+    "session_engaged"
+  ],
+  "debugLane": {
+    "label": "Session/bounce",
+    "activeSessionCount": 1,
+    "idleSessionCount": 1,
+    "missingCloseoutCount": 1,
+    "bounceClassifiedCount": 2,
+    "hiddenTimeExcludedCount": 1,
+    "guestUserLinkStatus": "mapped",
+    "telemetryStatus": "mapped",
+    "sourceOfTruth": "src/lib/analytics/session-metrics-engine.ts"
+  },
+  "validation": {
+    "hiddenBackgroundCountsAsActive": false,
+    "pageOpenDurationCountsAsActive": false,
+    "meaningfulInteractionPreventsBounce": true,
+    "guestUserHandoffDoubleCounts": false,
+    "activityTickThrottled": true
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/session-bounce-calculation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/session-bounce-calculation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-session-bounce-calculation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/components/Analytics/DeepTracker.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/session-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/session-metrics-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/event-fact-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/session-bounce-calculation.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": [],
+  "nextExactSteps": [
+    "Keep session active time tied to foreground meaningful activity.",
+    "Use closeout confidence when pagehide/visibility summary is missing.",
+    "Do not use page-open duration as active time or engagement proof."
+  ]
+}

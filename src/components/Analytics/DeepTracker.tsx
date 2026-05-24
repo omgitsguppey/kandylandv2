@@ -12,6 +12,12 @@ import { buildClientTrackingDecision } from "@/lib/analytics/client-tracking-pol
 import { canUseBehavioralAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
 import { trackEvent } from "@/lib/telemetry";
 import {
+    closeSession,
+    startSession,
+    updateSessionActivity,
+    resolveSessionTelemetryPolicy,
+} from "@/lib/analytics/session-metrics-engine";
+import {
     CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS,
     CLIENT_TELEMETRY_NON_PRIORITY_QUEUE_CAP,
     CLIENT_TELEMETRY_PRIORITY_FLUSH_DELAY_MS,
@@ -19,14 +25,20 @@ import {
     shouldFlushClientTelemetryOnNextTurn,
 } from "@/lib/analytics/client-telemetry-priority";
 
-type TelemetryEventType = "click" | "hover" | "scroll" | "visibility" | "page_view" | "page_leave";
+type TelemetryEventType = "click" | "hover" | "scroll" | "visibility" | "page_view" | "page_leave" | "session";
 type GuestSemanticEventName =
     | "semantic_page_viewed"
     | "semantic_target_clicked"
     | "semantic_page_engaged"
     | "semantic_page_passive"
     | "semantic_page_bounced"
-    | "semantic_page_exited";
+    | "semantic_page_exited"
+    | "session_started"
+    | "session_activity_tick"
+    | "session_meaningful_interaction"
+    | "session_closed"
+    | "session_bounced"
+    | "session_engaged";
 
 export interface TelemetryEvent {
     type: TelemetryEventType;
@@ -59,6 +71,17 @@ export interface TelemetryEvent {
     semanticSurfaceLabel?: string;
     semanticEventName?: GuestSemanticEventName;
     semanticExitEventName?: GuestSemanticEventName;
+    activeMs?: number;
+    idleMs?: number;
+    hiddenMs?: number;
+    routeCount?: number;
+    eventCount?: number;
+    meaningfulInteractionCount?: number;
+    conversionCount?: number;
+    bounceStatus?: "bounced" | "not_bounced" | "unknown";
+    engagementStatus?: "engaged" | "passive" | "abandoned" | "unknown";
+    sessionConfidence?: string;
+    endReason?: string;
 }
 
 const GUEST_ANALYTICS_QUEUE_STORAGE_KEY = "kandydrops.analytics.guest-queue";
@@ -327,6 +350,7 @@ export function DeepTracker() {
     const viewerBackgroundTrackedRef = useRef(false);
     const stableGuestBatchRef = useRef<StableGuestAnalyticsBatch | null>(null);
     const finalCloseoutKeyRef = useRef<string | null>(null);
+    const lastSessionActivityTickAtRef = useRef(0);
 
     useEffect(() => {
         return subscribeToPrivacySettings(() => {
@@ -384,6 +408,7 @@ export function DeepTracker() {
         hoverSummaryRef.current = createEmptyHoverSummary();
         visibilitySummaryRef.current = createVisibilitySummary(pageEnteredAt.current);
         nextScrollMilestoneIndexRef.current = 0;
+        lastSessionActivityTickAtRef.current = 0;
 
         const flushQueue = async (
             reason: GuestAnalyticsFlushReason,
@@ -637,13 +662,36 @@ export function DeepTracker() {
             emitHoverSummary();
             emitVisibilitySummary();
             emitScrollSummary();
-            const durationMs = Math.max(0, Date.now() - pageEnteredAt.current);
-            const engaged = clickCountRef.current > 0
-                || hoverCountRef.current > 0
-                || scrollCountRef.current > 0
-                || lastScrollDepth.current >= 25
-                || durationMs >= 15_000;
-            const exitIntent = !engaged && durationMs < 10_000 ? "bounce" : "exit";
+            const now = Date.now();
+            const durationMs = Math.max(0, now - pageEnteredAt.current);
+            const visibilitySummary = visibilitySummaryRef.current;
+            const meaningfulInteractionCount = clickCountRef.current
+                + hoverCountRef.current
+                + scrollCountRef.current
+                + (lastScrollDepth.current >= 25 ? 1 : 0);
+            const activeMs = meaningfulInteractionCount > 0
+                ? Math.max(0, Math.min(durationMs - visibilitySummary.totalHiddenMs, durationMs))
+                : 0;
+            const sessionMetric = closeSession(updateSessionActivity(startSession({
+                sessionId: getClientAnalyticsIdentitySnapshot("granted").sessionId,
+                actorKind: "guest",
+                guestId: getClientAnalyticsIdentitySnapshot("granted").anonymousVisitorId,
+                startedAt: pageEnteredAt.current,
+                routeCount: 1,
+            }), {
+                at: now,
+                activeMsDelta: activeMs,
+                foregroundMsDelta: durationMs,
+                hiddenMsDelta: visibilitySummary.totalHiddenMs,
+                eventCountDelta: clickCountRef.current + hoverCountRef.current + scrollCountRef.current + 1,
+                meaningfulInteractionCountDelta: meaningfulInteractionCount,
+            }), {
+                endedAt: now,
+                endReason: reason === "pagehide" ? "pagehide" : reason === "visibility" ? "visibility_hidden" : "cleanup",
+                closeoutObserved: true,
+            });
+            const engaged = sessionMetric.engagementStatus === "engaged";
+            const exitIntent = sessionMetric.bounceStatus === "bounced" ? "bounce" : "exit";
 
             pushEvent({
                 type: "page_leave",
@@ -658,14 +706,59 @@ export function DeepTracker() {
                 clickCount: clickCountRef.current,
                 hoverCount: hoverCountRef.current,
                 scrollCount: scrollCountRef.current,
+                activeMs: sessionMetric.activeMs,
+                idleMs: sessionMetric.idleMs,
+                hiddenMs: sessionMetric.hiddenMs,
+                routeCount: sessionMetric.routeCount,
+                eventCount: sessionMetric.eventCount,
+                meaningfulInteractionCount: sessionMetric.meaningfulInteractionCount,
+                conversionCount: sessionMetric.conversionCount,
+                bounceStatus: sessionMetric.bounceStatus,
+                engagementStatus: sessionMetric.engagementStatus,
+                sessionConfidence: sessionMetric.confidence,
+                endReason: sessionMetric.endReason,
                 ...rawSemanticFields,
                 ...readTelemetryContext(),
+            });
+
+            trackEvent("session_closed", {
+                ...semanticParams,
+                page_path: pathname,
+                session_id: sessionMetric.sessionId,
+                active_ms: sessionMetric.activeMs,
+                idle_ms: sessionMetric.idleMs,
+                hidden_ms: sessionMetric.hiddenMs,
+                route_count: sessionMetric.routeCount,
+                event_count: sessionMetric.eventCount,
+                meaningful_interaction_count: sessionMetric.meaningfulInteractionCount,
+                conversion_count: sessionMetric.conversionCount,
+                bounce_status: sessionMetric.bounceStatus,
+                engagement_status: sessionMetric.engagementStatus,
+                confidence: sessionMetric.confidence,
+                end_reason: sessionMetric.endReason,
+            });
+
+            trackEvent(sessionMetric.bounceStatus === "bounced" ? "session_bounced" : "session_engaged", {
+                ...semanticParams,
+                page_path: pathname,
+                session_id: sessionMetric.sessionId,
+                active_ms: sessionMetric.activeMs,
+                idle_ms: sessionMetric.idleMs,
+                hidden_ms: sessionMetric.hiddenMs,
+                bounce_status: sessionMetric.bounceStatus,
+                engagement_status: sessionMetric.engagementStatus,
+                end_reason: sessionMetric.endReason,
             });
 
             trackEvent(engaged ? "semantic_page_engaged" : "semantic_page_passive", {
                 ...semanticParams,
                 page_path: pathname,
                 duration_ms: durationMs,
+                active_ms: sessionMetric.activeMs,
+                idle_ms: sessionMetric.idleMs,
+                hidden_ms: sessionMetric.hiddenMs,
+                bounce_status: sessionMetric.bounceStatus,
+                engagement_status: sessionMetric.engagementStatus,
                 click_count: clickCountRef.current,
                 hover_count: hoverCountRef.current,
                 scroll_count: scrollCountRef.current,
@@ -678,6 +771,11 @@ export function DeepTracker() {
                 ...semanticParams,
                 page_path: pathname,
                 duration_ms: durationMs,
+                active_ms: sessionMetric.activeMs,
+                idle_ms: sessionMetric.idleMs,
+                hidden_ms: sessionMetric.hiddenMs,
+                bounce_status: sessionMetric.bounceStatus,
+                engagement_status: sessionMetric.engagementStatus,
                 click_count: clickCountRef.current,
                 hover_count: hoverCountRef.current,
                 scroll_count: scrollCountRef.current,
@@ -701,6 +799,17 @@ export function DeepTracker() {
         trackEvent("semantic_page_viewed", {
             ...semanticParams,
             page_path: pathname,
+        });
+
+        trackEvent("session_started", {
+            ...semanticParams,
+            page_path: pathname,
+            session_id: getClientAnalyticsIdentitySnapshot("granted").sessionId,
+            active_ms: 0,
+            idle_ms: 0,
+            hidden_ms: 0,
+            bounce_status: "unknown",
+            engagement_status: "unknown",
         });
 
         const handleClick = (e: MouseEvent) => {
@@ -737,6 +846,18 @@ export function DeepTracker() {
                 target_tag: interactiveTarget.tagName,
                 target_label: targetLabel,
                 drop_id: dropId,
+            });
+
+            trackEvent("session_meaningful_interaction", {
+                ...semanticParams,
+                page_path: pathname,
+                session_id: getClientAnalyticsIdentitySnapshot("granted").sessionId,
+                active_ms: 0,
+                idle_ms: 0,
+                hidden_ms: visibilitySummaryRef.current.totalHiddenMs,
+                bounce_status: "not_bounced",
+                engagement_status: "engaged",
+                source_component: "DeepTracker",
             });
         };
 
@@ -858,6 +979,30 @@ export function DeepTracker() {
         trackingInterval = window.setInterval(() => {
             if (document.visibilityState !== "visible") {
                 return;
+            }
+            const now = Date.now();
+            const tickPolicy = resolveSessionTelemetryPolicy({
+                eventName: "session_activity_tick",
+                lastActivityTickAtMs: lastSessionActivityTickAtRef.current,
+                nowMs: now,
+            });
+            if (tickPolicy.shouldEmit) {
+                lastSessionActivityTickAtRef.current = now;
+                trackEvent("session_activity_tick", {
+                    ...semanticParams,
+                    page_path: pathname,
+                    session_id: getClientAnalyticsIdentitySnapshot("granted").sessionId,
+                    active_ms: clickCountRef.current + hoverCountRef.current + scrollCountRef.current > 0
+                        ? Math.max(0, now - pageEnteredAt.current - visibilitySummaryRef.current.totalHiddenMs)
+                        : 0,
+                    idle_ms: clickCountRef.current + hoverCountRef.current + scrollCountRef.current > 0
+                        ? 0
+                        : Math.max(0, now - pageEnteredAt.current - visibilitySummaryRef.current.totalHiddenMs),
+                    hidden_ms: visibilitySummaryRef.current.totalHiddenMs,
+                    bounce_status: "unknown",
+                    engagement_status: clickCountRef.current + hoverCountRef.current + scrollCountRef.current > 0 ? "engaged" : "passive",
+                    source_component: "DeepTracker",
+                });
             }
             void flushQueue("interval");
         }, GUEST_ANALYTICS_FLUSH_INTERVAL_MS);

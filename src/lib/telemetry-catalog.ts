@@ -555,6 +555,12 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "beta_changelog_opened", label: "Beta changelog opened", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
   { eventName: "beta_changelog_closed", label: "Beta changelog closed", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
   { eventName: "beta_changelog_entry_clicked", label: "Beta changelog entry clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
+  { eventName: "session_started", label: "Session started", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "session_activity_tick", label: "Session activity tick", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation", "runtime"] },
+  { eventName: "session_meaningful_interaction", label: "Session meaningful interaction", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "session_closed", label: "Session closed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "session_bounced", label: "Session bounced", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "session_engaged", label: "Session engaged", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "semantic_page_viewed", label: "Semantic page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "semantic_page_engaged", label: "Semantic page engaged", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "semantic_page_passive", label: "Semantic passive page view", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
@@ -1385,6 +1391,17 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     ];
   }
 
+  if (eventName.startsWith("session_")) {
+    return [
+      "session_id|sessionId",
+      "active_ms|activeMs",
+      "idle_ms|idleMs",
+      "hidden_ms|hiddenMs",
+      "bounce_status|bounceStatus",
+      "engagement_status|engagementStatus",
+    ];
+  }
+
   if (family === "unlock") {
     return [
       "drop_id|dropId",
@@ -1558,6 +1575,10 @@ function buildRequiredActorFields(eventName: string, family: TelemetryEventFamil
     return ["session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"];
   }
 
+  if (eventName.startsWith("session_")) {
+    return ["session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"];
+  }
+
   return [];
 }
 
@@ -1599,6 +1620,10 @@ function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFam
 
   if (family === "auth") {
     return ["method|provider", "outcome|success|error_code", "route|page_path|pagePath|surface|source_component"];
+  }
+
+  if (eventName.startsWith("session_")) {
+    return ["route|page_path|pagePath|surface|source_component|sourceComponent"];
   }
 
   if (eventName === "server_purchase_verified" || eventName === "purchase_verified") {

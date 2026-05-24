@@ -20,6 +20,12 @@ type ActionAliasConfig = {
 
 const ACTION_ALIASES: Record<string, ActionAliasConfig> = {
   home_page_viewed: { normalizedAction: "home_viewed", entityType: "page", entityKeys: ["route", "page_path", "pagePath"] },
+  session_started: { normalizedAction: "session_started", entityType: "page", entityKeys: ["session_id", "sessionId"] },
+  session_activity_tick: { normalizedAction: "session_activity_tick", entityType: "page", entityKeys: ["session_id", "sessionId"] },
+  session_meaningful_interaction: { normalizedAction: "session_meaningful_interaction", entityType: "page", entityKeys: ["session_id", "sessionId", "route", "page_path", "pagePath"] },
+  session_closed: { normalizedAction: "session_closed", entityType: "page", entityKeys: ["session_id", "sessionId"] },
+  session_bounced: { normalizedAction: "session_bounced", entityType: "page", entityKeys: ["session_id", "sessionId"] },
+  session_engaged: { normalizedAction: "session_engaged", entityType: "page", entityKeys: ["session_id", "sessionId"] },
   hero_cta_clicked: { normalizedAction: "hero_cta_clicked", entityType: "page", entityKeys: ["destination", "action", "route", "page_path", "pagePath"] },
   auth_sign_up_attempted: { normalizedAction: "signup_started", entityKeys: ["user_id", "userId", "session_id", "sessionId", "anonymous_visitor_id", "anonymousVisitorId"] },
   auth_google_sign_in_attempted: { normalizedAction: "signup_started", entityKeys: ["user_id", "userId", "session_id", "sessionId", "anonymous_visitor_id", "anonymousVisitorId"] },

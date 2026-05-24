@@ -456,6 +456,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/drop-watch-time-accuracy.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/session-bounce-calculation.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/global-user-dedupe-normalization.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-provider-conflict-resolution.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-persistence-stability.generated.json") return "current_generated_artifact_to_commit";
@@ -466,6 +467,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
   if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/drop-watch-time-accuracy.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/session-bounce-calculation.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-provider-conflict-resolution.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-persistence-stability.md") return "documentation_artifact_expected";
@@ -476,6 +478,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-drop-watch-time-accuracy.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-session-bounce-calculation.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
@@ -510,6 +513,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/event-translation-bridge.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/drop-watch-time-accuracy.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/session-bounce-calculation.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/global-user-dedupe-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-provider-conflict-resolution.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-persistence-stability.spec.ts") return "test_artifact_expected";
@@ -549,6 +553,9 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/drop-watch-time-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/drop-watch-time-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/session-metrics-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/session-metrics-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/components/Analytics/DeepTracker.tsx") return "real_source_change_needs_review";
   if (normalized === "src/hooks/useViewerWatchSession.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/notifications/notification-permission-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/notifications/notification-prompt-telemetry.ts") return "real_source_change_needs_review";

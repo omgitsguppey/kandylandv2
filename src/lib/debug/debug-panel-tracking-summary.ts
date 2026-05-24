@@ -21,6 +21,7 @@ import { buildAuthPersistenceDebugLane } from "@/lib/auth/auth-persistence-contr
 import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedupe-engine";
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
+import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -28,6 +29,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "event_envelope",
   "global_user_dedupe",
   "drop_watch_time",
+  "session_bounce",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -109,6 +111,7 @@ const TRACKING_GROUPS = [
   "event_envelope",
   "global_user_dedupe",
   "drop_watch_time",
+  "session_bounce",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -188,6 +191,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const dropWatchTimeLane = input.dropWatchTimeAccuracy?.debugLane ?? buildDropWatchTimeDebugLane();
   const dropWatchTimeWarnings = toNumber(dropWatchTimeLane.durationMissingCount)
     + toNumber(dropWatchTimeLane.suspiciousPageTimeFallbackCount);
+  const sessionBounceLane = input.sessionBounceCalculation?.debugLane ?? buildSessionBounceDebugLane();
+  const sessionBounceWarnings = toNumber(sessionBounceLane.missingCloseoutCount)
+    + (sessionBounceLane.guestUserLinkStatus === "missing" ? 1 : 0)
+    + (sessionBounceLane.telemetryStatus === "mapped" ? 0 : 1);
   const eventBridge = input.eventTranslationBridge?.debugLane ?? {};
   const eventBridgeGaps = toNumber(eventBridge.gaps);
   const eventBridgeTranslated = toNumber(eventBridge.eventEnvelopesTranslated);
@@ -396,6 +403,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: dropWatchTimeWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#drop-watch-time",
+    }),
+    makeLane({
+      id: "session_bounce",
+      label: "Session/bounce",
+      trackingSystem: "session_bounce",
+      sourceOwner: "analytics",
+      sourceOfTruth: "src/lib/analytics/session-metrics-engine.ts",
+      status: sessionBounceWarnings > 0 ? "degraded" : "live",
+      severity: severityFromCounts(0, sessionBounceWarnings, sessionBounceWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: sessionBounceWarnings > 0 ? "medium" : "none",
+      primarySignal: `Active=${toNumber(sessionBounceLane.activeSessionCount)}; idle=${toNumber(sessionBounceLane.idleSessionCount)}; missing closeouts=${toNumber(sessionBounceLane.missingCloseoutCount)}; bounce classified=${toNumber(sessionBounceLane.bounceClassifiedCount)}; hidden excluded=${toNumber(sessionBounceLane.hiddenTimeExcludedCount)}; guest/user link=${sessionBounceLane.guestUserLinkStatus}.`,
+      criticalCount: 0,
+      warningCount: sessionBounceWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#session-bounce",
     }),
     makeLane({
       id: "event_translation_bridge",

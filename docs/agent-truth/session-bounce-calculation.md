@@ -1,55 +1,57 @@
-# Global User Dedupe Normalization
+# Session Bounce Calculation
 
-Generated: 2026-05-24T10:34:42.172Z
+Generated: 2026-05-24T10:36:41.214Z
 Status: pass
 Current head: 7594711347e5902fd476e64b4b276d9c175429de
 
 ## Contract
 
-- Global aggregates count real unique actions once.
-- User aggregates use the best available identity and suppress linked guest duplicates.
-- SQL/BigQuery export keeps raw facts plus normalized summary identity instead of mutating runtime truth.
-- Unknown legacy evidence is archived and cannot become exact user truth.
-- Retry and replay events preserve raw export evidence but do not inflate metrics.
+- Inactivity threshold: 1800000ms.
+- Activity tick throttle: 15000ms.
+- Active session time requires foreground user interaction or meaningful events.
+- Hidden/background time is excluded from active time.
+- Bounce classification is not one-page-only; meaningful unwrap/watch/click behavior prevents a bounce.
+- Guest-to-user handoff preserves session continuity and suppresses duplicate counting.
+- Missing closeouts are estimated with explicit confidence and endReason.
 
 ## Debug Lane
 
-- Label: Global vs user dedupe
-- Duplicate risk count: 3
-- Linked guest/user health: healthy
-- Global/user mismatch count: 0
-- SQL/export parity: mapped
-- Unknown legacy count: 1
+- Label: Session/bounce
+- Active sessions: 1
+- Idle sessions: 1
+- Missing closeouts: 1
+- Bounce classified: 2
+- Hidden time excluded: 1
+- Guest/user link: mapped
 
 ## Score Impact
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 92.5 | 92.5 | target_met | No global/user dedupe score action needed for this dimension. |
-| runtimeHealth | 84.2 | 84.2 | target_met | No global/user dedupe score action needed for this dimension. |
-| evidenceCompleteness | 69.6 | 72 | below_target | Resolve formal beta score gates outside analytics dedupe; do not fake runtime/provider evidence. |
-| freshness | 83.75 | 83.75 | target_met | No global/user dedupe score action needed for this dimension. |
-| costRisk | 42 | 42 | below_target | Resolve formal beta score gates outside analytics dedupe; do not fake runtime/provider evidence. |
-| regressionRisk | 86 | 86 | target_met | No global/user dedupe score action needed for this dimension. |
-| overallHealthScore | 79.25 | 79.25 | below_target | Resolve formal beta score gates outside analytics dedupe; do not fake runtime/provider evidence. |
+| sourceHealth | 92.5 | 92.5 | target_met | No session/bounce score action needed for this dimension. |
+| runtimeHealth | 84.2 | 84.2 | target_met | No session/bounce score action needed for this dimension. |
+| evidenceCompleteness | 69.6 | 69.6 | below_target | Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence. |
+| freshness | 83.75 | 83.75 | target_met | No session/bounce score action needed for this dimension. |
+| costRisk | 42 | 42 | below_target | Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence. |
+| regressionRisk | 86 | 86 | target_met | No session/bounce score action needed for this dimension. |
+| overallHealthScore | 79.25 | 79.25 | below_target | Resolve formal beta score gates outside session/bounce math; do not fake activity or runtime evidence. |
 
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/global-user-dedupe-normalization.generated.json: current_generated_artifact_to_commit
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/global-user-dedupe-normalization.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - agent/state/session-bounce-calculation.generated.json: current_generated_artifact_to_commit
-- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/global-user-dedupe-normalization.md: release_artifact_expected
+- docs/agent-truth/feature-registration-gate.md: documentation_artifact_expected
+- docs/agent-truth/global-user-dedupe-normalization.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/session-bounce-calculation.md: documentation_artifact_expected
-- docs/agent-truth/telemetry-trigger-test-matrix.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
 - scripts/agent/validate-global-user-dedupe-normalization.ts: validator_artifact_expected

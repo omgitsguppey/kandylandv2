@@ -9,6 +9,12 @@ export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.6";
 
 export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "home_viewed",
+  "session_started",
+  "session_activity_tick",
+  "session_meaningful_interaction",
+  "session_closed",
+  "session_bounced",
+  "session_engaged",
   "hero_cta_clicked",
   "signup_started",
   "signup_completed",
@@ -174,6 +180,12 @@ export type BehavioralEventFactDiagnostic = {
 
 export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedAction, number | "permanent" | "event_id"> = {
   home_viewed: 30 * 1000,
+  session_started: "event_id",
+  session_activity_tick: 15 * 1000,
+  session_meaningful_interaction: 5 * 1000,
+  session_closed: "event_id",
+  session_bounced: "event_id",
+  session_engaged: "event_id",
   hero_cta_clicked: 5 * 1000,
   signup_started: 60 * 60 * 1000,
   signup_completed: 24 * 60 * 60 * 1000,
@@ -253,6 +265,12 @@ export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedActi
 
 export const BEHAVIORAL_EVENT_LABELS: Record<BehavioralNormalizedAction, string> = {
   home_viewed: "Home viewed",
+  session_started: "Session started",
+  session_activity_tick: "Session activity tick",
+  session_meaningful_interaction: "Session meaningful interaction",
+  session_closed: "Session closed",
+  session_bounced: "Session bounced",
+  session_engaged: "Session engaged",
   hero_cta_clicked: "Hero CTA clicked",
   signup_started: "Signup started",
   signup_completed: "Signup completed",

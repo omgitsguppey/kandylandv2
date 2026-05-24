@@ -1,8 +1,8 @@
 # Telemetry Trigger Test Matrix
 
-Generated: 2026-05-24T10:12:47.685Z
+Generated: 2026-05-24T10:35:15.130Z
 Status: pass
-Current head: 31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e
+Current head: 7594711347e5902fd476e64b4b276d9c175429de
 
 ## Contract
 
@@ -12,8 +12,8 @@ Current head: 31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e
 
 ## Debug Lane
 
-- Total triggers: 23
-- Covered triggers: 23
+- Total triggers: 24
+- Covered triggers: 24
 - Missing trigger tests: 0
 - UI-only tests: 0
 - Waiting-on-activity deterministic gaps: 0
@@ -43,6 +43,7 @@ Current head: 31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e
 - broadcasts: covered=true; missing=none
 - fan_pass: covered=true; missing=none
 - runtime_watch: covered=true; missing=none
+- session_bounce: covered=true; missing=none
 
 ## Trigger Rows
 
@@ -69,6 +70,7 @@ Current head: 31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e
 - broadcast_view: creator broadcast detail -> creator_broadcast_detail_viewed -> broadcasts_viewed -> Testing coverage -> evidenceCompleteness; status=covered
 - fan_pass_view: Fan Pass panel -> creator_fan_pass_viewed -> fan_pass_views -> Testing coverage -> runtimeHealth; status=covered
 - runtime_watch_session: viewer runtime -> drop_watch_progress -> runtime_watch_sessions -> Testing coverage -> runtimeHealth; status=covered
+- session_bounce_closeout: DeepTracker -> session_closed -> sessions -> Testing coverage -> evidenceCompleteness; status=covered
 
 ## Score Impact
 
@@ -86,33 +88,38 @@ Current head: 31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
-- agent/state/drop-watch-time-accuracy.generated.json: current_generated_artifact_to_commit
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/global-user-dedupe-normalization.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/session-bounce-calculation.generated.json: current_generated_artifact_to_commit
 - agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/drop-watch-time-accuracy.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/global-user-dedupe-normalization.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/session-bounce-calculation.md: documentation_artifact_expected
 - docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-drop-watch-time-accuracy.ts: validator_artifact_expected
-- src/hooks/useViewerWatchSession.ts: real_source_change_needs_review
-- src/lib/analytics/drop-watch-time-contract.ts: real_source_change_needs_review
-- src/lib/analytics/drop-watch-time-engine.ts: real_source_change_needs_review
+- scripts/agent/validate-global-user-dedupe-normalization.ts: validator_artifact_expected
+- scripts/agent/validate-session-bounce-calculation.ts: validator_artifact_expected
+- src/components/Analytics/DeepTracker.tsx: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/analytics/session-metrics-contract.ts: real_source_change_needs_review
+- src/lib/analytics/session-metrics-engine.ts: real_source_change_needs_review
+- src/lib/behavioral/event-fact-contract.ts: real_source_change_needs_review
 - src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - src/lib/telemetry-catalog.ts: real_source_change_needs_review
 - src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/drop-watch-time-accuracy.spec.ts: test_artifact_expected
+- tests/unit/session-bounce-calculation.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

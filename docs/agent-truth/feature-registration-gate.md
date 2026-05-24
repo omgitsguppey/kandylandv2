@@ -11,7 +11,7 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 - Mapped routes: 163
 - System/internal routes: 11
 - Unmapped routes: 0
-- Telemetry events: 516
+- Telemetry events: 522
 - Unmapped telemetry events: 0
 - UI metrics: 14
 - Orphan metrics: 0
@@ -19,7 +19,7 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 ## Registered Features
 
 - wallet: owner=wallet-analytics; routes=3; events=9; materializers=1; score=runtimeHealth,evidenceCompleteness,costRisk
-- user_dashboard: owner=user-dashboard-analytics; routes=12; events=92; materializers=3; score=sourceHealth,evidenceCompleteness
+- user_dashboard: owner=user-dashboard-analytics; routes=12; events=97; materializers=3; score=sourceHealth,evidenceCompleteness
 - drops: owner=drops-analytics; routes=3; events=95; materializers=2; score=sourceHealth,runtimeHealth,evidenceCompleteness
 - library: owner=library-analytics; routes=1; events=7; materializers=1; score=evidenceCompleteness
 - creator_dashboard: owner=creator-dashboard-analytics; routes=4; events=29; materializers=4; score=sourceHealth,evidenceCompleteness
@@ -29,10 +29,10 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 - broadcasts: owner=broadcasts-analytics; routes=2; events=6; materializers=1; score=sourceHealth,evidenceCompleteness
 - fan_pass: owner=fan-pass-analytics; routes=5; events=8; materializers=1; score=runtimeHealth,evidenceCompleteness
 - admin_debug: owner=admin-debug-analytics; routes=3; events=89; materializers=1; score=sourceHealth,runtimeHealth,evidenceCompleteness,freshness
-- analytics_telemetry: owner=analytics-platform; routes=3; events=202; materializers=5; score=sourceHealth,runtimeHealth,evidenceCompleteness,freshness
-- cookie_consent_privacy: owner=privacy-analytics; routes=4; events=130; materializers=2; score=sourceHealth,evidenceCompleteness,regressionRisk
-- behavior_tracking: owner=behavioral-intelligence; routes=4; events=147; materializers=4; score=sourceHealth,runtimeHealth,evidenceCompleteness
-- runtime_smoke_substitutes: owner=runtime-evidence; routes=7; events=116; materializers=3; score=runtimeHealth,evidenceCompleteness,regressionRisk
+- analytics_telemetry: owner=analytics-platform; routes=3; events=208; materializers=5; score=sourceHealth,runtimeHealth,evidenceCompleteness,freshness
+- cookie_consent_privacy: owner=privacy-analytics; routes=4; events=135; materializers=2; score=sourceHealth,evidenceCompleteness,regressionRisk
+- behavior_tracking: owner=behavioral-intelligence; routes=4; events=153; materializers=4; score=sourceHealth,runtimeHealth,evidenceCompleteness
+- runtime_smoke_substitutes: owner=runtime-evidence; routes=7; events=117; materializers=3; score=runtimeHealth,evidenceCompleteness,regressionRisk
 - daily_checkin: owner=retention-analytics; routes=3; events=34; materializers=1; score=evidenceCompleteness
 - notifications: owner=notifications-analytics; routes=1; events=45; materializers=1; score=runtimeHealth,evidenceCompleteness
 - auth_identity: owner=identity-analytics; routes=7; events=79; materializers=1; score=runtimeHealth,evidenceCompleteness

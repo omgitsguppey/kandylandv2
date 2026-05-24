@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-24T10:12:47.643Z",
-  "currentHead": "31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e",
+  "generatedAtUtc": "2026-05-24T10:34:42.211Z",
+  "currentHead": "7594711347e5902fd476e64b4b276d9c175429de",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -45,14 +45,56 @@
   },
   "debugLane": {
     "label": "Event translation bridge",
-    "producersRegistered": 516,
-    "producersConnected": 516,
-    "eventEnvelopesTranslated": 516,
-    "materializersMapped": 516,
-    "personMetricsMapped": 172,
+    "producersRegistered": 522,
+    "producersConnected": 522,
+    "eventEnvelopesTranslated": 522,
+    "materializersMapped": 522,
+    "personMetricsMapped": 178,
     "gaps": 0
   },
   "waitingOnActivity": [
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
     {
       "reason": "future_real_activity_pending",
       "scoreDrag": false,
@@ -3673,8 +3715,8 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/drop-watch-time-accuracy.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
@@ -3685,6 +3727,10 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -3693,12 +3739,12 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/session-bounce-calculation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
-      "classification": "documentation_artifact_expected"
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
@@ -3709,8 +3755,16 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/session-bounce-calculation.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
@@ -3725,19 +3779,15 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/hooks/useViewerWatchSession.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-session-bounce-calculation.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/analytics/drop-watch-time-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/drop-watch-time-engine.ts",
+      "path": "src/components/Analytics/DeepTracker.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3750,6 +3800,18 @@
     },
     {
       "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/session-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/session-metrics-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/event-fact-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3777,7 +3839,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/drop-watch-time-accuracy.spec.ts",
+      "path": "tests/unit/session-bounce-calculation.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

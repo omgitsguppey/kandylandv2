@@ -1,7 +1,7 @@
 {
   "reportKey": "telemetry-trigger-test-matrix",
-  "generatedAtUtc": "2026-05-24T10:12:47.685Z",
-  "currentHead": "31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e",
+  "generatedAtUtc": "2026-05-24T10:35:15.130Z",
+  "currentHead": "7594711347e5902fd476e64b4b276d9c175429de",
   "status": "pass",
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
@@ -700,6 +700,36 @@
       "requiredValidatorTest": "tests/unit/telemetry-trigger-test-matrix.spec.ts",
       "currentStatus": "covered",
       "missingCoverageReason": null
+    },
+    {
+      "triggerId": "session_bounce_closeout",
+      "family": "session_bounce",
+      "featureId": "behavior_tracking",
+      "sourceSurface": "DeepTracker",
+      "eventName": "session_closed",
+      "consentMode": "minimal_analytics",
+      "materializerLane": "behavior_signal_materializer",
+      "scoreImpact": "evidenceCompleteness.runtimeHealth",
+      "expectedPersonMetric": {
+        "metricId": "sessions",
+        "confidence": "linked"
+      },
+      "expectedScoreDimension": "evidenceCompleteness",
+      "expectedEnvelope": {
+        "eventName": "session_closed",
+        "materializerLane": "behavior_signal_materializer",
+        "debugVisibility": "debug_visible",
+        "scoreImpact": "evidenceCompleteness.runtimeHealth"
+      },
+      "expectedFeatureActivity": {
+        "status": "mapped",
+        "materializerMapped": true,
+        "scoreInputMapped": true
+      },
+      "expectedDebugLane": "Testing coverage",
+      "requiredValidatorTest": "tests/unit/telemetry-trigger-test-matrix.spec.ts",
+      "currentStatus": "covered",
+      "missingCoverageReason": null
     }
   ],
   "coverageByFamily": {
@@ -817,12 +847,17 @@
       "required": true,
       "covered": true,
       "missingCoverageReason": null
+    },
+    "session_bounce": {
+      "required": true,
+      "covered": true,
+      "missingCoverageReason": null
     }
   },
   "debugLane": {
     "label": "Testing coverage",
-    "totalTriggers": 23,
-    "coveredTriggers": 23,
+    "totalTriggers": 24,
+    "coveredTriggers": 24,
     "missingTriggerTests": 0,
     "uiOnlyTests": 0,
     "waitingOnActivityDeterministicGaps": 0,
@@ -872,8 +907,8 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/drop-watch-time-accuracy.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
@@ -881,6 +916,10 @@
     },
     {
       "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -892,12 +931,12 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "path": "agent/state/session-bounce-calculation.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
-      "classification": "documentation_artifact_expected"
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
@@ -908,8 +947,16 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/session-bounce-calculation.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
@@ -924,19 +971,15 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/hooks/useViewerWatchSession.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-session-bounce-calculation.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/analytics/drop-watch-time-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/drop-watch-time-engine.ts",
+      "path": "src/components/Analytics/DeepTracker.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -949,6 +992,18 @@
     },
     {
       "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/session-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/session-metrics-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/event-fact-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -976,7 +1031,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/drop-watch-time-accuracy.spec.ts",
+      "path": "tests/unit/session-bounce-calculation.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

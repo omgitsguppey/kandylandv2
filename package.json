@@ -193,6 +193,7 @@
         "check:person-metrics-hydration": "tsx scripts/agent/validate-person-metrics-hydration.ts",
         "check:global-user-dedupe-normalization": "tsx scripts/agent/validate-global-user-dedupe-normalization.ts",
         "check:drop-watch-time-accuracy": "tsx scripts/agent/validate-drop-watch-time-accuracy.ts",
+        "check:session-bounce-calculation": "tsx scripts/agent/validate-session-bounce-calculation.ts",
         "check:telemetry-trigger-test-matrix": "tsx scripts/agent/validate-telemetry-trigger-test-matrix.ts",
         "check:user-management-refactor": "tsx scripts/agent/validate-user-management-refactor.ts",
         "check:final-testing-tracking-telemetry-lock": "tsx scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
