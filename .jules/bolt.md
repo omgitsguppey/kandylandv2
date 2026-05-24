@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2024-05-19 - Array allocations in tight loops
+**Learning:** Initializing array elements inside map `.set()` with array spreads like `[...(map.get(key) ?? []), value]` creates O(N^2) memory allocations over N iterations because every iteration copies the entire growing array. In hot paths (like parsing large telemetry or intake logs in admin routes), this creates immense garbage collection pressure.
+**Action:** Use conditional `.push()` on existing map entries to achieve O(1) insertions, and only allocate a new array `[value]` when a key does not exist.
