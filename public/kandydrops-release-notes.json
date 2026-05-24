@@ -1,11 +1,58 @@
 {
-  "currentVersion": "1.4.19",
-  "betaReleaseCounter": 419,
+  "currentVersion": "1.4.20",
+  "betaReleaseCounter": 420,
   "channel": "beta",
-  "generatedAt": "2026-05-24T07:07:29.973Z",
-  "generatedAtUtc": "2026-05-24T07:07:29.973Z",
+  "generatedAt": "2026-05-24T07:33:42.138Z",
+  "generatedAtUtc": "2026-05-24T07:33:42.138Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.20",
+      "previousVersion": "1.4.19",
+      "betaReleaseCounter": 420,
+      "previousBetaReleaseCounter": 419,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(pwa): lock notification readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T07:33:42.138Z",
+      "generatedAt": "2026-05-24T07:33:42.138Z",
+      "committedAtUtc": "2026-05-24T07:33:42.138Z",
+      "generatedAtUtc": "2026-05-24T07:33:42.138Z",
+      "updatedAtUtc": "2026-05-24T07:33:42.138Z",
+      "category": "Internal Reliability",
+      "title": "Notification and PWA readiness lock",
+      "summary": "Locked notification permission, targeting, and PWA service worker readiness.",
+      "userFacingTitle": "Notification and PWA readiness lock",
+      "surfaceCategory": "Notifications",
+      "bullets": [
+        "Locked notification permission, targeting, and PWA service worker readiness.",
+        "Connected notification and PWA health to telemetry, debug, and score.",
+        "Kept push sends, chat, tasks, payment, and GumDrop runtime unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a source-only notification/PWA lock validator and report tying permission lifecycle, push token registration, targeting intent, service worker safety, telemetry, debug visibility, and beta score dimensions together without provider sends or runtime mutations."
+      ],
+      "affectedSurfaces": [
+        "Notifications",
+        "PWA",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/notification-pwa-score-lock.generated.json",
+        "docs/agent-truth/notification-pwa-score-lock.md",
+        "scripts/agent/validate-notification-pwa-score-lock.ts",
+        "tests/unit/notification-pwa-score-lock.spec.ts",
+        "package.json",
+        "src/lib/testing/telemetry-trigger-test-matrix.ts",
+        "agent/state/current-beta-exit-status.generated.json"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.19",
       "previousVersion": "1.4.18",
@@ -6117,64 +6164,6 @@
         "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
         "tests/unit/final-testing-tracking-telemetry-lock.spec.ts",
         "package.json"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.95",
-      "previousVersion": "1.3.94",
-      "betaReleaseCounter": 395,
-      "previousBetaReleaseCounter": 394,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(admin): refactor user management metrics",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T06:27:28.503Z",
-      "generatedAt": "2026-05-23T06:27:28.503Z",
-      "committedAtUtc": "2026-05-23T06:27:28.503Z",
-      "generatedAtUtc": "2026-05-23T06:27:28.503Z",
-      "updatedAtUtc": "2026-05-23T06:27:28.503Z",
-      "category": "Improved",
-      "title": "User management metrics refactor",
-      "summary": "Refactored user management around identity, activity, and confidence summaries.",
-      "userFacingTitle": "User management metrics refactor",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refactored user management around identity, activity, and confidence summaries.",
-        "Connected individual user metrics to hydration and debug lanes.",
-        "Reduced raw user-management sprawl."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only user management contract, validator, generated evidence, debug lane, and compact admin summary UI without production reads, payment changes, chat/nav changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Admin users",
-        "Admin debug",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/context/optimized-task-context.generated.json",
-        "agent/context/validator-authority.json",
-        "agent/state/user-management-refactor.generated.json",
-        "docs/agent-truth/user-management-refactor.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "scripts/agent/validate-user-management-refactor.ts",
-        "src/app/admin/users/page.tsx",
-        "src/app/api/admin/debug/route.ts",
-        "src/lib/admin/user-management-contract.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "tests/unit/user-management-refactor.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

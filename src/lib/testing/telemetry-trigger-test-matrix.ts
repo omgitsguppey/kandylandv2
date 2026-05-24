@@ -213,7 +213,7 @@ export const TELEMETRY_TRIGGER_TEST_MATRIX: TelemetryTriggerTestMatrixRow[] = [
   row({ triggerId: "settings_toggle", family: "settings_toggle", featureId: "user_dashboard", sourceSurface: "settings toggle", eventName: "setting_toggle_changed", consentMode: "minimal_analytics", materializerLane: "behavior_signal_materializer", scoreImpact: "evidenceCompleteness", expectedPersonMetric: { metricId: "settings_actions", confidence: "exact" }, expectedScoreDimension: "evidenceCompleteness" }),
   row({ triggerId: "settings_action", family: "settings_action", featureId: "user_dashboard", sourceSurface: "settings action", eventName: "setting_action_clicked", consentMode: "minimal_analytics", materializerLane: "behavior_signal_materializer", scoreImpact: "evidenceCompleteness", expectedPersonMetric: { metricId: "settings_actions", confidence: "exact" }, expectedScoreDimension: "evidenceCompleteness" }),
   row({ triggerId: "consent_cookie_choice", family: "consent_cookie_choice", featureId: "user_dashboard", sourceSurface: "cookie banner/privacy settings", eventName: "cookie_consent_updated", consentMode: "minimal_analytics", materializerLane: "behavior_signal_materializer", scoreImpact: "evidenceCompleteness", expectedPersonMetric: { metricId: "settings_actions", confidence: "exact" }, expectedScoreDimension: "regressionRisk" }),
-  row({ triggerId: "notification_prompt", family: "notification_prompt", featureId: "notifications", sourceSurface: "notification prompt", eventName: "notification_prompt_banner_viewed", consentMode: "minimal_analytics", materializerLane: "notification_materializer", scoreImpact: "evidenceCompleteness.runtimeHealth", expectedPersonMetric: { metricId: "notification_interactions", confidence: "exact" }, expectedScoreDimension: "runtimeHealth" }),
+  row({ triggerId: "notification_prompt", family: "notification_prompt", featureId: "notifications", sourceSurface: "notification prompt", eventName: "notification_prompt_viewed", consentMode: "minimal_analytics", materializerLane: "notification_materializer", scoreImpact: "evidenceCompleteness.runtimeHealth", expectedPersonMetric: { metricId: "notification_interactions", confidence: "exact" }, expectedScoreDimension: "runtimeHealth" }),
   row({ triggerId: "support_ticket", family: "support_action", featureId: "support", sourceSurface: "support form", eventName: "support_ticket_created", consentMode: "minimal_analytics", materializerLane: "support_materializer", scoreImpact: "runtimeHealth.evidenceCompleteness", expectedPersonMetric: { metricId: "support_account_actions", confidence: "exact" }, expectedScoreDimension: "evidenceCompleteness" }),
   row({ triggerId: "account_delete", family: "account_delete_action", featureId: "auth_identity", sourceSurface: "account delete flow", eventName: "account_delete_clicked", consentMode: "minimal_analytics", materializerLane: "identity_materializer", scoreImpact: "runtimeHealth.evidenceCompleteness", expectedPersonMetric: { metricId: "support_account_actions", confidence: "exact" }, expectedScoreDimension: "regressionRisk" }),
   row({ triggerId: "data_export", family: "data_export_action", featureId: "user_dashboard", sourceSurface: "account data export", eventName: "data_export_requested", consentMode: "minimal_analytics", materializerLane: "behavior_signal_materializer", scoreImpact: "evidenceCompleteness", expectedPersonMetric: { metricId: "support_account_actions", confidence: "exact" }, expectedScoreDimension: "evidenceCompleteness" }),
@@ -384,6 +384,11 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "docs/agent-truth/future-activity-signal-reclassification.md") return "documentation_artifact_expected";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
   if (normalized === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-notification-targeting-intent.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-push-token-registration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-pwa-service-worker-safety.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-event-liveness-audit.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-future-activity-signal-reclassification.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-signal-actionability.ts") return "validator_artifact_expected";
@@ -399,6 +404,7 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "scripts/agent/validate-daily-task-guidance-route-audit.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/telemetry-trigger-test-matrix.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/future-activity-signal-reclassification.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/debug-tracking-simplification.spec.ts") return "test_artifact_expected";
@@ -430,6 +436,8 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "src/lib/tasks/daily-task-telemetry.ts") return "real_source_change_needs_review";
   if (normalized === "agent/state/daily-task-lifecycle-telemetry.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/daily-task-lifecycle-telemetry.md") return "documentation_artifact_expected";
+  if (normalized === "agent/state/notification-pwa-score-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/notification-pwa-score-lock.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "agent/context/validator-authority.json") return "validator_artifact_expected";

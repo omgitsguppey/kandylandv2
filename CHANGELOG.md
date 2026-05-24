@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.20 - 2026-05-24
+- Notification and PWA readiness lock
+- Locked notification permission, targeting, and PWA service worker readiness.
+- Connected notification and PWA health to telemetry, debug, and score.
+- Kept push sends, chat, tasks, payment, and GumDrop runtime unchanged.
+
 ## 1.4.19 - 2026-05-24
 - PWA service worker safety
 - Hardened PWA service worker registration, update, and offline safety.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Locked testing, tracking, telemetry triggers, and person metric hydration.
 - Reduced false waiting-on-activity states.
 - Reported score progress by dimension, not just overall.
-
-## 1.3.95 - 2026-05-23
-- User management metrics refactor
-- Refactored user management around identity, activity, and confidence summaries.
-- Connected individual user metrics to hydration and debug lanes.
-- Reduced raw user-management sprawl.

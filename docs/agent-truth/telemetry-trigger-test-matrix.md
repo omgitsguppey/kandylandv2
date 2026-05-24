@@ -1,8 +1,8 @@
 # Telemetry Trigger Test Matrix
 
-Generated: 2026-05-24T05:47:18.903Z
+Generated: 2026-05-24T07:39:13.397Z
 Status: pass
-Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
+Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
 
 ## Contract
 
@@ -60,7 +60,7 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - settings_toggle: settings toggle -> setting_toggle_changed -> settings_actions -> Testing coverage -> evidenceCompleteness; status=covered
 - settings_action: settings action -> setting_action_clicked -> settings_actions -> Testing coverage -> evidenceCompleteness; status=covered
 - consent_cookie_choice: cookie banner/privacy settings -> cookie_consent_updated -> settings_actions -> Testing coverage -> regressionRisk; status=covered
-- notification_prompt: notification prompt -> notification_prompt_banner_viewed -> notification_interactions -> Testing coverage -> runtimeHealth; status=covered
+- notification_prompt: notification prompt -> notification_prompt_viewed -> notification_interactions -> Testing coverage -> runtimeHealth; status=covered
 - support_ticket: support form -> support_ticket_created -> support_account_actions -> Testing coverage -> evidenceCompleteness; status=covered
 - account_delete: account delete flow -> account_delete_clicked -> support_account_actions -> Testing coverage -> regressionRisk; status=covered
 - data_export: account data export -> data_export_requested -> support_account_actions -> Testing coverage -> evidenceCompleteness; status=covered
@@ -85,26 +85,42 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Dirty Files
 
+- CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/cost-risk-owner-review-closure.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/formal-evidence-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/notification-permission-lifecycle.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/notification-pwa-score-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/notification-targeting-intent.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/cost-risk-owner-review-closure.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-liveness-audit.md: documentation_artifact_expected
+- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/push-token-registration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/pwa-service-worker-safety.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/formal-evidence-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/notification-permission-lifecycle.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/notification-pwa-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/notification-targeting-intent.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- scripts/agent/validate-event-liveness-audit.ts: validator_artifact_expected
-- src/app/api/admin/debug/route.ts: real_source_change_needs_review
-- src/lib/analytics/event-liveness-contract.ts: real_source_change_needs_review
-- src/lib/analytics/event-liveness-engine.ts: real_source_change_needs_review
-- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
-- src/lib/server/admin-debug/summary.ts: real_source_change_needs_review
-- tests/unit/event-liveness-audit.spec.ts: test_artifact_expected
+- docs/agent-truth/push-token-registration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/pwa-service-worker-safety.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
+- package.json: real_source_change_needs_review
+- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-notification-permission-lifecycle.ts: validator_artifact_expected
+- scripts/agent/validate-notification-pwa-score-lock.ts: validator_artifact_expected
+- scripts/agent/validate-notification-targeting-intent.ts: validator_artifact_expected
+- scripts/agent/validate-push-token-registration.ts: validator_artifact_expected
+- scripts/agent/validate-pwa-service-worker-safety.ts: validator_artifact_expected
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
+- tests/unit/notification-pwa-score-lock.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

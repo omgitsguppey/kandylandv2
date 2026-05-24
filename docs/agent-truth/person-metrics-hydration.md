@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-05-24T06:19:16.341Z
+Generated: 2026-05-24T07:38:33.422Z
 Status: pass
-Current head: 8b129dfd0951ae72d088994f59ad32c7be678798
+Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
 
 ## Contract
 
@@ -14,7 +14,7 @@ Current head: 8b129dfd0951ae72d088994f59ad32c7be678798
 
 ## Debug Lane
 
-- Producers registered: 132
+- Producers registered: 141
 - Producers connected: 33
 - Event envelopes hydrated: 46
 - Person metrics mapped: 33
@@ -70,31 +70,40 @@ Current head: 8b129dfd0951ae72d088994f59ad32c7be678798
 
 - CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/notification-permission-lifecycle.generated.json: current_generated_artifact_to_commit
+- agent/state/notification-pwa-score-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/notification-targeting-intent.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/push-token-registration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/pwa-service-worker-safety.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/notification-permission-lifecycle.md: documentation_artifact_expected
+- docs/agent-truth/notification-pwa-score-lock.md: documentation_artifact_expected
+- docs/agent-truth/notification-targeting-intent.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- docs/agent-truth/push-token-registration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/pwa-service-worker-safety.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
 - scripts/agent/validate-notification-permission-lifecycle.ts: validator_artifact_expected
-- scripts/agent/validate-person-metrics-hydration.ts: validator_artifact_expected
-- src/components/Dashboard/NotificationPromptBanner.tsx: real_source_change_needs_review
+- scripts/agent/validate-notification-pwa-score-lock.ts: validator_artifact_expected
+- scripts/agent/validate-notification-targeting-intent.ts: validator_artifact_expected
+- scripts/agent/validate-push-token-registration.ts: validator_artifact_expected
+- scripts/agent/validate-pwa-service-worker-safety.ts: validator_artifact_expected
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
-- src/lib/notifications/notification-permission-contract.ts: real_source_change_needs_review
-- src/lib/notifications/notification-prompt-telemetry.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/notification-permission-lifecycle.spec.ts: test_artifact_expected
+- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
+- tests/unit/notification-pwa-score-lock.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

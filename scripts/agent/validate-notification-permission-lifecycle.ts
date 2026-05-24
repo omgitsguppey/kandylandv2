@@ -115,11 +115,13 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "docs/agent-truth/push-token-registration.md") return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-push-token-registration.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-pwa-service-worker.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/notification-permission-lifecycle.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/push-token-registration.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/lib/notifications/notification-permission-contract.ts"
@@ -134,8 +136,11 @@ function classifyDirtyFile(path: string): DirtyClassification {
     || normalized === "src/lib/analytics/person-metrics-contract.ts"
     || normalized === "src/lib/analytics/person-metrics-hydration.ts"
     || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"
+    || normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts"
     || normalized === "package.json"
   ) return "real_source_change_needs_review";
+  if (normalized === "agent/state/notification-pwa-score-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/notification-pwa-score-lock.md") return "release_artifact_expected";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"
