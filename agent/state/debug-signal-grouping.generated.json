@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-signal-grouping",
-  "generatedAtUtc": "2026-05-23T20:22:53.765Z",
-  "currentHead": "669519046fe7caeefb8641ec6d4b7281a960cea8",
+  "generatedAtUtc": "2026-05-24T05:47:51.707Z",
+  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
   "status": "pass",
   "productionReadsRequired": false,
   "fakeActivityUsed": false,
@@ -11,78 +11,78 @@
     "clearsFormalAdminTruth": false
   },
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 67.75,
-    "evidenceCompleteness": 39.25,
-    "freshness": 62.86,
-    "costRisk": 42,
-    "regressionRisk": 42,
-    "overallHealthScore": 62.15
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 67.5,
-    "evidenceCompleteness": 39,
-    "freshness": 62.86,
-    "costRisk": 42,
-    "regressionRisk": 42,
-    "overallHealthScore": 62.05
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
   },
   "metrics": {
     "sourceHealth": {
-      "before": 91.7,
-      "after": 91.7,
+      "before": 92.5,
+      "after": 92.5,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "runtimeHealth": {
-      "before": 67.75,
-      "after": 67.5,
+      "before": 84.2,
+      "after": 84.2,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "evidenceCompleteness": {
-      "before": 39.25,
-      "after": 39,
+      "before": 69.6,
+      "after": 69.6,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
     },
     "freshness": {
-      "before": 62.86,
-      "after": 62.86,
+      "before": 83.75,
+      "after": 83.75,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Refresh stale generated reports listed in the public beta score refresh plan, then rerun score:beta and check:beta-score."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "costRisk": {
-      "before": 42,
-      "after": 42,
+      "before": 80.5,
+      "after": 80.5,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "regressionRisk": {
-      "before": 42,
-      "after": 42,
+      "before": 86,
+      "after": 86,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve stale/formal regression evidence gates with targeted validators before treating the release as score-80 locked."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "overallHealthScore": {
-      "before": 62.15,
-      "after": 62.05,
+      "before": 83.1,
+      "after": 83.1,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Complete every below-target dimension next action, then rerun score:beta and check:beta-score."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     }
   },
-  "rawSignalCount": 458,
-  "groupedSignalCount": 16,
-  "rawP1P2SignalCount": 42,
-  "p1P2GroupCount": 15,
+  "rawSignalCount": 459,
+  "groupedSignalCount": 17,
+  "rawP1P2SignalCount": 43,
+  "p1P2GroupCount": 16,
   "quietFutureActivityRawCount": 416,
   "quietFutureActivityGroupCount": 1,
   "actionableFutureActivitySignalCount": 0,
@@ -91,7 +91,7 @@
     "showsGroupedSignals": true,
     "rawRowsDefaultVisible": false,
     "futureActivityCatalogCollapsed": true,
-    "visibleGroupCount": 15,
+    "visibleGroupCount": 16,
     "hiddenGroupCount": 1
   },
   "groups": [
@@ -126,7 +126,7 @@
           "scoreDimensionsAffected": [
             "evidenceCompleteness"
           ],
-          "estimatedPointImpact": 39.25,
+          "estimatedPointImpact": 69.6,
           "sourceFiles": [
             "agent/state/public-beta-score.generated.json"
           ],
@@ -139,7 +139,7 @@
       "scoreDimensionsAffected": [
         "evidenceCompleteness"
       ],
-      "estimatedPointImpact": 39.25,
+      "estimatedPointImpact": 69.6,
       "owner": "beta_score",
       "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
       "hiddenByDefault": false,
@@ -617,7 +617,7 @@
           "scoreDimensionsAffected": [
             "runtimeHealth"
           ],
-          "estimatedPointImpact": 67.75,
+          "estimatedPointImpact": 84.2,
           "sourceFiles": [
             "agent/state/public-beta-score.generated.json"
           ],
@@ -630,8 +630,45 @@
       "scoreDimensionsAffected": [
         "runtimeHealth"
       ],
-      "estimatedPointImpact": 67.75,
+      "estimatedPointImpact": 84.2,
       "owner": "provider_evidence",
+      "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "validator": "npm run check:beta-score"
+    },
+    {
+      "groupId": "formal-gate-attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta-gate-runtime-evidence",
+      "groupLabel": "Formal evidence gate: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "count": 1,
+      "examples": [
+        {
+          "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+          "signalType": "formal_gate",
+          "severity": "p1",
+          "featureId": "formal_gate",
+          "eventFamily": "formal_gate",
+          "metricFamily": "runtimeHealth",
+          "scoreDimensionsAffected": [
+            "runtimeHealth"
+          ],
+          "estimatedPointImpact": 84.2,
+          "sourceFiles": [
+            "agent/state/public-beta-score.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        }
+      ],
+      "rootCause": "blocked_formal_evidence",
+      "actionability": "formal_gate",
+      "severity": "p1",
+      "scoreDimensionsAffected": [
+        "runtimeHealth"
+      ],
+      "estimatedPointImpact": 84.2,
+      "owner": "runtime_evidence",
       "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "hiddenByDefault": false,
       "sourceFiles": [
@@ -654,7 +691,7 @@
           "scoreDimensionsAffected": [
             "evidenceCompleteness"
           ],
-          "estimatedPointImpact": 39.25,
+          "estimatedPointImpact": 69.6,
           "sourceFiles": [
             "agent/state/public-beta-score.generated.json"
           ],
@@ -667,7 +704,7 @@
       "scoreDimensionsAffected": [
         "evidenceCompleteness"
       ],
-      "estimatedPointImpact": 39.25,
+      "estimatedPointImpact": 69.6,
       "owner": "admin_debug",
       "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "hiddenByDefault": false,
@@ -989,59 +1026,199 @@
   ],
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/debug-signal-grouping.generated.json",
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-reset-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/debug-signal-grouping.md",
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/settings-connection-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-management-refactor.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-realtime-cost-control.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reset-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-actionability.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "package.json",
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/settings-connection-parity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-management-refactor.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "debug_panel_source_change"
     },
     {
-      "path": "scripts/agent/validate-debug-signal-grouping.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/analytics/event-liveness-contract.ts",
+      "classification": "debug_grouping_source_change"
     },
     {
-      "path": "src/lib/debug/debug-backlog-builder.ts",
-      "classification": "debug_backlog_source_change"
-    },
-    {
-      "path": "src/lib/debug/debug-backlog-contract.ts",
-      "classification": "debug_backlog_source_change"
+      "path": "src/lib/analytics/event-liveness-engine.ts",
+      "classification": "debug_grouping_source_change"
     },
     {
       "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "debug_panel_source_change"
     },
     {
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "debug_grouping_source_change"
+      "path": "src/lib/server/admin-debug/summary.ts",
+      "classification": "debug_panel_source_change"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/debug-signal-grouping.spec.ts",
+      "path": "tests/unit/event-liveness-audit.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.15 - 2026-05-24
+- Score dimension lock
+- Locked beta score by dimension toward the 80 target.
+- Separated formal gates, stale artifacts, cost review, and in-flight lanes.
+- Kept future activity placeholders from returning as score drag.
+
 ## 1.4.14 - 2026-05-24
 - Regression evidence refresh
 - Refreshed regression evidence for high-blast analytics, debug, chat, task, settings, and wallet lanes.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Resolved open PR backlog by merging, cherry-picking, or closing stale work.
 - Integrated safe security, accessibility, and admin performance fixes.
 - Closed superseded monolith/analytics PRs where current doctrine already covers them.
-
-## 1.3.90 - 2026-05-23
-- Profile settings contract hardening
-- Hardened Account Settings profile saves around one backend profile contract.
-- Blocked stale profile writes from changing server-owned account fields.
-- Kept Delete Account, Creator Settings, chat, navigation, payment, and GumDrop logic unchanged.

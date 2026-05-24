@@ -1,8 +1,8 @@
 # Cost Risk Owner-Review Closure
 
-Generated: 2026-05-24T05:42:50.649Z
+Generated: 2026-05-24T05:47:54.718Z
 
-Current head: 2de05abe97f909b1414dc165bb3cfdd19309cb58
+Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 Status: pass
 
@@ -18,13 +18,13 @@ Status: pass
 
 | Dimension | Before | After |
 | --- | ---: | ---: |
-| sourceHealth | 91.7 | 91.7 |
+| sourceHealth | 92.5 | 92.5 |
 | runtimeHealth | 84.2 | 84.2 |
 | evidenceCompleteness | 69.6 | 69.6 |
-| freshness | 75.63 | 75.63 |
+| freshness | 83.75 | 83.75 |
 | costRisk | 80.5 | 80.5 |
-| regressionRisk | 18 | 18 |
-| overallHealthScore | 74.88 | 74.88 |
+| regressionRisk | 86 | 86 |
+| overallHealthScore | 83.1 | 83.1 |
 
 ## Cost Lanes
 
@@ -41,7 +41,7 @@ Status: pass
 
 ## Dirty File Classification
 
-- M CHANGELOG.md: release_artifact_expected
+- M agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 -  M agent/state/chat-functionality-score-lock.generated.json: real_source_change_needs_review
 -  M agent/state/chat-gating-moderation.generated.json: real_source_change_needs_review
 -  M agent/state/chat-realtime-cost-control.generated.json: real_source_change_needs_review
@@ -60,9 +60,7 @@ Status: pass
 -  M agent/state/feature-registration-gate.generated.json: real_source_change_needs_review
 -  M agent/state/formal-evidence-bridge.generated.json: real_source_change_needs_review
 -  M agent/state/person-metrics-hydration.generated.json: real_source_change_needs_review
--  M agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
 -  M agent/state/settings-connection-parity.generated.json: real_source_change_needs_review
--  M agent/state/targeted-behavior-evidence.generated.json: real_source_change_needs_review
 -  M agent/state/telemetry-trigger-test-matrix.generated.json: real_source_change_needs_review
 -  M agent/state/user-management-refactor.generated.json: real_source_change_needs_review
 -  M agent/state/user-profile-api-contract.generated.json: real_source_change_needs_review
@@ -84,29 +82,16 @@ Status: pass
 -  M docs/agent-truth/formal-evidence-bridge.md: real_source_change_needs_review
 -  M docs/agent-truth/person-metrics-hydration.md: real_source_change_needs_review
 -  M docs/agent-truth/settings-connection-parity.md: real_source_change_needs_review
--  M docs/agent-truth/targeted-behavior-evidence.md: real_source_change_needs_review
 -  M docs/agent-truth/telemetry-trigger-test-matrix.md: real_source_change_needs_review
 -  M docs/agent-truth/user-management-refactor.md: real_source_change_needs_review
 -  M docs/agent-truth/user-profile-api-contract.md: real_source_change_needs_review
--  M package.json: real_source_change_needs_review
--  M public/kandydrops-release-notes.json: release_artifact_expected
--  M scripts/agent/score-public-beta-readiness.ts: release_artifact_expected
 -  M scripts/agent/validate-event-liveness-audit.ts: unrelated_inflight_event_liveness_to_ignore
 -  M src/app/api/admin/debug/route.ts: unrelated_inflight_event_liveness_to_ignore
--  M src/lib/agent-score/core.ts: real_source_change_needs_review
--  M src/lib/agent-score/evidence-quality.ts: real_source_change_needs_review
 -  M src/lib/analytics/event-liveness-contract.ts: unrelated_inflight_event_liveness_to_ignore
 -  M src/lib/analytics/event-liveness-engine.ts: unrelated_inflight_event_liveness_to_ignore
 -  M src/lib/debug/debug-panel-tracking-summary.ts: unrelated_inflight_event_liveness_to_ignore
--  M src/lib/release-notes/public-release-notes.ts: release_artifact_expected
--  M src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 -  M src/lib/server/admin-debug/summary.ts: unrelated_inflight_event_liveness_to_ignore
 -  M tests/unit/event-liveness-audit.spec.ts: unrelated_inflight_event_liveness_to_ignore
-- ?? agent/state/regression-risk-high-blast-refresh.generated.json: real_source_change_needs_review
-- ?? docs/agent-truth/regression-risk-high-blast-refresh.md: real_source_change_needs_review
-- ?? scripts/agent/validate-regression-risk-high-blast-refresh.ts: real_source_change_needs_review
-- ?? src/lib/agent-score/regression-risk-refresh-plan.ts: real_source_change_needs_review
-- ?? tests/unit/regression-risk-high-blast-refresh.spec.ts: real_source_change_needs_review
 
 ## Boundary
 

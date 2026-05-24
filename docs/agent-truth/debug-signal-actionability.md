@@ -1,8 +1,8 @@
 # Debug Signal Actionability
 
-Generated: 2026-05-23T20:00:29.457Z
+Generated: 2026-05-24T05:47:48.430Z
 Status: pass
-Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
+Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Contract
 
@@ -13,28 +13,29 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 
 ## Actionability Summary
 
-- Total signals: 42
-- Unique signals: 42
-- Default visible: 42
+- Total signals: 43
+- Unique signals: 43
+- Default visible: 43
 - Hidden by default: 0
 - Quiet future activity: 0
 - Duplicate signals collapsed: 0
-- Formal gates: 7
+- Formal gates: 8
 
 ## Score Dimensions
 
-- sourceHealth: 91.7 -> 91.7; target=80; status=target_met; next=No score-80 action required for this dimension.
-- runtimeHealth: 67.75 -> 67.75; target=80; status=below_target; next=Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof.
-- evidenceCompleteness: 39.25 -> 39.25; target=80; status=below_target; next=Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity.
-- freshness: 62.86 -> 62.86; target=80; status=below_target; next=Refresh stale generated reports listed in the public beta score refresh plan, then rerun score:beta and check:beta-score.
-- costRisk: 42 -> 42; target=80; status=below_target; next=Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads.
-- regressionRisk: 42 -> 42; target=80; status=below_target; next=Resolve stale/formal regression evidence gates with targeted validators before treating the release as score-80 locked.
-- overallHealthScore: 62.15 -> 62.15; target=80; status=below_target; next=Complete every below-target dimension next action, then rerun score:beta and check:beta-score.
+- sourceHealth: 91.7 -> 92.5; target=80; status=target_met; next=No score-80 action required for this dimension.
+- runtimeHealth: 67.75 -> 84.2; target=80; status=target_met; next=No score-80 action required for this dimension.
+- evidenceCompleteness: 39.25 -> 69.6; target=80; status=below_target; next=Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity.
+- freshness: 62.86 -> 83.75; target=80; status=target_met; next=No score-80 action required for this dimension.
+- costRisk: 42 -> 80.5; target=80; status=target_met; next=No score-80 action required for this dimension.
+- regressionRisk: 42 -> 86; target=80; status=target_met; next=No score-80 action required for this dimension.
+- overallHealthScore: 62.15 -> 83.1; target=80; status=target_met; next=No score-80 action required for this dimension.
 
 ## Prioritized Default Signals
 
-- P1 formal_gate beta-cap-runtime-unverified-runtime-provider-smoke-0: impact=67.75; owner=provider_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- P1 formal_gate beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1: impact=39.25; owner=admin_debug; next=Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
+- P1 formal_gate beta-cap-ready-with-smoke-required-debug-runtime-evidence-3: impact=84.2; owner=runtime_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
+- P1 formal_gate beta-cap-runtime-unverified-runtime-provider-smoke-0: impact=84.2; owner=provider_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
+- P1 formal_gate beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1: impact=69.6; owner=admin_debug; next=Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
 - P1 formal_gate score-drag-runtimehealthscore: impact=16.33; owner=runtime_evidence; next=Attach deployed runtime smoke evidence before treating runtime health as proven.
 - P1 score_impacting stale-artifact-runtime-provider-smoke: impact=16.33; owner=evidence; next=Attach formal evidence before clearing this beta gate.
 - P1 score_impacting score-drag-evidencecompletenessscore: impact=12; owner=beta_score; next=Work the score dimension owner lane and refresh score-80 path lock.
@@ -47,18 +48,18 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - P1 formal_gate debug-panel-runtime-evidence: impact=4; owner=admin_debug; next=Run formal deployed runtime smoke before marking runtime/provider smoke complete.
 - P1 score_impacting debug-panel-score-cap-reasons: impact=4; owner=admin_debug; next=Work the visible cap reasons in order instead of hiding them in Debug.
 - P1 score_impacting stale-artifact-agent-state-overnight-final-integration-lock-generated-json: impact=2; owner=evidence; next=Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
-- P2 score_impacting beta-cap-stale-evidence-report-freshness-and-pr-integrity-2: impact=39.25; owner=beta_score; next=Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.
+- P2 score_impacting beta-cap-stale-evidence-report-freshness-and-pr-integrity-2: impact=69.6; owner=beta_score; next=Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.
 - P2 score_impacting score-drag-freshnessscore: impact=7.07; owner=beta_score; next=Work the score dimension owner lane and refresh score-80 path lock.
 - P2 score_impacting score-drag-costriskscore: impact=4; owner=cost; next=Work the score dimension owner lane and refresh score-80 path lock.
 - P2 formal_gate cost-cost-risk-0: impact=2; owner=cost; next=Keep this cost lane in owner review until external billing/provider evidence is attached.
 - P2 score_impacting stale-artifact-agent-state-beta-evidence-gap-map-generated-json: impact=1.8; owner=evidence; next=Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
-- P2 score_impacting stale-artifact-agent-state-beta-evidence-lane-prep-generated-json: impact=1.6; owner=evidence; next=Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep
 
 ## Duplicate Parents
 
+- beta-cap-ready-with-smoke-required-debug-runtime-evidence-3: beta-cap-ready-with-smoke-required-evidence-bridge-4
 - stale-artifact-runtime-provider-smoke: stale-artifact-debug-runtime-evidence, stale-artifact-visual-manual-smoke, stale-artifact-admin-truth-sample-evidence
 - stale-artifact-agent-state-overnight-final-integration-lock-generated-json: stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json
-- cost-cost-risk-0: cost-cost-risk-1, cost-cost-risk-2, cost-cost-risk-3
+- cost-cost-risk-0: cost-cost-risk-1, cost-cost-risk-2
 - stale-artifact-agent-state-beta-evidence-gap-map-generated-json: stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json
 - stale-artifact-agent-state-beta-evidence-lane-prep-generated-json: stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json
 - stale-artifact-agent-state-beta-freshness-language-generated-json: stale-refresh-plan-agent-state-beta-freshness-language-generated-json
@@ -89,8 +90,13 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - agent/state/bigquery-cloud-pipeline-closure.generated.json: still_required
 - agent/state/blocked-refresh-queue-resolver.generated.json: still_required
 - agent/state/bug-report-reward-flow.generated.json: still_required
+- agent/state/chat-gating-moderation.generated.json: still_required
+- agent/state/chat-presence-typing.generated.json: still_required
+- agent/state/chat-realtime-cost-control.generated.json: still_required
+- agent/state/chat-telemetry-admin-truth.generated.json: still_required
 - agent/state/cloud-sql-gemini-cost-guards.generated.json: still_required
 - agent/state/cost-4xx-reduction.generated.json: still_required
+- agent/state/cost-risk-owner-review-closure.generated.json: still_required
 - agent/state/creator-broadcast-timeline-prep.generated.json: still_required
 - agent/state/creator-dashboard-error-cost-inventory.generated.json: still_required
 - agent/state/creator-dashboard-overview-stats.generated.json: still_required
@@ -108,17 +114,22 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - agent/state/creator-settings-control-plane.generated.json: still_required
 - agent/state/creator-settings-source-health.generated.json: still_required
 - agent/state/creator-surface-routing.generated.json: still_required
+- agent/state/daily-task-guidance-route-audit.generated.json: still_required
+- agent/state/daily-task-reward-ledger.generated.json: still_required
 - agent/state/debug-backlog-engine.generated.json: still_required
 - agent/state/debug-operator-cockpit.generated.json: still_required
 - agent/state/debug-panel-output-triage.generated.json: still_required
 - agent/state/debug-recovery-playbooks.generated.json: still_required
 - agent/state/debug-score-impact-triage.generated.json: still_required
+- agent/state/debug-signal-actionability.generated.json: still_required
+- agent/state/debug-signal-grouping.generated.json: still_required
 - agent/state/deeptracker-telemetry-volume-reduction.generated.json: still_required
 - agent/state/device-layout-score.generated.json: still_required
 - agent/state/error-handling-final-readiness.generated.json: still_required
 - agent/state/error-language-contract.generated.json: still_required
 - agent/state/error-truth-debug-visibility.generated.json: still_required
 - agent/state/event-facts-materializer-closure.generated.json: still_required
+- agent/state/event-liveness-audit.generated.json: still_required
 - agent/state/event-translation-bridge.generated.json: still_required
 - agent/state/existing-algorithm-refinement.generated.json: still_required
 - agent/state/external-analytics-truth-closure.generated.json: still_required
@@ -127,6 +138,7 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - agent/state/final-cost-audit-lock.generated.json: still_required
 - agent/state/final-morning-beta-lock.generated.json: still_required
 - agent/state/final-pr-stale-cleanup.generated.json: still_required
+- agent/state/final-signal-zero-lock.generated.json: still_required
 - agent/state/final-telemetry-closure-lock.generated.json: still_required
 - agent/state/final-testing-tracking-telemetry-lock.generated.json: still_required
 - agent/state/future-activity-signal-reclassification.generated.json: still_required
@@ -147,6 +159,7 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - agent/state/mobile-surface-organization.generated.json: still_required
 - agent/state/mobile-ui-final-lock.generated.json: still_required
 - agent/state/mobile-ui-scaling-doctrine.generated.json: still_required
+- agent/state/non-event-score-policy.generated.json: still_required
 - agent/state/orphaned-logic-score.generated.json: still_required
 - agent/state/overnight-final-integration-lock.generated.json: still_required
 - agent/state/overnight-wiring-integrity.generated.json: still_required
@@ -155,6 +168,7 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - agent/state/post-economy-creator-flow-qa.generated.json: still_required
 - agent/state/privacy-behavior-legacy-recovery.generated.json: still_required
 - agent/state/product-surface-integrity.generated.json: still_required
+- agent/state/public-beta-score.generated.json: still_required
 - agent/state/refresh-safeguards.generated.json: still_required
 - agent/state/repo-doctrine-reset.generated.json: still_required
 - agent/state/repo-spring-cleaning-rewire.generated.json: still_required
@@ -186,13 +200,19 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - docs/agent-truth/ast-grep-rules.md: superseded
 - docs/agent-truth/debug-evidence-pipeline.md: superseded
 - docs/agent-truth/debug-recovery-playbooks.md: superseded
+- docs/agent-truth/debug-signal-actionability.md: still_required
+- docs/agent-truth/debug-signal-grouping.md: superseded
+- docs/agent-truth/event-liveness-audit.md: superseded
+- docs/agent-truth/final-signal-zero-lock.md: superseded
 - docs/agent-truth/final-testing-tracking-telemetry-lock.md: superseded
 - docs/agent-truth/future-activity-signal-reclassification.md: superseded
+- docs/agent-truth/non-event-score-policy.md: superseded
 - docs/agent-truth/snapshot-admin-vendor-cost-rewire.md: superseded
 - docs/doctrine/surfaces/admin-debug-control-tower-doctrine.md: superseded
 - scripts/agent/lost-data-recovery-dry-run.ts: superseded
 - scripts/agent/score-global-cost-surfaces.ts: superseded
 - scripts/agent/score-orphaned-logic.ts: superseded
+- scripts/agent/score-public-beta-readiness.ts: superseded
 - scripts/agent/snapshot-admin-vendor-cost-rewire.ts: superseded
 - scripts/agent/validate-admin-debug-control-tower.ts: superseded
 - scripts/agent/validate-ai-critic-p1-triage.ts: superseded
@@ -201,20 +221,30 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - scripts/agent/validate-analytics-semantics-final-lock.ts: superseded
 - scripts/agent/validate-blocked-refresh-queue-resolver.ts: superseded
 - scripts/agent/validate-bug-report-reward-flow.ts: superseded
+- scripts/agent/validate-chat-gating-moderation.ts: superseded
+- scripts/agent/validate-chat-presence-typing.ts: superseded
+- scripts/agent/validate-chat-realtime-cost-control.ts: superseded
+- scripts/agent/validate-chat-telemetry-admin-truth.ts: superseded
 - scripts/agent/validate-creator-dashboard-error-cost-inventory.ts: superseded
 - scripts/agent/validate-creator-drop-manager-mobile-refinement.ts: superseded
 - scripts/agent/validate-creator-nav-role-consolidation.ts: superseded
 - scripts/agent/validate-creator-profile-mobile-timeline.ts: superseded
+- scripts/agent/validate-daily-task-debug-score-lock.ts: superseded
+- scripts/agent/validate-daily-task-reward-ledger.ts: superseded
 - scripts/agent/validate-debug-backlog-engine.ts: still_required
+- scripts/agent/validate-debug-signal-actionability.ts: still_required
+- scripts/agent/validate-debug-signal-grouping.ts: superseded
 - scripts/agent/validate-debug-tracking-simplification.ts: superseded
 - scripts/agent/validate-error-handling-final-readiness.ts: superseded
 - scripts/agent/validate-event-facts-materializer-closure.ts: superseded
+- scripts/agent/validate-event-liveness-audit.ts: superseded
 - scripts/agent/validate-event-translation-bridge.ts: superseded
 - scripts/agent/validate-existing-algorithm-refinement.ts: superseded
 - scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts: superseded
 - scripts/agent/validate-final-cost-audit-lock.ts: superseded
 - scripts/agent/validate-final-morning-beta-lock.ts: superseded
 - scripts/agent/validate-final-pr-stale-cleanup.ts: superseded
+- scripts/agent/validate-final-signal-zero-lock.ts: superseded
 - scripts/agent/validate-final-testing-tracking-telemetry-lock.ts: superseded
 - scripts/agent/validate-final-user-tracking-handoff-lock.ts: superseded
 - scripts/agent/validate-future-activity-signal-reclassification.ts: still_required
@@ -223,6 +253,7 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - scripts/agent/validate-guest-user-identity-transfer.ts: superseded
 - scripts/agent/validate-march-first-legacy-normalization.ts: superseded
 - scripts/agent/validate-mobile-loading-hydration-stability.ts: superseded
+- scripts/agent/validate-non-event-score-policy.ts: superseded
 - scripts/agent/validate-orphaned-logic.ts: superseded
 - scripts/agent/validate-overnight-final-integration-lock.ts: superseded
 - scripts/agent/validate-overnight-wiring-integrity.ts: superseded
@@ -249,11 +280,15 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - src/app/api/admin/debug/route.ts: superseded
 - src/app/api/analytics/ingest-identified/route.ts: superseded
 - src/lib/admin/user-management-contract.ts: superseded
+- src/lib/agent-score/core.ts: superseded
+- src/lib/agent-score/non-event-score-policy.ts: superseded
 - src/lib/agent-score/score-80-reconciliation-lock.ts: superseded
+- src/lib/analytics/event-liveness-engine.ts: superseded
 - src/lib/analytics/event-translation-bridge.ts: superseded
 - src/lib/analytics/legacy-recovery-reconciler.ts: superseded
 - src/lib/analytics/person-metrics-contract.ts: superseded
 - src/lib/analytics/person-metrics-hydration.ts: superseded
+- src/lib/chat/chat-realtime-telemetry.ts: superseded
 - src/lib/debug/actionable-signal-filter.ts: still_required
 - src/lib/debug/ai-critic-p1-triage.ts: superseded
 - src/lib/debug/ai-debug-critic-contract.ts: superseded
@@ -262,6 +297,8 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - src/lib/debug/debug-backlog-builder.ts: still_required
 - src/lib/debug/debug-backlog-contract.ts: still_required
 - src/lib/debug/debug-panel-tracking-summary.ts: still_required
+- src/lib/debug/debug-signal-actionability.ts: still_required
+- src/lib/debug/debug-signal-grouping.ts: superseded
 - src/lib/debug/future-activity-classifier.ts: still_required
 - src/lib/debug/recovery-playbooks.ts: superseded
 - src/lib/hydration-performance-score.ts: superseded
@@ -275,6 +312,7 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - src/lib/server/ai-debug-assistant.ts: superseded
 - src/lib/server/global-cost-surface-contract.ts: superseded
 - src/lib/settings/settings-surface-contract.ts: superseded
+- src/lib/tasks/daily-task-guidance-contract.ts: superseded
 - src/lib/testing/telemetry-trigger-test-matrix.ts: superseded
 - tests/unit/admin-orchestration.spec.ts: superseded
 - tests/unit/ai-debug-assistant.spec.ts: superseded
@@ -282,11 +320,15 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 - tests/unit/analytics-semantics-final-lock.spec.ts: superseded
 - tests/unit/blocked-refresh-queue-resolver.spec.ts: superseded
 - tests/unit/debug-backlog-engine.spec.ts: still_required
+- tests/unit/debug-signal-actionability.spec.ts: still_required
+- tests/unit/debug-signal-grouping.spec.ts: superseded
 - tests/unit/debug-tracking-simplification.spec.ts: superseded
 - tests/unit/error-handling-final-readiness.spec.ts: superseded
 - tests/unit/error-truth-debug-visibility.spec.ts: superseded
+- tests/unit/final-signal-zero-lock.spec.ts: superseded
 - tests/unit/future-activity-signal-reclassification.spec.ts: still_required
 - tests/unit/march-first-legacy-normalization.spec.ts: superseded
+- tests/unit/non-event-score-policy.spec.ts: superseded
 - tests/unit/person-metrics-hydration.spec.ts: superseded
 - tests/unit/score-80-reconciliation-lock.spec.ts: superseded
 - tests/unit/score-80-refresh-queue-execution.spec.ts: superseded
@@ -296,29 +338,53 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/debug-backlog-engine.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-signal-actionability.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/future-activity-signal-reclassification.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/debug-backlog-engine.md: documentation_artifact_expected
-- docs/agent-truth/debug-signal-actionability.md: documentation_artifact_expected
-- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/future-activity-signal-reclassification.md: stale_generated_artifact_to_regenerate
-- package.json: validator_artifact_expected
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-debug-backlog-engine.ts: validator_artifact_expected
-- scripts/agent/validate-debug-signal-actionability.ts: validator_artifact_expected
-- scripts/agent/validate-future-activity-signal-reclassification.ts: validator_artifact_expected
-- src/lib/debug/debug-backlog-builder.ts: debug_backlog_source_change
-- src/lib/debug/debug-backlog-contract.ts: debug_backlog_source_change
-- src/lib/debug/debug-signal-actionability.ts: actionability_source_change
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/debug-backlog-engine.spec.ts: test_artifact_expected
-- tests/unit/debug-signal-actionability.spec.ts: test_artifact_expected
+- agent/state/chat-functionality-score-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/chat-gating-moderation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/chat-realtime-cost-control.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/chat-telemetry-admin-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/cost-risk-owner-review-closure.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-guidance-route-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-lifecycle-telemetry.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-reward-ledger.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/formal-evidence-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/settings-connection-parity.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/user-management-refactor.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/user-profile-api-contract.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/chat-functionality-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/chat-gating-moderation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/chat-realtime-cost-control.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/chat-telemetry-admin-truth.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/cost-risk-owner-review-closure.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-guidance-route-audit.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-reset-truth.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-reward-ledger.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-liveness-audit.md: documentation_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/formal-evidence-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/settings-connection-parity.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/telemetry-trigger-test-matrix.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/user-management-refactor.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/user-profile-api-contract.md: stale_generated_artifact_to_regenerate
+- scripts/agent/validate-event-liveness-audit.ts: validator_artifact_expected
+- src/app/api/admin/debug/route.ts: debug_panel_source_change
+- src/lib/analytics/event-liveness-contract.ts: actionability_source_change
+- src/lib/analytics/event-liveness-engine.ts: actionability_source_change
+- src/lib/debug/debug-panel-tracking-summary.ts: debug_panel_source_change
+- src/lib/server/admin-debug/summary.ts: debug_panel_source_change
+- tests/unit/event-liveness-audit.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

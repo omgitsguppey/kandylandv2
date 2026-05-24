@@ -1,19 +1,19 @@
 # Regression Risk High-Blast Refresh
 
-Generated: 2026-05-24T05:42:51.048Z
+Generated: 2026-05-24T05:47:55.213Z
 
-Current head: 2de05abe97f909b1414dc165bb3cfdd19309cb58
+Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Score Movement
 
-- Regression risk: 18 -> 88
-- Freshness: 75.63 -> 80
-- Overall health: 74.88 -> 82.54
+- Regression risk: 86 -> 88
+- Freshness: 83.75 -> 83.75
+- Overall health: 83.1 -> 83.3
 
 ## Status
 
 - High-blast coverage current: true
-- Stale targeted behavior evidence retired: false
+- Stale targeted behavior evidence retired: true
 - Refreshed lanes: 22
 - In-flight lanes: 1
 - Failed lanes: 0
@@ -26,7 +26,7 @@ Current head: 2de05abe97f909b1414dc165bb3cfdd19309cb58
 | --- | --- | --- | --- | --- |
 | event-translation-bridge | landed_artifact_reused | npm run check:event-translation-bridge | agent/state/event-translation-bridge.generated.json | npm run check:event-translation-bridge could not rerun in the dirty queue state, but owned source did not change after available evidence. |
 | person-metrics-hydration | landed_artifact_reused | npm run check:person-metrics-hydration | agent/state/person-metrics-hydration.generated.json | npm run check:person-metrics-hydration could not rerun in the dirty queue state, but owned source did not change after available evidence. |
-| debug-signal-grouping | landed_artifact_reused | npm run check:debug-signal-grouping | agent/state/debug-signal-grouping.generated.json | npm run check:debug-signal-grouping could not rerun in the dirty queue state, but owned source did not change after available evidence. |
+| debug-signal-grouping | pass | npm run check:debug-signal-grouping | agent/state/debug-signal-grouping.generated.json | Keep this validator in the high-blast refresh set. |
 | chat-functionality-score-lock | landed_artifact_reused | npm run check:chat-functionality-score-lock | agent/state/chat-functionality-score-lock.generated.json | npm run check:chat-functionality-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence. |
 | daily-task-debug-score-lock | landed_artifact_reused | npm run check:daily-task-debug-score-lock | agent/state/daily-task-debug-score-lock.generated.json | npm run check:daily-task-debug-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence. |
 | settings-connection-parity | pass | npm run check:settings-connection-parity | agent/state/settings-connection-parity.generated.json | Keep this validator in the high-blast refresh set. |
@@ -36,7 +36,7 @@ Current head: 2de05abe97f909b1414dc165bb3cfdd19309cb58
 | cost-risk-owner-review-closure | pass | npm run check:cost-risk-owner-review-closure | agent/state/cost-risk-owner-review-closure.generated.json | Keep this validator in the high-blast refresh set. |
 | event-liveness-audit | in_flight | npm run check:event-liveness-audit | agent/state/event-liveness-audit.generated.json | Event liveness implementation is dirty/in-flight; keep it out of this regression refresh commit and rerun when landed. |
 | event-envelope-normalization | pass | npm run check:event-envelope-normalization | agent/state/event-envelope-normalization.generated.json | Keep this validator in the high-blast refresh set. |
-| telemetry-trigger-test-matrix | landed_artifact_reused | npm run check:telemetry-trigger-test-matrix | agent/state/telemetry-trigger-test-matrix.generated.json | npm run check:telemetry-trigger-test-matrix could not rerun in the dirty queue state, but owned source did not change after available evidence. |
+| telemetry-trigger-test-matrix | pass | npm run check:telemetry-trigger-test-matrix | agent/state/telemetry-trigger-test-matrix.generated.json | Keep this validator in the high-blast refresh set. |
 | chat-realtime-cost-control | landed_artifact_reused | npm run check:chat-realtime-cost-control | agent/state/chat-realtime-cost-control.generated.json | npm run check:chat-realtime-cost-control could not rerun in the dirty queue state, but owned source did not change after available evidence. |
 | chat-gating-moderation | landed_artifact_reused | npm run check:chat-gating-moderation | agent/state/chat-gating-moderation.generated.json | npm run check:chat-gating-moderation could not rerun in the dirty queue state, but owned source did not change after available evidence. |
 | chat-telemetry-admin-truth | landed_artifact_reused | npm run check:chat-telemetry-admin-truth | agent/state/chat-telemetry-admin-truth.generated.json | npm run check:chat-telemetry-admin-truth could not rerun in the dirty queue state, but owned source did not change after available evidence. |
@@ -46,7 +46,7 @@ Current head: 2de05abe97f909b1414dc165bb3cfdd19309cb58
 | daily-task-guidance-route-audit | landed_artifact_reused | npm run check:daily-task-guidance-route-audit | agent/state/daily-task-guidance-route-audit.generated.json | npm run check:daily-task-guidance-route-audit could not rerun in the dirty queue state, but owned source did not change after available evidence. |
 | user-profile-api-contract | pass | npm run check:user-profile-api-contract | agent/state/user-profile-api-contract.generated.json | Keep this validator in the high-blast refresh set. |
 | feature-registration-gate | pass | npm run check:feature-registration-gate | agent/state/feature-registration-gate.generated.json | Keep this validator in the high-blast refresh set. |
-| debug-signal-actionability | landed_artifact_reused | npm run check:debug-signal-actionability | agent/state/debug-signal-actionability.generated.json | npm run check:debug-signal-actionability could not rerun in the dirty queue state, but owned source did not change after available evidence. |
+| debug-signal-actionability | pass | npm run check:debug-signal-actionability | agent/state/debug-signal-actionability.generated.json | Keep this validator in the high-blast refresh set. |
 
 ## Remaining Gaps
 

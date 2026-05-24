@@ -1,8 +1,8 @@
 # Telemetry Trigger Test Matrix
 
-Generated: 2026-05-24T03:58:12.371Z
+Generated: 2026-05-24T05:47:18.903Z
 Status: pass
-Current head: 6a7ba11a935a5d4c2df6346d179934c98bf13a79
+Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Contract
 
@@ -85,42 +85,26 @@ Current head: 6a7ba11a935a5d4c2df6346d179934c98bf13a79
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-guidance-route-audit.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-lifecycle-telemetry.generated.json: current_generated_artifact_to_commit
-- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-reward-ledger.generated.json: stale_generated_artifact_to_regenerate
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/cost-risk-owner-review-closure.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/formal-evidence-bridge.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-guidance-route-audit.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-reset-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-reward-ledger.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/cost-risk-owner-review-closure.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-liveness-audit.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/formal-evidence-bridge.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
-- package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-daily-task-debug-score-lock.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-guidance-route-audit.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-reset-truth.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-reward-ledger.ts: validator_artifact_expected
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/daily-task-debug-score-lock.spec.ts: test_artifact_expected
+- scripts/agent/validate-event-liveness-audit.ts: validator_artifact_expected
+- src/app/api/admin/debug/route.ts: real_source_change_needs_review
+- src/lib/analytics/event-liveness-contract.ts: real_source_change_needs_review
+- src/lib/analytics/event-liveness-engine.ts: real_source_change_needs_review
+- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
+- src/lib/server/admin-debug/summary.ts: real_source_change_needs_review
+- tests/unit/event-liveness-audit.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

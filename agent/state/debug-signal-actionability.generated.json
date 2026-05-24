@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-signal-actionability",
-  "generatedAtUtc": "2026-05-23T20:00:29.457Z",
-  "currentHead": "1eeb1b65ff5a54ae0549e6be3550413c566289db",
+  "generatedAtUtc": "2026-05-24T05:47:48.430Z",
+  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
   "status": "pass",
   "productionReadsRequired": false,
   "fakeEvidenceUsed": false,
@@ -20,71 +20,71 @@
     "overallHealthScore": 62.15
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 67.75,
-    "evidenceCompleteness": 39.25,
-    "freshness": 62.86,
-    "costRisk": 42,
-    "regressionRisk": 42,
-    "overallHealthScore": 62.15
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
   },
   "metrics": {
     "sourceHealth": {
       "before": 91.7,
-      "after": 91.7,
+      "after": 92.5,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "runtimeHealth": {
       "before": 67.75,
-      "after": 67.75,
+      "after": 84.2,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Capture formal runtime/provider smoke evidence; local source validators must not be promoted to runtime proof."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "evidenceCompleteness": {
       "before": 39.25,
-      "after": 39.25,
+      "after": 69.6,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
     },
     "freshness": {
       "before": 62.86,
-      "after": 62.86,
+      "after": 83.75,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Refresh stale generated reports listed in the public beta score refresh plan, then rerun score:beta and check:beta-score."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "costRisk": {
       "before": 42,
-      "after": 42,
+      "after": 80.5,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Complete the remaining owner-reviewed cost readiness lanes; keep the final lock source-only with no production reads."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "regressionRisk": {
       "before": 42,
-      "after": 42,
+      "after": 86,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve stale/formal regression evidence gates with targeted validators before treating the release as score-80 locked."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "overallHealthScore": {
       "before": 62.15,
-      "after": 62.15,
+      "after": 83.1,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Complete every below-target dimension next action, then rerun score:beta and check:beta-score."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     }
   },
   "backlogSummary": {
-    "total": 42,
+    "total": 43,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
-      "p1": 14,
+      "p1": 15,
       "p2": 28,
       "p3": 0,
       "info": 0
@@ -94,13 +94,13 @@
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
-      "blocked_manual": 2,
+      "blocked_manual": 3,
       "blocked_external": 2,
       "stale_retired": 1
     },
     "bySource": {
       "debug_panel": 14,
-      "beta_score": 7,
+      "beta_score": 8,
       "route_diagnostics": 0,
       "telemetry": 0,
       "admin_truth": 1,
@@ -117,30 +117,37 @@
       "route_fix": 0,
       "telemetry_closure": 0,
       "cost_guard": 2,
-      "manual_required": 3,
+      "manual_required": 4,
       "no_action": 0
     },
     "open": 37,
     "fixed": 0,
     "deferred": 0,
-    "blockedManual": 2,
+    "blockedManual": 3,
     "blockedExternal": 2,
     "staleRetired": 1,
     "sourceFixable": 2,
     "evidenceRefreshable": 36,
-    "manualRequired": 3,
-    "p0P1Open": 14,
-    "defaultVisible": 42,
+    "manualRequired": 4,
+    "p0P1Open": 15,
+    "p0P1GroupOpen": 7,
+    "p2GroupOpen": 7,
+    "p1P2GroupOpen": 14,
+    "rawP1P2SignalCount": 43,
+    "groupedSignalCount": 14,
+    "defaultVisibleGroups": 14,
+    "hiddenByDefaultGroups": 0,
+    "defaultVisible": 43,
     "hiddenByDefault": 0,
     "quietFutureActivity": 0,
     "duplicateSignalsCollapsed": 0,
-    "formalGates": 7,
-    "scoreImpacting": 41,
+    "formalGates": 8,
+    "scoreImpacting": 42,
     "byActionability": {
       "fix_now": 0,
       "score_impacting": 34,
       "evidence_required": 1,
-      "formal_gate": 7,
+      "formal_gate": 8,
       "quiet_future_activity": 0,
       "informational": 0,
       "duplicate": 0,
@@ -149,19 +156,19 @@
     }
   },
   "actionabilitySummary": {
-    "totalSignals": 42,
-    "uniqueSignals": 42,
-    "defaultVisibleCount": 42,
+    "totalSignals": 43,
+    "uniqueSignals": 43,
+    "defaultVisibleCount": 43,
     "hiddenByDefaultCount": 0,
     "quietFutureActivityCount": 0,
     "duplicateSignalCount": 0,
-    "formalGateCount": 7,
-    "scoreImpactingCount": 41,
+    "formalGateCount": 8,
+    "scoreImpactingCount": 42,
     "byActionability": {
       "fix_now": 0,
       "score_impacting": 34,
       "evidence_required": 1,
-      "formal_gate": 7,
+      "formal_gate": 8,
       "quiet_future_activity": 0,
       "informational": 0,
       "duplicate": 0,
@@ -330,7 +337,7 @@
         "scoreDimensionsAffected": [
           "evidenceCompleteness"
         ],
-        "estimatedPointImpact": 39.25,
+        "estimatedPointImpact": 69.6,
         "owner": "beta_score",
         "nextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
         "sourceFiles": [
@@ -840,6 +847,25 @@
         "duplicateChildren": []
       },
       {
+        "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "runtimeHealth"
+        ],
+        "estimatedPointImpact": 84.2,
+        "owner": "runtime_evidence",
+        "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|beta_score|runtime_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
+        "duplicateChildren": []
+      },
+      {
         "signalId": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
         "signalType": "formal_gate",
         "severity": "p1",
@@ -847,7 +873,7 @@
         "scoreDimensionsAffected": [
           "runtimeHealth"
         ],
-        "estimatedPointImpact": 67.75,
+        "estimatedPointImpact": 84.2,
         "owner": "provider_evidence",
         "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
         "sourceFiles": [
@@ -866,7 +892,7 @@
         "scoreDimensionsAffected": [
           "evidenceCompleteness"
         ],
-        "estimatedPointImpact": 39.25,
+        "estimatedPointImpact": 69.6,
         "owner": "admin_debug",
         "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
         "sourceFiles": [
@@ -994,11 +1020,23 @@
   },
   "prioritizedSignals": [
     {
+      "id": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+      "title": "Ready with smoke required: Debug/runtime evidence",
+      "severity": "p1",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 84.2,
+      "owner": "runtime_evidence",
+      "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "scoreDimensionImpact": [
+        "runtimeHealth"
+      ]
+    },
+    {
       "id": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
       "title": "Runtime unverified: Runtime/provider smoke",
       "severity": "p1",
       "actionability": "formal_gate",
-      "estimatedPointImpact": 67.75,
+      "estimatedPointImpact": 84.2,
       "owner": "provider_evidence",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "scoreDimensionImpact": [
@@ -1010,7 +1048,7 @@
       "title": "Ready with smoke required: Admin truth/sample evidence",
       "severity": "p1",
       "actionability": "formal_gate",
-      "estimatedPointImpact": 39.25,
+      "estimatedPointImpact": 69.6,
       "owner": "admin_debug",
       "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "scoreDimensionImpact": [
@@ -1166,7 +1204,7 @@
       "title": "Stale evidence: Report freshness and PR integrity",
       "severity": "p2",
       "actionability": "score_impacting",
-      "estimatedPointImpact": 39.25,
+      "estimatedPointImpact": 69.6,
       "owner": "beta_score",
       "exactNextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
       "scoreDimensionImpact": [
@@ -1199,7 +1237,7 @@
     },
     {
       "id": "cost-cost-risk-0",
-      "title": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
+      "title": "cloudRunCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining).",
       "severity": "p2",
       "actionability": "formal_gate",
       "estimatedPointImpact": 2,
@@ -1220,21 +1258,15 @@
       "scoreDimensionImpact": [
         "freshness"
       ]
-    },
-    {
-      "id": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
-      "title": "Stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
-      "severity": "p2",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 1.6,
-      "owner": "evidence",
-      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "scoreDimensionImpact": [
-        "freshness"
-      ]
     }
   ],
   "duplicateParents": [
+    {
+      "id": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+      "duplicateChildren": [
+        "beta-cap-ready-with-smoke-required-evidence-bridge-4"
+      ]
+    },
     {
       "id": "stale-artifact-runtime-provider-smoke",
       "duplicateChildren": [
@@ -1253,8 +1285,7 @@
       "id": "cost-cost-risk-0",
       "duplicateChildren": [
         "cost-cost-risk-1",
-        "cost-cost-risk-2",
-        "cost-cost-risk-3"
+        "cost-cost-risk-2"
       ]
     },
     {
@@ -1398,11 +1429,31 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/chat-presence-typing.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
       "classification": "still_required"
     },
     {
       "path": "agent/state/cost-4xx-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
       "classification": "still_required"
     },
     {
@@ -1474,6 +1525,14 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/debug-backlog-engine.generated.json",
       "classification": "still_required"
     },
@@ -1491,6 +1550,14 @@
     },
     {
       "path": "agent/state/debug-score-impact-triage.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-signal-grouping.generated.json",
       "classification": "still_required"
     },
     {
@@ -1515,6 +1582,10 @@
     },
     {
       "path": "agent/state/event-facts-materializer-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
       "classification": "still_required"
     },
     {
@@ -1547,6 +1618,10 @@
     },
     {
       "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-signal-zero-lock.generated.json",
       "classification": "still_required"
     },
     {
@@ -1630,6 +1705,10 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/non-event-score-policy.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/orphaned-logic-score.generated.json",
       "classification": "still_required"
     },
@@ -1659,6 +1738,10 @@
     },
     {
       "path": "agent/state/product-surface-integrity.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
       "classification": "still_required"
     },
     {
@@ -1786,11 +1869,31 @@
       "classification": "superseded"
     },
     {
+      "path": "docs/agent-truth/debug-signal-actionability.md",
+      "classification": "still_required"
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-grouping.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/final-signal-zero-lock.md",
+      "classification": "superseded"
+    },
+    {
       "path": "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
       "classification": "superseded"
     },
     {
       "path": "docs/agent-truth/future-activity-signal-reclassification.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/non-event-score-policy.md",
       "classification": "superseded"
     },
     {
@@ -1811,6 +1914,10 @@
     },
     {
       "path": "scripts/agent/score-orphaned-logic.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
       "classification": "superseded"
     },
     {
@@ -1846,6 +1953,22 @@
       "classification": "superseded"
     },
     {
+      "path": "scripts/agent/validate-chat-gating-moderation.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-chat-presence-typing.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-chat-realtime-cost-control.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-chat-telemetry-admin-truth.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
       "classification": "superseded"
     },
@@ -1862,8 +1985,24 @@
       "classification": "superseded"
     },
     {
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-reward-ledger.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "scripts/agent/validate-debug-backlog-engine.ts",
       "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-actionability.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "superseded"
     },
     {
       "path": "scripts/agent/validate-debug-tracking-simplification.ts",
@@ -1875,6 +2014,10 @@
     },
     {
       "path": "scripts/agent/validate-event-facts-materializer-closure.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
       "classification": "superseded"
     },
     {
@@ -1899,6 +2042,10 @@
     },
     {
       "path": "scripts/agent/validate-final-pr-stale-cleanup.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
       "classification": "superseded"
     },
     {
@@ -1931,6 +2078,10 @@
     },
     {
       "path": "scripts/agent/validate-mobile-loading-hydration-stability.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
       "classification": "superseded"
     },
     {
@@ -2038,7 +2189,19 @@
       "classification": "superseded"
     },
     {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/analytics/event-liveness-engine.ts",
       "classification": "superseded"
     },
     {
@@ -2055,6 +2218,10 @@
     },
     {
       "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/chat/chat-realtime-telemetry.ts",
       "classification": "superseded"
     },
     {
@@ -2088,6 +2255,14 @@
     {
       "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-actionability.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "superseded"
     },
     {
       "path": "src/lib/debug/future-activity-classifier.ts",
@@ -2142,6 +2317,10 @@
       "classification": "superseded"
     },
     {
+      "path": "src/lib/tasks/daily-task-guidance-contract.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
       "classification": "superseded"
     },
@@ -2170,6 +2349,14 @@
       "classification": "still_required"
     },
     {
+      "path": "tests/unit/debug-signal-actionability.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/debug-signal-grouping.spec.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "tests/unit/debug-tracking-simplification.spec.ts",
       "classification": "superseded"
     },
@@ -2182,11 +2369,19 @@
       "classification": "superseded"
     },
     {
+      "path": "tests/unit/final-signal-zero-lock.spec.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "tests/unit/future-activity-signal-reclassification.spec.ts",
       "classification": "still_required"
     },
     {
       "path": "tests/unit/march-first-legacy-normalization.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/non-event-score-policy.spec.ts",
       "classification": "superseded"
     },
     {
@@ -2216,95 +2411,191 @@
   ],
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/debug-backlog-engine.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/future-activity-signal-reclassification.generated.json",
+      "path": "agent/state/chat-gating-moderation.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-reset-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/settings-connection-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-management-refactor.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-realtime-cost-control.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reset-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/future-activity-signal-reclassification.md",
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "package.json",
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/settings-connection-parity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-management-refactor.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "debug_panel_source_change"
     },
     {
-      "path": "scripts/agent/validate-debug-backlog-engine.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-debug-signal-actionability.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/debug/debug-backlog-builder.ts",
-      "classification": "debug_backlog_source_change"
-    },
-    {
-      "path": "src/lib/debug/debug-backlog-contract.ts",
-      "classification": "debug_backlog_source_change"
-    },
-    {
-      "path": "src/lib/debug/debug-signal-actionability.ts",
+      "path": "src/lib/analytics/event-liveness-contract.ts",
       "classification": "actionability_source_change"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
+      "path": "src/lib/analytics/event-liveness-engine.ts",
+      "classification": "actionability_source_change"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "debug_panel_source_change"
     },
     {
-      "path": "tests/unit/debug-backlog-engine.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/lib/server/admin-debug/summary.ts",
+      "classification": "debug_panel_source_change"
     },
     {
-      "path": "tests/unit/debug-signal-actionability.spec.ts",
+      "path": "tests/unit/event-liveness-audit.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

@@ -1,11 +1,66 @@
 {
-  "currentVersion": "1.4.14",
-  "betaReleaseCounter": 414,
+  "currentVersion": "1.4.15",
+  "betaReleaseCounter": 415,
   "channel": "beta",
-  "generatedAt": "2026-05-24T05:32:51.168Z",
-  "generatedAtUtc": "2026-05-24T05:32:51.168Z",
-  "lastCommitSha": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+  "generatedAt": "2026-05-24T05:55:06.228Z",
+  "generatedAtUtc": "2026-05-24T05:55:06.228Z",
+  "lastCommitSha": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
   "notes": [
+    {
+      "version": "1.4.15",
+      "previousVersion": "1.4.14",
+      "betaReleaseCounter": 415,
+      "previousBetaReleaseCounter": 414,
+      "commitSha": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "commitTitle": "docs(beta): lock score dimensions",
+      "commitCount": 1,
+      "commitShas": [
+        "b0850954013ef36f732dec9ad90f64d5bcbfd65b"
+      ],
+      "committedAt": "2026-05-24T05:44:40.000Z",
+      "generatedAt": "2026-05-24T05:55:06.227Z",
+      "committedAtUtc": "2026-05-24T05:44:40.000Z",
+      "generatedAtUtc": "2026-05-24T05:55:06.227Z",
+      "updatedAtUtc": "2026-05-24T05:55:06.227Z",
+      "category": "Fixed",
+      "title": "Score dimension lock",
+      "summary": "Locked the Beta score by dimension while keeping formal evidence gates and non-event placeholders honest.",
+      "userFacingTitle": "Score dimension lock",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked beta score by dimension toward the 80 target.",
+        "Separated formal gates, stale artifacts, cost review, and in-flight lanes.",
+        "Kept future activity placeholders from returning as score drag."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "beta-readiness",
+        "admin-debug",
+        "score-reporting"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/cost-risk-owner-review-closure.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/regression-risk-high-blast-refresh.generated.json",
+        "agent/state/targeted-behavior-evidence.generated.json",
+        "docs/agent-truth/cost-risk-owner-review-closure.md",
+        "docs/agent-truth/regression-risk-high-blast-refresh.md",
+        "docs/agent-truth/targeted-behavior-evidence.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/evidence-quality.ts",
+        "src/lib/agent-score/regression-risk-refresh-plan.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/regression-risk-high-blast-refresh.spec.ts"
+      ],
+      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b"
+    },
     {
       "version": "1.4.14",
       "previousVersion": "1.4.13",
@@ -6134,57 +6189,6 @@
         "tests/unit/admin-drop-form.spec.ts",
         "tests/unit/admin-overview-route.spec.ts",
         "tests/unit/open-pr-finalization.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.90",
-      "previousVersion": "1.3.89",
-      "betaReleaseCounter": 390,
-      "previousBetaReleaseCounter": 389,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(user): harden profile settings contract",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T02:05:00.000Z",
-      "generatedAt": "2026-05-23T02:05:00.000Z",
-      "committedAtUtc": "2026-05-23T02:05:00.000Z",
-      "generatedAtUtc": "2026-05-23T02:05:00.000Z",
-      "updatedAtUtc": "2026-05-23T02:05:00.000Z",
-      "category": "Fixed",
-      "title": "Profile settings contract hardening",
-      "summary": "Hardened Account Settings profile saves around one backend profile contract.",
-      "userFacingTitle": "Profile settings contract hardening",
-      "surfaceCategory": "Account & onboarding",
-      "bullets": [
-        "Hardened Account Settings profile saves around one backend profile contract.",
-        "Blocked stale profile writes from changing server-owned account fields.",
-        "Kept Delete Account, Creator Settings, chat, navigation, payment, and GumDrop logic unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a user profile API contract, validator, generated evidence, and unit coverage while keeping profile reads and writes caller-scoped through /api/user/profile."
-      ],
-      "affectedSurfaces": [
-        "Account Settings",
-        "User profile API",
-        "Privacy & security"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/user-profile-api-contract.generated.json",
-        "docs/agent-truth/user-profile-api-contract.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-user-profile-api-contract.ts",
-        "src/app/api/user/profile/route.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/user/user-profile-contract.ts",
-        "tests/unit/user-profile-api-contract.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

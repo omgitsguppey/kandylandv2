@@ -1,8 +1,8 @@
 # Formal Evidence Bridge
 
-Generated: 2026-05-24T05:11:18.451Z
+Generated: 2026-05-24T05:47:53.160Z
 
-Current head: e7d4eb198c8b9f728589fe48b41345f295a854d1
+Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Summary
 
@@ -16,13 +16,13 @@ Current head: e7d4eb198c8b9f728589fe48b41345f295a854d1
 
 | Dimension | Before | After |
 | --- | ---: | ---: |
-| sourceHealth | 91.7 | 91.7 |
-| runtimeHealth | 66 | 82.25 |
-| evidenceCompleteness | 37.5 | 67 |
-| freshness | 62.86 | 62.86 |
+| sourceHealth | 92.5 | 92.5 |
+| runtimeHealth | 84.2 | 84.2 |
+| evidenceCompleteness | 69.6 | 69.6 |
+| freshness | 83.75 | 83.75 |
 | costRisk | 80.5 | 80.5 |
-| regressionRisk | 18 | 18 |
-| overallHealthScore | 62.9 | 72.05 |
+| regressionRisk | 86 | 86 |
+| overallHealthScore | 83.1 | 83.1 |
 
 ## Bridge Gates
 

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T05:42:50.649Z",
+  "generatedAtUtc": "2026-05-24T05:47:54.718Z",
   "reportKey": "cost-risk-owner-review-closure",
-  "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -282,28 +282,28 @@
   "sourceGuardedLaneCount": 7,
   "ownerReviewLaneCount": 5,
   "scoreBefore": {
-    "sourceHealth": 91.7,
+    "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 75.63,
+    "freshness": 83.75,
     "costRisk": 80.5,
-    "regressionRisk": 18,
-    "overallHealthScore": 74.88
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
+    "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 75.63,
+    "freshness": 83.75,
     "costRisk": 80.5,
-    "regressionRisk": 18,
-    "overallHealthScore": 74.88
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
   },
   "dirtyFilesClassification": [
     {
-      "path": "CHANGELOG.md",
+      "path": "agent/context/optimized-task-context.generated.json",
       "status": "M",
-      "classification": "release_artifact_expected"
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
       "path": "agent/state/chat-functionality-score-lock.generated.json",
@@ -396,17 +396,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "status": " M",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/settings-connection-parity.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/targeted-behavior-evidence.generated.json",
       "status": " M",
       "classification": "real_source_change_needs_review"
     },
@@ -516,11 +506,6 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "docs/agent-truth/targeted-behavior-evidence.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
       "status": " M",
       "classification": "real_source_change_needs_review"
@@ -536,21 +521,6 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "package.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "status": " M",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "status": " M",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "scripts/agent/validate-event-liveness-audit.ts",
       "status": " M",
       "classification": "unrelated_inflight_event_liveness_to_ignore"
@@ -559,16 +529,6 @@
       "path": "src/app/api/admin/debug/route.ts",
       "status": " M",
       "classification": "unrelated_inflight_event_liveness_to_ignore"
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/agent-score/evidence-quality.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/analytics/event-liveness-contract.ts",
@@ -586,16 +546,6 @@
       "classification": "unrelated_inflight_event_liveness_to_ignore"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "status": " M",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "status": " M",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "src/lib/server/admin-debug/summary.ts",
       "status": " M",
       "classification": "unrelated_inflight_event_liveness_to_ignore"
@@ -604,31 +554,6 @@
       "path": "tests/unit/event-liveness-audit.spec.ts",
       "status": " M",
       "classification": "unrelated_inflight_event_liveness_to_ignore"
-    },
-    {
-      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
-      "status": "??",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
-      "status": "??",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
-      "status": "??",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/agent-score/regression-risk-refresh-plan.ts",
-      "status": "??",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/regression-risk-high-blast-refresh.spec.ts",
-      "status": "??",
-      "classification": "real_source_change_needs_review"
     }
   ],
   "staleLogicClassification": [

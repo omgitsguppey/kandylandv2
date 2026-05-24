@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T05:11:18.451Z",
+  "generatedAtUtc": "2026-05-24T05:47:53.160Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
@@ -84,22 +84,22 @@
     "production_admin_truth_sample"
   ],
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 66,
-    "evidenceCompleteness": 37.5,
-    "freshness": 62.86,
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
     "costRisk": 80.5,
-    "regressionRisk": 18,
-    "overallHealthScore": 62.9
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 82.25,
-    "evidenceCompleteness": 67,
-    "freshness": 62.86,
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
     "costRisk": 80.5,
-    "regressionRisk": 18,
-    "overallHealthScore": 72.05
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
   },
   "scoreDimensionImpact": {
     "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",
