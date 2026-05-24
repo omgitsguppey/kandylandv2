@@ -1,0 +1,11 @@
+{
+  "generatedAtUtc": "2026-05-24T19:58:01.293Z",
+  "currentHead": "93000a572a2968f72f0e3f3f400ee9a82acc78c9",
+  "creatorLaneFreshnessBefore": "freshness_not_recorded",
+  "creatorLaneFreshnessAfter": "source_ready_no_sample_loaded",
+  "creatorLaneMaterializerStatus": "materializer_completion_missing",
+  "displayAsNoActionNeeded": false,
+  "parityStatus": "review",
+  "sourceSnapshotCount": 0,
+  "nextAction": "Load a creator lane source window and materializer completion timestamp before claiming full freshness."
+}

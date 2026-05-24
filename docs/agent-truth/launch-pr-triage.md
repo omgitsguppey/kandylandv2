@@ -7,6 +7,8 @@ Scope: current open PRs only. No PR was merged, closed, rebased, or edited durin
 
 Launch PR triage is a manual decision gate. `agent/state/launch-pr-triage.generated.json` is evidence for `docs/agent-truth/launch-pr-triage.md`; it is not permission to merge stale branches.
 
+Open bot PRs must be cherry-picked by current-source relevance.
+
 ## Executive Summary
 
 - Open PRs: 27.

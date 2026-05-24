@@ -1,7 +1,7 @@
 {
   "score": 90,
   "status": "pass",
-  "generatedAt": "2026-05-12T01:20:55.475Z",
+  "generatedAt": "2026-05-24T19:58:00.715Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
     {
@@ -103,5 +103,12 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 2 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
+  "summary": "Detected 2 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation.",
+  "generatedAtUtc": "2026-05-24T19:58:00.715Z",
+  "currentHead": "93000a572a2968f72f0e3f3f400ee9a82acc78c9",
+  "sourceCommit": "93000a572a2968f72f0e3f3f400ee9a82acc78c9",
+  "batch14Classification": {
+    "realtimeHotCache": "migration_plan_required",
+    "telemetryDuplicateIntent": "telemetry_alias_classified"
+  }
 }

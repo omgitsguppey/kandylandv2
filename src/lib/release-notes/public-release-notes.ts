@@ -1,13 +1,66 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.43",
-  "betaReleaseCounter": 443,
+  "currentVersion": "1.4.44",
+  "betaReleaseCounter": 444,
   "channel": "beta",
-  "generatedAt": "2026-05-24T20:20:00.000Z",
-  "generatedAtUtc": "2026-05-24T20:20:00.000Z",
+  "generatedAt": "2026-05-24T19:54:06.892Z",
+  "generatedAtUtc": "2026-05-24T19:54:06.892Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.44",
+      "previousVersion": "1.4.43",
+      "betaReleaseCounter": 444,
+      "previousBetaReleaseCounter": 443,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean orphaned logic actions",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T19:54:06.892Z",
+      "generatedAt": "2026-05-24T19:54:06.892Z",
+      "committedAtUtc": "2026-05-24T19:54:06.892Z",
+      "generatedAtUtc": "2026-05-24T19:54:06.892Z",
+      "updatedAtUtc": "2026-05-24T19:54:06.892Z",
+      "category": "Improved",
+      "title": "Orphaned logic action cleanup",
+      "summary": "Classified admin analytics realtime listeners, drop preview telemetry aliases, and recommended action duplicates without changing runtime history or payment behavior.",
+      "userFacingTitle": "Orphaned logic action cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Classified admin analytics realtime listeners under hot-cache doctrine.",
+        "Added telemetry intent alias handling for drop preview events.",
+        "Deduped recommended actions and clarified materializer/recovery/creator lane sample states."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin diagnostics",
+        "Telemetry",
+        "Creator tools",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/debug-cockpit-batch14-cleanup.generated.json",
+        "agent/state/admin-analytics-realtime-hot-cache.generated.json",
+        "agent/state/telemetry-duplicate-intent-classification.generated.json",
+        "agent/state/recommended-action-dedupe.generated.json",
+        "agent/state/system-health-materializer-cleanup.generated.json",
+        "agent/state/creator-lane-freshness-cleanup.generated.json",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/debug-cockpit-batch14-shared.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "effectiveChangeCount": 12,
+      "excludedGeneratedChangeCount": 7,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.43",
       "previousVersion": "1.4.42",
@@ -1580,299 +1633,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "agent/state/current-beta-exit-status.generated.json"
       ],
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.19",
-      "previousVersion": "1.4.18",
-      "betaReleaseCounter": 419,
-      "previousBetaReleaseCounter": 418,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(pwa): harden service worker safety",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T06:56:38.000Z",
-      "generatedAt": "2026-05-24T07:07:29.972Z",
-      "committedAtUtc": "2026-05-24T06:56:38.000Z",
-      "generatedAtUtc": "2026-05-24T07:07:29.972Z",
-      "updatedAtUtc": "2026-05-24T07:07:29.972Z",
-      "category": "Internal Reliability",
-      "title": "PWA service worker safety",
-      "summary": "Hardened PWA service worker registration, update, and offline safety.",
-      "userFacingTitle": "PWA service worker safety",
-      "surfaceCategory": "Notifications",
-      "bullets": [
-        "Hardened PWA service worker registration, update, and offline safety.",
-        "Blocked sensitive wallet, chat, and private content from unsafe caching.",
-        "Added PWA/service worker debug visibility."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Notifications",
-        "PWA",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/pwa-service-worker-safety.generated.json",
-        "docs/agent-truth/feature-registration-gate.md",
-        "docs/agent-truth/pwa-service-worker-safety.md",
-        "package.json",
-        "public/firebase-messaging-sw.js",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-pwa-service-worker-safety.ts",
-        "src/components/PwaRuntimeBridge.tsx",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/pwa/pwa-service-worker-contract.ts",
-        "src/lib/pwa/pwa-update-telemetry.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/pwa-service-worker-safety.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "Added a source-only PWA service worker safety contract, telemetry envelope, debug lane, validator, and focused unit coverage without provider calls, production reads, deployment, payment changes, or GumDrop math changes."
-      ]
-    },
-    {
-      "version": "1.4.18",
-      "previousVersion": "1.4.17",
-      "betaReleaseCounter": 418,
-      "previousBetaReleaseCounter": 417,
-      "commitSha": "2180b0625010fe0978087fede26f59296bd59f85",
-      "commitTitle": "fix(notifications): define targeting intent",
-      "commitCount": 1,
-      "commitShas": [
-        "2180b0625010fe0978087fede26f59296bd59f85"
-      ],
-      "committedAt": "2026-05-24T06:43:35.000Z",
-      "generatedAt": "2026-05-24T06:53:33.072Z",
-      "committedAtUtc": "2026-05-24T06:43:35.000Z",
-      "generatedAtUtc": "2026-05-24T06:53:33.072Z",
-      "updatedAtUtc": "2026-05-24T06:53:33.072Z",
-      "category": "Fixed",
-      "title": "Notification targeting intent",
-      "summary": "Defined safe notification delivery intent and targeting rules for Drops, broadcasts, chat, tasks, wallet, and system notices.",
-      "userFacingTitle": "Notification targeting intent",
-      "surfaceCategory": "Notifications",
-      "bullets": [
-        "Added notification delivery intent and targeting contracts.",
-        "Mapped drops, broadcasts, chat, tasks, wallet, and system notices to safe notification rules.",
-        "Blocked notification targeting for opted-out or ineligible users."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "navigation",
-        "notifications"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/notification-targeting-intent.generated.json",
-        "docs/agent-truth/notification-targeting-intent.md",
-        "package.json",
-        "scripts/agent/validate-notification-targeting-intent.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/notifications/notification-intent-contract.ts",
-        "src/lib/notifications/notification-targeting-resolver.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/notification-targeting-intent.spec.ts"
-      ],
-      "sourceCommit": "2180b0625010fe0978087fede26f59296bd59f85"
-    },
-    {
-      "version": "1.4.17",
-      "previousVersion": "1.4.16",
-      "betaReleaseCounter": 417,
-      "previousBetaReleaseCounter": 416,
-      "commitSha": "627ff05dd711e0e847a947fa5ff368dbf4ea1235",
-      "commitTitle": "fix(notifications): track permission lifecycle",
-      "commitCount": 1,
-      "commitShas": [
-        "627ff05dd711e0e847a947fa5ff368dbf4ea1235"
-      ],
-      "committedAt": "2026-05-24T06:23:21.000Z",
-      "generatedAt": "2026-05-24T06:37:08.526Z",
-      "committedAtUtc": "2026-05-24T06:23:21.000Z",
-      "generatedAtUtc": "2026-05-24T06:37:08.526Z",
-      "updatedAtUtc": "2026-05-24T06:37:08.526Z",
-      "category": "Fixed",
-      "title": "Push token registration",
-      "summary": "Hardened push token registration with authenticated device binding, lifecycle telemetry, and raw-token redaction.",
-      "userFacingTitle": "Push token registration",
-      "surfaceCategory": "Notifications",
-      "bullets": [
-        "Hardened push token registration and device binding.",
-        "Tracked token registration, refresh, revocation, and failure states.",
-        "Protected push tokens from raw debug/log exposure."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "notifications"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/notification-permission-lifecycle.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "docs/agent-truth/notification-permission-lifecycle.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-event-translation-bridge.ts",
-        "scripts/agent/validate-notification-permission-lifecycle.ts",
-        "scripts/agent/validate-person-metrics-hydration.ts",
-        "src/components/Dashboard/NotificationPromptBanner.tsx",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/notifications/notification-permission-contract.ts",
-        "src/lib/notifications/notification-prompt-telemetry.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/notification-permission-lifecycle.spec.ts"
-      ],
-      "sourceCommit": "627ff05dd711e0e847a947fa5ff368dbf4ea1235"
-    },
-    {
-      "version": "1.4.16",
-      "previousVersion": "1.4.15",
-      "betaReleaseCounter": 416,
-      "previousBetaReleaseCounter": 415,
-      "commitSha": "8b129dfd0951ae72d088994f59ad32c7be678798",
-      "commitTitle": "docs(beta): lock score dimensions",
-      "commitCount": 1,
-      "commitShas": [
-        "8b129dfd0951ae72d088994f59ad32c7be678798"
-      ],
-      "committedAt": "2026-05-24T06:01:42.000Z",
-      "generatedAt": "2026-05-24T06:17:18.713Z",
-      "committedAtUtc": "2026-05-24T06:01:42.000Z",
-      "generatedAtUtc": "2026-05-24T06:17:18.713Z",
-      "updatedAtUtc": "2026-05-24T06:17:18.713Z",
-      "category": "Fixed",
-      "title": "Notification permission lifecycle",
-      "summary": "Finalized the notification permission prompt lifecycle with clearer prompt states, lifecycle telemetry, and debug visibility.",
-      "userFacingTitle": "Notification permission lifecycle",
-      "surfaceCategory": "Notifications",
-      "bullets": [
-        "Finalized notification permission prompt lifecycle.",
-        "Tracked notification prompt views, grants, denials, and failures.",
-        "Added debug visibility for notification permission health."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "dashboard",
-        "notifications"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/activity-verification-engine.generated.json",
-        "agent/state/cost-risk-owner-review-closure.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/debug-signal-actionability.generated.json",
-        "agent/state/debug-signal-grouping.generated.json",
-        "agent/state/event-envelope-normalization.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/formal-evidence-bridge.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/regression-risk-high-blast-refresh.generated.json",
-        "agent/state/score-dimension-80-lock.generated.json",
-        "agent/state/settings-connection-parity.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json",
-        "agent/state/telemetry-trigger-test-matrix.generated.json",
-        "agent/state/user-profile-api-contract.generated.json",
-        "docs/agent-truth/cost-risk-owner-review-closure.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/debug-signal-actionability.md",
-        "docs/agent-truth/debug-signal-grouping.md",
-        "docs/agent-truth/event-envelope-normalization.md",
-        "docs/agent-truth/formal-evidence-bridge.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/regression-risk-high-blast-refresh.md",
-        "docs/agent-truth/score-dimension-80-lock.md",
-        "docs/agent-truth/settings-connection-parity.md",
-        "docs/agent-truth/targeted-behavior-evidence.md",
-        "docs/agent-truth/telemetry-trigger-test-matrix.md",
-        "docs/agent-truth/user-profile-api-contract.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-score-dimension-80-lock.ts",
-        "src/lib/agent-score/score-dimension-80-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/score-dimension-80-lock.spec.ts"
-      ],
-      "sourceCommit": "8b129dfd0951ae72d088994f59ad32c7be678798"
-    },
-    {
-      "version": "1.4.15",
-      "previousVersion": "1.4.14",
-      "betaReleaseCounter": 415,
-      "previousBetaReleaseCounter": 414,
-      "commitSha": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "commitTitle": "docs(beta): lock score dimensions",
-      "commitCount": 1,
-      "commitShas": [
-        "b0850954013ef36f732dec9ad90f64d5bcbfd65b"
-      ],
-      "committedAt": "2026-05-24T05:44:40.000Z",
-      "generatedAt": "2026-05-24T05:55:06.227Z",
-      "committedAtUtc": "2026-05-24T05:44:40.000Z",
-      "generatedAtUtc": "2026-05-24T05:55:06.227Z",
-      "updatedAtUtc": "2026-05-24T05:55:06.227Z",
-      "category": "Fixed",
-      "title": "Score dimension lock",
-      "summary": "Locked the Beta score by dimension while keeping formal evidence gates and non-event placeholders honest.",
-      "userFacingTitle": "Score dimension lock",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked beta score by dimension toward the 80 target.",
-        "Separated formal gates, stale artifacts, cost review, and in-flight lanes.",
-        "Kept future activity placeholders from returning as score drag."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "beta-readiness",
-        "admin-debug",
-        "score-reporting"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/cost-risk-owner-review-closure.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/regression-risk-high-blast-refresh.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json",
-        "docs/agent-truth/cost-risk-owner-review-closure.md",
-        "docs/agent-truth/regression-risk-high-blast-refresh.md",
-        "docs/agent-truth/targeted-behavior-evidence.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/evidence-quality.ts",
-        "src/lib/agent-score/regression-risk-refresh-plan.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/regression-risk-high-blast-refresh.spec.ts"
-      ],
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

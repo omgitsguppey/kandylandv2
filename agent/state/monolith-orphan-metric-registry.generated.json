@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-24T19:30:37.601Z",
-  "sourceCommit": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
-  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "generatedAt": "2026-05-24T19:58:07.813Z",
+  "sourceCommit": "93000a572a2968f72f0e3f3f400ee9a82acc78c9",
+  "currentHead": "93000a572a2968f72f0e3f3f400ee9a82acc78c9",
   "overallStatus": "pass",
   "overallScore": 80,
   "metricSummary": {

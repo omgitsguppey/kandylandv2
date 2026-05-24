@@ -1,0 +1,38 @@
+{
+  "generatedAtUtc": "2026-05-24T19:58:01.051Z",
+  "currentHead": "93000a572a2968f72f0e3f3f400ee9a82acc78c9",
+  "status": "telemetry_alias_classified",
+  "aliases": [
+    {
+      "canonicalIntentId": "drop_preview_view",
+      "eventNames": [
+        "drop_preview_opened",
+        "drop_preview_page_viewed"
+      ],
+      "classification": "potential_duplicate_intent",
+      "historicalStatus": "history_preserved",
+      "preferredFutureEvent": "drop_preview_page_viewed",
+      "migrationRequired": true,
+      "renameAllowed": false,
+      "validatorsImpacted": [
+        "check:event-catalog-telemetry",
+        "check:telemetry-parity-score",
+        "check:monolith-orphan-metric-registry"
+      ],
+      "materializersImpacted": [
+        "person_metrics",
+        "analytics_event_facts",
+        "event_catalog"
+      ],
+      "debugDisplayLabel": "Drop preview view intent",
+      "dedupePolicy": "Alias both events under one intent and avoid double-counting for the same user/session/drop unless a materializer proves distinct lifecycle moments.",
+      "nextAction": "Preserve historical events; add materializer alias handling before changing future emitters."
+    }
+  ],
+  "eventsRenamed": false,
+  "catalogContainsOpened": true,
+  "catalogContainsPageViewed": true,
+  "materializerDedupePolicy": "alias_required_no_double_count",
+  "historyPreserved": true,
+  "nextAction": "Teach materializers to use the alias group before any future emitter consolidation."
+}

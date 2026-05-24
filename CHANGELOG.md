@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.44 - 2026-05-24
+
+- Classified admin analytics realtime listeners under hot-cache doctrine.
+- Added telemetry intent alias handling for drop preview events.
+- Deduped recommended actions and clarified materializer/recovery/creator lane sample states.
+
 ## 1.4.43 - 2026-05-24
 
 - Refreshed cost, telemetry, behavior, support, and creator readiness lanes.
