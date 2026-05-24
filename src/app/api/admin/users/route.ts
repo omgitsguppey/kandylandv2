@@ -76,6 +76,7 @@ const ADMIN_USERS_WATCH_SESSION_LIMIT = 500;
 const ADMIN_USERS_CREATOR_OPS_LIMIT = 500;
 const ADMIN_USERS_PENDING_DROP_LIMIT = 200;
 const ADMIN_USERS_EVENT_FACT_RECOVERY_LIMIT = 1_000;
+const ADMIN_USERS_DEFAULT_MODE = "summary";
 
 type AdminUsersKpiFreshness = AdminUsersKpiCard["freshnessState"];
 
@@ -1324,7 +1325,7 @@ async function GET_handler(request: NextRequest) {
       auth: "admin",
     });
 
-    const mode = request.nextUrl.searchParams.get("mode") ?? "full";
+    const mode = request.nextUrl.searchParams.get("mode") ?? ADMIN_USERS_DEFAULT_MODE;
     const includeCreatorOps = request.nextUrl.searchParams.get("includeCreatorOps") === "1"
       || request.nextUrl.searchParams.get("section") === "creator_ops"
       || mode === "creator_ops";

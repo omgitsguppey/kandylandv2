@@ -1,0 +1,28 @@
+{
+  "reportKey": "support-threads-index-repair",
+  "generatedAtUtc": "2026-05-24T21:48:33.086Z",
+  "statusBefore": "stale_current_server_error",
+  "indexStatus": "firestore_indexes_configured",
+  "typedMissingIndexCode": "missing_firestore_index",
+  "routeStatus": "missing_firestore_index_actionable",
+  "configuredIndexes": [
+    {
+      "collectionGroup": "support_threads",
+      "fields": [
+        "userId:ASCENDING",
+        "lastMessageAt:DESCENDING"
+      ]
+    },
+    {
+      "collectionGroup": "support_threads",
+      "fields": [
+        "status:ASCENDING",
+        "lastMessageAt:DESCENDING"
+      ]
+    }
+  ],
+  "safeFallbackBroadReads": false,
+  "currentServerErrorHidden": false,
+  "nextAction": "Deploy indexes through the normal Firebase index release path; this batch only updates source/config and typed setup evidence.",
+  "validationFailures": []
+}

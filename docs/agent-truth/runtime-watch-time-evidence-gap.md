@@ -4,8 +4,8 @@ Generated source-only artifact. No production reads, provider calls, deployed ru
 
 ```json
 {
-  "generatedAtUtc": "2026-05-24T19:37:49.760Z",
-  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "generatedAtUtc": "2026-05-24T21:44:39.030Z",
+  "currentHead": "69083c1f75b495ae0e3050699108aba08c5023c7",
   "runtimeWatchStatusBefore": "WAIT_unavailable_no_timestamp",
   "runtimeWatchStatusAfter": "source_ready_evidence_gap",
   "debugPanelHealthClaim": "degraded",

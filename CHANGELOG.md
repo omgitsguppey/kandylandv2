@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.49 - 2026-05-24
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
 ## 1.4.48 - 2026-05-24
 - Route hotspot repair
 - Repaired active analytics ingest identified route failure and classified wallet package client errors.
@@ -11,10 +17,10 @@ Showing the last 25 public updates in pages of 5.
 - Prioritized route latency hotspots with summary-first and cache-safe policies.
 
 ## 1.4.47 - 2026-05-24
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+- Route runtime rollup cleanup
+- Cleaned route runtime rollups and separated current failures, stale routes, unseen routes, warnings, and slow samples.
+- Added native and compatibility chat route cohort status.
+- Fixed route runtime display contradictions without hiding real failures.
 
 ## 1.4.46 - 2026-05-24
 - AI debug repair orchestration
@@ -147,15 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Normalized global and user-level analytics deduplication.
 - Prevented guest-to-user handoff from double-counting actions.
 - Added SQL/export parity fields for normalized event facts.
-
-## 1.4.24 - 2026-05-24
-- Auth readiness lock
-- Locked auth provider conflict handling, email/password flows, and session persistence.
-- Added auth runtime telemetry and admin debug truth.
-- Reduced unexpected logout risk while keeping security protections.
-
-## 1.4.23 - 2026-05-24
-- Auth runtime telemetry and debug truth
-- Connected auth signup, login, provider conflicts, and session stability to telemetry.
-- Added admin debug visibility for auth runtime health.
-- Protected auth telemetry from raw PII or token exposure.

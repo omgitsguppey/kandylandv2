@@ -8,7 +8,12 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { trackServerEvent } from "@/lib/server/analytics";
-import { createSupportThread, listSupportThreadsForUser } from "@/lib/server/support-threads";
+import {
+    SUPPORT_THREADS_INDEX_REQUIREMENTS,
+    createSupportThread,
+    isSupportThreadsMissingIndexError,
+    listSupportThreadsForUser,
+} from "@/lib/server/support-threads";
 import { SUPPORT_THREAD_CATEGORIES } from "@/lib/support-readiness";
 
 const createSupportThreadSchema = z.object({
@@ -50,6 +55,16 @@ export async function GET(request: NextRequest) {
             threads,
         }));
     } catch (error) {
+        if (isSupportThreadsMissingIndexError(error)) {
+            return finalize(NextResponse.json({
+                success: false,
+                error: "Support inbox index is not configured.",
+                errorCode: "missing_firestore_index",
+                retryable: false,
+                routeStatus: "missing_firestore_index_actionable",
+                indexRequirement: SUPPORT_THREADS_INDEX_REQUIREMENTS.userInbox,
+            }, { status: 503 }), error);
+        }
         return finalize(handleApiError(error, "support/threads"), error);
     }
 }

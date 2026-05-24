@@ -6,7 +6,11 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
-import { listSupportThreadsForAdmin } from "@/lib/server/support-threads";
+import {
+    SUPPORT_THREADS_INDEX_REQUIREMENTS,
+    isSupportThreadsMissingIndexError,
+    listSupportThreadsForAdmin,
+} from "@/lib/server/support-threads";
 import { normalizeSupportThreadStatus } from "@/lib/support-readiness";
 
 export async function GET(request: NextRequest) {
@@ -70,6 +74,16 @@ export async function GET(request: NextRequest) {
             }),
         }));
     } catch (error) {
+        if (isSupportThreadsMissingIndexError(error)) {
+            return finalize(NextResponse.json({
+                success: false,
+                error: "Admin support inbox index is not configured.",
+                errorCode: "missing_firestore_index",
+                retryable: false,
+                routeStatus: "missing_firestore_index_actionable",
+                indexRequirement: SUPPORT_THREADS_INDEX_REQUIREMENTS.adminStatusInbox,
+            }, { status: 503 }), error);
+        }
         return finalize(handleApiError(error, "admin/support/threads"), error);
     }
 }

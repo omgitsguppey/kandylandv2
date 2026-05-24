@@ -15,6 +15,7 @@ import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboardi
 import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { sanitizeCreatorIntakeFields, type CreatorIntakeFields } from "@/lib/creator-intake-flow";
 import {
     actorMarkerToTelemetryPayload,
@@ -22,6 +23,22 @@ import {
     buildActorMarker,
     type ActorMarker,
 } from "@/lib/identity/actor-markers";
+
+const MAX_USER_REGISTER_BODY_BYTES = 32 * 1024;
+
+function buildUserRegisterErrorResponse(
+    status: number,
+    errorCode: "unauthorized" | "invalid_request" | "validation_failed" | "username_taken" | "payload_too_large",
+    message: string,
+) {
+    return NextResponse.json({
+        success: false,
+        error: message,
+        errorCode,
+        routeStatus: "expected_typed_client_error",
+        retryable: false,
+    }, { status });
+}
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -42,17 +59,16 @@ async function resolveRegistrationUsername(input: {
     if (requestedUsername.length > 0) {
         const availability = await checkUsernameAvailability(requestedUsername, input.excludeUid);
         if (!availability.normalized) {
-            return NextResponse.json(
-                { error: "Use 3-20 lowercase letters, numbers, dashes, or underscores." },
-                { status: 400 },
-            );
+            return buildUserRegisterErrorResponse(400, "validation_failed", "Use 3-20 lowercase letters, numbers, dashes, or underscores.");
         }
 
         if (!availability.available) {
             return NextResponse.json(
                 {
                     error: "Username is already taken.",
+                    errorCode: "username_taken",
                     authErrorCode: "auth/username-already-in-use",
+                    retryable: false,
                 },
                 { status: 409 },
             );
@@ -86,16 +102,15 @@ async function reserveRegistrationUsername(input: {
 
     if (!reservation.ok) {
         if (reservation.reason === "invalid") {
-            return NextResponse.json(
-                { error: "Use 3-20 lowercase letters, numbers, dashes, or underscores." },
-                { status: 400 },
-            );
+            return buildUserRegisterErrorResponse(400, "validation_failed", "Use 3-20 lowercase letters, numbers, dashes, or underscores.");
         }
 
         return NextResponse.json(
             {
                 error: "Username is already taken.",
+                errorCode: "username_taken",
                 authErrorCode: "auth/username-already-in-use",
+                retryable: false,
             },
             { status: 409 },
         );
@@ -219,7 +234,11 @@ export async function POST(request: NextRequest) {
             creatorContentFocus,
             fansAlreadyAskForAccess,
             creatorRecommendedSetup,
-        } = await request.json();
+        } = await readBoundedJsonBody<Record<string, unknown>>(request, {
+            maxBytes: MAX_USER_REGISTER_BODY_BYTES,
+            routeName: "user/register",
+            allowedContentTypes: ["application/json"],
+        });
         const normalizedRegistrationMethod = normalizeRegistrationMethod(registrationMethod);
         const normalizedSignupIntent = normalizeSignupIntent(signupIntent);
         const isCreatorSignup = normalizedSignupIntent === "creator";
@@ -235,10 +254,7 @@ export async function POST(request: NextRequest) {
             : null;
         const parsedDob = dateOfBirth ? parseAdultDateOfBirth(dateOfBirth) : null;
         if (parsedDob && !parsedDob.ok) {
-            return finalize(NextResponse.json(
-                { error: parsedDob.error },
-                { status: parsedDob.status ?? 400 },
-            ));
+            return finalize(buildUserRegisterErrorResponse(parsedDob.status ?? 400, "validation_failed", parsedDob.error));
         }
 
         const userRef = adminDb.collection("users").doc(caller.uid);
@@ -558,6 +574,13 @@ export async function POST(request: NextRequest) {
             creatorApplication: creatorSubmission?.creatorApplication ?? null,
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(buildUserRegisterErrorResponse(
+                error.status,
+                error.code === "payload_too_large" ? "payload_too_large" : "invalid_request",
+                error.message,
+            ), error);
+        }
         return finalize(handleApiError(error, "User.Register"), error);
     }
 }

@@ -29,6 +29,41 @@ const SUPPORT_THREADS_USER_DEFAULT_LIMIT = 50;
 const SUPPORT_THREADS_ADMIN_DEFAULT_LIMIT = 100;
 const SUPPORT_THREAD_MESSAGES_DEFAULT_LIMIT = 100;
 
+export const SUPPORT_THREADS_INDEX_REQUIREMENTS = {
+    userInbox: {
+        collectionGroup: SUPPORT_COLLECTIONS.threads,
+        fields: [
+            { fieldPath: "userId", order: "ASCENDING" },
+            { fieldPath: "lastMessageAt", order: "DESCENDING" },
+        ],
+        query: "where(userId == caller.uid).orderBy(lastMessageAt desc)",
+    },
+    adminStatusInbox: {
+        collectionGroup: SUPPORT_COLLECTIONS.threads,
+        fields: [
+            { fieldPath: "status", order: "ASCENDING" },
+            { fieldPath: "lastMessageAt", order: "DESCENDING" },
+        ],
+        query: "where(status == requestedStatus).orderBy(lastMessageAt desc)",
+    },
+} as const;
+
+export const SUPPORT_THREADS_SAFE_FALLBACK_POLICY = {
+    broadReadFallbackAllowed: false,
+    missingIndexResponseCode: "missing_firestore_index",
+    nextAction: "Create the composite index instead of broad-reading support inbox threads.",
+} as const;
+
+export function isSupportThreadsMissingIndexError(error: unknown) {
+    const source = error as { code?: unknown; message?: unknown; details?: unknown };
+    const code = typeof source?.code === "number" ? source.code : typeof source?.code === "string" ? source.code : "";
+    const message = `${typeof source?.message === "string" ? source.message : ""} ${typeof source?.details === "string" ? source.details : ""}`.toLowerCase();
+    return code === 9
+        || code === "failed-precondition"
+        || (message.includes("failed_precondition") && message.includes("index"))
+        || message.includes("query requires an index");
+}
+
 function requireAdminDb() {
     if (!adminDb) {
         throw new AuthError("Database unavailable", 500);

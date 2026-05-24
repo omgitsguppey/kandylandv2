@@ -41,7 +41,13 @@ export async function POST(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller) {
-            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+            return finalize(NextResponse.json({
+                success: false,
+                error: "Unauthorized",
+                errorCode: "unauthorized",
+                routeStatus: "expected_typed_client_error",
+                retryable: false,
+            }, { status: 401 }));
         }
 
         if (!adminDb) {
@@ -177,6 +183,9 @@ export async function POST(request: NextRequest) {
             }
             return finalize(NextResponse.json({
                 error: "Already claimed today",
+                errorCode: "duplicate_claim",
+                routeStatus: "expected_typed_client_error",
+                retryable: false,
                 alreadyClaimed: true,
                 streak: result.nextStreak,
                 lastCheckIn: result.lastCheckIn,
@@ -313,6 +322,15 @@ export async function POST(request: NextRequest) {
             dailyTasksState: (updatedUserData.dailyTasksState ?? null) as DailyTasksState | null,
         }));
     } catch (error) {
+        if (error instanceof Error && /user not found/i.test(error.message)) {
+            return finalize(NextResponse.json({
+                success: false,
+                error: "User profile is not available for check-in.",
+                errorCode: "profile_missing",
+                routeStatus: "expected_typed_client_error",
+                retryable: false,
+            }, { status: 404 }), error);
+        }
         return finalize(handleApiError(error, "Checkin.POST"), error);
     }
 }

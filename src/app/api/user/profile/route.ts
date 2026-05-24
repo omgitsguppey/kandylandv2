@@ -13,6 +13,7 @@ import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import {
     USER_PROFILE_HUMAN_ERRORS,
     buildCanonicalUserProfileResponse,
@@ -31,6 +32,28 @@ const ALLOWED_TIMEZONES = new Set([
     "Europe/Berlin",
     "Asia/Tokyo",
 ]);
+const MAX_USER_PROFILE_BODY_BYTES = 16 * 1024;
+
+function buildUserProfileErrorResponse(
+    status: number,
+    errorCode:
+        | "unauthorized"
+        | "invalid_request"
+        | "validation_failed"
+        | "conflict"
+        | "username_taken"
+        | "profile_missing"
+        | "payload_too_large",
+    message: string,
+) {
+    return NextResponse.json({
+        success: false,
+        error: message,
+        errorCode,
+        routeStatus: "expected_typed_client_error",
+        retryable: false,
+    }, { status });
+}
 
 function normalizeNotificationSettings(value: unknown): {
     inAppEnabled: boolean;
@@ -145,10 +168,10 @@ async function reserveProfileUsername(input: {
 
     if (!reservation.ok) {
         if (reservation.reason === "invalid") {
-            return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
+            return buildUserProfileErrorResponse(400, "validation_failed", "Invalid username format");
         }
 
-        return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+        return buildUserProfileErrorResponse(409, "username_taken", "Username already taken");
     }
 
     return reservation.normalizedUsername;
@@ -171,13 +194,19 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const rawPayload = await request.json();
+        const rawPayload = await readBoundedJsonBody<unknown>(request, {
+            maxBytes: MAX_USER_PROFILE_BODY_BYTES,
+            routeName: "user/profile",
+            allowedContentTypes: ["application/json"],
+        });
         const blockedServerOnlyKeys = getServerOnlyUserProfilePayloadKeys(rawPayload);
         const sanitizedPayload = sanitizeUserProfileWritePayload(rawPayload);
         if (!sanitizedPayload.ok) {
             const serverOnlyFieldError = USER_PROFILE_HUMAN_ERRORS.serverOnlyField;
             return NextResponse.json({
                 error: blockedServerOnlyKeys.length > 0 ? serverOnlyFieldError : sanitizedPayload.error,
+                errorCode: blockedServerOnlyKeys.length > 0 ? "forbidden" : "invalid_request",
+                retryable: false,
                 blockedFields: blockedServerOnlyKeys,
             }, { status: sanitizedPayload.status });
         }
@@ -192,7 +221,7 @@ async function PUT_handler(request: NextRequest) {
         if (payload.username !== undefined) {
             const normalizedUsername = normalizeUsername(payload.username);
             if (!normalizedUsername) {
-                return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
+                return buildUserProfileErrorResponse(400, "validation_failed", "Invalid username format");
             }
 
             updates.username = normalizedUsername;
@@ -202,14 +231,14 @@ async function PUT_handler(request: NextRequest) {
         if (payload.notificationSettings !== undefined) {
             const normalizedNotificationSettings = normalizeNotificationSettings(payload.notificationSettings);
             if (!normalizedNotificationSettings) {
-                return NextResponse.json({ error: "Invalid notification settings" }, { status: 400 });
+                return buildUserProfileErrorResponse(400, "validation_failed", "Invalid notification settings");
             }
             updates.notificationSettings = normalizedNotificationSettings;
         }
         if (payload.browserPushToken !== undefined) {
             const normalizedBrowserPushToken = normalizeBrowserPushToken(payload.browserPushToken);
             if (normalizedBrowserPushToken === null && payload.browserPushToken !== null && payload.browserPushToken !== "") {
-                return NextResponse.json({ error: "Invalid browser push token" }, { status: 400 });
+                return buildUserProfileErrorResponse(400, "validation_failed", "Invalid browser push token");
             }
             requestedBrowserPushToken = normalizedBrowserPushToken;
         }
@@ -217,7 +246,7 @@ async function PUT_handler(request: NextRequest) {
         if (payload.privacySettings !== undefined) {
             const normalizedPrivacySettings = normalizePrivacySettings(payload.privacySettings);
             if (!normalizedPrivacySettings) {
-                return NextResponse.json({ error: "Invalid privacy settings" }, { status: 400 });
+                return buildUserProfileErrorResponse(400, "validation_failed", "Invalid privacy settings");
             }
             updates.privacySettings = normalizedPrivacySettings;
         }
@@ -225,21 +254,18 @@ async function PUT_handler(request: NextRequest) {
         if (payload.accountSettings !== undefined) {
             const normalizedAccountSettings = normalizeAccountSettings(payload.accountSettings);
             if (!normalizedAccountSettings) {
-                return NextResponse.json({ error: "Invalid account settings" }, { status: 400 });
+                return buildUserProfileErrorResponse(400, "validation_failed", "Invalid account settings");
             }
             updates.accountSettings = normalizedAccountSettings;
         }
 
         if (payload.dateOfBirth !== undefined) {
             if (payload.dateOfBirth === null || payload.dateOfBirth === "") {
-                return NextResponse.json({ error: "Date of birth cannot be removed." }, { status: 400 });
+                return buildUserProfileErrorResponse(400, "validation_failed", "Date of birth cannot be removed.");
             } else {
                 const parsedDob = parseAdultDateOfBirth(payload.dateOfBirth);
                 if (!parsedDob.ok) {
-                    return NextResponse.json(
-                        { error: parsedDob.error },
-                        { status: parsedDob.status ?? 400 },
-                    );
+                    return buildUserProfileErrorResponse(parsedDob.status ?? 400, "validation_failed", parsedDob.error);
                 }
                 updates.dateOfBirth = parsedDob.value;
             }
@@ -277,7 +303,7 @@ async function PUT_handler(request: NextRequest) {
         }
 
         if (Object.keys(updates).length === 0) {
-            return NextResponse.json({ error: USER_PROFILE_HUMAN_ERRORS.noValidUpdates }, { status: 400 });
+            return buildUserProfileErrorResponse(400, "invalid_request", USER_PROFILE_HUMAN_ERRORS.noValidUpdates);
         }
 
         const username = typeof existingUserData.username === "string" && existingUserData.username.trim().length > 0
@@ -325,6 +351,13 @@ async function PUT_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildUserProfileErrorResponse(
+                error.status,
+                error.code === "payload_too_large" ? "payload_too_large" : "invalid_request",
+                error.message,
+            );
+        }
         return handleApiError(error, "Profile.PUT");
     }
 }
@@ -387,13 +420,19 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const rawPayload = await request.json();
+        const rawPayload = await readBoundedJsonBody<unknown>(request, {
+            maxBytes: MAX_USER_PROFILE_BODY_BYTES,
+            routeName: "user/profile",
+            allowedContentTypes: ["application/json"],
+        });
         const blockedServerOnlyKeys = getServerOnlyUserProfilePayloadKeys(rawPayload);
         const sanitizedPayload = sanitizeUserProfileWritePayload(rawPayload);
         if (!sanitizedPayload.ok) {
             const serverOnlyFieldError = USER_PROFILE_HUMAN_ERRORS.serverOnlyField;
             return NextResponse.json({
                 error: blockedServerOnlyKeys.length > 0 ? serverOnlyFieldError : sanitizedPayload.error,
+                errorCode: blockedServerOnlyKeys.length > 0 ? "forbidden" : "invalid_request",
+                retryable: false,
                 blockedFields: blockedServerOnlyKeys,
             }, { status: sanitizedPayload.status });
         }
@@ -404,7 +443,7 @@ async function POST_handler(request: NextRequest) {
         if (username) {
             const normalized = normalizeUsername(username);
             if (!normalized) {
-                return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
+                return buildUserProfileErrorResponse(400, "validation_failed", "Invalid username format");
             }
         }
 
@@ -412,10 +451,7 @@ async function POST_handler(request: NextRequest) {
         if (dateOfBirth) {
             const parsedDob = parseAdultDateOfBirth(dateOfBirth);
             if (!parsedDob.ok) {
-                return NextResponse.json(
-                    { error: parsedDob.error },
-                    { status: parsedDob.status ?? 400 },
-                );
+                return buildUserProfileErrorResponse(parsedDob.status ?? 400, "validation_failed", parsedDob.error);
             }
             normalizedDateOfBirth = parsedDob.value;
         }
@@ -427,7 +463,7 @@ async function POST_handler(request: NextRequest) {
         if (photoURL) updates.photoURL = photoURL;
 
         if (Object.keys(updates).length === 0) {
-            return NextResponse.json({ error: USER_PROFILE_HUMAN_ERRORS.noValidUpdates }, { status: 400 });
+            return buildUserProfileErrorResponse(400, "invalid_request", USER_PROFILE_HUMAN_ERRORS.noValidUpdates);
         }
 
         const userRef = adminDb.collection("users").doc(userId);
@@ -464,6 +500,13 @@ async function POST_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildUserProfileErrorResponse(
+                error.status,
+                error.code === "payload_too_large" ? "payload_too_large" : "invalid_request",
+                error.message,
+            );
+        }
         return handleApiError(error, "Profile.POST");
     }
 }

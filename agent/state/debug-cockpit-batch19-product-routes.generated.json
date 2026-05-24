@@ -1,0 +1,56 @@
+{
+  "reportKey": "debug-cockpit-batch19-product-routes",
+  "generatedAtUtc": "2026-05-24T21:48:40.294Z",
+  "tasksRotateStatusBefore": "current_client_error",
+  "tasksRotateStatusAfter": "expected_typed_client_error",
+  "tasksRotateErrorClass": "unauthenticated,forbidden,missing_task_assignment,rate_limited,invalid_task_rotation_request,stale_client_payload",
+  "adminUsersLatencyStatusBefore": "current_latency_issue",
+  "adminUsersLatencyStatusAfter": "summary_first_policy",
+  "supportThreadsIndexStatus": "firestore_indexes_configured",
+  "viewerWatchSessionStatusBefore": "healthy_with_history",
+  "viewerWatchSessionStatusAfter": "expected_typed_client_error",
+  "userProfileErrorMappingStatus": "typed_safe_error_mapping",
+  "userRegisterErrorMappingStatus": "typed_safe_error_mapping",
+  "checkinErrorMappingStatus": "typed_safe_error_mapping",
+  "staleCriticalRoutes": [
+    "paypal/capture:POST"
+  ],
+  "staleRoutesGrouped": [
+    "paypal/capture:POST requires formal runtime/payment evidence before marking fresh.",
+    "creator/settings stale server history remains visible with age, not a current failure.",
+    "support/admin/creator stale route samples require fresh_runtime_sample_required after deployment."
+  ],
+  "currentFailuresRemaining": [
+    "support/threads requires index deployment evidence before live freshness can be claimed"
+  ],
+  "currentClientErrorsRemaining": [],
+  "latencyRoutesRemaining": [
+    "admin/analytics/refresh:GET",
+    "admin/analytics/realtime:GET",
+    "admin/roster:GET",
+    "admin/user/[userId]:GET"
+  ],
+  "scoreBefore": 81,
+  "scoreAfter": 83,
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "typedErrors",
+    "indexEvidence",
+    "latencyPolicy",
+    "staleEvidenceSeparation"
+  ],
+  "remainingGaps": [
+    "Firestore indexes must still be deployed outside this local source patch.",
+    "PayPal capture freshness still needs formal operator/provider evidence; this batch did not call PayPal.",
+    "Route runtime counters need fresh post-deploy samples before historical error volumes clear."
+  ],
+  "nextExactSteps": [
+    "Deploy support thread indexes through approved infrastructure release.",
+    "After human-approved deploy, refresh route runtime evidence to prove tasks/rotate, support/threads, and viewer/watch-session volume drops.",
+    "Run a separate latency pass for admin analytics and roster routes if current slow samples remain."
+  ],
+  "dirtyFilesClassified": true,
+  "openPrsClassified": true,
+  "validationFailures": []
+}

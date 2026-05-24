@@ -13,6 +13,7 @@ import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { profileAllowsIdentifiedAnalytics } from "@/lib/server/privacy-consent";
 import {
     ANALYTICS_CANONICAL_COLLECTIONS,
@@ -144,6 +145,44 @@ function normalizeSeconds(value: number) {
     return Math.max(0, Number(value.toFixed(2)));
 }
 
+function buildWatchSessionClientError(
+    status: number,
+    errorCode:
+        | "unauthenticated"
+        | "missing_drop_id"
+        | "missing_session_id"
+        | "invalid_duration"
+        | "background_time_rejected"
+        | "duplicate_closeout"
+        | "not_unlocked"
+        | "unsupported_media_kind"
+        | "invalid_watch_session_request"
+        | "payload_too_large",
+    message: string,
+) {
+    return NextResponse.json({
+        success: false,
+        error: message,
+        errorCode,
+        routeStatus: "expected_typed_client_error",
+        retryable: false,
+        watchScoreSource: "watch_session_rollup",
+    }, { status });
+}
+
+function classifyWatchSessionZodError(error: z.ZodError) {
+    const issue = error.issues[0];
+    const path = issue?.path.join(".") ?? "";
+    const message = issue?.message ?? "Invalid watch session payload";
+    if (path.includes("dropId")) return { code: "missing_drop_id" as const, message };
+    if (path.includes("watchSessionId") || path.includes("clientSessionId")) return { code: "missing_session_id" as const, message };
+    if (path.includes("totalWatchSeconds") || path.includes("totalVisibleSeconds") || path.includes("totalActiveSeconds") || path.includes("totalPlayingSeconds")) {
+        return { code: "invalid_duration" as const, message };
+    }
+    if (path.includes("contentKind") || path.includes("mediaType")) return { code: "unsupported_media_kind" as const, message };
+    return { code: "invalid_watch_session_request" as const, message };
+}
+
 export async function POST(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
@@ -164,15 +203,14 @@ export async function POST(request: NextRequest) {
             requireTrustedOrigin: true,
         });
         if (!caller) {
-            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+            return finalize(buildWatchSessionClientError(401, "unauthenticated", "Unauthorized"));
         }
 
-        const contentLength = Number(request.headers.get("content-length") || 0);
-        if (Number.isFinite(contentLength) && contentLength > MAX_WATCH_SESSION_BODY_BYTES) {
-            return finalize(NextResponse.json({ error: "Payload too large" }, { status: 413 }));
-        }
-
-        const parsedBody = watchSessionSchema.parse(await request.json());
+        const parsedBody = watchSessionSchema.parse(await readBoundedJsonBody<unknown>(request, {
+            maxBytes: MAX_WATCH_SESSION_BODY_BYTES,
+            routeName: "viewer/watch-session",
+            allowedContentTypes: ["application/json"],
+        }));
         const userRef = adminDb.collection("users").doc(caller.uid);
         const dropRef = adminDb.collection("drops").doc(parsedBody.dropId);
         const [userSnapshot, dropSnapshot] = await Promise.all([userRef.get(), dropRef.get()]);
@@ -197,7 +235,7 @@ export async function POST(request: NextRequest) {
 
         const unlockedContent = Array.isArray(userProfile?.unlockedContent) ? userProfile.unlockedContent : [];
         if (!unlockedContent.includes(parsedBody.dropId)) {
-            return finalize(NextResponse.json({ error: "You do not own this content" }, { status: 403 }));
+            return finalize(buildWatchSessionClientError(403, "not_unlocked", "You do not own this content"));
         }
 
         const username = readUserDisplayName(userProfile, caller.email);
@@ -578,8 +616,16 @@ export async function POST(request: NextRequest) {
             watchScoreSource: "watch_session_rollup",
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(buildWatchSessionClientError(
+                error.status,
+                error.code === "payload_too_large" ? "payload_too_large" : "invalid_watch_session_request",
+                error.message,
+            ), error);
+        }
         if (error instanceof z.ZodError) {
-            return finalize(NextResponse.json({ error: "Invalid watch session payload" }, { status: 400 }), error);
+            const classified = classifyWatchSessionZodError(error);
+            return finalize(buildWatchSessionClientError(400, classified.code, classified.message), error);
         }
 
         await recordServerDiagnostic({
