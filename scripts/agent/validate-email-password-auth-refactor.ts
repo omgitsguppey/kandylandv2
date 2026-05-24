@@ -156,13 +156,18 @@ export function classifyEmailPasswordAuthDirtyFile(path: string): DirtyClassific
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-email-password-auth-refactor.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-runtime-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/email-password-auth-refactor.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/auth-readiness-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-errors.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/context/AuthContext.tsx"
     || normalized === "src/lib/auth-errors.ts"
     || normalized === "src/lib/auth/email-password-auth-contract.ts"
     || normalized === "src/lib/auth/email-password-auth-flow.ts"
+    || normalized === "src/lib/analytics/person-metrics-hydration.ts"
     || normalized === "package.json"
   ) return "real_source_change_needs_review";
   if (

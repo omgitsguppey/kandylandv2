@@ -180,9 +180,11 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-runtime-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-email-password-auth-refactor.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/auth-provider-conflict-resolution.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-runtime-telemetry.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/auth-readiness-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/email-password-auth-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-errors.spec.ts") return "test_artifact_expected";

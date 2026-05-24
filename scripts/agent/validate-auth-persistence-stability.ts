@@ -152,20 +152,37 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === "agent/state/auth-provider-conflict-resolution.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-runtime-telemetry.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/auth-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/feature-registration-gate.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/email-password-auth-refactor.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/identity-handoff-spine.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/event-envelope-normalization.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/debug-tracking-simplification.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/overnight-beta-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "docs/agent-truth/auth-provider-conflict-resolution.md") return "release_artifact_expected";
   if (normalized === "docs/agent-truth/event-translation-bridge.md") return "release_artifact_expected";
   if (normalized === "docs/agent-truth/auth-runtime-telemetry.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/auth-readiness-lock.md") return "release_artifact_expected";
   if (normalized === "docs/agent-truth/feature-registration-gate.md") return "release_artifact_expected";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/email-password-auth-refactor.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/identity-handoff-spine.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/event-envelope-normalization.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/debug-tracking-simplification.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/current-beta-exit-status.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/overnight-beta-readiness-lock.md") return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-email-password-auth-refactor.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-runtime-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/auth-persistence-stability.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-runtime-telemetry.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/auth-readiness-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/context/AuthContext.tsx"

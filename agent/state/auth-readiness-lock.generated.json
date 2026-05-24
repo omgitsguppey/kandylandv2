@@ -1,0 +1,392 @@
+{
+  "reportKey": "auth-readiness-lock",
+  "generatedAtUtc": "2026-05-24T09:25:36.141Z",
+  "currentHead": "309d6b03a6e4aa5d47233d04cfb404991b75a8a8",
+  "productionReadsRequired": false,
+  "providerCallsRequired": false,
+  "deployRequired": false,
+  "fakeAuthEventsUsed": false,
+  "securityWeakened": false,
+  "providerConflictStatus": {
+    "status": "pass",
+    "evidence": [
+      "Google/email-password provider conflicts mapped to safe resolutions.",
+      "Common Firebase provider errors avoid raw Firebase copy."
+    ],
+    "missing": [],
+    "nextAction": "Keep provider conflict resolver mapped before adding new auth providers."
+  },
+  "googleAuthStatus": {
+    "status": "pass",
+    "evidence": [
+      "Google auth path remains present and has runtime start/complete/fail telemetry."
+    ],
+    "missing": [
+      "Google auth runtime path or telemetry is incomplete."
+    ],
+    "nextAction": "Restore Google auth path or runtime event mapping before release."
+  },
+  "emailPasswordAuthStatus": {
+    "status": "pass",
+    "evidence": [
+      "Email/password signup and login flows are mapped with rollback safety."
+    ],
+    "missing": [
+      "Email/password signup/login flow, rollback, or common error mapping incomplete."
+    ],
+    "nextAction": "Run npm run check:email-password-auth-refactor and fix the first failing auth flow invariant."
+  },
+  "signupStatus": {
+    "status": "pass",
+    "evidence": [
+      "Signup flow maps start, complete, and fail telemetry."
+    ],
+    "missing": [
+      "Signup lifecycle telemetry missing."
+    ],
+    "nextAction": "Wire signup start/complete/fail through the auth telemetry contract."
+  },
+  "loginStatus": {
+    "status": "pass",
+    "evidence": [
+      "Login flow maps start, complete, and fail telemetry."
+    ],
+    "missing": [
+      "Login lifecycle telemetry missing."
+    ],
+    "nextAction": "Wire login start/complete/fail through the auth telemetry contract."
+  },
+  "passwordResetStatus": {
+    "status": "pass",
+    "evidence": [
+      "Password reset request/failure telemetry is mapped without raw credentials."
+    ],
+    "missing": [
+      "Password reset telemetry missing."
+    ],
+    "nextAction": "Map password reset request/failure events through auth telemetry."
+  },
+  "persistenceStatus": {
+    "status": "pass",
+    "evidence": [
+      "Browser persistence is established; security and explicit logout behavior are preserved."
+    ],
+    "missing": [
+      "Persistence, security logout, or explicit logout behavior missing."
+    ],
+    "nextAction": "Fix auth persistence status without weakening security logout handling."
+  },
+  "navigationSessionStatus": {
+    "status": "pass",
+    "evidence": [
+      "Navigation session is established after registration truth and failures are tracked."
+    ],
+    "missing": [
+      "Navigation session ordering/failure telemetry incomplete."
+    ],
+    "nextAction": "Keep navigation session creation after registration truth and map failure telemetry."
+  },
+  "profileBootstrapStatus": {
+    "status": "pass",
+    "evidence": [
+      "Profile bootstrap start/complete/fail is tracked while transient snapshot reconnects keep user state."
+    ],
+    "missing": [
+      "Profile bootstrap lifecycle or transient retry behavior incomplete."
+    ],
+    "nextAction": "Wire profile bootstrap events and preserve transient snapshot retry behavior."
+  },
+  "unexpectedLogoutStatus": {
+    "status": "pass",
+    "evidence": [
+      "Unexpected logout reason is classified and telemetry-visible."
+    ],
+    "missing": [
+      "Unexpected logout reason or telemetry missing."
+    ],
+    "nextAction": "Map unexpected session drops with explicit logout reason."
+  },
+  "authTelemetryStatus": {
+    "status": "pass",
+    "evidence": [
+      "Auth runtime events use feature registration, event envelopes, person metrics, and privacy-safe metadata."
+    ],
+    "missing": [],
+    "nextAction": "Fix the first missing link in auth telemetry: feature registration, envelope, person metrics, or privacy redaction."
+  },
+  "adminDebugStatus": {
+    "status": "pass",
+    "evidence": [
+      "Auth runtime, provider conflict, and persistence debug lanes are live."
+    ],
+    "missing": [
+      "Admin debug auth lane missing."
+    ],
+    "nextAction": "Restore the auth runtime lane in debug-panel tracking summary and admin debug route."
+  },
+  "personMetricsStatus": {
+    "status": "pass",
+    "evidence": [
+      "auth_runtime_events is hydrated through person metrics with lowConfidenceMetrics=0."
+    ],
+    "missing": [
+      "Auth runtime person metric missing, low confidence, or not hydrated."
+    ],
+    "nextAction": "Run npm run check:person-metrics-hydration and fix auth_runtime_events hydration."
+  },
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreDimensions": {
+    "sourceHealth": {
+      "before": 92.5,
+      "after": 92.5,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth-readiness-specific score action required."
+    },
+    "runtimeHealth": {
+      "before": 84.2,
+      "after": 84.2,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth-readiness-specific score action required."
+    },
+    "evidenceCompleteness": {
+      "before": 69.6,
+      "after": 69.6,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
+    },
+    "freshness": {
+      "before": 83.75,
+      "after": 83.75,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth-readiness-specific score action required."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
+    },
+    "regressionRisk": {
+      "before": 86,
+      "after": 86,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth-readiness-specific score action required."
+    },
+    "overallHealthScore": {
+      "before": 79.25,
+      "after": 79.25,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence or cost owner-review gates; auth readiness source wiring is locked."
+    }
+  },
+  "remainingGaps": [
+    "Formal provider/runtime/admin evidence and cost owner-review gates remain outside this auth source lock."
+  ],
+  "nextExactSteps": [
+    "Attach formal provider/runtime/admin evidence artifacts when available; do not mark them passed from local auth validators.",
+    "Keep auth provider conflict, email/password, persistence, and runtime telemetry validators in the auth readiness signoff lane."
+  ],
+  "sourceReports": {
+    "providerConflict": "agent/state/auth-provider-conflict-resolution.generated.json",
+    "emailPassword": "agent/state/email-password-auth-refactor.generated.json",
+    "persistence": "agent/state/auth-persistence-stability.generated.json",
+    "runtimeTelemetry": "agent/state/auth-runtime-telemetry.generated.json",
+    "personMetrics": "agent/state/person-metrics-hydration.generated.json",
+    "score": "agent/state/public-beta-score.generated.json"
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/auth-persistence-stability.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-runtime-telemetry.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/email-password-auth-refactor.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/identity-handoff-spine.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/auth-persistence-stability.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-runtime-telemetry.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/email-password-auth-refactor.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/identity-handoff-spine.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-auth-persistence-stability.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-auth-provider-conflict-resolution.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-auth-readiness-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-auth-runtime-telemetry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-email-password-auth-refactor.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/auth-readiness-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "oldLogicClassification": [
+    {
+      "reference": "auth_sign_in_attempted/auth_sign_in_success/auth_sign_in_failed",
+      "classification": "current_alias_compatibility",
+      "reason": "Legacy admin auth outcome events remain for historical outcome panels while auth_email_login_* owns runtime telemetry."
+    },
+    {
+      "reference": "auth_sign_up_attempted/auth_sign_up_success/auth_sign_up_failed",
+      "classification": "current_alias_compatibility",
+      "reason": "Legacy signup outcome events remain for compatibility while auth_email_signup_* owns runtime telemetry."
+    },
+    {
+      "reference": "Authentication failed",
+      "classification": "stale_removed",
+      "reason": "Common provider/email/password failures map to safe resolution copy instead of raw generic Firebase errors."
+    }
+  ],
+  "protectedSurfaceStatus": {
+    "chatTouched": false,
+    "taskTouched": false,
+    "notificationTouched": false,
+    "paymentRuntimeTouched": false,
+    "gumdropRuntimeTouched": false
+  },
+  "validationFailures": []
+}

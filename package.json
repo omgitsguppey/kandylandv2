@@ -237,6 +237,7 @@
         "check:email-password-auth-refactor": "tsx scripts/agent/validate-email-password-auth-refactor.ts",
         "check:auth-persistence-stability": "tsx scripts/agent/validate-auth-persistence-stability.ts",
         "check:auth-runtime-telemetry": "tsx scripts/agent/validate-auth-runtime-telemetry.ts",
+        "check:auth-readiness-lock": "tsx scripts/agent/validate-auth-readiness-lock.ts",
         "check:admin-analytics-commerce-snapshot": "tsx scripts/check-admin-analytics-commerce-snapshot.ts",
         "check:admin-analytics-live-pulse": "tsx scripts/check-admin-analytics-live-pulse.ts",
         "check:admin-analytics-journey-funnel": "tsx scripts/check-admin-analytics-journey-funnel.ts",

@@ -1,7 +1,7 @@
 # Auth Persistence Stability
 
-Generated: 2026-05-24T09:07:24.018Z
-Current HEAD: a998782f
+Generated: 2026-05-24T09:24:25.676Z
+Current HEAD: 309d6b03
 
 ## Status
 
@@ -28,36 +28,42 @@ Current HEAD: a998782f
 
 ## Dirty File Classification
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- CHANGELOG.md: release_artifact_expected
 - agent/state/auth-persistence-stability.generated.json: current_generated_artifact_to_commit
 - agent/state/auth-provider-conflict-resolution.generated.json: current_generated_artifact_to_commit
+- agent/state/auth-readiness-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/auth-runtime-telemetry.generated.json: current_generated_artifact_to_commit
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-tracking-simplification.generated.json: current_generated_artifact_to_commit
+- agent/state/email-password-auth-refactor.generated.json: current_generated_artifact_to_commit
+- agent/state/event-envelope-normalization.generated.json: current_generated_artifact_to_commit
 - agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-handoff-spine.generated.json: current_generated_artifact_to_commit
+- agent/state/overnight-beta-readiness-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/auth-persistence-stability.md: release_artifact_expected
 - docs/agent-truth/auth-provider-conflict-resolution.md: release_artifact_expected
+- docs/agent-truth/auth-readiness-lock.md: release_artifact_expected
 - docs/agent-truth/auth-runtime-telemetry.md: release_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: release_artifact_expected
-- docs/agent-truth/feature-registration-gate.md: release_artifact_expected
+- docs/agent-truth/current-beta-exit-status.md: release_artifact_expected
+- docs/agent-truth/debug-tracking-simplification.md: release_artifact_expected
+- docs/agent-truth/email-password-auth-refactor.md: release_artifact_expected
+- docs/agent-truth/event-envelope-normalization.md: release_artifact_expected
+- docs/agent-truth/identity-handoff-spine.md: release_artifact_expected
+- docs/agent-truth/overnight-beta-readiness-lock.md: release_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: release_artifact_expected
 - package.json: real_source_change_needs_review
+- public/kandydrops-release-notes.json: release_artifact_expected
 - scripts/agent/validate-auth-persistence-stability.ts: validator_artifact_expected
 - scripts/agent/validate-auth-provider-conflict-resolution.ts: validator_artifact_expected
+- scripts/agent/validate-auth-readiness-lock.ts: validator_artifact_expected
 - scripts/agent/validate-auth-runtime-telemetry.ts: validator_artifact_expected
-- src/app/api/admin/debug/route.ts: real_source_change_needs_review
-- src/components/Auth/AuthModal.tsx: real_source_change_needs_review
-- src/context/AuthContext.tsx: real_source_change_needs_review
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
+- scripts/agent/validate-email-password-auth-refactor.ts: validator_artifact_expected
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/auth/auth-telemetry-contract.ts: real_source_change_needs_review
-- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
-- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
-- src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/auth-runtime-telemetry.spec.ts: test_artifact_expected
-- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- tests/unit/auth-readiness-lock.spec.ts: test_artifact_expected
 
 ## Score Dimensions
 

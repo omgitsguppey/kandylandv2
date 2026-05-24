@@ -1,13 +1,82 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.23",
-  "betaReleaseCounter": 423,
+  "currentVersion": "1.4.24",
+  "betaReleaseCounter": 424,
   "channel": "beta",
-  "generatedAt": "2026-05-24T09:07:41.122Z",
-  "generatedAtUtc": "2026-05-24T09:07:41.122Z",
-  "lastCommitSha": "a998782f507b2abe21ffd7be01ccbebf031d23c9",
+  "generatedAt": "2026-05-24T09:23:49.416Z",
+  "generatedAtUtc": "2026-05-24T09:23:49.416Z",
+  "lastCommitSha": "309d6b03a6e4aa5d47233d04cfb404991b75a8a8",
   "notes": [
+    {
+      "version": "1.4.24",
+      "previousVersion": "1.4.23",
+      "betaReleaseCounter": 424,
+      "previousBetaReleaseCounter": 423,
+      "commitSha": "309d6b03a6e4aa5d47233d04cfb404991b75a8a8",
+      "commitTitle": "fix(auth): wire runtime telemetry",
+      "commitCount": 1,
+      "commitShas": [
+        "309d6b03a6e4aa5d47233d04cfb404991b75a8a8"
+      ],
+      "committedAt": "2026-05-24T09:12:00.000Z",
+      "generatedAt": "2026-05-24T09:23:49.413Z",
+      "committedAtUtc": "2026-05-24T09:12:00.000Z",
+      "generatedAtUtc": "2026-05-24T09:23:49.413Z",
+      "updatedAtUtc": "2026-05-24T09:23:49.413Z",
+      "category": "Fixed",
+      "title": "Auth readiness lock",
+      "summary": "Auth provider conflicts, email/password flows, session persistence, runtime telemetry, and admin debug truth are locked for readiness.",
+      "userFacingTitle": "Auth readiness lock",
+      "surfaceCategory": "Account & onboarding",
+      "bullets": [
+        "Locked auth provider conflict handling, email/password flows, and session persistence.",
+        "Added auth runtime telemetry and admin debug truth.",
+        "Reduced unexpected logout risk while keeping security protections."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "account-onboarding",
+        "admin-debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/auth-persistence-stability.generated.json",
+        "agent/state/auth-provider-conflict-resolution.generated.json",
+        "agent/state/auth-runtime-telemetry.generated.json",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/feature-registration-gate.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/auth-persistence-stability.md",
+        "docs/agent-truth/auth-provider-conflict-resolution.md",
+        "docs/agent-truth/auth-runtime-telemetry.md",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/feature-registration-gate.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-auth-persistence-stability.ts",
+        "scripts/agent/validate-auth-provider-conflict-resolution.ts",
+        "scripts/agent/validate-auth-runtime-telemetry.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/components/Auth/AuthModal.tsx",
+        "src/context/AuthContext.tsx",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/auth-runtime-telemetry.spec.ts",
+        "tests/unit/user-management-refactor.spec.ts"
+      ],
+      "sourceCommit": "309d6b03a6e4aa5d47233d04cfb404991b75a8a8"
+    },
     {
       "version": "1.4.23",
       "previousVersion": "1.4.22",
@@ -6143,57 +6212,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/non-event-score-policy.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.99",
-      "previousVersion": "1.3.98",
-      "betaReleaseCounter": 399,
-      "previousBetaReleaseCounter": 398,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): group duplicate signals",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T20:20:00.000Z",
-      "generatedAt": "2026-05-23T20:20:00.000Z",
-      "committedAtUtc": "2026-05-23T20:20:00.000Z",
-      "generatedAtUtc": "2026-05-23T20:20:00.000Z",
-      "updatedAtUtc": "2026-05-23T20:20:00.000Z",
-      "category": "Improved",
-      "title": "Debug signal grouping",
-      "summary": "Improved internal beta reliability by grouping duplicate debug and telemetry signals by root cause.",
-      "userFacingTitle": "Debug signal grouping",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Grouped duplicate debug and telemetry signals by root cause.",
-        "Collapsed future activity catalog noise by default.",
-        "Reduced P1/P2 counts to actionable groups."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added source-only debug signal grouping, backlog summary integration, generated evidence, and unit coverage without production reads, fake activity, payment changes, chat/nav changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Admin debug",
-        "Analytics",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/debug-signal-grouping.generated.json",
-        "docs/agent-truth/debug-signal-grouping.md",
-        "package.json",
-        "scripts/agent/validate-debug-signal-grouping.ts",
-        "src/lib/debug/debug-signal-grouping.ts",
-        "src/lib/debug/debug-backlog-builder.ts",
-        "src/lib/debug/debug-backlog-contract.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/debug-signal-grouping.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

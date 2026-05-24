@@ -135,14 +135,18 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/auth-readiness-lock.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-provider-conflict-resolution.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-persistence-stability.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-runtime-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-email-password-auth-refactor.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/auth-runtime-telemetry.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/auth-readiness-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/auth/auth-telemetry-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/context/AuthContext.tsx") return "real_source_change_needs_review";

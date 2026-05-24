@@ -446,6 +446,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "agent/state/auth-provider-conflict-resolution.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-persistence-stability.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-runtime-telemetry.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/auth-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/notification-permission-lifecycle.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/event-liveness-audit.generated.json") return "current_generated_artifact_to_commit";
@@ -454,6 +455,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/auth-provider-conflict-resolution.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-persistence-stability.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-runtime-telemetry.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/auth-readiness-lock.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/notification-permission-lifecycle.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/event-liveness-audit.md") return "documentation_artifact_expected";
@@ -462,6 +464,8 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-runtime-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-email-password-auth-refactor.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-targeting-intent.ts") return "validator_artifact_expected";
@@ -476,6 +480,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "tests/unit/auth-provider-conflict-resolution.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-persistence-stability.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-runtime-telemetry.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/auth-readiness-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/notification-permission-lifecycle.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";

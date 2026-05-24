@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.24 - 2026-05-24
+- Auth readiness lock
+- Locked auth provider conflict handling, email/password flows, and session persistence.
+- Added auth runtime telemetry and admin debug truth.
+- Reduced unexpected logout risk while keeping security protections.
+
 ## 1.4.23 - 2026-05-24
 - Auth runtime telemetry and debug truth
 - Connected auth signup, login, provider conflicts, and session stability to telemetry.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Stopped future activity placeholders from reducing beta score.
 - Scored actionable signal groups instead of raw debug noise.
 - Clarified below-80 dimensions by true blocker type.
-
-## 1.3.99 - 2026-05-23
-- Debug signal grouping
-- Grouped duplicate debug and telemetry signals by root cause.
-- Collapsed future activity catalog noise by default.
-- Reduced P1/P2 counts to actionable groups.
