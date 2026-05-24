@@ -1,21 +1,21 @@
 {
-  "generatedAtUtc": "2026-05-21T16:49:04.600Z",
+  "generatedAtUtc": "2026-05-24T04:43:31.754Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "3878a581193dd171f69e3c0b63073ac738c14152",
-  "sourceCommit": "3878a581193dd171f69e3c0b63073ac738c14152",
+  "currentHead": "b375acf9361858bfb97d9e3fac8877bb230a596c",
+  "sourceCommit": "b375acf9361858bfb97d9e3fac8877bb230a596c",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
-    "sourceCostReadinessScore": 71,
-    "costRiskScore": 71,
+    "sourceCostReadinessScore": 80.5,
+    "costRiskScore": 80.5,
     "staleCreatorDashboardInventoryIgnored": true,
     "cloudRunSourceReady": true,
     "cloudSqlOwnerReview": true,
     "geminiOwnerReview": true,
     "route4xxSourceReady": true,
     "p0Count": 0,
-    "p1Count": 4,
-    "p2Count": 3
+    "p1Count": 3,
+    "p2Count": 5
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
@@ -68,7 +68,7 @@
       "blocksBetaExit": false
     },
     "route4xxReadiness": {
-      "status": "source_guarded_external_review_remaining",
+      "status": "source_ready_retry_storm_guarded",
       "detail": "Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.",
       "evidence": [
         "artifactPath=agent/state/final-cost-audit-lock.generated.json",
@@ -85,18 +85,21 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 71,
-  "costRiskScoreExplanation": "Cost risk score 71 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.",
+  "costRiskScore": 80.5,
+  "costRiskScoreExplanation": "Cost risk score 80.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
-    "cloudRunSourceReady=true",
+    "cloudRunSourceReady=false",
     "route4xxSourceReady=false",
     "globalCostClean=true",
-    "finalCostCurrent=true",
+    "finalCostCurrent=false",
     "telemetryCurrent=false",
-    "costOwnerReviewSourceClosureCurrent=true"
+    "costOwnerReviewSourceClosureCurrent=false",
+    "costRiskOwnerReviewClosureCurrent=true"
   ],
   "staleArtifacts": [
+    "agent/state/final-cost-audit-lock.generated.json",
+    "agent/state/cloud-sql-gemini-cost-guards.generated.json",
     "agent/state/analytics-cost-runtime-inventory.generated.json",
     "agent/state/final-telemetry-closure-lock.generated.json",
     "agent/state/creator-dashboard-error-cost-inventory.generated.json"
@@ -107,27 +110,32 @@
   "ownerReviewLanes": [
     "cloudRunCostReadiness",
     "cloudSqlCostReadiness",
-    "geminiCloudAssistCostReadiness",
-    "route4xxReadiness"
+    "geminiCloudAssistCostReadiness"
   ],
   "validatorResults": [
     {
       "command": "npm run check:final-cost-audit-lock",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/final-cost-audit-lock.generated.json",
-      "detail": "Current final cost lock is available."
+      "detail": "Final cost lock is missing or stale."
+    },
+    {
+      "command": "npm run check:cost-risk-owner-review-closure",
+      "status": "pass",
+      "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "detail": "Current cost risk owner-review closure is available."
     },
     {
       "command": "npm run check:cost-owner-review-source-closure",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/cost-owner-review-source-closure.generated.json",
-      "detail": "Current cost owner-review source closure is available."
+      "detail": "Cost owner-review source closure is missing or stale."
     },
     {
       "command": "npm run check:cloud-sql-gemini-cost-guards",
-      "status": "pass",
+      "status": "failed_or_not_run",
       "artifactPath": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "detail": "Current Cloud SQL/Gemini guard report is available."
+      "detail": "Cloud SQL/Gemini guard report is missing or stale."
     },
     {
       "command": "npm run check:global-cost-surfaces",

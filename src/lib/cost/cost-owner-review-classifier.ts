@@ -4,6 +4,8 @@ export type CostOwnerReviewStatus =
   | "source_guarded_external_review_remaining"
   | "source_ready_no_runtime_usage_detected"
   | "source_ready_config_missing_safe"
+  | "source_ready_retry_storm_guarded"
+  | "source_ready_batched_or_cached"
   | "owner_review_external_billing_required"
   | "cost_review_required"
   | "blocked"
@@ -189,7 +191,7 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       id: "route4xx",
       label: "Route 4xx",
       owner: "server-routing",
-      status: route4xxGuarded ? "source_guarded_external_review_remaining" : "cost_review_required",
+      status: route4xxGuarded ? "source_ready_retry_storm_guarded" : "cost_review_required",
       sourceGuarded: route4xxGuarded,
       externalBillingReviewed: false,
       externalReviewRequired: false,
@@ -216,7 +218,7 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       id: "bigQuery",
       label: "BigQuery",
       owner: "analytics-export",
-      status: bigQueryGuarded ? "source_guarded_external_review_remaining" : "cost_review_required",
+      status: bigQueryGuarded ? "source_ready_batched_or_cached" : "cost_review_required",
       sourceGuarded: bigQueryGuarded,
       externalBillingReviewed: false,
       externalReviewRequired: true,
@@ -242,7 +244,7 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       id: "analyticsIngestRetryStorms",
       label: "Analytics ingest/retry storms",
       owner: "analytics-runtime",
-      status: analyticsGuarded ? "source_guarded_external_review_remaining" : "cost_review_required",
+      status: analyticsGuarded ? "source_ready_retry_storm_guarded" : "cost_review_required",
       sourceGuarded: analyticsGuarded,
       externalBillingReviewed: false,
       externalReviewRequired: false,
@@ -264,7 +266,7 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       id: "scheduledRuntimeJobs",
       label: "Scheduled/runtime job scan cost",
       owner: "runtime-jobs",
-      status: scheduledGuarded ? "source_guarded_external_review_remaining" : "cost_review_required",
+      status: scheduledGuarded ? "source_ready_batched_or_cached" : "cost_review_required",
       sourceGuarded: scheduledGuarded,
       externalBillingReviewed: false,
       externalReviewRequired: true,
@@ -286,7 +288,7 @@ export function classifyCostOwnerReviewLanes(input: CostOwnerReviewSourceInput):
       id: "adminAnalyticsDebugDefaultLoad",
       label: "Admin analytics/debug default load",
       owner: "admin-debug",
-      status: adminDefaultLoadGuarded ? "source_guarded_external_review_remaining" : "cost_review_required",
+      status: adminDefaultLoadGuarded ? "source_ready_batched_or_cached" : "cost_review_required",
       sourceGuarded: adminDefaultLoadGuarded,
       externalBillingReviewed: false,
       externalReviewRequired: false,

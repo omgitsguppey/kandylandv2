@@ -263,9 +263,11 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
 function laneScore(status: string) {
   const normalized = normalizeStatus(status);
   if (normalized === "source_inventory_complete") return 80;
-  if (normalized === "source_guarded_external_review_remaining") return 72;
-  if (normalized === "source_ready_no_runtime_usage_detected") return 68;
+  if (normalized === "source_guarded_external_review_remaining") return 78;
+  if (normalized === "source_ready_no_runtime_usage_detected") return 78;
   if (normalized === "source_ready_config_missing_safe") return 62;
+  if (normalized === "source_ready_retry_storm_guarded") return 88;
+  if (normalized === "source_ready_batched_or_cached") return 84;
   if (normalized === "owner_review_external_billing_required") return 48;
   if (normalized === "not_detected_in_repo") return 50;
   if (normalized === "cost_review_required" || normalized === "owner_review") return 40;

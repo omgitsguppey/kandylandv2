@@ -109,6 +109,8 @@ export type PublicBetaCostReadinessStatus =
   | "source_guarded_external_review_remaining"
   | "source_ready_no_runtime_usage_detected"
   | "source_ready_config_missing_safe"
+  | "source_ready_retry_storm_guarded"
+  | "source_ready_batched_or_cached"
   | "owner_review_external_billing_required"
   | "cost_review_required"
   | "not_detected_in_repo"

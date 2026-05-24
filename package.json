@@ -111,6 +111,7 @@
         "check:debug-recovery-playbooks": "tsx scripts/agent/validate-debug-recovery-playbooks.ts",
         "check:admin-truth-source-sample": "tsx scripts/agent/validate-admin-truth-source-sample.ts",
         "check:cost-owner-review-source-closure": "tsx scripts/agent/validate-cost-owner-review-source-closure.ts",
+        "check:cost-risk-owner-review-closure": "tsx scripts/agent/validate-cost-risk-owner-review-closure.ts",
         "check:score-80-cost-readiness": "tsx scripts/agent/validate-score-80-cost-readiness.ts",
         "check:score-80-path-lock": "tsx scripts/agent/validate-score-80-path-lock.ts",
         "check:score-impact-stale-artifact-sweep": "tsx scripts/agent/validate-score-impact-stale-artifact-sweep.ts",

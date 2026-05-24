@@ -24,6 +24,7 @@ export type Score80CostReadinessArtifacts = {
   analyticsCostRuntimeInventory?: JsonRecord | null;
   finalTelemetryClosureLock?: JsonRecord | null;
   costOwnerReviewSourceClosure?: JsonRecord | null;
+  costRiskOwnerReviewClosure?: JsonRecord | null;
 };
 
 export type Score80CostReadinessReport = {
@@ -154,6 +155,8 @@ export function buildScore80CostReadinessReport(input: {
   const currentCost4xxHead = cost4xx?.currentHead === input.currentHead ? stringValue(cost4xx.currentHead) : "";
   const costOwnerClosure = input.artifacts.costOwnerReviewSourceClosure ?? null;
   const costOwnerClosureCurrent = artifactCurrent(costOwnerClosure, input.currentHead);
+  const costRiskClosure = input.artifacts.costRiskOwnerReviewClosure ?? null;
+  const costRiskClosureCurrent = artifactCurrent(costRiskClosure, input.currentHead);
   const creatorInventory = input.artifacts.creatorDashboardErrorCostInventory ?? null;
 
   const finalCostCurrent = artifactCurrent(finalCost, input.currentHead);
@@ -216,9 +219,12 @@ export function buildScore80CostReadinessReport(input: {
     },
   });
   const closureCostReadiness = record(costOwnerClosure?.costReadiness);
-  const costReadiness: PublicBetaCostReadiness = costOwnerClosureCurrent && Object.keys(closureCostReadiness).length > 0
-    ? closureCostReadiness as PublicBetaCostReadiness
-    : costOwnerReviewLanesToScoreInput(costOwnerReviewLanes);
+  const riskClosureCostReadiness = record(costRiskClosure?.costReadiness);
+  const costReadiness: PublicBetaCostReadiness = costRiskClosureCurrent && Object.keys(riskClosureCostReadiness).length > 0
+    ? riskClosureCostReadiness as PublicBetaCostReadiness
+    : costOwnerClosureCurrent && Object.keys(closureCostReadiness).length > 0
+      ? closureCostReadiness as PublicBetaCostReadiness
+      : costOwnerReviewLanesToScoreInput(costOwnerReviewLanes);
   const costScore = scoreCostReadiness(costReadiness);
   const staleArtifacts = staleArtifactsFor(input.currentHead, input.artifacts);
   const ignoredLegacyArtifacts = !creatorInventoryCurrent && creatorInventory
@@ -236,7 +242,7 @@ export function buildScore80CostReadinessReport(input: {
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
     summary: {
-      latestCostLocksPreferred: costOwnerClosureCurrent || (finalCostCurrent && telemetryCurrent),
+      latestCostLocksPreferred: costRiskClosureCurrent || costOwnerClosureCurrent || (finalCostCurrent && telemetryCurrent),
       externalOwnerReviewStillRequired,
       sourceCostReadinessScore: costScore.score,
       costRiskScore: costScore.score,
@@ -260,6 +266,7 @@ export function buildScore80CostReadinessReport(input: {
       `finalCostCurrent=${finalCostCurrent}`,
       `telemetryCurrent=${telemetryCurrent}`,
       `costOwnerReviewSourceClosureCurrent=${costOwnerClosureCurrent}`,
+      `costRiskOwnerReviewClosureCurrent=${costRiskClosureCurrent}`,
     ],
     staleArtifacts,
     ignoredLegacyArtifacts,
@@ -270,6 +277,12 @@ export function buildScore80CostReadinessReport(input: {
         status: finalCostCurrent ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/final-cost-audit-lock.generated.json",
         detail: finalCostCurrent ? "Current final cost lock is available." : "Final cost lock is missing or stale.",
+      },
+      {
+        command: "npm run check:cost-risk-owner-review-closure",
+        status: costRiskClosureCurrent ? "pass" : "failed_or_not_run",
+        artifactPath: "agent/state/cost-risk-owner-review-closure.generated.json",
+        detail: costRiskClosureCurrent ? "Current cost risk owner-review closure is available." : "Cost risk owner-review closure is missing or stale.",
       },
       {
         command: "npm run check:cost-owner-review-source-closure",
@@ -370,6 +383,7 @@ export function buildScore80CostReadinessFromRepo(root = ROOT): Score80CostReadi
       analyticsCostRuntimeInventory: readJson(root, "agent/state/analytics-cost-runtime-inventory.generated.json"),
       finalTelemetryClosureLock: readJson(root, "agent/state/final-telemetry-closure-lock.generated.json"),
       costOwnerReviewSourceClosure: readJson(root, "agent/state/cost-owner-review-source-closure.generated.json"),
+      costRiskOwnerReviewClosure: readJson(root, "agent/state/cost-risk-owner-review-closure.generated.json"),
     },
   });
 }
