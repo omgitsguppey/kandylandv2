@@ -288,6 +288,9 @@ export function classifyGumdropTransaction(input: {
             creatorRewardSpendTotal: 0,
             creatorSpendParityMismatchCount: 0,
             creatorRestrictedSpendViolationCount: 0,
+            unlockPurchasedSpendTotal: 0,
+            unlockRewardSpendTotal: 0,
+            unlockSpendParityMismatchCount: 0,
             gumdropPurchaseBonusTotal: 0,
         };
     }
@@ -297,7 +300,8 @@ export function classifyGumdropTransaction(input: {
     const isRewardTransaction = type === "daily_reward" || type === "onboarding_reward" || type === "referral_bonus";
     const isPurchaseTransaction = type === "purchase_currency";
     const isCreatorSpendTransaction = CREATOR_SPEND_TRANSACTION_TYPES.has(type);
-    const isSpendTransaction = type === "unlock_content" || isCreatorSpendTransaction;
+    const isUnlockSpendTransaction = type === "unlock_content";
+    const isSpendTransaction = isUnlockSpendTransaction || isCreatorSpendTransaction;
     const isAdminAdjustment = type === "admin_adjustment";
     const creatorPurchasedSpendTotal = isCreatorSpendTransaction
         ? Math.max(0, normalizeGumdropAmount(input.purchasedAmountSpent))
@@ -310,6 +314,17 @@ export function classifyGumdropTransaction(input: {
         ? 1
         : 0;
     const creatorRestrictedSpendViolationCount = isCreatorSpendTransaction && creatorRewardSpendTotal > 0 ? 1 : 0;
+    const unlockPurchasedSpendTotal = isUnlockSpendTransaction
+        ? Math.max(0, normalizeGumdropAmount(input.purchasedAmountSpent))
+        : 0;
+    const unlockRewardSpendTotal = isUnlockSpendTransaction
+        ? Math.max(0, normalizeGumdropAmount(input.rewardAmountSpent))
+        : 0;
+    const unlockSpendParityMismatchCount = isUnlockSpendTransaction
+        && (typeof input.purchasedAmountSpent === "number" || typeof input.rewardAmountSpent === "number")
+        && unlockPurchasedSpendTotal + unlockRewardSpendTotal !== negativeAmount
+        ? 1
+        : 0;
 
     const purchaseCredit = isPurchaseTransaction
         ? buildPaidPurchaseBalanceCredit({
@@ -342,5 +357,8 @@ export function classifyGumdropTransaction(input: {
         creatorRewardSpendTotal,
         creatorSpendParityMismatchCount,
         creatorRestrictedSpendViolationCount,
+        unlockPurchasedSpendTotal,
+        unlockRewardSpendTotal,
+        unlockSpendParityMismatchCount,
     };
 }

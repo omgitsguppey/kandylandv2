@@ -1,0 +1,32 @@
+{
+  "reportKey": "recent-transaction-feed-cleanup",
+  "generatedAtUtc": "2026-05-24T22:57:28.490Z",
+  "boundedFeedWindow": "latest_19_loaded_transactions",
+  "loadedCount": 1,
+  "fullUidDefaultVisible": false,
+  "rawProviderPayloadVisible": false,
+  "items": [
+    {
+      "transactionId": "tx1",
+      "userIdRedacted": "tlov...-uid",
+      "defaultVisibleUserId": "tlov...-uid",
+      "fullUidDefaultVisible": false,
+      "username": "tlove81",
+      "amount": -1000,
+      "type": "unlock_content",
+      "sourceClass": "unlock_reward_spend",
+      "sourceLabel": "Reward unlock spend",
+      "sourceConfidence": "exact",
+      "identityConfidence": "resolved",
+      "boundedFeedOnly": true,
+      "rawProviderPayloadVisible": false,
+      "drilldown": {
+        "fullUserId": "tlove81-full-uid",
+        "drilldownOnly": true
+      }
+    }
+  ],
+  "unknownMissingMetadataCount": 0,
+  "legacyUnknownCount": 0,
+  "validationFailures": []
+}

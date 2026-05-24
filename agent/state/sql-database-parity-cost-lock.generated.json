@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-24T18:04:10.932Z",
+  "generatedAtUtc": "2026-05-24T22:49:55.198Z",
   "reportKey": "sql-database-parity-cost-lock",
-  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
-  "status": "pass",
+  "currentHead": "650b22a88d5b827de725f39e135fcb6e05965b60",
+  "status": "fail",
   "productionExportsRun": false,
   "providerCallsRun": false,
   "productionDataMutated": false,
@@ -161,163 +161,125 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch22-commerce-truth.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/canonical-business-truth-refresh.generated.json",
+      "path": "agent/state/recent-transaction-feed-cleanup.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/canonical-business-truth-status.generated.json",
+      "path": "agent/state/transaction-sequence-journey.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-backlog-engine.generated.json",
+      "path": "agent/state/unlock-transaction-source-metadata.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-cockpit-batch8-cleanup.generated.json",
+      "path": "docs/agent-truth/debug-cockpit-batch22-commerce-truth.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/drop-watch-time-accuracy.generated.json",
+      "path": "docs/agent-truth/recent-transaction-feed-cleanup.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "path": "docs/agent-truth/transaction-sequence-journey.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "path": "docs/agent-truth/unlock-transaction-source-metadata.md",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/recovery-playbook-cta-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/sql-database-parity-cost-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/canonical-business-truth-refresh.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/canonical-business-truth-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-cockpit-batch8-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/recovery-playbook-cta-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/sql-database-parity-cost-lock.md",
-      "classification": "documentation_artifact_expected"
     },
     {
       "path": "package.json",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/business-truth-recovery-shared.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/debug-cockpit-batch22-commerce-shared.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-debug-cockpit-batch22-commerce-truth.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-canonical-business-truth-refresh.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-recent-transaction-feed-cleanup.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-canonical-business-truth-status.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-transaction-sequence-journey.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch8-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-unlock-transaction-source-metadata.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/app/admin/debug/components/DebugTabMonitoring.tsx",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-recovery-playbook-cta-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/app/api/admin/overview/route.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-sql-database-parity-cost-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/admin-analytics-recent-commerce-feed.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx",
-      "classification": "real_source_change_needs_review"
+      "path": "src/lib/admin-overview.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/debug/canonical-business-truth-status.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "src/lib/behavioral/transaction-sequence-contract.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/debug/recovery-playbook-visibility.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "src/lib/commerce/transaction-source-of-funds-contract.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "tests/unit/canonical-business-truth-refresh.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/lib/debug/debug-cockpit-batch22-commerce-truth.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "tests/unit/canonical-business-truth-status.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/lib/debug/recent-transaction-feed-contract.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "tests/unit/debug-cockpit-batch8-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/lib/gumdrop-ledger.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "tests/unit/recovery-playbook-cta-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/types/admin-analytics.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/debug-cockpit-batch22-commerce-truth.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/recent-transaction-feed-cleanup.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/transaction-sequence-journey.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/unlock-transaction-source-metadata.spec.ts",
+      "classification": "unsafe_unknown"
     }
   ],
-  "validationFailures": [],
+  "validationFailures": [
+    "dirty files are unclassified."
+  ],
   "nextExactSteps": [
     "Keep BigQuery exports scheduled and watermark batched.",
     "Keep SQL/Data Connect mirror sync manual with explicit approval and dry-run support.",

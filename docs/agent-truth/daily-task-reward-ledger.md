@@ -1,8 +1,8 @@
 # Daily Task Reward Ledger
 
-Generated: 2026-05-24T03:57:57.649Z
-Current head: 6a7ba11a
-Status: pass
+Generated: 2026-05-24T22:49:54.715Z
+Current head: 650b22a8
+Status: fail
 
 ## Contract
 
@@ -39,43 +39,36 @@ Status: pass
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-guidance-route-audit.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-lifecycle-telemetry.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-reward-ledger.generated.json: current_generated_artifact_to_commit
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-guidance-route-audit.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-reset-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-reward-ledger.md: release_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/telemetry-trigger-test-matrix.md: stale_generated_artifact_to_regenerate
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/debug-cockpit-batch22-commerce-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/recent-transaction-feed-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/transaction-sequence-journey.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/unlock-transaction-source-metadata.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-cockpit-batch22-commerce-truth.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/recent-transaction-feed-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/transaction-sequence-journey.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/unlock-transaction-source-metadata.md: stale_generated_artifact_to_regenerate
 - package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-daily-task-debug-score-lock.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-guidance-route-audit.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-reset-truth.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-reward-ledger.ts: validator_artifact_expected
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/daily-task-debug-score-lock.spec.ts: test_artifact_expected
+- scripts/agent/debug-cockpit-batch22-commerce-shared.ts: unsafe_unknown
+- scripts/agent/validate-debug-cockpit-batch22-commerce-truth.ts: unsafe_unknown
+- scripts/agent/validate-recent-transaction-feed-cleanup.ts: unsafe_unknown
+- scripts/agent/validate-transaction-sequence-journey.ts: unsafe_unknown
+- scripts/agent/validate-unlock-transaction-source-metadata.ts: unsafe_unknown
+- src/app/admin/debug/components/DebugTabMonitoring.tsx: unsafe_unknown
+- src/app/api/admin/overview/route.ts: unsafe_unknown
+- src/lib/admin-analytics-recent-commerce-feed.ts: unsafe_unknown
+- src/lib/admin-overview.ts: unsafe_unknown
+- src/lib/behavioral/transaction-sequence-contract.ts: unsafe_unknown
+- src/lib/commerce/transaction-source-of-funds-contract.ts: unsafe_unknown
+- src/lib/debug/debug-cockpit-batch22-commerce-truth.ts: unsafe_unknown
+- src/lib/debug/recent-transaction-feed-contract.ts: unsafe_unknown
+- src/lib/gumdrop-ledger.ts: unsafe_unknown
+- src/types/admin-analytics.ts: unsafe_unknown
+- tests/unit/debug-cockpit-batch22-commerce-truth.spec.ts: unsafe_unknown
+- tests/unit/recent-transaction-feed-cleanup.spec.ts: unsafe_unknown
+- tests/unit/transaction-sequence-journey.spec.ts: unsafe_unknown
+- tests/unit/unlock-transaction-source-metadata.spec.ts: unsafe_unknown
 
 ## Validation Failures
 
-- none
+- dirty files unclassified.

@@ -1240,11 +1240,11 @@ for (const expected of [
   "entry.typeLabel || entry.type",
   "entry.adminUserHref || `/admin/user/${entry.userId}`",
   "entry.userDisplayName || entry.username || entry.shortUserId",
-  "entry.shortUserId || entry.userId",
+  "entry.userIdRedacted || entry.shortUserId || \"redacted_uid\"",
   "identity_missing",
   "User profile could not be resolved from loaded admin sample.",
   "UTC: {entry.createdAtUtc || formatUtc(entry.timestamp)}",
-  "Full UID: {entry.userId}",
+  "Admin drilldown UID: {entry.userId}",
   "entry.continuityLabel",
 ]) {
   requireIncludes(debugTabMonitoring, expected, "Recent transactions panel must show loaded state, enriched identity, units, admin links, UTC, and continuity details");

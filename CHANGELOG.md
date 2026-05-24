@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.52 - 2026-05-24
+- Commerce source truth cleanup
+- Added source-of-funds truth for unlock transactions and recent commerce feed display.
+- Redacted full user IDs from default transaction summaries.
+- Mapped same-user commerce sequences into bounded behavioral journey evidence.
+
 ## 1.4.51 - 2026-05-24
 - No-sample route cohort cleanup
 - Finalized no-sample route cohort classification.

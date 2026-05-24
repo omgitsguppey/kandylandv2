@@ -1,8 +1,8 @@
 # SQL Database Parity Cost Lock
 
-Generated: 2026-05-24T18:04:10.932Z
-Status: pass
-Current head: 6d038e7f7d9b7cef83d276f39bd968df83bb988d
+Generated: 2026-05-24T22:49:55.198Z
+Status: fail
+Current head: 650b22a88d5b827de725f39e135fcb6e05965b60
 
 ## Contract
 
@@ -35,46 +35,36 @@ Current head: 6d038e7f7d9b7cef83d276f39bd968df83bb988d
 
 ## Dirty Files
 
-- agent/state/admin-truth-source-sample.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/canonical-business-truth-refresh.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/canonical-business-truth-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-backlog-engine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-cockpit-batch8-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/drop-watch-time-accuracy.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/formal-evidence-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/recovery-playbook-cta-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/sql-database-parity-cost-lock.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/admin-truth-source-sample.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/canonical-business-truth-refresh.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/canonical-business-truth-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-backlog-engine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-cockpit-batch8-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/drop-watch-time-accuracy.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/formal-evidence-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/recovery-playbook-cta-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/sql-database-parity-cost-lock.md: documentation_artifact_expected
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/debug-cockpit-batch22-commerce-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/recent-transaction-feed-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/transaction-sequence-journey.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/unlock-transaction-source-metadata.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-cockpit-batch22-commerce-truth.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/recent-transaction-feed-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/transaction-sequence-journey.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/unlock-transaction-source-metadata.md: stale_generated_artifact_to_regenerate
 - package.json: real_source_change_needs_review
-- scripts/agent/business-truth-recovery-shared.ts: validator_artifact_expected
-- scripts/agent/validate-admin-debug-control-tower.ts: validator_artifact_expected
-- scripts/agent/validate-canonical-business-truth-refresh.ts: validator_artifact_expected
-- scripts/agent/validate-canonical-business-truth-status.ts: validator_artifact_expected
-- scripts/agent/validate-debug-cockpit-batch8-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-drop-watch-time-accuracy.ts: validator_artifact_expected
-- scripts/agent/validate-recovery-playbook-cta-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-sql-database-parity-cost-lock.ts: validator_artifact_expected
-- src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx: real_source_change_needs_review
-- src/lib/debug/canonical-business-truth-status.ts: real_source_change_needs_review
-- src/lib/debug/recovery-playbook-visibility.ts: real_source_change_needs_review
-- tests/unit/canonical-business-truth-refresh.spec.ts: test_artifact_expected
-- tests/unit/canonical-business-truth-status.spec.ts: test_artifact_expected
-- tests/unit/debug-cockpit-batch8-cleanup.spec.ts: test_artifact_expected
-- tests/unit/recovery-playbook-cta-cleanup.spec.ts: test_artifact_expected
+- scripts/agent/debug-cockpit-batch22-commerce-shared.ts: unsafe_unknown
+- scripts/agent/validate-debug-cockpit-batch22-commerce-truth.ts: unsafe_unknown
+- scripts/agent/validate-recent-transaction-feed-cleanup.ts: unsafe_unknown
+- scripts/agent/validate-transaction-sequence-journey.ts: unsafe_unknown
+- scripts/agent/validate-unlock-transaction-source-metadata.ts: unsafe_unknown
+- src/app/admin/debug/components/DebugTabMonitoring.tsx: unsafe_unknown
+- src/app/api/admin/overview/route.ts: unsafe_unknown
+- src/lib/admin-analytics-recent-commerce-feed.ts: unsafe_unknown
+- src/lib/admin-overview.ts: unsafe_unknown
+- src/lib/behavioral/transaction-sequence-contract.ts: unsafe_unknown
+- src/lib/commerce/transaction-source-of-funds-contract.ts: unsafe_unknown
+- src/lib/debug/debug-cockpit-batch22-commerce-truth.ts: unsafe_unknown
+- src/lib/debug/recent-transaction-feed-contract.ts: unsafe_unknown
+- src/lib/gumdrop-ledger.ts: unsafe_unknown
+- src/types/admin-analytics.ts: unsafe_unknown
+- tests/unit/debug-cockpit-batch22-commerce-truth.spec.ts: unsafe_unknown
+- tests/unit/recent-transaction-feed-cleanup.spec.ts: unsafe_unknown
+- tests/unit/transaction-sequence-journey.spec.ts: unsafe_unknown
+- tests/unit/unlock-transaction-source-metadata.spec.ts: unsafe_unknown
 
 ## Validation Failures
 
-- none
+- dirty files are unclassified.

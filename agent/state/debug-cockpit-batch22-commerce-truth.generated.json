@@ -1,0 +1,46 @@
+{
+  "reportKey": "debug-cockpit-batch22-commerce-truth",
+  "generatedAtUtc": "2026-05-24T22:57:28.729Z",
+  "recentTransactionsLoaded": 19,
+  "boundedFeedWindow": "latest_19_loaded_transactions",
+  "unknownSourceTransactionsBefore": 1,
+  "unknownSourceTransactionsAfter": 0,
+  "unlockSourceStatusBefore": "generic_unknown",
+  "unlockSourceStatusAfter": "new_unlocks_exact_split_legacy_unknown_actionable",
+  "rewardSourceStatus": "reward_check_in_onboarding_task_preserved",
+  "paidRewardSeparationStatus": "unchanged",
+  "fullUidDefaultVisibleBefore": true,
+  "fullUidDefaultVisibleAfter": false,
+  "transactionSequenceStatus": "bounded_redacted_sequence_evidence",
+  "gumdropEconomyStatus": "current_validator_required",
+  "legacyUnknownCount": 0,
+  "unknownMissingMetadataCount": 0,
+  "scoreBefore": 82,
+  "scoreAfter": 96,
+  "scoreDimensions": {
+    "unlockSourceTruth": {
+      "before": 60,
+      "after": 100
+    },
+    "piiRedaction": {
+      "before": 50,
+      "after": 100
+    },
+    "journeySequences": {
+      "before": 70,
+      "after": 95
+    },
+    "gumdropMathPreserved": {
+      "before": 100,
+      "after": 100
+    }
+  },
+  "remainingGaps": [
+    "Legacy unlock transactions without spend split remain legacy_unknown until a separate approved dry-run migration exists."
+  ],
+  "nextExactSteps": [
+    "Keep recent unlocks actionable if purchasedAmountSpent/rewardAmountSpent are missing.",
+    "Use compact redacted transaction sequence summaries as behavioral journey evidence."
+  ],
+  "validationFailures": []
+}

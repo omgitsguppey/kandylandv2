@@ -305,13 +305,13 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                         <Link href={entry.adminUserHref || `/admin/user/${entry.userId}`} className="font-semibold text-white underline-offset-4 hover:underline">
                                             {entry.userDisplayName || entry.username || entry.shortUserId}
                                         </Link>
-                                        <p className="mt-0.5 font-mono text-[11px] text-gray-500" title={entry.userId}>{entry.shortUserId || entry.userId}</p>
+                                        <p className="mt-0.5 font-mono text-[11px] text-gray-500" title={entry.userIdRedacted || entry.shortUserId}>{entry.userIdRedacted || entry.shortUserId || "redacted_uid"}</p>
                                     </div>
                                     <Pill label="Amount" value={entry.amountDisplay || `${entry.amount} GD`} tone={toneForTransactionDirection(entry.direction)} truthState={entry ? "live" : "unavailable"} badgeLabel={entry.unit || "GD"} />
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     <Pill label="Type" value={entry.typeLabel || entry.type} truthState={entry ? "live" : "unavailable"} badgeLabel="INFO" />
-                                    <Pill label="Source" value={entry.sourceOfFunds || "unknown"} tone={entry.sourceOfFunds === "unknown" ? "warn" : "neutral"} truthState={entry.sourceOfFunds === "unknown" ? "degraded" : "live"} />
+                                    <Pill label="Source" value={entry.sourceLabel || entry.sourceOfFunds || "unknown_missing_metadata"} tone={entry.sourceOfFunds === "unknown_missing_metadata" || entry.sourceOfFunds === "legacy_unknown" ? "warn" : "neutral"} truthState={entry.sourceOfFunds === "unknown_missing_metadata" || entry.sourceOfFunds === "legacy_unknown" ? "degraded" : "live"} />
                                     <Pill label="Identity" value={entry.userIdentityState || "fallback_uid"} tone={toneForIdentityState(entry.userIdentityState)} />
                                 </div>
                                 <p className="text-sm text-gray-300">{entry.description}</p>
@@ -320,7 +320,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                     <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Transaction details</summary>
                                     <p className="mt-2">Local time: {entry.timestampLabel}</p>
                                     <p>UTC: {entry.createdAtUtc || formatUtc(entry.timestamp)}</p>
-                                    <p>Full UID: {entry.userId}</p>
+                                    <p data-full-uid-default-visible="false">Admin drilldown UID: {entry.userId}</p>
                                     {entry.userIdentityState !== "resolved" ? <p>User profile could not be resolved from loaded admin sample.</p> : null}
                                 </details>
                             </article>
@@ -340,10 +340,10 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                         <Link href={entry.adminUserHref || `/admin/user/${entry.userId}`} className="font-semibold text-white underline-offset-4 hover:underline">
                                             {entry.userDisplayName || entry.username || entry.shortUserId}
                                         </Link>
-                                        <p className="font-mono text-[11px] text-gray-500" title={entry.userId}>{entry.shortUserId || entry.userId}</p>
+                                        <p className="font-mono text-[11px] text-gray-500" title={entry.userIdRedacted || entry.shortUserId}>{entry.userIdRedacted || entry.shortUserId || "redacted_uid"}</p>
                                         {entry.userIdentityState !== "resolved" ? <p className="text-[11px] text-amber-200">identity_missing</p> : null}
                                     </td>
-                                    <td className="px-3 py-3 text-gray-300">{entry.sourceOfFunds || "unknown"}</td>
+                                    <td className="px-3 py-3 text-gray-300">{entry.sourceLabel || entry.sourceOfFunds || "unknown_missing_metadata"}</td>
                                     <td className="px-3 py-3 text-gray-400">
                                         <p>{entry.description}</p>
                                         {entry.continuityLabel ? <p className="mt-1 text-xs text-gray-500">{entry.continuityLabel}</p> : null}

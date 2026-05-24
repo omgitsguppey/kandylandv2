@@ -4,15 +4,33 @@ import type {
   RecentCommerceFeedRow,
   RecentCommerceFeedState,
 } from "@/types/admin-analytics";
+import { classifyTransactionSourceOfFunds, transactionSourceDisplayLabel } from "@/lib/commerce/transaction-source-of-funds-contract";
 
 const SOURCE_LABELS: Record<RecentCommerceFeedRow["sourceOfFunds"], string> = {
   reward_free: "Reward",
   paid: "Paid",
   paid_bonus: "Bonus",
   creator_spend: "Creator spend",
-  drop_unwrap: "Unwrap",
+  "drop_unwrap": "Unwrap",
   admin_adjustment: "Admin",
   unknown: "Unknown",
+  purchased_base: "Paid GumDrops",
+  purchased_bonus: "Paid bonus GumDrops",
+  purchased_mixed: "Paid bundle GumDrops",
+  reward_check_in: "Reward check-in",
+  reward_onboarding: "Reward onboarding",
+  reward_task: "Reward task",
+  reward_feedback: "Reward feedback",
+  reward_referral: "Reward referral",
+  admin_adjustment_positive: "Admin reward adjustment",
+  admin_adjustment_negative: "Admin debit adjustment",
+  unlock_reward_spend: "Reward unlock spend",
+  unlock_purchased_spend: "Paid unlock spend",
+  unlock_mixed_spend: "Mixed unlock spend",
+  creator_paid_spend: "Creator paid spend",
+  creator_reward_violation: "Creator reward violation",
+  legacy_unknown: "Legacy unknown",
+  unknown_missing_metadata: "Unknown missing metadata",
 };
 
 function shortId(value: unknown) {
@@ -79,7 +97,27 @@ function normalizeDisplayTitle(item: CommerceFeedItem) {
 }
 
 function inferSourceOfFunds(item: CommerceFeedItem): RecentCommerceFeedRow["sourceOfFunds"] {
-  if (item.type === "unlock_content") return "drop_unwrap";
+  const classification = classifyTransactionSourceOfFunds({
+    transactionId: item.id,
+    userId: item.userId,
+    type: item.type,
+    amount: item.amount,
+    status: item.status,
+    rewardSource: item.rewardSource,
+    ledgerSource: item.ledgerSource,
+    description: item.description,
+    timestamp: item.timestamp,
+    timestampMs: item.timestampMs,
+    purchasedAmountSpent: "purchasedAmountSpent" in item ? (item as CommerceFeedItem & { purchasedAmountSpent?: number }).purchasedAmountSpent : undefined,
+    rewardAmountSpent: "rewardAmountSpent" in item ? (item as CommerceFeedItem & { rewardAmountSpent?: number }).rewardAmountSpent : undefined,
+    paidGumDrops: item.paidGumDrops,
+    bonusGumDrops: item.bonusGumDrops,
+    sourceTruth: item.sourceTruth,
+  });
+  if (classification.sourceClass !== "unknown_missing_metadata" && classification.sourceClass !== "legacy_unknown") {
+    return classification.sourceClass;
+  }
+  if (item.type === "unlock_content") return classification.sourceClass;
   if (item.type === "purchase_currency") {
     return (item.bonusGumDrops ?? 0) > 0 ? "paid_bonus" : "paid";
   }
@@ -101,7 +139,7 @@ function inferSourceOfFunds(item: CommerceFeedItem): RecentCommerceFeedRow["sour
   }
   if (item.ledgerSource === "purchased") return "paid";
   if (item.ledgerSource === "reward") return "reward_free";
-  return "unknown";
+  return classification.sourceClass;
 }
 
 function resolveAmountGd(item: CommerceFeedItem) {
@@ -133,6 +171,23 @@ export function buildAdminAnalyticsRecentCommerceFeedState(input: {
   const rows = input.items.slice(0, 10).map((item): RecentCommerceFeedRow => {
     const timestampMs = normalizeTimestampMs(item);
     const sourceOfFunds = inferSourceOfFunds(item);
+    const sourceClassification = classifyTransactionSourceOfFunds({
+      transactionId: item.id,
+      userId: item.userId,
+      type: item.type,
+      amount: item.amount,
+      status: item.status,
+      rewardSource: item.rewardSource,
+      ledgerSource: item.ledgerSource,
+      description: item.description,
+      timestamp: item.timestamp,
+      timestampMs: item.timestampMs,
+      purchasedAmountSpent: "purchasedAmountSpent" in item ? (item as CommerceFeedItem & { purchasedAmountSpent?: number }).purchasedAmountSpent : undefined,
+      rewardAmountSpent: "rewardAmountSpent" in item ? (item as CommerceFeedItem & { rewardAmountSpent?: number }).rewardAmountSpent : undefined,
+      paidGumDrops: item.paidGumDrops,
+      bonusGumDrops: item.bonusGumDrops,
+      sourceTruth: item.sourceTruth,
+    });
     const amountGd = resolveAmountGd(item);
     const createdAtUtc = timestampMs > 0 ? new Date(timestampMs).toISOString() : new Date(0).toISOString();
     return {
@@ -145,7 +200,7 @@ export function buildAdminAnalyticsRecentCommerceFeedState(input: {
       amountDisplay: formatAmountDisplay(amountGd),
       direction: amountDirection(amountGd),
       sourceOfFunds,
-      sourceLabel: SOURCE_LABELS[sourceOfFunds],
+      sourceLabel: SOURCE_LABELS[sourceOfFunds] ?? transactionSourceDisplayLabel(sourceClassification.sourceClass),
       status: normalizeStatus(item.status),
       createdAtUtc,
       ageLabel: formatAge(timestampMs, input.nowMs),

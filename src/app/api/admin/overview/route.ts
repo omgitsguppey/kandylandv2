@@ -11,6 +11,7 @@ import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
 import { getTransactionBadgeLabel, getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { classifyTransactionSourceOfFunds } from "@/lib/commerce/transaction-source-of-funds-contract";
 import { handleApiError } from "@/lib/server/auth";
 import { fetchTelemetryLogs } from "@/lib/server/admin-analytics-shared";
 import {
@@ -226,12 +227,31 @@ function getRecentTransactionDirection(raw: ReturnType<typeof normalizeTransacti
 }
 
 function getRecentTransactionSourceOfFunds(raw: ReturnType<typeof normalizeTransactionRecord>): RecentTransactionAdminRow["sourceOfFunds"] {
+    const classification = classifyTransactionSourceOfFunds({
+        transactionId: raw.id,
+        userId: raw.userId,
+        type: raw.type,
+        amount: raw.amount,
+        status: raw.status,
+        rewardSource: raw.rewardSource,
+        ledgerSource: raw.ledgerSource,
+        description: raw.description,
+        timestamp: typeof raw.timestamp === "number" ? raw.timestamp : toTimestampNumber(raw.timestamp),
+        timestampMs: raw.timestampMs,
+        purchasedAmountSpent: raw.purchasedAmountSpent,
+        rewardAmountSpent: raw.rewardAmountSpent,
+        paidGumDrops: raw.paidGumDrops,
+        bonusGumDrops: raw.bonusGumDrops,
+    });
+    if (classification.sourceClass !== "unknown_missing_metadata" && classification.sourceClass !== "legacy_unknown") {
+        return classification.sourceClass;
+    }
     if (raw.type === "admin_adjustment") return "admin_adjustment";
     if (raw.type === "purchase_currency") return raw.bonusGumDrops && raw.bonusGumDrops > 0 ? "paid_bonus" : "paid";
     if (raw.type === "daily_reward" || raw.type === "referral_bonus" || raw.type === "onboarding_reward") return "reward";
     if (raw.ledgerSource === "purchased") return "paid";
     if (raw.ledgerSource === "reward") return "reward";
-    return "unknown";
+    return classification.sourceClass;
 }
 
 function formatRecentTransactionAmount(raw: ReturnType<typeof normalizeTransactionRecord>) {
@@ -256,6 +276,22 @@ function serializeRecentTransaction(
 ): RecentTransactionAdminRow {
     const timestamp = typeof raw.timestamp === "number" ? raw.timestamp : toTimestampNumber(raw.timestamp);
     const resolvedIdentity = identity ?? buildAdminOverviewFallbackIdentity(raw.userId);
+    const sourceClassification = classifyTransactionSourceOfFunds({
+        transactionId: raw.id,
+        userId: raw.userId,
+        type: raw.type,
+        amount: raw.amount,
+        status: raw.status,
+        rewardSource: raw.rewardSource,
+        ledgerSource: raw.ledgerSource,
+        description: raw.description,
+        timestamp,
+        timestampMs: raw.timestampMs,
+        purchasedAmountSpent: raw.purchasedAmountSpent,
+        rewardAmountSpent: raw.rewardAmountSpent,
+        paidGumDrops: raw.paidGumDrops,
+        bonusGumDrops: raw.bonusGumDrops,
+    });
 
     return {
         ...raw,
@@ -272,6 +308,10 @@ function serializeRecentTransaction(
         userIdentityState: resolvedIdentity.userIdentityState,
         adminUserHref: `/admin/user/${encodeURIComponent(raw.userId)}`,
         sourceOfFunds: getRecentTransactionSourceOfFunds(raw),
+        sourceLabel: sourceClassification.displayLabel,
+        sourceConfidence: sourceClassification.sourceConfidence,
+        userIdRedacted: sourceClassification.userIdRedacted,
+        fullUidDefaultVisible: false,
         sourceScope: "overview_snapshot" as const,
     };
 }

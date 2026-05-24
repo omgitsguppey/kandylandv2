@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.4.51",
-  "betaReleaseCounter": 451,
+  "currentVersion": "1.4.52",
+  "betaReleaseCounter": 452,
   "channel": "beta",
-  "generatedAt": "2026-05-24T22:05:00.000Z",
-  "generatedAtUtc": "2026-05-24T22:05:00.000Z",
+  "generatedAt": "2026-05-24T23:05:00.000Z",
+  "generatedAtUtc": "2026-05-24T23:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.52",
+      "previousVersion": "1.4.51",
+      "betaReleaseCounter": 452,
+      "previousBetaReleaseCounter": 451,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(commerce): clean transaction source truth",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T23:05:00.000Z",
+      "generatedAt": "2026-05-24T23:05:00.000Z",
+      "committedAtUtc": "2026-05-24T23:05:00.000Z",
+      "generatedAtUtc": "2026-05-24T23:05:00.000Z",
+      "category": "Fixed",
+      "title": "Commerce source truth cleanup",
+      "updatedAtUtc": "2026-05-24T23:05:00.000Z",
+      "summary": "Improved recent commerce reporting so unlock spends show source-of-funds truth and transaction details protect user identifiers by default.",
+      "userFacingTitle": "Commerce source truth cleanup",
+      "surfaceCategory": "Wallet",
+      "bullets": [
+        "Added source-of-funds truth for unlock transactions and recent commerce feed display.",
+        "Redacted full user IDs from default transaction summaries.",
+        "Mapped same-user commerce sequences into bounded behavioral journey evidence."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "GumDrop math, paid/reward source-of-funds rules, PayPal runtime, and production transactions were not changed."
+      ],
+      "affectedSurfaces": [
+        "Recent transactions debug feed",
+        "Admin analytics commerce feed",
+        "GumDrop source-of-funds classification",
+        "Behavioral journey evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/commerce/transaction-source-of-funds-contract.ts",
+        "src/lib/debug/recent-transaction-feed-contract.ts",
+        "src/lib/behavioral/transaction-sequence-contract.ts",
+        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
+        "src/app/api/admin/overview/route.ts"
+      ],
+      "effectiveChangeCount": 5,
+      "excludedGeneratedChangeCount": 10,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.51",
       "previousVersion": "1.4.50",
@@ -6865,218 +6914,6 @@
       "technicalDetails": [
         "Added source-only journey contracts, compact behavioral intelligence summaries, debug lane coverage, validator reporting, and unit tests without changing payment, GumDrop, chat, auth, task, or notification runtime behavior."
       ]
-    },
-    {
-      "version": "1.4.27",
-      "previousVersion": "1.4.26",
-      "betaReleaseCounter": 427,
-      "previousBetaReleaseCounter": 426,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): improve session bounce",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T10:35:00.000Z",
-      "generatedAt": "2026-05-24T10:35:00.000Z",
-      "committedAtUtc": "2026-05-24T10:35:00.000Z",
-      "generatedAtUtc": "2026-05-24T10:35:00.000Z",
-      "updatedAtUtc": "2026-05-24T10:35:00.000Z",
-      "category": "Improved",
-      "title": "Session and bounce accuracy",
-      "summary": "Improved session time and bounce calculations by separating active, idle, and hidden time while preserving guest-to-user continuity.",
-      "userFacingTitle": "Session and bounce accuracy",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved session time and bounce calculations.",
-        "Separated active, idle, and hidden session time.",
-        "Linked guest and user sessions without double-counting."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Analytics",
-        "Admin debug",
-        "Behavior tracking"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/global-user-dedupe-normalization.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/session-bounce-calculation.generated.json",
-        "agent/state/telemetry-trigger-test-matrix.generated.json",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "docs/agent-truth/global-user-dedupe-normalization.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "docs/agent-truth/session-bounce-calculation.md",
-        "docs/agent-truth/telemetry-trigger-test-matrix.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-global-user-dedupe-normalization.ts",
-        "scripts/agent/validate-session-bounce-calculation.ts",
-        "src/components/Analytics/DeepTracker.tsx",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/analytics/session-metrics-contract.ts",
-        "src/lib/analytics/session-metrics-engine.ts",
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/testing/telemetry-trigger-test-matrix.ts",
-        "tests/unit/session-bounce-calculation.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "Added source-only session metrics contracts, active/idle/hidden timing rules, debug reporting, validator coverage, and unit tests without changing chat, auth, tasks, payment, or GumDrop math."
-      ]
-    },
-    {
-      "version": "1.4.26",
-      "previousVersion": "1.4.25",
-      "betaReleaseCounter": 426,
-      "previousBetaReleaseCounter": 425,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): improve drop watch time",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T10:03:54.639Z",
-      "generatedAt": "2026-05-24T10:03:54.639Z",
-      "committedAtUtc": "2026-05-24T10:03:54.639Z",
-      "generatedAtUtc": "2026-05-24T10:03:54.639Z",
-      "updatedAtUtc": "2026-05-24T10:03:54.639Z",
-      "category": "Improved",
-      "title": "Drop watch time accuracy",
-      "summary": "Improved drop watch time so engagement reflects active playback and visibility instead of passive page time.",
-      "userFacingTitle": "Drop watch time accuracy",
-      "surfaceCategory": "Drops & viewer",
-      "bullets": [
-        "Improved drop watch time accuracy with active playback and visibility rules.",
-        "Separated watch time from passive page time.",
-        "Added normalized watch percent and confidence labels."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Drops & viewer",
-        "Analytics",
-        "Admin debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/drop-watch-time-accuracy.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/telemetry-trigger-test-matrix.generated.json",
-        "docs/agent-truth/drop-watch-time-accuracy.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "docs/agent-truth/telemetry-trigger-test-matrix.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-drop-watch-time-accuracy.ts",
-        "src/hooks/useViewerWatchSession.ts",
-        "src/lib/analytics/drop-watch-time-contract.ts",
-        "src/lib/analytics/drop-watch-time-engine.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/testing/telemetry-trigger-test-matrix.ts",
-        "tests/unit/drop-watch-time-accuracy.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "Added source-only drop watch time contracts, engine rules, debug reporting, validator coverage, and unit tests without changing GumDrop unlock math or payment runtime."
-      ]
-    },
-    {
-      "version": "1.4.25",
-      "previousVersion": "1.4.24",
-      "betaReleaseCounter": 425,
-      "previousBetaReleaseCounter": 424,
-      "commitSha": "991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f",
-      "commitTitle": "fix(analytics): normalize global user dedupe",
-      "commitCount": 1,
-      "commitShas": [
-        "991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f"
-      ],
-      "committedAt": "2026-05-24T09:27:04.000Z",
-      "generatedAt": "2026-05-24T09:41:27.943Z",
-      "committedAtUtc": "2026-05-24T09:27:04.000Z",
-      "generatedAtUtc": "2026-05-24T09:41:27.943Z",
-      "updatedAtUtc": "2026-05-24T09:41:27.943Z",
-      "category": "Fixed",
-      "title": "Analytics dedupe normalization",
-      "summary": "Global and user analytics now share explicit dedupe rules for guest-to-user handoff and SQL/export parity.",
-      "userFacingTitle": "Analytics dedupe normalization",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Normalized global and user-level analytics deduplication.",
-        "Prevented guest-to-user handoff from double-counting actions.",
-        "Added SQL/export parity fields for normalized event facts."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "analytics",
-        "admin-debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/auth-persistence-stability.generated.json",
-        "agent/state/auth-provider-conflict-resolution.generated.json",
-        "agent/state/auth-readiness-lock.generated.json",
-        "agent/state/auth-runtime-telemetry.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/debug-tracking-simplification.generated.json",
-        "agent/state/email-password-auth-refactor.generated.json",
-        "agent/state/event-envelope-normalization.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/identity-handoff-spine.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/auth-persistence-stability.md",
-        "docs/agent-truth/auth-provider-conflict-resolution.md",
-        "docs/agent-truth/auth-readiness-lock.md",
-        "docs/agent-truth/auth-runtime-telemetry.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/debug-tracking-simplification.md",
-        "docs/agent-truth/email-password-auth-refactor.md",
-        "docs/agent-truth/event-envelope-normalization.md",
-        "docs/agent-truth/identity-handoff-spine.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-auth-persistence-stability.ts",
-        "scripts/agent/validate-auth-provider-conflict-resolution.ts",
-        "scripts/agent/validate-auth-readiness-lock.ts",
-        "scripts/agent/validate-auth-runtime-telemetry.ts",
-        "scripts/agent/validate-email-password-auth-refactor.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/auth-readiness-lock.spec.ts"
-      ],
-      "sourceCommit": "991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f"
     }
   ]
 }

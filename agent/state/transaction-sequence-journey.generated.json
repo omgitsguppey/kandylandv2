@@ -1,0 +1,53 @@
+{
+  "reportKey": "transaction-sequence-journey",
+  "generatedAtUtc": "2026-05-24T22:57:28.551Z",
+  "compactOnly": true,
+  "rawTransactionFirehoseAllowed": false,
+  "sequences": [
+    {
+      "userIdRedacted": "tlov...-uid",
+      "sequenceId": "onboarding__checkin",
+      "sequenceType": "onboarding_to_checkin",
+      "previousTransactionType": "onboarding_reward",
+      "currentTransactionType": "daily_reward",
+      "deltaSeconds": 60,
+      "sourceClasses": [
+        "reward_onboarding",
+        "reward_check_in"
+      ],
+      "journeyMeaning": "Same-user commerce sequence for bounded journey evidence.",
+      "confidence": "high",
+      "debugLabel": "Reward onboarding -> Reward check-in",
+      "behavioralInputAllowed": true,
+      "causationClaimAllowed": false,
+      "costGuard": "bounded_compact_summary_only",
+      "drilldown": {
+        "fullUserId": "tlove81-full-uid",
+        "drilldownOnly": true
+      }
+    },
+    {
+      "userIdRedacted": "tlov...-uid",
+      "sequenceId": "checkin__unlock",
+      "sequenceType": "checkin_to_unlock",
+      "previousTransactionType": "daily_reward",
+      "currentTransactionType": "unlock_content",
+      "deltaSeconds": 60,
+      "sourceClasses": [
+        "reward_check_in",
+        "unlock_reward_spend"
+      ],
+      "journeyMeaning": "Same-user commerce sequence for bounded journey evidence.",
+      "confidence": "high",
+      "debugLabel": "Reward check-in -> Reward unlock spend",
+      "behavioralInputAllowed": true,
+      "causationClaimAllowed": false,
+      "costGuard": "bounded_compact_summary_only",
+      "drilldown": {
+        "fullUserId": "tlove81-full-uid",
+        "drilldownOnly": true
+      }
+    }
+  ],
+  "validationFailures": []
+}

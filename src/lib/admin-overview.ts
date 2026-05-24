@@ -3,6 +3,7 @@ import type { AdminRealtimeCostRisk, AdminRealtimeMetricScope } from "@/lib/admi
 import type { AdminModuleVerification } from "@/lib/admin-parity";
 import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
+import type { TransactionSourceClass, TransactionSourceConfidence } from "@/lib/commerce/transaction-source-of-funds-contract";
 
 export type AdminOverviewDeltaDirection = "up" | "down" | "flat";
 
@@ -124,7 +125,11 @@ export type RecentTransactionAdminRow = AdminOverviewTransactionRecord & {
     shortUserId: string;
     userIdentityState: "resolved" | "fallback_uid" | "missing";
     adminUserHref: string;
-    sourceOfFunds?: "reward" | "paid" | "paid_bonus" | "admin_adjustment" | "unknown";
+    sourceOfFunds?: "reward" | "paid" | "paid_bonus" | "admin_adjustment" | "unknown" | TransactionSourceClass;
+    sourceLabel?: string;
+    sourceConfidence?: TransactionSourceConfidence;
+    userIdRedacted?: string;
+    fullUidDefaultVisible?: false;
     continuityLabel?: string;
 };
 

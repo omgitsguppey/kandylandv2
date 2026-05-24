@@ -15,6 +15,7 @@ import type { UserValueScoreResult } from "@/lib/behavioral/user-value-score";
 import type { WatchTimeDiagnosticEstimate } from "@/lib/behavioral/watch-time-estimation";
 import type { WatchTimeRollupIssue, WatchTimeRollupSource } from "@/lib/watch-time-rollup-contract";
 import type { UserProfile } from "@/types/db";
+import type { TransactionSourceClass } from "@/lib/commerce/transaction-source-of-funds-contract";
 
 export type ViewTab = "operations" | "audience" | "commerce";
 export type RangeOption = AdminAnalyticsRangeOption;
@@ -214,6 +215,8 @@ export interface CommerceFeedItem {
   rewardSource?: string;
   ledgerSource?: string;
   sourceTruth?: string;
+  purchasedAmountSpent?: number;
+  rewardAmountSpent?: number;
   cost?: number;
   description?: string;
   timestamp?: number;
@@ -239,7 +242,8 @@ export type RecentCommerceFeedRow = {
     | "creator_spend"
     | "drop_unwrap"
     | "admin_adjustment"
-    | "unknown";
+    | "unknown"
+    | TransactionSourceClass;
   sourceLabel: string;
   status: "completed" | "pending" | "failed" | "reversed";
   createdAtUtc: string;
