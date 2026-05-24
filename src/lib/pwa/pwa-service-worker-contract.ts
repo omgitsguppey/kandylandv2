@@ -129,8 +129,19 @@ export type PwaServiceWorkerSafetyStatus = {
 export type PwaServiceWorkerDebugLane = {
   lane: "PWA/service worker";
   label: "PWA/service worker";
-  status: "live" | "degraded" | "unavailable";
+  status: "live" | "degraded" | "unavailable" | "source_ready_not_registered";
   registered: boolean;
+  registrationExpected: boolean;
+  registrationObserved: boolean;
+  registrationSource: "source_contract" | "runtime_sample" | "missing";
+  registrationStatusReason:
+    | "registered"
+    | "optional_not_registered"
+    | "registration_expected_not_observed"
+    | "missing_registration_source"
+    | "failed_registration"
+    | "browser_unsupported";
+  registrationNextAction: string;
   updateAvailable: boolean;
   notificationCompatible: boolean;
   forbiddenCacheSafe: boolean;
@@ -256,6 +267,10 @@ export function classifyPwaServiceWorkerSafety(input: PwaServiceWorkerSafetyInpu
 
 export function buildPwaServiceWorkerDebugLane(input: {
   registered?: boolean;
+  registrationExpected?: boolean;
+  registrationSource?: "source_contract" | "runtime_sample" | "missing";
+  registrationFailed?: boolean;
+  browserUnsupported?: boolean;
   updateAvailable?: boolean;
   notificationCompatible?: boolean;
   forbiddenCacheSafe?: boolean;
@@ -265,21 +280,58 @@ export function buildPwaServiceWorkerDebugLane(input: {
 } = {}): PwaServiceWorkerDebugLane {
   const telemetryMapped = input.telemetryMapped !== false;
   const registered = input.registered === true;
+  const registrationExpected = input.registrationExpected === true;
+  const registrationSource = input.registrationSource ?? "source_contract";
   const forbiddenCacheSafe = input.forbiddenCacheSafe !== false;
   const offlineFallbackSafe = input.offlineFallbackSafe !== false;
   const notificationCompatible = input.notificationCompatible !== false;
   const staleShellRisk = input.staleShellRisk ?? "low";
+  const registrationStatusReason = input.browserUnsupported
+    ? "browser_unsupported"
+    : input.registrationFailed
+      ? "failed_registration"
+      : registrationSource === "missing"
+        ? "missing_registration_source"
+        : registered
+          ? "registered"
+          : registrationExpected
+            ? "registration_expected_not_observed"
+            : "optional_not_registered";
   const status = !telemetryMapped || !forbiddenCacheSafe || staleShellRisk === "high"
     ? "unavailable"
-    : !registered || !offlineFallbackSafe || !notificationCompatible || input.updateAvailable || staleShellRisk === "medium"
+    : registrationStatusReason === "failed_registration"
+      || registrationStatusReason === "missing_registration_source"
+      || registrationStatusReason === "registration_expected_not_observed"
+      || !offlineFallbackSafe
+      || !notificationCompatible
+      || input.updateAvailable
+      || staleShellRisk === "medium"
       ? "degraded"
-      : "live";
+      : registered
+        ? "live"
+        : "source_ready_not_registered";
+  const registrationNextAction = registrationStatusReason === "registered"
+    ? "No registration repair needed."
+    : registrationStatusReason === "optional_not_registered"
+      ? "Keep optional service worker registration informational until a bounded runtime sample observes registration."
+      : registrationStatusReason === "registration_expected_not_observed"
+        ? "Connect the service worker registration producer or attach a bounded runtime registration sample."
+        : registrationStatusReason === "missing_registration_source"
+          ? "Add a registration source before using service worker registration as a health signal."
+          : registrationStatusReason === "browser_unsupported"
+            ? "Keep unsupported browser state informational and separate from notification compatibility."
+            : "Fix the failed service worker registration path and keep the failure visible.";
 
   return {
     lane: "PWA/service worker",
     label: "PWA/service worker",
     status,
     registered,
+    registrationExpected,
+    registrationObserved: registered,
+    registrationSource,
+    registrationStatusReason,
+    registrationNextAction,
     updateAvailable: input.updateAvailable === true,
     notificationCompatible,
     forbiddenCacheSafe,

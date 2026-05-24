@@ -1,0 +1,31 @@
+# pwa service worker status cleanup
+
+Generated: 2026-05-24T16:01:13.249Z
+Current head: 883bdc0e91e5494f3b6b3e6449d5ea722b898077
+Status: source_ready
+
+## Summary
+
+```json
+{
+  "reportKey": "pwa-service-worker-status-cleanup",
+  "generatedAtUtc": "2026-05-24T16:01:13.249Z",
+  "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+  "pwaStatusBefore": "degraded",
+  "pwaStatusAfter": "source_ready_not_registered",
+  "registrationExpected": false,
+  "registrationObserved": false,
+  "registrationSource": "source_contract",
+  "registrationStatusReason": "optional_not_registered",
+  "notificationCompatibilitySeparated": true,
+  "safetyFlagsClean": true,
+  "nextExactSteps": [
+    "Keep optional service worker registration informational until a bounded runtime sample observes registration."
+  ],
+  "validationFailures": []
+}
+```
+
+## Validation Failures
+
+- none

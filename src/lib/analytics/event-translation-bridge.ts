@@ -454,6 +454,11 @@ export function detectTranslationGap(input: {
 export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (/^agent\/state\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/drop-watch-time-accuracy.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/session-bounce-calculation.generated.json") return "current_generated_artifact_to_commit";
@@ -540,6 +545,8 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/components/Dashboard/DailyCheckIn.tsx") return "real_source_change_needs_review";
   if (normalized === "src/components/Dashboard/NotificationPromptBanner.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-sql-database-parity-cost-lock.ts") return "validator_artifact_expected";
   if (normalized === "src/lib/analytics/global-user-dedupe-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/global-user-dedupe-engine.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics-action-taxonomy.ts") return "real_source_change_needs_review";
@@ -574,6 +581,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/empty-live-lane-classifier.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/privacy/consent-tracking-policy.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/tracking-summary-lane-cleanup-shared.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(feature-telemetry-coverage-cleanup|runtime-debug-signal-cleanup|consent-tracking-mode-cleanup|event-liveness-source-repair|behavior-math-status-cleanup|legacy-recovery-status-cleanup|tracking-summary-lane-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";

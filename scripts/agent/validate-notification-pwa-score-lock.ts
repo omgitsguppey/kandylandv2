@@ -172,6 +172,11 @@ function listDirtyFiles(input?: string[]) {
 export function classifyNotificationPwaScoreLockDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (/^agent\/state\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
@@ -188,10 +193,13 @@ export function classifyNotificationPwaScoreLockDirtyFile(path: string) {
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "current_generated_artifact_to_commit";
   if (normalized.startsWith("docs/agent-truth/") && normalized.endsWith(".md")) return "documentation_artifact_expected";
   if (normalized.startsWith("scripts/agent/validate-notification-") || normalized === "scripts/agent/validate-pwa-service-worker-safety.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(drop-watch-time-accuracy|session-bounce-calculation|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized.startsWith("tests/unit/notification-") || normalized === "tests/unit/pwa-service-worker-safety.spec.ts") return "test_artifact_expected";
   if (
     normalized.startsWith("src/lib/notifications/")
     || normalized.startsWith("src/lib/pwa/")
+    || normalized === "src/lib/debug/empty-live-lane-classifier.ts"
+    || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"
     || normalized === "src/components/PwaRuntimeBridge.tsx"
     || normalized === "public/firebase-messaging-sw.js"
     || normalized === "src/lib/analytics/event-translation-bridge.ts"

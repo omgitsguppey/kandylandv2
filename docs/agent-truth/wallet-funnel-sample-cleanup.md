@@ -1,0 +1,28 @@
+# wallet funnel sample cleanup
+
+Generated: 2026-05-24T16:01:17.062Z
+Current head: 883bdc0e91e5494f3b6b3e6449d5ea722b898077
+Status: source_ready
+
+## Summary
+
+```json
+{
+  "reportKey": "wallet-funnel-sample-cleanup",
+  "generatedAtUtc": "2026-05-24T16:01:17.062Z",
+  "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+  "walletFunnelStatusBefore": "live_unavailable",
+  "walletFunnelStatusAfter": "source_ready_no_sample_loaded",
+  "sourceEventsMapped": true,
+  "sampleLoaded": false,
+  "paymentRuntimeChanged": false,
+  "nextExactSteps": [
+    "Load a bounded wallet funnel summary before promoting this lane to live."
+  ],
+  "validationFailures": []
+}
+```
+
+## Validation Failures
+
+- none

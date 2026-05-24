@@ -1,0 +1,51 @@
+# identity handoff status cleanup
+
+Generated: 2026-05-24T16:01:15.176Z
+Current head: 883bdc0e91e5494f3b6b3e6449d5ea722b898077
+Status: source_ready
+
+## Summary
+
+```json
+{
+  "reportKey": "identity-handoff-status-cleanup",
+  "generatedAtUtc": "2026-05-24T16:01:15.176Z",
+  "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+  "identityStatusBefore": "live_unknown",
+  "identityStatusAfter": "source_ready_collecting",
+  "lanes": [
+    {
+      "lane": "guest",
+      "status": "source_ready_collecting"
+    },
+    {
+      "lane": "signed_in",
+      "status": "source_ready_collecting"
+    },
+    {
+      "lane": "creator",
+      "status": "source_ready_collecting"
+    },
+    {
+      "lane": "admin",
+      "status": "source_ready_collecting"
+    },
+    {
+      "lane": "system",
+      "status": "source_ready_collecting"
+    },
+    {
+      "lane": "legacy",
+      "status": "source_ready_collecting"
+    }
+  ],
+  "nextExactSteps": [
+    "Attach bounded identity handoff runtime samples before marking live."
+  ],
+  "validationFailures": []
+}
+```
+
+## Validation Failures
+
+- none

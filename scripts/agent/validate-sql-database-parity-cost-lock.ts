@@ -95,12 +95,22 @@ function writeText(path: string, value: string) {
 
 function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
+  if (/^agent\/state\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
   if (normalized === "src/lib/analytics/sql-database-parity-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/sql-database-parity-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/empty-live-lane-classifier.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-sql-database-parity-cost-lock.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(pwa-service-worker-safety|notification-pwa-score-lock|drop-watch-time-accuracy|session-bounce-calculation|user-journey-behavioral-intelligence|event-translation-bridge|person-metrics-hydration)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "tests/unit/sql-database-parity-cost-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";

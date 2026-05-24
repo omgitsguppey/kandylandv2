@@ -25,6 +25,7 @@ import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-con
 import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
 import { buildSqlDatabaseParityDebugLane } from "@/lib/analytics/sql-database-parity-contract";
 import { buildFeatureRegistrationGateReport } from "@/lib/features/feature-registration-registry";
+import { classifyEmptyLiveLane, type EmptyLiveLaneStatus } from "@/lib/debug/empty-live-lane-classifier";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -65,7 +66,16 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
 
 export type DebugTrackingSummaryLaneId = (typeof DEBUG_TRACKING_SUMMARY_LANE_IDS)[number];
 export type DebugTrackingSeverity = "p1" | "p2" | "p3" | "info";
-export type DebugTrackingStatus = "live" | "degraded" | "failed" | "stale" | "unavailable" | "unknown";
+export type DebugTrackingStatus =
+  | "live"
+  | "degraded"
+  | "failed"
+  | "stale"
+  | "unavailable"
+  | "unknown"
+  | EmptyLiveLaneStatus
+  | "source_ready_not_registered"
+  | "source_live_artifact_stale";
 
 export type DebugTrackingSummaryLane = {
   id: DebugTrackingSummaryLaneId;
@@ -163,6 +173,10 @@ function toStatus(value: unknown): DebugTrackingStatus {
   const text = String(value ?? "").toLowerCase();
   if (text.includes("fail") || text.includes("error")) return "failed";
   if (text.includes("stale")) return "stale";
+  if (text.includes("collecting")) return "source_ready_collecting";
+  if (text.includes("no_sample")) return "source_ready_no_sample_loaded";
+  if (text.includes("proven_zero")) return "healthy_proven_zero";
+  if (text.includes("source_missing")) return "source_missing";
   if (text.includes("degraded") || text.includes("review") || text.includes("unproven")) return "degraded";
   if (text.includes("unavailable") || text.includes("missing") || text.includes("disabled")) return "unavailable";
   if (text.includes("live") || text.includes("ready") || text.includes("bounded") || text.includes("source_ready")) return "live";
@@ -171,7 +185,7 @@ function toStatus(value: unknown): DebugTrackingStatus {
 
 function severityFromCounts(criticalCount: number, warningCount: number, status: DebugTrackingStatus): DebugTrackingSeverity {
   if (criticalCount > 0 || status === "failed") return "p1";
-  if (warningCount > 0 || status === "degraded" || status === "stale") return "p2";
+  if (warningCount > 0 || status === "degraded" || status === "stale" || status === "source_missing" || status === "source_live_artifact_stale") return "p2";
   if (status === "unavailable" || status === "unknown") return "p3";
   return "info";
 }
@@ -185,7 +199,7 @@ function makeLane(input: Omit<DebugTrackingSummaryLane, "rawDetailsDefaultOpen" 
 }
 
 export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugTrackingSummary {
-  const identityStatus = toStatus(input.identityHandoff?.status);
+  const identityStatus = toStatus(input.identityHandoff?.status) === "unknown" ? "source_ready_collecting" : toStatus(input.identityHandoff?.status);
   const identityWarnings = input.identityHandoff?.duplicateCountGuardActive === false ? 1 : 0;
   const eventMissingCount = Array.isArray(input.eventEnvelope?.missingEnvelopeFieldsByFeature)
     ? input.eventEnvelope.missingEnvelopeFieldsByFeature.length
@@ -198,10 +212,33 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const dropWatchTimeLane = input.dropWatchTimeAccuracy?.debugLane ?? buildDropWatchTimeDebugLane();
   const dropWatchTimeWarnings = toNumber(dropWatchTimeLane.durationMissingCount)
     + toNumber(dropWatchTimeLane.suspiciousPageTimeFallbackCount);
+  const dropWatchSampleDecision = classifyEmptyLiveLane({
+    laneId: "drop_watch_time",
+    sourceContractPresent: true,
+    sampleLoaded: toNumber(dropWatchTimeLane.exactMediaRuntimeCount) + toNumber(dropWatchTimeLane.activeVisibilityEstimatedCount) > 0,
+    expectedTraffic: true,
+    counts: [
+      toNumber(dropWatchTimeLane.exactMediaRuntimeCount),
+      toNumber(dropWatchTimeLane.activeVisibilityEstimatedCount),
+      toNumber(dropWatchTimeLane.backgroundExcludedCount),
+    ],
+  });
   const sessionBounceLane = input.sessionBounceCalculation?.debugLane ?? buildSessionBounceDebugLane();
   const sessionBounceWarnings = toNumber(sessionBounceLane.missingCloseoutCount)
     + (sessionBounceLane.guestUserLinkStatus === "missing" ? 1 : 0)
     + (sessionBounceLane.telemetryStatus === "mapped" ? 0 : 1);
+  const sessionBounceSampleDecision = classifyEmptyLiveLane({
+    laneId: "session_bounce",
+    sourceContractPresent: true,
+    sampleLoaded: toNumber(sessionBounceLane.activeSessionCount) + toNumber(sessionBounceLane.idleSessionCount) + toNumber(sessionBounceLane.bounceClassifiedCount) > 0,
+    expectedTraffic: true,
+    counts: [
+      toNumber(sessionBounceLane.activeSessionCount),
+      toNumber(sessionBounceLane.idleSessionCount),
+      toNumber(sessionBounceLane.bounceClassifiedCount),
+      toNumber(sessionBounceLane.hiddenTimeExcludedCount),
+    ],
+  });
   const userJourneyLane = input.userJourneyBehavioralIntelligence?.debugLane ?? buildUserJourneyDebugLane();
   const userJourneyWarnings = (userJourneyLane.journeyBuilderConnected ? 0 : 1)
     + toNumber(userJourneyLane.brokenJourneySegments)
@@ -246,9 +283,13 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const personHydrationLowConfidence = toNumber(personHydration.lowConfidenceMetrics);
   const personHydrationStatus = personHydrationGaps > 0
     ? "degraded"
-    : personHydrationMapped > 0
-      ? "live"
-      : toStatus(input.personMetricsHydration?.status);
+    : personHydrationLowConfidence > 0
+      ? "source_ready_collecting"
+      : personHydrationMapped > 0 && toNumber(personHydration.eventEnvelopesHydrated) === 0
+        ? "source_ready_collecting"
+        : personHydrationMapped > 0
+          ? "live"
+          : toStatus(input.personMetricsHydration?.status);
   const userManagement = input.userManagementRefactor?.debugLane ?? {};
   const userManagementLowConfidence = toNumber(userManagement.lowConfidenceMetrics);
   const userManagementSummarized = toNumber(userManagement.usersSummarized);
@@ -306,6 +347,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       ? "degraded"
       : toStatus(input.legacyRecovery?.status ?? "ready_for_dry_run_review");
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
+  const walletFunnelStatus: DebugTrackingStatus = walletCount > 0 ? "live" : "source_ready_no_sample_loaded";
   const authProviderConflict = input.authProviderConflictResolution?.debugLane ?? buildAuthProviderConflictDebugLane();
   const authProviderConflictWarnings = toNumber(authProviderConflict.unresolvedAuthFailures)
     + (authProviderConflict.rawEmailPasswordExposed ? 1 : 0)
@@ -339,7 +381,9 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     + toNumber(notificationTargeting.blockedByConsent)
     + (notificationTargeting.telemetryStatus === "mapped" ? 0 : 1);
   const pwaServiceWorker = input.pwaServiceWorkerSafety?.debugLane ?? buildPwaServiceWorkerDebugLane();
-  const pwaServiceWorkerWarnings = (pwaServiceWorker.registered ? 0 : 1)
+  const pwaRegistrationActionable = pwaServiceWorker.status === "degraded"
+    && pwaServiceWorker.registrationStatusReason !== "optional_not_registered";
+  const pwaServiceWorkerWarnings = (pwaRegistrationActionable ? 1 : 0)
     + (pwaServiceWorker.notificationCompatible ? 0 : 1)
     + (pwaServiceWorker.forbiddenCacheSafe ? 0 : 1)
     + (pwaServiceWorker.offlineFallbackSafe ? 0 : 1)
@@ -388,7 +432,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       status: identityStatus,
       severity: severityFromCounts(0, identityWarnings, identityStatus),
       scoreImpact: "high",
-      primarySignal: identityWarnings > 0 ? "Duplicate-count guard needs review." : "Guest, signed-in, creator, admin, system, and legacy identity lanes are summarized here.",
+      primarySignal: identityWarnings > 0 ? "Duplicate-count guard needs review." : "Guest, signed-in, creator, admin, system, and legacy identity lanes are source-ready; runtime samples are classified as collecting until loaded.",
       criticalCount: 0,
       warningCount: identityWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#identity-handoff",
@@ -443,10 +487,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "drop_watch_time",
       sourceOwner: "viewer-runtime",
       sourceOfTruth: "src/lib/analytics/drop-watch-time-engine.ts",
-      status: dropWatchTimeWarnings > 0 ? "degraded" : "live",
-      severity: severityFromCounts(0, dropWatchTimeWarnings, dropWatchTimeWarnings > 0 ? "degraded" : "live"),
+      status: dropWatchTimeWarnings > 0 ? "degraded" : dropWatchSampleDecision.status,
+      severity: severityFromCounts(0, dropWatchTimeWarnings, dropWatchTimeWarnings > 0 ? "degraded" : dropWatchSampleDecision.status),
       scoreImpact: dropWatchTimeWarnings > 0 ? "medium" : "none",
-      primarySignal: `Exact media runtime=${toNumber(dropWatchTimeLane.exactMediaRuntimeCount)}; active visibility estimated=${toNumber(dropWatchTimeLane.activeVisibilityEstimatedCount)}; duration missing=${toNumber(dropWatchTimeLane.durationMissingCount)}; background excluded=${toNumber(dropWatchTimeLane.backgroundExcludedCount)}; page-time fallback=${toNumber(dropWatchTimeLane.suspiciousPageTimeFallbackCount)}.`,
+      primarySignal: `Status reason=${dropWatchSampleDecision.reason}; exact media runtime=${toNumber(dropWatchTimeLane.exactMediaRuntimeCount)}; active visibility estimated=${toNumber(dropWatchTimeLane.activeVisibilityEstimatedCount)}; duration missing=${toNumber(dropWatchTimeLane.durationMissingCount)}; background excluded=${toNumber(dropWatchTimeLane.backgroundExcludedCount)}; page-time fallback=${toNumber(dropWatchTimeLane.suspiciousPageTimeFallbackCount)}.`,
       criticalCount: 0,
       warningCount: dropWatchTimeWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#drop-watch-time",
@@ -457,10 +501,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "session_bounce",
       sourceOwner: "analytics",
       sourceOfTruth: "src/lib/analytics/session-metrics-engine.ts",
-      status: sessionBounceWarnings > 0 ? "degraded" : "live",
-      severity: severityFromCounts(0, sessionBounceWarnings, sessionBounceWarnings > 0 ? "degraded" : "live"),
+      status: sessionBounceWarnings > 0 ? "degraded" : sessionBounceSampleDecision.status,
+      severity: severityFromCounts(0, sessionBounceWarnings, sessionBounceWarnings > 0 ? "degraded" : sessionBounceSampleDecision.status),
       scoreImpact: sessionBounceWarnings > 0 ? "medium" : "none",
-      primarySignal: `Active=${toNumber(sessionBounceLane.activeSessionCount)}; idle=${toNumber(sessionBounceLane.idleSessionCount)}; missing closeouts=${toNumber(sessionBounceLane.missingCloseoutCount)}; bounce classified=${toNumber(sessionBounceLane.bounceClassifiedCount)}; hidden excluded=${toNumber(sessionBounceLane.hiddenTimeExcludedCount)}; guest/user link=${sessionBounceLane.guestUserLinkStatus}.`,
+      primarySignal: `Status reason=${sessionBounceSampleDecision.reason}; active=${toNumber(sessionBounceLane.activeSessionCount)}; idle=${toNumber(sessionBounceLane.idleSessionCount)}; missing closeouts=${toNumber(sessionBounceLane.missingCloseoutCount)}; bounce classified=${toNumber(sessionBounceLane.bounceClassifiedCount)}; hidden excluded=${toNumber(sessionBounceLane.hiddenTimeExcludedCount)}; guest/user link=${sessionBounceLane.guestUserLinkStatus}.`,
       criticalCount: 0,
       warningCount: sessionBounceWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#session-bounce",
@@ -530,11 +574,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       sourceOwner: "analytics",
       sourceOfTruth: "src/lib/analytics/person-metrics-hydration.ts",
       status: personHydrationStatus,
-      severity: severityFromCounts(0, personHydrationGaps, personHydrationStatus),
+      severity: severityFromCounts(0, personHydrationGaps + personHydrationLowConfidence, personHydrationStatus),
       scoreImpact: "high",
       primarySignal: `Mapped=${personHydrationMapped}; envelopes=${toNumber(personHydration.eventEnvelopesHydrated)}; global=${toNumber(personHydration.globalMetricsHydrated)}; signed-in=${toNumber(personHydration.signedInMetricsHydrated)}; linked=${toNumber(personHydration.linkedPersonMetricsHydrated)}; low-confidence=${personHydrationLowConfidence}; gaps=${personHydrationGaps}.`,
       criticalCount: 0,
-      warningCount: personHydrationGaps,
+      warningCount: personHydrationGaps + personHydrationLowConfidence,
       drilldownTarget: "/admin/debug?tab=advanced#person-metrics-hydration",
     }),
     makeLane({
@@ -635,10 +679,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "wallet_funnel",
       sourceOwner: "wallet",
       sourceOfTruth: "src/lib/wallet/wallet-telemetry-contract.ts",
-      status: walletCount > 0 ? "live" : "unavailable",
+      status: walletFunnelStatus,
       severity: walletCount > 0 ? "info" : "p3",
       scoreImpact: "medium",
-      primarySignal: walletCount > 0 ? `${walletCount} recent wallet/receipt signal(s) available.` : "No wallet funnel sample is loaded in the compact summary.",
+      primarySignal: walletCount > 0 ? `${walletCount} recent wallet/receipt signal(s) available.` : "Wallet funnel source events are mapped; no bounded wallet funnel sample is loaded in the compact summary.",
       criticalCount: 0,
       warningCount: walletCount > 0 ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=monitoring#wallet-funnel",
@@ -733,10 +777,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "pwa_service_worker",
       sourceOwner: "notifications",
       sourceOfTruth: "src/lib/pwa/pwa-service-worker-contract.ts",
-      status: pwaServiceWorker.status === "unavailable" ? "unavailable" : pwaServiceWorker.status === "degraded" ? "degraded" : "live",
-      severity: severityFromCounts(pwaServiceWorker.forbiddenCacheSafe ? 0 : 1, pwaServiceWorkerWarnings, pwaServiceWorker.status === "unavailable" ? "unavailable" : pwaServiceWorker.status === "degraded" ? "degraded" : "live"),
+      status: pwaServiceWorker.status === "unavailable" ? "unavailable" : pwaServiceWorker.status === "degraded" ? "degraded" : pwaServiceWorker.status === "source_ready_not_registered" ? "source_ready_not_registered" : "live",
+      severity: severityFromCounts(pwaServiceWorker.forbiddenCacheSafe ? 0 : 1, pwaServiceWorkerWarnings, pwaServiceWorker.status === "unavailable" ? "unavailable" : pwaServiceWorker.status === "degraded" ? "degraded" : pwaServiceWorker.status === "source_ready_not_registered" ? "source_ready_not_registered" : "live"),
       scoreImpact: "medium",
-      primarySignal: `Registered=${String(pwaServiceWorker.registered)}; updateAvailable=${String(pwaServiceWorker.updateAvailable)}; notificationCompatible=${String(pwaServiceWorker.notificationCompatible)}; forbiddenCacheSafe=${String(pwaServiceWorker.forbiddenCacheSafe)}; offlineFallbackSafe=${String(pwaServiceWorker.offlineFallbackSafe)}; staleShellRisk=${pwaServiceWorker.staleShellRisk}; telemetry=${pwaServiceWorker.telemetryStatus}.`,
+      primarySignal: `Registration=${pwaServiceWorker.registrationStatusReason}; expected=${String(pwaServiceWorker.registrationExpected)}; observed=${String(pwaServiceWorker.registrationObserved)}; source=${pwaServiceWorker.registrationSource}; updateAvailable=${String(pwaServiceWorker.updateAvailable)}; notificationCompatible=${String(pwaServiceWorker.notificationCompatible)}; forbiddenCacheSafe=${String(pwaServiceWorker.forbiddenCacheSafe)}; offlineFallbackSafe=${String(pwaServiceWorker.offlineFallbackSafe)}; staleShellRisk=${pwaServiceWorker.staleShellRisk}; telemetry=${pwaServiceWorker.telemetryStatus}.`,
       criticalCount: pwaServiceWorker.forbiddenCacheSafe ? 0 : 1,
       warningCount: pwaServiceWorkerWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#pwa-service-worker",

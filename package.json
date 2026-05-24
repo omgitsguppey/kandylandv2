@@ -561,7 +561,13 @@
         "agent:jules-schedule": "echo 'See /control-tower/18-JULES-RECURRING-TASKS.md for the Jules execution cadence.'",
         "agent:test": "vitest related --config vitest.contracts.config.ts --run",
         "check:stale-client-preferences-cleanup": "tsx scripts/agent/validate-stale-client-preferences-cleanup.ts",
-        "check:support-policy-surface-cleanup": "tsx scripts/agent/validate-support-policy-surface-cleanup.ts"
+        "check:support-policy-surface-cleanup": "tsx scripts/agent/validate-support-policy-surface-cleanup.ts",
+        "check:pwa-service-worker-status-cleanup": "tsx scripts/agent/validate-pwa-service-worker-status-cleanup.ts",
+        "check:identity-handoff-status-cleanup": "tsx scripts/agent/validate-identity-handoff-status-cleanup.ts",
+        "check:wallet-funnel-sample-cleanup": "tsx scripts/agent/validate-wallet-funnel-sample-cleanup.ts",
+        "check:empty-live-lane-status-cleanup": "tsx scripts/agent/validate-empty-live-lane-status-cleanup.ts",
+        "check:tracking-lane-freshness-display-cleanup": "tsx scripts/agent/validate-tracking-lane-freshness-display-cleanup.ts",
+        "check:debug-cockpit-batch3-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch3-cleanup.ts"
     },
     "dependencies": {
         "@axe-core/react": "^4.11.2",

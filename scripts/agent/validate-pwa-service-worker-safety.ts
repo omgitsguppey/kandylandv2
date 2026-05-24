@@ -70,6 +70,11 @@ function dirtyFiles() {
 function classifyDirtyFile(path: string): DirtyClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (/^agent\/state\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.md$/u.test(normalized)) return "release_artifact_expected";
+  if (normalized === "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/feature-registration-gate.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
@@ -79,16 +84,20 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-targeting-intent.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-push-token-registration.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(drop-watch-time-accuracy|session-bounce-calculation|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "tests/unit/pwa-service-worker-safety.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/lib/pwa/pwa-service-worker-contract.ts"
+    || normalized === "src/lib/debug/empty-live-lane-classifier.ts"
     || normalized === "src/lib/pwa/pwa-update-telemetry.ts"
     || normalized === "src/lib/firebase-messaging.ts"
     || normalized === "src/components/PwaRuntimeBridge.tsx"
     || normalized === "src/lib/telemetry-catalog.ts"
     || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"
     || normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts"
+    || normalized === "src/lib/analytics/event-translation-bridge.ts"
+    || normalized === "src/lib/analytics/person-metrics-hydration.ts"
     || normalized === "public/firebase-messaging-sw.js"
     || normalized === "package.json"
   ) return "real_source_change_needs_review";

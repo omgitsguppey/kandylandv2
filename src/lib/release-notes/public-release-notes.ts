@@ -1,13 +1,87 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.32",
-  "betaReleaseCounter": 432,
+  "currentVersion": "1.4.33",
+  "betaReleaseCounter": 433,
   "channel": "beta",
-  "generatedAt": "2026-05-24T15:27:57.579Z",
-  "generatedAtUtc": "2026-05-24T15:27:57.579Z",
+  "generatedAt": "2026-05-24T15:59:22.516Z",
+  "generatedAtUtc": "2026-05-24T15:59:22.516Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.33",
+      "previousVersion": "1.4.32",
+      "betaReleaseCounter": 433,
+      "previousBetaReleaseCounter": 432,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean runtime surface statuses",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T15:59:22.516Z",
+      "generatedAt": "2026-05-24T15:59:22.516Z",
+      "committedAtUtc": "2026-05-24T15:59:22.516Z",
+      "generatedAtUtc": "2026-05-24T15:59:22.516Z",
+      "updatedAtUtc": "2026-05-24T15:59:22.516Z",
+      "category": "Improved",
+      "title": "Runtime surface status cleanup",
+      "summary": "Cleaned up debug cockpit runtime surface statuses so empty samples, optional PWA registration, and stale badges are classified without faking live activity.",
+      "userFacingTitle": "Runtime surface status cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reclassified empty live tracking lanes as collecting, source-missing, or proven-zero.",
+        "Clarified PWA registration status without conflating optional registration with failure.",
+        "Cleaned stale badge display across tracking summary lanes."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin debug",
+        "Tracking summary",
+        "Beta readiness",
+        "PWA readiness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/debug-cockpit-batch3-cleanup.generated.json",
+        "agent/state/empty-live-lane-status-cleanup.generated.json",
+        "agent/state/identity-handoff-status-cleanup.generated.json",
+        "agent/state/pwa-service-worker-status-cleanup.generated.json",
+        "agent/state/tracking-lane-freshness-display-cleanup.generated.json",
+        "agent/state/wallet-funnel-sample-cleanup.generated.json",
+        "docs/agent-truth/debug-cockpit-batch3-cleanup.md",
+        "docs/agent-truth/empty-live-lane-status-cleanup.md",
+        "docs/agent-truth/identity-handoff-status-cleanup.md",
+        "docs/agent-truth/pwa-service-worker-status-cleanup.md",
+        "docs/agent-truth/tracking-lane-freshness-display-cleanup.md",
+        "docs/agent-truth/wallet-funnel-sample-cleanup.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts",
+        "scripts/agent/validate-debug-cockpit-batch3-cleanup.ts",
+        "scripts/agent/validate-empty-live-lane-status-cleanup.ts",
+        "scripts/agent/validate-identity-handoff-status-cleanup.ts",
+        "scripts/agent/validate-pwa-service-worker-status-cleanup.ts",
+        "scripts/agent/validate-tracking-lane-freshness-display-cleanup.ts",
+        "scripts/agent/validate-wallet-funnel-sample-cleanup.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/debug/empty-live-lane-classifier.ts",
+        "src/lib/pwa/pwa-service-worker-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/debug-cockpit-batch3-cleanup.spec.ts",
+        "tests/unit/empty-live-lane-status-cleanup.spec.ts",
+        "tests/unit/identity-handoff-status-cleanup.spec.ts",
+        "tests/unit/pwa-service-worker-status-cleanup.spec.ts",
+        "tests/unit/tracking-lane-freshness-display-cleanup.spec.ts",
+        "tests/unit/wallet-funnel-sample-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "All-zero lanes without a proven source window now classify as source_ready_collecting or source_missing instead of live.",
+        "PWA registration status now carries expected/observed/source reason fields separate from notification compatibility."
+      ]
+    },
     {
       "version": "1.4.32",
       "previousVersion": "1.4.31",
@@ -6213,63 +6287,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/server/admin-debug/summary.ts",
         "src/lib/tasks/daily-task-guidance-contract.ts",
         "tests/unit/daily-task-guidance-route-audit.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.8",
-      "previousVersion": "1.4.7",
-      "betaReleaseCounter": 408,
-      "previousBetaReleaseCounter": 407,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(tasks): harden reward ledger",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T03:15:00.000Z",
-      "generatedAt": "2026-05-24T03:15:00.000Z",
-      "committedAtUtc": "2026-05-24T03:15:00.000Z",
-      "generatedAtUtc": "2026-05-24T03:15:00.000Z",
-      "updatedAtUtc": "2026-05-24T03:15:00.000Z",
-      "category": "Improved",
-      "title": "Daily task reward ledger integrity",
-      "summary": "Hardened daily task reward GumDrop ledger classification, duplicate grant idempotency, reward-only source-of-funds truth, and debug visibility without changing paid GumDrop math or payment runtime.",
-      "userFacingTitle": "Daily task reward ledger integrity",
-      "surfaceCategory": "Daily tasks",
-      "bullets": [
-        "Hardened daily task reward GumDrop ledger classification.",
-        "Prevented task rewards from being treated as paid GumDrops.",
-        "Added duplicate reward protection and debug visibility."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a daily task reward ledger contract, deterministic grant ids, reward_gd/task_reward metadata, source-of-funds explanations, debug lane coverage, generated validation, and unit tests while preserving paid GumDrop and payment runtime behavior."
-      ],
-      "affectedSurfaces": [
-        "Daily tasks",
-        "Check-in",
-        "GumDrop ledger",
-        "Admin debug",
-        "Telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/daily-task-reward-ledger.generated.json",
-        "docs/agent-truth/daily-task-reward-ledger.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-daily-task-reward-ledger.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/checkin/route.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "src/lib/server/daily-tasks.ts",
-        "src/lib/tasks/daily-task-reward-ledger.ts",
-        "tests/unit/daily-task-reward-ledger.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

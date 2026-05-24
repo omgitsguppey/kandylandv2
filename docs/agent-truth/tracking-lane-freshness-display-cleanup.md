@@ -1,0 +1,40 @@
+# tracking lane freshness display cleanup
+
+Generated: 2026-05-24T16:01:21.222Z
+Current head: 883bdc0e91e5494f3b6b3e6449d5ea722b898077
+Status: source_ready
+
+## Summary
+
+```json
+{
+  "reportKey": "tracking-lane-freshness-display-cleanup",
+  "generatedAtUtc": "2026-05-24T16:01:21.222Z",
+  "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+  "conflictsBefore": 1,
+  "conflictsAfter": 0,
+  "lanes": [
+    {
+      "laneId": "event_envelope",
+      "sourceStatus": "live",
+      "artifactCurrent": false,
+      "refreshCommand": "npm run check:event-envelope-normalization",
+      "displayStatus": "source_live_artifact_stale",
+      "nextAction": "Refresh artifact with npm run check:event-envelope-normalization."
+    },
+    {
+      "laneId": "event_translation_bridge",
+      "sourceStatus": "live",
+      "artifactCurrent": true,
+      "refreshCommand": "npm run check:event-translation-bridge",
+      "displayStatus": "live",
+      "nextAction": "No freshness refresh needed."
+    }
+  ],
+  "validationFailures": []
+}
+```
+
+## Validation Failures
+
+- none

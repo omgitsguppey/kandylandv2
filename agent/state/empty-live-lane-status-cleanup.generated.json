@@ -1,0 +1,41 @@
+{
+  "reportKey": "empty-live-lane-status-cleanup",
+  "generatedAtUtc": "2026-05-24T16:01:19.045Z",
+  "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+  "emptyLiveLanesBefore": 3,
+  "emptyLiveLanesAfter": 0,
+  "personMetricsStatusAfter": "source_ready_collecting",
+  "personMetricsLowConfidenceBefore": 34,
+  "personMetricsLowConfidenceAfter": 34,
+  "sourceReadyCollectingLanes": [
+    "drop_watch_time",
+    "session_bounce",
+    "person_metrics_hydration"
+  ],
+  "healthyProvenZeroLanes": [],
+  "sourceMissingLanes": [],
+  "laneDecisions": [
+    {
+      "laneId": "drop_watch_time",
+      "status": "source_ready_collecting",
+      "displayState": "collecting",
+      "reason": "The source contract exists, but no bounded runtime sample has been loaded.",
+      "nextAction": "Attach a bounded source-summary sample or proven-zero source window."
+    },
+    {
+      "laneId": "session_bounce",
+      "status": "source_ready_collecting",
+      "displayState": "collecting",
+      "reason": "The source contract exists, but no bounded runtime sample has been loaded.",
+      "nextAction": "Attach a bounded source-summary sample or proven-zero source window."
+    },
+    {
+      "laneId": "person_metrics_hydration",
+      "status": "source_ready_collecting",
+      "displayState": "collecting",
+      "reason": "34 metric(s) are mapped but still below exact confidence.",
+      "nextAction": "Load or materialize bounded envelope samples before promoting this lane to live."
+    }
+  ],
+  "validationFailures": []
+}

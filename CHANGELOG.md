@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.33 - 2026-05-24
+
+- Reclassified empty live tracking lanes as collecting, source-missing, or proven-zero.
+- Clarified PWA registration status without conflating optional registration with failure.
+- Cleaned stale badge display across tracking summary lanes.
+
 What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
