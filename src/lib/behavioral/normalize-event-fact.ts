@@ -412,6 +412,8 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
 
   const valueUsd = readNumber({ valueUsd: input.valueUsd, ...merged }, "valueUsd", "value_usd", "gross_revenue_usd", "grossRevenueUsd", "amount_usd", "amountUsd", "price_usd", "priceUsd");
   const gumDropsAmount = readNumber({ gumDropsAmount: input.gumDropsAmount, ...merged }, "gumDropsAmount", "gumdrops_amount", "delivered_gumdrops", "deliveredGumDrops", "paid_gumdrops", "paidGumDrops", "amount");
+  const durationMs = readNumber(merged, "duration_ms", "durationMs", "watch_duration_ms", "watchDurationMs", "session_duration_ms", "sessionDurationMs");
+  const activeMs = readNumber(merged, "active_ms", "activeMs", "active_watch_ms", "activeWatchMs", "active_session_ms", "activeSessionMs");
 
   const factWithoutDedupe: Omit<BehavioralEventFact, "dedupeKey"> = {
     eventId,
@@ -439,6 +441,8 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
     ...(readOptionalString(merged, "day_key", "dayKey") ? { dayKey: readOptionalString(merged, "day_key", "dayKey") } : {}),
     ...(valueUsd > 0 ? { valueUsd } : {}),
     ...(gumDropsAmount > 0 ? { gumDropsAmount: Math.round(gumDropsAmount) } : {}),
+    ...(durationMs > 0 ? { durationMs: Math.round(durationMs) } : {}),
+    ...(activeMs > 0 ? { activeMs: Math.round(activeMs) } : {}),
     ...(readOptionalString(merged, "reason_code", "reasonCode", "security_reason", "securityReason", "error_code", "errorCode") ? { reasonCode: readOptionalString(merged, "reason_code", "reasonCode", "security_reason", "securityReason", "error_code", "errorCode") } : {}),
     source,
     sourceTruth: source,

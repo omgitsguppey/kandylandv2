@@ -1,13 +1,69 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.27",
-  "betaReleaseCounter": 427,
+  "currentVersion": "1.4.28",
+  "betaReleaseCounter": 428,
   "channel": "beta",
-  "generatedAt": "2026-05-24T10:35:00.000Z",
-  "generatedAtUtc": "2026-05-24T10:35:00.000Z",
+  "generatedAt": "2026-05-24T10:50:00.000Z",
+  "generatedAtUtc": "2026-05-24T10:50:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.28",
+      "previousVersion": "1.4.27",
+      "betaReleaseCounter": 428,
+      "previousBetaReleaseCounter": 427,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(behavioral): add user journey intelligence",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T10:50:00.000Z",
+      "generatedAt": "2026-05-24T10:50:00.000Z",
+      "committedAtUtc": "2026-05-24T10:50:00.000Z",
+      "generatedAtUtc": "2026-05-24T10:50:00.000Z",
+      "updatedAtUtc": "2026-05-24T10:50:00.000Z",
+      "category": "Improved",
+      "title": "User journey intelligence",
+      "summary": "Added normalized user journey logs for behavioral intelligence with compact summaries and private payload protections.",
+      "userFacingTitle": "User journey intelligence",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added normalized user journey logs for behavioral intelligence.",
+        "Mapped sessions, drops, wallet, tasks, chat, and signup into compact journey summaries.",
+        "Protected private/payment/chat payloads from behavioral storage."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Analytics",
+        "Admin debug",
+        "Behavior tracking"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/user-journey-behavioral-intelligence.generated.json",
+        "docs/agent-truth/user-journey-behavioral-intelligence.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/behavioral/event-fact-contract.ts",
+        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/behavioral/user-journey-builder.ts",
+        "src/lib/behavioral/user-journey-contract.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/user-journey-behavioral-intelligence.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "Added source-only journey contracts, compact behavioral intelligence summaries, debug lane coverage, validator reporting, and unit tests without changing payment, GumDrop, chat, auth, task, or notification runtime behavior."
+      ]
+    },
     {
       "version": "1.4.27",
       "previousVersion": "1.4.26",

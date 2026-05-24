@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.28 - 2026-05-24
+- User journey intelligence
+- Added normalized user journey logs for behavioral intelligence.
+- Mapped sessions, drops, wallet, tasks, chat, and signup into compact journey summaries.
+- Protected private/payment/chat payloads from behavioral storage.
+
 ## 1.4.27 - 2026-05-24
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.

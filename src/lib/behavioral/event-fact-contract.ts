@@ -155,6 +155,8 @@ export type BehavioralEventFact = {
   dayKey?: string;
   valueUsd?: number;
   gumDropsAmount?: number;
+  durationMs?: number;
+  activeMs?: number;
   reasonCode?: string;
   source: BehavioralEventSource;
   sourceTruth: BehavioralEventSource | "canonical";

@@ -445,6 +445,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/drop-watch-time-accuracy.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/session-bounce-calculation.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/user-journey-behavioral-intelligence.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-provider-conflict-resolution.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-persistence-stability.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-runtime-telemetry.generated.json") return "current_generated_artifact_to_commit";
@@ -456,6 +457,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/drop-watch-time-accuracy.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/session-bounce-calculation.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/user-journey-behavioral-intelligence.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-provider-conflict-resolution.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-persistence-stability.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-runtime-telemetry.md") return "documentation_artifact_expected";
@@ -467,6 +469,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-drop-watch-time-accuracy.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-session-bounce-calculation.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-user-journey-behavioral-intelligence.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-runtime-telemetry.ts") return "validator_artifact_expected";
@@ -485,6 +488,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "tests/unit/person-metrics-hydration.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/drop-watch-time-accuracy.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/session-bounce-calculation.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/user-journey-behavioral-intelligence.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-provider-conflict-resolution.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-persistence-stability.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-runtime-telemetry.spec.ts") return "test_artifact_expected";
@@ -575,6 +579,8 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "src/lib/behavioral/event-fact-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/event-fact-normalizer.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/user-journey-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/user-journey-builder.ts") return "real_source_change_needs_review";
   if (normalized === "agent/state/global-user-dedupe-normalization.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";

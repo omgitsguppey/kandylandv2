@@ -22,6 +22,7 @@ import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedupe-engine";
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
 import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
+import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -30,6 +31,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "global_user_dedupe",
   "drop_watch_time",
   "session_bounce",
+  "user_journey",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -112,6 +114,7 @@ const TRACKING_GROUPS = [
   "global_user_dedupe",
   "drop_watch_time",
   "session_bounce",
+  "user_journey",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -195,6 +198,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const sessionBounceWarnings = toNumber(sessionBounceLane.missingCloseoutCount)
     + (sessionBounceLane.guestUserLinkStatus === "missing" ? 1 : 0)
     + (sessionBounceLane.telemetryStatus === "mapped" ? 0 : 1);
+  const userJourneyLane = input.userJourneyBehavioralIntelligence?.debugLane ?? buildUserJourneyDebugLane();
+  const userJourneyWarnings = (userJourneyLane.journeyBuilderConnected ? 0 : 1)
+    + toNumber(userJourneyLane.brokenJourneySegments)
+    + toNumber(userJourneyLane.missingNextActions)
+    + (userJourneyLane.costGuardStatus === "batched_rollup" ? 0 : 1);
   const eventBridge = input.eventTranslationBridge?.debugLane ?? {};
   const eventBridgeGaps = toNumber(eventBridge.gaps);
   const eventBridgeTranslated = toNumber(eventBridge.eventEnvelopesTranslated);
@@ -417,6 +425,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: sessionBounceWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#session-bounce",
+    }),
+    makeLane({
+      id: "user_journey",
+      label: "User journey",
+      trackingSystem: "user_journey",
+      sourceOwner: "behavioral-intelligence",
+      sourceOfTruth: "src/lib/behavioral/user-journey-builder.ts",
+      status: userJourneyWarnings > 0 ? "degraded" : "live",
+      severity: severityFromCounts(0, userJourneyWarnings, userJourneyWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: userJourneyWarnings > 0 ? "medium" : "none",
+      primarySignal: `Builder=${String(userJourneyLane.journeyBuilderConnected)}; broken segments=${toNumber(userJourneyLane.brokenJourneySegments)}; missing next actions=${toNumber(userJourneyLane.missingNextActions)}; source-ready funnels=${toNumber(userJourneyLane.topFunnelsSourceReady)}; cost guard=${userJourneyLane.costGuardStatus}.`,
+      criticalCount: 0,
+      warningCount: userJourneyWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#user-journey",
     }),
     makeLane({
       id: "event_translation_bridge",
