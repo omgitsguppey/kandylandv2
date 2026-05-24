@@ -1,14 +1,14 @@
 # Cost Risk Owner-Review Closure
 
-Generated: 2026-05-24T04:51:55.636Z
+Generated: 2026-05-24T05:02:26.155Z
 
-Current head: b375acf9361858bfb97d9e3fac8877bb230a596c
+Current head: e7d4eb198c8b9f728589fe48b41345f295a854d1
 
 Status: pass
 
 ## Summary
 
-- Cost risk score: 42 -> 80.5
+- Cost risk score: 80.5 -> 80.5
 - Source guarded lanes: 7
 - External billing reviewed: false
 - External billing remaining: cloudRun, cloudSqlDataConnect, geminiCloudAssistVertex, bigQuery, scheduledRuntimeJobs
@@ -22,9 +22,9 @@ Status: pass
 | runtimeHealth | 66 | 66 |
 | evidenceCompleteness | 37.5 | 37.5 |
 | freshness | 62.86 | 62.86 |
-| costRisk | 42 | 80.5 |
-| regressionRisk | 42 | 42 |
-| overallHealthScore | 61.45 | 66.95 |
+| costRisk | 80.5 | 80.5 |
+| regressionRisk | 18 | 18 |
+| overallHealthScore | 62.9 | 62.9 |
 
 ## Cost Lanes
 
@@ -41,40 +41,26 @@ Status: pass
 
 ## Dirty File Classification
 
-- M CHANGELOG.md: release_artifact_expected
--  M agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
--  M agent/state/analytics-cost-runtime-inventory.generated.json: real_source_change_needs_review
--  M agent/state/bigquery-cloud-pipeline-closure.generated.json: real_source_change_needs_review
--  M agent/state/billing-spike-radar.generated.json: real_source_change_needs_review
--  M agent/state/cloud-sql-gemini-cost-guards.generated.json: real_source_change_needs_review
+- M agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 -  M agent/state/event-liveness-audit.generated.json: unrelated_inflight_event_liveness_to_ignore
 -  M agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
 -  M agent/state/score-80-cost-readiness.generated.json: stale_generated_artifact_to_regenerate
--  M docs/agent-truth/analytics-cost-runtime-inventory.md: real_source_change_needs_review
--  M docs/agent-truth/bigquery-cloud-pipeline-closure.md: real_source_change_needs_review
--  M docs/agent-truth/cloud-sql-gemini-cost-guards.md: real_source_change_needs_review
 -  M docs/agent-truth/event-liveness-audit.md: unrelated_inflight_event_liveness_to_ignore
 -  M docs/agent-truth/score-80-cost-readiness.md: real_source_change_needs_review
 -  M package.json: real_source_change_needs_review
--  M public/kandydrops-release-notes.json: release_artifact_expected
 -  M scripts/agent/validate-event-liveness-audit.ts: unrelated_inflight_event_liveness_to_ignore
--  M scripts/agent/validate-score-80-cost-readiness.ts: real_source_change_needs_review
 -  M src/app/api/admin/debug/route.ts: unrelated_inflight_event_liveness_to_ignore
 -  M src/lib/agent-score/core.ts: real_source_change_needs_review
--  M src/lib/agent-score/evidence-quality.ts: real_source_change_needs_review
 -  M src/lib/analytics/event-liveness-contract.ts: unrelated_inflight_event_liveness_to_ignore
 -  M src/lib/analytics/event-liveness-engine.ts: unrelated_inflight_event_liveness_to_ignore
--  M src/lib/cost/cost-owner-review-classifier.ts: real_source_change_needs_review
 -  M src/lib/debug/debug-panel-tracking-summary.ts: unrelated_inflight_event_liveness_to_ignore
--  M src/lib/release-notes/public-release-notes.ts: release_artifact_expected
--  M src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 -  M src/lib/server/admin-debug/summary.ts: unrelated_inflight_event_liveness_to_ignore
 -  M tests/unit/event-liveness-audit.spec.ts: unrelated_inflight_event_liveness_to_ignore
-- ?? agent/state/cost-risk-owner-review-closure.generated.json: current_generated_artifact_to_commit
-- ?? docs/agent-truth/cost-risk-owner-review-closure.md: release_artifact_expected
-- ?? scripts/agent/validate-cost-risk-owner-review-closure.ts: real_source_change_needs_review
-- ?? src/lib/cost/cost-risk-evidence-classifier.ts: real_source_change_needs_review
-- ?? tests/unit/cost-risk-owner-review-closure.spec.ts: real_source_change_needs_review
+- ?? agent/state/formal-evidence-bridge.generated.json: real_source_change_needs_review
+- ?? docs/agent-truth/formal-evidence-bridge.md: real_source_change_needs_review
+- ?? scripts/agent/validate-formal-evidence-bridge.ts: real_source_change_needs_review
+- ?? src/lib/agent-score/formal-evidence-bridge.ts: real_source_change_needs_review
+- ?? tests/unit/formal-evidence-bridge.spec.ts: real_source_change_needs_review
 
 ## Boundary
 

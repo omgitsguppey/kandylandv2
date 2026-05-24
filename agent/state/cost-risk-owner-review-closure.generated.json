@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T04:51:55.636Z",
+  "generatedAtUtc": "2026-05-24T05:02:26.155Z",
   "reportKey": "cost-risk-owner-review-closure",
-  "currentHead": "b375acf9361858bfb97d9e3fac8877bb230a596c",
+  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -286,9 +286,9 @@
     "runtimeHealth": 66,
     "evidenceCompleteness": 37.5,
     "freshness": 62.86,
-    "costRisk": 42,
-    "regressionRisk": 42,
-    "overallHealthScore": 61.45
+    "costRisk": 80.5,
+    "regressionRisk": 18,
+    "overallHealthScore": 62.9
   },
   "scoreAfter": {
     "sourceHealth": 91.7,
@@ -296,39 +296,14 @@
     "evidenceCompleteness": 37.5,
     "freshness": 62.86,
     "costRisk": 80.5,
-    "regressionRisk": 42,
-    "overallHealthScore": 66.95
+    "regressionRisk": 18,
+    "overallHealthScore": 62.9
   },
   "dirtyFilesClassification": [
     {
-      "path": "CHANGELOG.md",
-      "status": "M",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "agent/context/optimized-task-context.generated.json",
-      "status": " M",
+      "status": "M",
       "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/bigquery-cloud-pipeline-closure.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/billing-spike-radar.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
     },
     {
       "path": "agent/state/event-liveness-audit.generated.json",
@@ -346,21 +321,6 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/bigquery-cloud-pipeline-closure.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "docs/agent-truth/event-liveness-audit.md",
       "status": " M",
       "classification": "unrelated_inflight_event_liveness_to_ignore"
@@ -376,19 +336,9 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "status": " M",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "scripts/agent/validate-event-liveness-audit.ts",
       "status": " M",
       "classification": "unrelated_inflight_event_liveness_to_ignore"
-    },
-    {
-      "path": "scripts/agent/validate-score-80-cost-readiness.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/app/api/admin/debug/route.ts",
@@ -397,11 +347,6 @@
     },
     {
       "path": "src/lib/agent-score/core.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/agent-score/evidence-quality.ts",
       "status": " M",
       "classification": "real_source_change_needs_review"
     },
@@ -416,24 +361,9 @@
       "classification": "unrelated_inflight_event_liveness_to_ignore"
     },
     {
-      "path": "src/lib/cost/cost-owner-review-classifier.ts",
-      "status": " M",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "status": " M",
       "classification": "unrelated_inflight_event_liveness_to_ignore"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "status": " M",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "status": " M",
-      "classification": "release_artifact_expected"
     },
     {
       "path": "src/lib/server/admin-debug/summary.ts",
@@ -446,27 +376,27 @@
       "classification": "unrelated_inflight_event_liveness_to_ignore"
     },
     {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "status": "??",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "status": "??",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-cost-risk-owner-review-closure.ts",
+      "path": "agent/state/formal-evidence-bridge.generated.json",
       "status": "??",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/cost/cost-risk-evidence-classifier.ts",
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
       "status": "??",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/cost-risk-owner-review-closure.spec.ts",
+      "path": "scripts/agent/validate-formal-evidence-bridge.ts",
+      "status": "??",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "status": "??",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/formal-evidence-bridge.spec.ts",
       "status": "??",
       "classification": "real_source_change_needs_review"
     }

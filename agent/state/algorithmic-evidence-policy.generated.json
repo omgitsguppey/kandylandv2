@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-05-21T18:47:43.179Z",
+  "generatedAtUtc": "2026-05-24T05:05:31.355Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "manualEvidenceScope": {
@@ -20,7 +20,7 @@
         "cost_gate",
         "refresh_gate"
       ],
-      "score": 67.83,
+      "score": 64.5,
       "note": "Manual screenshot evidence is operator-final outside Codex and must not block telemetry, admin, cost, refresh, or source-runtime confidence."
     }
   },
@@ -72,7 +72,7 @@
     "category": "cost_gate",
     "label": "Cost source confidence",
     "confidence": "partial",
-    "score": 45,
+    "score": 25,
     "sourcePath": "agent/state/score-80-cost-readiness.generated.json",
     "sourceStatus": "source_cost_readiness_present",
     "distinction": "source cost readiness can improve cost confidence; external billing review remains separate",
@@ -90,7 +90,7 @@
     "formalGateCleared": false,
     "nextAction": "Run the self-healing refresh queue when stale score-impact artifacts are detected."
   },
-  "nonUiAlgorithmicCoverageScore": 67.83,
+  "nonUiAlgorithmicCoverageScore": 64.5,
   "formalGateImpact": {
     "uiVisualGateCleared": false,
     "deployedRuntimeSmokeCleared": false,
@@ -151,7 +151,7 @@
       "category": "cost_gate",
       "label": "Cost source confidence",
       "confidence": "partial",
-      "score": 45,
+      "score": 25,
       "sourcePath": "agent/state/score-80-cost-readiness.generated.json",
       "sourceStatus": "source_cost_readiness_present",
       "distinction": "source cost readiness can improve cost confidence; external billing review remains separate",
@@ -171,10 +171,10 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "aebc21dc9923ee0bf6e174cda14d50e2ad85160d",
+  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
   "scoreProbe": {
-    "runtimeHealthScore": 61.75,
-    "evidenceCompletenessScore": 38.75,
+    "runtimeHealthScore": 71.4,
+    "evidenceCompletenessScore": 64.6,
     "readinessStatus": "Unknown evidence",
     "launchBlockers": [
       "Runtime/provider smoke: Runtime unverified",

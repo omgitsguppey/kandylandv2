@@ -281,9 +281,10 @@ if (report) {
     gate.id === "debugRuntimeEvidence" && gate.status === "Unknown evidence");
   const hasSourceBackedDebugGate = report.evidenceGates?.some((gate) =>
     gate.id === "debugRuntimeEvidence"
-    && gate.status === "Ready"
+    && (gate.status === "Ready" || gate.status === "Ready with smoke required")
     && (
       gate.evidence.join("\n").includes("source_ready_debug_runtime_evidence")
+      || gate.evidence.join("\n").includes("debug_runtime_source_evidence")
       || gate.evidence.join("\n").includes("source_ready_event_translation_bridge")
       || gate.evidence.join("\n").includes("source_ready_person_metrics_hydration")
       || gate.evidence.join("\n").includes("source_ready_telemetry_trigger_test_matrix")
@@ -296,7 +297,7 @@ if (report) {
   }
   const debugRuntimeGate = report.evidenceGates?.find((gate) => gate.id === "debugRuntimeEvidence");
   if (
-    debugRuntimeGate?.status === "Ready"
+    (debugRuntimeGate?.status === "Ready" || debugRuntimeGate?.status === "Ready with smoke required")
     && debugRuntimeGate.evidence.join("\n").includes("launchGateImpact=does_not_clear_deployed_runtime_smoke") === false
   ) {
     failures.push("Source-backed debug runtime evidence must keep deployed runtime smoke gate separate.");

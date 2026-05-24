@@ -10,7 +10,7 @@ Manual screenshot evidence is an operator-final checklist outside Codex. It must
 - telemetry_gate: partial; score=92; source=`agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json`; telemetry and behavior math can satisfy non-UI confidence without becoming visual proof
 - admin_truth_gate: partial; score=55; source=`agent/state/admin-truth-source-sample.generated.json`; admin source sample earns partial confidence but does not clear formal admin runtime sample
 - provider_gate: partial; score=40; source=`agent/state/operator-revenue-smoke.generated.json`; operator-confirmed revenue smoke is partial product confidence only
-- cost_gate: partial; score=45; source=`agent/state/score-80-cost-readiness.generated.json`; source cost readiness can improve cost confidence; external billing review remains separate
+- cost_gate: partial; score=25; source=`agent/state/score-80-cost-readiness.generated.json`; source cost readiness can improve cost confidence; external billing review remains separate
 - refresh_gate: partial; score=75; source=`agent/state/self-healing-refresh-queue.generated.json`; current refresh queue can satisfy source freshness ordering without creating runtime proof
 
 ## Formal Gates

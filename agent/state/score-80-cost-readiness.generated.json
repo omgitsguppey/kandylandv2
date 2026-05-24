@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-24T04:43:31.754Z",
+  "generatedAtUtc": "2026-05-24T05:04:29.432Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "b375acf9361858bfb97d9e3fac8877bb230a596c",
-  "sourceCommit": "b375acf9361858bfb97d9e3fac8877bb230a596c",
+  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "sourceCommit": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,

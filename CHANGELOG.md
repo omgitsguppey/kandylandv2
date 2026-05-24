@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.13 - 2026-05-24
+- Formal evidence bridge
+- Bridged source-backed, operator-confirmed, and formal evidence without faking runtime proof.
+- Clarified evidence completeness by gate.
+- Kept provider, runtime, and admin formal gates honest.
+
 ## 1.4.12 - 2026-05-24
 - Cost risk readiness updates
 - Refined cost risk scoring from source guard evidence.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Connected FAQ, Support, Policies, Privacy Policy, and Download My Data to canonical trust surfaces.
 - Consolidated policy links so Account Settings avoids dead or duplicated placeholder pages.
 - Added debug visibility for support and policy surface health.
-
-## 1.3.88 - 2026-05-23
-- Settings preference cleanup
-- Phased out stale client-only preference truth paths.
-- Kept privacy and creator settings tied to backend contracts.
-- Added debug visibility for stale client preference bypasses.

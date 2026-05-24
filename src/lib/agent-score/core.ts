@@ -18,6 +18,7 @@ import {
   describeFreshnessState,
   normalizeTechnicalFreshnessTerms,
 } from "./freshness-language";
+import { buildFormalEvidenceBridgeReport } from "./formal-evidence-bridge";
 import { buildAlgorithmicEvidencePolicyReport } from "./algorithmic-evidence-policy";
 import {
   buildBelowTargetDimensionExplanations,
@@ -185,7 +186,7 @@ export type PublicBetaEvidenceInput = {
 };
 
 export type PublicBetaEvidenceGate = {
-  id: keyof typeof PUBLIC_BETA_EVIDENCE_WEIGHTS | "debugRuntimeEvidence" | "algorithmicEvidenceCoverage";
+  id: keyof typeof PUBLIC_BETA_EVIDENCE_WEIGHTS | "debugRuntimeEvidence" | "algorithmicEvidenceCoverage" | "formalEvidenceBridge";
   label: string;
   weight: number;
   score: number;
@@ -881,22 +882,40 @@ export function buildPublicBetaEvidenceGates(input: {
       requiresRuntimeProof: true,
     },
   });
+  const formalEvidenceBridge = buildFormalEvidenceBridgeReport({
+    generatedAtUtc: new Date().toISOString(),
+    currentHead: currentHead ?? "unknown",
+    artifacts: {
+      providerSmoke: evidence.providerSmokeEvidence,
+      runtimeSmoke: evidence.runtimeSmokeEvidence,
+      operatorRevenueSmoke: evidence.providerSmokeEvidence,
+      sourceBackedRuntimeConfidence: evidence.sourceBackedRuntimeConfidenceEvidence,
+      realUsageConfidence: evidence.realUsageConfidenceEvidence,
+      realUsageConfidenceCalibration: evidence.realUsageConfidenceCalibrationEvidence,
+      runtimeSubstituteMatrix: evidence.runtimeSmokeSubstituteMatrixEvidence,
+      adminSourceSample: evidence.adminTruthSampleEvidence,
+      debugRuntimeEvidence: evidence.debugRuntimeEvidenceArtifact,
+    },
+  });
+  const runtimeProviderBridgeCredit = formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit / 100;
   const runtimeProviderQuality = {
     quality: providerQuality.quality === "formal_passed" && runtimeQuality.quality === "formal_passed"
       ? "formal_passed"
       : providerQuality.quality === "operator_reported"
         ? "operator_reported"
+        : runtimeProviderBridgeCredit > 0
+          ? "formal_partial"
         : runtimeQuality.quality === "source_ready"
           ? "source_ready"
           : providerQuality.quality === "failed" || runtimeQuality.quality === "failed"
             ? "failed"
             : "missing",
-    confidence: Math.min(providerQuality.confidence, runtimeQuality.confidence),
+    confidence: Math.max(Math.min(providerQuality.confidence, runtimeQuality.confidence), runtimeProviderBridgeCredit * 0.9),
     freshness: providerQuality.freshness === "fresh" ? runtimeQuality.freshness : providerQuality.freshness,
     freshnessScore: Math.min(providerQuality.freshnessScore, runtimeQuality.freshnessScore),
-    partialCredit: roundScore((providerQuality.partialCredit + runtimeQuality.partialCredit) / 2),
+    partialCredit: roundScore(Math.max((providerQuality.partialCredit + runtimeQuality.partialCredit) / 2, runtimeProviderBridgeCredit)),
     blocksLaunch: providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
-    reason: runtimeProviderSmokeDetail,
+    reason: `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear formal provider or deployed runtime smoke.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
   const adminTruthSamplePassed = evidenceArtifactPassed(
@@ -914,7 +933,7 @@ export function buildPublicBetaEvidenceGates(input: {
     `adminTruthSampleArtifactStatus=${adminTruthSampleStatus}`,
     ...evidenceArtifactEvidence(evidence.adminTruthSampleEvidence),
   ]));
-  const adminQuality = resolveEvidenceQuality({
+  const adminBaseQuality = resolveEvidenceQuality({
     artifact: evidence.adminTruthSampleEvidence,
     context: {
       currentHead,
@@ -923,9 +942,24 @@ export function buildPublicBetaEvidenceGates(input: {
       requiresRuntimeProof: true,
     },
   });
+  const adminBridgeCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit / 100;
+  const adminQuality = {
+    ...adminBaseQuality,
+    quality: adminBaseQuality.quality === "formal_passed"
+      ? adminBaseQuality.quality
+      : adminBridgeCredit > 0
+        ? "formal_partial"
+        : adminBaseQuality.quality,
+    confidence: Math.max(adminBaseQuality.confidence, adminBridgeCredit * 0.9),
+    partialCredit: roundScore(Math.max(adminBaseQuality.partialCredit, adminBridgeCredit)),
+    blocksLaunch: adminBaseQuality.blocksLaunch,
+    reason: adminBaseQuality.quality === "formal_passed"
+      ? adminBaseQuality.reason
+      : "Admin source evidence earns partial bridge confidence but does not clear the production admin truth sample gate.",
+  } satisfies ReturnType<typeof resolveEvidenceQuality>;
   const adminTruthSampleStatusLabel: PublicBetaReadinessStatus = adminTruthSamplePassed
     ? "Ready"
-    : adminQuality.quality === "source_ready"
+    : adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
       ? "Ready with smoke required"
       : "Unknown evidence";
 
@@ -961,11 +995,11 @@ export function buildPublicBetaEvidenceGates(input: {
   const debugQuality = debugRuntimeEvidenceArtifactReady
     ? debugRuntimeEvidenceQuality
     : {
-    quality: debugEvidenceAvailable ? "formal_partial" : "missing",
-    confidence: debugEvidenceAvailable ? 0.65 : 0,
+    quality: debugEvidenceAvailable || formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit > 0 ? "formal_partial" : "missing",
+    confidence: Math.max(debugEvidenceAvailable ? 0.65 : 0, formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit / 100 * 0.9),
     freshness: debugEvidenceAvailable ? "fresh" : "missing",
-    freshnessScore: debugEvidenceAvailable ? 1 : 0,
-    partialCredit: debugEvidenceAvailable ? 0.65 : 0,
+    freshnessScore: debugEvidenceAvailable ? 1 : formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit > 0 ? 1 : 0,
+    partialCredit: Math.max(debugEvidenceAvailable ? 0.65 : 0, formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit / 100),
     blocksLaunch: false,
     reason: debugEvidenceAvailable
       ? "Runtime debug evidence is present in the score input."
@@ -1052,10 +1086,12 @@ export function buildPublicBetaEvidenceGates(input: {
       recommendedAction: "Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
       quality: adminQuality,
       gateRequiredForExit: true,
-      sourceCredit: adminQuality.quality === "source_ready" ? adminQuality.partialCredit * 100 : undefined,
+      sourceCredit: adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
+        ? adminQuality.partialCredit * 100
+        : undefined,
       runtimeCredit: adminQuality.quality === "formal_passed"
         ? adminQuality.partialCredit * 100
-        : adminQuality.quality === "source_ready"
+        : adminQuality.quality === "source_ready" || adminQuality.quality === "formal_partial"
           ? adminQuality.partialCredit * 100
           : 0,
     }),
@@ -1076,7 +1112,9 @@ export function buildPublicBetaEvidenceGates(input: {
       id: "debugRuntimeEvidence",
       label: "Debug/runtime evidence",
       weight: 0,
-      status: debugEvidenceAvailable ? "Ready" : "Unknown evidence",
+      status: debugEvidenceAvailable || formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit > 0
+        ? "Ready with smoke required"
+        : "Unknown evidence",
       detail: debugRuntimeEvidenceArtifactReady
         ? "source-backed debug/runtime evidence checked debug sources without clearing deployed runtime smoke."
         : debugEvidenceAvailable
@@ -1086,7 +1124,10 @@ export function buildPublicBetaEvidenceGates(input: {
       recommendedAction: "Do not treat empty debug evidence as proof that no runtime issue exists.",
       quality: debugQuality,
       gateRequiredForExit: false,
-      runtimeCredit: debugRuntimeEvidenceArtifactReady ? debugRuntimeEvidenceQuality.partialCredit * 100 : debugEvidenceAvailable ? 50 : 0,
+      runtimeCredit: Math.max(
+        debugRuntimeEvidenceArtifactReady ? debugRuntimeEvidenceQuality.partialCredit * 100 : debugEvidenceAvailable ? 50 : 0,
+        formalEvidenceBridge.gates.debugRuntimeEvidence.runtimeCredit,
+      ),
     }),
     buildEvidenceGate({
       id: "algorithmicEvidenceCoverage",
@@ -1115,6 +1156,50 @@ export function buildPublicBetaEvidenceGates(input: {
         algorithmicEvidencePolicy.runtimeSourceConfidence.score,
         algorithmicEvidencePolicy.telemetryConfidence.score,
         algorithmicEvidencePolicy.adminTruthConfidence.score,
+      ),
+    }),
+    buildEvidenceGate({
+      id: "formalEvidenceBridge",
+      label: "Evidence bridge",
+      weight: 0,
+      status: "Ready with smoke required",
+      detail: "Source-backed, operator-confirmed, admin-source, debug, and substitute runtime evidence are bridged as partial confidence without clearing formal gates.",
+      evidence: [
+        `formalProviderGateCleared=${formalEvidenceBridge.formalGateStatus.providerSmoke.cleared}`,
+        `deployedRuntimeSmokeCleared=${formalEvidenceBridge.formalGateStatus.deployedRuntimeSmoke.cleared}`,
+        `formalAdminTruthSampleCleared=${formalEvidenceBridge.formalGateStatus.adminProductionSample.cleared}`,
+        `runtimeProviderSmokeEvidenceCredit=${formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit}`,
+        `adminTruthSamplesEvidenceCredit=${formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit}`,
+        `debugRuntimeEvidenceCredit=${formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit}`,
+        ...formalEvidenceBridge.evidenceClasses.map((entry) => `evidenceClass=${entry}`),
+      ],
+      recommendedAction: "Use bridge confidence for score clarity only; attach formal provider, deployed runtime, and production admin evidence before clearing gates.",
+      quality: {
+        quality: formalEvidenceBridge.validationFailures.length > 0 ? "failed" : "formal_partial",
+        confidence: formalEvidenceBridge.validationFailures.length > 0 ? 0 : 0.78,
+        freshness: "fresh",
+        freshnessScore: 1,
+        partialCredit: formalEvidenceBridge.validationFailures.length > 0
+          ? 0
+          : Math.max(
+              formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit,
+              formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit,
+              formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit,
+            ) / 100,
+        blocksLaunch: false,
+        reason: formalEvidenceBridge.validationFailures.length > 0
+          ? formalEvidenceBridge.validationFailures.join("; ")
+          : "Evidence bridge is partial confidence and does not clear formal gates.",
+      },
+      gateRequiredForExit: false,
+      sourceCredit: Math.max(
+        formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit,
+        formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit,
+      ),
+      runtimeCredit: Math.max(
+        formalEvidenceBridge.gates.runtimeProviderSmoke.runtimeCredit,
+        formalEvidenceBridge.gates.adminTruthSamples.runtimeCredit,
+        formalEvidenceBridge.gates.debugRuntimeEvidence.runtimeCredit,
       ),
     }),
   ];
@@ -1358,9 +1443,13 @@ export function buildPublicBetaScoreReport(
     gate.id === "runtimeProviderSmoke"
     || gate.id === "adminTruthSamples"
     || gate.id === "debugRuntimeEvidence"
-    || gate.id === "algorithmicEvidenceCoverage");
+    || gate.id === "algorithmicEvidenceCoverage"
+    || gate.id === "formalEvidenceBridge");
   const requiredExitGates = evidenceReadiness.evidenceGates.filter((gate) => gate.gateRequiredForExit);
-  const nonUiRequiredExitGates = requiredExitGates;
+  const nonUiRequiredExitGates = [
+    ...requiredExitGates,
+    ...evidenceReadiness.evidenceGates.filter((gate) => gate.id === "formalEvidenceBridge"),
+  ];
   const operatorFinalChecks = buildOperatorFinalChecks(options.evidence?.visualManualEvidence);
   const sourceHealthScore = roundScore(clamp((scannerScore * 0.7) + (average(sourceGates.map((gate) => gate.sourceCredit)) * 0.3), 0, 100));
   const runtimeHealthScore = average(runtimeRequiredGates.map((gate) => gate.runtimeCredit));

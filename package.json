@@ -89,6 +89,7 @@
         "check:beta-score": "tsx scripts/agent/validate-public-beta-score.ts",
         "check:beta-health-algorithm-v2": "tsx scripts/agent/validate-beta-health-algorithm-v2.ts",
         "check:algorithmic-evidence-policy": "tsx scripts/agent/validate-algorithmic-evidence-policy.ts",
+        "check:formal-evidence-bridge": "tsx scripts/agent/validate-formal-evidence-bridge.ts",
         "check:ui-visual-smoke-minimal": "tsx scripts/agent/validate-ui-visual-smoke-minimal.ts",
         "check:codex-visual-gate-removal": "tsx scripts/agent/validate-codex-visual-gate-removal.ts",
         "check:beta-evidence-gap-map": "tsx scripts/agent/validate-beta-evidence-gap-map.ts",

@@ -1,0 +1,114 @@
+{
+  "generatedAtUtc": "2026-05-24T05:11:18.451Z",
+  "reportKey": "formal-evidence-bridge",
+  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "formalGateStatus": {
+    "providerSmoke": {
+      "cleared": false,
+      "status": "missing_formal_artifact",
+      "nextAction": "Attach formal provider smoke evidence."
+    },
+    "deployedRuntimeSmoke": {
+      "cleared": false,
+      "status": "missing_formal_artifact",
+      "nextAction": "Attach deployed runtime smoke evidence."
+    },
+    "adminProductionSample": {
+      "cleared": false,
+      "status": "missing_formal_artifact",
+      "nextAction": "Attach redacted production admin truth sample evidence."
+    }
+  },
+  "sourceConfidenceStatus": {
+    "runtimeConfidenceScore": 0,
+    "realUsageConfidenceScore": 92,
+    "adminSourceConfidenceScore": 65,
+    "debugRuntimeConfidenceScore": 0,
+    "runtimeSubstituteEvidenceScore": 75.56
+  },
+  "operatorSignalStatus": {
+    "operatorConfirmedRevenue": true,
+    "formalProviderGateCleared": false,
+    "status": "operator_signal_only"
+  },
+  "gates": {
+    "runtimeProviderSmoke": {
+      "evidenceCredit": 78,
+      "runtimeCredit": 92,
+      "formalGateCleared": false,
+      "status": "partial_source_confidence",
+      "nextAction": "Attach formal provider and deployed runtime smoke before clearing this gate.",
+      "evidenceClasses": [
+        "missing_formal_artifact",
+        "operator_confirmed_revenue",
+        "real_usage_confidence",
+        "runtime_substitute_matrix",
+        "admin_source_sample",
+        "debug_runtime_source_evidence"
+      ]
+    },
+    "adminTruthSamples": {
+      "evidenceCredit": 65,
+      "runtimeCredit": 65,
+      "formalGateCleared": false,
+      "status": "partial_source_confidence",
+      "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin gate.",
+      "evidenceClasses": [
+        "admin_source_sample",
+        "missing_formal_artifact"
+      ]
+    },
+    "debugRuntimeEvidence": {
+      "evidenceCredit": 80,
+      "runtimeCredit": 80,
+      "formalGateCleared": false,
+      "status": "partial_source_confidence",
+      "nextAction": "Use debug/source runtime evidence as current confidence only; attach deployed smoke before formal closure.",
+      "evidenceClasses": [
+        "debug_runtime_source_evidence",
+        "source_backed_runtime_confidence"
+      ]
+    }
+  },
+  "evidenceClasses": [
+    "missing_formal_artifact",
+    "operator_confirmed_revenue",
+    "real_usage_confidence",
+    "runtime_substitute_matrix",
+    "admin_source_sample",
+    "debug_runtime_source_evidence"
+  ],
+  "formalGapsRemaining": [
+    "formal_provider_smoke",
+    "deployed_runtime_smoke",
+    "production_admin_truth_sample"
+  ],
+  "scoreBefore": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 66,
+    "evidenceCompleteness": 37.5,
+    "freshness": 62.86,
+    "costRisk": 80.5,
+    "regressionRisk": 18,
+    "overallHealthScore": 62.9
+  },
+  "scoreAfter": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 82.25,
+    "evidenceCompleteness": 67,
+    "freshness": 62.86,
+    "costRisk": 80.5,
+    "regressionRisk": 18,
+    "overallHealthScore": 72.05
+  },
+  "scoreDimensionImpact": {
+    "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",
+    "evidenceCompleteness": "Source-backed and operator-confirmed evidence can reduce empty-evidence language without clearing formal gates."
+  },
+  "nextExactSteps": [
+    "formal_provider_smoke: attach formal evidence artifact before clearing the gate.",
+    "deployed_runtime_smoke: attach formal evidence artifact before clearing the gate.",
+    "production_admin_truth_sample: attach formal evidence artifact before clearing the gate."
+  ],
+  "validationFailures": []
+}
