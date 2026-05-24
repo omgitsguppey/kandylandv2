@@ -14,6 +14,7 @@ import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
+import { buildDailyTaskGuidanceAuditReport } from "@/lib/tasks/daily-task-guidance-contract";
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
 import { buildUserManagementRefactorReport } from "@/lib/admin/user-management-contract";
@@ -186,6 +187,7 @@ export async function buildAdminDebugSummaryPayload(input: {
   const dailyTasksResetTruth = {
     debugLane: buildDailyTaskDebugLane(),
   };
+  const dailyTaskGuidanceRouteAudit = buildDailyTaskGuidanceAuditReport();
   const dailyTaskLifecycleTelemetry = {
     debugLane: buildDailyTaskLifecycleDebugLane(),
   };
@@ -200,6 +202,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     userManagementRefactor,
     telemetryTriggerTestMatrix,
     dailyTasksResetTruth,
+    dailyTaskGuidanceRouteAudit,
     dailyTaskLifecycleTelemetry,
     dailyTaskRewardLedger,
     chatGatingModeration,
@@ -238,6 +241,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     chatGatingModeration,
     chatTelemetryAdminTruth,
     dailyTasksResetTruth,
+    dailyTaskGuidanceRouteAudit,
     dailyTaskLifecycleTelemetry,
     dailyTaskRewardLedger,
     legacyRecovery,

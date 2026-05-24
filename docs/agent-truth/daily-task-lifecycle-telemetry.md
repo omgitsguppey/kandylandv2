@@ -1,7 +1,7 @@
 # Daily Task Lifecycle Telemetry
 
-Generated: 2026-05-24T03:21:07.964Z
-Current HEAD: 8d9a6712
+Generated: 2026-05-24T03:36:32.773Z
+Current HEAD: 921b3fc5
 
 ## Lifecycle
 
@@ -54,25 +54,27 @@ Current HEAD: 8d9a6712
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
-- agent/state/daily-task-lifecycle-telemetry.generated.json: current_generated_artifact_to_commit
-- agent/state/daily-task-reward-ledger.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/gumdrop-economy-accuracy.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/daily-task-lifecycle-telemetry.md: documentation_artifact_expected
-- docs/agent-truth/daily-task-reward-ledger.md: documentation_artifact_expected
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/activity-verification-engine.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-guidance-route-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/daily-task-guidance-route-audit.md: documentation_artifact_expected
+- docs/agent-truth/daily-task-reset-truth.md: documentation_artifact_expected
+- docs/agent-truth/feature-registration-gate.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-daily-task-guidance-route-audit.ts: validator_artifact_expected
 - scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-reward-ledger.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-reset-truth.ts: validator_artifact_expected
 - src/app/api/admin/debug/route.ts: real_source_change_needs_review
-- src/app/api/checkin/route.ts: real_source_change_needs_review
+- src/components/Dashboard/DailyTasksModule.tsx: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - src/lib/server/admin-debug/summary.ts: real_source_change_needs_review
-- src/lib/server/daily-tasks.ts: real_source_change_needs_review
-- src/lib/tasks/daily-task-reward-ledger.ts: real_source_change_needs_review
-- tests/unit/daily-task-reward-ledger.spec.ts: test_artifact_expected
+- src/lib/tasks/daily-task-guidance-contract.ts: real_source_change_needs_review
+- tests/unit/daily-task-guidance-route-audit.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

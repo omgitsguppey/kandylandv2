@@ -32,6 +32,7 @@ import {
   DAILY_TASK_LIMIT,
   type DailyTasksState,
 } from "@/lib/tasks/task-catalog";
+import { isDailyTaskGuidanceActive } from "@/lib/tasks/daily-task-guidance-contract";
 import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
 import { trackEvent } from "@/lib/telemetry";
 import {
@@ -124,7 +125,10 @@ export function DailyTasksModule() {
   }, [userProfile?.dailyTasksState]);
 
   const dailyTaskState = localTaskState ?? userProfile?.dailyTasksState ?? null;
-  const activeTasks = useMemo(() => dailyTaskState?.tasks ?? [], [dailyTaskState?.tasks]);
+  const activeTasks = useMemo(
+    () => (dailyTaskState?.tasks ?? []).filter((task) => isDailyTaskGuidanceActive(task)),
+    [dailyTaskState?.tasks],
+  );
   const completedCount = useMemo(
     () => activeTasks.filter((task) => task.claimed).length,
     [activeTasks],

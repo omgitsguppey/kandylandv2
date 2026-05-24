@@ -49,6 +49,7 @@ import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
+import { buildDailyTaskGuidanceAuditReport } from "@/lib/tasks/daily-task-guidance-contract";
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
@@ -6621,6 +6622,7 @@ export async function GET(request: NextRequest) {
             dailyTasksResetTruth: {
                 debugLane: buildDailyTaskDebugLane(),
             },
+            dailyTaskGuidanceRouteAudit: buildDailyTaskGuidanceAuditReport(),
             dailyTaskLifecycleTelemetry: {
                 debugLane: buildDailyTaskLifecycleDebugLane(),
             },
@@ -6640,6 +6642,7 @@ export async function GET(request: NextRequest) {
                 dailyTasksResetTruth: {
                     debugLane: buildDailyTaskDebugLane(),
                 },
+                dailyTaskGuidanceRouteAudit: buildDailyTaskGuidanceAuditReport(),
                 dailyTaskLifecycleTelemetry: {
                     debugLane: buildDailyTaskLifecycleDebugLane(),
                 },

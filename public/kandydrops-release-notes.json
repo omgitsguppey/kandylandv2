@@ -1,11 +1,67 @@
 {
-  "currentVersion": "1.4.8",
-  "betaReleaseCounter": 408,
+  "currentVersion": "1.4.9",
+  "betaReleaseCounter": 409,
   "channel": "beta",
-  "generatedAt": "2026-05-24T03:15:00.000Z",
-  "generatedAtUtc": "2026-05-24T03:15:00.000Z",
+  "generatedAt": "2026-05-24T03:40:00.000Z",
+  "generatedAtUtc": "2026-05-24T03:40:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.9",
+      "previousVersion": "1.4.8",
+      "betaReleaseCounter": 409,
+      "previousBetaReleaseCounter": 408,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(tasks): align guidance routes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T03:40:00.000Z",
+      "generatedAt": "2026-05-24T03:40:00.000Z",
+      "committedAtUtc": "2026-05-24T03:40:00.000Z",
+      "generatedAtUtc": "2026-05-24T03:40:00.000Z",
+      "updatedAtUtc": "2026-05-24T03:40:00.000Z",
+      "category": "Improved",
+      "title": "Daily task guidance route accuracy",
+      "summary": "Aligned daily task guidance prompts, CTAs, routes, completion signals, telemetry, and debug visibility with the current site structure.",
+      "userFacingTitle": "Daily task guidance route accuracy",
+      "surfaceCategory": "Daily tasks",
+      "bullets": [
+        "Aligned daily task guidance with current site routes and completion signals.",
+        "Hid or classified tasks that cannot be completed yet.",
+        "Added debug visibility for task guidance health."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a daily task guidance route contract, source validator, generated evidence, debug lane coverage, and unit tests so task guidance cannot point to missing routes, missing telemetry, stale surfaces, or unsupported completion signals."
+      ],
+      "affectedSurfaces": [
+        "Daily tasks",
+        "Task guidance",
+        "Experiences",
+        "Admin debug",
+        "Telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/daily-task-guidance-route-audit.generated.json",
+        "docs/agent-truth/daily-task-guidance-route-audit.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-daily-task-guidance-route-audit.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/components/Dashboard/DailyTasksModule.tsx",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "src/lib/tasks/daily-task-guidance-contract.ts",
+        "tests/unit/daily-task-guidance-route-audit.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.8",
       "previousVersion": "1.4.7",
@@ -1371,55 +1427,6 @@
         "src/lib/telemetry-catalog.ts",
         "src/lib/telemetry.ts",
         "tests/unit/account-settings-delete-flow.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.84",
-      "previousVersion": "1.3.83",
-      "betaReleaseCounter": 384,
-      "previousBetaReleaseCounter": 383,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(chat): lift new message modal",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-22T23:55:00.000Z",
-      "generatedAt": "2026-05-22T23:55:00.000Z",
-      "committedAtUtc": "2026-05-22T23:55:00.000Z",
-      "generatedAtUtc": "2026-05-22T23:55:00.000Z",
-      "updatedAtUtc": "2026-05-22T23:55:00.000Z",
-      "category": "Fixed",
-      "title": "New message modal polish",
-      "summary": "Refined the Chat tab New message modal so it clears the mobile bottom navigation and uses the black frosted glass panel treatment.",
-      "userFacingTitle": "New message modal polish",
-      "surfaceCategory": "Chat & support",
-      "bullets": [
-        "Lifted the new message modal above the bottom navigation on mobile.",
-        "Matched the new message modal to the black frosted glass design.",
-        "Kept chat routing, messaging, and creator picker logic unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Updated only the New message modal presentation in ChatExperience with shared bottom-nav safe-area offset markers, black glass styling, generated evidence, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "Chat",
-        "Mobile UI"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/chat-composer-modal-lift.generated.json",
-        "docs/agent-truth/chat-composer-modal-lift.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-chat-composer-modal-lift.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/chat-composer-modal-lift.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

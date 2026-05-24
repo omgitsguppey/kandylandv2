@@ -11,7 +11,7 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 - Mapped routes: 162
 - System/internal routes: 11
 - Unmapped routes: 0
-- Telemetry events: 448
+- Telemetry events: 456
 - Unmapped telemetry events: 0
 - UI metrics: 14
 - Orphan metrics: 0
@@ -19,7 +19,7 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 ## Registered Features
 
 - wallet: owner=wallet-analytics; routes=3; events=9; materializers=1; score=runtimeHealth,evidenceCompleteness,costRisk
-- user_dashboard: owner=user-dashboard-analytics; routes=12; events=84; materializers=3; score=sourceHealth,evidenceCompleteness
+- user_dashboard: owner=user-dashboard-analytics; routes=12; events=92; materializers=3; score=sourceHealth,evidenceCompleteness
 - drops: owner=drops-analytics; routes=3; events=88; materializers=2; score=sourceHealth,runtimeHealth,evidenceCompleteness
 - library: owner=library-analytics; routes=1; events=7; materializers=1; score=evidenceCompleteness
 - creator_dashboard: owner=creator-dashboard-analytics; routes=4; events=29; materializers=4; score=sourceHealth,evidenceCompleteness
@@ -33,7 +33,7 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 - cookie_consent_privacy: owner=privacy-analytics; routes=4; events=102; materializers=2; score=sourceHealth,evidenceCompleteness,regressionRisk
 - behavior_tracking: owner=behavioral-intelligence; routes=4; events=140; materializers=4; score=sourceHealth,runtimeHealth,evidenceCompleteness
 - runtime_smoke_substitutes: owner=runtime-evidence; routes=7; events=116; materializers=3; score=runtimeHealth,evidenceCompleteness,regressionRisk
-- daily_checkin: owner=retention-analytics; routes=3; events=26; materializers=1; score=evidenceCompleteness
+- daily_checkin: owner=retention-analytics; routes=3; events=34; materializers=1; score=evidenceCompleteness
 - notifications: owner=notifications-analytics; routes=1; events=20; materializers=1; score=runtimeHealth,evidenceCompleteness
 - auth_identity: owner=identity-analytics; routes=7; events=51; materializers=1; score=runtimeHealth,evidenceCompleteness
 - support: owner=support-analytics; routes=6; events=45; materializers=1; score=runtimeHealth,evidenceCompleteness

@@ -8,6 +8,7 @@ import {
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
+import { buildTaskGuidanceHealthLane } from "@/lib/tasks/daily-task-guidance-contract";
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
 
@@ -25,6 +26,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "legacy_recovery",
   "wallet_funnel",
   "daily_tasks_reset",
+  "daily_task_guidance_health",
   "daily_task_lifecycle",
   "daily_task_reward_ledger",
   "chat_gating_moderation",
@@ -95,6 +97,7 @@ const TRACKING_GROUPS = [
   "legacy_recovery",
   "wallet_funnel",
   "daily_tasks_reset",
+  "daily_task_guidance_health",
   "daily_task_lifecycle",
   "daily_task_reward_ledger",
   "chat_gating_moderation",
@@ -209,6 +212,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const legacyStatus = toStatus(input.legacyRecovery?.status);
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
   const dailyTasksReset = input.dailyTasksResetTruth?.debugLane ?? buildDailyTaskDebugLane();
+  const dailyTaskGuidanceHealth = input.dailyTaskGuidanceRouteAudit?.debugLane ?? buildTaskGuidanceHealthLane();
   const dailyTaskLifecycle = input.dailyTaskLifecycleTelemetry?.debugLane ?? buildDailyTaskLifecycleDebugLane();
   const dailyTaskRewardLedger = input.dailyTaskRewardLedger?.debugLane ?? buildDailyTaskRewardDebugLane();
   const dailyTaskLifecycleWarnings = toNumber(dailyTaskLifecycle.missingStarts)
@@ -418,6 +422,30 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: dailyTasksReset.duplicateClaimGuard ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=advanced#daily-tasks-reset",
+    }),
+    makeLane({
+      id: "daily_task_guidance_health",
+      label: "Task guidance health",
+      trackingSystem: "daily_task_guidance_route_audit",
+      sourceOwner: "retention",
+      sourceOfTruth: "src/lib/tasks/daily-task-guidance-contract.ts",
+      status: dailyTaskGuidanceHealth.status === "degraded" ? "degraded" : "live",
+      severity: severityFromCounts(
+        0,
+        toNumber(dailyTaskGuidanceHealth.brokenRoutes)
+          + toNumber(dailyTaskGuidanceHealth.missingCompletionSignals)
+          + toNumber(dailyTaskGuidanceHealth.missingTelemetry)
+          + toNumber(dailyTaskGuidanceHealth.wrongSurfaceTasks),
+        dailyTaskGuidanceHealth.status === "degraded" ? "degraded" : "live",
+      ),
+      scoreImpact: "medium",
+      primarySignal: `Active=${toNumber(dailyTaskGuidanceHealth.activeTasks)}; hiddenDeprecated=${toNumber(dailyTaskGuidanceHealth.hiddenDeprecatedTasks)}; brokenRoutes=${toNumber(dailyTaskGuidanceHealth.brokenRoutes)}; missingSignals=${toNumber(dailyTaskGuidanceHealth.missingCompletionSignals)}; missingTelemetry=${toNumber(dailyTaskGuidanceHealth.missingTelemetry)}.`,
+      criticalCount: 0,
+      warningCount: toNumber(dailyTaskGuidanceHealth.brokenRoutes)
+        + toNumber(dailyTaskGuidanceHealth.missingCompletionSignals)
+        + toNumber(dailyTaskGuidanceHealth.missingTelemetry)
+        + toNumber(dailyTaskGuidanceHealth.wrongSurfaceTasks),
+      drilldownTarget: "/admin/debug?tab=advanced#daily-task-guidance-health",
     }),
     makeLane({
       id: "daily_task_lifecycle",

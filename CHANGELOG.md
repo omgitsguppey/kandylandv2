@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.9 - 2026-05-23
+- Daily task guidance route accuracy
+- Aligned daily task guidance with current site routes and completion signals.
+- Hid or classified tasks that cannot be completed yet.
+- Added debug visibility for task guidance health.
+
 ## 1.4.8 - 2026-05-23
 - Daily task reward ledger integrity
 - Hardened daily task reward GumDrop ledger classification.
