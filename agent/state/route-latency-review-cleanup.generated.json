@@ -1,0 +1,39 @@
+{
+  "reportKey": "route-latency-review-cleanup",
+  "generatedAtUtc": "2026-05-24T21:14:26.910Z",
+  "records": [
+    {
+      "routeKey": "admin/overview:GET",
+      "currentLatencyStatus": "current_slow",
+      "historicalLatencyStatus": "degraded",
+      "slowRate": 0.4400749063670412,
+      "severity": "critical",
+      "nextAction": "Use summary-first/cache-safe policy before adding raw reads; keep drilldown refresh explicit."
+    },
+    {
+      "routeKey": "admin/analytics/historical:GET",
+      "currentLatencyStatus": "current_fast",
+      "historicalLatencyStatus": "degraded",
+      "slowRate": 0.34075723830734966,
+      "severity": "info",
+      "nextAction": "Keep summary-first/cache-safe policy; review only if current latency crosses threshold."
+    },
+    {
+      "routeKey": "creator/bookings:GET",
+      "currentLatencyStatus": "current_fast",
+      "historicalLatencyStatus": "review",
+      "slowRate": 0.0026619343389529724,
+      "severity": "info",
+      "nextAction": "No immediate latency action."
+    }
+  ],
+  "currentSlowRoutes": [
+    "admin/overview:GET"
+  ],
+  "historicalSlowReviewRoutes": [
+    "admin/analytics/historical:GET",
+    "creator/bookings:GET"
+  ],
+  "totalSlowSamples": 779,
+  "validationFailures": []
+}

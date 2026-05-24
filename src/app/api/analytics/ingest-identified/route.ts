@@ -24,6 +24,7 @@ import {
     buildEventEnvelope,
     validateEventEnvelope,
 } from "@/lib/analytics/event-envelope-builder";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +55,22 @@ function getAnalyticsIngestErrorMessage(error: unknown) {
 
 function buildFallbackEventId(userId: string, eventName: string) {
     return `evt_${encodeURIComponent(userId || "anonymous")}_${encodeURIComponent(eventName || "event")}_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+}
+
+function buildIdentifiedIngestClientErrorResponse(input: {
+    status: 400 | 413;
+    errorCode: "invalid_analytics_payload" | "payload_too_large";
+    reason: string;
+}) {
+    return NextResponse.json({
+        success: false,
+        ignored: true,
+        errorCode: input.errorCode,
+        reason: input.reason,
+        retryable: false,
+        routeStatus: "active_supported_route",
+        compatibilityMode: "identified_ingest_current",
+    }, { status: input.status });
 }
 
 function readStringParam(params: Record<string, unknown>, ...keys: string[]) {
@@ -200,15 +217,29 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ success: false, reason: "unauthenticated" }, { status: 401 });
         }
 
-        const contentLength = Number(request.headers.get("content-length") || 0);
-        if (Number.isFinite(contentLength) && contentLength > MAX_ANALYTICS_BODY_BYTES) {
-            return NextResponse.json({ success: true, ignored: true, reason: "payload_too_large" });
-        }
-
         // The telemetry client might send { events: [...] } or { data: { events: [...] } } depending on sendBeacon vs fetch
-        let rawPayload = await request.json();
-        if (rawPayload && typeof rawPayload === 'object' && 'data' in rawPayload && typeof rawPayload.data === 'object' && 'events' in rawPayload.data) {
-             rawPayload = rawPayload.data;
+        let rawPayload: unknown;
+        try {
+            rawPayload = await readBoundedJsonBody<unknown>(request, {
+                routeName: "analytics/ingest-identified",
+                maxBytes: MAX_ANALYTICS_BODY_BYTES,
+                allowedContentTypes: ["application/json"],
+            });
+        } catch (error) {
+            if (isBoundedJsonBodyError(error)) {
+                return buildIdentifiedIngestClientErrorResponse({
+                    status: error.status,
+                    errorCode: error.code === "payload_too_large" ? "payload_too_large" : "invalid_analytics_payload",
+                    reason: error.code,
+                });
+            }
+            throw error;
+        }
+        if (rawPayload && typeof rawPayload === "object" && "data" in rawPayload) {
+            const dataPayload = (rawPayload as { data?: unknown }).data;
+            if (dataPayload && typeof dataPayload === "object" && "events" in dataPayload) {
+                rawPayload = dataPayload;
+            }
         }
 
         const parsed = PayloadSchema.safeParse(rawPayload);
@@ -220,7 +251,11 @@ async function POST_handler(request: NextRequest) {
                 !parsed.success ? parsed.error : "empty events array",
                 { channel: "analytics" },
             );
-            return NextResponse.json({ success: true, ignored: true });
+            return buildIdentifiedIngestClientErrorResponse({
+                status: 400,
+                errorCode: "invalid_analytics_payload",
+                reason: parsed.success ? "empty_events" : "schema_validation_failed",
+            });
         }
 
         const uniqueEvents = new Map<string, any>();
@@ -454,14 +489,48 @@ async function POST_handler(request: NextRequest) {
             await batch.commit();
         }
 
-        const timelineWrite = await writeBehavioralTimelineFacts(timelineFacts);
-        await materializeUserTrackingIndexes({
-            userIds: [caller.uid],
-            maxUsers: 1,
-            maxFacts: 1000,
-            runtimeCapMs: 1500,
-            sourceWindowStartMs: Date.now() - (1000 * 60 * 60 * 24 * 14),
-        });
+        let timelineWrite = { written: 0, skipped: timelineFacts.length, reason: "not_attempted" };
+        let timelineStatus: "written" | "deferred_failed_non_blocking" = "written";
+        try {
+            timelineWrite = await writeBehavioralTimelineFacts(timelineFacts);
+        } catch (error) {
+            timelineStatus = "deferred_failed_non_blocking";
+            await recordServerDiagnostic({
+                channel: "analytics",
+                severity: "warn",
+                message: "Identified analytics deferred timeline write failed",
+                detail: {
+                    route: "analytics/ingest-identified",
+                    error: getAnalyticsIngestErrorMessage(error),
+                    retryable: false,
+                    compatibilityMode: "identified_ingest_current",
+                },
+            });
+        }
+
+        let materializerStatus: "queued" | "deferred_failed_non_blocking" = "queued";
+        try {
+            await materializeUserTrackingIndexes({
+                userIds: [caller.uid],
+                maxUsers: 1,
+                maxFacts: 1000,
+                runtimeCapMs: 1500,
+                sourceWindowStartMs: Date.now() - (1000 * 60 * 60 * 24 * 14),
+            });
+        } catch (error) {
+            materializerStatus = "deferred_failed_non_blocking";
+            await recordServerDiagnostic({
+                channel: "analytics",
+                severity: "warn",
+                message: "Identified analytics deferred materializer failed",
+                detail: {
+                    route: "analytics/ingest-identified",
+                    error: getAnalyticsIngestErrorMessage(error),
+                    retryable: false,
+                    compatibilityMode: "identified_ingest_current",
+                },
+            });
+        }
 
         return NextResponse.json({
             success: true,
@@ -470,6 +539,11 @@ async function POST_handler(request: NextRequest) {
             timelineFactsWritten: timelineWrite.written,
             timelineFactsSkipped: timelineWrite.skipped,
             identityLinksCreated,
+            routeStatus: "active_supported_route",
+            compatibilityMode: "identified_ingest_current",
+            retryable: false,
+            timelineStatus,
+            materializerStatus,
         });
     } catch (error) {
         if (error instanceof AuthError || error instanceof RateLimitError) {

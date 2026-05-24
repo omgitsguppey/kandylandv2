@@ -20,15 +20,30 @@ async function GET_handler(request: NextRequest) {
         });
 
         if (!check) {
-            return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+            return NextResponse.json({
+                success: false,
+                errorCode: "rate_limited",
+                routeStatus: "expected_typed_client_error",
+                retryable: false,
+            }, { status: 429 });
         }
 
         // Return the available package pricing configurations
         // This is a future-proofing stub to allow database-backed sales, promotions, and tailored pricing.
         return NextResponse.json({
+            success: true,
             packages: FIXED_GUMDROP_PACKAGES,
             basePackageId: "default",
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            routeStatus: "active_supported_route",
+            failureClass: "expected_public_wallet_catalog",
+            retryable: false,
+            packageSource: "fixed_gumdrop_packages",
+            expectedClientErrors: [
+                "rate_limited",
+                "invalid_wallet_package_request",
+                "wallet_packages_unavailable",
+            ],
         }, {
             headers: {
                 "Cache-Control": WALLET_PACKAGES_CACHE_CONTROL,

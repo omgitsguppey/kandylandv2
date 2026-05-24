@@ -1,0 +1,70 @@
+{
+  "reportKey": "debug-cockpit-batch18-route-hotspots",
+  "generatedAtUtc": "2026-05-24T21:14:27.464Z",
+  "ingestIdentifiedStatusBefore": "current_server_error",
+  "ingestIdentifiedStatusAfter": "fixed_current",
+  "ingestIdentifiedFailureClass": "deferred_materializer_failure_and_invalid_payload_retry_storm",
+  "ingestIdentifiedRetryableStatus": "expected_failures_retryable_false",
+  "walletPackagesStatusBefore": "current_client_error",
+  "walletPackagesStatusAfter": "expected_typed_client_error",
+  "walletPackagesFailureClass": "expected_public_wallet_catalog_with_typed_4xx",
+  "currentServerFailuresBefore": 1,
+  "currentServerFailuresAfter": 0,
+  "currentClientErrorsBefore": 1,
+  "currentClientErrorsAfter": 0,
+  "historicalErrorRoutes": [
+    "admin/analytics/historical:GET",
+    "auth/navigation-session:POST",
+    "creator/relationships:POST"
+  ],
+  "currentSlowRoutes": [
+    "admin/overview:GET",
+    "admin/debug/control-tower:GET"
+  ],
+  "historicalSlowReviewRoutes": [
+    "admin/debug/assistant:GET",
+    "admin/debug:GET",
+    "admin/analytics/historical:GET",
+    "creator/relationships:GET",
+    "user/onboarding-progress:POST"
+  ],
+  "prioritizedLatencyRoutes": [
+    "admin/overview:GET",
+    "admin/debug/control-tower:GET",
+    "admin/analytics/historical:GET",
+    "admin/debug:GET",
+    "creator/relationships:GET",
+    "user/onboarding-progress:POST"
+  ],
+  "targetedFixesApplied": [
+    "analytics/ingest-identified:POST invalid payloads now return non-retryable typed 4xx.",
+    "analytics/ingest-identified:POST deferred timeline/materializer failures no longer fail persisted event fact writes.",
+    "wallet/packages:GET exposes active public catalog success and typed rate-limit classification."
+  ],
+  "followUps": [
+    "Review admin/analytics/historical summary cache window before changing source reads.",
+    "Review creator relationships client batching separately if current latency remains high.",
+    "Monitor wallet/packages for residual 4xx after the active public catalog response is deployed."
+  ],
+  "scoreBefore": 79,
+  "scoreAfter": 81,
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk",
+    "regressionRisk"
+  ],
+  "remainingGaps": [
+    "Admin historical and debug summary routes still need separate cache/window review before broad refactors.",
+    "Route runtime counters require post-deploy sample refresh to prove production error volume drops."
+  ],
+  "nextExactSteps": [
+    "Deploy separately only after human approval; this batch did not deploy.",
+    "Refresh route runtime evidence after traffic observes the fixed analytics and wallet package routes."
+  ],
+  "dirtyFilesClassified": true,
+  "openPrsClassified": true,
+  "validationFailures": []
+}

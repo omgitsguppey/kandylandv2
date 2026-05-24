@@ -1,13 +1,89 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.47",
-  "betaReleaseCounter": 447,
+  "currentVersion": "1.4.48",
+  "betaReleaseCounter": 448,
   "channel": "beta",
-  "generatedAt": "2026-05-24T20:58:08.356Z",
-  "generatedAtUtc": "2026-05-24T20:58:08.356Z",
+  "generatedAt": "2026-05-24T21:14:02.978Z",
+  "generatedAtUtc": "2026-05-24T21:14:02.978Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.48",
+      "previousVersion": "1.4.47",
+      "betaReleaseCounter": 448,
+      "previousBetaReleaseCounter": 447,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(runtime): repair route hotspots",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T21:14:02.978Z",
+      "generatedAt": "2026-05-24T21:14:02.978Z",
+      "committedAtUtc": "2026-05-24T21:14:02.978Z",
+      "generatedAtUtc": "2026-05-24T21:14:02.978Z",
+      "updatedAtUtc": "2026-05-24T21:14:02.978Z",
+      "category": "Fixed",
+      "title": "Route hotspot repair",
+      "summary": "Repaired active route runtime hotspots so identified analytics ingestion and wallet package catalog errors are separated from historical counters and latency-only review.",
+      "userFacingTitle": "Route hotspot repair",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Repaired active analytics ingest identified route failure and classified wallet package client errors.",
+        "Separated current route failures from historical error counters.",
+        "Prioritized route latency hotspots with summary-first and cache-safe policies."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin diagnostics",
+        "Internal reliability",
+        "Wallet"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-ingest-identified-repair.generated.json",
+        "agent/state/debug-cockpit-batch18-route-hotspots.generated.json",
+        "agent/state/route-error-history-cleanup.generated.json",
+        "agent/state/route-hotspot-targeted-fixes.generated.json",
+        "agent/state/route-latency-review-cleanup.generated.json",
+        "agent/state/wallet-packages-route-repair.generated.json",
+        "docs/agent-truth/analytics-ingest-identified-repair.md",
+        "docs/agent-truth/debug-cockpit-batch18-route-hotspots.md",
+        "docs/agent-truth/route-error-history-cleanup.md",
+        "docs/agent-truth/route-hotspot-targeted-fixes.md",
+        "docs/agent-truth/route-latency-review-cleanup.md",
+        "docs/agent-truth/wallet-packages-route-repair.md",
+        "package.json",
+        "scripts/agent/debug-cockpit-batch18-shared.ts",
+        "scripts/agent/validate-analytics-ingest-identified-repair.ts",
+        "scripts/agent/validate-debug-cockpit-batch18-route-hotspots.ts",
+        "scripts/agent/validate-route-error-history-cleanup.ts",
+        "scripts/agent/validate-route-hotspot-targeted-fixes.ts",
+        "scripts/agent/validate-route-latency-review-cleanup.ts",
+        "scripts/agent/validate-wallet-packages-route-repair.ts",
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "src/app/api/wallet/packages/route.ts",
+        "src/lib/debug/analytics-ingest-identified-repair.ts",
+        "src/lib/debug/debug-cockpit-batch18-route-hotspots.ts",
+        "src/lib/debug/route-error-history-classifier.ts",
+        "src/lib/debug/route-hotspot-targeted-fixes.ts",
+        "src/lib/debug/route-latency-review-engine.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/analytics-ingest-identified-repair.spec.ts",
+        "tests/unit/analytics-ingest-identified-route.spec.ts",
+        "tests/unit/debug-cockpit-batch18-route-hotspots.spec.ts",
+        "tests/unit/route-error-history-cleanup.spec.ts",
+        "tests/unit/route-hotspot-targeted-fixes.spec.ts",
+        "tests/unit/route-latency-review-cleanup.spec.ts",
+        "tests/unit/wallet-packages-route-repair.spec.ts"
+      ],
+      "effectiveChangeCount": 36,
+      "excludedGeneratedChangeCount": 6,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.47",
       "previousVersion": "1.4.46",
@@ -1599,77 +1675,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/user-management-refactor.spec.ts"
       ],
       "sourceCommit": "309d6b03a6e4aa5d47233d04cfb404991b75a8a8"
-    },
-    {
-      "version": "1.4.23",
-      "previousVersion": "1.4.22",
-      "betaReleaseCounter": 423,
-      "previousBetaReleaseCounter": 422,
-      "commitSha": "a998782f507b2abe21ffd7be01ccbebf031d23c9",
-      "commitTitle": "fix(auth): stabilize session persistence",
-      "commitCount": 2,
-      "commitShas": [
-        "076243a2426dce88bf4eef81600dacc45108f70b",
-        "a998782f507b2abe21ffd7be01ccbebf031d23c9"
-      ],
-      "committedAt": "2026-05-24T08:44:47.000Z",
-      "generatedAt": "2026-05-24T09:07:41.121Z",
-      "committedAtUtc": "2026-05-24T08:44:47.000Z",
-      "generatedAtUtc": "2026-05-24T09:07:41.121Z",
-      "updatedAtUtc": "2026-05-24T09:07:41.121Z",
-      "category": "Improved",
-      "title": "Auth runtime telemetry and debug truth",
-      "summary": "Auth signup, login, provider conflicts, and session stability now feed privacy-safe telemetry and admin debug truth.",
-      "userFacingTitle": "Auth runtime telemetry and debug truth",
-      "surfaceCategory": "Account & onboarding",
-      "bullets": [
-        "Connected auth signup, login, provider conflicts, and session stability to telemetry.",
-        "Added admin debug visibility for auth runtime health.",
-        "Protected auth telemetry from raw PII or token exposure."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "account-onboarding",
-        "admin-debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/auth-persistence-stability.generated.json",
-        "agent/state/auth-provider-conflict-resolution.generated.json",
-        "agent/state/email-password-auth-refactor.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/auth-persistence-stability.md",
-        "docs/agent-truth/auth-provider-conflict-resolution.md",
-        "docs/agent-truth/email-password-auth-refactor.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-auth-persistence-stability.ts",
-        "scripts/agent/validate-auth-provider-conflict-resolution.ts",
-        "scripts/agent/validate-email-password-auth-refactor.ts",
-        "src/context/AuthContext.tsx",
-        "src/lib/auth-errors.ts",
-        "src/lib/auth/auth-persistence-contract.ts",
-        "src/lib/auth/auth-session-stability.ts",
-        "src/lib/auth/email-password-auth-contract.ts",
-        "src/lib/auth/email-password-auth-flow.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/auth-errors.spec.ts",
-        "tests/unit/auth-persistence-stability.spec.ts",
-        "tests/unit/email-password-auth-refactor.spec.ts"
-      ],
-      "sourceCommit": "a998782f507b2abe21ffd7be01ccbebf031d23c9"
     }
   ]
-} satisfies PublicReleaseNotesDocument;
+} as const satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,

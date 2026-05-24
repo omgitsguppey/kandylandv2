@@ -1,0 +1,17 @@
+{
+  "reportKey": "wallet-packages-route-repair",
+  "generatedAtUtc": "2026-05-24T21:14:27.030Z",
+  "statusBefore": "current_client_error",
+  "statusAfter": "expected_typed_client_error",
+  "failureClass": "expected_public_wallet_catalog_with_typed_4xx",
+  "successPath": true,
+  "typedClientErrors": [
+    "rate_limited",
+    "invalid_wallet_package_request",
+    "wallet_packages_unavailable"
+  ],
+  "callerSpamRisk": "route_success_path_available",
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "validationFailures": []
+}

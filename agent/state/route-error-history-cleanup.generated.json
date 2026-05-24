@@ -1,0 +1,48 @@
+{
+  "reportKey": "route-error-history-cleanup",
+  "generatedAtUtc": "2026-05-24T21:14:27.515Z",
+  "records": [
+    {
+      "routeKey": "analytics/ingest-identified:POST",
+      "classification": "current_server_error",
+      "currentFailure": true,
+      "lastErrorAtMs": 1779656340000,
+      "lastErrorAgeMs": 60000,
+      "lastErrorAgeLabel": "1m",
+      "clientErrorRate": 0.783735718580878,
+      "threshold": 0.05,
+      "nextAction": "Fix active server error for analytics/ingest-identified:POST; do not reclassify as history."
+    },
+    {
+      "routeKey": "admin/analytics/historical:GET",
+      "classification": "resolved_error_history",
+      "currentFailure": false,
+      "lastErrorAtMs": 1779642000000,
+      "lastErrorAgeMs": 14400000,
+      "lastErrorAgeLabel": "4h",
+      "clientErrorRate": 0,
+      "threshold": 0.05,
+      "nextAction": "Keep admin/analytics/historical:GET as resolved history; last error 4h ago."
+    },
+    {
+      "routeKey": "auth/navigation-session:POST",
+      "classification": "resolved_error_history",
+      "currentFailure": false,
+      "lastErrorAtMs": 1777582800000,
+      "lastErrorAgeMs": 2073600000,
+      "lastErrorAgeLabel": "24d",
+      "clientErrorRate": 0,
+      "threshold": 0.05,
+      "nextAction": "Keep auth/navigation-session:POST as resolved history; last error 24d ago."
+    }
+  ],
+  "currentServerFailures": [
+    "analytics/ingest-identified:POST"
+  ],
+  "currentClientErrors": [],
+  "historicalErrorRoutes": [
+    "admin/analytics/historical:GET",
+    "auth/navigation-session:POST"
+  ],
+  "validationFailures": []
+}

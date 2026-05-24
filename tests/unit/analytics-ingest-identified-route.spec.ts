@@ -16,6 +16,18 @@ const mockState = vi.hoisted(() => {
     guardApiRequest: vi.fn(async () => ({ uid: "user_123" })),
     recordRouteWarning: vi.fn(),
     recordServerDiagnostic: vi.fn(async () => undefined),
+    materializeUserTrackingIndexes: vi.fn(async () => ({
+      dryRun: false,
+      usersProcessed: 1,
+      guestsProcessed: 0,
+      factsProcessed: 1,
+      issueCodes: [],
+    })),
+    writeBehavioralTimelineFacts: vi.fn(async (facts: unknown[]) => ({
+      written: Array.isArray(facts) ? facts.length : 0,
+      skipped: 0,
+      reason: "",
+    })),
     reset() {
       writes.length = 0;
       batch.set.mockClear();
@@ -23,8 +35,22 @@ const mockState = vi.hoisted(() => {
       this.guardApiRequest.mockClear();
       this.recordRouteWarning.mockClear();
       this.recordServerDiagnostic.mockClear();
+      this.materializeUserTrackingIndexes.mockClear();
+      this.writeBehavioralTimelineFacts.mockClear();
       this.guardApiRequest.mockResolvedValue({ uid: "user_123" });
       this.recordServerDiagnostic.mockResolvedValue(undefined);
+      this.materializeUserTrackingIndexes.mockResolvedValue({
+        dryRun: false,
+        usersProcessed: 1,
+        guestsProcessed: 0,
+        factsProcessed: 1,
+        issueCodes: [],
+      });
+      this.writeBehavioralTimelineFacts.mockImplementation(async (facts: unknown[]) => ({
+        written: Array.isArray(facts) ? facts.length : 0,
+        skipped: 0,
+        reason: "",
+      }));
     },
   };
 });
@@ -88,11 +114,7 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 }));
 
 vi.mock("@/lib/server/behavioral-timeline-writer", () => ({
-  writeBehavioralTimelineFacts: vi.fn(async (facts: unknown[]) => ({
-    written: Array.isArray(facts) ? facts.length : 0,
-    skipped: 0,
-    reason: "",
-  })),
+  writeBehavioralTimelineFacts: mockState.writeBehavioralTimelineFacts,
 }));
 
 vi.mock("@/lib/server/analytics-identity-linking", () => ({
@@ -103,13 +125,7 @@ vi.mock("@/lib/server/analytics-identity-linking", () => ({
 }));
 
 vi.mock("@/lib/server/user-index-materializer", () => ({
-  materializeUserTrackingIndexes: vi.fn(async () => ({
-    dryRun: false,
-    usersProcessed: 1,
-    guestsProcessed: 0,
-    factsProcessed: 1,
-    issueCodes: [],
-  })),
+  materializeUserTrackingIndexes: mockState.materializeUserTrackingIndexes,
 }));
 
 import { POST } from "@/app/api/analytics/ingest-identified/route";
@@ -118,6 +134,19 @@ function buildRequest(body: unknown) {
   return new NextRequest("http://localhost/api/analytics/ingest-identified", {
     method: "POST",
     body: JSON.stringify(body),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+}
+
+function buildRawRequest(body: string) {
+  return new NextRequest("http://localhost/api/analytics/ingest-identified", {
+    method: "POST",
+    body,
+    headers: {
+      "content-type": "application/json",
+    },
   });
 }
 
@@ -679,6 +708,54 @@ describe("POST /api/analytics/ingest-identified", () => {
       detail: expect.objectContaining({
         telemetryCleanup: "skipped_uncataloged_diagnostic_event",
       }),
+    }));
+  });
+
+  it("returns a safe non-retryable client error for malformed JSON", async () => {
+    const response = await POST(buildRawRequest("{not-json"));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      success: false,
+      errorCode: "invalid_analytics_payload",
+      retryable: false,
+      routeStatus: "active_supported_route",
+      compatibilityMode: "identified_ingest_current",
+    });
+    expect(mockState.batch.commit).not.toHaveBeenCalled();
+  });
+
+  it("does not turn deferred materializer failures into retryable server errors", async () => {
+    mockState.materializeUserTrackingIndexes.mockRejectedValueOnce(new Error("materializer unavailable"));
+
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_materializer_failure",
+        eventTimestampMs: 1767225600000,
+        eventName: "creator_followed",
+        eventParams: {
+          page_path: "/creators/kandy",
+          session_id: "session_123",
+          creator_id: "creator_456",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload).toMatchObject({
+      success: true,
+      processed: 1,
+      routeStatus: "active_supported_route",
+      materializerStatus: "deferred_failed_non_blocking",
+      retryable: false,
+    });
+    expect(mockState.batch.commit).toHaveBeenCalledTimes(1);
+    expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
+      channel: "analytics",
+      severity: "warn",
+      message: "Identified analytics deferred materializer failed",
     }));
   });
 });
