@@ -1,0 +1,51 @@
+{
+  "reportKey": "debug-cockpit-batch20-stale-route-sweep",
+  "generatedAtUtc": "2026-05-24T22:10:30.846Z",
+  "staleRoutesBefore": 5,
+  "staleRoutesAfter": 5,
+  "noSampleRoutesBefore": 1,
+  "noSampleRoutesAfter": 1,
+  "falseLiveRoutesBefore": 2,
+  "falseLiveRoutesAfter": 0,
+  "fixedSourceBugs": [
+    "admin/ai/drop-descriptions/feedback:lastEditedByUid"
+  ],
+  "aiDescriptionFeedbackStatus": "fixed_current_source_bug_stale_evidence",
+  "supportIndexStatus": "missing_firestore_index_actionable",
+  "cronRouteStatus": "scheduled_stale_failure",
+  "paymentRouteEvidenceStatus": "stale_critical_evidence_required",
+  "noSampleCohorts": [
+    "unseen_required_smoke_needed",
+    "unseen_optional_quiet",
+    "unseen_manual_operator_action"
+  ],
+  "staleRouteGroups": [
+    "stale15DaysPlus",
+    "criticalStale",
+    "staleWithServerErrorHistory",
+    "noSampleOptional"
+  ],
+  "currentFailuresRemaining": [],
+  "scoreBefore": 76,
+  "scoreAfter": 92,
+  "scoreDimensions": {
+    "freshnessClassification": 100,
+    "noSampleClassification": 100,
+    "sourceBugRepair": 100,
+    "supportIndexEvidence": 80,
+    "scheduledRouteTruth": 90,
+    "paymentEvidenceSeparation": 90,
+    "routeGrouping": 100
+  },
+  "remainingGaps": [
+    "PayPal capture still needs formal fresh route evidence; operator notes do not clear route freshness.",
+    "Cron routes need scheduler evidence or approved manual smoke; validators do not run cron.",
+    "Stale creator booking history remains visible until refreshed or repaired in its owning lane."
+  ],
+  "nextExactSteps": [
+    "Run approved non-production or operator smoke for critical stale routes.",
+    "Apply support thread Firestore indexes in the deployment environment, then refresh support route evidence.",
+    "Use route runtime drilldown for grouped stale/server-history routes instead of treating stale samples as live."
+  ],
+  "validationFailures": []
+}

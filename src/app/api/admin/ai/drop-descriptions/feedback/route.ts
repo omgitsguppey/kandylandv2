@@ -43,20 +43,39 @@ async function POST_handler(request: NextRequest) {
             dropId?: unknown;
         };
 
+        if (!caller?.uid) {
+            return finalize(startedAt, "admin/ai/drop-descriptions/feedback:POST", NextResponse.json({
+                error: "Admin identity is required.",
+                errorCode: "unauthorized",
+                routeStatus: "expected_typed_client_error",
+                retryable: false,
+            }, { status: 401 }));
+        }
+
         if (typeof body.jobId !== "string" || body.jobId.trim().length === 0) {
-            return finalize(startedAt, "admin/ai/drop-descriptions/feedback:POST", NextResponse.json({ error: "Missing generation job id" }, { status: 400 }));
+            return finalize(startedAt, "admin/ai/drop-descriptions/feedback:POST", NextResponse.json({
+                error: "Missing generation job id",
+                errorCode: "validation_failed",
+                routeStatus: "expected_typed_client_error",
+                retryable: false,
+            }, { status: 400 }));
         }
 
         const action = typeof body.action === "string" ? body.action : "";
         if (!["like", "dislike", "accept", "link_drop"].includes(action)) {
-            return finalize(startedAt, "admin/ai/drop-descriptions/feedback:POST", NextResponse.json({ error: "Unsupported feedback action" }, { status: 400 }));
+            return finalize(startedAt, "admin/ai/drop-descriptions/feedback:POST", NextResponse.json({
+                error: "Unsupported feedback action",
+                errorCode: "validation_failed",
+                routeStatus: "expected_typed_client_error",
+                retryable: false,
+            }, { status: 400 }));
         }
 
         const job = await updateAdminAiDropDescriptionFeedback({
             jobId: body.jobId,
             action: action as "like" | "dislike" | "accept" | "link_drop",
             dropId: typeof body.dropId === "string" ? body.dropId : null,
-            actorUid: caller?.uid || "",
+            actorUid: caller.uid,
             actorEmail: caller?.email,
         });
 

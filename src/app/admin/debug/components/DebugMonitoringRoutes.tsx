@@ -156,6 +156,10 @@ export function DebugMonitoringRoutes({
                             const coverageState = getRouteRuntimeHealthCoverageState(entry);
                             const freshness = getRouteRuntimeHealthFreshness(entry);
                             const truth = buildRouteRuntimeRecordTruth(entry);
+                            const sampleIsStale = truth.hasSample && truth.freshness === "stale";
+                            const resultTruthState = sampleIsStale ? "stale" : truthForRouteRuntimeHealthState(truth.lastResult);
+                            const loadedTruthState = sampleIsStale ? "stale" : "live";
+                            const loadedBadge = sampleIsStale ? "STALE SAMPLE" : "LOADED";
                             return (
                                 <div
                                     key={entry.key}
@@ -185,24 +189,24 @@ export function DebugMonitoringRoutes({
                                             <Pill label="Freshness" value={freshness} tone={freshness === "fresh" ? "good" : freshness === "stale" ? "warn" : "neutral"} truthState={truthForRouteRuntimeHealthState(truth.freshness)} />
                                             <Pill label="Cluster" value={getRouteRuntimeHealthCluster(entry.key) === "native_chat" ? "native chat" : getRouteRuntimeHealthCluster(entry.key) === "compatibility_chat" ? "compatibility" : "other"} truthState="live" badgeLabel="INFO" />
                                             <Pill label="Risk" value={truth.routeRiskClass} tone={truth.routeRiskClass === "critical" || truth.routeRiskClass === "high" ? "warn" : "neutral"} truthState={truth.routeRiskClass === "optional" || truth.routeRiskClass === "legacy" ? "live" : "degraded"} badgeLabel={truth.routeRiskClass.toUpperCase()} />
-                                            <Pill label="Last result" value={truth.lastResult === "no_sample" ? "No sample" : truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={truthForRouteRuntimeHealthState(truth.lastResult)} />
+                                            <Pill label="Last result" value={truth.lastResult === "no_sample" ? "No sample" : truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={resultTruthState} badgeLabel={sampleIsStale ? "STALE SAMPLE" : undefined} />
                                         </div>
                                     </div>
                                     {truth.hasSample ? (
                                         <>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Current" value={truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={truthForRouteRuntimeHealthState(truth.lastResult)} />
-                                                <Pill label="Latency history" value={truth.latency.latencyState} tone={toneForRouteRuntimeHealthState(truth.latency.latencyState)} truthState={truthForRouteRuntimeHealthState(truth.latency.latencyState)} />
-                                                <Pill label="Error history" value={truth.errorHistoryState} tone={toneForRouteRuntimeHealthState(truth.errorHistoryState)} truthState={truthForRouteRuntimeHealthState(truth.errorHistoryState)} />
+                                                <Pill label="Current" value={sampleIsStale ? "stale sample" : truth.lastResult} tone={sampleIsStale ? "warn" : toneForRouteRuntimeHealthState(truth.lastResult)} truthState={resultTruthState} badgeLabel={sampleIsStale ? "STALE SAMPLE" : undefined} />
+                                                <Pill label="Latency history" value={truth.latency.latencyState} tone={toneForRouteRuntimeHealthState(truth.latency.latencyState)} truthState={sampleIsStale ? "stale" : truthForRouteRuntimeHealthState(truth.latency.latencyState)} />
+                                                <Pill label="Error history" value={truth.errorHistoryState} tone={toneForRouteRuntimeHealthState(truth.errorHistoryState)} truthState={sampleIsStale ? "stale" : truthForRouteRuntimeHealthState(truth.errorHistoryState)} />
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Last latency" value={formatLatency(truth.latency.lastMs)} tone={truth.latency.lastLatencyState === "review" ? "warn" : "good"} truthState={truth.latency.lastLatencyState === "review" ? "degraded" : "live"} badgeLabel={truth.latency.lastLatencyState === "review" ? "SLOW" : "LOADED"} />
-                                                <Pill label="Avg latency" value={formatLatency(truth.latency.avgMs)} tone={truth.latency.avgLatencyState === "review" ? "warn" : "good"} truthState={truth.latency.avgLatencyState === "review" ? "degraded" : "live"} badgeLabel={truth.latency.avgLatencyState === "review" ? "SLOW" : "INFO"} />
-                                                <Pill label="Max latency" value={formatLatency(truth.latency.maxMs)} tone={truth.latency.maxLatencyState === "review_history" ? "warn" : "good"} truthState={truth.latency.maxLatencyState === "review_history" ? "degraded" : "live"} badgeLabel={truth.latency.maxLatencyState === "review_history" ? "SLOW" : "INFO"} />
-                                                <Pill label="Success" value={truth.counts.success} tone="good" truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Last latency" value={formatLatency(truth.latency.lastMs)} tone={truth.latency.lastLatencyState === "review" || sampleIsStale ? "warn" : "good"} truthState={sampleIsStale ? "stale" : truth.latency.lastLatencyState === "review" ? "degraded" : "live"} badgeLabel={sampleIsStale ? "STALE SAMPLE" : truth.latency.lastLatencyState === "review" ? "SLOW" : "LOADED"} />
+                                                <Pill label="Avg latency" value={formatLatency(truth.latency.avgMs)} tone={truth.latency.avgLatencyState === "review" || sampleIsStale ? "warn" : "good"} truthState={sampleIsStale ? "stale" : truth.latency.avgLatencyState === "review" ? "degraded" : "live"} badgeLabel={sampleIsStale ? "STALE SAMPLE" : truth.latency.avgLatencyState === "review" ? "SLOW" : "INFO"} />
+                                                <Pill label="Max latency" value={formatLatency(truth.latency.maxMs)} tone={truth.latency.maxLatencyState === "review_history" || sampleIsStale ? "warn" : "good"} truthState={sampleIsStale ? "stale" : truth.latency.maxLatencyState === "review_history" ? "degraded" : "live"} badgeLabel={sampleIsStale ? "STALE SAMPLE" : truth.latency.maxLatencyState === "review_history" ? "SLOW" : "INFO"} />
+                                                <Pill label="Success" value={truth.counts.success} tone={sampleIsStale ? "warn" : "good"} truthState={loadedTruthState} badgeLabel={loadedBadge} />
                                                 <Pill label="Client errors" value={truth.counts.clientErrors} tone={truth.counts.clientErrors > 0 ? "warn" : "good"} />
                                                 <Pill label="Server errors" value={truth.counts.serverErrors} tone={truth.counts.serverErrors > 0 ? "bad" : "good"} />
-                                                <Pill label="Samples" value={truth.counts.samples} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Samples" value={truth.counts.samples} truthState={loadedTruthState} badgeLabel={loadedBadge} />
                                                 <Pill label="Slow" value={truth.latency.slowCount} tone={truth.latency.slowCount > 0 ? "warn" : "good"} />
                                             </div>
                                         </>

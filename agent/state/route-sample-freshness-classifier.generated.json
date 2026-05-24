@@ -1,0 +1,36 @@
+{
+  "reportKey": "route-sample-freshness-classifier",
+  "generatedAtUtc": "2026-05-24T22:10:18.203Z",
+  "staleFailure": {
+    "routeKey": "creator/bookings:POST",
+    "method": "POST",
+    "risk": "high",
+    "optionality": "required",
+    "cluster": "creator",
+    "hasSample": true,
+    "lastResult": "server_error",
+    "lastSampleAgeMs": 1728000000,
+    "freshnessWindowMs": 86400000,
+    "status": "stale_server_error",
+    "currentResultTrusted": false,
+    "staleReason": "sample_outside_freshness_window",
+    "nextAction": "creator/bookings:POST has stale server-error history; repair or run a fresh safe smoke path before current readiness."
+  },
+  "noSample": {
+    "routeKey": "admin/creator-account-controls:POST",
+    "method": "POST",
+    "risk": "high",
+    "optionality": "required",
+    "cluster": "admin",
+    "hasSample": false,
+    "lastResult": "no_sample",
+    "lastSampleAgeMs": null,
+    "freshnessWindowMs": 86400000,
+    "status": "unseen_required_smoke_needed",
+    "currentResultTrusted": false,
+    "staleReason": null,
+    "nextAction": "admin/creator-account-controls:POST has no runtime sample; run an approved smoke path or attach evidence."
+  },
+  "freshnessWindowMs": 86400000,
+  "validationFailures": []
+}

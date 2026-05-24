@@ -1,11 +1,58 @@
 {
-  "currentVersion": "1.4.49",
-  "betaReleaseCounter": 449,
+  "currentVersion": "1.4.50",
+  "betaReleaseCounter": 450,
   "channel": "beta",
-  "generatedAt": "2026-05-24T21:42:18.343Z",
-  "generatedAtUtc": "2026-05-24T21:42:18.343Z",
-  "lastCommitSha": "69083c1f75b495ae0e3050699108aba08c5023c7",
+  "generatedAt": "2026-05-24T22:05:00.000Z",
+  "generatedAtUtc": "2026-05-24T22:05:00.000Z",
+  "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.50",
+      "previousVersion": "1.4.49",
+      "betaReleaseCounter": 450,
+      "previousBetaReleaseCounter": 449,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(runtime): clean stale route samples",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T22:05:00.000Z",
+      "generatedAt": "2026-05-24T22:05:00.000Z",
+      "committedAtUtc": "2026-05-24T22:05:00.000Z",
+      "generatedAtUtc": "2026-05-24T22:05:00.000Z",
+      "category": "Fixed",
+      "title": "Runtime evidence cleanup",
+      "updatedAtUtc": "2026-05-24T22:05:00.000Z",
+      "summary": "Improved runtime status reporting for stale and unavailable backend evidence.",
+      "userFacingTitle": "Runtime evidence cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Classified stale and no-sample route runtime states without treating them as live health.",
+        "Fixed AI description feedback Firestore undefined-write evidence.",
+        "Grouped stale route samples and preserved critical payment/support evidence requirements."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "No payment runtime, GumDrop math, production routes, or provider calls changed."
+      ],
+      "affectedSurfaces": [
+        "Debug cockpit route runtime",
+        "Admin AI description feedback"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/app/admin/debug/components/DebugMonitoringRoutes.tsx",
+        "src/app/api/admin/ai/drop-descriptions/feedback/route.ts",
+        "src/lib/server/ai-drop-descriptions.ts",
+        "src/lib/debug/route-sample-freshness-classifier.ts",
+        "src/lib/debug/no-sample-route-cohort-classifier.ts"
+      ],
+      "effectiveChangeCount": 5,
+      "excludedGeneratedChangeCount": 8,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.49",
       "previousVersion": "1.4.48",

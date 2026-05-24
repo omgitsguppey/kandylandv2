@@ -1,6 +1,6 @@
 {
   "reportKey": "route-error-history-cleanup",
-  "generatedAtUtc": "2026-05-24T21:44:35.292Z",
+  "generatedAtUtc": "2026-05-24T22:10:32.523Z",
   "records": [
     {
       "routeKey": "analytics/ingest-identified:POST",

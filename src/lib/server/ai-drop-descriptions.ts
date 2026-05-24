@@ -41,6 +41,7 @@ import {
 import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
@@ -394,7 +395,7 @@ async function writePromptPolicyHistory(entry: AdminAiDropDescriptionPromptPolic
         .doc(ADMIN_AI_DROP_DESCRIPTION_PROMPT_POLICY_DOC)
         .collection(ADMIN_AI_DROP_DESCRIPTION_PROMPT_POLICY_HISTORY_COLLECTION)
         .doc(entry.id)
-        .set(entry);
+        .set(sanitizeFirestorePayload(entry as unknown as Record<string, unknown>));
 }
 
 function buildRuntimeStatus(snapshot: AdminAiDropDescriptionRuntimeSnapshot) {
@@ -743,7 +744,7 @@ async function maybeOptimizePromptPolicy(input: {
     };
 
     if (adminDb) {
-        await adminDb.collection("adminSettings").doc(ADMIN_AI_DROP_DESCRIPTION_PROMPT_POLICY_DOC).set(nextPolicy, { merge: true });
+        await adminDb.collection("adminSettings").doc(ADMIN_AI_DROP_DESCRIPTION_PROMPT_POLICY_DOC).set(sanitizeFirestorePayload(nextPolicy as unknown as Record<string, unknown>), { merge: true });
     }
 
     const historyEntry: AdminAiDropDescriptionPromptPolicyHistoryEntry = adminAiDropDescriptionPromptPolicyHistoryEntrySchema.parse({
@@ -805,7 +806,7 @@ export async function saveAdminAiDropDescriptionSettings(input: {
     });
 
     if (adminDb) {
-        await adminDb.collection("adminSettings").doc(ADMIN_AI_DROP_DESCRIPTION_SETTINGS_DOC).set(nextSettings, { merge: true });
+        await adminDb.collection("adminSettings").doc(ADMIN_AI_DROP_DESCRIPTION_SETTINGS_DOC).set(sanitizeFirestorePayload(nextSettings as unknown as Record<string, unknown>), { merge: true });
     }
 
     void trackServerEvent("admin_ai_description_toggle_updated", {
@@ -841,7 +842,7 @@ export async function saveAdminAiDropDescriptionPromptPolicy(input: {
     });
 
     if (adminDb) {
-        await adminDb.collection("adminSettings").doc(ADMIN_AI_DROP_DESCRIPTION_PROMPT_POLICY_DOC).set(nextPolicy, { merge: true });
+        await adminDb.collection("adminSettings").doc(ADMIN_AI_DROP_DESCRIPTION_PROMPT_POLICY_DOC).set(sanitizeFirestorePayload(nextPolicy as unknown as Record<string, unknown>), { merge: true });
     }
 
     const historyEntry = adminAiDropDescriptionPromptPolicyHistoryEntrySchema.parse({
@@ -988,7 +989,7 @@ export async function generateAdminAiDropDescription(input: AdminAiDropDescripti
 
     try {
         if (adminDb) {
-            await adminDb.collection(ADMIN_AI_DROP_DESCRIPTION_JOBS_COLLECTION).doc(jobRef.id).set(runningJob);
+            await adminDb.collection(ADMIN_AI_DROP_DESCRIPTION_JOBS_COLLECTION).doc(jobRef.id).set(sanitizeFirestorePayload(runningJob as unknown as Record<string, unknown>));
         }
         await updateSummary({
             generationCount: 1,
@@ -1020,7 +1021,7 @@ export async function generateAdminAiDropDescription(input: AdminAiDropDescripti
         });
 
         if (adminDb) {
-            await adminDb.collection(ADMIN_AI_DROP_DESCRIPTION_JOBS_COLLECTION).doc(jobRef.id).set(succeededJob, { merge: true });
+            await adminDb.collection(ADMIN_AI_DROP_DESCRIPTION_JOBS_COLLECTION).doc(jobRef.id).set(sanitizeFirestorePayload(succeededJob as unknown as Record<string, unknown>), { merge: true });
         }
 
         await updateSummary({
@@ -1062,7 +1063,7 @@ export async function generateAdminAiDropDescription(input: AdminAiDropDescripti
         });
 
         if (adminDb) {
-            await adminDb.collection(ADMIN_AI_DROP_DESCRIPTION_JOBS_COLLECTION).doc(jobRef.id).set(failedJob, { merge: true });
+            await adminDb.collection(ADMIN_AI_DROP_DESCRIPTION_JOBS_COLLECTION).doc(jobRef.id).set(sanitizeFirestorePayload(failedJob as unknown as Record<string, unknown>), { merge: true });
         }
         await updateSummary({
             failedGenerationCount: 1,
@@ -1148,10 +1149,10 @@ export async function updateAdminAiDropDescriptionFeedback(input: AdminAiDropDes
     });
 
     if (adminDb) {
-        await adminDb.collection(ADMIN_AI_DROP_DESCRIPTION_JOBS_COLLECTION).doc(input.jobId).set({
+        await adminDb.collection(ADMIN_AI_DROP_DESCRIPTION_JOBS_COLLECTION).doc(input.jobId).set(sanitizeFirestorePayload({
             ...updates,
             updatedAtMs: nowMs,
-        }, { merge: true });
+        }), { merge: true });
     }
     if (Object.keys(summaryDelta).length > 0) {
         await updateSummary(summaryDelta);

@@ -1,0 +1,43 @@
+{
+  "reportKey": "stale-route-grouping-cleanup",
+  "generatedAtUtc": "2026-05-24T22:10:29.083Z",
+  "stale5To7Days": {
+    "routeKeys": []
+  },
+  "stale8To14Days": {
+    "routeKeys": []
+  },
+  "stale15DaysPlus": {
+    "routeKeys": [
+      "creator/bookings:POST"
+    ]
+  },
+  "criticalStale": {
+    "routeKeys": [
+      "paypal/capture:POST"
+    ]
+  },
+  "staleWithServerErrorHistory": {
+    "routeKeys": [
+      "paypal/capture:POST",
+      "creator/bookings:POST"
+    ]
+  },
+  "staleWithClientErrorHistory": {
+    "routeKeys": []
+  },
+  "staleSuccessOnly": {
+    "routeKeys": []
+  },
+  "noSampleRequired": {
+    "routeKeys": []
+  },
+  "noSampleOptional": {
+    "routeKeys": [
+      "admin/ai/drop-covers/template:DELETE"
+    ]
+  },
+  "defaultCollapsed": true,
+  "drilldownAvailable": true,
+  "validationFailures": []
+}

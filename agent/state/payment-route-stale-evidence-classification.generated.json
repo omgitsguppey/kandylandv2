@@ -1,0 +1,15 @@
+{
+  "reportKey": "payment-route-stale-evidence-classification",
+  "generatedAtUtc": "2026-05-24T22:10:25.582Z",
+  "routeKey": "paypal/capture:POST",
+  "lastSampleAgeMs": 172800000,
+  "freshnessWindowMs": 86400000,
+  "operatorEvidencePresent": true,
+  "deployedSmokePresent": false,
+  "status": "stale_critical_evidence_required",
+  "operatorEvidenceClearsRouteFreshness": false,
+  "paymentRuntimeChanged": false,
+  "createCaptureEvidenceConflated": false,
+  "nextAction": "paypal/capture:POST needs formal payment smoke/operator evidence plus fresh route runtime before current readiness.",
+  "validationFailures": []
+}

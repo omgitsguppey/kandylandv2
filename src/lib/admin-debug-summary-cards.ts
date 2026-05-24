@@ -241,13 +241,19 @@ export function buildAdminDebugRouteHealthCard(input: {
     });
     const issueCount = reconciliation.currentActionCount + reconciliation.staleActionCount;
     const technicalSourceLabel = hasSnapshotRows && hasRealtimeRows
-        ? "[live] API snapshot + route listener"
+        ? summary.stale > 0 || summary.unobserved > 0
+            ? "[partial] API snapshot + route listener; stale or unseen routes present"
+            : "[live] API snapshot + route listener"
         : hasSnapshotRows && listenerState.routeHealthFailed
             ? "[degraded] API snapshot; route listener failed"
         : hasSnapshotRows && !listenerState.routeHealthLoaded
             ? "[partial] API snapshot; route listener hydrating"
         : hasSnapshotRows
-            ? "[live] API snapshot"
+            ? summary.stale > 0
+                ? "[stale] API snapshot; stale route samples"
+                : summary.unobserved > 0
+                    ? "[partial] API snapshot; no-sample routes"
+                    : "[live] API snapshot"
             : hasRealtimeRows
                 ? "[partial] route listener; API snapshot empty"
                 : listenerState.routeHealthFailed
@@ -256,13 +262,19 @@ export function buildAdminDebugRouteHealthCard(input: {
                     ? "[loading] route sources"
                     : "[unavailable] no route runtime records";
     const operatorSourceLabel = hasSnapshotRows && hasRealtimeRows
-        ? "Live route checks are showing."
+        ? summary.stale > 0 || summary.unobserved > 0
+            ? "Route checks are loaded with stale or unseen route entries separated from current health."
+            : "Live route checks are showing."
         : hasSnapshotRows && listenerState.routeHealthFailed
             ? "Live route checks are delayed. Showing last verified route data."
         : hasSnapshotRows && !listenerState.routeHealthLoaded
             ? "Showing last verified route data while live checks connect."
         : hasSnapshotRows
-            ? "Showing last verified route data."
+            ? summary.stale > 0
+                ? "Showing stale route data that needs fresh evidence."
+                : summary.unobserved > 0
+                    ? "Showing route data with no-sample routes marked unavailable."
+                    : "Showing last verified route data."
             : hasRealtimeRows
                 ? "Live route checks are showing while the saved snapshot catches up."
                 : listenerState.routeHealthFailed

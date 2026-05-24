@@ -1,6 +1,6 @@
 {
   "reportKey": "debug-cockpit-batch19-product-routes",
-  "generatedAtUtc": "2026-05-24T21:48:40.294Z",
+  "generatedAtUtc": "2026-05-24T22:10:36.034Z",
   "tasksRotateStatusBefore": "current_client_error",
   "tasksRotateStatusAfter": "expected_typed_client_error",
   "tasksRotateErrorClass": "unauthenticated,forbidden,missing_task_assignment,rate_limited,invalid_task_rotation_request,stale_client_payload",

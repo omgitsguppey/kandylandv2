@@ -1,0 +1,19 @@
+{
+  "reportKey": "no-sample-route-cohort-cleanup",
+  "generatedAtUtc": "2026-05-24T22:10:27.335Z",
+  "optional": {
+    "routeKey": "admin/ai/drop-covers/template:DELETE",
+    "cohort": "optional_admin_delete",
+    "status": "unseen_optional_quiet",
+    "displaysLive": false,
+    "nextAction": "admin/ai/drop-covers/template:DELETE is optional and quiet; keep out of live health until sampled."
+  },
+  "required": {
+    "routeKey": "admin/creator-account-controls:POST",
+    "cohort": "required_admin_write",
+    "status": "unseen_required_smoke_needed",
+    "displaysLive": false,
+    "nextAction": "admin/creator-account-controls:POST has no runtime sample; run an approved smoke path or attach evidence."
+  },
+  "validationFailures": []
+}

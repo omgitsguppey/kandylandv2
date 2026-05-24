@@ -1,0 +1,10 @@
+{
+  "reportKey": "support-route-stale-index-cleanup",
+  "generatedAtUtc": "2026-05-24T22:10:21.847Z",
+  "supportIndexStatus": "missing_firestore_index_actionable",
+  "supportStaleSampleStatus": "needs_fresh_support_smoke",
+  "broadReadFallbackAllowed": false,
+  "rawSupportBodiesVisibleByDefault": false,
+  "nextAction": "Deploy/apply the recorded support thread composite indexes, then run an approved support inbox smoke.",
+  "validationFailures": []
+}
