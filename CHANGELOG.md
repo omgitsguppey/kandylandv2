@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.39 - 2026-05-24
+
+- Added a bounded JSON body cap to the admin balance route.
+- Refreshed beta score, self-healing refresh queue, and speed/security artifacts.
+- Kept admin authorization, GumDrop ledger math, and source-of-funds behavior unchanged.
+
 ## 1.4.38 - 2026-05-24
 
 - Cleaned recovery playbook CTAs and canonical business truth status.

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance, spendSourceAwareGumdrops } from "@/lib/gumdrop-ledger";
@@ -10,6 +11,8 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+
+const ADMIN_BALANCE_BODY_LIMIT_BYTES = 8_192;
 
 const bodySchema = z.object({
     userId: z.string().trim().min(1).max(128),
@@ -35,7 +38,13 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const { userId, amount, reason } = bodySchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof bodySchema>>(request, {
+            maxBytes: ADMIN_BALANCE_BODY_LIMIT_BYTES,
+            routeName: "admin/balance",
+            allowEmpty: false,
+            allowedContentTypes: ["application/json"],
+        });
+        const { userId, amount, reason } = bodySchema.parse(body);
         const userRef = adminDb.collection("users").doc(userId);
         const transactionRef = adminDb.collection("transactions").doc();
 
@@ -106,6 +115,14 @@ async function POST_handler(request: NextRequest) {
             balanceAfter: result.balanceAfter,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                message: error.message,
+            }, { status: error.status });
+        }
         return handleApiError(error, "Admin.Balance");
     }
 }

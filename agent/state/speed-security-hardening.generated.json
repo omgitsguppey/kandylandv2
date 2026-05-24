@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-18T14:06:33.855Z",
+  "generatedAt": "2026-05-24T18:16:20.554Z",
   "overallScore": 51,
   "overallStatus": "beta-risk",
   "domainScores": {
@@ -15,9 +15,9 @@
       "weight": 25,
       "score": 0,
       "status": "beta-risk",
-      "findingCount": 74,
+      "findingCount": 73,
       "criticalCount": 0,
-      "majorCount": 74
+      "majorCount": 73
     },
     "firebaseRulesAppCheckReadiness": {
       "weight": 20,
@@ -58,7 +58,7 @@
       "force_cache": 0,
       "swr": 3,
       "hot_cache": 4,
-      "no_store": 97,
+      "no_store": 98,
       "must_not_cache": 23,
       "unknown": 0
     },
@@ -1156,6 +1156,7 @@
         "routePath": "/api/creator/drops",
         "filePath": "src/app/api/creator/drops/route.ts",
         "methods": [
+          "GET",
           "POST",
           "PUT"
         ],
@@ -1555,6 +1556,21 @@
         "sourceForceDynamicEvidence": true
       },
       {
+        "routePath": "/api/notifications/push-token",
+        "filePath": "src/app/api/notifications/push-token/route.ts",
+        "methods": [
+          "POST",
+          "DELETE"
+        ],
+        "contractPattern": "/api/**",
+        "cacheMode": "no_store",
+        "surface": "api",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
         "routePath": "/api/notifications",
         "filePath": "src/app/api/notifications/route.ts",
         "methods": [
@@ -1929,16 +1945,16 @@
   },
   "routeSecurityClassification": {
     "totals": {
-      "routes": 129,
-      "mutations": 92,
-      "trustedOriginRequired": 92,
-      "trustedOriginPresent": 105,
-      "guardPresent": 128,
-      "rateLimitEvidence": 128,
+      "routes": 130,
+      "mutations": 93,
+      "trustedOriginRequired": 93,
+      "trustedOriginPresent": 106,
+      "guardPresent": 129,
+      "rateLimitEvidence": 129,
       "idempotencyRequired": 12,
-      "idempotencyEvidence": 23,
-      "bodyLimitRequired": 122,
-      "bodyLimitEvidence": 35
+      "idempotencyEvidence": 24,
+      "bodyLimitRequired": 123,
+      "bodyLimitEvidence": 37
     },
     "routes": [
       {
@@ -2446,7 +2462,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4005,7 +4021,7 @@
         "guardPresent": true,
         "rateLimitPresent": true,
         "idempotencyRequired": false,
-        "idempotencyPresent": false,
+        "idempotencyPresent": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -4138,6 +4154,7 @@
         "routePath": "/api/creator/drops",
         "filePath": "src/app/api/creator/drops/route.ts",
         "methods": [
+          "GET",
           "POST",
           "PUT"
         ],
@@ -4156,7 +4173,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4928,6 +4945,35 @@
         "bodyLimitRequired": false,
         "bodyLimitPresent": false,
         "expectedFailureCodes": []
+      },
+      {
+        "routePath": "/api/notifications/push-token",
+        "filePath": "src/app/api/notifications/push-token/route.ts",
+        "methods": [
+          "POST",
+          "DELETE"
+        ],
+        "contractPattern": "/api/**",
+        "authRequired": "user",
+        "rateLimitPolicy": "standard",
+        "costRisk": "medium",
+        "csrfRisk": "medium",
+        "mutation": true,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": true,
+        "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_request"
+        ]
       },
       {
         "routePath": "/api/notifications",
@@ -5725,23 +5771,6 @@
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
-      "filePath": "src/app/api/admin/balance/route.ts",
-      "line": 38,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1fgkkv5"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
       "filePath": "src/app/api/admin/creator-account-controls/route.ts",
       "line": 444,
       "title": "Mutating route has body limit contract but no source-visible cap",
@@ -5862,7 +5891,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 42,
+      "line": 34,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5873,7 +5902,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1qgdb4c"
+      "id": "speed_security_1ix3kvb"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -5981,7 +6010,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 808,
+      "line": 820,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5992,7 +6021,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1nckyg9"
+      "id": "speed_security_1uqffkb"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6066,7 +6095,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/[userId]/username/route.ts",
-      "line": 33,
+      "line": 35,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -6077,13 +6106,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_l70izq"
+      "id": "speed_security_8ljmcc"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 2446,
+      "line": 2456,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -6094,7 +6123,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1i6x7c"
+      "id": "speed_security_nf2ggn"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6317,24 +6346,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 67,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_td1ami"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 6,
+      "line": 9,
       "title": "Route may collapse expected domain failures into generic 500s",
       "evidence": [
         "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
@@ -6345,7 +6357,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
       "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_11feq8e"
+      "id": "speed_security_1u35cxr"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6671,6 +6683,23 @@
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
+      "filePath": "src/app/api/notifications/push-token/route.ts",
+      "line": 98,
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "evidence": [
+        "Contract body limit is 32768 bytes."
+      ],
+      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
+      "actualPattern": "missing body limit evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
+      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
+      "id": "speed_security_1akn92g"
+    },
+    {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
       "filePath": "src/app/api/notifications/route.ts",
       "line": 144,
       "title": "Mutating route has body limit contract but no source-visible cap",
@@ -6740,7 +6769,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/privacy/consent/route.ts",
-      "line": 21,
+      "line": 26,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 16384 bytes."
@@ -6751,7 +6780,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1j9xrl4"
+      "id": "speed_security_7ifhvb"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6920,7 +6949,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/user/profile/route.ts",
-      "line": 168,
+      "line": 174,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6931,7 +6960,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_11mvvd0"
+      "id": "speed_security_1hc9xub"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -7038,7 +7067,7 @@
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/app/api/wallet/packages/route.ts",
-      "line": 8,
+      "line": 10,
       "title": "Public/cacheable route uses no-store or force-dynamic",
       "evidence": [
         "/api/wallet/packages contract is static, but source shows no-store/force-dynamic evidence."
@@ -7049,13 +7078,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
       "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_zdab5p"
+      "id": "speed_security_5000bo"
     },
     {
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/components/Analytics/DeepTracker.tsx",
-      "line": 625,
+      "line": 979,
       "title": "Public shell surface uses interval work",
       "evidence": [
         "Speed fixes must not add polling; startup timers can increase input delay and cost."
@@ -7066,13 +7095,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
       "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_1kpw7b4"
+      "id": "speed_security_aog35k"
     },
     {
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 2052,
+      "line": 2284,
       "title": "Public shell surface uses interval work",
       "evidence": [
         "Speed fixes must not add polling; startup timers can increase input delay and cost."
@@ -7083,7 +7112,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
       "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_rinzwq"
+      "id": "speed_security_3ulwkb"
     }
   ],
   "costRisks": [
@@ -7091,7 +7120,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 115,
+      "line": 132,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -7102,24 +7131,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_2oggjo"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 3,
-      "title": "Paid Google API surface lacks full timeout/budget evidence",
-      "evidence": [
-        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
-      ],
-      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
-      "actualPattern": "paid Google API import without timeout/budget evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
-      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
-      "id": "speed_security_1gsike4"
+      "id": "speed_security_l8tz1l"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7158,6 +7170,23 @@
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
+      "filePath": "src/lib/server/admin-analytics/ga4-evidence.ts",
+      "line": 3,
+      "title": "Paid Google API surface lacks full timeout/budget evidence",
+      "evidence": [
+        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
+      ],
+      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
+      "actualPattern": "paid Google API import without timeout/budget evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
+      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
+      "id": "speed_security_l1rvhw"
+    },
+    {
+      "domain": "costRunawayWorkControls",
+      "severity": "major",
       "filePath": "src/lib/server/ai-drop-covers.ts",
       "line": 4,
       "title": "Paid Google API surface lacks full timeout/budget evidence",
@@ -7192,23 +7221,6 @@
   ],
   "criticalFindings": [],
   "findings": [
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/balance/route.ts",
-      "line": 38,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1fgkkv5"
-    },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
@@ -7332,7 +7344,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 42,
+      "line": 34,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -7343,7 +7355,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1qgdb4c"
+      "id": "speed_security_1ix3kvb"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -7451,7 +7463,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 808,
+      "line": 820,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -7462,7 +7474,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1nckyg9"
+      "id": "speed_security_1uqffkb"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -7536,7 +7548,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/[userId]/username/route.ts",
-      "line": 33,
+      "line": 35,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -7547,13 +7559,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_l70izq"
+      "id": "speed_security_8ljmcc"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 2446,
+      "line": 2456,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -7564,7 +7576,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1i6x7c"
+      "id": "speed_security_nf2ggn"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -7804,24 +7816,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 67,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_td1ami"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 6,
+      "line": 9,
       "title": "Route may collapse expected domain failures into generic 500s",
       "evidence": [
         "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
@@ -7832,7 +7827,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
       "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_11feq8e"
+      "id": "speed_security_1u35cxr"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -8041,7 +8036,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 115,
+      "line": 132,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -8052,7 +8047,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_2oggjo"
+      "id": "speed_security_l8tz1l"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -8226,6 +8221,23 @@
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
+      "filePath": "src/app/api/notifications/push-token/route.ts",
+      "line": 98,
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "evidence": [
+        "Contract body limit is 32768 bytes."
+      ],
+      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
+      "actualPattern": "missing body limit evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
+      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
+      "id": "speed_security_1akn92g"
+    },
+    {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
       "filePath": "src/app/api/notifications/route.ts",
       "line": 144,
       "title": "Mutating route has body limit contract but no source-visible cap",
@@ -8295,7 +8307,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/privacy/consent/route.ts",
-      "line": 21,
+      "line": 26,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 16384 bytes."
@@ -8306,7 +8318,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1j9xrl4"
+      "id": "speed_security_7ifhvb"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -8492,7 +8504,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/user/profile/route.ts",
-      "line": 168,
+      "line": 174,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -8503,7 +8515,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_11mvvd0"
+      "id": "speed_security_1hc9xub"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -8542,7 +8554,7 @@
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/app/api/wallet/packages/route.ts",
-      "line": 8,
+      "line": 10,
       "title": "Public/cacheable route uses no-store or force-dynamic",
       "evidence": [
         "/api/wallet/packages contract is static, but source shows no-store/force-dynamic evidence."
@@ -8553,13 +8565,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
       "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_zdab5p"
+      "id": "speed_security_5000bo"
     },
     {
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/components/Analytics/DeepTracker.tsx",
-      "line": 625,
+      "line": 979,
       "title": "Public shell surface uses interval work",
       "evidence": [
         "Speed fixes must not add polling; startup timers can increase input delay and cost."
@@ -8570,13 +8582,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
       "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_1kpw7b4"
+      "id": "speed_security_aog35k"
     },
     {
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 2052,
+      "line": 2284,
       "title": "Public shell surface uses interval work",
       "evidence": [
         "Speed fixes must not add polling; startup timers can increase input delay and cost."
@@ -8587,24 +8599,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
       "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_rinzwq"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 3,
-      "title": "Paid Google API surface lacks full timeout/budget evidence",
-      "evidence": [
-        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
-      ],
-      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
-      "actualPattern": "paid Google API import without timeout/budget evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
-      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
-      "id": "speed_security_1gsike4"
+      "id": "speed_security_3ulwkb"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8639,6 +8634,23 @@
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
       "id": "speed_security_1x7q06v"
+    },
+    {
+      "domain": "costRunawayWorkControls",
+      "severity": "major",
+      "filePath": "src/lib/server/admin-analytics/ga4-evidence.ts",
+      "line": 3,
+      "title": "Paid Google API surface lacks full timeout/budget evidence",
+      "evidence": [
+        "AI/GA routes must be bounded by timeout, budget, quota, and hot-cache strategy where applicable."
+      ],
+      "expectedRule": "Paid Google calls are admin-gated, budgeted, timeout-aware, and recorded in debug/cost evidence.",
+      "actualPattern": "paid Google API import without timeout/budget evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Verify kill switch, quota return, model allowlist, token cap, timeout, and route frequency cap.",
+      "humanReadableEscalation": "Paid Google API behavior requires owner review.",
+      "id": "speed_security_l1rvhw"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8737,5 +8749,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 90 findings across 129 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 89 findings across 130 API routes."
 }

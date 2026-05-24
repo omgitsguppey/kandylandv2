@@ -96,6 +96,7 @@ describe("speed-security hardening scanner helpers", () => {
     const relationshipsRoute = readFileSync(join(root, "src/app/api/creator/relationships/route.ts"), "utf8");
     const debugPreferencesRoute = readFileSync(join(root, "src/app/api/admin/debug/preferences/route.ts"), "utf8");
     const creatorFanExperienceRoute = readFileSync(join(root, "src/app/api/admin/creator-fan-experience-settings/route.ts"), "utf8");
+    const adminBalanceRoute = readFileSync(join(root, "src/app/api/admin/balance/route.ts"), "utf8");
 
     expect(boundedConcurrency).toContain("cost-bound: bounded Promise.all worker pool");
     expect(creatorDiscovery).toContain("mapWithConcurrency");
@@ -105,5 +106,8 @@ describe("speed-security hardening scanner helpers", () => {
     expect(relationshipsRoute).toContain("readBoundedJsonBody");
     expect(debugPreferencesRoute).toContain("readBoundedJsonBody");
     expect(creatorFanExperienceRoute).toContain("readBoundedJsonBody");
+    expect(adminBalanceRoute).toContain("readBoundedJsonBody");
+    expect(adminBalanceRoute).toContain("ADMIN_BALANCE_BODY_LIMIT_BYTES = 8_192");
+    expect(adminBalanceRoute).not.toContain("request.json()");
   });
 });

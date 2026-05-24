@@ -1,11 +1,73 @@
 {
-  "currentVersion": "1.4.38",
-  "betaReleaseCounter": 438,
+  "currentVersion": "1.4.39",
+  "betaReleaseCounter": 439,
   "channel": "beta",
-  "generatedAt": "2026-05-24T18:05:35.641Z",
-  "generatedAtUtc": "2026-05-24T18:05:35.641Z",
+  "generatedAt": "2026-05-24T18:18:19.072Z",
+  "generatedAtUtc": "2026-05-24T18:18:19.072Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.39",
+      "previousVersion": "1.4.38",
+      "betaReleaseCounter": 439,
+      "previousBetaReleaseCounter": 438,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(security): cap admin balance body",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T18:18:19.072Z",
+      "generatedAt": "2026-05-24T18:18:19.072Z",
+      "committedAtUtc": "2026-05-24T18:18:19.072Z",
+      "generatedAtUtc": "2026-05-24T18:18:19.072Z",
+      "updatedAtUtc": "2026-05-24T18:18:19.072Z",
+      "category": "Security",
+      "title": "Admin balance body cap hardening",
+      "summary": "Added a bounded JSON body cap to the admin balance route and refreshed beta readiness, self-healing, and speed/security artifacts without changing GumDrop ledger behavior.",
+      "userFacingTitle": "Admin balance body cap hardening",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Added a bounded JSON body cap to the admin balance route.",
+        "Refreshed beta score, self-healing refresh queue, and speed/security artifacts.",
+        "Kept admin authorization, GumDrop ledger math, and source-of-funds behavior unchanged."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Privacy & security",
+        "Admin balance",
+        "Admin API security",
+        "Beta score",
+        "Speed/security hardening"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/admin-balance-body-cap.generated.json",
+        "agent/state/debug-cockpit-batch9-cleanup.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/self-healing-refresh-queue.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "docs/agent-truth/admin-balance-body-cap.md",
+        "docs/agent-truth/debug-cockpit-batch9-cleanup.md",
+        "docs/agent-truth/self-healing-refresh-queue.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/debug-cockpit-batch9-shared.ts",
+        "scripts/agent/validate-admin-balance-body-cap.ts",
+        "scripts/agent/validate-debug-cockpit-batch9-cleanup.ts",
+        "src/app/api/admin/balance/route.ts",
+        "src/lib/server/bounded-json-body.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-balance-body-cap.spec.ts",
+        "tests/unit/debug-cockpit-batch9-cleanup.spec.ts",
+        "tests/unit/speed-security-hardening.spec.ts"
+      ],
+      "effectiveChangeCount": 20,
+      "excludedGeneratedChangeCount": 8,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.38",
       "previousVersion": "1.4.37",
@@ -1561,73 +1623,6 @@
         "tests/unit/regression-risk-high-blast-refresh.spec.ts"
       ],
       "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b"
-    },
-    {
-      "version": "1.4.14",
-      "previousVersion": "1.4.13",
-      "betaReleaseCounter": 414,
-      "previousBetaReleaseCounter": 413,
-      "commitSha": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
-      "commitTitle": "docs(beta): refresh regression evidence",
-      "commitCount": 1,
-      "commitShas": [
-        "2de05abe97f909b1414dc165bb3cfdd19309cb58"
-      ],
-      "committedAt": "2026-05-24T05:13:18.000Z",
-      "generatedAt": "2026-05-24T05:32:51.166Z",
-      "committedAtUtc": "2026-05-24T05:13:18.000Z",
-      "generatedAtUtc": "2026-05-24T05:32:51.166Z",
-      "updatedAtUtc": "2026-05-24T05:32:51.166Z",
-      "category": "Fixed",
-      "title": "Regression evidence refresh",
-      "summary": "Refreshed high-blast regression evidence for analytics, debug, chat, task, settings, wallet, admin, and score lanes.",
-      "userFacingTitle": "Regression evidence refresh",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refreshed regression evidence for high-blast analytics, debug, chat, task, settings, and wallet lanes.",
-        "Rebuilt targeted behavior evidence from current validators.",
-        "Separated in-flight work from stale regression drag."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "beta-readiness",
-        "admin-debug",
-        "evidence-reporting"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-truth-source-sample.generated.json",
-        "agent/state/algorithmic-evidence-policy.generated.json",
-        "agent/state/cost-risk-owner-review-closure.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/debug-runtime-evidence.generated.json",
-        "agent/state/formal-evidence-bridge.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/real-usage-confidence.generated.json",
-        "agent/state/score-80-cost-readiness.generated.json",
-        "agent/state/source-backed-runtime-confidence.generated.json",
-        "docs/agent-truth/admin-truth-source-sample.md",
-        "docs/agent-truth/algorithmic-evidence-policy.md",
-        "docs/agent-truth/cost-risk-owner-review-closure.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/debug-runtime-evidence.md",
-        "docs/agent-truth/formal-evidence-bridge.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/score-80-cost-readiness.md",
-        "docs/agent-truth/source-backed-runtime-confidence.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-formal-evidence-bridge.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "src/lib/agent-score/core.ts",
-        "src/lib/agent-score/formal-evidence-bridge.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/formal-evidence-bridge.spec.ts"
-      ],
-      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58"
     }
   ]
 }

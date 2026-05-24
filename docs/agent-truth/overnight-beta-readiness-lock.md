@@ -1,8 +1,8 @@
 # Overnight Beta Readiness Lock
 
-Generated: 2026-05-24T17:59:59.735Z
+Generated: 2026-05-24T18:17:02.053Z
 
-Latest code version: 6d038e7f7d9b7cef83d276f39bd968df83bb988d
+Latest code version: aa6815f74070c955ed53585f76a36c4d52065cd0
 
 ## Status
 
@@ -15,7 +15,7 @@ Latest code version: 6d038e7f7d9b7cef83d276f39bd968df83bb988d
 - Cloud SQL cost status: not_detected_in_repo
 - Gemini/Cloud Assist cost status: cost_review_required
 - Evidence status: manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0
-- Speed/security status: 51/beta-risk; findings=90; critical=0; p2BacklogVisible=true
+- Speed/security status: 51/beta-risk; findings=89; critical=0; p2BacklogVisible=true
 
 ## Start Gates
 

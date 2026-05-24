@@ -1,0 +1,50 @@
+# Debug Cockpit Batch9 Cleanup
+
+Generated source-only Batch 9 evidence. No production reads, deploys, provider calls, payment runtime changes, or GumDrop math changes were performed.
+
+```json
+{
+  "generatedAtUtc": "2026-05-24T18:18:35.287Z",
+  "reportKey": "debug-cockpit-batch9-cleanup",
+  "publicBetaScoreHeadBefore": "a54fc24ccc1ad7b3d23c7aa2a6b3c5bb354fde76",
+  "publicBetaScoreHeadAfter": "aa6815f74070c955ed53585f76a36c4d52065cd0",
+  "repoHead": "aa6815f74070c955ed53585f76a36c4d52065cd0",
+  "selfHealingAgeBefore": 406694.6,
+  "selfHealingAgeAfter": 0.03,
+  "speedSecurityAgeBefore": 144.5,
+  "speedSecurityAgeAfter": 0.04,
+  "adminBalanceBodyCapBefore": "missing_direct_request_json",
+  "adminBalanceBodyCapAfter": "bounded_parser_cap_8192",
+  "boundedParserUsed": "readBoundedJsonBody",
+  "maxBytes": 8192,
+  "directRequestJsonRemaining": false,
+  "gumdropMathChanged": false,
+  "authGuardChanged": false,
+  "refreshedArtifacts": [
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/self-healing-refresh-queue.generated.json",
+    "agent/state/speed-security-hardening.generated.json",
+    "agent/state/admin-balance-body-cap.generated.json"
+  ],
+  "remainingStaleArtifacts": [],
+  "scoreBefore": 79,
+  "scoreAfter": 79,
+  "scoreDimensions": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "remainingGaps": [
+    "Formal provider/runtime/admin evidence gates remain separate from this source security fix."
+  ],
+  "nextExactSteps": [
+    "Attach formal evidence artifacts outside source-code cleanup when available.",
+    "Rerun beta score after this commit lands if a same-commit generated artifact head needs post-commit refresh."
+  ],
+  "validationFailures": []
+}
+```

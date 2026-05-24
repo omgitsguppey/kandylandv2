@@ -20,10 +20,19 @@ export async function readBoundedJsonBody<T>(
     maxBytes: number;
     routeName: string;
     allowEmpty?: boolean;
+    allowedContentTypes?: string[];
   },
 ): Promise<T> {
   const maxBytes = Math.max(1, Math.floor(options.maxBytes));
   const contentLength = request.headers.get("content-length");
+  const allowedContentTypes = options.allowedContentTypes?.map((contentType) => contentType.toLowerCase()) ?? [];
+
+  if (allowedContentTypes.length > 0) {
+    const contentType = request.headers.get("content-type")?.toLowerCase() ?? "";
+    if (!contentType || !allowedContentTypes.some((allowed) => contentType.startsWith(allowed))) {
+      throw new BoundedJsonBodyError(400, "invalid_json", "JSON content type required.");
+    }
+  }
 
   // content-length guard
   if (contentLength) {
