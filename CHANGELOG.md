@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.29 - 2026-05-24
+- SQL/database parity and cost accuracy
+- Locked SQL/database parity between raw events, global summaries, user metrics, and journey exports.
+- Preserved cost guards with batched exports and summary-first reads.
+- Added debug visibility for parity mismatches and export freshness.
+
 ## 1.4.28 - 2026-05-24
 - User journey intelligence
 - Added normalized user journey logs for behavioral intelligence.

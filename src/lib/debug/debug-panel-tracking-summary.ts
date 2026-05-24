@@ -23,6 +23,7 @@ import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedu
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
 import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
 import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
+import { buildSqlDatabaseParityDebugLane } from "@/lib/analytics/sql-database-parity-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -32,6 +33,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "drop_watch_time",
   "session_bounce",
   "user_journey",
+  "sql_database_parity",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -115,6 +117,7 @@ const TRACKING_GROUPS = [
   "drop_watch_time",
   "session_bounce",
   "user_journey",
+  "sql_database_parity",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -334,6 +337,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     && chatTelemetry.creatorLevelMetricsVisible === true
     ? 0
     : 1;
+  const sqlDatabaseParityLane = input.sqlDatabaseParityCostLock?.debugLane ?? buildSqlDatabaseParityDebugLane();
+  const sqlDatabaseParityWarnings = toNumber(sqlDatabaseParityLane.mismatchCount)
+    + (sqlDatabaseParityLane.parityStatus === "matched" ? 0 : 1)
+    + (sqlDatabaseParityLane.costGuardStatus === "batched_summary_first" ? 0 : 1);
   const routeFailures = toNumber(input.routeRuntimeHealthSummary?.fail);
   const routeWarnings = toNumber(input.routeRuntimeHealthSummary?.warn) + toNumber(input.routeRuntimeHealthSummary?.stale);
   const runtimeFailures = toNumber(input.runtimeWarningSummary?.failed);
@@ -439,6 +446,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: userJourneyWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#user-journey",
+    }),
+    makeLane({
+      id: "sql_database_parity",
+      label: "SQL/database parity",
+      trackingSystem: "sql_database_parity",
+      sourceOwner: "analytics",
+      sourceOfTruth: "src/lib/analytics/sql-database-parity-engine.ts",
+      status: sqlDatabaseParityWarnings > 0 ? "degraded" : "live",
+      severity: severityFromCounts(0, sqlDatabaseParityWarnings, sqlDatabaseParityWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: sqlDatabaseParityWarnings > 0 ? "medium" : "none",
+      primarySignal: `Parity=${sqlDatabaseParityLane.parityStatus}; mismatches=${toNumber(sqlDatabaseParityLane.mismatchCount)}; export freshness=${sqlDatabaseParityLane.exportFreshness}; cost guard=${sqlDatabaseParityLane.costGuardStatus}; external review blocked=${String(sqlDatabaseParityLane.blockedExternalReview)}.`,
+      criticalCount: 0,
+      warningCount: sqlDatabaseParityWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#sql-database-parity",
     }),
     makeLane({
       id: "event_translation_bridge",

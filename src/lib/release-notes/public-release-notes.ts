@@ -1,13 +1,65 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.28",
-  "betaReleaseCounter": 428,
+  "currentVersion": "1.4.29",
+  "betaReleaseCounter": 429,
   "channel": "beta",
-  "generatedAt": "2026-05-24T10:50:00.000Z",
-  "generatedAtUtc": "2026-05-24T10:50:00.000Z",
+  "generatedAt": "2026-05-24T11:05:00.000Z",
+  "generatedAtUtc": "2026-05-24T11:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.29",
+      "previousVersion": "1.4.28",
+      "betaReleaseCounter": 429,
+      "previousBetaReleaseCounter": 428,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(analytics): lock sql parity cost",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T11:05:00.000Z",
+      "generatedAt": "2026-05-24T11:05:00.000Z",
+      "committedAtUtc": "2026-05-24T11:05:00.000Z",
+      "generatedAtUtc": "2026-05-24T11:05:00.000Z",
+      "updatedAtUtc": "2026-05-24T11:05:00.000Z",
+      "category": "Improved",
+      "title": "SQL/database parity and cost accuracy",
+      "summary": "Locked SQL/database parity across raw events, summaries, user metrics, journey exports, and cost guard evidence.",
+      "userFacingTitle": "SQL/database parity and cost accuracy",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked SQL/database parity between raw events, global summaries, user metrics, and journey exports.",
+        "Preserved cost guards with batched exports and summary-first reads.",
+        "Added debug visibility for parity mismatches and export freshness."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Analytics",
+        "Admin debug",
+        "Analytics reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/sql-database-parity-cost-lock.generated.json",
+        "docs/agent-truth/sql-database-parity-cost-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-sql-database-parity-cost-lock.ts",
+        "src/lib/analytics/sql-database-parity-contract.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/sql-database-parity-cost-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "Added source-only SQL/database parity contracts, cost lane classification, debug lane coverage, validator reporting, and unit tests without running exports or changing runtime payment, GumDrop, chat, auth, task, or notification behavior."
+      ]
+    },
     {
       "version": "1.4.28",
       "previousVersion": "1.4.27",
