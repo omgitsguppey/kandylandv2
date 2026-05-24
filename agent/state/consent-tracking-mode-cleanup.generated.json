@@ -1,0 +1,40 @@
+{
+  "reportKey": "consent-tracking-mode-cleanup",
+  "generatedAtUtc": "2026-05-24T15:35:25.863Z",
+  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
+  "status": "source_ready",
+  "capabilities": {
+    "necessarySecuritySession": false,
+    "minimalAnalyticsAllowsProductLiveness": true,
+    "performanceAnalyticsAllowedMinimal": true,
+    "behavioralRequiresFullConsent": true,
+    "externalRequiresFullConsent": true,
+    "personalizationRequiresFullBehavioral": true,
+    "necessaryAllowsIntegritySession": true,
+    "behavioralBlockedUnderNecessary": true
+  },
+  "eventLivenessConsentStatus": "minimal_product_liveness_allowed",
+  "debugLane": {
+    "label": "Consent/tracking mode",
+    "status": "source_ready",
+    "blockedEventFamilies": [
+      {
+        "eventFamily": "behavioral_watch_click_scroll",
+        "consentMode": "necessary_only",
+        "reason": "blocked_behavioral_analytics"
+      },
+      {
+        "eventFamily": "external_analytics",
+        "consentMode": "minimal_analytics",
+        "reason": "blocked_external_analytics_without_full_consent"
+      },
+      {
+        "eventFamily": "personalization",
+        "consentMode": "minimal_analytics",
+        "reason": "blocked_behavioral_requires_full_consent"
+      }
+    ],
+    "rawDetailsDefaultOpen": false
+  },
+  "validationFailures": []
+}

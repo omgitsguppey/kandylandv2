@@ -1,0 +1,31 @@
+# Legacy Recovery Status Cleanup
+
+Generated: 2026-05-24T15:35:32.946Z
+Current head: 4214aa6fca1f18201e8f09ed9197f38316b035c9
+Status: healthy_source_ready
+
+## Summary
+
+```json
+{
+  "reportKey": "legacy-recovery-status-cleanup",
+  "generatedAtUtc": "2026-05-24T15:35:32.946Z",
+  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
+  "status": "healthy_source_ready",
+  "degradedCause": [],
+  "recoveryStartDate": "2026-03-01",
+  "dryRunMutationProtection": true,
+  "productionMutationAllowed": false,
+  "confidenceLabelsPresent": true,
+  "duplicateRiskPresent": true,
+  "consentAssumptionsPresent": true,
+  "unsafeUnknownPolicy": "archive_only",
+  "rawRowsDefaultVisible": false,
+  "marchFirstBoundaryPresent": true,
+  "validationFailures": []
+}
+```
+
+## Validation Failures
+
+- none

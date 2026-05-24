@@ -1,8 +1,8 @@
 # Debug Signal Grouping
 
-Generated: 2026-05-24T05:47:51.707Z
+Generated: 2026-05-24T15:32:42.936Z
 Status: pass
-Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
+Current head: 4214aa6fca1f18201e8f09ed9197f38316b035c9
 
 ## Contract
 
@@ -27,9 +27,9 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - runtimeHealth: 84.2 -> 84.2; target=80; status=target_met; next=No score-80 action required for this dimension.
 - evidenceCompleteness: 69.6 -> 69.6; target=80; status=below_target; next=Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity.
 - freshness: 83.75 -> 83.75; target=80; status=target_met; next=No score-80 action required for this dimension.
-- costRisk: 80.5 -> 80.5; target=80; status=target_met; next=No score-80 action required for this dimension.
+- costRisk: 80.5 -> 42; target=80; status=below_target; next=No score-80 action required for this dimension.
 - regressionRisk: 86 -> 86; target=80; status=target_met; next=No score-80 action required for this dimension.
-- overallHealthScore: 83.1 -> 83.1; target=80; status=target_met; next=No score-80 action required for this dimension.
+- overallHealthScore: 83.1 -> 79.25; target=80; status=below_target; next=No score-80 action required for this dimension.
 
 ## Default Debug Groups
 
@@ -67,55 +67,60 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Dirty Files
 
+- CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/chat-functionality-score-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-gating-moderation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-realtime-cost-control.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-telemetry-admin-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/cost-risk-owner-review-closure.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-guidance-route-audit.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-lifecycle-telemetry.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-reward-ledger.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-signal-actionability.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/behavior-math-status-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/consent-tracking-mode-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-signal-grouping.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/event-liveness-source-repair.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/formal-evidence-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/feature-telemetry-coverage-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/legacy-recovery-status-cleanup.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/settings-connection-parity.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-management-refactor.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-profile-api-contract.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-functionality-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-gating-moderation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-realtime-cost-control.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-telemetry-admin-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/cost-risk-owner-review-closure.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-guidance-route-audit.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-reset-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-reward-ledger.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-signal-actionability.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/runtime-debug-signal-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/tracking-summary-lane-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/behavior-math-status-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/consent-tracking-mode-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-signal-grouping.md: documentation_artifact_expected
+- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-liveness-audit.md: documentation_artifact_expected
+- docs/agent-truth/event-liveness-source-repair.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/formal-evidence-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/feature-telemetry-coverage-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/legacy-recovery-status-cleanup.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/settings-connection-parity.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/telemetry-trigger-test-matrix.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/user-management-refactor.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/user-profile-api-contract.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/runtime-debug-signal-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/tracking-summary-lane-cleanup.md: stale_generated_artifact_to_regenerate
+- package.json: validator_artifact_expected
+- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/tracking-summary-lane-cleanup-shared.ts: validator_artifact_expected
+- scripts/agent/validate-behavior-math-status-cleanup.ts: validator_artifact_expected
+- scripts/agent/validate-consent-tracking-mode-cleanup.ts: validator_artifact_expected
+- scripts/agent/validate-debug-signal-grouping.ts: validator_artifact_expected
 - scripts/agent/validate-event-liveness-audit.ts: validator_artifact_expected
-- src/app/api/admin/debug/route.ts: debug_panel_source_change
-- src/lib/analytics/event-liveness-contract.ts: debug_grouping_source_change
-- src/lib/analytics/event-liveness-engine.ts: debug_grouping_source_change
+- scripts/agent/validate-event-liveness-source-repair.ts: validator_artifact_expected
+- scripts/agent/validate-feature-telemetry-coverage-cleanup.ts: validator_artifact_expected
+- scripts/agent/validate-legacy-recovery-status-cleanup.ts: validator_artifact_expected
+- scripts/agent/validate-runtime-debug-signal-cleanup.ts: validator_artifact_expected
+- scripts/agent/validate-tracking-summary-lane-cleanup.ts: validator_artifact_expected
+- src/lib/analytics/event-translation-bridge.ts: debug_grouping_source_change
+- src/lib/analytics/person-metrics-hydration.ts: debug_grouping_source_change
 - src/lib/debug/debug-panel-tracking-summary.ts: debug_panel_source_change
-- src/lib/server/admin-debug/summary.ts: debug_panel_source_change
-- tests/unit/event-liveness-audit.spec.ts: test_artifact_expected
+- src/lib/privacy/consent-tracking-policy.ts: debug_grouping_source_change
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- tests/unit/behavior-math-status-cleanup.spec.ts: test_artifact_expected
+- tests/unit/consent-tracking-mode-cleanup.spec.ts: test_artifact_expected
+- tests/unit/event-liveness-source-repair.spec.ts: test_artifact_expected
+- tests/unit/feature-telemetry-coverage-cleanup.spec.ts: test_artifact_expected
+- tests/unit/legacy-recovery-status-cleanup.spec.ts: test_artifact_expected
+- tests/unit/runtime-debug-signal-cleanup.spec.ts: test_artifact_expected
+- tests/unit/tracking-summary-lane-cleanup.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

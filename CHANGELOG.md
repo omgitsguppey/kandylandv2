@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.32 - 2026-05-24
+- Tracking summary lane cleanup
+- Cleaned tracking summary lanes and fixed expected-live event source classification.
+- Grouped runtime/debug warnings and reclassified behavior math and legacy recovery statuses.
+- Kept raw tracking details behind drilldowns while surfacing real source gaps.
+
 ## 1.4.31 - 2026-05-24
 - Debug cockpit evidence gate cleanup
 - Reclassified formal evidence gates outside the source-fix queue.
@@ -27,12 +33,6 @@ Showing the last 25 public updates in pages of 5.
 - Added normalized user journey logs for behavioral intelligence.
 - Mapped sessions, drops, wallet, tasks, chat, and signup into compact journey summaries.
 - Protected private/payment/chat payloads from behavioral storage.
-
-## 1.4.27 - 2026-05-24
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
 
 ## 1.4.27 - 2026-05-24
 - Session and bounce accuracy
@@ -153,33 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Hardened daily task reward GumDrop ledger classification.
 - Prevented task rewards from being treated as paid GumDrops.
 - Added duplicate reward protection and debug visibility.
-
-## 1.4.7 - 2026-05-24
-- Daily task lifecycle telemetry
-- Added daily task lifecycle telemetry and active duration tracking.
-- Separated task reward truth from client completion events.
-- Added task metrics to global and per-user analytics.
-
-## 1.4.6 - 2026-05-24
-- Daily task reset truth
-- Clarified daily task eligibility, reset timing, and reward-GD source.
-- Prevented duplicate daily reward claims.
-- Connected daily task reset health to debug.
-
-## 1.4.5 - 2026-05-23
-- Chat functionality readiness lock
-- Locked chat realtime, typing, gating, moderation, and telemetry readiness.
-- Connected chat usage and errors to admin truth and person metrics.
-- Kept chat design, GumDrop math, and payment runtime unchanged.
-
-## 1.4.4 - 2026-05-23
-- Chat gating and moderation reliability
-- Verified chat paid-GD gating and moderation enforcement.
-- Tracked blocked chat attempts and bypass states.
-- Kept GumDrop math and payment logic unchanged.
-
-## 1.4.3 - 2026-05-23
-- Chat presence and typing reliability
-- Hardened chat typing and presence cleanup.
-- Reduced typing write spam with throttled ephemeral state.
-- Added debug visibility for presence health.

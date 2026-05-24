@@ -16,6 +16,25 @@ export type ConsentModeInput = Partial<ConsentTrackingSnapshot> & {
 };
 
 const CONSENT_MODE_SET = new Set<ConsentMode>(CONSENT_MODE_VALUES);
+const MINIMAL_PRODUCT_LIVENESS_EVENTS = new Set([
+  "page_viewed",
+  "semantic_page_viewed",
+  "home_page_viewed",
+  "dashboard_viewed",
+  "drops_page_viewed",
+  "drop_card_impression",
+  "drop_preview_opened",
+  "daily_task_surface_viewed",
+  "daily_tasks_viewed",
+  "auth_session_established",
+  "wallet_opened",
+  "creator_profile_viewed",
+  "notification_prompt_banner_viewed",
+  "settings_surface_viewed",
+  "user_settings_viewed",
+  "chat_surface_viewed",
+  "chat_thread_opened",
+]);
 
 function normalized(value: unknown) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
@@ -114,6 +133,10 @@ export function buildConsentSettingsFromDecision(
 
 export function classifyTrackingCapability(eventTypeOrName: string): TrackingCapability {
   const value = normalized(eventTypeOrName);
+
+  if (MINIMAL_PRODUCT_LIVENESS_EVENTS.has(value)) {
+    return "product_usage_minimal";
+  }
 
   if (
     value.startsWith("security_")

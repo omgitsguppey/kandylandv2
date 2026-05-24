@@ -1,13 +1,90 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.31",
-  "betaReleaseCounter": 431,
+  "currentVersion": "1.4.32",
+  "betaReleaseCounter": 432,
   "channel": "beta",
-  "generatedAt": "2026-05-24T14:55:00.000Z",
-  "generatedAtUtc": "2026-05-24T14:55:00.000Z",
+  "generatedAt": "2026-05-24T15:27:57.579Z",
+  "generatedAtUtc": "2026-05-24T15:27:57.579Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.32",
+      "previousVersion": "1.4.31",
+      "betaReleaseCounter": 432,
+      "previousBetaReleaseCounter": 431,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean tracking summary lanes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T15:27:57.579Z",
+      "generatedAt": "2026-05-24T15:27:57.579Z",
+      "committedAtUtc": "2026-05-24T15:27:57.579Z",
+      "generatedAtUtc": "2026-05-24T15:27:57.579Z",
+      "updatedAtUtc": "2026-05-24T15:27:57.579Z",
+      "category": "Improved",
+      "title": "Tracking summary lane cleanup",
+      "summary": "Cleaned up debug tracking summary lanes so real source gaps stay visible while stale or raw details stay grouped behind drilldowns.",
+      "userFacingTitle": "Tracking summary lane cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleaned tracking summary lanes and fixed expected-live event source classification.",
+        "Grouped runtime/debug warnings and reclassified behavior math and legacy recovery statuses.",
+        "Kept raw tracking details behind drilldowns while surfacing real source gaps."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin debug",
+        "Tracking summary",
+        "Beta readiness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/behavior-math-status-cleanup.generated.json",
+        "agent/state/consent-tracking-mode-cleanup.generated.json",
+        "agent/state/event-liveness-source-repair.generated.json",
+        "agent/state/feature-telemetry-coverage-cleanup.generated.json",
+        "agent/state/legacy-recovery-status-cleanup.generated.json",
+        "agent/state/runtime-debug-signal-cleanup.generated.json",
+        "agent/state/tracking-summary-lane-cleanup.generated.json",
+        "docs/agent-truth/behavior-math-status-cleanup.md",
+        "docs/agent-truth/consent-tracking-mode-cleanup.md",
+        "docs/agent-truth/event-liveness-source-repair.md",
+        "docs/agent-truth/feature-telemetry-coverage-cleanup.md",
+        "docs/agent-truth/legacy-recovery-status-cleanup.md",
+        "docs/agent-truth/runtime-debug-signal-cleanup.md",
+        "docs/agent-truth/tracking-summary-lane-cleanup.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/tracking-summary-lane-cleanup-shared.ts",
+        "scripts/agent/validate-behavior-math-status-cleanup.ts",
+        "scripts/agent/validate-consent-tracking-mode-cleanup.ts",
+        "scripts/agent/validate-event-liveness-audit.ts",
+        "scripts/agent/validate-event-liveness-source-repair.ts",
+        "scripts/agent/validate-feature-telemetry-coverage-cleanup.ts",
+        "scripts/agent/validate-legacy-recovery-status-cleanup.ts",
+        "scripts/agent/validate-runtime-debug-signal-cleanup.ts",
+        "scripts/agent/validate-tracking-summary-lane-cleanup.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/privacy/consent-tracking-policy.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/behavior-math-status-cleanup.spec.ts",
+        "tests/unit/consent-tracking-mode-cleanup.spec.ts",
+        "tests/unit/event-liveness-source-repair.spec.ts",
+        "tests/unit/feature-telemetry-coverage-cleanup.spec.ts",
+        "tests/unit/legacy-recovery-status-cleanup.spec.ts",
+        "tests/unit/runtime-debug-signal-cleanup.spec.ts",
+        "tests/unit/tracking-summary-lane-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "Expected-live events with missing lastSeen sources are now classified as source_missing_actionable, not quiet future activity."
+      ]
+    },
     {
       "version": "1.4.31",
       "previousVersion": "1.4.30",
@@ -6193,312 +6270,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/server/daily-tasks.ts",
         "src/lib/tasks/daily-task-reward-ledger.ts",
         "tests/unit/daily-task-reward-ledger.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.7",
-      "previousVersion": "1.4.6",
-      "betaReleaseCounter": 407,
-      "previousBetaReleaseCounter": 406,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(tasks): track lifecycle duration",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T02:55:00.000Z",
-      "generatedAt": "2026-05-24T02:55:00.000Z",
-      "committedAtUtc": "2026-05-24T02:55:00.000Z",
-      "generatedAtUtc": "2026-05-24T02:55:00.000Z",
-      "updatedAtUtc": "2026-05-24T02:55:00.000Z",
-      "category": "Improved",
-      "title": "Daily task lifecycle telemetry",
-      "summary": "Added daily task lifecycle telemetry, active duration tracking, reward-truth separation, task person metrics, and debug visibility without counting passive page time or changing paid GumDrop math.",
-      "userFacingTitle": "Daily task lifecycle telemetry",
-      "surfaceCategory": "Daily tasks",
-      "bullets": [
-        "Added daily task lifecycle telemetry and active duration tracking.",
-        "Separated task reward truth from client completion events.",
-        "Added task metrics to global and per-user analytics."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added daily task lifecycle and duration contracts, check-in UI/API telemetry wiring, task person metric hydration, debug summary coverage, generated validation, and unit tests while preserving reward-only GumDrops and server reward truth."
-      ],
-      "affectedSurfaces": [
-        "Daily tasks",
-        "Check-in",
-        "Admin debug",
-        "Telemetry",
-        "Person metrics"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/daily-task-lifecycle-telemetry.generated.json",
-        "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/checkin/route.ts",
-        "src/components/Dashboard/DailyCheckIn.tsx",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/event-fact-normalizer.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "src/lib/tasks/daily-task-contract.ts",
-        "src/lib/tasks/daily-task-duration.ts",
-        "src/lib/tasks/daily-task-telemetry.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/daily-task-lifecycle-telemetry.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.6",
-      "previousVersion": "1.4.5",
-      "betaReleaseCounter": 406,
-      "previousBetaReleaseCounter": 405,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(tasks): lock daily reset truth",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T02:35:00.000Z",
-      "generatedAt": "2026-05-24T02:35:00.000Z",
-      "committedAtUtc": "2026-05-24T02:35:00.000Z",
-      "generatedAtUtc": "2026-05-24T02:35:00.000Z",
-      "updatedAtUtc": "2026-05-24T02:35:00.000Z",
-      "category": "Improved",
-      "title": "Daily task reset truth",
-      "summary": "Clarified daily task eligibility, Central-time reset timing, duplicate reward protection, reward-GD source truth, and debug visibility without changing paid GumDrop math or payment runtime.",
-      "userFacingTitle": "Daily task reset truth",
-      "surfaceCategory": "Daily tasks",
-      "bullets": [
-        "Clarified daily task eligibility, reset timing, and reward-GD source.",
-        "Prevented duplicate daily reward claims.",
-        "Connected daily task reset health to debug."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added daily task reset contracts, explicit calendar-day reset helpers, check-in route/UI wiring, debug summary coverage, generated validation, and unit tests while keeping reward GumDrops separate from paid GumDrops."
-      ],
-      "affectedSurfaces": [
-        "Daily tasks",
-        "Check-in",
-        "Admin debug",
-        "Telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/daily-task-reset-truth.generated.json",
-        "docs/agent-truth/daily-task-reset-truth.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-daily-task-reset-truth.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/checkin/route.ts",
-        "src/components/Dashboard/DailyCheckIn.tsx",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "src/lib/tasks/daily-task-contract.ts",
-        "src/lib/tasks/daily-task-reset.ts",
-        "tests/unit/daily-task-reset-truth.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.5",
-      "previousVersion": "1.4.4",
-      "betaReleaseCounter": 405,
-      "previousBetaReleaseCounter": 404,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(chat): lock functionality readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T23:00:00.000Z",
-      "generatedAt": "2026-05-23T23:00:00.000Z",
-      "committedAtUtc": "2026-05-23T23:00:00.000Z",
-      "generatedAtUtc": "2026-05-23T23:00:00.000Z",
-      "updatedAtUtc": "2026-05-23T23:00:00.000Z",
-      "category": "Improved",
-      "title": "Chat functionality readiness lock",
-      "summary": "Locked chat realtime, typing, paid-GD gating, moderation, telemetry, transcript truth, person metrics, and debug score readiness without changing chat design, GumDrop math, or payment runtime.",
-      "userFacingTitle": "Chat functionality readiness lock",
-      "surfaceCategory": "Chat & support",
-      "bullets": [
-        "Locked chat realtime, typing, gating, moderation, and telemetry readiness.",
-        "Connected chat usage and errors to admin truth and person metrics.",
-        "Kept chat design, GumDrop math, and payment runtime unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the chat telemetry admin truth and functionality score-lock contracts, validators, generated evidence, unit coverage, event catalog mappings, person metric hydration, and debug summary lane without production reads, transcript dumps, UI redesign, payment runtime changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Chat",
-        "Admin debug",
-        "Telemetry",
-        "Person metrics"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/chat-functionality-score-lock.generated.json",
-        "agent/state/chat-telemetry-admin-truth.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/chat-functionality-score-lock.md",
-        "docs/agent-truth/chat-telemetry-admin-truth.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-chat-functionality-score-lock.ts",
-        "scripts/agent/validate-chat-telemetry-admin-truth.ts",
-        "scripts/agent/validate-event-translation-bridge.ts",
-        "scripts/agent/validate-feature-registration-gate.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/chat/chat-telemetry-contract.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "src/lib/server/chat.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/chat-functionality-score-lock.spec.ts",
-        "tests/unit/chat-telemetry-admin-truth.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.4",
-      "previousVersion": "1.4.3",
-      "betaReleaseCounter": 404,
-      "previousBetaReleaseCounter": 403,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(chat): harden gating moderation",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T22:30:00.000Z",
-      "generatedAt": "2026-05-23T22:30:00.000Z",
-      "committedAtUtc": "2026-05-23T22:30:00.000Z",
-      "generatedAtUtc": "2026-05-23T22:30:00.000Z",
-      "updatedAtUtc": "2026-05-23T22:30:00.000Z",
-      "category": "Improved",
-      "title": "Chat gating and moderation reliability",
-      "summary": "Improved chat reliability by confirming paid-GD gating, blocked-send telemetry, media limits, bypass states, and debug visibility.",
-      "userFacingTitle": "Chat gating and moderation reliability",
-      "surfaceCategory": "Chat & support",
-      "bullets": [
-        "Verified chat paid-GD gating and moderation enforcement.",
-        "Tracked blocked chat attempts and bypass states.",
-        "Kept GumDrop math and payment logic unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added source-only chat gating contracts, blocked/bypass telemetry, debug evidence, generated validation, and unit coverage without production reads, UI redesign, payment runtime changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Chat",
-        "Admin debug",
-        "Telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/chat-gating-moderation.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/chat-gating-moderation.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-chat-gating-moderation.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/chat/threads/[threadId]/messages/route.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/lib/chat/chat-gating-contract.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "src/lib/server/chat.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/chat-gating-moderation.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.3",
-      "previousVersion": "1.4.2",
-      "betaReleaseCounter": 403,
-      "previousBetaReleaseCounter": 402,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(chat): harden typing presence",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T22:00:00.000Z",
-      "generatedAt": "2026-05-23T22:00:00.000Z",
-      "committedAtUtc": "2026-05-23T22:00:00.000Z",
-      "generatedAtUtc": "2026-05-23T22:00:00.000Z",
-      "updatedAtUtc": "2026-05-23T22:00:00.000Z",
-      "category": "Improved",
-      "title": "Chat presence and typing reliability",
-      "summary": "Improved chat presence by keeping typing state ephemeral, throttled, self-cleaning, and visible to debug health checks.",
-      "userFacingTitle": "Chat presence and typing reliability",
-      "surfaceCategory": "Chat & support",
-      "bullets": [
-        "Hardened chat typing and presence cleanup.",
-        "Reduced typing write spam with throttled ephemeral state.",
-        "Added debug visibility for presence health."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added source-only chat presence and typing contracts, throttled typing controller logic, debug evidence, generated validation, and unit coverage without production reads, UI redesign, payment changes, nav changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Chat",
-        "Admin debug",
-        "Telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/chat-presence-typing.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/chat-presence-typing.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-chat-presence-typing.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/lib/chat/chat-presence-contract.ts",
-        "src/lib/chat/chat-typing-controller.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/chat-presence-typing.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

@@ -1,0 +1,85 @@
+# Runtime Debug Signal Cleanup
+
+Generated: 2026-05-24T15:35:24.082Z
+Current head: 4214aa6fca1f18201e8f09ed9197f38316b035c9
+Status: source_ready
+
+## Summary
+
+```json
+{
+  "reportKey": "runtime-debug-signal-cleanup",
+  "generatedAtUtc": "2026-05-24T15:35:24.082Z",
+  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
+  "rawFailedCountBefore": 3,
+  "failedGroupCount": 3,
+  "warningGroupCount": 5,
+  "rawWarningCount": 145,
+  "rawWarningsDefaultVisible": false,
+  "failedSignals": [
+    {
+      "signalId": "npm run check:debug-panel-output-triage",
+      "classification": "stale_artifact_refresh",
+      "source": "agent/state/debug-panel-output-triage.generated.json",
+      "nextAction": "Artifact is not current for the latest code version."
+    },
+    {
+      "signalId": "npm run check:telemetry-admin-debug-truth",
+      "classification": "stale_artifact_refresh",
+      "source": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "nextAction": "Artifact is not current for the latest code version."
+    },
+    {
+      "signalId": "deployed_runtime_smoke",
+      "classification": "formal_evidence_required",
+      "source": "agent/state/runtime-smoke-evidence.generated.json",
+      "nextAction": "Attach deployed runtime smoke evidence; keep this outside source-fix classification."
+    }
+  ],
+  "warningGroups": [
+    {
+      "groupId": "stale_debug_artifacts",
+      "count": 42,
+      "classification": "stale_refresh_or_retire",
+      "nextAction": "Refresh only score-impacting stale artifacts."
+    },
+    {
+      "groupId": "formal_runtime_backlog",
+      "count": 37,
+      "classification": "formal_gate_required",
+      "nextAction": "Keep provider/runtime smoke evidence visible but out of source-fix queue."
+    },
+    {
+      "groupId": "source_ready_no_activity",
+      "count": 31,
+      "classification": "collapsed_drilldown",
+      "nextAction": "Keep source-ready no-activity rows collapsed unless expected-live source is missing."
+    },
+    {
+      "groupId": "route_runtime_samples",
+      "count": 22,
+      "classification": "summary_first_runtime_health",
+      "nextAction": "Show route runtime health by failed/warning group, not raw row."
+    },
+    {
+      "groupId": "legacy_generated_snapshots",
+      "count": 13,
+      "classification": "obsolete_or_historical_snapshot",
+      "nextAction": "Retire obsolete snapshots from active cockpit queues."
+    }
+  ],
+  "topRootCauses": [
+    "stale_debug_artifacts",
+    "formal_runtime_backlog",
+    "source_ready_no_activity",
+    "route_runtime_samples",
+    "legacy_generated_snapshots"
+  ],
+  "nextAction": "Fix source-fixable failed groups, refresh stale artifacts, and keep formal evidence gates classified separately.",
+  "validationFailures": []
+}
+```
+
+## Validation Failures
+
+- none

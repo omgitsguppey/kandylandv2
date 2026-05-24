@@ -1,0 +1,418 @@
+# Event Liveness Source Repair
+
+Generated: 2026-05-24T15:35:28.218Z
+Current head: 4214aa6fca1f18201e8f09ed9197f38316b035c9
+Status: source_ready
+
+## Summary
+
+```json
+{
+  "reportKey": "event-liveness-source-repair",
+  "generatedAtUtc": "2026-05-24T15:35:28.218Z",
+  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
+  "expectedLiveCount": 27,
+  "recentCount": 0,
+  "suspiciousIdleCount": 0,
+  "sourceMissingBefore": 27,
+  "sourceMissingAfter": "source_missing_actionable",
+  "sourceMissingActionableCount": 27,
+  "quietFutureCount": 468,
+  "quietFutureIncludesExpectedLive": false,
+  "expectedLiveSourceMap": [
+    {
+      "eventName": "page_viewed",
+      "featureId": "analytics_telemetry",
+      "producer": "src/app/api/analytics",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "analytics_telemetry:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "semantic_page_viewed",
+      "featureId": "analytics_telemetry",
+      "producer": "src/app/api/analytics",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "analytics_telemetry:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "auth_session_established",
+      "featureId": "auth_identity",
+      "producer": "src/app/api/auth",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "auth_identity:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "dashboard_viewed",
+      "featureId": "user_dashboard",
+      "producer": "src/app/dashboard/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "user_dashboard:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "wallet_opened",
+      "featureId": "wallet",
+      "producer": "src/app/api/wallet",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "wallet:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "purchase_package_selected",
+      "featureId": "wallet",
+      "producer": "src/app/api/wallet",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "wallet:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "begin_checkout",
+      "featureId": "wallet",
+      "producer": "src/app/api/wallet",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "wallet:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "server_purchase_verified",
+      "featureId": "wallet",
+      "producer": "src/app/api/wallet",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "wallet:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "wallet_closed_incomplete",
+      "featureId": "wallet",
+      "producer": "src/app/api/wallet",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "wallet:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "drop_preview_opened",
+      "featureId": "drops",
+      "producer": "src/app/drops",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "drops:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "drop_unwrapped",
+      "featureId": "drops",
+      "producer": "src/app/drops",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "drops:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "creator_profile_viewed",
+      "featureId": "creator_profile",
+      "producer": "src/app/creators/[username]",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "creator_profile:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "creator_fan_pass_viewed",
+      "featureId": "fan_pass",
+      "producer": "src/app/creators/[username]",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "fan_pass:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "creator_broadcast_detail_viewed",
+      "featureId": "broadcasts",
+      "producer": "src/app/dashboard/creator/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "broadcasts:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "creator_broadcast_cta_clicked",
+      "featureId": "broadcasts",
+      "producer": "src/app/dashboard/creator/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "broadcasts:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "notification_prompt_banner_viewed",
+      "featureId": "notifications",
+      "producer": "src/app/api/notifications",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "notifications:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "notification_opened",
+      "featureId": "notifications",
+      "producer": "src/app/api/notifications",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "notifications:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "user_settings_viewed",
+      "featureId": "user_dashboard",
+      "producer": "src/app/dashboard/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "user_dashboard:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "setting_toggle_changed",
+      "featureId": "user_dashboard",
+      "producer": "src/app/dashboard/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "user_dashboard:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "daily_task_surface_viewed",
+      "featureId": "daily_checkin",
+      "producer": "src/app/experiences",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "daily_checkin:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "daily_task_started",
+      "featureId": "daily_checkin",
+      "producer": "src/app/experiences",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "daily_checkin:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "daily_task_completed",
+      "featureId": "daily_checkin",
+      "producer": "src/app/experiences",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "daily_checkin:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "daily_task_reward_granted",
+      "featureId": "daily_checkin",
+      "producer": "src/app/experiences",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "daily_checkin:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "chat_surface_viewed",
+      "featureId": "user_dashboard",
+      "producer": "src/app/dashboard/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "user_dashboard:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "chat_thread_opened",
+      "featureId": "user_dashboard",
+      "producer": "src/app/dashboard/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "user_dashboard:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "chat_message_send_attempted",
+      "featureId": "user_dashboard",
+      "producer": "src/app/dashboard/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "user_dashboard:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    },
+    {
+      "eventName": "chat_message_sent",
+      "featureId": "user_dashboard",
+      "producer": "src/app/dashboard/page.tsx",
+      "eventEnvelopeMapping": "canonical_event_envelope",
+      "translationBridgeMapping": "event_translation_bridge",
+      "materializerSourceSummary": "bounded_last_seen_summary_contract_required",
+      "personGlobalMetricConsumer": "user_dashboard:person_metrics_hydration",
+      "lastSeenSourceStatus": "lastSeenSourceMissing",
+      "classification": "source_missing_actionable",
+      "debugDefaultVisible": true
+    }
+  ],
+  "sourceMissingActionableGroups": [
+    {
+      "groupId": "source_missing_actionable:analytics_telemetry",
+      "featureId": "analytics_telemetry",
+      "count": 2,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live analytics_telemetry events."
+    },
+    {
+      "groupId": "source_missing_actionable:auth_identity",
+      "featureId": "auth_identity",
+      "count": 1,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live auth_identity events."
+    },
+    {
+      "groupId": "source_missing_actionable:user_dashboard",
+      "featureId": "user_dashboard",
+      "count": 7,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live user_dashboard events."
+    },
+    {
+      "groupId": "source_missing_actionable:wallet",
+      "featureId": "wallet",
+      "count": 5,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live wallet events."
+    },
+    {
+      "groupId": "source_missing_actionable:drops",
+      "featureId": "drops",
+      "count": 2,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live drops events."
+    },
+    {
+      "groupId": "source_missing_actionable:creator_profile",
+      "featureId": "creator_profile",
+      "count": 1,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live creator_profile events."
+    },
+    {
+      "groupId": "source_missing_actionable:fan_pass",
+      "featureId": "fan_pass",
+      "count": 1,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live fan_pass events."
+    },
+    {
+      "groupId": "source_missing_actionable:broadcasts",
+      "featureId": "broadcasts",
+      "count": 2,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live broadcasts events."
+    },
+    {
+      "groupId": "source_missing_actionable:notifications",
+      "featureId": "notifications",
+      "count": 2,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live notifications events."
+    },
+    {
+      "groupId": "source_missing_actionable:daily_checkin",
+      "featureId": "daily_checkin",
+      "count": 4,
+      "nextAction": "Connect a safe bounded lastSeen source for expected-live daily_checkin events."
+    }
+  ],
+  "debugLaneStatus": "actionable_source_missing_visible",
+  "scoreFeedsDebug": true,
+  "validationFailures": []
+}
+```
+
+## Validation Failures
+
+- none

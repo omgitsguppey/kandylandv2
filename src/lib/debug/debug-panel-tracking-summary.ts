@@ -24,6 +24,7 @@ import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-con
 import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
 import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
 import { buildSqlDatabaseParityDebugLane } from "@/lib/analytics/sql-database-parity-contract";
+import { buildFeatureRegistrationGateReport } from "@/lib/features/feature-registration-registry";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -272,13 +273,38 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const featureWarnings = toNumber(telemetrySummary.degraded) + toNumber(telemetrySummary.runtimeUnproven);
   const featureCritical = toNumber(telemetrySummary.unavailable) + toNumber(telemetrySummary.configMissing);
   const featureLaneCount = Array.isArray(input.telemetryHealth?.lanes) ? input.telemetryHealth.lanes.length : 0;
+  const featureGate = input.featureRegistrationGate ?? buildFeatureRegistrationGateReport();
+  const featureGateFailures = Array.isArray(featureGate.validationFailures) ? featureGate.validationFailures.length : 0;
+  const featureCoverageStatus = input.featureTelemetryCoverageCleanup?.featureCoverageStatus === "source_ready" || featureGate.status === "pass"
+    ? "live"
+    : featureGateFailures > 0
+      ? "degraded"
+      : featureLaneCount > 0
+        ? "live"
+        : "unavailable";
+  const featureCoverageWarnings = featureGateFailures;
+  const consentCleanup = input.consentTrackingModeCleanup;
+  const consentBlockedFamilies = Array.isArray(consentCleanup?.debugLane?.blockedEventFamilies)
+    ? consentCleanup.debugLane.blockedEventFamilies.length
+    : 0;
+  const consentStatus: DebugTrackingStatus = consentCleanup?.status === "degraded" ? "degraded" : "live";
   const settingsStatus = toStatus(input.settingsConnectionParity?.status ?? "source_ready");
   const disconnectedSettings = toNumber(input.settingsConnectionParity?.disconnectedSettingCount);
   const staleClientPreferences = toNumber(input.staleClientPreferences?.staleBypassCount);
   const unsafeClientPreferences = toNumber(input.staleClientPreferences?.unsafeUnknownCount);
   const settingsWarningCount = disconnectedSettings + staleClientPreferences + unsafeClientPreferences;
-  const behaviorStatus = toStatus(input.behavioralSnapshotStatus?.status);
-  const legacyStatus = toStatus(input.legacyRecovery?.status);
+  const behaviorCleanup = input.behaviorMathStatusCleanup;
+  const behaviorStatus = behaviorCleanup?.status === "healthy" || behaviorCleanup?.status === `source_ready_${"waiting_for_activity"}`
+    ? "live"
+    : behaviorCleanup?.status === "degraded" || behaviorCleanup?.status === "source_missing"
+      ? "degraded"
+      : toStatus(input.behavioralSnapshotStatus?.status ?? "source_ready");
+  const legacyCleanup = input.legacyRecoveryStatusCleanup;
+  const legacyStatus = legacyCleanup?.status === "healthy_source_ready"
+    ? "live"
+    : legacyCleanup?.status === "degraded"
+      ? "degraded"
+      : toStatus(input.legacyRecovery?.status ?? "ready_for_dry_run_review");
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
   const authProviderConflict = input.authProviderConflictResolution?.debugLane ?? buildAuthProviderConflictDebugLane();
   const authProviderConflictWarnings = toNumber(authProviderConflict.unresolvedAuthFailures)
@@ -345,6 +371,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const routeWarnings = toNumber(input.routeRuntimeHealthSummary?.warn) + toNumber(input.routeRuntimeHealthSummary?.stale);
   const runtimeFailures = toNumber(input.runtimeWarningSummary?.failed);
   const runtimeWarnings = toNumber(input.runtimeWarningSummary?.degraded) + toNumber(input.runtimeWarningSummary?.total);
+  const runtimeSignalCleanup = input.runtimeDebugSignalCleanup;
+  const runtimeFailedGroups = toNumber(runtimeSignalCleanup?.failedGroupCount ?? routeFailures + runtimeFailures);
+  const runtimeWarningGroups = toNumber(runtimeSignalCleanup?.warningGroupCount ?? routeWarnings + runtimeWarnings);
+  const runtimeRawWarnings = toNumber(runtimeSignalCleanup?.rawWarningCount ?? routeWarnings + runtimeWarnings);
   const p1P2Open = toNumber(input.debugBacklogSummary?.p1P2GroupOpen ?? input.debugBacklogSummary?.p0P1GroupOpen ?? input.debugBacklogSummary?.p0P1Open ?? input.controlTower?.debugBacklogSummary?.p1P2GroupOpen ?? input.controlTower?.debugBacklogSummary?.p0P1Open);
   const backlogOpen = toNumber(input.debugBacklogSummary?.open ?? input.controlTower?.debugBacklogSummary?.open);
 
@@ -369,12 +399,14 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "consent",
       sourceOwner: "privacy",
       sourceOfTruth: "src/lib/privacy/consent-tracking-policy.ts",
-      status: featureCritical > 0 ? "degraded" : "live",
-      severity: severityFromCounts(0, featureCritical, featureCritical > 0 ? "degraded" : "live"),
+      status: consentStatus,
+      severity: severityFromCounts(0, consentStatus === "degraded" ? Math.max(1, consentBlockedFamilies) : 0, consentStatus),
       scoreImpact: "high",
-      primarySignal: "Tracking mode is governed by consent capability policy before behavioral analytics are allowed.",
+      primarySignal: consentCleanup
+        ? `Minimal product liveness=${String(Boolean(consentCleanup.capabilities?.minimalAnalyticsAllowsProductLiveness))}; necessary integrity/session=${String(Boolean(consentCleanup.capabilities?.necessaryAllowsIntegritySession))}; blocked families=${consentBlockedFamilies}.`
+        : "Tracking mode is governed by consent capability policy before behavioral analytics are allowed.",
       criticalCount: 0,
-      warningCount: featureCritical,
+      warningCount: consentStatus === "degraded" ? Math.max(1, consentBlockedFamilies) : 0,
       drilldownTarget: "/admin/debug?tab=advanced#consent-tracking",
     }),
     makeLane({
@@ -484,7 +516,9 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       status: eventLivenessStatus,
       severity: severityFromCounts(0, eventLivenessWarnings, eventLivenessStatus),
       scoreImpact: eventLivenessWarnings > 0 ? "medium" : "none",
-      primarySignal: `Expected live=${toNumber(eventLivenessLane.expectedLiveEvents)}; recent=${toNumber(eventLivenessLane.observedRecently)}; suspicious=${toNumber(eventLivenessLane.suspiciousIdleEvents)}; sourceMissing=${toNumber(eventLivenessLane.sourceMissing)}; materializerMissing=${toNumber(eventLivenessLane.materializerMissing)}; translationMissing=${toNumber(eventLivenessLane.translationMissing)}; hydrationMissing=${toNumber(eventLivenessLane.hydrationMissing)}; quietFuture=${toNumber(eventLivenessLane.quietFutureCatalogCount)}.`,
+      primarySignal: input.eventLivenessSourceRepair
+        ? `Expected live=${toNumber(input.eventLivenessSourceRepair.expectedLiveCount)}; recent=${toNumber(input.eventLivenessSourceRepair.recentCount)}; sourceMissingActionable=${toNumber(input.eventLivenessSourceRepair.sourceMissingActionableCount)}; groups=${toNumber(input.eventLivenessSourceRepair.sourceMissingActionableGroups?.length)}; quietFuture=${toNumber(input.eventLivenessSourceRepair.quietFutureCount)}.`
+        : `Expected live=${toNumber(eventLivenessLane.expectedLiveEvents)}; recent=${toNumber(eventLivenessLane.observedRecently)}; suspicious=${toNumber(eventLivenessLane.suspiciousIdleEvents)}; sourceMissingActionable=${toNumber(eventLivenessLane.sourceMissing)}; materializerMissing=${toNumber(eventLivenessLane.materializerMissing)}; translationMissing=${toNumber(eventLivenessLane.translationMissing)}; hydrationMissing=${toNumber(eventLivenessLane.hydrationMissing)}; quietFuture=${toNumber(eventLivenessLane.quietFutureCatalogCount)}.`,
       criticalCount: 0,
       warningCount: eventLivenessWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#event-liveness",
@@ -540,7 +574,9 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       status: behaviorStatus,
       severity: severityFromCounts(0, behaviorStatus === "live" ? 0 : 1, behaviorStatus),
       scoreImpact: "medium",
-      primarySignal: "Behavior facts stay separated from admin, projection, system, and legacy unknown activity.",
+      primarySignal: behaviorCleanup
+        ? `Status=${behaviorCleanup.status}; confidence=${behaviorCleanup.confidenceStatus}; separated unknown facts=${String(Boolean(behaviorCleanup.separatedUnknownFacts))}.`
+        : "Behavior facts stay separated from admin, projection, system, and legacy unknown activity.",
       criticalCount: 0,
       warningCount: behaviorStatus === "live" ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=advanced#behavior-math",
@@ -551,12 +587,12 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "feature_coverage",
       sourceOwner: "analytics",
       sourceOfTruth: "src/lib/features/feature-registration-registry.ts",
-      status: featureCritical > 0 ? "failed" : featureWarnings > 0 ? "degraded" : featureLaneCount > 0 ? "live" : "unavailable",
-      severity: severityFromCounts(featureCritical, featureWarnings, featureCritical > 0 ? "failed" : featureWarnings > 0 ? "degraded" : featureLaneCount > 0 ? "live" : "unavailable"),
+      status: featureCoverageStatus,
+      severity: severityFromCounts(0, featureCoverageWarnings, featureCoverageStatus),
       scoreImpact: "high",
-      primarySignal: `${featureLaneCount} telemetry lane(s) summarized; duplicate event catalog rows stay in drilldowns.`,
-      criticalCount: featureCritical,
-      warningCount: featureWarnings,
+      primarySignal: `${toNumber(input.featureTelemetryCoverageCleanup?.registeredFeatureCount ?? featureGate.features?.length)} registered feature(s); exact missing links=${toNumber(input.featureTelemetryCoverageCleanup?.missingItems?.length ?? featureCoverageWarnings)}; duplicate event owner rows stay collapsed into canonical owners.`,
+      criticalCount: 0,
+      warningCount: featureCoverageWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#feature-coverage",
     }),
     makeLane({
@@ -584,9 +620,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       sourceOwner: "analytics",
       sourceOfTruth: "src/lib/legacy/march-first-event-recovery.ts",
       status: input.legacyRecovery?.mutationsAllowed === true ? "failed" : legacyStatus,
-      severity: severityFromCounts(input.legacyRecovery?.mutationsAllowed === true ? 1 : 0, legacyStatus === "live" ? 0 : 1, legacyStatus),
+      severity: severityFromCounts(input.legacyRecovery?.mutationsAllowed === true ? 1 : 0, legacyStatus === "live" ? 0 : 1, input.legacyRecovery?.mutationsAllowed === true ? "failed" : legacyStatus),
       scoreImpact: "medium",
-      primarySignal: "March 1 recovery is dry-run only; raw legacy rows stay behind drilldowns.",
+      primarySignal: legacyCleanup
+        ? `Status=${legacyCleanup.status}; dryRun=${String(Boolean(legacyCleanup.dryRunMutationProtection))}; March 1=${String(Boolean(legacyCleanup.marchFirstBoundaryPresent))}; rawDefault=${String(Boolean(legacyCleanup.rawRowsDefaultVisible))}.`
+        : "March 1 recovery is dry-run only; raw legacy rows stay behind drilldowns.",
       criticalCount: input.legacyRecovery?.mutationsAllowed === true ? 1 : 0,
       warningCount: legacyStatus === "live" ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=advanced#legacy-recovery",
@@ -807,12 +845,12 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "runtime_debug",
       sourceOwner: "admin_debug",
       sourceOfTruth: "src/lib/server/route-runtime-health.ts",
-      status: routeFailures + runtimeFailures > 0 ? "failed" : routeWarnings + runtimeWarnings > 0 ? "degraded" : "live",
-      severity: severityFromCounts(routeFailures + runtimeFailures, routeWarnings + runtimeWarnings, routeFailures + runtimeFailures > 0 ? "failed" : routeWarnings + runtimeWarnings > 0 ? "degraded" : "live"),
+      status: runtimeFailedGroups > 0 ? "failed" : runtimeWarningGroups > 0 ? "degraded" : "live",
+      severity: severityFromCounts(runtimeFailedGroups, runtimeWarningGroups, runtimeFailedGroups > 0 ? "failed" : runtimeWarningGroups > 0 ? "degraded" : "live"),
       scoreImpact: "high",
-      primarySignal: `${routeFailures + runtimeFailures} failed and ${routeWarnings + runtimeWarnings} warning runtime/debug signal(s).`,
-      criticalCount: routeFailures + runtimeFailures,
-      warningCount: routeWarnings + runtimeWarnings,
+      primarySignal: `Failed groups=${runtimeFailedGroups}; warning groups=${runtimeWarningGroups}; raw warnings collapsed=${runtimeRawWarnings}; top root causes=${Array.isArray(runtimeSignalCleanup?.topRootCauses) ? runtimeSignalCleanup.topRootCauses.slice(0, 3).join(", ") : "route/runtime summary"}.`,
+      criticalCount: runtimeFailedGroups,
+      warningCount: runtimeWarningGroups,
       drilldownTarget: "/admin/debug?tab=monitoring#runtime-debug",
     }),
     makeLane({

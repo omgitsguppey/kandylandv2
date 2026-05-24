@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T14:55:00.000Z",
+  "generatedAtUtc": "2026-05-24T15:30:52.403Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "48d8c64ecce16f4ae346e49f5607099e0d686d26",
+  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
   "summary": {
     "betaVersion": "1.4.29",
     "betaScore": 79,

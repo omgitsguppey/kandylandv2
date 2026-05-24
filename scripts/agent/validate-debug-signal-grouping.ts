@@ -134,6 +134,12 @@ function classifyDirtyFile(path: string): DirtyFileClassification {
   if (normalized === "src/lib/debug/debug-signal-grouping.ts") return "debug_grouping_source_change";
   if (normalized === "src/lib/debug/debug-backlog-builder.ts" || normalized === "src/lib/debug/debug-backlog-contract.ts") return "debug_backlog_source_change";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "debug_panel_source_change";
+  if (normalized === "src/lib/privacy/consent-tracking-policy.ts") return "debug_grouping_source_change";
+  if (normalized === "scripts/agent/tracking-summary-lane-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(feature-telemetry-coverage-cleanup|runtime-debug-signal-cleanup|consent-tracking-mode-cleanup|event-liveness-source-repair|behavior-math-status-cleanup|legacy-recovery-status-cleanup|tracking-summary-lane-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(feature-telemetry-coverage-cleanup|runtime-debug-signal-cleanup|consent-tracking-mode-cleanup|event-liveness-source-repair|behavior-math-status-cleanup|legacy-recovery-status-cleanup|tracking-summary-lane-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(feature-telemetry-coverage-cleanup|runtime-debug-signal-cleanup|consent-tracking-mode-cleanup|event-liveness-source-repair|behavior-math-status-cleanup|legacy-recovery-status-cleanup|tracking-summary-lane-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(feature-telemetry-coverage-cleanup|runtime-debug-signal-cleanup|consent-tracking-mode-cleanup|event-liveness-source-repair|behavior-math-status-cleanup|legacy-recovery-status-cleanup|tracking-summary-lane-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "src/lib/server/admin-debug/summary.ts" || normalized === "src/app/api/admin/debug/route.ts") return "debug_panel_source_change";
   if (normalized === "src/lib/analytics/event-liveness-contract.ts" || normalized === "src/lib/analytics/event-liveness-engine.ts") return "debug_grouping_source_change";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts" || normalized === "src/lib/analytics/person-metrics-hydration.ts" || normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "debug_grouping_source_change";

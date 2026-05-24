@@ -1,0 +1,25 @@
+# Behavior Math Status Cleanup
+
+Generated: 2026-05-24T15:35:30.612Z
+Current head: 4214aa6fca1f18201e8f09ed9197f38316b035c9
+Status: healthy
+
+## Summary
+
+```json
+{
+  "reportKey": "behavior-math-status-cleanup",
+  "generatedAtUtc": "2026-05-24T15:35:30.612Z",
+  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
+  "status": "healthy",
+  "displayState": "live_healthy",
+  "confidenceStatus": "present",
+  "separatedUnknownFacts": true,
+  "nextAction": "Keep behavior math validator current.",
+  "validationFailures": []
+}
+```
+
+## Validation Failures
+
+- none

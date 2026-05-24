@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-signal-grouping",
-  "generatedAtUtc": "2026-05-24T05:47:51.707Z",
-  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+  "generatedAtUtc": "2026-05-24T15:32:42.936Z",
+  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
   "status": "pass",
   "productionReadsRequired": false,
   "fakeActivityUsed": false,
@@ -24,9 +24,9 @@
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
     "freshness": 83.75,
-    "costRisk": 80.5,
+    "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "overallHealthScore": 79.25
   },
   "metrics": {
     "sourceHealth": {
@@ -59,9 +59,9 @@
     },
     "costRisk": {
       "before": 80.5,
-      "after": 80.5,
+      "after": 42,
       "target": 80,
-      "status": "target_met",
+      "status": "below_target",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "regressionRisk": {
@@ -73,9 +73,9 @@
     },
     "overallHealthScore": {
       "before": 83.1,
-      "after": 83.1,
+      "after": 79.25,
       "target": 80,
-      "status": "target_met",
+      "status": "below_target",
       "nextExactAction": "No score-80 action required for this dimension."
     }
   },
@@ -1026,60 +1026,40 @@
   ],
   "dirtyFiles": [
     {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "path": "agent/state/behavior-math-status-cleanup.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/chat-gating-moderation.generated.json",
+      "path": "agent/state/consent-tracking-mode-cleanup.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "path": "agent/state/current-beta-exit-status.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/debug-signal-grouping.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-debug-score-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-reset-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-reward-ledger.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
+      "path": "agent/state/debug-tracking-simplification.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/event-liveness-audit.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-liveness-source-repair.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
@@ -1090,7 +1070,11 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "path": "agent/state/feature-telemetry-coverage-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/legacy-recovery-status-cleanup.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -1098,67 +1082,31 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/settings-connection-parity.generated.json",
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/runtime-debug-signal-cleanup.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "path": "agent/state/tracking-summary-lane-cleanup.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/user-management-refactor.generated.json",
+      "path": "docs/agent-truth/behavior-math-status-cleanup.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/user-profile-api-contract.generated.json",
+      "path": "docs/agent-truth/consent-tracking-mode-cleanup.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/chat-functionality-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/debug-signal-grouping.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/chat-gating-moderation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-realtime-cost-control.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reset-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reward-ledger.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -1166,11 +1114,19 @@
       "classification": "documentation_artifact_expected"
     },
     {
+      "path": "docs/agent-truth/event-liveness-source-repair.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "path": "docs/agent-truth/feature-telemetry-coverage-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/legacy-recovery-status-cleanup.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -1178,35 +1134,67 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/settings-connection-parity.md",
+      "path": "docs/agent-truth/runtime-debug-signal-cleanup.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "path": "docs/agent-truth/tracking-summary-lane-cleanup.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/user-management-refactor.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "package.json",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/tracking-summary-lane-cleanup-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-behavior-math-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-consent-tracking-mode-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "scripts/agent/validate-event-liveness-audit.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/api/admin/debug/route.ts",
-      "classification": "debug_panel_source_change"
+      "path": "scripts/agent/validate-event-liveness-source-repair.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/analytics/event-liveness-contract.ts",
+      "path": "scripts/agent/validate-feature-telemetry-coverage-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-legacy-recovery-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-runtime-debug-signal-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-tracking-summary-lane-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
       "classification": "debug_grouping_source_change"
     },
     {
-      "path": "src/lib/analytics/event-liveness-engine.ts",
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
       "classification": "debug_grouping_source_change"
     },
     {
@@ -1214,11 +1202,43 @@
       "classification": "debug_panel_source_change"
     },
     {
-      "path": "src/lib/server/admin-debug/summary.ts",
-      "classification": "debug_panel_source_change"
+      "path": "src/lib/privacy/consent-tracking-policy.ts",
+      "classification": "debug_grouping_source_change"
     },
     {
-      "path": "tests/unit/event-liveness-audit.spec.ts",
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/behavior-math-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/consent-tracking-mode-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/event-liveness-source-repair.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/feature-telemetry-coverage-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/legacy-recovery-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/runtime-debug-signal-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/tracking-summary-lane-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],
