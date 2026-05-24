@@ -64,7 +64,7 @@ export function AdminAiReviewgallerySection({ state }: { state: AdminAiState }) 
                                     {filteredReviewGallery.map((item) => (
                                         <div key={item.id} className="min-w-0 overflow-hidden rounded-[1rem] border border-white/10 bg-black/25">
                                             <div className="relative aspect-square overflow-hidden bg-black/40">
-                                                <Image src={item.imageUrl} alt={item.title} fill className="object-cover" sizes="(min-width: 1024px) 280px, 100vw" />
+                                                <Image src={item.imageUrl} alt={item.title} fill className="object-cover" sizes="(min-width: 960px) 280px, 100vw" />
                                             </div>
                                             <div className="space-y-3 p-3">
                                                 <div className="min-w-0">

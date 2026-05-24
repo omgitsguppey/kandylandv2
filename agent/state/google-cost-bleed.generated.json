@@ -1,7 +1,7 @@
 {
   "score": 100,
   "status": "clean",
-  "generatedAt": "2026-05-12T01:20:46.247Z",
+  "generatedAt": "2026-05-24T19:00:24.307Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [],
   "criticalCount": 0,
@@ -265,6 +265,22 @@
       "maxExpectedFirestoreReadsPerCall": 80,
       "maxExpectedFirestoreWritesPerCall": 10,
       "notes": "Chat can debit paid-source GumDrops. Keep business logic server-authoritative and rate limited."
+    },
+    {
+      "routePattern": "/api/bug-reports",
+      "methods": [
+        "POST"
+      ],
+      "costClass": "firestore_transaction",
+      "ratePolicy": "STANDARD",
+      "cachePolicy": "no_store",
+      "authRequired": "user",
+      "trustedOriginRequired": true,
+      "budgetGuardRequired": true,
+      "maxExpectedCallsPerUserPerMinute": 20,
+      "maxExpectedFirestoreReadsPerCall": 4,
+      "maxExpectedFirestoreWritesPerCall": 4,
+      "notes": "User bug report intake is same-origin, authenticated, body-bounded, deduped, and writes one report plus an optional reward-source transaction."
     },
     {
       "routePattern": "/api/checkin",
@@ -567,6 +583,23 @@
       "maxExpectedFirestoreReadsPerCall": 60,
       "maxExpectedFirestoreWritesPerCall": 10,
       "notes": "Notification inbox read/action state must stay user-scoped and rate limited."
+    },
+    {
+      "routePattern": "/api/notifications/push-token",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "costClass": "firestore_write",
+      "ratePolicy": "STANDARD",
+      "cachePolicy": "no_store",
+      "authRequired": "user",
+      "trustedOriginRequired": true,
+      "budgetGuardRequired": true,
+      "maxExpectedCallsPerUserPerMinute": 20,
+      "maxExpectedFirestoreReadsPerCall": 2,
+      "maxExpectedFirestoreWritesPerCall": 4,
+      "notes": "Push token registration/revocation is caller-scoped, same-origin, rate limited, and stores redacted token metadata without sending push notifications."
     },
     {
       "routePattern": "/api/paypal/**",
@@ -1192,10 +1225,8 @@
       "hasRateGuard": true,
       "authMode": "admin",
       "cachePolicyEvidence": [
-        "force-no-store",
-        "no-store",
-        "revalidate = 0",
-        "readThroughStaleWhileRevalidateEphemeralRouteCache"
+        "readThroughStaleWhileRevalidateEphemeralRouteCache",
+        "Cache-Control"
       ]
     },
     {
@@ -1638,6 +1669,41 @@
       "authMode": "admin",
       "cachePolicyEvidence": [
         "no-store",
+        "revalidate = 0",
+        "Cache-Control"
+      ]
+    },
+    {
+      "filePath": "src/app/api/admin/debug/bug-reports/route.ts",
+      "routePath": "/api/admin/debug/bug-reports",
+      "methods": [
+        "GET"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
         "revalidate = 0",
         "Cache-Control"
       ]
@@ -2698,6 +2764,37 @@
       "cachePolicyEvidence": []
     },
     {
+      "filePath": "src/app/api/analytics/identity-link/route.ts",
+      "routePath": "/api/analytics/identity-link",
+      "methods": [
+        "POST"
+      ],
+      "contract": {
+        "routePattern": "/api/analytics/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_write",
+        "ratePolicy": "ANALYTICS_WRITE",
+        "cachePolicy": "no_store",
+        "authRequired": "none",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreWritesPerCall": 4,
+        "notes": "Telemetry ingest must preserve consent/session enrichment and avoid unbounded write fanout."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "user",
+      "cachePolicyEvidence": []
+    },
+    {
       "filePath": "src/app/api/analytics/ingest-identified/route.ts",
       "routePath": "/api/analytics/ingest-identified",
       "methods": [
@@ -2815,6 +2912,34 @@
         "maxExpectedCallsPerUserPerMinute": 20,
         "maxExpectedFirestoreReadsPerCall": 12,
         "notes": "Auth helper endpoints may be public but must stay trusted-origin and rate limited."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "user",
+      "cachePolicyEvidence": []
+    },
+    {
+      "filePath": "src/app/api/bug-reports/route.ts",
+      "routePath": "/api/bug-reports",
+      "methods": [
+        "POST"
+      ],
+      "contract": {
+        "routePattern": "/api/bug-reports",
+        "methods": [
+          "POST"
+        ],
+        "costClass": "firestore_transaction",
+        "ratePolicy": "STANDARD",
+        "cachePolicy": "no_store",
+        "authRequired": "user",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 20,
+        "maxExpectedFirestoreReadsPerCall": 4,
+        "maxExpectedFirestoreWritesPerCall": 4,
+        "notes": "User bug report intake is same-origin, authenticated, body-bounded, deduped, and writes one report plus an optional reward-source transaction."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -3204,6 +3329,7 @@
       "filePath": "src/app/api/creator/drops/route.ts",
       "routePath": "/api/creator/drops",
       "methods": [
+        "GET",
         "POST",
         "PUT"
       ],
@@ -4086,6 +4212,36 @@
       ]
     },
     {
+      "filePath": "src/app/api/notifications/push-token/route.ts",
+      "routePath": "/api/notifications/push-token",
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "contract": {
+        "routePattern": "/api/notifications/push-token",
+        "methods": [
+          "POST",
+          "DELETE"
+        ],
+        "costClass": "firestore_write",
+        "ratePolicy": "STANDARD",
+        "cachePolicy": "no_store",
+        "authRequired": "user",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 20,
+        "maxExpectedFirestoreReadsPerCall": 2,
+        "maxExpectedFirestoreWritesPerCall": 4,
+        "notes": "Push token registration/revocation is caller-scoped, same-origin, rate limited, and stores redacted token metadata without sending push notifications."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "user",
+      "cachePolicyEvidence": []
+    },
+    {
       "filePath": "src/app/api/notifications/route.ts",
       "routePath": "/api/notifications",
       "methods": [
@@ -4963,8 +5119,8 @@
     },
     {
       "filePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "line": 6,
-      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
+      "line": 8,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
@@ -4987,7 +5143,7 @@
     },
     {
       "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 34,
+      "line": 42,
       "excerpt": "import { adminAuth, adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5018,6 +5174,12 @@
     {
       "filePath": "src/app/api/admin/debug/assistant/route.ts",
       "line": 8,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/app/api/admin/debug/bug-reports/route.ts",
+      "line": 6,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5127,6 +5289,12 @@
       "filePath": "src/app/api/auth/navigation-session/route.ts",
       "line": 7,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/app/api/bug-reports/route.ts",
+      "line": 3,
+      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
     },
     {
@@ -5364,6 +5532,12 @@
       "kind": "firebase-admin"
     },
     {
+      "filePath": "src/app/api/notifications/push-token/route.ts",
+      "line": 3,
+      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
+      "kind": "firebase-admin"
+    },
+    {
       "filePath": "src/app/api/notifications/route.ts",
       "line": 4,
       "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
@@ -5485,7 +5659,7 @@
     },
     {
       "filePath": "src/app/dashboard/viewer/page.tsx",
-      "line": 3,
+      "line": 4,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5532,6 +5706,12 @@
       "kind": "firestore-client"
     },
     {
+      "filePath": "src/components/CreatorDiscoveryRail.tsx",
+      "line": 13,
+      "excerpt": "import { doc, onSnapshot } from \"firebase/firestore\";",
+      "kind": "firestore-client"
+    },
+    {
       "filePath": "src/components/Dashboard/RecentActivityFeed.tsx",
       "line": 498,
       "excerpt": "import(\"firebase/firestore\"),",
@@ -5539,7 +5719,7 @@
     },
     {
       "filePath": "src/context/AuthContext.tsx",
-      "line": 394,
+      "line": 605,
       "excerpt": "const { doc, onSnapshot } = await import(\"firebase/firestore\");",
       "kind": "firestore-client"
     },
@@ -5574,8 +5754,14 @@
       "kind": "firestore-client"
     },
     {
+      "filePath": "src/hooks/useNotifications.ts",
+      "line": 130,
+      "excerpt": "import(\"firebase/firestore\"),",
+      "kind": "firestore-client"
+    },
+    {
       "filePath": "src/lib/admin-debug-control-tower.ts",
-      "line": 154,
+      "line": 217,
       "excerpt": "{ id: \"sql-mirror\", label: \"Data Connect Mirror\", section: \"money_cost\", fileName: \"sql-mirror-status.generated.json\", command: \"npm run agent:sync-sql\" },",
       "kind": "data-connect"
     },
@@ -5592,12 +5778,60 @@
       "kind": "cloud-sql"
     },
     {
+      "filePath": "src/lib/agent-score/core.ts",
+      "line": 477,
+      "excerpt": "detail: \"Cloud SQL cost inventory was not supplied.\",",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "src/lib/ai-cover/cover-learning-ledger.ts",
       "line": 4,
       "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
     },
     {
+      "filePath": "src/lib/analytics/analytics-cadence-policy.ts",
+      "line": 186,
+      "excerpt": "\"Cloud SQL/Data Connect source is detected in repo doctrine/config.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/analytics/analytics-cadence-policy.ts",
+      "line": 146,
+      "excerpt": "const cloudSqlDetected = /Cloud SQL|cloudsql|dataconnect|postgres|mysql|prisma|DATABASE_URL|kandydrops-db/iu.test(input.sources.cloudSql);",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "src/lib/analytics/analytics-cadence-policy.ts",
+      "line": 146,
+      "excerpt": "const cloudSqlDetected = /Cloud SQL|cloudsql|dataconnect|postgres|mysql|prisma|DATABASE_URL|kandydrops-db/iu.test(input.sources.cloudSql);",
+      "kind": "postgres"
+    },
+    {
+      "filePath": "src/lib/analytics/analytics-cadence-policy.ts",
+      "line": 146,
+      "excerpt": "const cloudSqlDetected = /Cloud SQL|cloudsql|dataconnect|postgres|mysql|prisma|DATABASE_URL|kandydrops-db/iu.test(input.sources.cloudSql);",
+      "kind": "mysql"
+    },
+    {
+      "filePath": "src/lib/analytics/legacy-history-reconciler.ts",
+      "line": 341,
+      "excerpt": "action: \"No SQL or Data Connect calls are used for legacy history recovery.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/analytics/sql-database-parity-engine.ts",
+      "line": 177,
+      "excerpt": "nextAction: \"Cloud SQL/Data Connect mirror sync requires explicit approval and dry-run/manual guard.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/analytics/sql-database-parity-engine.ts",
+      "line": 177,
+      "excerpt": "nextAction: \"Cloud SQL/Data Connect mirror sync requires explicit approval and dry-run/manual guard.\",",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "src/lib/cost/billing-spike-contract.ts",
       "line": 414,
       "excerpt": "billingProducts: [\"Cloud SQL\", \"Data Connect\", \"BigQuery jobs\", \"Firestore import/export operations\"],",
@@ -5607,6 +5841,30 @@
       "filePath": "src/lib/cost/billing-spike-contract.ts",
       "line": 414,
       "excerpt": "billingProducts: [\"Cloud SQL\", \"Data Connect\", \"BigQuery jobs\", \"Firestore import/export operations\"],",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "src/lib/cost/cost-owner-review-classifier.ts",
+      "line": 139,
+      "excerpt": "label: \"Cloud SQL/Data Connect\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/cost/cost-owner-review-classifier.ts",
+      "line": 139,
+      "excerpt": "label: \"Cloud SQL/Data Connect\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "src/lib/cost/cost-risk-evidence-classifier.ts",
+      "line": 208,
+      "excerpt": "failures.push(\"Cloud SQL/Data Connect source guard must remain no-runtime-usage, not a full pass.\");",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/cost/cost-risk-evidence-classifier.ts",
+      "line": 208,
+      "excerpt": "failures.push(\"Cloud SQL/Data Connect source guard must remain no-runtime-usage, not a full pass.\");",
       "kind": "cloud-sql"
     },
     {
@@ -5620,6 +5878,12 @@
       "line": 72,
       "excerpt": "{ id: \"cloud_sql_data_connect\", label: \"Cloud SQL / Data Connect\", tool: \"gcloud\" },",
       "kind": "cloud-sql"
+    },
+    {
+      "filePath": "src/lib/errors/bug-report-contract.ts",
+      "line": 1,
+      "excerpt": "import type { FieldValue } from \"firebase-admin/firestore\";",
+      "kind": "firebase-admin"
     },
     {
       "filePath": "src/lib/firebase-data.ts",
@@ -5628,16 +5892,22 @@
       "kind": "firestore-client"
     },
     {
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 5,
-      "excerpt": "import { adminDb } from \"./firebase-admin\";",
+      "filePath": "src/lib/notifications/creator-broadcast-notifications.ts",
+      "line": 3,
+      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/admin-analytics/ga4-evidence.ts",
+      "line": 3,
+      "excerpt": "import { BetaAnalyticsDataClient } from \"@google-analytics/data\";",
+      "kind": "ga-data-api"
     },
     {
       "filePath": "src/lib/server/admin-analytics-data.ts",
       "line": 3,
-      "excerpt": "import { BetaAnalyticsDataClient } from \"@google-analytics/data\";",
-      "kind": "ga-data-api"
+      "excerpt": "import { adminDb } from \"./firebase-admin\";",
+      "kind": "firebase-admin"
     },
     {
       "filePath": "src/lib/server/admin-analytics-preferences.ts",
@@ -5755,7 +6025,7 @@
     },
     {
       "filePath": "src/lib/server/analytics-identity-linking.ts",
-      "line": 4,
+      "line": 3,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5815,7 +6085,7 @@
     },
     {
       "filePath": "src/lib/server/chat.ts",
-      "line": 48,
+      "line": 51,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5851,7 +6121,7 @@
     },
     {
       "filePath": "src/lib/server/creator-discovery.ts",
-      "line": 6,
+      "line": 7,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -6050,7 +6320,7 @@
     {
       "filePath": "functions/src/analytics-bigquery-export.ts",
       "line": 4,
-      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "excerpt": "import {FieldPath, FieldValue} from \"firebase-admin/firestore\"",
       "kind": "firebase-admin"
     },
     {
@@ -6127,7 +6397,7 @@
     },
     {
       "filePath": "functions/src/behavioral-intelligence-runtime.ts",
-      "line": 1,
+      "line": 3,
       "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
       "kind": "firebase-admin"
     },
@@ -6343,39 +6613,117 @@
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 987,
+      "line": 995,
       "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\") ?? lineOf(source, \"BetaAnalyticsDataClient\") ?? lineOf(source, \"GoogleAuth\"),",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 585,
+      "line": 590,
       "excerpt": "if (/adminStorage|storage\\.bucket|bucket\\(/u.test(source) && !/entitlement|unlocked|owner|participant|MEDIA_PROXY|media_proxy|requireAdmin/u.test(source)) {",
       "kind": "admin-storage"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 934,
+      "line": 939,
       "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside approved agent mirror\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 935,
+      "line": 940,
       "excerpt": "evidence: [\"Firebase Data Connect/Cloud SQL is allowed only for agent-context mirror infrastructure unless explicitly contracted.\"],",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 927,
+      "line": 932,
       "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 927,
+      "line": 932,
       "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "mysql"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-cadence-cost-policy.ts",
+      "line": 43,
+      "excerpt": "`- Cloud SQL detected: ${report.summary.cloudSqlDetected}`,",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
+      "line": 180,
+      "excerpt": "\"AGENTS.md/doctrine: Data Connect / Cloud SQL mirror targets kandydrops-db.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
+      "line": 140,
+      "excerpt": "const cloudSqlDetected = detected(sources.cloudSqlSearch ?? \"\", /Cloud SQL|cloudsql|postgres|mysql|prisma|knex|sequelize|DATABASE_URL|dataconnect|kandydrops-db/iu);",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
+      "line": 140,
+      "excerpt": "const cloudSqlDetected = detected(sources.cloudSqlSearch ?? \"\", /Cloud SQL|cloudsql|postgres|mysql|prisma|knex|sequelize|DATABASE_URL|dataconnect|kandydrops-db/iu);",
+      "kind": "postgres"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
+      "line": 140,
+      "excerpt": "const cloudSqlDetected = detected(sources.cloudSqlSearch ?? \"\", /Cloud SQL|cloudsql|postgres|mysql|prisma|knex|sequelize|DATABASE_URL|dataconnect|kandydrops-db/iu);",
+      "kind": "mysql"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-identity-transfer-inventory.ts",
+      "line": 387,
+      "excerpt": "detail: \"Cloud SQL/Data Connect appears as an agent-context mirror, not as an analytics identity transfer runtime dependency.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-identity-transfer-inventory.ts",
+      "line": 387,
+      "excerpt": "detail: \"Cloud SQL/Data Connect appears as an agent-context mirror, not as an analytics identity transfer runtime dependency.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts",
+      "line": 64,
+      "excerpt": "- Cloud SQL status: ${report.summary.cloudSqlStatus}",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-semantics-final-lock.ts",
+      "line": 205,
+      "excerpt": "nextAction: \"Keep Cloud Run, Cloud SQL/Data Connect mirror, Gemini/Vertex, and 4xx lanes visible until owner-reviewed evidence exists.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-semantics-final-lock.ts",
+      "line": 205,
+      "excerpt": "nextAction: \"Keep Cloud Run, Cloud SQL/Data Connect mirror, Gemini/Vertex, and 4xx lanes visible until owner-reviewed evidence exists.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-beta-evidence-gap-map.ts",
+      "line": 203,
+      "excerpt": "nextAction: \"Attach owner-reviewed cost evidence for external Cloud SQL, Gemini/Cloud Assist, and hosted-runner lanes.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-beta-score-cleanup.ts",
+      "line": 189,
+      "excerpt": "\"Review Cloud Run/App Hosting, Cloud SQL/Data Connect, and Gemini/Vertex cost lanes with owner evidence before beta exit.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-beta-score-cleanup.ts",
+      "line": 181,
+      "excerpt": "\"Added Cloud Run, Cloud SQL, Gemini/Cloud Assist, and route 4xx cost-readiness lanes.\",",
+      "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/validate-billing-spike-radar.ts",
@@ -6388,6 +6736,36 @@
       "line": 131,
       "excerpt": "fail(\"Cloud SQL/Data Connect must remain sidecar-only unless explicitly approved.\");",
       "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
+      "line": 175,
+      "excerpt": "? [\"dataconnect/dataconnect.yaml exists as an agent-context mirror.\", \"No Data Connect runtime imports were detected.\"]",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
+      "line": 148,
+      "excerpt": "runtimeSqlHits.length === 0 ? \"Keep Cloud SQL as owner-review until runtime source proves app usage.\" : \"Classify every runtime SQL import before any cost claim.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
+      "line": 72,
+      "excerpt": "const sqlPattern = /(from\\s+[\"'](?:@prisma\\/client|pg|postgres|mysql2|knex|sequelize|firebase\\/data-connect|@firebase\\/data-connect)[\"']|require\\([\"'](?:@prisma\\/client|pg|postgres|mysql2|knex|sequelize|firebase\\/data-connect|@firebase\\/data-connect)[\"']\\)|new\\s+PrismaClient)/u;",
+      "kind": "postgres"
+    },
+    {
+      "filePath": "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
+      "line": 72,
+      "excerpt": "const sqlPattern = /(from\\s+[\"'](?:@prisma\\/client|pg|postgres|mysql2|knex|sequelize|firebase\\/data-connect|@firebase\\/data-connect)[\"']|require\\([\"'](?:@prisma\\/client|pg|postgres|mysql2|knex|sequelize|firebase\\/data-connect|@firebase\\/data-connect)[\"']\\)|new\\s+PrismaClient)/u;",
+      "kind": "prisma"
+    },
+    {
+      "filePath": "scripts/agent/validate-cloud-sql-gemini-cost-guards.ts",
+      "line": 72,
+      "excerpt": "const sqlPattern = /(from\\s+[\"'](?:@prisma\\/client|pg|postgres|mysql2|knex|sequelize|firebase\\/data-connect|@firebase\\/data-connect)[\"']|require\\([\"'](?:@prisma\\/client|pg|postgres|mysql2|knex|sequelize|firebase\\/data-connect|@firebase\\/data-connect)[\"']\\)|new\\s+PrismaClient)/u;",
+      "kind": "mysql"
     },
     {
       "filePath": "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
@@ -6399,6 +6777,42 @@
       "filePath": "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
       "line": 114,
       "excerpt": "\"Cloud SQL-backed\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-cost-4xx-reduction.ts",
+      "line": 158,
+      "excerpt": "detail: \"Cloud SQL/Data Connect remains classified as an agent-context mirror; no user/creator product runtime SQL usage was fixed in this pass.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-cost-4xx-reduction.ts",
+      "line": 158,
+      "excerpt": "detail: \"Cloud SQL/Data Connect remains classified as an agent-context mirror; no user/creator product runtime SQL usage was fixed in this pass.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-cost-owner-review-source-closure.ts",
+      "line": 208,
+      "excerpt": "\"Attach Cloud SQL/Data Connect provider owner review before converting mirror cost status to fully reviewed.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-cost-owner-review-source-closure.ts",
+      "line": 208,
+      "excerpt": "\"Attach Cloud SQL/Data Connect provider owner review before converting mirror cost status to fully reviewed.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+      "line": 195,
+      "excerpt": "\"Source doctrine and Data Connect config classify Cloud SQL as an agent-context mirror; no creator dashboard runtime SQL path was found in this pass.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+      "line": 195,
+      "excerpt": "\"Source doctrine and Data Connect config classify Cloud SQL as an agent-context mirror; no creator dashboard runtime SQL path was found in this pass.\",",
       "kind": "cloud-sql"
     },
     {
@@ -6426,6 +6840,36 @@
       "kind": "cloud-sql"
     },
     {
+      "filePath": "scripts/agent/validate-external-analytics-truth-closure.ts",
+      "line": 168,
+      "excerpt": "ga4ServerDataApiDependencyPresent: packageJson.includes(\"@google-analytics/data\"),",
+      "kind": "ga-data-api"
+    },
+    {
+      "filePath": "scripts/agent/validate-final-cost-audit-lock.ts",
+      "line": 153,
+      "excerpt": "{ item: 23, title: \"Data Connect / Cloud SQL mirror exists as agent context\", category: \"Cloud SQL/Data Connect\", status: \"fixed\" },",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-final-cost-audit-lock.ts",
+      "line": 153,
+      "excerpt": "{ item: 23, title: \"Data Connect / Cloud SQL mirror exists as agent context\", category: \"Cloud SQL/Data Connect\", status: \"fixed\" },",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-final-telemetry-closure-lock.ts",
+      "line": 233,
+      "excerpt": "sourceTruth: \"Data Connect/SQL mirror is repo intelligence context only\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-ga4-recovery-truth.ts",
+      "line": 145,
+      "excerpt": "serverDataApiDependencyPresent: packageJson.includes(\"@google-analytics/data\"),",
+      "kind": "ga-data-api"
+    },
+    {
       "filePath": "scripts/agent/validate-google-cloud-cost-data-handoff.ts",
       "line": 37,
       "excerpt": "product: \"Cloud SQL / Firebase Data Connect\",",
@@ -6444,6 +6888,12 @@
       "kind": "data-connect"
     },
     {
+      "filePath": "scripts/agent/validate-guest-user-identity-transfer.ts",
+      "line": 138,
+      "excerpt": "action: \"Keep Cloud SQL out of analytics identity transfer unless a future explicit runtime promotion exists.\",",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "scripts/agent/validate-human-dev-readiness.ts",
       "line": 121,
       "excerpt": "[\"Data Connect/Cloud SQL\", [\"/dataconnect/\", \"/src/lib/server/api-cost-contract.ts\"]],",
@@ -6454,6 +6904,36 @@
       "line": 121,
       "excerpt": "[\"Data Connect/Cloud SQL\", [\"/dataconnect/\", \"/src/lib/server/api-cost-contract.ts\"]],",
       "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-march-first-legacy-normalization.ts",
+      "line": 179,
+      "excerpt": "if (/(firebase-admin|adminDb|collection\\s*\\(|writeBatch|runTransaction|\\.set\\s*\\(|\\.update\\s*\\(|\\.delete\\s*\\(|fetch\\s*\\(|backfill\\s*\\()/u.test(source)) {",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+      "line": 249,
+      "excerpt": "nextAction: \"Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+      "line": 249,
+      "excerpt": "nextAction: \"Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-person-metrics-contract.ts",
+      "line": 188,
+      "excerpt": "engineHasNoProductionReadOrMutation: !/adminDb\\.collection|firebase-admin|setDoc|updateDoc|deleteDoc|\\.set\\(|\\.update\\(|\\.delete\\(/u.test(engineSource),",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "scripts/agent/validate-privacy-behavior-legacy-recovery.ts",
+      "line": 162,
+      "excerpt": "if (/(firebase-admin|adminDb|collection\\s*\\(|writeBatch|runTransaction|\\.set\\s*\\(|\\.update\\s*\\(|\\.delete\\s*\\(|fetch\\s*\\(|backfill\\s*\\()/u.test(recoverySource)) {",
+      "kind": "firebase-admin"
     },
     {
       "filePath": "scripts/agent/validate-privacy-import-export-cutover.ts",
@@ -6468,22 +6948,70 @@
       "kind": "vertex-ai"
     },
     {
+      "filePath": "scripts/agent/validate-runtime-watch-time-v2.ts",
+      "line": 136,
+      "excerpt": "evidence: \"Runtime watch v2 model and tracker do not import or call SQL/Data Connect.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-runtime-watch-time-v2.ts",
+      "line": 218,
+      "excerpt": "- Cloud SQL status: ${report.summary.cloudSqlStatus}",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-score-80-cost-readiness.ts",
+      "line": 320,
+      "excerpt": "\"Owner-review Cloud SQL/Data Connect and Gemini/Vertex billing externally before claiming provider savings.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-score-80-cost-readiness.ts",
+      "line": 297,
+      "excerpt": "detail: cloudGuardsCurrent ? \"Current Cloud SQL/Gemini guard report is available.\" : \"Cloud SQL/Gemini guard report is missing or stale.\",",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "scripts/agent/validate-security-role-boundaries.ts",
-      "line": 254,
+      "line": 263,
       "excerpt": "if (/@\\/lib\\/server|server-only|firebase-admin/u.test(content)) {",
       "kind": "firebase-admin"
     },
     {
       "filePath": "scripts/agent/validate-security-role-boundaries.ts",
-      "line": 196,
-      "excerpt": "\"adminStorage.bucket().file(fullPath)\",",
+      "line": 199,
+      "excerpt": "if (!adminContentRoute.includes(\"adminStorage.bucket().file(fullPath)\") && !adminContentRoute.includes(\"bucket.file(fullPath)\")) {",
       "kind": "admin-storage"
+    },
+    {
+      "filePath": "scripts/agent/validate-source-truth-authority-map.ts",
+      "line": 316,
+      "excerpt": "\"Cloud SQL cost readiness\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-sql-database-parity-cost-lock.ts",
+      "line": 167,
+      "excerpt": "\"- Cloud SQL/Data Connect mirror sync remains manual, guarded, and external-review separated.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-sql-database-parity-cost-lock.ts",
+      "line": 167,
+      "excerpt": "\"- Cloud SQL/Data Connect mirror sync remains manual, guarded, and external-review separated.\",",
+      "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/validate-surface-doctrine-split.ts",
       "line": 286,
       "excerpt": "const sharedBusinessPattern = /firebase-admin|@\\/lib\\/server|sourceTruth|entitlement|gumDrops?|wallet|creatorRevenue|moderation|supportTicket|adminProjection/iu;",
       "kind": "firebase-admin"
+    },
+    {
+      "filePath": "scripts/agent/validate-telemetry-dependency-graph.ts",
+      "line": 303,
+      "excerpt": "prCleanupActions: [\"No open telemetry/analytics/GA4/BigQuery/Firebase/Data Connect/admin analytics PRs were present at start.\"],",
+      "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-test-fixtures-demo.ts",

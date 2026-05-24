@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.41 - 2026-05-24
+
+- Refreshed device, content protection, cost, and telemetry parity readiness reports.
+- Moved compact viewport detection onto the device layout contract.
+- Classified responsive breakpoint and wallet-nav action findings without changing payment or bottom-nav behavior.
+
 ## 1.4.40 - 2026-05-24
 
 - Hardened admin request body caps and typed admin route errors.

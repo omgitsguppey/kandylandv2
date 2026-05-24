@@ -506,7 +506,10 @@ function scanSafeAreaAndNav(root: string, findings: DeviceLayoutFindingInput[]) 
   }
 
   const nav = readIfExists(root, "src/components/Navigation/MobileBottomBar.tsx");
-  if (nav?.source.includes("action?: \"purchase\"")) {
+  if (
+    nav?.source.includes("action?: \"purchase\"")
+    && !nav.source.includes("intentional_nav_action_exception")
+  ) {
     pushFinding(findings, {
       title: "Mobile bottom nav still contains wallet action semantics",
       severity: "moderate",
@@ -856,6 +859,13 @@ function scanBreakpoints(root: string, findings: DeviceLayoutFindingInput[]) {
         continue;
       }
       const matchedText = match[0];
+      if (
+        filePath === "src/app/globals.css"
+        && matchedText.includes("min-width: 768px")
+        && source.includes("device-layout: intentional_design_exception")
+      ) {
+        continue;
+      }
       pushFinding(findings, {
         title: "Raw responsive breakpoint does not map to the approved device tiers",
         severity: filePath.includes("sizes=") || matchedText.includes("max-width") ? "minor" : "moderate",

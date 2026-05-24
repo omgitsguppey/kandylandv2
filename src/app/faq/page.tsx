@@ -22,7 +22,7 @@ export default function FAQPage() {
       >
         <div className="mb-6 text-center sm:mb-10">
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-brand-purple mb-3">How It Works</p>
-          <h1 className="mx-auto mb-3 max-w-[9rem] text-[clamp(2rem,10vw,3.25rem)] font-black leading-[0.98] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 min-[380px]:max-w-none md:text-5xl md:leading-[0.94]">
+          <h1 className="mx-auto mb-3 max-w-[9rem] text-[clamp(2rem,10vw,3.25rem)] font-black leading-[0.98] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 min-[360px]:max-w-none md:text-5xl md:leading-[0.94]">
             How it works
           </h1>
           <p className="mx-auto max-w-xl text-sm text-gray-400 sm:text-lg">

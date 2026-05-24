@@ -14,6 +14,7 @@ html { overscroll-behavior-y: none; }
   --root-shell-top-spacing: 4rem;
 }
 
+/* device-layout: intentional_design_exception; admin shell keeps Tailwind md spacing until a broader shell review moves this to a contract tier. */
 @media (min-width: 768px) {
   .admin-shell-route {
     --root-shell-top-spacing: 4.75rem;

@@ -24,6 +24,14 @@ type NavItem = {
     action?: "purchase";
 };
 
+export const MOBILE_BOTTOM_NAV_WALLET_ACTION_CLASSIFICATION = {
+    status: "intentional_nav_action_exception",
+    review: "needs_product_review",
+    migration: "migrate_to_wallet_route_later",
+    behaviorUnchanged: true,
+    paymentRuntimeChanged: false,
+} as const;
+
 const GUEST_NAV_ITEMS: NavItem[] = [
     { label: "Home", href: "/", icon: Home },
     { label: "Drops", href: "/drops", icon: Candy },

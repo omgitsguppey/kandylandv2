@@ -1,13 +1,71 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.40",
-  "betaReleaseCounter": 440,
+  "currentVersion": "1.4.41",
+  "betaReleaseCounter": 441,
   "channel": "beta",
-  "generatedAt": "2026-05-24T19:05:00.000Z",
-  "generatedAtUtc": "2026-05-24T19:05:00.000Z",
+  "generatedAt": "2026-05-24T20:05:00.000Z",
+  "generatedAtUtc": "2026-05-24T20:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.41",
+      "previousVersion": "1.4.40",
+      "betaReleaseCounter": 441,
+      "previousBetaReleaseCounter": 440,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(device): refresh layout readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T20:05:00.000Z",
+      "generatedAt": "2026-05-24T20:05:00.000Z",
+      "committedAtUtc": "2026-05-24T20:05:00.000Z",
+      "generatedAtUtc": "2026-05-24T20:05:00.000Z",
+      "updatedAtUtc": "2026-05-24T20:05:00.000Z",
+      "category": "Improved",
+      "title": "Device layout readiness refresh",
+      "summary": "Refreshed device, content protection, cost, and telemetry readiness reports while moving compact viewport checks onto the device layout contract.",
+      "userFacingTitle": "Device layout readiness refresh",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed device, content protection, cost, and telemetry parity readiness reports.",
+        "Moved compact viewport detection onto the device layout contract.",
+        "Classified responsive breakpoint and wallet-nav action findings without changing payment or bottom-nav behavior."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "App experience",
+        "Device layout",
+        "Navigation",
+        "Privacy & security",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/debug-cockpit-batch11-cleanup.generated.json",
+        "agent/state/device-breakpoint-contract-cleanup.generated.json",
+        "agent/state/device-layout-score.generated.json",
+        "agent/state/device-ui-dry-audit.generated.json",
+        "agent/state/google-cost-bleed.generated.json",
+        "agent/state/mobile-bottom-nav-wallet-action-review.generated.json",
+        "agent/state/responsive-breakpoint-finding-cleanup.generated.json",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/debug-cockpit-batch11-shared.ts",
+        "src/components/Navigation/MobileBottomBar.tsx",
+        "src/hooks/useCompactViewport.ts",
+        "src/lib/device-layout-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "effectiveChangeCount": 16,
+      "excludedGeneratedChangeCount": 8,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.40",
       "previousVersion": "1.4.39",

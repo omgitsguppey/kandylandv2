@@ -1,0 +1,252 @@
+{
+  "generatedAtUtc": "2026-05-24T19:04:25.396Z",
+  "reportKey": "debug-cockpit-batch11-cleanup",
+  "currentHead": "3dc628da2d495b5bcec621a5ac52726e76dd05aa",
+  "deviceUiAgeBefore": 400,
+  "deviceUiAgeAfter": 0.11,
+  "deviceLayoutAgeBefore": 400,
+  "deviceLayoutAgeAfter": 0.11,
+  "deviceLayoutScoreBefore": 80,
+  "deviceLayoutScoreAfter": 85,
+  "deviceLayoutFindingsBefore": 13,
+  "deviceLayoutFindingsAfter": 9,
+  "breakpointFindings": [
+    {
+      "filePath": "src/app/admin/ai/components/AdminAiReviewgallerySection.tsx",
+      "original": "(min-width: 1024px) 280px, 100vw",
+      "classification": "mapped_to_device_contract",
+      "decision": "Mapped image sizes hint to the approved 960px large-tablet device tier."
+    },
+    {
+      "filePath": "src/app/faq/page.tsx",
+      "original": "min-[380px]:max-w-none",
+      "classification": "mapped_to_device_contract",
+      "decision": "Mapped public FAQ heading expansion to the approved 360px phone boundary."
+    },
+    {
+      "filePath": "src/app/globals.css",
+      "original": "@media (min-width: 768px)",
+      "classification": "intentional_design_exception",
+      "decision": "Classified the global admin shell Tailwind-md spacing as a design exception pending broader shell review."
+    }
+  ],
+  "compactViewportContractStatus": "mapped_to_device_contract",
+  "walletNavActionStatus": "intentional_nav_action_exception",
+  "contentProtectionAgeBefore": 400,
+  "contentProtectionAgeAfter": 0.11,
+  "googleCostAgeBefore": 400,
+  "googleCostAgeAfter": 0.07,
+  "cloudCostAgeBefore": 400,
+  "cloudCostAgeAfter": 0.11,
+  "telemetryParityAgeBefore": 400,
+  "telemetryParityAgeAfter": 0.06,
+  "refreshedArtifacts": [
+    "agent/state/device-ui-dry-audit.generated.json",
+    "agent/state/device-layout-score.generated.json",
+    "agent/state/content-protection-score.generated.json",
+    "agent/state/google-cost-bleed.generated.json",
+    "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+    "agent/state/telemetry-parity-score.generated.json"
+  ],
+  "remainingFindings": [],
+  "bottomNavBehaviorChanged": false,
+  "paymentRuntimeChanged": false,
+  "scoreBefore": 79,
+  "scoreAfter": 79,
+  "scoreDimensions": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "dirtyFilesClassified": [
+    {
+      "file": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "README.md",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "agent/context/optimized-task-context.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/content-protection-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/device-layout-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/device-ui-dry-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/google-cost-bleed.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/telemetry-parity-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "package.json",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "src/app/admin/ai/components/AdminAiReviewgallerySection.tsx",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/app/dashboard/viewer/page.tsx",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/app/faq/page.tsx",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/app/globals.css",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/components/Chat/ChatRouteShell.tsx",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/components/Navigation/MobileBottomBar.tsx",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/hooks/useCompactViewport.ts",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/lib/device-layout-contract.ts",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/lib/device-layout-score.ts",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "file": "src/lib/server/api-cost-contract.ts",
+      "classification": "source_device_contract_fix_required"
+    },
+    {
+      "file": "agent/state/debug-cockpit-batch11-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/device-breakpoint-contract-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/mobile-bottom-nav-wallet-action-review.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/responsive-breakpoint-finding-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/debug-cockpit-batch11-cleanup.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/device-breakpoint-contract-cleanup.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/mobile-bottom-nav-wallet-action-review.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/responsive-breakpoint-finding-cleanup.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "scripts/agent/debug-cockpit-batch11-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "file": "scripts/agent/validate-debug-cockpit-batch11-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "file": "scripts/agent/validate-device-breakpoint-contract-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "file": "scripts/agent/validate-mobile-bottom-nav-wallet-action-review.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "file": "scripts/agent/validate-responsive-breakpoint-finding-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "file": "tests/unit/debug-cockpit-batch11-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "file": "tests/unit/device-breakpoint-contract-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "file": "tests/unit/mobile-bottom-nav-wallet-action-review.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "file": "tests/unit/responsive-breakpoint-finding-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "nextExactSteps": [
+    "Keep wallet bottom-nav purchase action under product review; migrate to a dedicated wallet route only after product approval.",
+    "Handle unrelated raw breakpoint findings in separate owner-scoped passes."
+  ],
+  "validationFailures": []
+}

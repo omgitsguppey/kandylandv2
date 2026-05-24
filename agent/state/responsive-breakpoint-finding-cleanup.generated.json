@@ -1,0 +1,28 @@
+{
+  "generatedAtUtc": "2026-05-24T19:00:21.905Z",
+  "reportKey": "responsive-breakpoint-finding-cleanup",
+  "currentHead": "3dc628da2d495b5bcec621a5ac52726e76dd05aa",
+  "breakpointFindings": [
+    {
+      "filePath": "src/app/admin/ai/components/AdminAiReviewgallerySection.tsx",
+      "original": "(min-width: 1024px) 280px, 100vw",
+      "classification": "mapped_to_device_contract",
+      "decision": "Mapped image sizes hint to the approved 960px large-tablet device tier."
+    },
+    {
+      "filePath": "src/app/faq/page.tsx",
+      "original": "min-[380px]:max-w-none",
+      "classification": "mapped_to_device_contract",
+      "decision": "Mapped public FAQ heading expansion to the approved 360px phone boundary."
+    },
+    {
+      "filePath": "src/app/globals.css",
+      "original": "@media (min-width: 768px)",
+      "classification": "intentional_design_exception",
+      "decision": "Classified the global admin shell Tailwind-md spacing as a design exception pending broader shell review."
+    }
+  ],
+  "allOffendingFilesListed": true,
+  "globalsChangedWithoutImpactReview": false,
+  "validationFailures": []
+}

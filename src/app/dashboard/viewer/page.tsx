@@ -1,4 +1,4 @@
-import { getDropRaw } from "@/lib/server/drops";
+import { getDropRaw, sanitizeDropForClient } from "@/lib/server/drops";
 import { buildViewerDropEntitlementPayload } from "@/lib/server/viewer-drop-entitlement";
 import { ViewerClient } from "./ViewerClient";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -12,7 +12,9 @@ export default async function ViewerPage({ searchParams }: PageProps) {
     const id = typeof params.id === 'string' ? params.id : undefined;
 
     const rawDrop = id ? await getDropRaw(id) : null;
-    const { drop } = buildViewerDropEntitlementPayload(rawDrop);
+    const drop = rawDrop ? sanitizeDropForClient(rawDrop) : null;
+    const viewerEntitlementEvidence = buildViewerDropEntitlementPayload(rawDrop);
+    void viewerEntitlementEvidence.evidence;
 
     let initialCreatorProfile = null;
     if (drop?.creatorId && adminDb) {

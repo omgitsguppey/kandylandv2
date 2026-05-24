@@ -1,9 +1,27 @@
 {
-  "generatedAt": "2026-05-07T22:53:27.926Z",
-  "score": 100,
-  "status": "clean",
+  "generatedAt": "2026-05-24T18:57:42.437Z",
+  "score": 90,
+  "status": "pass",
   "cloudRunFindings": [],
-  "sqlFindings": [],
+  "sqlFindings": [
+    {
+      "severity": "major",
+      "category": "dataconnect",
+      "title": "Data Connect schema includes non-agent mirror tables without runtime approval",
+      "filePath": "dataconnect/schema/structured_profiles.gql",
+      "line": 9,
+      "excerpt": "# Tables/types touched: UserFeatureProfile, GuestFeatureProfile,",
+      "suggestedFix": "Remove inactive feature-serving tables or add an explicit approved SQL/Data Connect runtime contract before activation.",
+      "evidence": [
+        "UserFeatureProfile",
+        "GuestFeatureProfile",
+        "CreatorAffinityVector",
+        "DropInterestVector"
+      ],
+      "id": "cloud-cost-1gsx2kd",
+      "scoreImpact": -10
+    }
+  ],
   "bigQueryFindings": [],
   "recommendedLimits": [
     {
@@ -270,5 +288,5 @@
     "gcloud run services update analytics-bigquery-export-function --region us-central1 --max 2 --concurrency 10",
     "gcloud run services update dataconnect-agent-context-mirror --region us-central1 --max 1 --concurrency 10"
   ],
-  "summary": "Cloud cost guardrails found 0 deterministic finding(s). No deployed settings were changed."
+  "summary": "Cloud cost guardrails found 1 deterministic finding(s). No deployed settings were changed."
 }

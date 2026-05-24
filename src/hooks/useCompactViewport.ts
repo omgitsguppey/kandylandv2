@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const COMPACT_VIEWPORT_QUERY = "(max-width: 767px)";
+import { DEVICE_VIEWPORT_QUERIES } from "@/lib/device-layout-contract";
 
 export function useCompactViewport() {
   const [isCompactViewport, setIsCompactViewport] = useState(false);
@@ -12,7 +12,7 @@ export function useCompactViewport() {
       return;
     }
 
-    const mediaQuery = window.matchMedia(COMPACT_VIEWPORT_QUERY);
+    const mediaQuery = window.matchMedia(DEVICE_VIEWPORT_QUERIES.compact);
     const syncViewport = () => setIsCompactViewport(mediaQuery.matches);
 
     syncViewport();

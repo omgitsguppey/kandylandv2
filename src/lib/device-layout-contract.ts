@@ -22,6 +22,12 @@ export const DEVICE_LAYOUT_BREAKPOINT_BOUNDARIES_PX = [
   1600,
 ] as const;
 
+export const DEVICE_VIEWPORT_QUERIES = {
+  compact: "(max-width: 767px)",
+  tablet: "(min-width: 840px)",
+  desktop: "(min-width: 1280px)",
+} as const;
+
 export const DEVICE_LAYOUT_CLASSES = [
   {
     id: "xs-phone",

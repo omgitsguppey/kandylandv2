@@ -8,7 +8,7 @@ import {
     USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT,
     USER_MOBILE_CHAT_VIEWPORT_HEIGHT,
 } from "@/lib/user-mobile-shell";
-import { isAndroidStandalonePwa, isIosStandalonePwa } from "@/lib/device-layout-contract";
+import { DEVICE_VIEWPORT_QUERIES, isAndroidStandalonePwa, isIosStandalonePwa } from "@/lib/device-layout-contract";
 
 export function ChatRouteShell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
@@ -16,7 +16,7 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         const body = document.body;
         const main = document.querySelector("main");
         const mainElement = main instanceof HTMLElement ? main : null;
-        const compactViewportQuery = window.matchMedia("(max-width: 767px)");
+        const compactViewportQuery = window.matchMedia(DEVICE_VIEWPORT_QUERIES.compact);
         const visualViewport = window.visualViewport;
         const androidPwa = isAndroidStandalonePwa();
         const iosPwa = isIosStandalonePwa();
