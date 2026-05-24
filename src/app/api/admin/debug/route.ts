@@ -55,6 +55,7 @@ import { buildDailyTaskGuidanceAuditReport } from "@/lib/tasks/daily-task-guidan
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
+import { buildQueueRuntimeContinuity } from "@/lib/debug/queue-runtime-continuity-engine";
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
 import {
@@ -4039,14 +4040,34 @@ export async function GET(request: NextRequest) {
             queueRuntimeOutcomeRows.some((entry) => entry.dropIdentityState !== "resolved") ? "drop metadata missing" : null,
             queueJobHeartbeatSummary.stale > 0 ? "stale heartbeat" : null,
         ].filter(Boolean);
+        const queueRuntimeContinuity = buildQueueRuntimeContinuity({
+            nowMs,
+            queueName: "drop_lifecycle",
+            heartbeats: queueJobHeartbeats,
+            outcomes: queueRuntimeOutcomeRows,
+            runtimeWarnings: runtimeWarnings as Array<Record<string, unknown>>,
+            heartbeatSourceLoaded: true,
+            outcomeSourceLoaded: true,
+            driftSourceLoaded: true,
+        });
         const queueRuntimeSummary = {
             jobHeartbeats: queueJobHeartbeatSummary,
             warnings: runtimeWarningSummary,
             missingNotificationOutcomes: runtimeWarnings.filter((entry) => toStringValue(entry.code) === QUEUE_RUNTIME_WARNING_CODES.activationMissingOutcome).length,
             recentOutcomes: queueRuntimeOutcomeRows.length,
             warningReasons: queueRuntimeWarningReasons,
-            heartbeatState: queueJobHeartbeatSummary.total === 0 && queueRuntimeOutcomeRows.length > 0 ? "missing_heartbeat" : queueJobHeartbeatSummary.failed > 0 ? "failed" : queueJobHeartbeatSummary.stale > 0 ? "stale" : "live",
-            outcomesState: queueRuntimeOutcomeRows.some((entry) => entry.outcome === "failed") ? "failed" : queueRuntimeOutcomeRows.length > 0 ? "live" : "unknown",
+            heartbeatState: queueRuntimeContinuity.schedulerHeartbeat.status,
+            outcomesState: queueRuntimeContinuity.dispatchOutcomes.status,
+            continuityStatus: queueRuntimeContinuity.continuityStatus,
+            liveStatusAllowed: queueRuntimeContinuity.liveStatusAllowed,
+            schedulerHeartbeat: queueRuntimeContinuity.schedulerHeartbeat,
+            dispatchOutcomes: queueRuntimeContinuity.dispatchOutcomes,
+            queueDrift: queueRuntimeContinuity.queueDrift,
+            legacyAdapterStatus: queueRuntimeContinuity.legacyAdapterStatus,
+            savedDataStatus: queueRuntimeContinuity.dispatchOutcomes.savedDataStatus,
+            sourceWindows: queueRuntimeContinuity.sourceWindows,
+            missingSources: queueRuntimeContinuity.missingSources,
+            nextAction: queueRuntimeContinuity.nextAction,
             heartbeatOutcomeExplanation: queueJobHeartbeatSummary.total === 0 && queueRuntimeOutcomeRows.length > 0 ? "No heartbeat records, but dispatch outcome records exist." : null,
         };
         const opsHealth = buildAdminOpsHealth({

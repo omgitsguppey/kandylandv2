@@ -1,0 +1,60 @@
+{
+  "reportKey": "queue-runtime-continuity",
+  "generatedAtUtc": "2026-05-24T18:00:00.000Z",
+  "queueName": "drop_lifecycle",
+  "schedulerHeartbeat": {
+    "status": "missing",
+    "lastHeartbeatAtMs": null,
+    "expectedCadenceMs": 21600000,
+    "freshnessMs": null,
+    "source": "queue_job_heartbeats"
+  },
+  "dispatchOutcomes": {
+    "status": "observed_current",
+    "outcomeCount": 40,
+    "failedCount": 0,
+    "warningCount": 0,
+    "savedDataCount": 0,
+    "savedDataStatus": "no_saved_payload_expected",
+    "lastOutcomeAtMs": 1779645540000,
+    "source": "notification_dispatch_outcomes",
+    "sourceWindow": "current",
+    "healthProven": true,
+    "readableWhenHeartbeatMissing": true,
+    "nextAction": "Dispatch outcomes are readable; keep heartbeat evidence separate from outcome health."
+  },
+  "runtimeWarnings": {
+    "warningCount": 0,
+    "needsReviewCount": 0
+  },
+  "queueDrift": {
+    "status": "source_missing",
+    "sourceLoaded": false,
+    "driftCount": 0,
+    "legacyAdapterUsageCount": 0,
+    "missingDispatchOutcomeCount": 0,
+    "blockingDriftCount": 0
+  },
+  "legacyAdapterStatus": {
+    "status": "unknown",
+    "usageCount": 0,
+    "missingDispatchOutcomeCount": 0,
+    "blockingDriftCount": 0,
+    "blocksContinuity": false,
+    "removalPolicy": "Legacy queue adapters are compatibility-only and must be checked through runtime warning evidence.",
+    "nextAction": "Load runtime warning source before claiming queue drift=0 or no adapter usage."
+  },
+  "continuityStatus": "degraded_missing_heartbeat",
+  "sourceWindows": {
+    "heartbeat": "missing",
+    "outcomes": "current",
+    "queueDrift": "not_loaded"
+  },
+  "missingSources": [
+    "scheduler_heartbeat",
+    "queue_drift_runtime_warnings"
+  ],
+  "nextAction": "Dispatch outcomes remain readable, but wire scheduler heartbeat evidence or classify scheduler manual/disabled before marking queue continuity live.",
+  "liveStatusAllowed": false,
+  "validationFailures": []
+}

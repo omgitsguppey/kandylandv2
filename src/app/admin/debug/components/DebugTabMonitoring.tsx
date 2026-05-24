@@ -70,6 +70,31 @@ function truthForRouteRuntimeDisplayState(state: RouteRuntimeDisplayBadgeState) 
     if (state === "no_sample") return "unavailable" as const;
     return "live" as const;
 }
+function toneForQueueContinuityStatus(status?: string) {
+    if (status === "healthy_current") return "good" as const;
+    if (status === "broken_drift") return "bad" as const;
+    if (status === "degraded_missing_heartbeat" || status === "degraded_missing_outcomes") return "warn" as const;
+    return "neutral" as const;
+}
+function truthForQueueContinuityStatus(status?: string) {
+    if (status === "healthy_current") return "live" as const;
+    if (status === "broken_drift") return "failed" as const;
+    if (status === "degraded_missing_heartbeat" || status === "degraded_missing_outcomes") return "degraded" as const;
+    return "unavailable" as const;
+}
+function toneForQueueLaneStatus(status?: string) {
+    if (status === "observed_current" || status === "healthy_current") return "good" as const;
+    if (status === "failed" || status === "broken_drift") return "bad" as const;
+    if (status === "missing" || status === "stale" || status === "observed_stale" || status === "degraded_missing_heartbeat" || status === "degraded_missing_outcomes") return "warn" as const;
+    return "neutral" as const;
+}
+function truthForQueueLaneStatus(status?: string) {
+    if (status === "observed_current" || status === "healthy_current") return "live" as const;
+    if (status === "failed" || status === "broken_drift") return "failed" as const;
+    if (status === "stale" || status === "observed_stale") return "stale" as const;
+    if (status === "missing" || status === "degraded_missing_heartbeat" || status === "degraded_missing_outcomes") return "degraded" as const;
+    return "unavailable" as const;
+}
 type RecentEventFlowRow = {
     eventId: string;
     eventName: string;
@@ -253,13 +278,20 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
     const routeRuntimeRollup = buildRouteRuntimeRollup(routeRuntimeHealth);
     const routeRuntimeDisplay = buildRouteRuntimeDisplayStatus(routeRuntimeRollup);
     const routeRuntimeLoaded = routeRuntimeSummaryTruth.trackedCount > 0;
+    const queueContinuityStatus = queueRuntimeSummary.continuityStatus || (queueRuntimeSummary.heartbeatState === "missing_heartbeat" ? "degraded_missing_heartbeat" : undefined);
     const queueLoaded = queueJobHeartbeats.length > 0 || notificationDispatchOutcomes.length > 0 || queueRuntimeSummary.warnings.total > 0;
+    const queueHeartbeatStatus = queueRuntimeSummary.schedulerHeartbeat?.status || queueRuntimeSummary.heartbeatState || "unknown";
+    const queueOutcomeStatus = queueRuntimeSummary.dispatchOutcomes?.status || queueRuntimeSummary.outcomesState || "unknown";
+    const queueDriftSourceLoaded = queueRuntimeSummary.queueDrift?.sourceLoaded === true;
     const queueNeedsReview = queueRuntimeSummary.jobHeartbeats.stale > 0
         || queueRuntimeSummary.jobHeartbeats.failed > 0
         || queueRuntimeSummary.missingNotificationOutcomes > 0
         || queueRuntimeSummary.warnings.degraded > 0
-        || queueRuntimeSummary.heartbeatState === "missing_heartbeat";
-    const queueStatus = !queueLoaded ? "empty" : queueNeedsReview ? "review" : "live";
+        || queueHeartbeatStatus === "missing"
+        || queueHeartbeatStatus === "missing_heartbeat"
+        || queueContinuityStatus === "degraded_missing_heartbeat"
+        || queueContinuityStatus === "broken_drift";
+    const queueStatus = queueContinuityStatus || (!queueLoaded ? "source_ready_no_sample_loaded" : queueNeedsReview ? "degraded_missing_heartbeat" : "healthy_current");
     const adminDisplayName = userProfile?.username || userProfile?.displayName || user?.displayName || "Current admin";
     const gaConfigState = data?.opsHealth?.runtime?.gaPropertyConfigured ? "configPresent" : "configMissing";
     const vapidConfigState = data?.opsHealth?.runtime?.vapidConfigured ? "configPresent" : "configMissing";
@@ -360,7 +392,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 title="Queue runtime continuity"
                 subtitle="Canonical scheduler heartbeats, runtime warnings, and notification outcomes for queue lifecycle health."
                 defaultOpen={queueNeedsReview || notificationDispatchOutcomes.length > 0}
-                summary={<><Pill label="Status" value={queueStatus} tone={queueStatus === "review" ? "warn" : queueStatus === "live" ? "good" : "neutral"} truthState={queueStatus === "review" ? "degraded" : queueStatus === "live" ? "live" : "unavailable"} badgeLabel={queueLoaded ? "LOADED" : "EMPTY"} /><Pill label="Jobs" value={queueRuntimeSummary.jobHeartbeats.total} truthState={queueLoaded ? "live" : "unavailable"} badgeLabel="INFO" /><Pill label="Outcomes" value={notificationDispatchOutcomes.length} truthState={queueLoaded ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : "good"} /><Pill label="Needs review" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : "good"} /></>}
+                summary={<><Pill label="Status" value={queueStatus} tone={toneForQueueContinuityStatus(queueStatus)} truthState={truthForQueueContinuityStatus(queueStatus)} badgeLabel={queueRuntimeSummary.liveStatusAllowed === true ? "LIVE" : queueLoaded ? "REVIEW" : "NO SAMPLE"} /><Pill label="Jobs" value={queueRuntimeSummary.jobHeartbeats.total} tone={toneForQueueLaneStatus(queueHeartbeatStatus)} truthState={truthForQueueLaneStatus(queueHeartbeatStatus)} badgeLabel={queueHeartbeatStatus === "observed_current" ? "CURRENT" : queueHeartbeatStatus === "missing" ? "MISSING" : "UNKNOWN"} /><Pill label="Outcomes" value={notificationDispatchOutcomes.length} tone={toneForQueueLaneStatus(queueOutcomeStatus)} truthState={truthForQueueLaneStatus(queueOutcomeStatus)} badgeLabel={queueOutcomeStatus === "observed_current" ? "READABLE" : queueOutcomeStatus === "observed_stale" ? "STALE" : "UNKNOWN"} /><Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} badgeLabel={queueLoaded ? "SOURCE" : "UNKNOWN"} /><Pill label="Needs review" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} badgeLabel={queueLoaded ? "SOURCE" : "UNKNOWN"} /></>}
             >
                 <div
                     className="grid gap-4 lg:grid-cols-1"
@@ -368,16 +400,22 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                     data-queue-runtime-heartbeat-count={queueJobHeartbeats.length}
                     data-queue-runtime-outcome-count={notificationDispatchOutcomes.length}
                     data-queue-runtime-warning-count={queueRuntimeSummary.warnings.total}
+                    data-queue-continuity-status={queueStatus}
+                    data-queue-heartbeat-status={queueHeartbeatStatus}
+                    data-queue-outcome-status={queueOutcomeStatus}
+                    data-queue-drift-source-loaded={queueDriftSourceLoaded ? "true" : "false"}
                 >
                     <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                         <div className="flex flex-wrap gap-2">
-                            <Pill label="Heartbeat lane" value={queueRuntimeSummary.heartbeatState || "unknown"} tone={queueRuntimeSummary.heartbeatState === "missing_heartbeat" || queueRuntimeSummary.heartbeatState === "stale" ? "warn" : queueRuntimeSummary.heartbeatState === "failed" ? "bad" : "good"} />
-                            <Pill label="Outcome lane" value={queueRuntimeSummary.outcomesState || "unknown"} tone={queueRuntimeSummary.outcomesState === "failed" ? "bad" : notificationDispatchOutcomes.length > 0 ? "good" : "neutral"} />
+                            <Pill label="Heartbeat lane" value={queueHeartbeatStatus} tone={toneForQueueLaneStatus(queueHeartbeatStatus)} truthState={truthForQueueLaneStatus(queueHeartbeatStatus)} badgeLabel={queueHeartbeatStatus === "missing" ? "MISSING" : queueHeartbeatStatus === "observed_current" ? "CURRENT" : "UNKNOWN"} />
+                            <Pill label="Outcome lane" value={queueOutcomeStatus} tone={toneForQueueLaneStatus(queueOutcomeStatus)} truthState={truthForQueueLaneStatus(queueOutcomeStatus)} badgeLabel={queueOutcomeStatus === "observed_current" ? "READABLE" : queueOutcomeStatus === "observed_stale" ? "STALE" : "UNKNOWN"} />
+                            <Pill label="Continuity" value={queueStatus} tone={toneForQueueContinuityStatus(queueStatus)} truthState={truthForQueueContinuityStatus(queueStatus)} badgeLabel={queueRuntimeSummary.liveStatusAllowed === true ? "LIVE" : "NOT LIVE"} />
                             {(queueRuntimeSummary.warningReasons || []).map((reason: string) => <Pill key={reason} label="Reason" value={reason} tone="warn" />)}
                         </div>
                         {queueJobHeartbeats.length === 0 && notificationDispatchOutcomes.length > 0 ? (
                             <p className="mt-3 text-sm text-amber-100">No heartbeat records, but dispatch outcome records exist. Treat heartbeat evidence as missing while outcome rows remain readable.</p>
                         ) : null}
+                        {queueRuntimeSummary.nextAction ? <p className="mt-2 text-sm text-gray-300">{queueRuntimeSummary.nextAction}</p> : null}
                     </div>
                 <div className="grid gap-4 lg:grid-cols-1">
                     <div className="space-y-4">
@@ -397,7 +435,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                             </div>
                         </ScrollWrap>
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                            <div className="flex flex-wrap gap-2"><Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : "good"} /><Pill label="Failed" value={queueRuntimeSummary.warnings.failed} tone={queueRuntimeSummary.warnings.failed > 0 ? "bad" : "good"} /><Pill label="Needs review" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : "good"} /><Pill label="Saved data" value={queueRuntimeSummary.warnings.fallback} tone={queueRuntimeSummary.warnings.fallback > 0 ? "warn" : "good"} /><Pill label="Queue drift" value={queueRuntimeSummary.warnings.queueDriftWarnings} tone={queueRuntimeSummary.warnings.queueDriftWarnings > 0 ? "warn" : "good"} /></div>
+                            <div className="flex flex-wrap gap-2"><Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Failed" value={queueRuntimeSummary.warnings.failed} tone={queueRuntimeSummary.warnings.failed > 0 ? "bad" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Needs review" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : queueLoaded ? "good" : "neutral"} truthState={queueLoaded ? "live" : "unavailable"} /><Pill label="Saved data" value={`${queueRuntimeSummary.warnings.fallback} / ${queueRuntimeSummary.savedDataStatus || "unknown"}`} tone={queueRuntimeSummary.warnings.fallback > 0 ? "warn" : queueOutcomeStatus === "observed_current" ? "good" : "neutral"} truthState={queueOutcomeStatus === "observed_current" ? "live" : "unavailable"} /><Pill label="Queue drift" value={`${queueRuntimeSummary.warnings.queueDriftWarnings} / ${queueRuntimeSummary.queueDrift?.status || "unknown"}`} tone={queueRuntimeSummary.warnings.queueDriftWarnings > 0 || queueRuntimeSummary.legacyAdapterStatus?.blocksContinuity ? "warn" : queueDriftSourceLoaded ? "good" : "neutral"} truthState={queueDriftSourceLoaded ? "live" : "unavailable"} /></div>
                             <p className="mt-3 text-sm text-gray-300">Legacy queue adapters are compatibility-only. Any adapter usage or missing dispatch outcome should be treated as blocking runtime continuity drift.</p>
                         </div>
                     </div>

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.53 - 2026-05-24
+- Queue continuity cleanup
+- Separated queue heartbeat evidence from dispatch outcome readability.
+- Classified missing queue heartbeats, dispatch outcomes, and legacy adapter drift.
+- Prevented queue continuity from showing live when scheduler heartbeat evidence is missing.
+
 ## 1.4.52 - 2026-05-24
 - Commerce source truth cleanup
 - Added source-of-funds truth for unlock transactions and recent commerce feed display.

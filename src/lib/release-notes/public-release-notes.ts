@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.52",
-  "betaReleaseCounter": 452,
+  "currentVersion": "1.4.53",
+  "betaReleaseCounter": 453,
   "channel": "beta",
-  "generatedAt": "2026-05-24T23:05:00.000Z",
-  "generatedAtUtc": "2026-05-24T23:05:00.000Z",
+  "generatedAt": "2026-05-24T23:40:00.000Z",
+  "generatedAtUtc": "2026-05-24T23:40:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.53",
+      "previousVersion": "1.4.52",
+      "betaReleaseCounter": 453,
+      "previousBetaReleaseCounter": 452,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean queue continuity",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T23:40:00.000Z",
+      "generatedAt": "2026-05-24T23:40:00.000Z",
+      "committedAtUtc": "2026-05-24T23:40:00.000Z",
+      "generatedAtUtc": "2026-05-24T23:40:00.000Z",
+      "category": "Fixed",
+      "title": "Queue continuity cleanup",
+      "updatedAtUtc": "2026-05-24T23:40:00.000Z",
+      "summary": "Improved queue runtime reporting so dispatch outcomes stay readable while missing scheduler heartbeat evidence remains visible and actionable.",
+      "userFacingTitle": "Queue continuity cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Separated queue heartbeat evidence from dispatch outcome readability.",
+        "Classified missing queue heartbeats, dispatch outcomes, and legacy adapter drift.",
+        "Prevented queue continuity from showing live when scheduler heartbeat evidence is missing."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Queue jobs, notification delivery, payment runtime, and GumDrop math were not changed."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug monitoring",
+        "Queue runtime continuity",
+        "Notification dispatch outcomes",
+        "Runtime warning drift policy"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/debug/queue-runtime-continuity-engine.ts",
+        "src/lib/debug/dispatch-outcome-lane-status.ts",
+        "src/lib/debug/legacy-queue-adapter-policy.ts",
+        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "effectiveChangeCount": 5,
+      "excludedGeneratedChangeCount": 10,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.52",
       "previousVersion": "1.4.51",
