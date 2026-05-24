@@ -1,0 +1,106 @@
+{
+  "generatedAtUtc": "2026-05-24T19:16:14.960Z",
+  "currentHead": "145ff4fcf1feb61d371938dde42927b29268850a",
+  "debugEvidenceAgeBefore": 443.4,
+  "debugEvidenceAgeAfter": 0.03,
+  "precatcherAgeBefore": 443.4,
+  "precatcherAgeAfter": 0.02,
+  "deviceUiAgeBefore": 426.1,
+  "deviceUiAgeAfter": 0.04,
+  "deviceLayoutAgeBefore": 482.8,
+  "deviceLayoutAgeAfter": 0.04,
+  "deviceLayoutFindingsBefore": 13,
+  "deviceLayoutFindingsAfter": 9,
+  "hydrationAgeBefore": 489.3,
+  "hydrationAgeAfter": 0.04,
+  "imageLoadingStatusBefore": "WAIT",
+  "imageLoadingStatusAfter": "clean_current",
+  "imageLoadingTimestampStatus": "generatedAt_present",
+  "contentProtectionAgeBefore": 488.5,
+  "contentProtectionAgeAfter": 0.04,
+  "gumdropEconomyAgeBefore": 489.1,
+  "gumdropEconomyAgeAfter": 0.03,
+  "refreshedArtifacts": [
+    "agent/state/debug-evidence-index.generated.json",
+    "agent/state/precatch-runtime-issues.generated.json",
+    "agent/state/device-ui-dry-audit.generated.json",
+    "agent/state/device-layout-score.generated.json",
+    "agent/state/hydration-performance.generated.json",
+    "agent/state/content-protection-score.generated.json",
+    "agent/state/gumdrop-economy-score.generated.json",
+    "agent/state/sitewide-image-optimization.generated.json"
+  ],
+  "remainingFindings": [
+    {
+      "filePath": "src/app/admin/users/page.tsx",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "moderate",
+      "classification": "product_intent_review_required"
+    },
+    {
+      "filePath": "src/components/CookieBanner.tsx",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "moderate",
+      "classification": "product_intent_review_required"
+    },
+    {
+      "filePath": "src/app/admin/content/page.tsx",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "minor",
+      "classification": "product_intent_review_required"
+    },
+    {
+      "filePath": "src/app/dashboard/viewer/components/MediaViewer.tsx",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "minor",
+      "classification": "product_intent_review_required"
+    },
+    {
+      "filePath": "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "minor",
+      "classification": "product_intent_review_required"
+    },
+    {
+      "filePath": "src/components/DropPreviewModal.tsx",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "minor",
+      "classification": "product_intent_review_required"
+    },
+    {
+      "filePath": "src/lib/image-loading-policy.ts",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "minor",
+      "classification": "product_intent_review_required"
+    },
+    {
+      "filePath": "src/lib/image-loading-policy.ts",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "minor",
+      "classification": "product_intent_review_required"
+    },
+    {
+      "filePath": "src/lib/image-loading-policy.ts",
+      "title": "Raw responsive breakpoint does not map to the approved device tiers",
+      "severity": "minor",
+      "classification": "product_intent_review_required"
+    }
+  ],
+  "gumdropMathChanged": false,
+  "contentProtectionWeakened": false,
+  "scoreBefore": 79,
+  "scoreAfter": 79,
+  "scoreDimensions": {
+    "sourceHealth": 0,
+    "runtimeHealth": 0,
+    "evidenceCompleteness": 0,
+    "freshness": 0,
+    "costRisk": 0,
+    "regressionRisk": 0,
+    "overallHealthScore": 0
+  },
+  "nextExactSteps": [
+    "Handle remaining device layout product-review breakpoints in separate owner-scoped passes.",
+    "Keep formal runtime/provider/admin evidence gates separate from source-only report refreshes."
+  ]
+}

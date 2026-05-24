@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.41",
-  "betaReleaseCounter": 441,
+  "currentVersion": "1.4.42",
+  "betaReleaseCounter": 442,
   "channel": "beta",
-  "generatedAt": "2026-05-24T20:05:00.000Z",
-  "generatedAtUtc": "2026-05-24T20:05:00.000Z",
+  "generatedAt": "2026-05-24T20:20:00.000Z",
+  "generatedAtUtc": "2026-05-24T20:20:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.42",
+      "previousVersion": "1.4.41",
+      "betaReleaseCounter": 442,
+      "previousBetaReleaseCounter": 441,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): refresh live issue readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T20:20:00.000Z",
+      "generatedAt": "2026-05-24T20:20:00.000Z",
+      "committedAtUtc": "2026-05-24T20:20:00.000Z",
+      "generatedAtUtc": "2026-05-24T20:20:00.000Z",
+      "updatedAtUtc": "2026-05-24T20:20:00.000Z",
+      "category": "Improved",
+      "title": "Live issue readiness refresh",
+      "summary": "Refreshed live issue, device, hydration, content, image, and GumDrop economy readiness reports while keeping protected behavior unchanged.",
+      "userFacingTitle": "Live issue readiness refresh",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed debug evidence, pre-catcher, device, hydration, content, image, and GumDrop economy readiness.",
+        "Resolved image-loading unavailable/no timestamp reporting.",
+        "Kept GumDrop math and content protection behavior unchanged."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "App experience",
+        "Device layout",
+        "Drops & viewer",
+        "Wallet",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/debug-cockpit-batch12-cleanup.generated.json",
+        "agent/state/debug-evidence-precacher-refresh.generated.json",
+        "agent/state/sitewide-image-optimization.generated.json",
+        "agent/state/sitewide-image-optimization-cleanup.generated.json",
+        "agent/state/gumdrop-economy-score.generated.json",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/debug-cockpit-batch12-shared.ts",
+        "scripts/agent/validate-sitewide-image-optimization.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "effectiveChangeCount": 12,
+      "excludedGeneratedChangeCount": 6,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.41",
       "previousVersion": "1.4.40",

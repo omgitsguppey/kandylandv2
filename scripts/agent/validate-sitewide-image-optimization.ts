@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 const repoRoot = process.cwd();
+const artifactPath = "agent/state/sitewide-image-optimization.generated.json";
+const docPath = "docs/agent-truth/sitewide-image-optimization.md";
 
 function read(relativePath: string) {
     return fs.readFileSync(path.join(repoRoot, relativePath), "utf8");
@@ -188,6 +190,33 @@ function validateProductBlurSeparation() {
     }
 }
 
+function writeArtifact() {
+    const generatedAt = new Date().toISOString();
+    const artifact = {
+        generatedAt,
+        generatedAtUtc: generatedAt,
+        score: 100,
+        status: "clean",
+        command: "npm run check:sitewide-image-optimization",
+        findings: [],
+        checkedSource: "source_only_static_validator",
+        productionReadsRun: false,
+        browserOrScreenshotProofRequired: false,
+        classifications: [
+            "next_image_fill_sizes_checked",
+            "raw_img_critical_surfaces_blocked",
+            "critical_hero_image_surfaces_classified",
+            "locked_preview_content_protection_checked",
+            "product_blur_separated_from_loading_blur",
+        ],
+        checkedArtifacts: [docPath],
+        summary: "Sitewide image optimization is current: source-only image policy, fill sizes, critical raw image usage, locked preview safety, and blur separation passed.",
+    };
+    const fullPath = path.join(repoRoot, artifactPath);
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, `${JSON.stringify(artifact, null, 2)}\n`);
+}
+
 assertNoFillImageMissingSizes();
 assertNoDeprecatedImagePriorityProp();
 assertNoRawImgInCriticalFiles();
@@ -195,5 +224,6 @@ validatePolicyHelper();
 validateCriticalComponents();
 validateLockedPreviewSafety();
 validateProductBlurSeparation();
+writeArtifact();
 
 console.log("Sitewide image optimization validator passed.");

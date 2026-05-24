@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T03:11:07.505Z",
+  "generatedAt": "2026-05-24T19:14:40.489Z",
   "source": "unavailable",
   "buckets": {
     "evidence": "debug_evidence",
@@ -9,6 +9,6 @@
   "records": [],
   "redacted": true,
   "notes": [
-    "No live debug evidence was available in this local run. The artifact remains valid and redacted."
+    "No live debug evidence was loaded in this source-only run. The artifact is current and explicitly source-unavailable, not unknown."
   ]
 }

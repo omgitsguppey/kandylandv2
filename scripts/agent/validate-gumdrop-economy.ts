@@ -180,10 +180,11 @@ for (const forbidden of ["node:child_process", "playwright", "cypress", "lightho
 }
 
 for (const expected of [
-  "purchasedCreditGumDrops: deliveredGumDrops",
-  "rewardCreditGumDrops: 0",
-  "purchaseBonusGumDrops: bonusGumDrops",
-  "paid_purchase_including_bonus",
+  "buildPaidBundleCredit",
+  "purchasedCreditGumDrops: canonicalCredit.purchasedCreditGd",
+  "rewardCreditGumDrops: canonicalCredit.rewardCreditGd",
+  "purchaseBonusGumDrops: canonicalCredit.paidBonusGd",
+  "sourceClassification: canonicalCredit.sourceClassification",
   "gumdropRewardTotal: isRewardTransaction ? positiveAmount : 0",
 ]) {
   requireIncludes(ledger, expected, "GumDrop ledger source truth");

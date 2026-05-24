@@ -161,10 +161,11 @@ function collectFindings() {
 
   for (const expected of [
     "buildPaidPurchaseBalanceCredit",
-    "purchasedCreditGumDrops: deliveredGumDrops",
-    "rewardCreditGumDrops: 0",
-    "purchaseBonusGumDrops: bonusGumDrops",
-    "paid_purchase_including_bonus",
+    "buildPaidBundleCredit",
+    "purchasedCreditGumDrops: canonicalCredit.purchasedCreditGd",
+    "rewardCreditGumDrops: canonicalCredit.rewardCreditGd",
+    "purchaseBonusGumDrops: canonicalCredit.paidBonusGd",
+    "sourceClassification: canonicalCredit.sourceClassification",
     "gumdropPurchaseTotal: purchaseCredit?.purchasedCreditGumDrops ?? 0",
     "gumdropPurchaseBonusTotal: purchaseCredit?.purchaseBonusGumDrops ?? 0",
     "gumdropRewardTotal: isRewardTransaction ? positiveAmount : 0",

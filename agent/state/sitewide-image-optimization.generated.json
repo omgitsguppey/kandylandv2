@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-05-24T19:14:41.359Z",
+  "generatedAtUtc": "2026-05-24T19:14:41.359Z",
+  "score": 100,
+  "status": "clean",
+  "command": "npm run check:sitewide-image-optimization",
+  "findings": [],
+  "checkedSource": "source_only_static_validator",
+  "productionReadsRun": false,
+  "browserOrScreenshotProofRequired": false,
+  "classifications": [
+    "next_image_fill_sizes_checked",
+    "raw_img_critical_surfaces_blocked",
+    "critical_hero_image_surfaces_classified",
+    "locked_preview_content_protection_checked",
+    "product_blur_separated_from_loading_blur"
+  ],
+  "checkedArtifacts": [
+    "docs/agent-truth/sitewide-image-optimization.md"
+  ],
+  "summary": "Sitewide image optimization is current: source-only image policy, fill sizes, critical raw image usage, locked preview safety, and blur separation passed."
+}

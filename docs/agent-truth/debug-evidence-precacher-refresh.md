@@ -1,0 +1,25 @@
+# Debug Evidence Precatcher Refresh
+
+Generated: 2026-05-24T19:14:40.638Z
+
+```json
+{
+  "generatedAtUtc": "2026-05-24T19:14:40.510Z",
+  "currentHead": "145ff4fcf1feb61d371938dde42927b29268850a",
+  "debugEvidenceAgeBefore": 443.4,
+  "debugEvidenceAgeAfter": 0,
+  "precatcherAgeBefore": 443.4,
+  "precatcherAgeAfter": 0,
+  "debugEvidenceFindings": 0,
+  "precatcherFindings": 0,
+  "debugEvidenceStatusAfter": "clean_current",
+  "precatcherStatusAfter": "clean_current",
+  "sourceStatus": "source_checked_no_live_records",
+  "productionReadsRequired": false,
+  "deployedRuntimeCallsRequired": false,
+  "findingsZeroUnknownAfter": false,
+  "nextExactSteps": [
+    "Attach deployed runtime smoke separately; this source-only refresh does not clear formal runtime evidence gates."
+  ]
+}
+```

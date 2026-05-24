@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.42 - 2026-05-24
+
+- Refreshed debug evidence, pre-catcher, device, hydration, content, image, and GumDrop economy readiness.
+- Resolved image-loading unavailable/no timestamp reporting.
+- Kept GumDrop math and content protection behavior unchanged.
+
 ## 1.4.41 - 2026-05-24
 
 - Refreshed device, content protection, cost, and telemetry parity readiness reports.

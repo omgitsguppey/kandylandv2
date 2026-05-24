@@ -1,0 +1,18 @@
+# Sitewide Image Optimization Cleanup
+
+Generated: 2026-05-24T19:15:23.537Z
+
+```json
+{
+  "generatedAtUtc": "2026-05-24T19:15:23.323Z",
+  "currentHead": "145ff4fcf1feb61d371938dde42927b29268850a",
+  "imageLoadingStatusBefore": "WAIT",
+  "imageLoadingStatusAfter": "clean_current",
+  "imageLoadingTimestampStatus": "generatedAt_present",
+  "imageArtifactAgeAfter": 0.01,
+  "packageScriptPresent": true,
+  "findings": [],
+  "visualScreenshotProofRequired": false,
+  "productionReadsRequired": false
+}
+```
