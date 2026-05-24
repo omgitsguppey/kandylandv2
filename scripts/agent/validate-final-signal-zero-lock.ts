@@ -162,6 +162,19 @@ function buildMetrics(
 }
 
 function classifyDirtyFile(path: string) {
+  const normalized = path.replace(/\\/gu, "/");
+  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "scripts/agent/chat-cost-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (normalized === "src/lib/debug/config-runtime-sample-status-classifier.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx") return "real_source_change_needs_review";
+  if (/^agent\/state\/(chat-functionality-score-lock|chat-gating-moderation|chat-telemetry-admin-truth|cost-risk-owner-review-closure|debug-backlog-engine)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(chat-functionality-score-lock|chat-gating-moderation|chat-telemetry-admin-truth|cost-risk-owner-review-closure|debug-backlog-engine)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^scripts\/agent\/validate-(chat-functionality-score-lock|chat-gating-moderation|chat-telemetry-admin-truth|event-liveness-audit)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (path === STATE_PATH) return "current_generated_artifact_to_commit";
   if (path === DOC_PATH) return "documentation_artifact_expected";
   if (path === "package.json") return "validator_script_expected";

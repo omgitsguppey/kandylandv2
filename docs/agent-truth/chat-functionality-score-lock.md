@@ -1,7 +1,7 @@
 # Chat Functionality Score Lock
 
-Generated: 2026-05-24T02:11:10.294Z
-Current HEAD: 7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482
+Generated: 2026-05-24T16:44:51.466Z
+Current HEAD: d02b8b2da859d47d880182fe2169db1ad6a40ad6
 
 ## Status
 
@@ -24,13 +24,13 @@ Current HEAD: 7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482
 
 ## Score Dimensions
 
-- sourceHealth: 91.7 -> 91.7 (target 80; at_or_above_target); next=No chat-specific score action needed.
-- runtimeHealth: 66.5 -> 66.5 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
-- evidenceCompleteness: 38 -> 38 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
-- freshness: 62.86 -> 62.86 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
+- sourceHealth: 92.5 -> 92.5 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- runtimeHealth: 84.2 -> 84.2 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- evidenceCompleteness: 69.6 -> 69.6 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
+- freshness: 83.75 -> 83.75 (target 80; at_or_above_target); next=No chat-specific score action needed.
 - costRisk: 42 -> 42 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
-- regressionRisk: 42 -> 42 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
-- overallHealthScore: 61.65 -> 61.65 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
+- regressionRisk: 86 -> 86 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- overallHealthScore: 79.25 -> 79.25 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
 
 ## Remaining Gaps
 

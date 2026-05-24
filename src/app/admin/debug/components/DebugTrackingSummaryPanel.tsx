@@ -32,6 +32,9 @@ type TrackingSummary = {
         actionableActivitySignalCount: number;
         brokenActivityPathCount: number;
         scoreDragActivityCount: number;
+        status?: string;
+        artifactFreshness?: "current" | "stale" | "unknown";
+        warningSeverity?: boolean;
         drilldownTarget: string;
         sourceOfTruth: string;
     };
@@ -44,7 +47,15 @@ type TrackingSummary = {
 };
 
 function toneForStatus(status?: string) {
-    if (status === "live" || status === "healthy_current" || status === "healthy_proven_zero") return "good" as const;
+    if (
+        status === "live"
+        || status === "healthy_current"
+        || status === "healthy_proven_zero"
+        || status === "config_healthy_current"
+        || status === "runtime_sample_healthy_current"
+        || status === "runtime_sample_proven_zero"
+        || status === "quiet_catalog_current"
+    ) return "good" as const;
     if (status === "failed") return "bad" as const;
     if (
         status === "degraded"
@@ -52,18 +63,28 @@ function toneForStatus(status?: string) {
         || status === "stale_artifact_refresh_required"
         || status === "source_missing_actionable"
         || status === "sample_source_missing"
+        || status === "runtime_sample_missing"
         || status === "source_live_artifact_stale"
     ) return "warn" as const;
     return "neutral" as const;
 }
 
 function truthForStatus(status?: string) {
-    if (status === "live" || status === "healthy_current" || status === "healthy_proven_zero") return "live" as const;
+    if (
+        status === "live"
+        || status === "healthy_current"
+        || status === "healthy_proven_zero"
+        || status === "config_healthy_current"
+        || status === "runtime_sample_healthy_current"
+        || status === "runtime_sample_proven_zero"
+        || status === "quiet_catalog_current"
+    ) return "live" as const;
     if (status === "failed") return "failed" as const;
     if (
         status === "degraded"
         || status === "source_missing_actionable"
         || status === "sample_source_missing"
+        || status === "runtime_sample_missing"
     ) return "degraded" as const;
     if (
         status === "stale"
@@ -147,6 +168,8 @@ export function DebugTrackingSummaryPanel({ trackingSummary }: { trackingSummary
                             <summary className="cursor-pointer text-sm font-semibold text-gray-100">{futureCatalog.label}</summary>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <Pill label="Quiet" value={futureCatalog.quietFutureActivityCount} tone="neutral" truthState="cached" />
+                                <Pill label="Status" value={futureCatalog.status || "unknown"} tone={toneForStatus(futureCatalog.status)} truthState={truthForStatus(futureCatalog.status)} />
+                                <Pill label="Freshness" value={futureCatalog.artifactFreshness || "unknown"} tone={futureCatalog.artifactFreshness === "stale" ? "warn" : "neutral"} truthState={futureCatalog.artifactFreshness === "stale" ? "stale" : "cached"} />
                                 <Pill label="Actionable" value={futureCatalog.actionableActivitySignalCount} tone={futureCatalog.actionableActivitySignalCount > 0 ? "bad" : "good"} truthState={futureCatalog.actionableActivitySignalCount > 0 ? "failed" : "live"} />
                                 <Pill label="Broken" value={futureCatalog.brokenActivityPathCount} tone={futureCatalog.brokenActivityPathCount > 0 ? "bad" : "good"} truthState={futureCatalog.brokenActivityPathCount > 0 ? "failed" : "live"} />
                                 <Pill label="Score drag" value={futureCatalog.scoreDragActivityCount} tone={futureCatalog.scoreDragActivityCount > 0 ? "bad" : "good"} truthState={futureCatalog.scoreDragActivityCount > 0 ? "failed" : "live"} />

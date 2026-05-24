@@ -77,6 +77,15 @@ export type ChatGatingModerationReport = {
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const STATE_PATH = "agent/state/chat-gating-moderation.generated.json";
 const DOC_PATH = "docs/agent-truth/chat-gating-moderation.md";
+const BATCH5_SLUGS = [
+  "config-runtime-sample-status-classifier",
+  "chat-gating-status-cleanup",
+  "chat-telemetry-status-cleanup",
+  "cost-4xx-status-cleanup",
+  "open-backlog-status-cleanup",
+  "future-activity-catalog-status-cleanup",
+  "debug-cockpit-batch5-cleanup",
+] as const;
 
 function git(args: string[]) {
   return execFileSync("git", args, { cwd: repoRoot, encoding: "utf8" }).trim();
@@ -107,6 +116,11 @@ function listDirtyFiles() {
 export function classifyChatGatingDirtyFile(path: string): DirtyClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "scripts/agent/chat-cost-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `scripts/agent/validate-${slug}.ts`)) return "validator_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `tests/unit/${slug}.spec.ts`)) return "test_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `agent/state/${slug}.generated.json`)) return "current_generated_artifact_to_commit";
+  if (BATCH5_SLUGS.some((slug) => normalized === `docs/agent-truth/${slug}.md`)) return "documentation_artifact_expected";
   if (
     normalized === STATE_PATH
     || normalized === "agent/state/public-beta-score.generated.json"
@@ -129,6 +143,8 @@ export function classifyChatGatingDirtyFile(path: string): DirtyClassification {
     || normalized === "scripts/agent/validate-event-translation-bridge.ts"
     || normalized === "scripts/agent/validate-feature-registration-gate.ts"
     || normalized === "scripts/agent/validate-debug-tracking-simplification.ts"
+    || normalized === "scripts/agent/validate-event-liveness-audit.ts"
+    || normalized === "scripts/agent/validate-final-signal-zero-lock.ts"
   ) return "validator_artifact_expected";
   if (normalized === "tests/unit/chat-gating-moderation.spec.ts") return "test_artifact_expected";
   if (
@@ -139,6 +155,8 @@ export function classifyChatGatingDirtyFile(path: string): DirtyClassification {
   if (
     normalized === "src/lib/chat/chat-gating-contract.ts"
     || normalized === "src/lib/chat/chat-telemetry-contract.ts"
+    || normalized === "src/lib/debug/config-runtime-sample-status-classifier.ts"
+    || normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx"
     || normalized === "src/lib/server/chat.ts"
     || normalized === "src/app/api/chat/threads/[threadId]/messages/route.ts"
     || normalized === "src/components/Chat/ChatExperience.tsx"

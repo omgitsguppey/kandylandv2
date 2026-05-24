@@ -1,6 +1,6 @@
 # Chat Telemetry Admin Truth
 
-Generated: 2026-05-24T02:08:25.494Z
+Generated: 2026-05-24T16:44:48.796Z
 
 ## Admin Summary
 
@@ -48,12 +48,12 @@ Generated: 2026-05-24T02:08:25.494Z
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 91.7 | 91.7 | target_met | No score action needed for this dimension. |
-| runtimeHealth | 66.75 | 66.75 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries. |
-| evidenceCompleteness | 38.25 | 38.25 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries. |
-| freshness | 62.86 | 62.86 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries. |
+| sourceHealth | 92.5 | 92.5 | target_met | No score action needed for this dimension. |
+| runtimeHealth | 84.2 | 84.2 | target_met | No score action needed for this dimension. |
+| evidenceCompleteness | 69.6 | 69.6 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries. |
+| freshness | 83.75 | 83.75 | target_met | No score action needed for this dimension. |
 | costRisk | 42 | 42 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries. |
-| regressionRisk | 42 | 42 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries. |
+| regressionRisk | 86 | 86 | target_met | No score action needed for this dimension. |
 
 ## Old Logic Classification
 

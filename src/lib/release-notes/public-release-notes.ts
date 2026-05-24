@@ -1,13 +1,92 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.34",
-  "betaReleaseCounter": 434,
+  "currentVersion": "1.4.35",
+  "betaReleaseCounter": 435,
   "channel": "beta",
-  "generatedAt": "2026-05-24T16:18:32.326Z",
-  "generatedAtUtc": "2026-05-24T16:18:32.326Z",
+  "generatedAt": "2026-05-24T16:39:40.424Z",
+  "generatedAtUtc": "2026-05-24T16:39:40.424Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.35",
+      "previousVersion": "1.4.34",
+      "betaReleaseCounter": 435,
+      "previousBetaReleaseCounter": 434,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean chat cost status lanes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T16:39:40.424Z",
+      "generatedAt": "2026-05-24T16:39:40.424Z",
+      "committedAtUtc": "2026-05-24T16:39:40.424Z",
+      "generatedAtUtc": "2026-05-24T16:39:40.424Z",
+      "updatedAtUtc": "2026-05-24T16:39:40.424Z",
+      "category": "Improved",
+      "title": "Chat and cost status lane cleanup",
+      "summary": "Cleaned up chat, cost, backlog, and future catalog debug lane statuses so config health stays separate from runtime activity samples.",
+      "userFacingTitle": "Chat and cost status lane cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleaned chat, cost, backlog, and future catalog debug lane statuses.",
+        "Separated config health from runtime activity samples.",
+        "Kept paid-GD chat gating and future activity catalog truth visible without noisy live/stale ambiguity."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin debug",
+        "Tracking summary",
+        "Chat readiness",
+        "Cost readiness",
+        "Future activity catalog"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/config-runtime-sample-status-classifier.generated.json",
+        "agent/state/chat-gating-status-cleanup.generated.json",
+        "agent/state/chat-telemetry-status-cleanup.generated.json",
+        "agent/state/cost-4xx-status-cleanup.generated.json",
+        "agent/state/open-backlog-status-cleanup.generated.json",
+        "agent/state/future-activity-catalog-status-cleanup.generated.json",
+        "agent/state/debug-cockpit-batch5-cleanup.generated.json",
+        "docs/agent-truth/config-runtime-sample-status-classifier.md",
+        "docs/agent-truth/chat-gating-status-cleanup.md",
+        "docs/agent-truth/chat-telemetry-status-cleanup.md",
+        "docs/agent-truth/cost-4xx-status-cleanup.md",
+        "docs/agent-truth/open-backlog-status-cleanup.md",
+        "docs/agent-truth/future-activity-catalog-status-cleanup.md",
+        "docs/agent-truth/debug-cockpit-batch5-cleanup.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/chat-cost-status-cleanup-shared.ts",
+        "scripts/agent/validate-config-runtime-sample-status-classifier.ts",
+        "scripts/agent/validate-chat-gating-status-cleanup.ts",
+        "scripts/agent/validate-chat-telemetry-status-cleanup.ts",
+        "scripts/agent/validate-cost-4xx-status-cleanup.ts",
+        "scripts/agent/validate-open-backlog-status-cleanup.ts",
+        "scripts/agent/validate-future-activity-catalog-status-cleanup.ts",
+        "scripts/agent/validate-debug-cockpit-batch5-cleanup.ts",
+        "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
+        "src/lib/debug/config-runtime-sample-status-classifier.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/config-runtime-sample-status-classifier.spec.ts",
+        "tests/unit/chat-gating-status-cleanup.spec.ts",
+        "tests/unit/chat-telemetry-status-cleanup.spec.ts",
+        "tests/unit/cost-4xx-status-cleanup.spec.ts",
+        "tests/unit/open-backlog-status-cleanup.spec.ts",
+        "tests/unit/future-activity-catalog-status-cleanup.spec.ts",
+        "tests/unit/debug-cockpit-batch5-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "Chat gating and chat telemetry lanes now split config/source health from runtime activity sample status.",
+        "Cost guard, backlog, and future catalog lanes now expose artifact freshness and external review without live/stale ambiguity."
+      ]
+    },
     {
       "version": "1.4.34",
       "previousVersion": "1.4.33",
@@ -6263,57 +6342,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/server/admin-debug/summary.ts",
         "tests/unit/event-liveness-audit.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.10",
-      "previousVersion": "1.4.9",
-      "betaReleaseCounter": 410,
-      "previousBetaReleaseCounter": 409,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(tasks): lock daily task telemetry",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T04:10:00.000Z",
-      "generatedAt": "2026-05-24T04:10:00.000Z",
-      "committedAtUtc": "2026-05-24T04:10:00.000Z",
-      "generatedAtUtc": "2026-05-24T04:10:00.000Z",
-      "updatedAtUtc": "2026-05-24T04:10:00.000Z",
-      "category": "Improved",
-      "title": "Daily task reliability",
-      "summary": "Daily tasks now explain eligibility, reset timing, reward status, and task progress more clearly while keeping reward GumDrops separate from paid GumDrops.",
-      "userFacingTitle": "Daily task reliability",
-      "surfaceCategory": "Daily tasks",
-      "bullets": [
-        "Locked daily task reset, telemetry, reward ledger, and guidance truth.",
-        "Added task duration and failure tracking.",
-        "Connected task rewards to reward-GD source truth."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a final daily task debug score lock validator, generated report, agent-truth documentation, and unit tests that aggregate reset, lifecycle, reward ledger, guidance, metrics, and score evidence."
-      ],
-      "affectedSurfaces": [
-        "Daily tasks",
-        "Admin debug",
-        "Telemetry",
-        "Person metrics",
-        "Public beta score"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/daily-task-debug-score-lock.generated.json",
-        "docs/agent-truth/daily-task-debug-score-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-daily-task-debug-score-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/daily-task-debug-score-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

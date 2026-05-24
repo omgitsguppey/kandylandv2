@@ -575,7 +575,14 @@
         "check:auth-lane-status-cleanup": "tsx scripts/agent/validate-auth-lane-status-cleanup.ts",
         "check:notification-lane-status-cleanup": "tsx scripts/agent/validate-notification-lane-status-cleanup.ts",
         "check:daily-task-lane-status-cleanup": "tsx scripts/agent/validate-daily-task-lane-status-cleanup.ts",
-        "check:debug-cockpit-batch4-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch4-cleanup.ts"
+        "check:debug-cockpit-batch4-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch4-cleanup.ts",
+        "check:config-runtime-sample-status-classifier": "tsx scripts/agent/validate-config-runtime-sample-status-classifier.ts",
+        "check:chat-gating-status-cleanup": "tsx scripts/agent/validate-chat-gating-status-cleanup.ts",
+        "check:chat-telemetry-status-cleanup": "tsx scripts/agent/validate-chat-telemetry-status-cleanup.ts",
+        "check:cost-4xx-status-cleanup": "tsx scripts/agent/validate-cost-4xx-status-cleanup.ts",
+        "check:open-backlog-status-cleanup": "tsx scripts/agent/validate-open-backlog-status-cleanup.ts",
+        "check:future-activity-catalog-status-cleanup": "tsx scripts/agent/validate-future-activity-catalog-status-cleanup.ts",
+        "check:debug-cockpit-batch5-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch5-cleanup.ts"
     },
     "dependencies": {
         "@axe-core/react": "^4.11.2",

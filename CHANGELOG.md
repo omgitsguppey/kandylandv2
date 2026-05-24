@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.35 - 2026-05-24
+
+- Cleaned chat, cost, backlog, and future catalog debug lane statuses.
+- Separated config health from runtime activity samples.
+- Kept paid-GD chat gating and future activity catalog truth visible without noisy live/stale ambiguity.
+
 ## 1.4.34 - 2026-05-24
 
 - Cleaned admin/user/auth/notification/task debug lane status truth.

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-24T16:28:01.252Z",
-  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
+  "generatedAt": "2026-05-24T16:50:02.730Z",
+  "currentHead": "d02b8b2da859d47d880182fe2169db1ad6a40ad6",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
@@ -8,7 +8,7 @@
   "runtimeHealthScore": 84.2,
   "evidenceCompletenessScore": 69.6,
   "freshnessScore": 83.75,
-  "costRiskScore": 42,
+  "costRiskScore": 80.5,
   "regressionRiskScore": 86,
   "quietFutureActivityCount": 416,
   "actionableSignalGroupCount": 16,
@@ -20,7 +20,7 @@
     "Admin truth/sample evidence: Ready with smoke required",
     "Report freshness and PR integrity: Stale evidence"
   ],
-  "healthScore": 79.25,
+  "healthScore": 83.1,
   "healthScoreBreakdown": {
     "sourceHealth": {
       "weight": 25,
@@ -72,12 +72,11 @@
     },
     "costRisk": {
       "weight": 10,
-      "score": 42,
+      "score": 80.5,
       "reasons": [
-        "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
-        "cloudSqlCostReadiness remains source-cost/external-review tracked (owner_review_external_billing_required).",
-        "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (cost_review_required).",
-        "route4xxReadiness remains source-cost/external-review tracked (cost_review_required)."
+        "cloudRunCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining).",
+        "cloudSqlCostReadiness remains source-cost/external-review tracked (source_ready_no_runtime_usage_detected).",
+        "geminiCloudAssistCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining)."
       ]
     },
     "regressionRisk": {
@@ -124,12 +123,12 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "costRisk": {
-      "after": 42,
+      "after": 80.5,
       "target": 80,
-      "status": "below_target",
+      "status": "meets_target",
       "blockerType": "cost_owner_review",
-      "reason": "Cost risk is below target because owner-review cost lanes remain open.",
-      "nextExactAction": "Resolve owner-review cost lanes without touching payment or GumDrop runtime math."
+      "reason": "Dimension meets target.",
+      "nextExactAction": "No score action needed for this dimension."
     },
     "regressionRisk": {
       "after": 86,
@@ -140,12 +139,12 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "overallHealthScore": {
-      "after": 79.25,
+      "after": 83.1,
       "target": 80,
-      "status": "below_target",
+      "status": "meets_target",
       "blockerType": "formal_runtime_evidence",
-      "reason": "Overall health follows the weighted component dimensions and launch cap.",
-      "nextExactAction": "Raise the below-target component dimensions before treating overall health as solved."
+      "reason": "Dimension meets target.",
+      "nextExactAction": "No score action needed for this dimension."
     }
   },
   "scoreDeltaDrivers": [
@@ -153,7 +152,7 @@
     "runtimeHealthScore=84.2",
     "evidenceCompletenessScore=69.6",
     "freshnessScore=83.75",
-    "costRiskScore=42",
+    "costRiskScore=80.5",
     "regressionRiskScore=86",
     "quietFutureActivityCount=416",
     "actionableSignalGroupCount=16",
@@ -411,12 +410,12 @@
       "status": "Stale evidence",
       "detail": "6 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/evidence-capture-status.generated.json (35.95h old)",
-        "agent/state/creator-experience-simplification.generated.json (35.85h old)",
-        "agent/state/post-economy-creator-flow-qa.generated.json (89.08h old)",
-        "agent/state/user-creator-ui-parity.generated.json (88.17h old)",
-        "agent/state/user-facing-feature-connection-audit.generated.json (89.08h old)",
-        "agent/state/creator-dashboard-error-cost-inventory.generated.json (88.38h old)"
+        "agent/state/evidence-capture-status.generated.json (36.32h old)",
+        "agent/state/creator-experience-simplification.generated.json (36.22h old)",
+        "agent/state/post-economy-creator-flow-qa.generated.json (89.45h old)",
+        "agent/state/user-creator-ui-parity.generated.json (88.54h old)",
+        "agent/state/user-facing-feature-connection-audit.generated.json (89.45h old)",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json (88.75h old)"
       ],
       "recommendedAction": "Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current."
     },
@@ -467,10 +466,10 @@
       "confidence": "medium",
       "evidenceQuality": "formal_partial",
       "freshness": "fresh",
-      "sourceCredit": 66.5,
+      "sourceCredit": 63.17,
       "runtimeCredit": 92,
-      "evidenceCredit": 66.5,
-      "riskPenalty": 33.5,
+      "evidenceCredit": 63.17,
+      "riskPenalty": 36.83,
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
@@ -478,7 +477,7 @@
       "status": "Ready",
       "detail": "Non-UI runtime, telemetry, admin source, provider signal, cost, and refresh confidence are scored separately from UI screenshot evidence.",
       "evidence": [
-        "nonUiAlgorithmicCoverageScore=66.5",
+        "nonUiAlgorithmicCoverageScore=63.17",
         "manualScreenshotBlocksNonUi=false",
         "uiVisualOperatorFinalChecklist=outside_codex_score",
         "deployedRuntimeSmokeCleared=false",
@@ -488,7 +487,7 @@
         "telemetry_gate: confidence=partial; score=92; source=agent/state/behavior-math-verification.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json; telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
         "admin_truth_gate: confidence=partial; score=55; source=agent/state/admin-truth-source-sample.generated.json; admin source sample earns partial confidence but does not clear formal admin runtime sample",
         "provider_gate: confidence=partial; score=40; source=agent/state/provider-smoke-evidence.generated.json; operator-confirmed revenue smoke is partial product confidence only",
-        "cost_gate: confidence=partial; score=45; source=agent/state/score-80-cost-readiness.generated.json; source cost readiness can improve cost confidence; external billing review remains separate",
+        "cost_gate: confidence=partial; score=25; source=agent/state/score-80-cost-readiness.generated.json; source cost readiness can improve cost confidence; external billing review remains separate",
         "refresh_gate: confidence=partial; score=75; source=agent/state/self-healing-refresh-queue.generated.json; current refresh queue can satisfy source freshness ordering without creating runtime proof"
       ],
       "recommendedAction": "Use algorithmic evidence for non-UI confidence while keeping visual, provider, runtime, and admin formal gates explicit."
@@ -553,7 +552,7 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 65.7/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 79.25/100 currently maps to launch gate owner_review.",
+    "evidenceScoreMeaning": "Evidence score 65.7/100 is partial-credit evidence confidence. Missing required lanes block launch and reduce evidence credit, but they do not erase unrelated source health. Health score 83.1/100 currently maps to launch gate owner_review.",
     "missingEvidenceCaps": [
       "Runtime unverified: Runtime/provider smoke - Provider smoke: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate. Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
@@ -629,12 +628,12 @@
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
-      "status": "cost_review_required",
-      "detail": "Cloud Run/App Hosting still needs current source guard evidence before owner-review can be refined.",
+      "status": "source_guarded_external_review_remaining",
+      "detail": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
       "evidence": [
-        "finalCostCurrent=false",
+        "finalCostCurrent=true",
         "globalCostSourceClean=true",
-        "cloudRunGuarded=false",
+        "cloudRunGuarded=true",
         "externalBillingReviewed=false",
         "owner=speed-security-cost",
         "externalReviewRequired=true",
@@ -644,10 +643,10 @@
       "blocksBetaExit": false
     },
     "cloudSqlCostReadiness": {
-      "status": "owner_review_external_billing_required",
-      "detail": "Cloud SQL/Data Connect source or external billing state still needs owner review.",
+      "status": "source_ready_no_runtime_usage_detected",
+      "detail": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
       "evidence": [
-        "cloudSqlGuardReportCurrent=false",
+        "cloudSqlGuardReportCurrent=true",
         "cloudSqlRuntimeDetected=false",
         "sqlMirrorScriptsGuarded=true",
         "sqlMirrorRequiresExplicitApproval=true",
@@ -661,10 +660,10 @@
       "blocksBetaExit": false
     },
     "geminiCloudAssistCostReadiness": {
-      "status": "cost_review_required",
-      "detail": "AI cost lane lacks enough source guard evidence for refinement.",
+      "status": "source_guarded_external_review_remaining",
+      "detail": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
       "evidence": [
-        "cloudSqlGeminiGuardCurrent=false",
+        "cloudSqlGeminiGuardCurrent=true",
         "geminiRuntimeDetected=true",
         "aiCallsRequireExplicitAction=true",
         "aiCallsHaveRateOrCacheGuard=true",
@@ -678,14 +677,14 @@
       "blocksBetaExit": false
     },
     "route4xxReadiness": {
-      "status": "cost_review_required",
-      "detail": "Route 4xx readiness needs current diagnostics and retry classification.",
+      "status": "source_ready_retry_storm_guarded",
+      "detail": "Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.",
       "evidence": [
         "artifactPath=agent/state/final-cost-audit-lock.generated.json",
         "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
-        "finalCostCurrent=false",
-        "analyticsRuntimeCurrent=false",
-        "route4xxSourceReady=false",
+        "finalCostCurrent=true",
+        "analyticsRuntimeCurrent=true",
+        "route4xxSourceReady=true",
         "retry4xxClassified=true",
         "owner=server-routing",
         "externalReviewRequired=false",
@@ -821,7 +820,7 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-05-24T16:28:01.252Z",
+      "generatedAtUtc": "2026-05-24T16:50:02.730Z",
       "ageHours": 0,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
@@ -836,8 +835,8 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-05-24T16:24:25.826Z",
-      "ageHours": 0.05984055555555556,
+      "generatedAtUtc": "2026-05-24T16:46:38.597Z",
+      "ageHours": 0.056703611111111114,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -852,7 +851,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-23T04:30:54.976Z",
-      "ageHours": 35.95174333333333,
+      "ageHours": 36.318820555555554,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -867,7 +866,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:54.095Z",
-      "ageHours": 72.20198805555556,
+      "ageHours": 72.56906527777778,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -882,7 +881,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:01.610Z",
-      "ageHours": 72.19990055555556,
+      "ageHours": 72.56697777777778,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
@@ -897,7 +896,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:08.409Z",
-      "ageHours": 72.19801194444445,
+      "ageHours": 72.56508916666667,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -912,7 +911,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:11.032Z",
-      "ageHours": 72.21395,
+      "ageHours": 72.58102722222222,
       "refreshCommand": "npm run check:overnight-final-integration-lock",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -927,7 +926,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:17.002Z",
-      "ageHours": 72.195625,
+      "ageHours": 72.56270222222223,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -942,7 +941,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:17:10.904Z",
-      "ageHours": 72.18065222222222,
+      "ageHours": 72.54772944444444,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
@@ -957,7 +956,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:17:11.012Z",
-      "ageHours": 72.18062222222223,
+      "ageHours": 72.54769944444445,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -972,7 +971,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:24.391Z",
-      "ageHours": 72.21023916666667,
+      "ageHours": 72.57731638888889,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -987,7 +986,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:31.762Z",
-      "ageHours": 72.20819166666666,
+      "ageHours": 72.57526888888889,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
@@ -1002,7 +1001,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:38.621Z",
-      "ageHours": 72.20628638888888,
+      "ageHours": 72.5733636111111,
       "refreshCommand": "npm run check:beta-freshness-language",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -1017,7 +1016,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:15:45.673Z",
-      "ageHours": 72.2043275,
+      "ageHours": 72.57140472222223,
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1032,7 +1031,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:24.214Z",
-      "ageHours": 72.19362166666667,
+      "ageHours": 72.5606988888889,
       "refreshCommand": "npm run check:overnight-wiring-integrity",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1047,7 +1046,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:32.982Z",
-      "ageHours": 72.19118611111111,
+      "ageHours": 72.55826333333333,
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "owner": "repo",
       "maxAgeHours": 24,
@@ -1062,7 +1061,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:43.027Z",
-      "ageHours": 72.18839583333333,
+      "ageHours": 72.55547305555555,
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
       "owner": "mobile",
       "maxAgeHours": 24,
@@ -1077,7 +1076,7 @@
       "status": "stale_source_version",
       "needsRefresh": true,
       "generatedAtUtc": "2026-05-21T16:16:50.997Z",
-      "ageHours": 72.18618194444444,
+      "ageHours": 72.55325916666666,
       "refreshCommand": "npm run check:global-marquee-truncated-titles",
       "owner": "mobile",
       "maxAgeHours": 24,

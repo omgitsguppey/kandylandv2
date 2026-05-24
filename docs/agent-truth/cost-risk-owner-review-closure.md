@@ -1,14 +1,14 @@
 # Cost Risk Owner-Review Closure
 
-Generated: 2026-05-24T05:47:54.718Z
+Generated: 2026-05-24T16:45:03.134Z
 
-Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
+Current head: d02b8b2da859d47d880182fe2169db1ad6a40ad6
 
 Status: pass
 
 ## Summary
 
-- Cost risk score: 80.5 -> 80.5
+- Cost risk score: 42 -> 80.5
 - Source guarded lanes: 7
 - External billing reviewed: false
 - External billing remaining: cloudRun, cloudSqlDataConnect, geminiCloudAssistVertex, bigQuery, scheduledRuntimeJobs
@@ -22,9 +22,9 @@ Status: pass
 | runtimeHealth | 84.2 | 84.2 |
 | evidenceCompleteness | 69.6 | 69.6 |
 | freshness | 83.75 | 83.75 |
-| costRisk | 80.5 | 80.5 |
+| costRisk | 42 | 80.5 |
 | regressionRisk | 86 | 86 |
-| overallHealthScore | 83.1 | 83.1 |
+| overallHealthScore | 79.25 | 84.75 |
 
 ## Cost Lanes
 
@@ -41,57 +41,55 @@ Status: pass
 
 ## Dirty File Classification
 
-- M agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- M CHANGELOG.md: release_artifact_expected
+-  M agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 -  M agent/state/chat-functionality-score-lock.generated.json: real_source_change_needs_review
 -  M agent/state/chat-gating-moderation.generated.json: real_source_change_needs_review
--  M agent/state/chat-realtime-cost-control.generated.json: real_source_change_needs_review
 -  M agent/state/chat-telemetry-admin-truth.generated.json: real_source_change_needs_review
--  M agent/state/cost-risk-owner-review-closure.generated.json: current_generated_artifact_to_commit
--  M agent/state/daily-task-debug-score-lock.generated.json: real_source_change_needs_review
--  M agent/state/daily-task-guidance-route-audit.generated.json: real_source_change_needs_review
--  M agent/state/daily-task-lifecycle-telemetry.generated.json: real_source_change_needs_review
--  M agent/state/daily-task-reset-truth.generated.json: real_source_change_needs_review
--  M agent/state/daily-task-reward-ledger.generated.json: real_source_change_needs_review
--  M agent/state/debug-signal-actionability.generated.json: real_source_change_needs_review
--  M agent/state/debug-signal-grouping.generated.json: real_source_change_needs_review
--  M agent/state/event-envelope-normalization.generated.json: real_source_change_needs_review
--  M agent/state/event-liveness-audit.generated.json: unrelated_inflight_event_liveness_to_ignore
--  M agent/state/event-translation-bridge.generated.json: real_source_change_needs_review
--  M agent/state/feature-registration-gate.generated.json: real_source_change_needs_review
--  M agent/state/formal-evidence-bridge.generated.json: real_source_change_needs_review
--  M agent/state/person-metrics-hydration.generated.json: real_source_change_needs_review
--  M agent/state/settings-connection-parity.generated.json: real_source_change_needs_review
--  M agent/state/telemetry-trigger-test-matrix.generated.json: real_source_change_needs_review
--  M agent/state/user-management-refactor.generated.json: real_source_change_needs_review
--  M agent/state/user-profile-api-contract.generated.json: real_source_change_needs_review
 -  M docs/agent-truth/chat-functionality-score-lock.md: real_source_change_needs_review
 -  M docs/agent-truth/chat-gating-moderation.md: real_source_change_needs_review
--  M docs/agent-truth/chat-realtime-cost-control.md: real_source_change_needs_review
 -  M docs/agent-truth/chat-telemetry-admin-truth.md: real_source_change_needs_review
--  M docs/agent-truth/cost-risk-owner-review-closure.md: release_artifact_expected
--  M docs/agent-truth/daily-task-debug-score-lock.md: real_source_change_needs_review
--  M docs/agent-truth/daily-task-guidance-route-audit.md: real_source_change_needs_review
--  M docs/agent-truth/daily-task-lifecycle-telemetry.md: real_source_change_needs_review
--  M docs/agent-truth/daily-task-reset-truth.md: real_source_change_needs_review
--  M docs/agent-truth/daily-task-reward-ledger.md: real_source_change_needs_review
--  M docs/agent-truth/debug-signal-actionability.md: real_source_change_needs_review
--  M docs/agent-truth/debug-signal-grouping.md: real_source_change_needs_review
--  M docs/agent-truth/event-envelope-normalization.md: real_source_change_needs_review
--  M docs/agent-truth/event-liveness-audit.md: unrelated_inflight_event_liveness_to_ignore
--  M docs/agent-truth/event-translation-bridge.md: real_source_change_needs_review
--  M docs/agent-truth/formal-evidence-bridge.md: real_source_change_needs_review
--  M docs/agent-truth/person-metrics-hydration.md: real_source_change_needs_review
--  M docs/agent-truth/settings-connection-parity.md: real_source_change_needs_review
--  M docs/agent-truth/telemetry-trigger-test-matrix.md: real_source_change_needs_review
--  M docs/agent-truth/user-management-refactor.md: real_source_change_needs_review
--  M docs/agent-truth/user-profile-api-contract.md: real_source_change_needs_review
+-  M package.json: real_source_change_needs_review
+-  M public/kandydrops-release-notes.json: release_artifact_expected
+-  M scripts/agent/validate-chat-functionality-score-lock.ts: real_source_change_needs_review
+-  M scripts/agent/validate-chat-gating-moderation.ts: real_source_change_needs_review
+-  M scripts/agent/validate-chat-telemetry-admin-truth.ts: real_source_change_needs_review
 -  M scripts/agent/validate-event-liveness-audit.ts: unrelated_inflight_event_liveness_to_ignore
--  M src/app/api/admin/debug/route.ts: unrelated_inflight_event_liveness_to_ignore
--  M src/lib/analytics/event-liveness-contract.ts: unrelated_inflight_event_liveness_to_ignore
--  M src/lib/analytics/event-liveness-engine.ts: unrelated_inflight_event_liveness_to_ignore
+-  M scripts/agent/validate-final-signal-zero-lock.ts: real_source_change_needs_review
+-  M src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx: real_source_change_needs_review
 -  M src/lib/debug/debug-panel-tracking-summary.ts: unrelated_inflight_event_liveness_to_ignore
--  M src/lib/server/admin-debug/summary.ts: unrelated_inflight_event_liveness_to_ignore
--  M tests/unit/event-liveness-audit.spec.ts: unrelated_inflight_event_liveness_to_ignore
+-  M src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+-  M src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- ?? agent/state/chat-gating-status-cleanup.generated.json: real_source_change_needs_review
+- ?? agent/state/chat-telemetry-status-cleanup.generated.json: real_source_change_needs_review
+- ?? agent/state/config-runtime-sample-status-classifier.generated.json: real_source_change_needs_review
+- ?? agent/state/cost-4xx-status-cleanup.generated.json: real_source_change_needs_review
+- ?? agent/state/debug-cockpit-batch5-cleanup.generated.json: real_source_change_needs_review
+- ?? agent/state/future-activity-catalog-status-cleanup.generated.json: real_source_change_needs_review
+- ?? agent/state/open-backlog-status-cleanup.generated.json: real_source_change_needs_review
+- ?? docs/agent-truth/chat-gating-status-cleanup.md: real_source_change_needs_review
+- ?? docs/agent-truth/chat-telemetry-status-cleanup.md: real_source_change_needs_review
+- ?? docs/agent-truth/config-runtime-sample-status-classifier.md: real_source_change_needs_review
+- ?? docs/agent-truth/cost-4xx-status-cleanup.md: real_source_change_needs_review
+- ?? docs/agent-truth/debug-cockpit-batch5-cleanup.md: real_source_change_needs_review
+- ?? docs/agent-truth/future-activity-catalog-status-cleanup.md: real_source_change_needs_review
+- ?? docs/agent-truth/open-backlog-status-cleanup.md: real_source_change_needs_review
+- ?? scripts/agent/chat-cost-status-cleanup-shared.ts: real_source_change_needs_review
+- ?? scripts/agent/validate-chat-gating-status-cleanup.ts: real_source_change_needs_review
+- ?? scripts/agent/validate-chat-telemetry-status-cleanup.ts: real_source_change_needs_review
+- ?? scripts/agent/validate-config-runtime-sample-status-classifier.ts: real_source_change_needs_review
+- ?? scripts/agent/validate-cost-4xx-status-cleanup.ts: real_source_change_needs_review
+- ?? scripts/agent/validate-debug-cockpit-batch5-cleanup.ts: real_source_change_needs_review
+- ?? scripts/agent/validate-future-activity-catalog-status-cleanup.ts: real_source_change_needs_review
+- ?? scripts/agent/validate-open-backlog-status-cleanup.ts: real_source_change_needs_review
+- ?? src/lib/debug/config-runtime-sample-status-classifier.ts: real_source_change_needs_review
+- ?? tests/unit/chat-gating-status-cleanup.spec.ts: real_source_change_needs_review
+- ?? tests/unit/chat-telemetry-status-cleanup.spec.ts: real_source_change_needs_review
+- ?? tests/unit/config-runtime-sample-status-classifier.spec.ts: real_source_change_needs_review
+- ?? tests/unit/cost-4xx-status-cleanup.spec.ts: real_source_change_needs_review
+- ?? tests/unit/debug-cockpit-batch5-cleanup.spec.ts: real_source_change_needs_review
+- ?? tests/unit/future-activity-catalog-status-cleanup.spec.ts: real_source_change_needs_review
+- ?? tests/unit/open-backlog-status-cleanup.spec.ts: real_source_change_needs_review
 
 ## Boundary
 

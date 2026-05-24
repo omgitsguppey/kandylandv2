@@ -77,6 +77,13 @@ function scoreSnapshot(score: JsonRecord) {
 
 function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
+  if (normalized === "scripts/agent/chat-cost-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^docs\/agent-truth\/(chat-functionality-score-lock|chat-gating-moderation|chat-telemetry-admin-truth|cost-risk-owner-review-closure|debug-backlog-engine|final-signal-zero-lock)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^scripts\/agent\/validate-(chat-functionality-score-lock|chat-gating-moderation|chat-telemetry-admin-truth|final-signal-zero-lock)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "src/lib/analytics/event-liveness-contract.ts") return "real_source_change_needs_review";
@@ -85,6 +92,8 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/config-runtime-sample-status-classifier.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/privacy/consent-tracking-policy.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/tracking-summary-lane-cleanup-shared.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(feature-telemetry-coverage-cleanup|runtime-debug-signal-cleanup|consent-tracking-mode-cleanup|event-liveness-source-repair|behavior-math-status-cleanup|legacy-recovery-status-cleanup|tracking-summary-lane-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";

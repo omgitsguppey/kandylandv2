@@ -16,6 +16,15 @@ import {
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const STATE_PATH = "agent/state/chat-telemetry-admin-truth.generated.json";
 const DOC_PATH = "docs/agent-truth/chat-telemetry-admin-truth.md";
+const BATCH5_SLUGS = [
+  "config-runtime-sample-status-classifier",
+  "chat-gating-status-cleanup",
+  "chat-telemetry-status-cleanup",
+  "cost-4xx-status-cleanup",
+  "open-backlog-status-cleanup",
+  "future-activity-catalog-status-cleanup",
+  "debug-cockpit-batch5-cleanup",
+] as const;
 
 const SCORE_DIMENSIONS = [
   "sourceHealth",
@@ -94,6 +103,11 @@ function listDirtyFiles() {
 export function classifyChatTelemetryAdminTruthDirtyFile(path: string): DirtyClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "scripts/agent/chat-cost-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `scripts/agent/validate-${slug}.ts`)) return "validator_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `tests/unit/${slug}.spec.ts`)) return "test_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `agent/state/${slug}.generated.json`)) return "current_generated_artifact_to_commit";
+  if (BATCH5_SLUGS.some((slug) => normalized === `docs/agent-truth/${slug}.md`)) return "documentation_artifact_expected";
   if (
     normalized === STATE_PATH
     || normalized === "agent/state/public-beta-score.generated.json"
@@ -129,10 +143,14 @@ export function classifyChatTelemetryAdminTruthDirtyFile(path: string): DirtyCla
     || normalized === "scripts/agent/validate-feature-registration-gate.ts"
     || normalized === "scripts/agent/validate-person-metrics-hydration.ts"
     || normalized === "scripts/agent/validate-debug-tracking-simplification.ts"
+    || normalized === "scripts/agent/validate-event-liveness-audit.ts"
+    || normalized === "scripts/agent/validate-final-signal-zero-lock.ts"
   ) return "validator_artifact_expected";
   if (normalized === "tests/unit/chat-telemetry-admin-truth.spec.ts" || normalized === "tests/unit/chat-functionality-score-lock.spec.ts" || normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/lib/chat/chat-telemetry-contract.ts"
+    || normalized === "src/lib/debug/config-runtime-sample-status-classifier.ts"
+    || normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx"
     || normalized === "src/lib/telemetry-catalog.ts"
     || normalized === "src/lib/behavioral/normalize-event-fact.ts"
     || normalized === "src/lib/behavioral/event-fact-normalizer.ts"

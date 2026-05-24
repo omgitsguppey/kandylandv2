@@ -6,6 +6,15 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const STATE_PATH = join(ROOT, "agent", "state", "chat-functionality-score-lock.generated.json");
 const DOC_PATH = join(ROOT, "docs", "agent-truth", "chat-functionality-score-lock.md");
+const BATCH5_SLUGS = [
+  "config-runtime-sample-status-classifier",
+  "chat-gating-status-cleanup",
+  "chat-telemetry-status-cleanup",
+  "cost-4xx-status-cleanup",
+  "open-backlog-status-cleanup",
+  "future-activity-catalog-status-cleanup",
+  "debug-cockpit-batch5-cleanup",
+] as const;
 
 const SCORE_DIMENSIONS = [
   "sourceHealth",
@@ -112,6 +121,12 @@ function listDirtyFiles() {
 
 export function classifyChatFunctionalityLockDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
+  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "scripts/agent/chat-cost-status-cleanup-shared.ts") return "validator_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `scripts/agent/validate-${slug}.ts`)) return "validator_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `tests/unit/${slug}.spec.ts`)) return "test_artifact_expected";
+  if (BATCH5_SLUGS.some((slug) => normalized === `agent/state/${slug}.generated.json`)) return "current_generated_artifact_to_commit";
+  if (BATCH5_SLUGS.some((slug) => normalized === `docs/agent-truth/${slug}.md`)) return "documentation_artifact_expected";
   if (normalized === "agent/state/chat-functionality-score-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/chat-functionality-score-lock.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-chat-functionality-score-lock.ts") return "validator_artifact_expected";
@@ -149,6 +164,8 @@ export function classifyChatFunctionalityLockDirtyFile(path: string) {
     || normalized === "scripts/agent/validate-event-translation-bridge.ts"
     || normalized === "scripts/agent/validate-feature-registration-gate.ts"
     || normalized === "scripts/agent/validate-debug-tracking-simplification.ts"
+    || normalized === "scripts/agent/validate-event-liveness-audit.ts"
+    || normalized === "scripts/agent/validate-final-signal-zero-lock.ts"
   ) return "validator_artifact_expected";
   if (
     normalized === "tests/unit/chat-telemetry-admin-truth.spec.ts"
@@ -157,6 +174,8 @@ export function classifyChatFunctionalityLockDirtyFile(path: string) {
   ) return normalized.endsWith(".spec.ts") ? "test_artifact_expected" : "real_source_change_needs_review";
   if (
     normalized === "src/lib/chat/chat-telemetry-contract.ts"
+    || normalized === "src/lib/debug/config-runtime-sample-status-classifier.ts"
+    || normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx"
     || normalized === "src/lib/telemetry-catalog.ts"
     || normalized === "src/lib/behavioral/normalize-event-fact.ts"
     || normalized === "src/lib/analytics/event-translation-bridge.ts"

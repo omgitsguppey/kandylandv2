@@ -1,6 +1,6 @@
 # Chat Gating Moderation
 
-Generated: 2026-05-24T02:07:30.585Z
+Generated: 2026-05-24T16:44:45.885Z
 
 ## Enforcement
 
@@ -39,12 +39,12 @@ Generated: 2026-05-24T02:07:30.585Z
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 91.7 | 91.7 | target_met | No score action needed for this dimension. |
-| runtimeHealth | 66.75 | 66.75 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
-| evidenceCompleteness | 38.25 | 38.25 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
-| freshness | 62.86 | 62.86 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
+| sourceHealth | 92.5 | 92.5 | target_met | No score action needed for this dimension. |
+| runtimeHealth | 84.2 | 84.2 | target_met | No score action needed for this dimension. |
+| evidenceCompleteness | 69.6 | 69.6 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
+| freshness | 83.75 | 83.75 | target_met | No score action needed for this dimension. |
 | costRisk | 42 | 42 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
-| regressionRisk | 42 | 42 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not change GumDrop math or payment runtime. |
+| regressionRisk | 86 | 86 | target_met | No score action needed for this dimension. |
 
 ## Old Logic Classification
 

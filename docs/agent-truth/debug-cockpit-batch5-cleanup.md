@@ -1,176 +1,80 @@
+# Debug cockpit batch5 cleanup
+
+Generated: 2026-05-24T16:50:00.000Z
+Head: d02b8b2da859d47d880182fe2169db1ad6a40ad6
+
+## Status
+
+Validation failures: none
+
+## Summary
+
+```json
 {
-  "generatedAtUtc": "2026-05-24T16:44:51.466Z",
+  "reportKey": "debug-cockpit-batch5-cleanup",
+  "generatedAtUtc": "2026-05-24T16:50:00.000Z",
   "currentHead": "d02b8b2da859d47d880182fe2169db1ad6a40ad6",
-  "productionReadsRequired": false,
-  "liveDataMutationAllowed": false,
-  "deployRequired": false,
-  "realtimePropagationStatus": {
-    "status": "pass",
-    "evidence": [
-      "bounded thread listener",
-      "selected-thread message listener",
-      "send reconciliation telemetry"
-    ],
-    "missing": [],
-    "nextAction": "Keep source validation; runtime/provider proof remains separate."
-  },
-  "listenerCostStatus": {
-    "status": "pass",
-    "evidence": [
-      "selected-thread-only message listener",
-      "no broad all-message listener",
-      "explicit detach policy"
-    ],
-    "missing": [],
-    "nextAction": "Keep listener count and document limits bounded."
-  },
-  "typingPresenceStatus": {
-    "status": "pass",
-    "evidence": [
-      "RTDB onDisconnect cleanup",
-      "typing throttle",
-      "timeout/blur/send/unmount cleanup"
-    ],
-    "missing": [],
-    "nextAction": "Keep typing ephemeral and throttled."
-  },
-  "paidGdGatingStatus": {
-    "status": "pass",
-    "evidence": [
-      "backend paid-GD enforcement",
-      "reward/free GD rejected",
-      "idempotency required",
-      "human-safe blocked errors"
-    ],
-    "missing": [],
-    "nextAction": "Preserve GumDrop math and source-of-funds policy."
-  },
-  "moderationStatus": {
-    "status": "pass",
-    "evidence": [
-      "moderation status debug visibility",
-      "media limits enforced"
-    ],
-    "missing": [],
-    "nextAction": "Keep blocked attempts visible without exposing message content in summaries."
-  },
-  "telemetryStatus": {
-    "status": "pass",
-    "evidence": [
-      "chat events in telemetry catalog",
-      "event envelopes mapped",
-      "debug visible"
-    ],
-    "missing": [],
-    "nextAction": "Keep chat events mapped into canonical envelopes and debug lanes."
-  },
-  "adminTruthStatus": {
-    "status": "pass",
-    "evidence": [
-      "compact admin summary lane",
-      "blocked/failed attempts visible",
-      "raw message content excluded"
-    ],
-    "missing": [],
-    "nextAction": "Keep admin summaries count/source-state based."
-  },
-  "transcriptTruthStatus": {
-    "status": "pass",
-    "evidence": [
-      "permission guarded transcript drilldown",
-      "source route/helper declared",
-      "default transcript closed"
-    ],
-    "missing": [],
-    "nextAction": "Use guarded drilldown only; do not dump transcripts by default.",
-    "messageContentExposedByDefault": false,
-    "guardedDrilldown": true,
-    "sourceRoute": "src/app/api/admin/moderation/threads/[threadId]/route.ts",
-    "sourceHelper": "src/lib/server/admin-moderation.ts"
-  },
-  "personMetricsStatus": {
-    "status": "pass",
-    "evidence": [
-      "chat_actions person metric",
-      "low confidence count is zero"
-    ],
-    "missing": [],
-    "nextAction": "Keep chat usage hydrating through person metrics, not raw transcript dumps."
-  },
+  "chatGatingConfigStatusBefore": "live_stale",
+  "chatGatingConfigStatusAfter": "config_healthy_current",
+  "chatGatingRuntimeSampleStatusBefore": "live_stale",
+  "chatGatingRuntimeSampleStatusAfter": "source_ready_collecting",
+  "chatTelemetryContractStatusBefore": "live_stale",
+  "chatTelemetryContractStatusAfter": "config_healthy_current",
+  "chatTelemetryRuntimeSampleStatusBefore": "live_stale",
+  "chatTelemetryRuntimeSampleStatusAfter": "source_ready_collecting",
+  "transcriptGuardStatus": "config_healthy_current",
+  "costGuardConfigStatus": "config_healthy_current",
+  "costRuntimeSampleStatus": "source_ready_no_sample_loaded",
+  "externalCostReviewStatus": "external_review_required",
+  "backlogStatusBefore": "live_stale",
+  "backlogStatusAfter": "runtime_sample_proven_zero",
+  "futureCatalogStatusBefore": "live_stale",
+  "futureCatalogStatusAfter": "quiet_catalog_current",
+  "emptyLiveLanesBefore": 5,
+  "emptyLiveLanesAfter": 0,
+  "staleBadgeConflictsBefore": 5,
+  "staleBadgeConflictsAfter": 0,
+  "sourceReadyCollectingLanes": [
+    "chat_gating_runtime",
+    "chat_telemetry_runtime"
+  ],
+  "configHealthyCurrentLanes": [
+    "chat_gating_config",
+    "chat_telemetry_contract",
+    "cost_guard_config"
+  ],
+  "healthyCurrentLanes": [
+    "open_p1_p2_backlog",
+    "future_activity_catalog"
+  ],
+  "sourceMissingActionableLanes": [],
   "scoreBefore": {
     "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
     "freshness": 83.75,
-    "costRisk": 42,
+    "costRisk": 80.5,
     "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "overallHealthScore": 83.1
   },
   "scoreAfter": {
     "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
     "freshness": 83.75,
-    "costRisk": 42,
+    "costRisk": 80.5,
     "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "overallHealthScore": 83.1
   },
   "scoreDimensions": {
-    "sourceHealth": {
-      "before": 92.5,
-      "after": 92.5,
-      "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
-    },
-    "runtimeHealth": {
-      "before": 84.2,
-      "after": 84.2,
-      "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
-    },
-    "evidenceCompleteness": {
-      "before": 69.6,
-      "after": 69.6,
-      "target": 80,
-      "status": "below_target",
-      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
-    },
-    "freshness": {
-      "before": 83.75,
-      "after": 83.75,
-      "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
-    },
-    "costRisk": {
-      "before": 42,
-      "after": 42,
-      "target": 80,
-      "status": "below_target",
-      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
-    },
-    "regressionRisk": {
-      "before": 86,
-      "after": 86,
-      "target": 80,
-      "status": "at_or_above_target",
-      "nextAction": "No chat-specific score action needed."
-    },
-    "overallHealthScore": {
-      "before": 79.25,
-      "after": 79.25,
-      "target": 80,
-      "status": "below_target",
-      "nextAction": "Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag."
-    }
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
   },
-  "remainingGaps": [],
-  "nextExactSteps": [
-    "Collect formal runtime/provider smoke and admin truth evidence outside this source-only lock.",
-    "Keep future chat activity distinct from source readiness; do not fake runtime evidence."
-  ],
   "dirtyFiles": [
     {
       "path": "CHANGELOG.md",
@@ -179,6 +83,10 @@
     {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/chat-gating-moderation.generated.json",
@@ -205,7 +113,31 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/debug-cockpit-batch5-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/final-signal-zero-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -215,6 +147,18 @@
     {
       "path": "agent/state/open-backlog-status-cleanup.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/chat-gating-moderation.md",
@@ -241,7 +185,31 @@
       "classification": "documentation_artifact_expected"
     },
     {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-backlog-engine.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/debug-cockpit-batch5-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-signal-zero-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -253,8 +221,12 @@
       "classification": "documentation_artifact_expected"
     },
     {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "package.json",
-      "classification": "real_source_change_needs_review"
+      "classification": "release_artifact_expected"
     },
     {
       "path": "public/kandydrops-release-notes.json",
@@ -361,17 +333,13 @@
       "classification": "test_artifact_expected"
     }
   ],
-  "oldChatLogicReferences": [
-    {
-      "reference": "legacy creator chat aliases",
-      "classification": "still_required",
-      "reason": "Legacy chat event aliases are normalized into canonical chat telemetry for compatibility."
-    },
-    {
-      "reference": "broad transcript dumps",
-      "classification": "stale_removed",
-      "reason": "Default admin summaries expose counts and source state only; message content remains guarded drilldown."
-    }
+  "openPrs": [],
+  "remainingGaps": [
+    "Bounded chat runtime and route 4xx/cost samples are still needed before all-zero samples can be promoted to runtime-live."
+  ],
+  "nextExactSteps": [
+    "Attach bounded source windows for chat gating, chat telemetry, and route 4xx/cost samples; keep future catalog collapsed while actionable/broken/scoreDrag remain zero."
   ],
   "validationFailures": []
 }
+```

@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-24T14:55:48.281Z",
-  "currentHead": "48d8c64ecce16f4ae346e49f5607099e0d686d26",
+  "generatedAtUtc": "2026-05-24T16:45:37.626Z",
+  "currentHead": "d02b8b2da859d47d880182fe2169db1ad6a40ad6",
   "scoreBefore": {
     "sourceHealth": 91.7,
     "runtimeHealth": 67.75,
@@ -130,47 +130,55 @@
     },
     {
       "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unsafe_unknown"
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/debug-operator-cockpit.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/debug-runtime-evidence.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/telemetry-parity-score.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/debug-operator-cockpit.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/debug-runtime-evidence.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/final-signal-zero-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-backlog-engine.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-signal-zero-lock.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "package.json",
@@ -181,16 +189,32 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-debug-operator-cockpit.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-chat-functionality-score-lock.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/api/admin/debug/route.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-chat-gating-moderation.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/debug/debug-operator-cockpit.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-chat-telemetry-admin-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/release-notes/public-release-notes.ts",
@@ -201,76 +225,128 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/debug-operator-cockpit.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/chat-gating-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/debug-cockpit-batch1-cleanup.generated.json",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/chat-telemetry-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch1-cleanup.md",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/config-runtime-sample-status-classifier.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/cost-4xx-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "src/lib/agent-score/formal-gate-classifier.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/debug-cockpit-batch5-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "tests/unit/debug-cockpit-batch1-cleanup.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "agent/state/future-activity-catalog-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/open-backlog-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/config-runtime-sample-status-classifier.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/cost-4xx-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-cockpit-batch5-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/future-activity-catalog-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/open-backlog-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/chat-cost-status-cleanup-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-gating-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-telemetry-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-config-runtime-sample-status-classifier.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-cost-4xx-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-cockpit-batch5-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-future-activity-catalog-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-open-backlog-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/debug/config-runtime-sample-status-classifier.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/chat-gating-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/chat-telemetry-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/config-runtime-sample-status-classifier.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/cost-4xx-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/debug-cockpit-batch5-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/future-activity-catalog-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/open-backlog-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "remainingReferenceClassification": [
     {
-      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/agent-score/core.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-telemetry-trigger-test-matrix.ts",
-      "classification": "still_required"
-    },
-    {
       "path": "scripts/agent/validate-debug-signal-grouping.ts",
       "classification": "still_required"
     },
@@ -292,54 +368,6 @@
     },
     {
       "path": "scripts/agent/validate-debug-signal-grouping.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "tests/unit/score-dimension-80-lock.spec.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "tests/unit/score-dimension-80-lock.spec.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-score-dimension-80-lock.ts",
       "classification": "still_required"
     },
     {
@@ -351,62 +379,6 @@
       "classification": "still_required"
     },
     {
-      "path": "tests/unit/non-event-score-policy.spec.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
-      "classification": "still_required"
-    },
-    {
       "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
       "classification": "still_required"
     },
@@ -443,7 +415,131 @@
       "classification": "still_required"
     },
     {
-      "path": "tests/unit/future-activity-signal-reclassification.spec.ts",
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-final-signal-zero-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-telemetry-trigger-test-matrix.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "scripts/agent/validate-score-dimension-80-lock.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/score-dimension-80-lock.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/debug-signal-grouping.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/non-event-score-policy.generated.json",
       "classification": "still_required"
     },
     {
@@ -483,99 +579,121 @@
       "classification": "still_required"
     },
     {
-      "path": "tests/unit/debug-signal-grouping.spec.ts",
+      "path": "tests/unit/future-activity-signal-reclassification.spec.ts",
       "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-signal-zero-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-signal-zero-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/non-event-score-policy.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/score-dimension-80-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/score-dimension-80-lock.spec.ts",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "quiet_catalog_only"
     },
     {
       "path": "agent/state/debug-signal-grouping.generated.json",
       "classification": "still_required"
-    },
-    {
-      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
-      "classification": "still_required"
-    },
-    {
-      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
-      "classification": "still_required"
-    },
-    {
-      "path": "agent/state/final-signal-zero-lock.generated.json",
-      "classification": "still_required"
-    },
-    {
-      "path": "agent/state/final-signal-zero-lock.generated.json",
-      "classification": "still_required"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/non-event-score-policy.generated.json",
-      "classification": "still_required"
-    },
-    {
-      "path": "agent/state/score-dimension-80-lock.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "still_required"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "still_required"
     }
   ],
-  "validationFailures": [
-    "dirty files are unclassified."
-  ]
+  "validationFailures": []
 }

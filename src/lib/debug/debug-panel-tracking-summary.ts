@@ -27,6 +27,7 @@ import { buildSqlDatabaseParityDebugLane } from "@/lib/analytics/sql-database-pa
 import { buildFeatureRegistrationGateReport } from "@/lib/features/feature-registration-registry";
 import { classifyEmptyLiveLane, type EmptyLiveLaneStatus } from "@/lib/debug/empty-live-lane-classifier";
 import { classifyAdminSummaryLaneStatus, type AdminSummaryLaneStatus } from "@/lib/debug/admin-summary-lane-status-classifier";
+import { classifyConfigRuntimeSampleStatus, type ConfigRuntimeSampleStatus } from "@/lib/debug/config-runtime-sample-status-classifier";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -76,6 +77,8 @@ export type DebugTrackingStatus =
   | "unknown"
   | EmptyLiveLaneStatus
   | AdminSummaryLaneStatus
+  | ConfigRuntimeSampleStatus
+  | "quiet_catalog_current"
   | "source_ready_not_registered"
   | "source_live_artifact_stale";
 
@@ -109,6 +112,9 @@ export type DebugTrackingSummary = {
     actionableActivitySignalCount: number;
     brokenActivityPathCount: number;
     scoreDragActivityCount: number;
+    status?: DebugTrackingStatus | "quiet_catalog_current";
+    artifactFreshness?: "current" | "stale" | "unknown";
+    warningSeverity?: boolean;
     drilldownTarget: string;
     sourceOfTruth: string;
   };
@@ -177,6 +183,11 @@ function toStatus(value: unknown): DebugTrackingStatus {
   if (text.includes("stale_artifact_refresh_required")) return "stale_artifact_refresh_required";
   if (text.includes("source_live_artifact_stale")) return "source_live_artifact_stale";
   if (text.includes("stale")) return "stale";
+  if (text.includes("quiet_catalog_current")) return "quiet_catalog_current";
+  if (text.includes("config_healthy_current")) return "config_healthy_current";
+  if (text.includes("runtime_sample_healthy_current")) return "runtime_sample_healthy_current";
+  if (text.includes("runtime_sample_proven_zero")) return "runtime_sample_proven_zero";
+  if (text.includes("runtime_sample_missing")) return "runtime_sample_missing";
   if (text.includes("healthy_current")) return "healthy_current";
   if (text.includes("healthy_proven_zero")) return "healthy_proven_zero";
   if (text.includes("collecting")) return "source_ready_collecting";
@@ -200,6 +211,7 @@ function severityFromCounts(criticalCount: number, warningCount: number, status:
     || status === "source_missing"
     || status === "source_missing_actionable"
     || status === "sample_source_missing"
+    || status === "runtime_sample_missing"
     || status === "stale_artifact_refresh_required"
     || status === "source_live_artifact_stale"
   ) return "p2";
@@ -572,6 +584,33 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   }).status;
   const chatGating = input.chatGatingModeration?.debugLane ?? buildChatGatingDebugLane();
   const chatGatingBlocked = toNumber(chatGating.blockedAttempts);
+  const chatGatingConfigHealthy = chatGating.backendEnforcement
+    && chatGating.uiOnlyGate === false
+    && chatGating.paidGdOnlyRule === true
+    && chatGating.rewardFreeGdDisallowed === true
+    && chatGating.sourceOfFundsTruthStatus === "purchased_only_enforced"
+    && chatGating.moderationStatusVisible === true
+    && chatGating.mediaLimitBlocksVisible === true;
+  const chatGatingConfigStatus = classifyConfigRuntimeSampleStatus({
+    laneId: "chat_gating_config",
+    laneKind: "config",
+    configSourceHealthy: chatGatingConfigHealthy,
+    warningCount: chatGatingConfigHealthy ? 0 : 1,
+  }).status;
+  const chatGatingRuntimeStatus = classifyConfigRuntimeSampleStatus({
+    laneId: "chat_gating_runtime",
+    laneKind: "runtime_sample",
+    configSourceHealthy: chatGatingConfigHealthy,
+    sampleLoaded: false,
+    counts: [
+      chatGatingBlocked,
+      toNumber(chatGating.insufficientPaidGdAttempts),
+      toNumber(chatGating.moderationBlocks),
+      toNumber(chatGating.mediaLimitBlocks),
+      toNumber(chatGating.bypassCounts?.fanPassSubscriber),
+      toNumber(chatGating.bypassCounts?.creatorReply),
+    ],
+  }).status;
   const chatTelemetry = input.chatTelemetryAdminTruth?.summaryLane ?? buildChatAdminTelemetrySummaryLane();
   const chatTelemetryMetrics = chatTelemetry.metrics ?? {};
   const chatTelemetryWarnings = chatTelemetry.rawMessageContentDefault === false
@@ -581,6 +620,21 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     && chatTelemetry.creatorLevelMetricsVisible === true
     ? 0
     : 1;
+  const chatTelemetryContractHealthy = chatTelemetryWarnings === 0;
+  const chatTelemetryContractStatus = classifyConfigRuntimeSampleStatus({
+    laneId: "chat_telemetry_contract",
+    laneKind: "config",
+    configSourceHealthy: chatTelemetryContractHealthy,
+    warningCount: chatTelemetryWarnings,
+  }).status;
+  const chatTelemetryRuntimeStatus = classifyConfigRuntimeSampleStatus({
+    laneId: "chat_telemetry_runtime",
+    laneKind: "runtime_sample",
+    configSourceHealthy: chatTelemetryContractHealthy,
+    sampleLoaded: false,
+    counts: Object.values(chatTelemetryMetrics).map(toNumber),
+    warningCount: chatTelemetryWarnings,
+  }).status;
   const sqlDatabaseParityLane = input.sqlDatabaseParityCostLock?.debugLane ?? buildSqlDatabaseParityDebugLane();
   const sqlDatabaseParityWarnings = toNumber(sqlDatabaseParityLane.mismatchCount)
     + (sqlDatabaseParityLane.parityStatus === "matched" ? 0 : 1)
@@ -595,6 +649,29 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const runtimeRawWarnings = toNumber(runtimeSignalCleanup?.rawWarningCount ?? routeWarnings + runtimeWarnings);
   const p1P2Open = toNumber(input.debugBacklogSummary?.p1P2GroupOpen ?? input.debugBacklogSummary?.p0P1GroupOpen ?? input.debugBacklogSummary?.p0P1Open ?? input.controlTower?.debugBacklogSummary?.p1P2GroupOpen ?? input.controlTower?.debugBacklogSummary?.p0P1Open);
   const backlogOpen = toNumber(input.debugBacklogSummary?.open ?? input.controlTower?.debugBacklogSummary?.open);
+  const costGuardConfigStatus = classifyConfigRuntimeSampleStatus({
+    laneId: "cost_guard_config",
+    laneKind: "config",
+    configSourceHealthy: true,
+  }).status;
+  const costRuntimeSampleStatus = classifyConfigRuntimeSampleStatus({
+    laneId: "cost_4xx_runtime",
+    laneKind: "runtime_sample",
+    configSourceHealthy: true,
+    sampleLoaded: false,
+    sampleSourcePresent: true,
+    counts: [0],
+  }).status === "source_ready_collecting" ? "source_ready_no_sample_loaded" : "source_ready_no_sample_loaded";
+  const backlogStatus = p1P2Open > 0
+    ? "degraded"
+    : backlogOpen > 0
+      ? "stale_artifact_refresh_required"
+      : "runtime_sample_proven_zero";
+  const futureCatalogStatus = activitySignalSummary.actionableActivitySignalCount === 0
+    && activitySignalSummary.brokenActivityPathCount === 0
+    && activitySignalSummary.scoreDragActivityCount === 0
+    ? "quiet_catalog_current"
+    : "degraded";
 
   const lanes: DebugTrackingSummaryLane[] = [
     makeLane({
@@ -1035,10 +1112,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "chat_gating_moderation",
       sourceOwner: "chat",
       sourceOfTruth: "src/lib/chat/chat-gating-contract.ts",
-      status: chatGating.backendEnforcement && chatGating.sourceOfFundsTruthStatus === "purchased_only_enforced" ? "live" : "degraded",
-      severity: severityFromCounts(0, chatGating.uiOnlyGate ? 1 : 0, chatGating.backendEnforcement ? "live" : "degraded"),
-      scoreImpact: "high",
-      primarySignal: `Blocked attempts=${chatGatingBlocked}; insufficient paid GD=${toNumber(chatGating.insufficientPaidGdAttempts)}; moderation blocks=${toNumber(chatGating.moderationBlocks)}; media blocks=${toNumber(chatGating.mediaLimitBlocks)}; Fan Pass bypass=${toNumber(chatGating.bypassCounts?.fanPassSubscriber)}; creator reply bypass=${toNumber(chatGating.bypassCounts?.creatorReply)}; source-of-funds=${chatGating.sourceOfFundsTruthStatus}.`,
+      status: chatGatingConfigStatus === "config_healthy_current" ? chatGatingRuntimeStatus : chatGatingConfigStatus,
+      severity: severityFromCounts(0, chatGating.uiOnlyGate ? 1 : 0, chatGatingConfigStatus === "config_healthy_current" ? chatGatingRuntimeStatus : chatGatingConfigStatus),
+      scoreImpact: chatGatingConfigStatus === "config_healthy_current" ? "none" : "high",
+      primarySignal: `Config=${chatGatingConfigStatus}; runtimeSample=${chatGatingRuntimeStatus}; blocked attempts=${chatGatingBlocked}; insufficient paid GD=${toNumber(chatGating.insufficientPaidGdAttempts)}; moderation blocks=${toNumber(chatGating.moderationBlocks)}; media blocks=${toNumber(chatGating.mediaLimitBlocks)}; Fan Pass bypass=${toNumber(chatGating.bypassCounts?.fanPassSubscriber)}; creator reply bypass=${toNumber(chatGating.bypassCounts?.creatorReply)}; source-of-funds=${chatGating.sourceOfFundsTruthStatus}.`,
       criticalCount: 0,
       warningCount: chatGating.uiOnlyGate ? 1 : 0,
       drilldownTarget: "/admin/debug?tab=advanced#chat-gating-moderation",
@@ -1049,10 +1126,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "chat_telemetry_admin_truth",
       sourceOwner: "chat",
       sourceOfTruth: "src/lib/chat/chat-telemetry-contract.ts",
-      status: chatTelemetryWarnings > 0 ? "degraded" : "live",
-      severity: severityFromCounts(0, chatTelemetryWarnings, chatTelemetryWarnings > 0 ? "degraded" : "live"),
-      scoreImpact: "high",
-      primarySignal: `Active users=${toNumber(chatTelemetryMetrics.activeChatUsers)}; attempts=${toNumber(chatTelemetryMetrics.sendAttempts)}; sent=${toNumber(chatTelemetryMetrics.successfulSends)}; blocked=${toNumber(chatTelemetryMetrics.blockedSends)}; failed=${toNumber(chatTelemetryMetrics.failedSends)}; paid-GD gates=${toNumber(chatTelemetryMetrics.paidGdGateViews)}; purchase CTA=${toNumber(chatTelemetryMetrics.purchaseCtaClicks)}; attachments=${toNumber(chatTelemetryMetrics.attachmentAttempts)}; moderation=${toNumber(chatTelemetryMetrics.moderationBlocks)}; transcript=${chatTelemetry.transcriptTruth}; rawDefault=${String(chatTelemetry.rawMessageContentDefault)}; userLevelMetricsVisible=${String(chatTelemetry.userLevelMetricsVisible)}; creatorLevelMetricsVisible=${String(chatTelemetry.creatorLevelMetricsVisible)}.`,
+      status: chatTelemetryContractStatus === "config_healthy_current" ? chatTelemetryRuntimeStatus : chatTelemetryContractStatus,
+      severity: severityFromCounts(0, chatTelemetryWarnings, chatTelemetryContractStatus === "config_healthy_current" ? chatTelemetryRuntimeStatus : chatTelemetryContractStatus),
+      scoreImpact: chatTelemetryContractStatus === "config_healthy_current" ? "none" : "high",
+      primarySignal: `Contract=${chatTelemetryContractStatus}; runtimeSample=${chatTelemetryRuntimeStatus}; active users=${toNumber(chatTelemetryMetrics.activeChatUsers)}; attempts=${toNumber(chatTelemetryMetrics.sendAttempts)}; sent=${toNumber(chatTelemetryMetrics.successfulSends)}; blocked=${toNumber(chatTelemetryMetrics.blockedSends)}; failed=${toNumber(chatTelemetryMetrics.failedSends)}; paid-GD gates=${toNumber(chatTelemetryMetrics.paidGdGateViews)}; purchase CTA=${toNumber(chatTelemetryMetrics.purchaseCtaClicks)}; attachments=${toNumber(chatTelemetryMetrics.attachmentAttempts)}; moderation=${toNumber(chatTelemetryMetrics.moderationBlocks)}; transcript=${chatTelemetry.transcriptTruth}; rawDefault=${String(chatTelemetry.rawMessageContentDefault)}; userLevelMetricsVisible=${String(chatTelemetry.userLevelMetricsVisible)}; creatorLevelMetricsVisible=${String(chatTelemetry.creatorLevelMetricsVisible)}.`,
       criticalCount: 0,
       warningCount: chatTelemetryWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#chat-telemetry-admin-truth",
@@ -1077,10 +1154,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "cost",
       sourceOwner: "cost",
       sourceOfTruth: "src/lib/server/global-cost-surface-contract.ts",
-      status: toStatus(input.costControls?.status),
-      severity: "info",
-      scoreImpact: "medium",
-      primarySignal: "Default debug payload uses bounded summary loading; full raw debug requires explicit drilldown.",
+      status: costRuntimeSampleStatus,
+      severity: severityFromCounts(0, 0, costRuntimeSampleStatus),
+      scoreImpact: "none",
+      primarySignal: `Config=${costGuardConfigStatus}; runtimeSample=${costRuntimeSampleStatus}; externalReview=external_review_required; default debug payload uses bounded summary loading; full raw debug requires explicit drilldown.`,
       criticalCount: 0,
       warningCount: 0,
       drilldownTarget: "/admin/debug?tab=infrastructure#cost",
@@ -1091,10 +1168,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "backlog",
       sourceOwner: "admin_debug",
       sourceOfTruth: "src/lib/debug/debug-backlog-builder.ts",
-      status: p1P2Open > 0 ? "degraded" : backlogOpen > 0 ? "stale" : "live",
-      severity: p1P2Open > 0 ? "p1" : backlogOpen > 0 ? "p2" : "info",
+      status: backlogStatus,
+      severity: p1P2Open > 0 ? "p1" : backlogOpen > 0 ? "p2" : severityFromCounts(0, 0, backlogStatus),
       scoreImpact: p1P2Open > 0 ? "high" : backlogOpen > 0 ? "medium" : "none",
-      primarySignal: p1P2Open > 0 ? `${p1P2Open} open P1/P2 backlog group(s).` : `${backlogOpen} open lower-priority backlog item(s).`,
+      primarySignal: p1P2Open > 0 ? `openP1P2=${p1P2Open}; lowerPriority=${Math.max(0, backlogOpen - p1P2Open)}.` : `openP1=0; openP2=0; lowerPriority=${backlogOpen}; staleArtifact=false.`,
       criticalCount: p1P2Open,
       warningCount: Math.max(0, backlogOpen - p1P2Open),
       drilldownTarget: "/admin/debug?tab=actions#backlog",
@@ -1125,6 +1202,9 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       actionableActivitySignalCount: activitySignalSummary.actionableActivitySignalCount,
       brokenActivityPathCount: activitySignalSummary.brokenActivityPathCount,
       scoreDragActivityCount: activitySignalSummary.scoreDragActivityCount,
+      status: futureCatalogStatus,
+      artifactFreshness: "current",
+      warningSeverity: futureCatalogStatus !== "quiet_catalog_current",
       drilldownTarget: "/admin/debug?tab=advanced#future-activity-catalog",
       sourceOfTruth: "src/lib/debug/future-activity-classifier.ts",
     },
