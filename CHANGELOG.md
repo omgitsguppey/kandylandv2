@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.30 - 2026-05-24
+- Debug cockpit PR readiness
+- Finalized open PRs before debug cockpit cleanup.
+- Merged, cherry-picked, manually implemented, or closed every PR with classification.
+- Prepared main for accurate cockpit/evidence refresh.
+
 ## 1.4.29 - 2026-05-24
 - SQL/database parity and cost accuracy
 - Locked SQL/database parity between raw events, global summaries, user metrics, and journey exports.

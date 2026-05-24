@@ -56,7 +56,12 @@ function normalizeActionUrl(url: string | undefined): string | undefined {
         }
 
         if (parsed.origin === ADMIN_DROP_URL_BASE) {
-            if (parsed.pathname.startsWith("//") || parsed.pathname.startsWith("/\\") || parsed.pathname.startsWith("\\")) {
+            if (
+                parsed.pathname.startsWith("//")
+                || parsed.pathname.startsWith("/\\")
+                || parsed.pathname.startsWith("\\")
+                || trimmedUrl.startsWith("\\")
+            ) {
                 return undefined;
             }
             return `${parsed.pathname}${parsed.search}${parsed.hash}`;

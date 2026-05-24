@@ -30,7 +30,12 @@ export function getSafeUrl(url: string | undefined): string | undefined {
         }
 
         if (parsed.origin === PROMO_CARD_URL_BASE) {
-            if (parsed.pathname.startsWith("//") || parsed.pathname.startsWith("/\\") || parsed.pathname.startsWith("\\")) {
+            if (
+                parsed.pathname.startsWith("//")
+                || parsed.pathname.startsWith("/\\")
+                || parsed.pathname.startsWith("\\")
+                || trimmedUrl.startsWith("\\")
+            ) {
                 return undefined;
             }
             return `${parsed.pathname}${parsed.search}${parsed.hash}`;

@@ -38,6 +38,7 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "guided_onboarding_step_started",
     "guided_onboarding_step_completed",
     "guided_onboarding_completed",
+    "onboarding_step_viewed",
     "wallet_opened",
     "wallet_closed_incomplete",
     "gumdrops_purchase_completed",

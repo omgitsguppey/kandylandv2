@@ -1,0 +1,242 @@
+{
+  "generatedAtUtc": "2026-05-24T14:36:45.595Z",
+  "currentHeadBefore": "1cd6cabf1a90d7cb5095398ef594cb6e3eef54c9",
+  "currentHeadAfter": "1cd6cabf1a90d7cb5095398ef594cb6e3eef54c9",
+  "openPrsBefore": [
+    {
+      "number": 289,
+      "title": "Improve onboarding friction visibility and technical rescue signals",
+      "headRefName": "improve-onboarding-friction-visibility-12446689645284121137",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-24T06:04:41Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/289"
+    },
+    {
+      "number": 288,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "headRefName": "reduce-monolith-risk-docs-3328042848981873843",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-24T05:51:49Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/288"
+    },
+    {
+      "number": 287,
+      "title": "Sentinel: [HIGH] Fix Open Redirect via Protocol-Relative URLs",
+      "headRefName": "sentinel-fix-open-redirect-15307485972163067959",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-23T15:34:51Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/287"
+    },
+    {
+      "number": 286,
+      "title": "Bolt: Replace nested array.find with Map lookups in debug route",
+      "headRefName": "bolt-debug-route-map-lookups-5419024004378950002",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-23T14:53:55Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/286"
+    },
+    {
+      "number": 285,
+      "title": "Palette: Add aria-busy state to CreatorProfileHeader follow button",
+      "headRefName": "jules-14981140853637173177-00d662f8",
+      "baseRefName": "main",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "updatedAt": "2026-05-23T14:19:59Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/285"
+    }
+  ],
+  "handledPrs": [
+    {
+      "number": 289,
+      "title": "Improve onboarding friction visibility and technical rescue signals",
+      "action": "manual_implemented",
+      "reason": "Ported onboarding_step_viewed backend progress visibility plus stale validation/test expectation updates into current main.",
+      "filesTouched": [
+        "src/app/api/user/onboarding-progress/route.ts",
+        "src/components/Auth/GuidedOnboarding.tsx",
+        "src/lib/telemetry.ts",
+        "scripts/agent/validate-user-creator-logic-cleanup.ts",
+        "tests/unit/user-action-taxonomy.spec.ts",
+        "tests/unit/user-creator-logic-cleanup.spec.ts"
+      ],
+      "scratchFilesExcluded": [],
+      "validatorsRun": [
+        "npx vitest run tests/unit/user-action-taxonomy.spec.ts tests/unit/user-creator-logic-cleanup.spec.ts"
+      ]
+    },
+    {
+      "number": 288,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "action": "closed_superseded",
+      "reason": "Closed without landing broad FULL_SCALE_CODEBASE_AUDIT.md notes because current debug, score, and code-organization lanes already own monolith-risk tracking.",
+      "filesTouched": [],
+      "scratchFilesExcluded": [],
+      "validatorsRun": [
+        "gh pr diff 288 --repo omgitsguppey/kandylandv2 --patch"
+      ]
+    },
+    {
+      "number": 287,
+      "title": "Sentinel: [HIGH] Fix Open Redirect via Protocol-Relative URLs",
+      "action": "manual_implemented",
+      "reason": "Ported the high-severity open redirect backslash guard for promo/admin drop action URLs without touching payment, wallet, PayPal, or GumDrop math.",
+      "filesTouched": [
+        "src/components/PromoCard.tsx",
+        "src/lib/admin-drop-form.ts"
+      ],
+      "scratchFilesExcluded": [],
+      "validatorsRun": [
+        "npx vitest run tests/unit/promo-card.spec.ts tests/unit/admin-drop-form.spec.ts"
+      ]
+    },
+    {
+      "number": 286,
+      "title": "Bolt: Replace nested array.find with Map lookups in debug route",
+      "action": "manual_implemented",
+      "reason": "Ported the source-only admin debug Map lookup optimization and excluded the .jules scratch note.",
+      "filesTouched": [
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "scratchFilesExcluded": [
+        ".jules/bolt.md"
+      ],
+      "validatorsRun": [
+        "npm run typecheck"
+      ]
+    },
+    {
+      "number": 285,
+      "title": "Palette: Add aria-busy state to CreatorProfileHeader follow button",
+      "action": "manual_implemented",
+      "reason": "Ported the creator follow button aria-busy and spinner aria-hidden accessibility fix and excluded the .Jules scratch note.",
+      "filesTouched": [
+        "src/components/Creators/CreatorProfileHeader.tsx"
+      ],
+      "scratchFilesExcluded": [
+        ".Jules/palette.md"
+      ],
+      "validatorsRun": [
+        "npx vitest run tests/unit/creator-profile-mobile-timeline.spec.ts"
+      ]
+    }
+  ],
+  "openPrsAfter": [],
+  "unclassifiedPrCount": 0,
+  "preservedPrs": [],
+  "dirtyFilesBefore": [
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    }
+  ],
+  "dirtyFilesAfter": [
+    {
+      "path": "agent/state/debug-cockpit-pr-finalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-cockpit-pr-finalization.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-cockpit-pr-finalization.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-user-creator-logic-cleanup.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/user/onboarding-progress/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/Auth/GuidedOnboarding.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/Creators/CreatorProfileHeader.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/PromoCard.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/admin-drop-form.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/debug-cockpit-pr-finalization.spec.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/user-action-taxonomy.spec.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/user-creator-logic-cleanup.spec.ts",
+      "classification": "real_source_change_needs_review"
+    }
+  ],
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "nextBatchAllowed": true
+}

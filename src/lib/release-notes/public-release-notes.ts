@@ -1,13 +1,73 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.29",
-  "betaReleaseCounter": 429,
+  "currentVersion": "1.4.30",
+  "betaReleaseCounter": 430,
   "channel": "beta",
-  "generatedAt": "2026-05-24T11:05:00.000Z",
-  "generatedAtUtc": "2026-05-24T11:05:00.000Z",
+  "generatedAt": "2026-05-24T14:32:27.000Z",
+  "generatedAtUtc": "2026-05-24T14:32:27.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.30",
+      "previousVersion": "1.4.29",
+      "betaReleaseCounter": 430,
+      "previousBetaReleaseCounter": 429,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "chore(repo): finalize cockpit prerequisite prs",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T14:32:27.000Z",
+      "generatedAt": "2026-05-24T14:32:27.000Z",
+      "committedAtUtc": "2026-05-24T14:32:27.000Z",
+      "generatedAtUtc": "2026-05-24T14:32:27.000Z",
+      "updatedAtUtc": "2026-05-24T14:32:27.000Z",
+      "category": "Improved",
+      "title": "Debug cockpit PR readiness",
+      "summary": "Finalized the open PR queue so the debug cockpit and beta evidence refresh can start from a classified source state.",
+      "userFacingTitle": "Debug cockpit PR readiness",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Finalized open PRs before debug cockpit cleanup.",
+        "Merged, cherry-picked, manually implemented, or closed every PR with classification.",
+        "Prepared main for accurate cockpit/evidence refresh."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin debug",
+        "Beta readiness",
+        "Repo hygiene"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/debug-cockpit-pr-finalization.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/debug-cockpit-pr-finalization.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-debug-cockpit-pr-finalization.ts",
+        "scripts/agent/validate-user-creator-logic-cleanup.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/user/onboarding-progress/route.ts",
+        "src/components/Auth/GuidedOnboarding.tsx",
+        "src/components/Creators/CreatorProfileHeader.tsx",
+        "src/components/PromoCard.tsx",
+        "src/lib/admin-drop-form.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry.ts",
+        "tests/unit/debug-cockpit-pr-finalization.spec.ts",
+        "tests/unit/user-action-taxonomy.spec.ts",
+        "tests/unit/user-creator-logic-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "Classified every open PR, manually ported source-only security, accessibility, debug cost, and onboarding telemetry fixes, excluded Jules scratch files, and closed the remaining superseded PR."
+      ]
+    },
     {
       "version": "1.4.29",
       "previousVersion": "1.4.28",

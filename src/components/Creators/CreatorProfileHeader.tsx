@@ -106,6 +106,7 @@ export function CreatorProfileHeader({
                         type="button"
                         onClick={onFollow}
                         disabled={followLoading}
+                        aria-busy={followLoading}
                         className={cn(
                             "flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-xs font-bold transition-all sm:gap-2 sm:rounded-2xl sm:px-3 sm:text-sm",
                             following
@@ -114,7 +115,7 @@ export function CreatorProfileHeader({
                         )}
                     >
                         {followLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                         ) : following ? (
                             <>
                                 <UserCheck className="h-4 w-4" /> Following

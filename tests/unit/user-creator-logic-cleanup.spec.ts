@@ -86,9 +86,9 @@ describe("user creator logic cleanup", () => {
     expect(crmPanel).toContain('data-fan-pass-crm="mobile_v1"');
     expect(row).toContain('data-raw-user-id-hidden="true"');
     expect(`${queuePanel}\n${crmPanel}`).not.toContain("subscription.userId || subscription.id");
-    expect(broadcastCard).toContain('data-broadcast-audience="all_fans"');
-    expect(broadcastCard).toContain("Audience: Fans");
-    expect(broadcastCard).not.toMatch(/all followers|for followers/iu);
+    expect(broadcastCard).toContain('data-broadcast-audience="followers"');
+    expect(broadcastCard).toContain("Audience: Followers");
+    expect(broadcastCard).not.toMatch(/all fans|for fans/iu);
   });
 
   it("validates the cleanup report and blocks unresolved P0/P1 conflicts", () => {
