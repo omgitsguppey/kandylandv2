@@ -990,7 +990,7 @@ export function buildAdminDebugControlTowerModel(options?: {
     const operatorCockpit = buildDebugOperatorCockpit({
         scoreImpactQueue: readGeneratedRefreshQueue(rootDir),
         criticalRuntimeWarnings: buildCriticalWarnings(generatedBacklog.backlog, liveIssues),
-        adminTruthStatus: statusFromReports(reports, ["admin-truth", "admin_truth"], "Admin truth status is unknown.", "Run npm run check:admin-debug-control-tower."),
+        adminTruthStatus: statusFromReports(reports, ["admin-truth", "admin_truth"], "Admin truth source not loaded; classify source sample before clearing the formal gate.", "Run npm run check:admin-debug-control-tower."),
         telemetryLaneStatus: statusFromReports(reports, ["telemetry", "behavior", "watch-time"], "Telemetry lane status is unknown.", "Run npm run check:telemetry-dependency-graph."),
         costOwnerReviewLanes: costOwnerReviewLanes(reports),
         aiCriticFindings: readGeneratedAiCriticFindings(rootDir),

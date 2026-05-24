@@ -588,7 +588,12 @@
         "check:open-actions-route-runtime-cleanup": "tsx scripts/agent/validate-open-actions-route-runtime-cleanup.ts",
         "check:task-user-creator-intake-status-cleanup": "tsx scripts/agent/validate-task-user-creator-intake-status-cleanup.ts",
         "check:ai-assistant-fallback-cleanup": "tsx scripts/agent/validate-ai-assistant-fallback-cleanup.ts",
-        "check:debug-cockpit-batch6-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch6-cleanup.ts"
+        "check:debug-cockpit-batch6-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch6-cleanup.ts",
+        "check:control-tower-canonical-source": "tsx scripts/agent/validate-control-tower-canonical-source.ts",
+        "check:control-tower-report-freshness-cleanup": "tsx scripts/agent/validate-control-tower-report-freshness-cleanup.ts",
+        "check:control-tower-formal-gate-display": "tsx scripts/agent/validate-control-tower-formal-gate-display.ts",
+        "check:control-tower-operator-queue-cleanup": "tsx scripts/agent/validate-control-tower-operator-queue-cleanup.ts",
+        "check:debug-cockpit-batch7-control-tower-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch7-control-tower-cleanup.ts"
     },
     "dependencies": {
         "@axe-core/react": "^4.11.2",

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.37 - 2026-05-24
+
+- Cleaned Control Tower canonical score, evidence, and operator queue display.
+- Separated formal evidence gates from source-code issues.
+- Refreshed or retired stale Control Tower reports and collapsed non-actionable cockpit items.
+
 ## 1.4.36 - 2026-05-24
 
 - Reconciled admin ops health, route runtime, open actions, and AI fallback statuses.
