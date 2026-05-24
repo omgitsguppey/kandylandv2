@@ -7,7 +7,7 @@ import { getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
-import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
+import { recordCanonicalTaskEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
 import { preventDuplicateRewardClaim, resolveTaskResetPolicy, explainTaskReset } from "@/lib/tasks/daily-task-reset";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
@@ -135,6 +135,27 @@ export async function POST(request: NextRequest) {
         });
 
         if (result.alreadyClaimed) {
+            try {
+                await recordTelemetryEventStat("daily_task_failed", {
+                    task_id: "check_in_today",
+                    reward_gd: 0,
+                    reward_source: "reward_gd_only",
+                    reset_policy: result.resetPolicy,
+                    next_eligible_at: result.nextCheckInAt ?? 0,
+                    failure_reason: "duplicate_within_reset_window",
+                    source_component: "checkin_api",
+                    route: "/api/checkin",
+                    sourceTruth: "canonical",
+                });
+            } catch (taskFailureTelemetryError) {
+                recordRouteWarning("checkin", "Check-in duplicate failure telemetry failed", taskFailureTelemetryError, {
+                    channel: "analytics",
+                    detail: {
+                        userId,
+                        failureReason: "duplicate_within_reset_window",
+                    },
+                });
+            }
             return finalize(NextResponse.json({
                 error: "Already claimed today",
                 alreadyClaimed: true,
@@ -146,6 +167,15 @@ export async function POST(request: NextRequest) {
                 rewardSource: result.rewardSource,
                 eligibilityExplanation: result.eligibilityExplanation,
                 failureReason: "duplicate_within_reset_window",
+                lifecycleTelemetry: {
+                    failedEventName: "daily_task_failed",
+                    serverTruthSource: "users.lastCheckIn",
+                    startedAt: null,
+                    failedAt: Date.now(),
+                    durationMs: null,
+                    durationConfidence: "unavailable",
+                    failureReason: "duplicate_within_reset_window",
+                },
             }, { status: 409 }));
         }
 
@@ -173,6 +203,39 @@ export async function POST(request: NextRequest) {
             });
         }
 
+        try {
+            await recordTelemetryEventStat("daily_task_completed", {
+                task_id: "check_in_today",
+                reward_gd: result.reward,
+                reward_source: "reward_gd_only",
+                reset_policy: result.resetPolicy,
+                next_eligible_at: result.nextCheckInAt ?? 0,
+                source_component: "checkin_api",
+                route: "/api/checkin",
+                sourceTruth: "canonical",
+            });
+            await recordTelemetryEventStat("daily_task_reward_granted", {
+                task_id: "check_in_today",
+                reward_gd: result.reward,
+                reward_source: "reward_gd_only",
+                reset_policy: result.resetPolicy,
+                next_eligible_at: result.nextCheckInAt ?? 0,
+                source_component: "checkin_api",
+                route: "/api/checkin",
+                server_truth_source: "transactions.daily_reward.check_in",
+                sourceTruth: "canonical",
+            });
+        } catch (taskLifecycleTelemetryError) {
+            recordRouteWarning("checkin", "Check-in completed but lifecycle telemetry stat sync failed", taskLifecycleTelemetryError, {
+                channel: "analytics",
+                detail: {
+                    userId,
+                    reward: result.reward,
+                    streakCount: result.nextStreak,
+                },
+            });
+        }
+
         const updatedUserSnapshot = await userRef.get();
         const updatedUserData = (updatedUserSnapshot.data() ?? {}) as Partial<UserProfile>;
         await touchUserRuntime(userId, {
@@ -191,6 +254,15 @@ export async function POST(request: NextRequest) {
             resetPolicy: result.resetPolicy,
             rewardSource: result.rewardSource,
             eligibilityExplanation: result.eligibilityExplanation,
+            lifecycleTelemetry: {
+                completedEventName: "daily_task_completed",
+                rewardEventName: "daily_task_reward_granted",
+                serverTruthSource: "transactions.daily_reward.check_in",
+                startedAt: null,
+                completedAt: result.lastCheckIn,
+                durationMs: null,
+                durationConfidence: "unavailable",
+            },
             gumDropsBalance: Number.isFinite(updatedUserData.gumDropsBalance)
                 ? Number(updatedUserData.gumDropsBalance)
                 : result.newBalance,

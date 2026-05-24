@@ -14,6 +14,7 @@ import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
+import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 import { buildUserManagementRefactorReport } from "@/lib/admin/user-management-contract";
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
 import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
@@ -184,6 +185,9 @@ export async function buildAdminDebugSummaryPayload(input: {
   const dailyTasksResetTruth = {
     debugLane: buildDailyTaskDebugLane(),
   };
+  const dailyTaskLifecycleTelemetry = {
+    debugLane: buildDailyTaskLifecycleDebugLane(),
+  };
   const trackingSummary = buildDebugPanelTrackingSummary({
     identityHandoff,
     eventEnvelope,
@@ -192,6 +196,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     userManagementRefactor,
     telemetryTriggerTestMatrix,
     dailyTasksResetTruth,
+    dailyTaskLifecycleTelemetry,
     chatGatingModeration,
     chatTelemetryAdminTruth,
     legacyRecovery,
@@ -228,6 +233,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     chatGatingModeration,
     chatTelemetryAdminTruth,
     dailyTasksResetTruth,
+    dailyTaskLifecycleTelemetry,
     legacyRecovery,
     trackingSummary,
     costControls,

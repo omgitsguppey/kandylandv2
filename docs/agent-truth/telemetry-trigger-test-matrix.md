@@ -1,8 +1,8 @@
 # Telemetry Trigger Test Matrix
 
-Generated: 2026-05-23T19:33:27.979Z
+Generated: 2026-05-24T03:04:06.275Z
 Status: pass
-Current head: 7436c77c58d8873952a130244cf8117ee99660db
+Current head: b24ad4bcdf2a95966906d0e8731d9a5306f653fc
 
 ## Contract
 
@@ -85,13 +85,42 @@ Current head: 7436c77c58d8873952a130244cf8117ee99660db
 
 ## Dirty Files
 
-- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/final-testing-tracking-telemetry-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/future-activity-signal-reclassification.generated.json: current_generated_artifact_to_commit
+- CHANGELOG.md: release_artifact_expected
+- agent/state/daily-task-lifecycle-telemetry.generated.json: current_generated_artifact_to_commit
+- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/final-testing-tracking-telemetry-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/future-activity-signal-reclassification.md: documentation_artifact_expected
+- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-reset-truth.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
+- package.json: real_source_change_needs_review
+- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-reset-truth.ts: validator_artifact_expected
+- src/app/api/admin/debug/route.ts: real_source_change_needs_review
+- src/app/api/checkin/route.ts: real_source_change_needs_review
+- src/components/Dashboard/DailyCheckIn.tsx: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/behavioral/event-fact-contract.ts: real_source_change_needs_review
+- src/lib/behavioral/event-fact-normalizer.ts: real_source_change_needs_review
+- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
+- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- src/lib/server/admin-debug/summary.ts: real_source_change_needs_review
+- src/lib/tasks/daily-task-contract.ts: real_source_change_needs_review
+- src/lib/tasks/daily-task-duration.ts: real_source_change_needs_review
+- src/lib/tasks/daily-task-telemetry.ts: real_source_change_needs_review
+- src/lib/telemetry-catalog.ts: real_source_change_needs_review
+- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
+- tests/unit/daily-task-lifecycle-telemetry.spec.ts: test_artifact_expected
+- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

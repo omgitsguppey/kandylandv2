@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-05-24T03:02:57.403Z",
+  "generatedAtUtc": "2026-05-24T03:06:31.276Z",
   "currentHead": "b24ad4bc",
   "scoreBefore": {
     "sourceHealth": 91.7,
@@ -19,17 +19,114 @@
     "regressionRisk": 42,
     "overallHealthScore": 61.55
   },
-  "resetPolicyExplicit": true,
-  "resetPolicy": "calendar_day",
-  "resetAnchor": "central_midnight",
-  "timezone": "America/Chicago",
-  "duplicateRewardGuard": true,
+  "lifecycleEvents": [
+    "daily_task_surface_viewed",
+    "daily_task_card_viewed",
+    "daily_task_guidance_opened",
+    "daily_task_started",
+    "daily_task_action_attempted",
+    "daily_task_completed",
+    "daily_task_reward_granted",
+    "daily_task_failed",
+    "daily_task_abandoned",
+    "daily_task_reset_locked",
+    "daily_task_next_eligible_viewed"
+  ],
+  "requiredEventsRegistered": true,
+  "completionHasStartAttemptPath": true,
+  "rewardGrantedServerTruth": true,
+  "durationRejectsPassivePageTime": true,
+  "abandonedTasksClassifiable": true,
+  "failureReasonRequired": true,
   "rewardSourceTruth": "reward_gd_only",
-  "apiTrustsCallerAuth": true,
-  "apiRejectsArbitraryUserId": true,
-  "uiGuidanceRouteStatus": "current_routes",
-  "taskStatusHasNextEligibleAt": true,
+  "personTaskMetrics": [
+    {
+      "metricId": "daily_task_views",
+      "present": true,
+      "eventNames": [
+        "daily_task_surface_viewed",
+        "daily_task_card_viewed",
+        "daily_tasks_viewed"
+      ],
+      "hydratedCount": 2
+    },
+    {
+      "metricId": "daily_task_starts",
+      "present": true,
+      "eventNames": [
+        "daily_task_started"
+      ],
+      "hydratedCount": 1
+    },
+    {
+      "metricId": "daily_task_completions",
+      "present": true,
+      "eventNames": [
+        "daily_task_completed",
+        "task_completed",
+        "daily_checkin_claimed"
+      ],
+      "hydratedCount": 1
+    },
+    {
+      "metricId": "daily_task_failures",
+      "present": true,
+      "eventNames": [
+        "daily_task_failed"
+      ],
+      "hydratedCount": 1
+    },
+    {
+      "metricId": "daily_task_rewards_granted",
+      "present": true,
+      "eventNames": [
+        "daily_task_reward_granted",
+        "daily_task_claimed"
+      ],
+      "hydratedCount": 1
+    },
+    {
+      "metricId": "daily_task_average_duration",
+      "present": true,
+      "eventNames": [
+        "daily_task_completed",
+        "daily_task_failed",
+        "daily_task_abandoned"
+      ],
+      "hydratedCount": 3
+    },
+    {
+      "metricId": "daily_task_abandonments",
+      "present": true,
+      "eventNames": [
+        "daily_task_abandoned"
+      ],
+      "hydratedCount": 1
+    },
+    {
+      "metricId": "daily_task_reset_locked_views",
+      "present": true,
+      "eventNames": [
+        "daily_task_reset_locked",
+        "daily_task_next_eligible_viewed"
+      ],
+      "hydratedCount": 2
+    }
+  ],
   "debugLanePresent": true,
+  "debugLane": {
+    "lane": "Daily task lifecycle",
+    "status": "review",
+    "missingStarts": 0,
+    "completionsWithoutStarts": 0,
+    "rewardsWithoutCompletions": 0,
+    "durationUnavailableCount": 1,
+    "failureReasons": [
+      "inactive_after_start"
+    ],
+    "rawDetailsCollapsedByDefault": true,
+    "sourceOfTruth": "src/lib/tasks/daily-task-telemetry.ts"
+  },
   "chatTouched": false,
   "paymentRuntimeTouched": false,
   "paidGdMathTouched": false,
@@ -40,11 +137,11 @@
     },
     {
       "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/daily-task-reset-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
@@ -56,7 +153,7 @@
     },
     {
       "path": "agent/state/public-beta-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
@@ -64,23 +161,23 @@
     },
     {
       "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-      "classification": "release_artifact_expected"
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/daily-task-reset-truth.md",
-      "classification": "release_artifact_expected"
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "release_artifact_expected"
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "release_artifact_expected"
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "release_artifact_expected"
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "package.json",
@@ -92,11 +189,11 @@
     },
     {
       "path": "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
-      "classification": "real_source_change_needs_review"
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "scripts/agent/validate-daily-task-reset-truth.ts",
-      "classification": "real_source_change_needs_review"
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "src/app/api/admin/debug/route.ts",
@@ -172,24 +269,21 @@
     },
     {
       "path": "tests/unit/daily-task-lifecycle-telemetry.spec.ts",
-      "classification": "real_source_change_needs_review"
+      "classification": "test_artifact_expected"
     },
     {
       "path": "tests/unit/user-management-refactor.spec.ts",
-      "classification": "real_source_change_needs_review"
+      "classification": "test_artifact_expected"
     }
   ],
   "scoreDimensionImpact": {
-    "sourceHealth": "Daily check-in reset policy, route, and debug source are explicit.",
-    "runtimeHealth": "Runtime/provider evidence is unchanged; no production reads were run.",
-    "evidenceCompleteness": "Adds validator, generated report, and debug lane for daily task reset truth.",
-    "freshness": "Refreshes local score/report artifacts through targeted validators.",
-    "costRisk": "No broad production reads; duplicate claims are rejected before reward credit.",
-    "regressionRisk": "Focused unit coverage protects reset window and reward-source behavior.",
-    "overallHealthScore": "Moves task readiness evidence without clearing formal external gates."
+    "sourceHealth": "Daily task lifecycle events are cataloged and mapped to task/person metric sources.",
+    "runtimeHealth": "No production/provider proof is claimed; route metadata stays server-truth compatible.",
+    "evidenceCompleteness": "Adds validator, report, debug lane, and deterministic duration tests.",
+    "freshness": "Refreshes the lifecycle report with the current HEAD and beta score artifact.",
+    "costRisk": "No production reads; lifecycle telemetry uses existing event paths and bounded local validators.",
+    "regressionRisk": "Adds red-green unit coverage for active duration and reward-source separation.",
+    "overallHealthScore": "Improves task lifecycle evidence without clearing formal external gates."
   },
-  "remainingGaps": [],
-  "nextExactSteps": [
-    "Collect runtime/provider smoke evidence separately if beta score evidence gates require it."
-  ]
+  "validationFailures": []
 }

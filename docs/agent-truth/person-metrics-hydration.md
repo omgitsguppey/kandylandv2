@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-05-24T02:09:09.772Z
+Generated: 2026-05-24T03:03:58.147Z
 Status: pass
-Current head: 7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482
+Current head: b24ad4bcdf2a95966906d0e8731d9a5306f653fc
 
 ## Contract
 
@@ -14,10 +14,10 @@ Current head: 7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482
 
 ## Debug Lane
 
-- Producers registered: 108
-- Producers connected: 25
-- Event envelopes hydrated: 34
-- Person metrics mapped: 25
+- Producers registered: 124
+- Producers connected: 33
+- Event envelopes hydrated: 46
+- Person metrics mapped: 33
 - Low-confidence metrics: 0
 - Gaps: 0
 
@@ -43,6 +43,14 @@ Current head: 7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482
 - broadcasts_clicked: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - follows: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - chat_actions: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
+- daily_task_views: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
+- daily_task_starts: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
+- daily_task_completions: state=hydrated; count=2; confidence=exact; provenZero=false; missing=none
+- daily_task_failures: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
+- daily_task_rewards_granted: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
+- daily_task_average_duration: state=hydrated; count=4; confidence=exact; provenZero=false; missing=none
+- daily_task_abandonments: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
+- daily_task_reset_locked_views: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - notification_interactions: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - runtime_watch_sessions: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - settings_actions: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
@@ -61,54 +69,40 @@ Current head: 7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
-- agent/state/chat-functionality-score-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-gating-moderation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-presence-typing.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-realtime-cost-control.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-telemetry-admin-truth.generated.json: current_generated_artifact_to_commit
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-lifecycle-telemetry.generated.json: current_generated_artifact_to_commit
+- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-functionality-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-gating-moderation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-presence-typing.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-realtime-cost-control.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-telemetry-admin-truth.md: documentation_artifact_expected
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/daily-task-lifecycle-telemetry.md: documentation_artifact_expected
+- docs/agent-truth/daily-task-reset-truth.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-chat-functionality-score-lock.ts: validator_artifact_expected
-- scripts/agent/validate-chat-gating-moderation.ts: validator_artifact_expected
-- scripts/agent/validate-chat-presence-typing.ts: validator_artifact_expected
-- scripts/agent/validate-chat-realtime-cost-control.ts: validator_artifact_expected
-- scripts/agent/validate-chat-telemetry-admin-truth.ts: validator_artifact_expected
-- scripts/agent/validate-debug-tracking-simplification.ts: validator_artifact_expected
-- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
-- scripts/agent/validate-feature-registration-gate.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-reset-truth.ts: validator_artifact_expected
 - src/app/api/admin/debug/route.ts: real_source_change_needs_review
-- src/components/Chat/ChatExperience.tsx: real_source_change_needs_review
+- src/app/api/checkin/route.ts: real_source_change_needs_review
+- src/components/Dashboard/DailyCheckIn.tsx: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/behavioral/event-fact-contract.ts: real_source_change_needs_review
+- src/lib/behavioral/event-fact-normalizer.ts: real_source_change_needs_review
 - src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
-- src/lib/chat/chat-telemetry-contract.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - src/lib/server/admin-debug/summary.ts: real_source_change_needs_review
-- src/lib/server/chat.ts: real_source_change_needs_review
+- src/lib/tasks/daily-task-contract.ts: real_source_change_needs_review
+- src/lib/tasks/daily-task-duration.ts: real_source_change_needs_review
+- src/lib/tasks/daily-task-telemetry.ts: real_source_change_needs_review
 - src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/chat-functionality-score-lock.spec.ts: test_artifact_expected
-- tests/unit/chat-telemetry-admin-truth.spec.ts: test_artifact_expected
+- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
+- tests/unit/daily-task-lifecycle-telemetry.spec.ts: test_artifact_expected
 - tests/unit/user-management-refactor.spec.ts: test_artifact_expected
 
 ## Active Old Logic

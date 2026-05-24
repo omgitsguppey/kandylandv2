@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle, Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,6 +12,8 @@ import { DAILY_CHECK_IN_REWARD_LADDER, getDailyCheckInProgress } from "@/lib/dai
 import { trackEvent } from "@/lib/telemetry";
 import { getCSTDateKey } from "@/lib/timezone";
 import { resolveTaskResetPolicy, explainTaskReset } from "@/lib/tasks/daily-task-reset";
+import { startDailyTaskDuration, finishDailyTaskDuration } from "@/lib/tasks/daily-task-duration";
+import { buildDailyTaskLifecycleEventPayload } from "@/lib/tasks/daily-task-telemetry";
 import { cn } from "@/lib/utils";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -37,6 +39,14 @@ function emitGuidedCheckIn(status: "success" | "already-claimed" | "error", mess
     }));
 }
 
+function readVisibilityState() {
+    if (typeof document === "undefined") {
+        return "unknown" as const;
+    }
+
+    return document.visibilityState === "hidden" ? "hidden" as const : "visible" as const;
+}
+
 type DailyCheckInVariant = "dashboard" | "experiences";
 
 interface DailyCheckInProps {
@@ -48,6 +58,9 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
     const [loading, setLoading] = useState(false);
     const [optimisticCheckInMs, setOptimisticCheckInMs] = useState<number | null>(null);
     const [optimisticStreak, setOptimisticStreak] = useState<number | null>(null);
+    const lifecycleSurfaceViewedRef = useRef(false);
+    const lifecycleLockedKeyRef = useRef<string | null>(null);
+    const lifecycleStartedAtRef = useRef<number | null>(null);
     const nowMs = useNow({ intervalMs: 1_000 });
     const isMounted = nowMs > 0;
 
@@ -90,6 +103,63 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
     const nextRewardAmount = checkInProgress.nextRewardAmount;
     const displayedStreakCount = checkInProgress.displayedStreakCount;
     const isExperiencesVariant = variant === "experiences";
+    const lifecycleRoute = isExperiencesVariant ? "/experiences" : "/dashboard";
+
+    useEffect(() => {
+        if (!user?.uid || lifecycleSurfaceViewedRef.current) {
+            return;
+        }
+
+        lifecycleSurfaceViewedRef.current = true;
+        const common = {
+            taskId: "check_in_today",
+            taskKind: "daily_check_in" as const,
+            userId: user.uid,
+            rewardGdAmount: rewardAmount,
+            resetPolicy: resetResolution.resetPolicy,
+            nextEligibleAt: resetResolution.nextEligibleAt,
+            sourceComponent: "DailyCheckIn",
+            route: lifecycleRoute,
+        };
+        trackEvent("daily_task_surface_viewed", buildDailyTaskLifecycleEventPayload({
+            ...common,
+            eventName: "daily_task_surface_viewed",
+        }));
+        trackEvent("daily_task_card_viewed", buildDailyTaskLifecycleEventPayload({
+            ...common,
+            eventName: "daily_task_card_viewed",
+        }));
+    }, [lifecycleRoute, resetResolution.nextEligibleAt, resetResolution.resetPolicy, rewardAmount, user?.uid]);
+
+    useEffect(() => {
+        if (!user?.uid || !isClaimedToday || !resetResolution.nextEligibleAt) {
+            return;
+        }
+
+        const lockedKey = `${user.uid}:${resetResolution.nextEligibleAt}`;
+        if (lifecycleLockedKeyRef.current === lockedKey) {
+            return;
+        }
+        lifecycleLockedKeyRef.current = lockedKey;
+        const common = {
+            taskId: "check_in_today",
+            taskKind: "daily_check_in" as const,
+            userId: user.uid,
+            rewardGdAmount: nextRewardAmount,
+            resetPolicy: resetResolution.resetPolicy,
+            nextEligibleAt: resetResolution.nextEligibleAt,
+            sourceComponent: "DailyCheckIn",
+            route: lifecycleRoute,
+        };
+        trackEvent("daily_task_reset_locked", buildDailyTaskLifecycleEventPayload({
+            ...common,
+            eventName: "daily_task_reset_locked",
+        }));
+        trackEvent("daily_task_next_eligible_viewed", buildDailyTaskLifecycleEventPayload({
+            ...common,
+            eventName: "daily_task_next_eligible_viewed",
+        }));
+    }, [isClaimedToday, lifecycleRoute, nextRewardAmount, resetResolution.nextEligibleAt, resetResolution.resetPolicy, user?.uid]);
 
     const handleClaim = async () => {
         if (loading || !canCheckIn) {
@@ -97,6 +167,31 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
         }
 
         setLoading(true);
+        const activeStart = startDailyTaskDuration({
+            taskId: "check_in_today",
+            nowMs: Date.now(),
+            visibilityState: readVisibilityState(),
+        });
+        lifecycleStartedAtRef.current = activeStart.startedAt;
+        const lifecycleCommon = {
+            taskId: "check_in_today",
+            taskKind: "daily_check_in" as const,
+            userId: user?.uid ?? null,
+            rewardGdAmount: rewardAmount,
+            resetPolicy: resetResolution.resetPolicy,
+            nextEligibleAt: resetResolution.nextEligibleAt,
+            startedAt: activeStart.startedAt,
+            sourceComponent: "DailyCheckIn",
+            route: lifecycleRoute,
+        };
+        trackEvent("daily_task_started", buildDailyTaskLifecycleEventPayload({
+            ...lifecycleCommon,
+            eventName: "daily_task_started",
+        }));
+        trackEvent("daily_task_action_attempted", buildDailyTaskLifecycleEventPayload({
+            ...lifecycleCommon,
+            eventName: "daily_task_action_attempted",
+        }));
 
         try {
             const response = await authFetch("/api/checkin", {
@@ -115,10 +210,34 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 rewardSource?: "reward_gd_only";
                 eligibilityExplanation?: string;
                 failureReason?: string;
+                lifecycleTelemetry?: {
+                    completedEventName?: "daily_task_completed";
+                    rewardEventName?: "daily_task_reward_granted";
+                    serverTruthSource?: string;
+                    startedAt?: number | null;
+                    completedAt?: number | null;
+                    durationMs?: number | null;
+                    durationConfidence?: "exact" | "active_session_estimated" | "unavailable";
+                };
             };
 
             if (!response.ok) {
                 if (result.alreadyClaimed) {
+                    const failedDuration = finishDailyTaskDuration({
+                        startedAt: lifecycleStartedAtRef.current,
+                        attemptedAt: lifecycleStartedAtRef.current,
+                        finishedAt: Date.now(),
+                        status: "failed",
+                        failureReason: result.failureReason ?? "duplicate_within_reset_window",
+                        visibilityState: readVisibilityState(),
+                    });
+                    trackEvent("daily_task_failed", buildDailyTaskLifecycleEventPayload({
+                        ...lifecycleCommon,
+                        eventName: "daily_task_failed",
+                        durationMs: failedDuration.durationMs,
+                        durationConfidence: failedDuration.confidence,
+                        failureReason: failedDuration.failureReason,
+                    }));
                     setOptimisticCheckInMs(Number.isFinite(result.lastCheckIn) ? Math.floor(Number(result.lastCheckIn)) : Date.now());
                     setOptimisticStreak(Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : Number(currentStreak || 0));
                     emitGuidedCheckIn("already-claimed");
@@ -134,6 +253,18 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
             const reward = Number.isFinite(result.reward) ? Number(result.reward) : rewardAmount;
             const streak = Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : checkInProgress.claimStreak;
             const claimedAt = Number.isFinite(result.lastCheckIn) ? Math.floor(Number(result.lastCheckIn)) : Date.now();
+            const completedDuration = finishDailyTaskDuration({
+                startedAt: lifecycleStartedAtRef.current,
+                attemptedAt: lifecycleStartedAtRef.current,
+                finishedAt: Date.now(),
+                status: "completed",
+                visibilityState: readVisibilityState(),
+            });
+            const serverDurationMs = result.lifecycleTelemetry?.durationMs;
+            const lifecycleDurationMs = Number.isFinite(serverDurationMs) ? Number(serverDurationMs) : completedDuration.durationMs;
+            const lifecycleDurationConfidence = Number.isFinite(serverDurationMs)
+                ? result.lifecycleTelemetry?.durationConfidence ?? completedDuration.confidence
+                : completedDuration.confidence;
 
             setOptimisticCheckInMs(claimedAt);
             setOptimisticStreak(streak);
@@ -182,9 +313,42 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 transaction_id: `${user?.uid ?? "user"}:checkin:${claimedAt}`,
                 sourceTruth: "client_supporting",
             });
+            trackEvent("daily_task_completed", buildDailyTaskLifecycleEventPayload({
+                ...lifecycleCommon,
+                eventName: "daily_task_completed",
+                rewardGdAmount: reward,
+                nextEligibleAt: result.nextEligibleAt,
+                durationMs: lifecycleDurationMs,
+                durationConfidence: lifecycleDurationConfidence,
+                serverTruthSource: result.lifecycleTelemetry?.serverTruthSource,
+            }));
+            trackEvent("daily_task_reward_granted", buildDailyTaskLifecycleEventPayload({
+                ...lifecycleCommon,
+                eventName: "daily_task_reward_granted",
+                rewardGdAmount: reward,
+                nextEligibleAt: result.nextEligibleAt,
+                durationMs: lifecycleDurationMs,
+                durationConfidence: lifecycleDurationConfidence,
+                serverTruthSource: result.lifecycleTelemetry?.serverTruthSource ?? "transactions.daily_reward.check_in",
+            }));
             emitGuidedCheckIn("success");
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to claim reward";
+            const failedDuration = finishDailyTaskDuration({
+                startedAt: lifecycleStartedAtRef.current,
+                attemptedAt: lifecycleStartedAtRef.current,
+                finishedAt: Date.now(),
+                status: "failed",
+                failureReason: message,
+                visibilityState: readVisibilityState(),
+            });
+            trackEvent("daily_task_failed", buildDailyTaskLifecycleEventPayload({
+                ...lifecycleCommon,
+                eventName: "daily_task_failed",
+                durationMs: failedDuration.durationMs,
+                durationConfidence: failedDuration.confidence,
+                failureReason: failedDuration.failureReason,
+            }));
             reportClientIssue({
                 channel: "payments",
                 message: "Daily check-in reward claim failed",
@@ -200,6 +364,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
             toast.error(message);
         } finally {
             setLoading(false);
+            lifecycleStartedAtRef.current = null;
         }
     };
 

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.7 - 2026-05-23
+- Daily task lifecycle telemetry
+- Added daily task lifecycle telemetry and active duration tracking.
+- Separated task reward truth from client completion events.
+- Added task metrics to global and per-user analytics.
+
 ## 1.4.6 - 2026-05-23
 - Daily task reset truth
 - Clarified daily task eligibility, reset timing, and reward-GD source.

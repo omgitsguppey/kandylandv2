@@ -1,13 +1,77 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.6",
-  "betaReleaseCounter": 406,
+  "currentVersion": "1.4.7",
+  "betaReleaseCounter": 407,
   "channel": "beta",
-  "generatedAt": "2026-05-24T02:35:00.000Z",
-  "generatedAtUtc": "2026-05-24T02:35:00.000Z",
+  "generatedAt": "2026-05-24T02:55:00.000Z",
+  "generatedAtUtc": "2026-05-24T02:55:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.7",
+      "previousVersion": "1.4.6",
+      "betaReleaseCounter": 407,
+      "previousBetaReleaseCounter": 406,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(tasks): track lifecycle duration",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T02:55:00.000Z",
+      "generatedAt": "2026-05-24T02:55:00.000Z",
+      "committedAtUtc": "2026-05-24T02:55:00.000Z",
+      "generatedAtUtc": "2026-05-24T02:55:00.000Z",
+      "updatedAtUtc": "2026-05-24T02:55:00.000Z",
+      "category": "Improved",
+      "title": "Daily task lifecycle telemetry",
+      "summary": "Added daily task lifecycle telemetry, active duration tracking, reward-truth separation, task person metrics, and debug visibility without counting passive page time or changing paid GumDrop math.",
+      "userFacingTitle": "Daily task lifecycle telemetry",
+      "surfaceCategory": "Daily tasks",
+      "bullets": [
+        "Added daily task lifecycle telemetry and active duration tracking.",
+        "Separated task reward truth from client completion events.",
+        "Added task metrics to global and per-user analytics."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added daily task lifecycle and duration contracts, check-in UI/API telemetry wiring, task person metric hydration, debug summary coverage, generated validation, and unit tests while preserving reward-only GumDrops and server reward truth."
+      ],
+      "affectedSurfaces": [
+        "Daily tasks",
+        "Check-in",
+        "Admin debug",
+        "Telemetry",
+        "Person metrics"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/daily-task-lifecycle-telemetry.generated.json",
+        "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/checkin/route.ts",
+        "src/components/Dashboard/DailyCheckIn.tsx",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/behavioral/event-fact-contract.ts",
+        "src/lib/behavioral/event-fact-normalizer.ts",
+        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "src/lib/tasks/daily-task-contract.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/tasks/daily-task-telemetry.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/daily-task-lifecycle-telemetry.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.6",
       "previousVersion": "1.4.5",
@@ -1357,58 +1421,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/final-user-tracking-handoff-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.82",
-      "previousVersion": "1.3.81",
-      "betaReleaseCounter": 382,
-      "previousBetaReleaseCounter": 381,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): define person metrics",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-22T23:18:00.000Z",
-      "generatedAt": "2026-05-22T23:18:00.000Z",
-      "committedAtUtc": "2026-05-22T23:18:00.000Z",
-      "generatedAtUtc": "2026-05-22T23:18:00.000Z",
-      "updatedAtUtc": "2026-05-22T23:18:00.000Z",
-      "category": "Improved",
-      "title": "Per-person metrics contract",
-      "summary": "Defined how global, guest, signed-in, and linked-person analytics count product behavior with consent and identity confidence safeguards.",
-      "userFacingTitle": "Per-person metrics contract",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Added per-person metrics contract for guest and signed-in behavior.",
-        "Separated global, guest, user, and linked-person analytics.",
-        "Prevented checkout starts from counting as successful payments."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the person metrics contract, engine, validator, generated evidence, and unit coverage without reading production data or changing payment, GumDrop, chat, or navigation runtime."
-      ],
-      "affectedSurfaces": [
-        "Analytics",
-        "Privacy",
-        "Admin debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/person-metrics-contract.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/person-metrics-contract.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-engine.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/person-metrics-contract.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

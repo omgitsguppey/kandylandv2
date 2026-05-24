@@ -8,6 +8,7 @@ import {
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
+import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -23,6 +24,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "legacy_recovery",
   "wallet_funnel",
   "daily_tasks_reset",
+  "daily_task_lifecycle",
   "chat_gating_moderation",
   "chat_telemetry_admin_truth",
   "runtime_debug_evidence",
@@ -91,6 +93,7 @@ const TRACKING_GROUPS = [
   "legacy_recovery",
   "wallet_funnel",
   "daily_tasks_reset",
+  "daily_task_lifecycle",
   "chat_gating_moderation",
   "chat_telemetry_admin_truth",
   "runtime_debug",
@@ -203,6 +206,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const legacyStatus = toStatus(input.legacyRecovery?.status);
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
   const dailyTasksReset = input.dailyTasksResetTruth?.debugLane ?? buildDailyTaskDebugLane();
+  const dailyTaskLifecycle = input.dailyTaskLifecycleTelemetry?.debugLane ?? buildDailyTaskLifecycleDebugLane();
+  const dailyTaskLifecycleWarnings = toNumber(dailyTaskLifecycle.missingStarts)
+    + toNumber(dailyTaskLifecycle.completionsWithoutStarts)
+    + toNumber(dailyTaskLifecycle.rewardsWithoutCompletions);
   const chatGating = input.chatGatingModeration?.debugLane ?? buildChatGatingDebugLane();
   const chatGatingBlocked = toNumber(chatGating.blockedAttempts);
   const chatTelemetry = input.chatTelemetryAdminTruth?.summaryLane ?? buildChatAdminTelemetrySummaryLane();
@@ -407,6 +414,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: dailyTasksReset.duplicateClaimGuard ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=advanced#daily-tasks-reset",
+    }),
+    makeLane({
+      id: "daily_task_lifecycle",
+      label: "Daily task lifecycle",
+      trackingSystem: "daily_task_lifecycle",
+      sourceOwner: "retention",
+      sourceOfTruth: "src/lib/tasks/daily-task-telemetry.ts",
+      status: dailyTaskLifecycle.status === "degraded" ? "degraded" : dailyTaskLifecycle.status === "review" ? "degraded" : "live",
+      severity: severityFromCounts(0, dailyTaskLifecycleWarnings, dailyTaskLifecycle.status === "degraded" ? "degraded" : dailyTaskLifecycle.status === "review" ? "degraded" : "live"),
+      scoreImpact: "medium",
+      primarySignal: `Missing starts=${toNumber(dailyTaskLifecycle.missingStarts)}; completions-without-starts=${toNumber(dailyTaskLifecycle.completionsWithoutStarts)}; rewards-without-completions=${toNumber(dailyTaskLifecycle.rewardsWithoutCompletions)}; duration-unavailable=${toNumber(dailyTaskLifecycle.durationUnavailableCount)}; failure-reasons=${dailyTaskLifecycle.failureReasons?.length ?? 0}.`,
+      criticalCount: 0,
+      warningCount: dailyTaskLifecycleWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#daily-task-lifecycle",
     }),
     makeLane({
       id: "chat_gating_moderation",
