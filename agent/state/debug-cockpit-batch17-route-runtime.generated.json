@@ -1,0 +1,55 @@
+{
+  "reportKey": "debug-cockpit-batch17-route-runtime",
+  "generatedAtUtc": "2026-05-24T20:50:56.215Z",
+  "trackedRoutes": 173,
+  "observedRoutes": 109,
+  "unseenRoutes": 64,
+  "staleRoutes": 54,
+  "currentFailsBefore": 1,
+  "currentFailsAfter": 1,
+  "staleFails": 50,
+  "warningSamplesBefore": 156,
+  "warningGroupsAfter": 4,
+  "slowSamples": 42346,
+  "currentSlowRoutes": 3,
+  "routeListenerStatus": "current",
+  "exactFailRoutes": [
+    "admin/debug/control-tower:GET"
+  ],
+  "nativeChatStatusBefore": "contradictory_copy",
+  "nativeChatStatusAfter": "warning",
+  "nativeChatErrorRate": "0.9%",
+  "nativeChatThreshold": "1.0%",
+  "compatChatStatusBefore": "contradictory_copy",
+  "compatChatStatusAfter": "legacy_visible_until_removal",
+  "compatLegacyRemovalDate": "2026-07-31",
+  "displayContradictionsBefore": 2,
+  "displayContradictionsAfter": 0,
+  "scoreBefore": 79,
+  "scoreAfter": 79,
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk",
+    "regressionRisk"
+  ],
+  "remainingGaps": [
+    "One current failing route remains visible for route owner inspection.",
+    "Formal runtime/provider evidence gates remain separate from route runtime source classification."
+  ],
+  "nextExactSteps": [
+    "Inspect admin/debug/control-tower:GET latest server error sample.",
+    "Collect fresh samples for stale routes only when those routes are expected in the current window.",
+    "Keep creator/messages compatibility cohort visible until 2026-07-31 removal task."
+  ],
+  "dirtyFilesClassified": true,
+  "openPrsClassified": true,
+  "releaseNotes": [
+    "Cleaned route runtime rollups and separated current failures, stale routes, unseen routes, warnings, and slow samples.",
+    "Added native and compatibility chat route cohort status.",
+    "Fixed route runtime display contradictions without hiding real failures."
+  ],
+  "validationFailures": []
+}

@@ -1,11 +1,73 @@
 {
-  "currentVersion": "1.4.46",
-  "betaReleaseCounter": 446,
+  "currentVersion": "1.4.47",
+  "betaReleaseCounter": 447,
   "channel": "beta",
-  "generatedAt": "2026-05-24T20:30:59.435Z",
-  "generatedAtUtc": "2026-05-24T20:30:59.435Z",
+  "generatedAt": "2026-05-24T20:58:08.356Z",
+  "generatedAtUtc": "2026-05-24T20:58:08.356Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.47",
+      "previousVersion": "1.4.46",
+      "betaReleaseCounter": 447,
+      "previousBetaReleaseCounter": 446,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean route runtime rollups",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T20:58:08.356Z",
+      "generatedAt": "2026-05-24T20:58:08.356Z",
+      "committedAtUtc": "2026-05-24T20:58:08.356Z",
+      "generatedAtUtc": "2026-05-24T20:58:08.356Z",
+      "updatedAtUtc": "2026-05-24T20:58:08.356Z",
+      "category": "Fixed",
+      "title": "Route runtime rollup cleanup",
+      "summary": "Cleaned route runtime rollups so current failures, stale routes, unseen routes, warning groups, slow samples, and chat compatibility cohorts display as separate truths.",
+      "userFacingTitle": "Route runtime rollup cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleaned route runtime rollups and separated current failures, stale routes, unseen routes, warnings, and slow samples.",
+        "Added native and compatibility chat route cohort status.",
+        "Fixed route runtime display contradictions without hiding real failures."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin diagnostics",
+        "Internal reliability",
+        "Chat & support"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/chat-route-cohort-runtime.generated.json",
+        "agent/state/debug-cockpit-batch17-route-runtime.generated.json",
+        "agent/state/route-runtime-display-cleanup.generated.json",
+        "docs/agent-truth/chat-route-cohort-runtime.md",
+        "docs/agent-truth/debug-cockpit-batch17-route-runtime.md",
+        "docs/agent-truth/route-runtime-display-cleanup.md",
+        "package.json",
+        "scripts/agent/debug-cockpit-batch17-shared.ts",
+        "scripts/agent/validate-chat-route-cohort-runtime.ts",
+        "scripts/agent/validate-debug-cockpit-batch17-route-runtime.ts",
+        "scripts/agent/validate-route-runtime-display-cleanup.ts",
+        "src/app/admin/debug/components/DebugMonitoringRoutes.tsx",
+        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
+        "src/lib/debug/debug-cockpit-batch17-route-runtime.ts",
+        "src/lib/debug/route-runtime-display-status.ts",
+        "src/lib/debug/route-runtime-rollup-contract.ts",
+        "src/lib/debug/route-runtime-rollup-engine.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/chat-route-cohort-runtime.spec.ts",
+        "tests/unit/debug-cockpit-batch17-route-runtime.spec.ts",
+        "tests/unit/route-runtime-display-cleanup.spec.ts"
+      ],
+      "effectiveChangeCount": 22,
+      "excludedGeneratedChangeCount": 3,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.46",
       "previousVersion": "1.4.45",
@@ -1603,65 +1665,6 @@
         "tests/unit/email-password-auth-refactor.spec.ts"
       ],
       "sourceCommit": "a998782f507b2abe21ffd7be01ccbebf031d23c9"
-    },
-    {
-      "version": "1.4.22",
-      "previousVersion": "1.4.21",
-      "betaReleaseCounter": 422,
-      "previousBetaReleaseCounter": 421,
-      "commitSha": "085ad0beaca951aa811900ed42724962773d3815",
-      "commitTitle": "fix(auth): resolve provider conflicts",
-      "commitCount": 1,
-      "commitShas": [
-        "085ad0beaca951aa811900ed42724962773d3815"
-      ],
-      "committedAt": "2026-05-24T08:08:13.000Z",
-      "generatedAt": "2026-05-24T08:20:17.055Z",
-      "committedAtUtc": "2026-05-24T08:08:13.000Z",
-      "generatedAtUtc": "2026-05-24T08:20:17.055Z",
-      "updatedAtUtc": "2026-05-24T08:20:17.055Z",
-      "category": "Fixed",
-      "title": "Email/password auth reliability",
-      "summary": "Refined email/password signup and login reliability while preserving Google auth and GumDrop math.",
-      "userFacingTitle": "Email/password auth reliability",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refined email/password signup and login reliability.",
-        "Improved registration rollback, creator intent, and welcome bonus handling.",
-        "Kept Google auth and GumDrop math unchanged."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "account-onboarding",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/auth-provider-conflict-resolution.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/auth-provider-conflict-resolution.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-auth-provider-conflict-resolution.ts",
-        "src/components/Auth/AuthModal.tsx",
-        "src/context/AuthContext.tsx",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/auth-errors.ts",
-        "src/lib/auth/auth-provider-conflict-contract.ts",
-        "src/lib/auth/auth-provider-conflict-resolver.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/auth-errors.spec.ts",
-        "tests/unit/auth-provider-conflict-resolution.spec.ts"
-      ],
-      "sourceCommit": "085ad0beaca951aa811900ed42724962773d3815"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T20:12:19.596Z",
+  "generatedAtUtc": "2026-05-24T20:54:22.566Z",
   "reportKey": "telemetry-admin-debug-truth",
-  "currentHead": "6959286c146525ea4679f724865f865dccb0b627",
+  "currentHead": "abfcbd59ed5678d65dbcd902599163bdfbd56759",
   "summary": {
     "compactHealthModelCreated": true,
     "laneCount": 11,

@@ -1,92 +1,98 @@
 # Changelog
 
-## 1.4.46 - 2026-05-24
+What's new in KandyDrops Beta (latest first).
 
+Showing the last 25 public updates in pages of 5.
+
+## 1.4.47 - 2026-05-24
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
+## 1.4.46 - 2026-05-24
+- AI debug repair orchestration
 - Refactored AI debug into bounded async work items, planner, critic, and repair proposal contracts.
 - Separated task/bug/repair zero-sample states from healthy live status.
 - Kept manual utilities out of live health while preserving admin audit and GumDrop safeguards.
 
 ## 1.4.45 - 2026-05-24
-
+- No-sample debug status cleanup
 - Fixed false-positive LIVE states for empty diagnostics and panel-log lanes.
 - Separated no-sample, proven-zero, and unavailable debug states.
 - Kept raw diagnostics and panel logs collapsed behind drilldowns.
 
 ## 1.4.44 - 2026-05-24
-
+- Orphaned logic action cleanup
 - Classified admin analytics realtime listeners under hot-cache doctrine.
 - Added telemetry intent alias handling for drop preview events.
 - Deduped recommended actions and clarified materializer/recovery/creator lane sample states.
 
 ## 1.4.43 - 2026-05-24
-
+- Telemetry and support readiness refresh
 - Refreshed cost, telemetry, behavior, support, and creator readiness lanes.
 - Added watch-time truth evidence-gap reporting and Data Connect mirror safety classification.
 - Documented admin debug and admin analytics monolith split plans without unsafe broad refactors.
 
 ## 1.4.42 - 2026-05-24
-
+- Live issue readiness refresh
 - Refreshed debug evidence, pre-catcher, device, hydration, content, image, and GumDrop economy readiness.
 - Resolved image-loading unavailable/no timestamp reporting.
 - Kept GumDrop math and content protection behavior unchanged.
 
 ## 1.4.41 - 2026-05-24
-
+- Device layout readiness refresh
 - Refreshed device, content protection, cost, and telemetry parity readiness reports.
 - Moved compact viewport detection onto the device layout contract.
 - Classified responsive breakpoint and wallet-nav action findings without changing payment or bottom-nav behavior.
 
 ## 1.4.40 - 2026-05-24
-
+- Beta readiness route hardening
 - Hardened admin request body caps and typed admin route errors.
 - Added viewer entitlement evidence and AI debug budget guard validation.
 - Refreshed beta, self-healing, speed/security, and hardening artifacts.
 
 ## 1.4.39 - 2026-05-24
-
+- Admin balance body cap hardening
 - Added a bounded JSON body cap to the admin balance route.
 - Refreshed beta score, self-healing refresh queue, and speed/security artifacts.
 - Kept admin authorization, GumDrop ledger math, and source-of-funds behavior unchanged.
 
 ## 1.4.38 - 2026-05-24
-
+- Business truth recovery cleanup
 - Cleaned recovery playbook CTAs and canonical business truth status.
 - Separated stale business snapshots from ops-health failures.
 - Added source-class clarity for revenue, purchases, unwraps, and watch metrics.
 
 ## 1.4.37 - 2026-05-24
-
+- Control Tower evidence cleanup
 - Cleaned Control Tower canonical score, evidence, and operator queue display.
 - Separated formal evidence gates from source-code issues.
 - Refreshed or retired stale Control Tower reports and collapsed non-actionable cockpit items.
 
 ## 1.4.36 - 2026-05-24
-
+- Ops health status lane cleanup
 - Reconciled admin ops health, route runtime, open actions, and AI fallback statuses.
 - Collapsed stale route runtime rows into actionable groups.
 - Separated deterministic AI fallback from feed/preflight failures.
 
 ## 1.4.35 - 2026-05-24
-
+- Chat and cost status lane cleanup
 - Cleaned chat, cost, backlog, and future catalog debug lane statuses.
 - Separated config health from runtime activity samples.
 - Kept paid-GD chat gating and future activity catalog truth visible without noisy live/stale ambiguity.
 
 ## 1.4.34 - 2026-05-24
-
+- Admin status lane cleanup
 - Cleaned admin/user/auth/notification/task debug lane status truth.
 - Separated config health from live activity samples.
 - Reclassified all-zero lanes as collecting, proven-zero, or source-missing.
 
 ## 1.4.33 - 2026-05-24
-
+- Runtime surface status cleanup
 - Reclassified empty live tracking lanes as collecting, source-missing, or proven-zero.
 - Clarified PWA registration status without conflating optional registration with failure.
 - Cleaned stale badge display across tracking summary lanes.
-
-What's new in KandyDrops Beta (latest first).
-
-Showing the last 25 public updates in pages of 5.
 
 ## 1.4.32 - 2026-05-24
 - Tracking summary lane cleanup
@@ -147,93 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Connected auth signup, login, provider conflicts, and session stability to telemetry.
 - Added admin debug visibility for auth runtime health.
 - Protected auth telemetry from raw PII or token exposure.
-
-## 1.4.22 - 2026-05-24
-- Email/password auth reliability
-- Refined email/password signup and login reliability.
-- Improved registration rollback, creator intent, and welcome bonus handling.
-- Kept Google auth and GumDrop math unchanged.
-
-## 1.4.21 - 2026-05-24
-- Auth provider conflict guidance
-- Improved auth guidance when Google and email/password sign-in methods conflict.
-- Mapped common Firebase auth errors to clear next steps.
-- Added telemetry for auth provider conflicts.
-
-## 1.4.20 - 2026-05-24
-- Notification and PWA readiness lock
-- Locked notification permission, targeting, and PWA service worker readiness.
-- Connected notification and PWA health to telemetry, debug, and score.
-- Kept push sends, chat, tasks, payment, and GumDrop runtime unchanged.
-
-## 1.4.19 - 2026-05-24
-- PWA service worker safety
-- Hardened PWA service worker registration, update, and offline safety.
-- Blocked sensitive wallet, chat, and private content from unsafe caching.
-- Added PWA/service worker debug visibility.
-
-## 1.4.18 - 2026-05-24
-- Notification targeting intent
-- Added notification delivery intent and targeting contracts.
-- Mapped drops, broadcasts, chat, tasks, wallet, and system notices to safe notification rules.
-- Blocked notification targeting for opted-out or ineligible users.
-
-## 1.4.17 - 2026-05-24
-- Push token registration
-- Hardened push token registration and device binding.
-- Tracked token registration, refresh, revocation, and failure states.
-- Protected push tokens from raw debug/log exposure.
-
-## 1.4.16 - 2026-05-24
-- Notification permission lifecycle
-- Finalized notification permission prompt lifecycle.
-- Tracked notification prompt views, grants, denials, and failures.
-- Added debug visibility for notification permission health.
-
-## 1.4.15 - 2026-05-24
-- Score dimension lock
-- Locked beta score by dimension toward the 80 target.
-- Separated formal gates, stale artifacts, cost review, and in-flight lanes.
-- Kept future activity placeholders from returning as score drag.
-
-## 1.4.14 - 2026-05-24
-- Regression evidence refresh
-- Refreshed regression evidence for high-blast analytics, debug, chat, task, settings, and wallet lanes.
-- Rebuilt targeted behavior evidence from current validators.
-- Separated in-flight work from stale regression drag.
-
-## 1.4.13 - 2026-05-24
-- Formal evidence bridge
-- Bridged source-backed, operator-confirmed, and formal evidence without faking runtime proof.
-- Clarified evidence completeness by gate.
-- Kept provider, runtime, and admin formal gates honest.
-
-## 1.4.12 - 2026-05-24
-- Cost risk readiness updates
-- Refined cost risk scoring from source guard evidence.
-- Separated external billing review from source cost readiness.
-- Reduced generic owner-review cost drag where guards exist.
-
-## 1.4.11 - 2026-05-24
-- Event tracking liveness checks
-- Added event liveness checks for quiet future activity signals.
-- Separated true future-only events from suspicious idle tracking paths.
-- Mapped expected daily activity into debug and score readiness.
-
-## 1.4.10 - 2026-05-24
-- Daily task reliability
-- Locked daily task reset, telemetry, reward ledger, and guidance truth.
-- Added task duration and failure tracking.
-- Connected task rewards to reward-GD source truth.
-
-## 1.4.9 - 2026-05-24
-- Daily task guidance route accuracy
-- Aligned daily task guidance with current site routes and completion signals.
-- Hid or classified tasks that cannot be completed yet.
-- Added debug visibility for task guidance health.
-
-## 1.4.8 - 2026-05-24
-- Daily task reward ledger integrity
-- Hardened daily task reward GumDrop ledger classification.
-- Prevented task rewards from being treated as paid GumDrops.
-- Added duplicate reward protection and debug visibility.

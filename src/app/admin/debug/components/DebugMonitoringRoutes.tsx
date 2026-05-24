@@ -14,6 +14,7 @@ import {
     getRouteRuntimeHealthStatus,
     type RouteRuntimeSummaryTruth,
 } from "@/lib/route-runtime-health";
+import { buildRouteRuntimeCohortSummary } from "@/lib/debug/route-runtime-rollup-engine";
 
 /* ─── Helpers ─── */
 function formatRelative(timestamp?: number) {
@@ -59,22 +60,24 @@ function formatLatency(value: number | null) {
     return value === null ? "—" : `${value}ms`;
 }
 
-function formatChatTriple(label: string, summary: any) {
-    return `${label}: ${summary.fail ?? 0} fail / ${summary.stale ?? 0} stale / ${summary.unobserved ?? 0} unseen`;
+/* ─── Component ─── */
+function formatChatTriple(label: string, summary: { currentFailCount?: number; fail?: number; staleRoutes?: number; stale?: number; unseenRoutes?: number; unobserved?: number }) {
+    return `${label}: ${summary.currentFailCount ?? summary.fail ?? 0} current fail / ${summary.staleRoutes ?? summary.stale ?? 0} stale / ${summary.unseenRoutes ?? summary.unobserved ?? 0} unseen`;
 }
 
-/* ─── Component ─── */
 export function DebugMonitoringRoutes({
     routeRuntimeSummaryTruth,
     routeRuntimeFilter,
     routeRuntimeHealth,
     filteredRouteRuntimeHealth,
-    nativeChatRouteRuntimeHealth,
-    nativeChatRouteRuntimeRates,
-    compatibilityChatRouteRuntimeHealth,
-    compatibilityChatRouteRuntimeRates,
     onRouteRuntimeFilterChange,
 }: DebugMonitoringRoutesProps) {
+    const chatCohorts = buildRouteRuntimeCohortSummary(routeRuntimeHealth, {
+        nativeChatErrorThreshold: 0.01,
+        compatLegacyRemovalDate: CREATOR_MESSAGES_COMPATIBILITY_REMOVE_AFTER,
+    });
+    const nativeChatCohort = chatCohorts.chat_native;
+    const compatibilityChatCohort = chatCohorts.chat_compat;
     const summaryTruth = routeRuntimeSummaryTruth ?? {
         trackedCount: routeRuntimeHealth.length,
         observedCount: routeRuntimeHealth.length,
@@ -107,22 +110,24 @@ export function DebugMonitoringRoutes({
                 >
                     <p className="mb-3 text-sm text-gray-200">{summaryTruth.explanation}</p>
                     <div className="flex flex-wrap items-center gap-2">
-                        <Pill label="Native chat error rate" value={nativeChatRouteRuntimeRates.errorRateLabel} tone={nativeChatRouteRuntimeRates.errorSamples > 0 ? "warn" : "good"} />
-                        <Pill label="Native chat observed" value={nativeChatRouteRuntimeHealth.length - nativeChatRouteRuntimeRates.unseenCount} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Native chat samples" value={nativeChatRouteRuntimeRates.totalSamples} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Native chat error rate" value={nativeChatCohort.errorRateLabel} tone={nativeChatCohort.errorRateState === "over_threshold" ? "warn" : "good"} />
+                        <Pill label="Native chat observed" value={nativeChatCohort.observedRoutes} truthState={nativeChatCohort.observedRoutes > 0 ? "live" : "unavailable"} badgeLabel={nativeChatCohort.observedRoutes > 0 ? "LOADED" : "NO SAMPLE"} />
+                        <Pill label="Native chat samples" value={nativeChatCohort.samples} truthState={nativeChatCohort.samples > 0 ? "live" : "unavailable"} badgeLabel={nativeChatCohort.samples > 0 ? "LOADED" : "NO SAMPLE"} />
+                        <Pill label="Native chat threshold" value={`${(nativeChatCohort.errorThreshold * 100).toFixed(1)}%`} truthState="live" badgeLabel="INFO" />
                     </div>
                     <p className="mt-3 text-sm text-gray-300">
-                        {formatChatTriple("Native chat", nativeChatRouteRuntimeRates)}. Native chat routes currently show {nativeChatRouteRuntimeRates.errorSamples} error samples across {nativeChatRouteRuntimeRates.totalSamples} tracked samples.
+                        {formatChatTriple("Native chat", nativeChatCohort)}. Native chat routes currently show {nativeChatCohort.errorSamples} error samples across {nativeChatCohort.samples} tracked samples. Native stale/unseen routes are coverage warnings, not active failures.
                     </p>
                 </div>
                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Pill label="Compat error rate" value={compatibilityChatRouteRuntimeRates.errorRateLabel} tone={compatibilityChatRouteRuntimeRates.errorSamples > 0 ? "warn" : "good"} />
-                        <Pill label="Compat observed" value={compatibilityChatRouteRuntimeHealth.length - compatibilityChatRouteRuntimeRates.unseenCount} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Compat samples" value={compatibilityChatRouteRuntimeRates.totalSamples} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Compat error rate" value={compatibilityChatCohort.errorRateLabel} tone={compatibilityChatCohort.errorSamples > 0 ? "warn" : "good"} />
+                        <Pill label="Compat observed" value={compatibilityChatCohort.observedRoutes} truthState={compatibilityChatCohort.observedRoutes > 0 ? "live" : "unavailable"} badgeLabel={compatibilityChatCohort.observedRoutes > 0 ? "LOADED" : "NO SAMPLE"} />
+                        <Pill label="Compat samples" value={compatibilityChatCohort.samples} truthState={compatibilityChatCohort.samples > 0 ? "live" : "unavailable"} badgeLabel={compatibilityChatCohort.samples > 0 ? "LOADED" : "NO SAMPLE"} />
+                        <Pill label="Compat migration" value={compatibilityChatCohort.migrationStatus ?? "legacy_visible_until_removal"} truthState="stale" badgeLabel="LEGACY" />
                     </div>
                     <p className="mt-3 text-sm text-gray-300">
-                        {formatChatTriple("Compat chat", compatibilityChatRouteRuntimeRates)}. Compatibility traffic stays visible until the legacy creator-messages route is removed after {CREATOR_MESSAGES_COMPATIBILITY_REMOVE_AFTER}.
+                        {formatChatTriple("Compat chat", compatibilityChatCohort)}. Compatibility traffic stays visible until the legacy creator-messages route is removed after {CREATOR_MESSAGES_COMPATIBILITY_REMOVE_AFTER}.
                     </p>
                 </div>
                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
@@ -207,10 +212,10 @@ export function DebugMonitoringRoutes({
                                             <Pill label="Last latency" value="—" truthState="unavailable" badgeLabel="UNKNOWN" />
                                             <Pill label="Avg latency" value="—" truthState="unavailable" badgeLabel="UNKNOWN" />
                                             <Pill label="Max latency" value="—" truthState="unavailable" badgeLabel="UNKNOWN" />
-                                            <Pill label="Success" value={truth.counts.success} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Client errors" value={truth.counts.clientErrors} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Server errors" value={truth.counts.serverErrors} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Slow" value={truth.latency.slowCount} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Success" value={truth.counts.success} truthState="unavailable" badgeLabel="NO SAMPLE" />
+                                            <Pill label="Client errors" value={truth.counts.clientErrors} truthState="unavailable" badgeLabel="NO SAMPLE" />
+                                            <Pill label="Server errors" value={truth.counts.serverErrors} truthState="unavailable" badgeLabel="NO SAMPLE" />
+                                            <Pill label="Slow" value={truth.latency.slowCount} truthState="unavailable" badgeLabel="NO SAMPLE" />
                                         </div>
                                     )}
                                     <p className="text-xs text-gray-400">
