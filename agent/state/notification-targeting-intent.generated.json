@@ -1,0 +1,508 @@
+{
+  "generatedAtUtc": "2026-05-24T06:54:54.639Z",
+  "currentHead": "2180b062",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "providerCallsRequired": false,
+  "realPushNotificationsSent": false,
+  "intentTypes": [
+    "drop_live",
+    "drop_expiring",
+    "drop_unwrapped",
+    "creator_broadcast",
+    "fan_pass_update",
+    "chat_message",
+    "chat_paid_gd_gate",
+    "daily_task_available",
+    "daily_task_streak",
+    "wallet_payment_success",
+    "system_security",
+    "support_update"
+  ],
+  "intentContracts": [
+    {
+      "intentType": "drop_live",
+      "audienceSource": "global_drop_audience",
+      "eligibility": [
+        "drop is active/live",
+        "recipient is not excluded",
+        "browser push token is registered"
+      ],
+      "optInRequirement": "new_drop_alerts_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 14400000,
+      "dedupeKeyTemplate": "drop_live:{dropId}:{recipientUserId}:{activationKey}",
+      "priority": "high",
+      "userFacingCopySource": "drop notification copy contract",
+      "deepLinkRoute": "/drops",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "drop_expiring",
+      "audienceSource": "global_drop_audience",
+      "eligibility": [
+        "drop is active",
+        "drop expires inside configured reminder window",
+        "recipient is not excluded"
+      ],
+      "optInRequirement": "expiring_drop_alerts_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 14400000,
+      "dedupeKeyTemplate": "drop_expiring:{dropId}:{recipientUserId}:{windowId}",
+      "priority": "normal",
+      "userFacingCopySource": "drop expiration notification copy contract",
+      "deepLinkRoute": "/drops",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "drop_unwrapped",
+      "audienceSource": "drop_unwrapper",
+      "eligibility": [
+        "recipient owns the unwrap event",
+        "server entitlement or unwrap record exists"
+      ],
+      "optInRequirement": "drop_activity_alerts_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 3600000,
+      "dedupeKeyTemplate": "drop_unwrapped:{dropId}:{recipientUserId}:{unwrapId}",
+      "priority": "normal",
+      "userFacingCopySource": "unwrap confirmation notification copy contract",
+      "deepLinkRoute": "/dashboard/library",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "creator_broadcast",
+      "audienceSource": "creator_followers_or_subscribers",
+      "eligibility": [
+        "broadcast is published",
+        "creator audience setting allows recipient source",
+        "recipient follows or subscribes"
+      ],
+      "optInRequirement": "creator_broadcasts_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 7200000,
+      "dedupeKeyTemplate": "creator_broadcast:{creatorId}:{broadcastId}:{recipientUserId}",
+      "priority": "normal",
+      "userFacingCopySource": "creator broadcast source record",
+      "deepLinkRoute": "/creators/{creatorUsername}",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "fan_pass_update",
+      "audienceSource": "fan_pass_subscribers",
+      "eligibility": [
+        "recipient has an active Fan Pass",
+        "creator update is subscriber-visible"
+      ],
+      "optInRequirement": "fan_pass_updates_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 14400000,
+      "dedupeKeyTemplate": "fan_pass_update:{creatorId}:{updateId}:{recipientUserId}",
+      "priority": "normal",
+      "userFacingCopySource": "fan pass update source record",
+      "deepLinkRoute": "/dashboard/profile",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "chat_message",
+      "audienceSource": "chat_thread_recipient",
+      "eligibility": [
+        "recipient is a thread participant",
+        "recipient is not the sender",
+        "message is deliverable"
+      ],
+      "optInRequirement": "chat_notifications_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 300000,
+      "dedupeKeyTemplate": "chat_message:{threadId}:{messageId}:{recipientUserId}",
+      "priority": "high",
+      "userFacingCopySource": "chat message notification copy contract",
+      "deepLinkRoute": "/dashboard/chat",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "chat_paid_gd_gate",
+      "audienceSource": "chat_thread_recipient",
+      "eligibility": [
+        "recipient is the affected user",
+        "paid-GD gate was viewed or blocked"
+      ],
+      "optInRequirement": "chat_notifications_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 43200000,
+      "dedupeKeyTemplate": "chat_paid_gd_gate:{threadId}:{recipientUserId}:{windowId}",
+      "priority": "low",
+      "userFacingCopySource": "chat paid-GD gate copy contract",
+      "deepLinkRoute": "/dashboard/chat",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "daily_task_available",
+      "audienceSource": "daily_task_eligible_users",
+      "eligibility": [
+        "daily task reset policy says eligible",
+        "task is active and claimable"
+      ],
+      "optInRequirement": "daily_task_reminders_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 43200000,
+      "dedupeKeyTemplate": "daily_task_available:{taskId}:{recipientUserId}:{resetWindowId}",
+      "priority": "normal",
+      "userFacingCopySource": "daily task guidance contract",
+      "deepLinkRoute": "/experiences",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "daily_task_streak",
+      "audienceSource": "daily_task_eligible_users",
+      "eligibility": [
+        "daily task streak source exists",
+        "task is active and claimable"
+      ],
+      "optInRequirement": "daily_task_reminders_enabled",
+      "consentRequirement": "minimal_analytics_or_stronger",
+      "throttleCooldownMs": 86400000,
+      "dedupeKeyTemplate": "daily_task_streak:{taskId}:{recipientUserId}:{resetWindowId}",
+      "priority": "low",
+      "userFacingCopySource": "daily task streak copy contract",
+      "deepLinkRoute": "/experiences",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "wallet_payment_success",
+      "audienceSource": "wallet_account_owner",
+      "eligibility": [
+        "server payment success truth exists",
+        "recipient owns the wallet transaction"
+      ],
+      "optInRequirement": "wallet_updates_enabled",
+      "consentRequirement": "required_account_integrity",
+      "throttleCooldownMs": 0,
+      "dedupeKeyTemplate": "wallet_payment_success:{transactionId}:{recipientUserId}",
+      "priority": "high",
+      "userFacingCopySource": "wallet payment receipt source record",
+      "deepLinkRoute": "/dashboard/profile",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "system_security",
+      "audienceSource": "system_account_owner",
+      "eligibility": [
+        "security/account event targets this account",
+        "message is privacy-safe"
+      ],
+      "optInRequirement": "security_alerts_enabled",
+      "consentRequirement": "required_account_integrity",
+      "throttleCooldownMs": 0,
+      "dedupeKeyTemplate": "system_security:{eventId}:{recipientUserId}",
+      "priority": "critical",
+      "userFacingCopySource": "system security notification contract",
+      "deepLinkRoute": "/settings",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    },
+    {
+      "intentType": "support_update",
+      "audienceSource": "support_thread_participant",
+      "eligibility": [
+        "recipient owns or participates in support thread",
+        "support update is visible to recipient"
+      ],
+      "optInRequirement": "support_updates_enabled",
+      "consentRequirement": "required_account_integrity",
+      "throttleCooldownMs": 3600000,
+      "dedupeKeyTemplate": "support_update:{ticketId}:{recipientUserId}:{messageId}",
+      "priority": "normal",
+      "userFacingCopySource": "support inbox source record",
+      "deepLinkRoute": "/dashboard/support",
+      "telemetryEvents": [
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible"
+      ],
+      "debugVisibility": {
+        "lane": "Notification targeting",
+        "status": "debug_visible",
+        "rawDetailsCollapsedByDefault": true
+      },
+      "payloadPolicy": {
+        "rawPiiAllowed": false,
+        "rawTokenAllowed": false,
+        "copySourceOnly": true
+      }
+    }
+  ],
+  "dryRunSummary": {
+    "evaluatedIntents": 3,
+    "dryRunEligible": 1,
+    "blockedByOptOut": 0,
+    "blockedByMissingToken": 1,
+    "blockedByConsent": 0,
+    "missingAudienceSource": 0,
+    "providerSendAttempted": false
+  },
+  "debugLane": {
+    "lane": "Notification targeting",
+    "label": "Notification targeting",
+    "status": "live",
+    "intentTypesRegistered": 12,
+    "missingAudienceSource": 0,
+    "blockedByOptOut": 0,
+    "blockedByMissingToken": 1,
+    "blockedByConsent": 0,
+    "dryRunEligible": 1,
+    "telemetryStatus": "mapped",
+    "rawDetailsCollapsedByDefault": true
+  },
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreDimensionImpact": {
+    "sourceHealth": "Notification targeting now has explicit intent contracts for drops, broadcasts, chat, tasks, Fan Pass, wallet, system, and support notices.",
+    "runtimeHealth": "Provider delivery remains unclaimed; this phase validates dry-run delivery intent only.",
+    "evidenceCompleteness": "Targeting rules expose opt-out, missing-token, consent, audience-source, and dry-run eligibility states to debug evidence.",
+    "freshness": "Notification targeting intent report is regenerated from current source.",
+    "costRisk": "No production fanout, provider send, or push test execution is performed.",
+    "regressionRisk": "Unit and source validators cover sender exclusion, creator audience settings, task eligibility, opt-out, token, consent, dedupe, and debug mapping.",
+    "overallHealthScore": "Improves notification readiness evidence without clearing formal runtime/provider gates."
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/notification-targeting-intent.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/notification-targeting-intent.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-notification-targeting-intent.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/notifications/notification-intent-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/notifications/notification-targeting-resolver.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/notification-targeting-intent.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.18 - 2026-05-24
+- Notification targeting intent
+- Added notification delivery intent and targeting contracts.
+- Mapped drops, broadcasts, chat, tasks, wallet, and system notices to safe notification rules.
+- Blocked notification targeting for opted-out or ineligible users.
+
 ## 1.4.17 - 2026-05-24
 - Push token registration
 - Hardened push token registration and device binding.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added telemetry trigger coverage from user action to score input.
 - Reduced waiting-on-activity gaps with deterministic tests.
 - Cleaned stale and duplicate tracking validators.
-
-## 1.3.93 - 2026-05-23
-- Person metrics hydration reliability
-- Hydrated individual user metrics from canonical event envelopes.
-- Added confidence explanations for global, guest, user, and linked-person metrics.
-- Cleaned stale person-metric logic.

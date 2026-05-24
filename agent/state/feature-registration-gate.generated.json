@@ -1,8 +1,8 @@
 {
   "reportKey": "feature-registration-gate",
   "registryVersion": "2026.05.feature-registration.1",
-  "generatedAtUtc": "2026-05-24T06:42:30.336Z",
-  "currentHead": "627ff05dd711e0e847a947fa5ff368dbf4ea1235",
+  "generatedAtUtc": "2026-05-24T06:54:56.980Z",
+  "currentHead": "2180b0625010fe0978087fede26f59296bd59f85",
   "status": "pass",
   "features": [
     {
@@ -2291,6 +2291,9 @@
         "push_token_refreshed",
         "push_token_revoked",
         "push_device_scope_resolved",
+        "notification_intent_evaluated",
+        "notification_targeting_blocked",
+        "notification_targeting_dry_run_eligible",
         "notification_sent",
         "notification_duplicate_prevented",
         "daily_deadline_in_app_reminder_shown",
@@ -2957,7 +2960,7 @@
     "unmappedRoutes": []
   },
   "telemetryCoverage": {
-    "totalEvents": 469,
+    "totalEvents": 472,
     "mappedEvents": [
       "account_delete_cancelled",
       "account_delete_clicked",
@@ -3328,6 +3331,7 @@
       "notification_action_clicked",
       "notification_cleared",
       "notification_duplicate_prevented",
+      "notification_intent_evaluated",
       "notification_mark_all_read",
       "notification_opened",
       "notification_permission_denied",
@@ -3342,6 +3346,8 @@
       "notification_prompt_viewed",
       "notification_read",
       "notification_sent",
+      "notification_targeting_blocked",
+      "notification_targeting_dry_run_eligible",
       "notifications_dropdown_opened",
       "onboarding_step_viewed",
       "owned_drop_clicked",
@@ -3468,27 +3474,21 @@
   "changedFiles": [
     "CHANGELOG.md",
     "agent/state/feature-registration-gate.generated.json",
-    "agent/state/notification-permission-lifecycle.generated.json",
+    "agent/state/notification-targeting-intent.generated.json",
     "agent/state/public-beta-score.generated.json",
-    "agent/state/push-token-registration.generated.json",
     "docs/agent-truth/feature-registration-gate.md",
-    "docs/agent-truth/notification-permission-lifecycle.md",
-    "docs/agent-truth/push-token-registration.md",
+    "docs/agent-truth/notification-targeting-intent.md",
     "package.json",
     "public/kandydrops-release-notes.json",
-    "scripts/agent/validate-notification-permission-lifecycle.ts",
-    "scripts/agent/validate-push-token-registration.ts",
-    "scripts/agent/validate-pwa-service-worker.ts",
-    "src/app/api/notifications/push-token/route.ts",
+    "scripts/agent/validate-notification-targeting-intent.ts",
     "src/lib/analytics/person-metrics-contract.ts",
-    "src/lib/browser-notification-enrollment.ts",
     "src/lib/debug/debug-panel-tracking-summary.ts",
-    "src/lib/notifications/push-token-contract.ts",
-    "src/lib/notifications/push-token-telemetry.ts",
+    "src/lib/notifications/notification-intent-contract.ts",
+    "src/lib/notifications/notification-targeting-resolver.ts",
     "src/lib/release-notes/public-release-notes.ts",
     "src/lib/release-notes/release-version-contract.ts",
     "src/lib/telemetry-catalog.ts",
-    "tests/unit/push-token-registration.spec.ts"
+    "tests/unit/notification-targeting-intent.spec.ts"
   ],
   "protectedChanges": []
 }

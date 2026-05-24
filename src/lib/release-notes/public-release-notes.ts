@@ -1,13 +1,59 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.17",
-  "betaReleaseCounter": 417,
+  "currentVersion": "1.4.18",
+  "betaReleaseCounter": 418,
   "channel": "beta",
-  "generatedAt": "2026-05-24T06:37:08.528Z",
-  "generatedAtUtc": "2026-05-24T06:37:08.528Z",
-  "lastCommitSha": "627ff05dd711e0e847a947fa5ff368dbf4ea1235",
+  "generatedAt": "2026-05-24T06:53:33.073Z",
+  "generatedAtUtc": "2026-05-24T06:53:33.073Z",
+  "lastCommitSha": "2180b0625010fe0978087fede26f59296bd59f85",
   "notes": [
+    {
+      "version": "1.4.18",
+      "previousVersion": "1.4.17",
+      "betaReleaseCounter": 418,
+      "previousBetaReleaseCounter": 417,
+      "commitSha": "2180b0625010fe0978087fede26f59296bd59f85",
+      "commitTitle": "fix(notifications): define targeting intent",
+      "commitCount": 1,
+      "commitShas": [
+        "2180b0625010fe0978087fede26f59296bd59f85"
+      ],
+      "committedAt": "2026-05-24T06:43:35.000Z",
+      "generatedAt": "2026-05-24T06:53:33.072Z",
+      "committedAtUtc": "2026-05-24T06:43:35.000Z",
+      "generatedAtUtc": "2026-05-24T06:53:33.072Z",
+      "updatedAtUtc": "2026-05-24T06:53:33.072Z",
+      "category": "Fixed",
+      "title": "Notification targeting intent",
+      "summary": "Defined safe notification delivery intent and targeting rules for Drops, broadcasts, chat, tasks, wallet, and system notices.",
+      "userFacingTitle": "Notification targeting intent",
+      "surfaceCategory": "Notifications",
+      "bullets": [
+        "Added notification delivery intent and targeting contracts.",
+        "Mapped drops, broadcasts, chat, tasks, wallet, and system notices to safe notification rules.",
+        "Blocked notification targeting for opted-out or ineligible users."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "navigation",
+        "notifications"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/notification-targeting-intent.generated.json",
+        "docs/agent-truth/notification-targeting-intent.md",
+        "package.json",
+        "scripts/agent/validate-notification-targeting-intent.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/notifications/notification-intent-contract.ts",
+        "src/lib/notifications/notification-targeting-resolver.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/notification-targeting-intent.spec.ts"
+      ],
+      "sourceCommit": "2180b0625010fe0978087fede26f59296bd59f85"
+    },
     {
       "version": "1.4.17",
       "previousVersion": "1.4.16",
@@ -6143,67 +6189,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/testing/telemetry-trigger-test-matrix.ts",
         "tests/unit/debug-tracking-simplification.spec.ts",
         "tests/unit/telemetry-trigger-test-matrix.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.93",
-      "previousVersion": "1.3.92",
-      "betaReleaseCounter": 393,
-      "previousBetaReleaseCounter": 392,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): hydrate person metrics",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T05:05:25.492Z",
-      "generatedAt": "2026-05-23T05:05:25.492Z",
-      "committedAtUtc": "2026-05-23T05:05:25.492Z",
-      "generatedAtUtc": "2026-05-23T05:05:25.492Z",
-      "updatedAtUtc": "2026-05-23T05:05:25.492Z",
-      "category": "Improved",
-      "title": "Person metrics hydration reliability",
-      "summary": "Hydrated individual user metrics from canonical event envelopes.",
-      "userFacingTitle": "Person metrics hydration reliability",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Hydrated individual user metrics from canonical event envelopes.",
-        "Added confidence explanations for global, guest, user, and linked-person metrics.",
-        "Cleaned stale person-metric logic."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only person metrics hydration bridge, validator, generated evidence, and debug lane without production reads, live data mutation, payment math changes, or fake metric counts."
-      ],
-      "affectedSurfaces": [
-        "Analytics",
-        "Admin debug",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/person-metrics-contract.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/person-metrics-contract.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-person-metrics-hydration.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "tests/unit/debug-tracking-simplification.spec.ts",
-        "tests/unit/person-metrics-contract.spec.ts",
-        "tests/unit/person-metrics-hydration.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

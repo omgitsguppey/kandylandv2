@@ -14,6 +14,7 @@ import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemet
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
 import { buildNotificationPermissionDebugLane } from "@/lib/notifications/notification-permission-contract";
 import { buildPushTokenDebugLane } from "@/lib/notifications/push-token-contract";
+import { buildNotificationTargetingDebugLane } from "@/lib/notifications/notification-intent-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -31,6 +32,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "wallet_funnel",
   "notification_permission",
   "push_token_health",
+  "notification_targeting",
   "daily_tasks_reset",
   "daily_task_guidance_health",
   "daily_task_lifecycle",
@@ -105,6 +107,7 @@ const TRACKING_GROUPS = [
   "wallet_funnel",
   "notification_permission",
   "push_token_health",
+  "notification_targeting",
   "daily_tasks_reset",
   "daily_task_guidance_health",
   "daily_task_lifecycle",
@@ -243,6 +246,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     + toNumber(pushTokenHealth.staleTokens)
     + toNumber(pushTokenHealth.rawTokenExposureCount)
     + (pushTokenHealth.telemetryStatus === "mapped" ? 0 : 1);
+  const notificationTargeting = input.notificationTargetingIntent?.debugLane ?? buildNotificationTargetingDebugLane();
+  const notificationTargetingWarnings = toNumber(notificationTargeting.missingAudienceSource)
+    + toNumber(notificationTargeting.blockedByMissingToken)
+    + toNumber(notificationTargeting.blockedByConsent)
+    + (notificationTargeting.telemetryStatus === "mapped" ? 0 : 1);
   const dailyTasksReset = input.dailyTasksResetTruth?.debugLane ?? buildDailyTaskDebugLane();
   const dailyTaskGuidanceHealth = input.dailyTaskGuidanceRouteAudit?.debugLane ?? buildTaskGuidanceHealthLane();
   const dailyTaskLifecycle = input.dailyTaskLifecycleTelemetry?.debugLane ?? buildDailyTaskLifecycleDebugLane();
@@ -482,6 +490,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: pushTokenHealth.rawTokenExposureCount > 0 ? 1 : 0,
       warningCount: pushTokenWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#push-token-health",
+    }),
+    makeLane({
+      id: "notification_targeting",
+      label: "Notification targeting",
+      trackingSystem: "notification_targeting",
+      sourceOwner: "notifications",
+      sourceOfTruth: "src/lib/notifications/notification-intent-contract.ts",
+      status: notificationTargeting.status === "unavailable" ? "unavailable" : notificationTargeting.status === "degraded" ? "degraded" : "live",
+      severity: severityFromCounts(0, notificationTargetingWarnings, notificationTargeting.status === "unavailable" ? "unavailable" : notificationTargeting.status === "degraded" ? "degraded" : "live"),
+      scoreImpact: "medium",
+      primarySignal: `Intents=${toNumber(notificationTargeting.intentTypesRegistered)}; missingAudience=${toNumber(notificationTargeting.missingAudienceSource)}; optOut=${toNumber(notificationTargeting.blockedByOptOut)}; missingToken=${toNumber(notificationTargeting.blockedByMissingToken)}; consent=${toNumber(notificationTargeting.blockedByConsent)}; dryRunEligible=${toNumber(notificationTargeting.dryRunEligible)}; telemetry=${notificationTargeting.telemetryStatus}.`,
+      criticalCount: 0,
+      warningCount: notificationTargetingWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#notification-targeting",
     }),
     makeLane({
       id: "daily_tasks_reset",
