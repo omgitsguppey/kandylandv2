@@ -1,6 +1,11 @@
 "use client";
 
 import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
+import {
+    adminTruthStateForNoSampleStatus,
+    badgeLabelForNoSampleStatus,
+    classifyNoSampleStatus,
+} from "@/lib/debug/no-sample-status-classifier";
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
 
 function formatRelative(timestamp?: number) {
@@ -40,12 +45,30 @@ export function DebugPanelStatusBySection({
     panelLogWarnCount: number;
     panelLogFailCount: number;
 }) {
+    const panelLogCount = (data?.panelSystemLogs || []).length;
+    const panelLogStatus = classifyNoSampleStatus({
+        lane: "panel_logs",
+        loadedCount: panelLogCount,
+        sampleLoaded: panelLogCount > 0,
+        sourceReady: Boolean(data),
+        failureCount: panelLogFailCount,
+        warningCount: panelLogWarnCount,
+        sourceWindow: data?.panelSystemLogsProvenZero === true
+            ? {
+                generatedAtUtc: data?.generatedAtUtc ?? null,
+                windowLabel: "panelSystemLogs",
+                provesZero: true,
+            }
+            : null,
+        emptyStateText: "No persisted panel logs are loaded yet.",
+        nextAction: "Load persisted panel logs or attach a panel log source window proving zero.",
+    });
     return (
         <Section
             title="Panel status by section"
             subtitle="Saved panel summaries with concrete next actions."
             defaultOpen={(panelLogWarnCount + panelLogFailCount) > 0}
-            summary={<><Pill label="Panels" value={(data?.panelSystemLogs || []).length} /><Pill label="Warn" value={panelLogWarnCount} tone={panelLogWarnCount > 0 ? "warn" : "good"} /><Pill label="Fail" value={panelLogFailCount} tone={panelLogFailCount > 0 ? "bad" : "good"} /></>}
+            summary={<><Pill label="Panels" value={panelLogCount} truthState={adminTruthStateForNoSampleStatus(panelLogStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(panelLogStatus.status)} /><Pill label="Warn" value={panelLogWarnCount} tone={panelLogWarnCount > 0 ? "warn" : "neutral"} truthState={adminTruthStateForNoSampleStatus(panelLogStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(panelLogStatus.status)} /><Pill label="Fail" value={panelLogFailCount} tone={panelLogFailCount > 0 ? "bad" : "neutral"} truthState={adminTruthStateForNoSampleStatus(panelLogStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(panelLogStatus.status)} /></>}
         >
             <ScrollWrap>
                 <div className="divide-y divide-white/10">
@@ -83,7 +106,14 @@ export function DebugPanelStatusBySection({
                         </div>
                     ))}
                     {(data?.panelSystemLogs || []).length === 0 ? (
-                        <div className="px-4 py-4 text-sm text-gray-300">No persisted panel logs are loaded yet.</div>
+                        <div
+                            className="px-4 py-4 text-sm text-gray-300"
+                            data-debug-panel-log-empty-status={panelLogStatus.status}
+                            data-debug-panel-log-empty-display-state={panelLogStatus.displayState}
+                            data-debug-panel-log-proven-zero={panelLogStatus.provenZero ? "true" : "false"}
+                        >
+                            No persisted panel logs are loaded yet. {panelLogStatus.reason} Next: {panelLogStatus.nextAction}
+                        </div>
                     ) : null}
                 </div>
             </ScrollWrap>

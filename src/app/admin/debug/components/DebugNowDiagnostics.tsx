@@ -1,6 +1,11 @@
 "use client";
 
 import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
+import {
+    adminTruthStateForNoSampleStatus,
+    badgeLabelForNoSampleStatus,
+    classifyNoSampleStatus,
+} from "@/lib/debug/no-sample-status-classifier";
 import { DebugPanelStatusBySection } from "./DebugPanelStatusBySection";
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
 
@@ -128,13 +133,53 @@ export function DebugNowDiagnostics({
     panelLogWarnCount,
     panelLogFailCount,
 }: DebugNowDiagnosticsProps) {
+    const diagnosticsChannelCount = (data?.opsHealth?.diagnostics?.channels || []).length;
+    const recentDiagnosticsCount = (data?.opsHealth?.diagnostics?.recent || []).length;
+    const routeDiagnosticsCount = (data?.opsHealth?.pipeline?.routes || []).length;
+    const recentClusterCount = (data?.opsHealth?.diagnostics?.recentClusters || []).length;
+    const diagnosticsLoadedCount = diagnosticsChannelCount + recentDiagnosticsCount + routeDiagnosticsCount + recentClusterCount;
+    const diagnosticsStatus = classifyNoSampleStatus({
+        lane: "diagnostics",
+        loadedCount: diagnosticsLoadedCount,
+        sampleLoaded: diagnosticsLoadedCount > 0,
+        sourceReady: Boolean(data),
+        failureCount: data?.opsHealth?.diagnostics?.activeErrorCount ?? 0,
+        warningCount: data?.opsHealth?.diagnostics?.activeWarnCount ?? 0,
+        sourceWindow: data?.opsHealth?.diagnostics?.provenZero === true
+            ? {
+                generatedAtUtc: data?.generatedAtUtc ?? null,
+                windowLabel: "opsHealth.diagnostics",
+                provesZero: true,
+            }
+            : null,
+        emptyStateText: "No recent diagnostic clusters are loaded.",
+        nextAction: "Load a current diagnostics sample or attach an opsHealth.diagnostics source window proving zero.",
+    });
+    const writerSampleCount = (data?.opsHealth?.materializers || []).length;
+    const writerStatus = classifyNoSampleStatus({
+        lane: "downstream_writers",
+        loadedCount: writerSampleCount,
+        sampleLoaded: writerSampleCount > 0,
+        sourceReady: Boolean(data?.opsHealth),
+        failureCount: (data?.opsHealth?.materializerSummary?.fail ?? 0),
+        warningCount: (data?.opsHealth?.materializerSummary?.warn ?? 0),
+        sourceWindow: data?.opsHealth?.materializerSummary?.provenZero === true
+            ? {
+                generatedAtUtc: data?.generatedAtUtc ?? null,
+                windowLabel: "opsHealth.materializers",
+                provesZero: true,
+            }
+            : null,
+        emptyStateText: "No downstream materializer sample is loaded right now.",
+        nextAction: "Load a current downstream writer sample before claiming writer health as live.",
+    });
     return (
         <>
             <Section
                 title="Recent diagnostics and downstream writers"
                 subtitle="Current window, recent window, loaded sample history, and writer freshness from the loaded sample."
                 defaultOpen={!isCompactViewport && ((data?.opsHealth?.diagnostics?.errorCount ?? 0) > 0 || (data?.opsHealth?.pipeline?.failureCount ?? 0) > 0)}
-                summary={<><Pill label="Channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Recent diagnostics" value={(data?.opsHealth?.diagnostics?.recent || []).length} /><Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} /></>}
+                summary={<><Pill label="Channels" value={diagnosticsChannelCount} truthState={adminTruthStateForNoSampleStatus(diagnosticsStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(diagnosticsStatus.status)} /><Pill label="Recent diagnostics" value={recentDiagnosticsCount} truthState={adminTruthStateForNoSampleStatus(diagnosticsStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(diagnosticsStatus.status)} /><Pill label="Routes" value={routeDiagnosticsCount} truthState={adminTruthStateForNoSampleStatus(diagnosticsStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(diagnosticsStatus.status)} /><Pill label="Writers" value={writerSampleCount > 0 ? writerSampleCount : "No sample"} truthState={adminTruthStateForNoSampleStatus(writerStatus.status)} badgeLabel={badgeLabelForNoSampleStatus(writerStatus.status)} /></>}
             >
                 <div className="grid gap-4 lg:grid-cols-1">
                     <ScrollWrap>
@@ -226,7 +271,14 @@ export function DebugNowDiagnostics({
                                 </div>
                             ))}
                             {!(data?.opsHealth?.diagnostics?.recentClusters || []).length ? (
-                                <div className="px-4 py-4 text-sm text-gray-300">No recent diagnostic clusters are loaded.</div>
+                                <div
+                                    className="px-4 py-4 text-sm text-gray-300"
+                                    data-debug-diagnostics-empty-status={diagnosticsStatus.status}
+                                    data-debug-diagnostics-empty-display-state={diagnosticsStatus.displayState}
+                                    data-debug-diagnostics-proven-zero={diagnosticsStatus.provenZero ? "true" : "false"}
+                                >
+                                    No recent diagnostic clusters are loaded. {diagnosticsStatus.reason} Next: {diagnosticsStatus.nextAction}
+                                </div>
                             ) : null}
                             {(data?.opsHealth?.materializers || []).map((materializer: any) => {
                                 const truth = writerTruth(materializer);
@@ -257,6 +309,16 @@ export function DebugNowDiagnostics({
                                     <p className="text-sm text-gray-300">{truth.explanation}</p>
                                 </div>
                             );})}
+                            {!(data?.opsHealth?.materializers || []).length ? (
+                                <div
+                                    className="px-4 py-4 text-sm text-gray-300"
+                                    data-debug-writer-empty-status={writerStatus.status}
+                                    data-debug-writer-empty-display-state={writerStatus.displayState}
+                                    data-debug-writer-proven-zero={writerStatus.provenZero ? "true" : "false"}
+                                >
+                                    No downstream materializer sample is loaded right now. {writerStatus.reason} Next: {writerStatus.nextAction}
+                                </div>
+                            ) : null}
                         </div>
                     </ScrollWrap>
                 </div>

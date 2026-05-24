@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.4.44",
-  "betaReleaseCounter": 444,
+  "currentVersion": "1.4.45",
+  "betaReleaseCounter": 445,
   "channel": "beta",
-  "generatedAt": "2026-05-24T19:54:06.892Z",
-  "generatedAtUtc": "2026-05-24T19:54:06.892Z",
+  "generatedAt": "2026-05-24T20:11:26.286Z",
+  "generatedAtUtc": "2026-05-24T20:11:26.286Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.45",
+      "previousVersion": "1.4.44",
+      "betaReleaseCounter": 445,
+      "previousBetaReleaseCounter": 444,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean no-sample false positives",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T20:11:26.286Z",
+      "generatedAt": "2026-05-24T20:11:26.286Z",
+      "committedAtUtc": "2026-05-24T20:11:26.286Z",
+      "generatedAtUtc": "2026-05-24T20:11:26.286Z",
+      "updatedAtUtc": "2026-05-24T20:11:26.286Z",
+      "category": "Fixed",
+      "title": "No-sample debug status cleanup",
+      "summary": "Fixed empty diagnostics and panel-log lanes so missing samples no longer appear as live health.",
+      "userFacingTitle": "No-sample debug status cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Fixed false-positive LIVE states for empty diagnostics and panel-log lanes.",
+        "Separated no-sample, proven-zero, and unavailable debug states.",
+        "Kept raw diagnostics and panel logs collapsed behind drilldowns."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin diagnostics",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/debug-cockpit-batch15-false-positive-cleanup.generated.json",
+        "agent/state/no-sample-status-classifier.generated.json",
+        "agent/state/diagnostics-writer-status-cleanup.generated.json",
+        "agent/state/panel-log-status-cleanup.generated.json",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/debug-cockpit-batch15-shared.ts",
+        "src/lib/debug/no-sample-status-classifier.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "effectiveChangeCount": 11,
+      "excludedGeneratedChangeCount": 4,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.44",
       "previousVersion": "1.4.43",
@@ -1584,53 +1634,6 @@
       "sourceCommit": "pending-same-commit",
       "effectiveChangeCount": 7,
       "excludedGeneratedChangeCount": 0
-    },
-    {
-      "version": "1.4.20",
-      "previousVersion": "1.4.19",
-      "betaReleaseCounter": 420,
-      "previousBetaReleaseCounter": 419,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(pwa): lock notification readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T07:33:42.138Z",
-      "generatedAt": "2026-05-24T07:33:42.138Z",
-      "committedAtUtc": "2026-05-24T07:33:42.138Z",
-      "generatedAtUtc": "2026-05-24T07:33:42.138Z",
-      "updatedAtUtc": "2026-05-24T07:33:42.138Z",
-      "category": "Internal Reliability",
-      "title": "Notification and PWA readiness lock",
-      "summary": "Locked notification permission, targeting, and PWA service worker readiness.",
-      "userFacingTitle": "Notification and PWA readiness lock",
-      "surfaceCategory": "Notifications",
-      "bullets": [
-        "Locked notification permission, targeting, and PWA service worker readiness.",
-        "Connected notification and PWA health to telemetry, debug, and score.",
-        "Kept push sends, chat, tasks, payment, and GumDrop runtime unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only notification/PWA lock validator and report tying permission lifecycle, push token registration, targeting intent, service worker safety, telemetry, debug visibility, and beta score dimensions together without provider sends or runtime mutations."
-      ],
-      "affectedSurfaces": [
-        "Notifications",
-        "PWA",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/notification-pwa-score-lock.generated.json",
-        "docs/agent-truth/notification-pwa-score-lock.md",
-        "scripts/agent/validate-notification-pwa-score-lock.ts",
-        "tests/unit/notification-pwa-score-lock.spec.ts",
-        "package.json",
-        "src/lib/testing/telemetry-trigger-test-matrix.ts",
-        "agent/state/current-beta-exit-status.generated.json"
-      ],
-      "sourceCommit": "pending-same-commit"
     }
   ]
 }

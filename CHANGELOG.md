@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.45 - 2026-05-24
+
+- Fixed false-positive LIVE states for empty diagnostics and panel-log lanes.
+- Separated no-sample, proven-zero, and unavailable debug states.
+- Kept raw diagnostics and panel logs collapsed behind drilldowns.
+
 ## 1.4.44 - 2026-05-24
 
 - Classified admin analytics realtime listeners under hot-cache doctrine.
