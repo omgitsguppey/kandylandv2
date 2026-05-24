@@ -9,6 +9,11 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent, recordTelemetryEventStat } from "@/lib/server/daily-tasks";
 import { preventDuplicateRewardClaim, resolveTaskResetPolicy, explainTaskReset } from "@/lib/tasks/daily-task-reset";
+import {
+    buildDailyTaskRewardLedgerGrant,
+    buildDailyTaskRewardSourceOfFundsExplanation,
+    buildDailyTaskRewardTransactionExtra,
+} from "@/lib/tasks/daily-task-reward-ledger";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
@@ -94,6 +99,15 @@ export async function POST(request: NextRequest) {
             // 3. Calculate streak using normalized continuity rather than trusting stale profile data.
             const nextStreak = progress.claimStreak;
             const reward = progress.claimRewardAmount;
+            const dayKey = getCSTDateKey(now);
+            const rewardGrant = buildDailyTaskRewardLedgerGrant({
+                taskId: "check_in_today",
+                userId,
+                rewardGdAmount: reward,
+                resetWindowId: dayKey,
+                grantReason: "daily_check_in_claim",
+                grantedAtMs: now,
+            });
             const nextBalance = creditSourceAwareGumdrops(sourceAwareBalance, reward, "reward");
             const newBalance = nextBalance.total;
 
@@ -104,7 +118,7 @@ export async function POST(request: NextRequest) {
                 streakCount: nextStreak,
             });
 
-            const transactionRef = adminDb.collection("transactions").doc();
+            const transactionRef = adminDb.collection("transactions").doc(rewardGrant.rewardGrantId);
             transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId,
                 type: "daily_reward",
@@ -114,6 +128,7 @@ export async function POST(request: NextRequest) {
                 balanceBefore: currentBalance,
                 balanceAfter: newBalance,
                 timestampMs: now,
+                extra: buildDailyTaskRewardTransactionExtra(rewardGrant),
             }));
 
                 return {
@@ -130,6 +145,8 @@ export async function POST(request: NextRequest) {
                     username,
                     resetPolicy: resetResolution.resetPolicy,
                     rewardSource: "reward_gd_only" as const,
+                    rewardGrant,
+                    sourceOfFundsExplanation: buildDailyTaskRewardSourceOfFundsExplanation(rewardGrant),
                     eligibilityExplanation: explainTaskReset(resetResolution),
                 };
         });
@@ -140,6 +157,8 @@ export async function POST(request: NextRequest) {
                     task_id: "check_in_today",
                     reward_gd: 0,
                     reward_source: "reward_gd_only",
+                    source_of_funds: "reward_gd",
+                    reward_grant_source: "task_reward",
                     reset_policy: result.resetPolicy,
                     next_eligible_at: result.nextCheckInAt ?? 0,
                     failure_reason: "duplicate_within_reset_window",
@@ -165,7 +184,10 @@ export async function POST(request: NextRequest) {
                 nextEligibleAt: result.nextCheckInAt,
                 resetPolicy: result.resetPolicy,
                 rewardSource: result.rewardSource,
+                sourceOfFunds: "reward_gd",
                 eligibilityExplanation: result.eligibilityExplanation,
+                sourceOfFundsExplanation: "Duplicate check-in blocked before reward ledger credit; no Reward GD grant was written.",
+                duplicateRewardBlocked: true,
                 failureReason: "duplicate_within_reset_window",
                 lifecycleTelemetry: {
                     failedEventName: "daily_task_failed",
@@ -177,6 +199,11 @@ export async function POST(request: NextRequest) {
                     failureReason: "duplicate_within_reset_window",
                 },
             }, { status: 409 }));
+        }
+
+        const rewardGrant = result.rewardGrant;
+        if (!rewardGrant) {
+            throw new Error("Daily task reward ledger grant missing");
         }
 
         try {
@@ -218,6 +245,11 @@ export async function POST(request: NextRequest) {
                 task_id: "check_in_today",
                 reward_gd: result.reward,
                 reward_source: "reward_gd_only",
+                source_of_funds: rewardGrant.sourceOfFunds,
+                reward_grant_source: rewardGrant.rewardSource,
+                reward_grant_id: rewardGrant.rewardGrantId,
+                reset_window_id: rewardGrant.resetWindowId,
+                idempotency_key: rewardGrant.idempotencyKey,
                 reset_policy: result.resetPolicy,
                 next_eligible_at: result.nextCheckInAt ?? 0,
                 source_component: "checkin_api",
@@ -253,6 +285,18 @@ export async function POST(request: NextRequest) {
             nextEligibleAt: result.nextCheckInAt,
             resetPolicy: result.resetPolicy,
             rewardSource: result.rewardSource,
+            sourceOfFunds: rewardGrant.sourceOfFunds,
+            sourceOfFundsExplanation: result.sourceOfFundsExplanation,
+            rewardLedger: {
+                rewardGrantId: rewardGrant.rewardGrantId,
+                taskId: rewardGrant.taskId,
+                resetWindowId: rewardGrant.resetWindowId,
+                idempotencyKey: rewardGrant.idempotencyKey,
+                rewardSource: rewardGrant.rewardSource,
+                sourceOfFunds: rewardGrant.sourceOfFunds,
+                duplicateClaimPolicy: rewardGrant.duplicateClaimPolicy,
+                ledgerDestination: rewardGrant.ledgerDestination,
+            },
             eligibilityExplanation: result.eligibilityExplanation,
             lifecycleTelemetry: {
                 completedEventName: "daily_task_completed",

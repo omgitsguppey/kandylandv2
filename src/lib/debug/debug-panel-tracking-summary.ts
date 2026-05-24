@@ -9,6 +9,7 @@ import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
+import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -25,6 +26,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "wallet_funnel",
   "daily_tasks_reset",
   "daily_task_lifecycle",
+  "daily_task_reward_ledger",
   "chat_gating_moderation",
   "chat_telemetry_admin_truth",
   "runtime_debug_evidence",
@@ -94,6 +96,7 @@ const TRACKING_GROUPS = [
   "wallet_funnel",
   "daily_tasks_reset",
   "daily_task_lifecycle",
+  "daily_task_reward_ledger",
   "chat_gating_moderation",
   "chat_telemetry_admin_truth",
   "runtime_debug",
@@ -207,6 +210,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
   const dailyTasksReset = input.dailyTasksResetTruth?.debugLane ?? buildDailyTaskDebugLane();
   const dailyTaskLifecycle = input.dailyTaskLifecycleTelemetry?.debugLane ?? buildDailyTaskLifecycleDebugLane();
+  const dailyTaskRewardLedger = input.dailyTaskRewardLedger?.debugLane ?? buildDailyTaskRewardDebugLane();
   const dailyTaskLifecycleWarnings = toNumber(dailyTaskLifecycle.missingStarts)
     + toNumber(dailyTaskLifecycle.completionsWithoutStarts)
     + toNumber(dailyTaskLifecycle.rewardsWithoutCompletions);
@@ -428,6 +432,24 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: dailyTaskLifecycleWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#daily-task-lifecycle",
+    }),
+    makeLane({
+      id: "daily_task_reward_ledger",
+      label: "Daily task reward ledger",
+      trackingSystem: "daily_task_reward_ledger",
+      sourceOwner: "retention",
+      sourceOfTruth: "src/lib/tasks/daily-task-reward-ledger.ts",
+      status: dailyTaskRewardLedger.status === "degraded" ? "degraded" : "live",
+      severity: severityFromCounts(
+        0,
+        toNumber(dailyTaskRewardLedger.unknownLegacyRewards) + toNumber(dailyTaskRewardLedger.failedGrantCount),
+        dailyTaskRewardLedger.status === "degraded" ? "degraded" : "live",
+      ),
+      scoreImpact: "medium",
+      primarySignal: `Granted=${toNumber(dailyTaskRewardLedger.grantedRewards)}; duplicateBlocked=${toNumber(dailyTaskRewardLedger.blockedDuplicateClaims)}; ledger=${dailyTaskRewardLedger.ledgerSource}; sourceOfFunds=${dailyTaskRewardLedger.sourceOfFunds}; unknownLegacy=${toNumber(dailyTaskRewardLedger.unknownLegacyRewards)}; failedGrants=${toNumber(dailyTaskRewardLedger.failedGrantCount)}.`,
+      criticalCount: 0,
+      warningCount: toNumber(dailyTaskRewardLedger.unknownLegacyRewards) + toNumber(dailyTaskRewardLedger.failedGrantCount),
+      drilldownTarget: "/admin/debug?tab=advanced#daily-task-reward-ledger",
     }),
     makeLane({
       id: "chat_gating_moderation",

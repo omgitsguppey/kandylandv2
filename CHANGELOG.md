@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.8 - 2026-05-23
+- Daily task reward ledger integrity
+- Hardened daily task reward GumDrop ledger classification.
+- Prevented task rewards from being treated as paid GumDrops.
+- Added duplicate reward protection and debug visibility.
+
 ## 1.4.7 - 2026-05-23
 - Daily task lifecycle telemetry
 - Added daily task lifecycle telemetry and active duration tracking.

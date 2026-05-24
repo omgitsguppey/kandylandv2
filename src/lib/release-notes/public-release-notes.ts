@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.7",
-  "betaReleaseCounter": 407,
+  "currentVersion": "1.4.8",
+  "betaReleaseCounter": 408,
   "channel": "beta",
-  "generatedAt": "2026-05-24T02:55:00.000Z",
-  "generatedAtUtc": "2026-05-24T02:55:00.000Z",
+  "generatedAt": "2026-05-24T03:15:00.000Z",
+  "generatedAtUtc": "2026-05-24T03:15:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.8",
+      "previousVersion": "1.4.7",
+      "betaReleaseCounter": 408,
+      "previousBetaReleaseCounter": 407,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(tasks): harden reward ledger",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T03:15:00.000Z",
+      "generatedAt": "2026-05-24T03:15:00.000Z",
+      "committedAtUtc": "2026-05-24T03:15:00.000Z",
+      "generatedAtUtc": "2026-05-24T03:15:00.000Z",
+      "updatedAtUtc": "2026-05-24T03:15:00.000Z",
+      "category": "Improved",
+      "title": "Daily task reward ledger integrity",
+      "summary": "Hardened daily task reward GumDrop ledger classification, duplicate grant idempotency, reward-only source-of-funds truth, and debug visibility without changing paid GumDrop math or payment runtime.",
+      "userFacingTitle": "Daily task reward ledger integrity",
+      "surfaceCategory": "Daily tasks",
+      "bullets": [
+        "Hardened daily task reward GumDrop ledger classification.",
+        "Prevented task rewards from being treated as paid GumDrops.",
+        "Added duplicate reward protection and debug visibility."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a daily task reward ledger contract, deterministic grant ids, reward_gd/task_reward metadata, source-of-funds explanations, debug lane coverage, generated validation, and unit tests while preserving paid GumDrop and payment runtime behavior."
+      ],
+      "affectedSurfaces": [
+        "Daily tasks",
+        "Check-in",
+        "GumDrop ledger",
+        "Admin debug",
+        "Telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/daily-task-reward-ledger.generated.json",
+        "docs/agent-truth/daily-task-reward-ledger.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-daily-task-reward-ledger.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/checkin/route.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "src/lib/server/daily-tasks.ts",
+        "src/lib/tasks/daily-task-reward-ledger.ts",
+        "tests/unit/daily-task-reward-ledger.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.7",
       "previousVersion": "1.4.6",
@@ -1365,62 +1422,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/chat-composer-modal-lift.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.83",
-      "previousVersion": "1.3.82",
-      "betaReleaseCounter": 383,
-      "previousBetaReleaseCounter": 382,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(analytics): lock user tracking handoff",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-22T23:35:00.000Z",
-      "generatedAt": "2026-05-22T23:35:00.000Z",
-      "committedAtUtc": "2026-05-22T23:35:00.000Z",
-      "generatedAtUtc": "2026-05-22T23:35:00.000Z",
-      "updatedAtUtc": "2026-05-22T23:35:00.000Z",
-      "category": "Improved",
-      "title": "Final user tracking handoff lock",
-      "summary": "Locked guest-to-user tracking, per-person analytics, event envelope, legacy recovery, and debug lane contracts for future telemetry work.",
-      "userFacingTitle": "Final user tracking handoff lock",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Locked guest-to-user tracking and per-person analytics handoff.",
-        "Simplified debug tracking lanes.",
-        "Prepared telemetry for future features without recurring refactors."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the final user tracking handoff lock validator, generated evidence, documentation, and unit coverage without reading production data, mutating legacy records, or changing payment, GumDrop, chat, or navigation runtime."
-      ],
-      "affectedSurfaces": [
-        "Analytics",
-        "Privacy",
-        "Admin debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/final-user-tracking-handoff-lock.generated.json",
-        "agent/state/new-additions-score-coverage.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/final-user-tracking-handoff-lock.md",
-        "docs/agent-truth/new-additions-score-coverage.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-user-tracking-handoff-lock.ts",
-        "scripts/agent/validate-new-additions-score-coverage.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-user-tracking-handoff-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

@@ -50,6 +50,10 @@ import type { UserProfile } from "@/types/db";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
+import {
+  buildDailyTaskRewardLedgerGrant,
+  buildDailyTaskRewardTransactionExtra,
+} from "@/lib/tasks/daily-task-reward-ledger";
 
 const TASK_DEFINITION_COLLECTION = "daily_task_definitions";
 const TASK_EVENT_COLLECTION = "daily_task_events";
@@ -1565,9 +1569,18 @@ export async function recordDailyTaskProgressFromEvent(
 
       if (justCompleted) {
         const durationMs = task.startedAt ? Math.max(0, nowMs - task.startedAt) : Math.max(0, nowMs - task.assignedAt);
-        const rewardCreditIdempotencyKey = buildTaskRewardCreditIdempotencyKey(
+        const dailyTaskWindowId = task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId;
+        const rewardGrant = buildDailyTaskRewardLedgerGrant({
+          taskId: task.id,
+          userId: uid,
+          rewardGdAmount: task.reward,
+          resetWindowId: dailyTaskWindowId,
+          grantReason: "daily_task_completed",
+          grantedAtMs: nowMs,
+        });
+        const rewardCreditIdempotencyKey = rewardGrant.idempotencyKey || buildTaskRewardCreditIdempotencyKey(
           uid,
-          task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          dailyTaskWindowId,
           task.id,
         );
         totalReward += task.reward;
@@ -1592,7 +1605,7 @@ export async function recordDailyTaskProgressFromEvent(
           progress: nextProgress,
           maxProgress: task.maxProgress,
           timestamp: nowMs,
-          dailyTaskWindowId: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          dailyTaskWindowId,
           source: "user_action",
           reasonCode: "task_completed",
           assignedAt: task.assignedAt,
@@ -1610,6 +1623,9 @@ export async function recordDailyTaskProgressFromEvent(
           trigger_event: eventName,
           reward_gd: task.reward,
           daily_task_window_id: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          source_of_funds: rewardGrant.sourceOfFunds,
+          reward_grant_source: rewardGrant.rewardSource,
+          reward_grant_id: rewardGrant.rewardGrantId,
           sourceTruth: "canonical",
         });
         incrementEventStat(transaction, "daily_task_claimed", nowMs, {
@@ -1617,6 +1633,9 @@ export async function recordDailyTaskProgressFromEvent(
           trigger_event: eventName,
           reward_gd: task.reward,
           daily_task_window_id: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          source_of_funds: rewardGrant.sourceOfFunds,
+          reward_grant_source: rewardGrant.rewardSource,
+          reward_grant_id: rewardGrant.rewardGrantId,
           sourceTruth: "canonical",
         });
         incrementEventStat(transaction, "task_completed", nowMs, {
@@ -1626,11 +1645,15 @@ export async function recordDailyTaskProgressFromEvent(
           reward: task.reward,
           day_key: getCSTDateKey(nowMs),
           daily_task_window_id: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          source_of_funds: rewardGrant.sourceOfFunds,
+          reward_grant_source: rewardGrant.rewardSource,
+          reward_grant_id: rewardGrant.rewardGrantId,
+          idempotency_key: rewardGrant.idempotencyKey,
           sourceTruth: "canonical",
           duration_ms: durationMs,
         });
 
-        const txRef = adminDb.collection("transactions").doc();
+        const txRef = adminDb.collection("transactions").doc(rewardGrant.rewardGrantId);
         const rewardReceiptRef = adminDb.collection(TASK_RECEIPT_COLLECTION).doc(
           buildTaskReceiptDocId(uid, "task_reward_credit", rewardCreditIdempotencyKey),
         );
@@ -1642,9 +1665,12 @@ export async function recordDailyTaskProgressFromEvent(
           uid,
           eventName: "task_reward_credit",
           receiptKey: rewardCreditIdempotencyKey,
+          rewardGrantId: rewardGrant.rewardGrantId,
           taskId: task.id,
-          dailyTaskWindowId: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          dailyTaskWindowId,
           rewardGd: task.reward,
+          sourceOfFunds: rewardGrant.sourceOfFunds,
+          rewardGrantSource: rewardGrant.rewardSource,
           createdAt: FieldValue.serverTimestamp(),
           timestamp: nowMs,
           source: "canonical",
@@ -1661,9 +1687,9 @@ export async function recordDailyTaskProgressFromEvent(
           extra: {
             taskRewardCreditIdempotencyKey: rewardCreditIdempotencyKey,
             dailyTaskWindowId: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
-            taskId: task.id,
             rewardSource: "daily_task",
             rewardVersion: task.rewardVersion ?? DAILY_TASK_REWARD_VERSION,
+            ...buildDailyTaskRewardTransactionExtra(rewardGrant),
           },
         }));
       }

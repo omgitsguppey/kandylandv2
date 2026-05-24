@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-24T03:06:31.276Z",
-  "currentHead": "b24ad4bc",
+  "generatedAtUtc": "2026-05-24T03:21:07.964Z",
+  "currentHead": "8d9a6712",
   "scoreBefore": {
     "sourceHealth": 91.7,
     "runtimeHealth": 66.25,
@@ -140,15 +140,11 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/daily-task-reset-truth.generated.json",
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
+      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -156,27 +152,11 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/daily-task-reset-truth.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -192,7 +172,7 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-daily-task-reset-truth.ts",
+      "path": "scripts/agent/validate-daily-task-reward-ledger.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -201,34 +181,6 @@
     },
     {
       "path": "src/app/api/checkin/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/components/Dashboard/DailyCheckIn.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/event-fact-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/event-fact-normalizer.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/normalize-event-fact.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -248,31 +200,15 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/tasks/daily-task-contract.ts",
+      "path": "src/lib/server/daily-tasks.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/tasks/daily-task-duration.ts",
+      "path": "src/lib/tasks/daily-task-reward-ledger.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/tasks/daily-task-telemetry.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/telemetry-catalog.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/daily-task-lifecycle-telemetry.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/user-management-refactor.spec.ts",
+      "path": "tests/unit/daily-task-reward-ledger.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

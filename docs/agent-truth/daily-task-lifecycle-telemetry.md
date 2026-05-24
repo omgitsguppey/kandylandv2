@@ -1,7 +1,7 @@
 # Daily Task Lifecycle Telemetry
 
-Generated: 2026-05-24T03:06:31.276Z
-Current HEAD: b24ad4bc
+Generated: 2026-05-24T03:21:07.964Z
+Current HEAD: 8d9a6712
 
 ## Lifecycle
 
@@ -55,40 +55,24 @@ Current HEAD: b24ad4bc
 
 - CHANGELOG.md: release_artifact_expected
 - agent/state/daily-task-lifecycle-telemetry.generated.json: current_generated_artifact_to_commit
-- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-reward-ledger.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/gumdrop-economy-accuracy.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/daily-task-lifecycle-telemetry.md: documentation_artifact_expected
-- docs/agent-truth/daily-task-reset-truth.md: documentation_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
+- docs/agent-truth/daily-task-reward-ledger.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
 - scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-reset-truth.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-reward-ledger.ts: validator_artifact_expected
 - src/app/api/admin/debug/route.ts: real_source_change_needs_review
 - src/app/api/checkin/route.ts: real_source_change_needs_review
-- src/components/Dashboard/DailyCheckIn.tsx: real_source_change_needs_review
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/behavioral/event-fact-contract.ts: real_source_change_needs_review
-- src/lib/behavioral/event-fact-normalizer.ts: real_source_change_needs_review
-- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - src/lib/server/admin-debug/summary.ts: real_source_change_needs_review
-- src/lib/tasks/daily-task-contract.ts: real_source_change_needs_review
-- src/lib/tasks/daily-task-duration.ts: real_source_change_needs_review
-- src/lib/tasks/daily-task-telemetry.ts: real_source_change_needs_review
-- src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/daily-task-lifecycle-telemetry.spec.ts: test_artifact_expected
-- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
+- src/lib/server/daily-tasks.ts: real_source_change_needs_review
+- src/lib/tasks/daily-task-reward-ledger.ts: real_source_change_needs_review
+- tests/unit/daily-task-reward-ledger.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

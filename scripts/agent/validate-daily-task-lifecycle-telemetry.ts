@@ -140,10 +140,14 @@ export function classifyDailyTaskLifecycleDirtyFile(path: string) {
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-reset-truth.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-lifecycle-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-reward-ledger.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/daily-task-lifecycle-telemetry.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/daily-task-reward-ledger.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/tasks/daily-task-telemetry.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-duration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/tasks/daily-task-reward-ledger.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/server/daily-tasks.ts") return "real_source_change_needs_review";
   if (normalized === "src/components/Dashboard/DailyCheckIn.tsx") return "real_source_change_needs_review";
   if (normalized === "src/app/api/checkin/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
