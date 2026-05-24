@@ -92,6 +92,7 @@
         "check:formal-evidence-bridge": "tsx scripts/agent/validate-formal-evidence-bridge.ts",
         "check:regression-risk-high-blast-refresh": "tsx scripts/agent/validate-regression-risk-high-blast-refresh.ts",
         "check:score-dimension-80-lock": "tsx scripts/agent/validate-score-dimension-80-lock.ts",
+        "check:notification-permission-lifecycle": "tsx scripts/agent/validate-notification-permission-lifecycle.ts",
         "check:ui-visual-smoke-minimal": "tsx scripts/agent/validate-ui-visual-smoke-minimal.ts",
         "check:codex-visual-gate-removal": "tsx scripts/agent/validate-codex-visual-gate-removal.ts",
         "check:beta-evidence-gap-map": "tsx scripts/agent/validate-beta-evidence-gap-map.ts",

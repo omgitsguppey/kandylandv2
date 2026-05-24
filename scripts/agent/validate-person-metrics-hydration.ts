@@ -103,6 +103,9 @@ function findActiveOldLogic() {
     if (path === "docs/agent-truth/person-metrics-hydration.md") return false;
     if (path === "tests/unit/person-metrics-hydration.spec.ts") return false;
     if (path === "src/lib/analytics/person-metrics-hydration.ts") return false;
+    if (path === "agent/state/event-liveness-audit.generated.json") return false;
+    if (path === "docs/agent-truth/event-liveness-audit.md") return false;
+    if (path === "scripts/agent/validate-event-liveness-audit.ts") return false;
     if (path === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts") return false;
     if (path === "scripts/agent/validate-future-activity-signal-reclassification.ts") return false;
     if (path === "tests/unit/future-activity-signal-reclassification.spec.ts") return false;

@@ -12,6 +12,7 @@ import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
 import { buildTaskGuidanceHealthLane } from "@/lib/tasks/daily-task-guidance-contract";
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
+import { buildNotificationPermissionDebugLane } from "@/lib/notifications/notification-permission-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -27,6 +28,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "settings_health",
   "legacy_recovery",
   "wallet_funnel",
+  "notification_permission",
   "daily_tasks_reset",
   "daily_task_guidance_health",
   "daily_task_lifecycle",
@@ -99,6 +101,7 @@ const TRACKING_GROUPS = [
   "settings",
   "legacy_recovery",
   "wallet_funnel",
+  "notification_permission",
   "daily_tasks_reset",
   "daily_task_guidance_health",
   "daily_task_lifecycle",
@@ -228,6 +231,9 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const behaviorStatus = toStatus(input.behavioralSnapshotStatus?.status);
   const legacyStatus = toStatus(input.legacyRecovery?.status);
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
+  const notificationPermission = input.notificationPermissionLifecycle?.debugLane ?? buildNotificationPermissionDebugLane();
+  const notificationPermissionWarnings = toNumber(notificationPermission.failed)
+    + (notificationPermission.telemetryStatus === "mapped" ? 0 : 1);
   const dailyTasksReset = input.dailyTasksResetTruth?.debugLane ?? buildDailyTaskDebugLane();
   const dailyTaskGuidanceHealth = input.dailyTaskGuidanceRouteAudit?.debugLane ?? buildTaskGuidanceHealthLane();
   const dailyTaskLifecycle = input.dailyTaskLifecycleTelemetry?.debugLane ?? buildDailyTaskLifecycleDebugLane();
@@ -439,6 +445,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: walletCount > 0 ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=monitoring#wallet-funnel",
+    }),
+    makeLane({
+      id: "notification_permission",
+      label: "Notification permission",
+      trackingSystem: "notification_permission",
+      sourceOwner: "notifications",
+      sourceOfTruth: "src/lib/notifications/notification-permission-contract.ts",
+      status: notificationPermission.status === "degraded" ? "degraded" : notificationPermission.status === "unavailable" ? "unavailable" : "live",
+      severity: severityFromCounts(0, notificationPermissionWarnings, notificationPermission.status === "degraded" ? "degraded" : notificationPermission.status === "unavailable" ? "unavailable" : "live"),
+      scoreImpact: "medium",
+      primarySignal: `Eligible=${toNumber(notificationPermission.promptEligible)}; shown=${toNumber(notificationPermission.promptShown)}; granted=${toNumber(notificationPermission.granted)}; denied=${toNumber(notificationPermission.denied)}; failed=${toNumber(notificationPermission.failed)}; unsupported=${toNumber(notificationPermission.unsupportedBrowser)}; cooldown=${toNumber(notificationPermission.cooldownActive)}; snoozed=${toNumber(notificationPermission.snoozed)}; telemetry=${notificationPermission.telemetryStatus}.`,
+      criticalCount: 0,
+      warningCount: notificationPermissionWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#notification-permission",
     }),
     makeLane({
       id: "daily_tasks_reset",

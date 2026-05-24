@@ -60,6 +60,9 @@ function findActiveOldLogic() {
     if (path === "tests/unit/event-translation-bridge.spec.ts") return false;
     if (path === "src/lib/analytics/event-translation-bridge.ts") return false;
     if (path === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return false;
+    if (path === "scripts/agent/validate-event-liveness-audit.ts") return false;
+    if (path === "agent/state/event-liveness-audit.generated.json") return false;
+    if (path === "docs/agent-truth/event-liveness-audit.md") return false;
     if (path === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts") return false;
     if (path === "scripts/agent/validate-future-activity-signal-reclassification.ts") return false;
     if (path === "scripts/agent/validate-final-signal-zero-lock.ts") return false;

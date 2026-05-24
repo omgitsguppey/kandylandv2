@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Bell, Smartphone, X } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +10,19 @@ import { trackEvent } from "@/lib/telemetry";
 import { toast } from "sonner";
 import { hashIdentifier } from "@/hooks/client-runtime";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import {
+    NOTIFICATION_PROMPT_COOLDOWN_MS,
+    NOTIFICATION_PROMPT_VIEW_DELAY_MS,
+    classifyNotificationPermissionState,
+    classifyNotificationPromptStatus,
+    resolveNotificationPromptCooldown,
+    shouldShowNotificationPrompt,
+    type NotificationPermissionStateResult,
+    type NotificationPromptCooldown,
+    type NotificationPromptLifecycleEvent,
+    type NotificationPromptStatus,
+} from "@/lib/notifications/notification-permission-contract";
+import { trackNotificationPromptLifecycleEvent } from "@/lib/notifications/notification-prompt-telemetry";
 
 async function getDismissKey(uid: string) {
     const hashedId = await hashIdentifier(uid);
@@ -28,12 +41,63 @@ function clearLegacyNotificationPromptDismissal(storageKey: string) {
     }
 }
 
+type StoredPromptCooldown = {
+    dismissedAtMs?: number;
+    snoozedUntilMs?: number;
+    retryCount?: number;
+};
+
+function readStoredPromptCooldown(storageKey: string | null, nowMs: number): NotificationPromptCooldown {
+    if (typeof window === "undefined" || !storageKey) {
+        return resolveNotificationPromptCooldown({ nowMs });
+    }
+
+    try {
+        const raw = window.localStorage.getItem(storageKey);
+        if (!raw) {
+            return resolveNotificationPromptCooldown({ nowMs });
+        }
+        if (raw === "1") {
+            const migrated = {
+                dismissedAtMs: nowMs,
+                snoozedUntilMs: nowMs + NOTIFICATION_PROMPT_COOLDOWN_MS,
+                retryCount: 1,
+            };
+            window.localStorage.setItem(storageKey, JSON.stringify(migrated));
+            return resolveNotificationPromptCooldown({ nowMs, ...migrated });
+        }
+        const parsed = JSON.parse(raw) as StoredPromptCooldown;
+        return resolveNotificationPromptCooldown({
+            nowMs,
+            dismissedAtMs: parsed.dismissedAtMs,
+            snoozedUntilMs: parsed.snoozedUntilMs,
+            retryCount: parsed.retryCount,
+        });
+    } catch {
+        return resolveNotificationPromptCooldown({ nowMs });
+    }
+}
+
+function writePromptCooldown(storageKey: string | null, cooldown: StoredPromptCooldown) {
+    if (typeof window === "undefined" || !storageKey) {
+        return;
+    }
+
+    try {
+        window.localStorage.setItem(storageKey, JSON.stringify(cooldown));
+    } catch {
+        // Storage may be unavailable in private browsing. The prompt still remains user-initiated.
+    }
+}
+
 export function NotificationPromptBanner() {
     const { user, userProfile } = useAuth();
     const [isVisible, setIsVisible] = useState(false);
     const [dismissed, setDismissed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [needsStandaloneInstall, setNeedsStandaloneInstall] = useState(false);
+    const [cooldown, setCooldown] = useState<NotificationPromptCooldown>(() => resolveNotificationPromptCooldown({ nowMs: Date.now() }));
+    const lifecycleEventsTracked = useRef(new Set<string>());
 
     const hasNotificationsEnabled = useMemo(() => {
         if (!userProfile) {
@@ -83,8 +147,53 @@ export function NotificationPromptBanner() {
         }
 
         clearLegacyNotificationPromptDismissal(dismissKey);
-        setDismissed(window.localStorage.getItem(dismissKey) === "1");
+        const nextCooldown = readStoredPromptCooldown(dismissKey, Date.now());
+        setCooldown(nextCooldown);
+        setDismissed(nextCooldown.active);
     }, [dismissKey, isCheckingKey]);
+
+    const trackLifecycle = (
+        eventName: NotificationPromptLifecycleEvent,
+        permission: NotificationPermissionStateResult,
+        promptStatus: NotificationPromptStatus,
+        extra?: {
+            blockedReason?: string | null;
+            failureReason?: string | null;
+            messagingSupported?: boolean;
+        },
+    ) => {
+        const route = typeof window === "undefined" ? "/dashboard" : window.location.pathname;
+        trackNotificationPromptLifecycleEvent({
+            eventName,
+            permissionState: permission.permissionState,
+            promptStatus,
+            userScope: user ? "signed_in" : "guest",
+            featureSource: "dashboard",
+            sourceComponent: "NotificationPromptBanner",
+            route,
+            cooldownRemainingMs: cooldown.remainingMs,
+            retryCount: cooldown.retryCount,
+            blockedReason: extra?.blockedReason ?? permission.blockedReason,
+            failureReason: extra?.failureReason ?? null,
+            requiresPwaInstall: permission.needsStandaloneInstall,
+            messagingSupported: extra?.messagingSupported ?? permission.messagingSupported,
+        }, trackEvent);
+    };
+
+    const trackLifecycleOnce = (
+        eventName: NotificationPromptLifecycleEvent,
+        permission: NotificationPermissionStateResult,
+        promptStatus: NotificationPromptStatus,
+        keySuffix: string,
+        extra?: Parameters<typeof trackLifecycle>[3],
+    ) => {
+        const key = `${eventName}:${permission.permissionState}:${promptStatus}:${keySuffix}`;
+        if (lifecycleEventsTracked.current.has(key)) {
+            return;
+        }
+        lifecycleEventsTracked.current.add(key);
+        trackLifecycle(eventName, permission, promptStatus, extra);
+    };
 
     useEffect(() => {
         if (!user || !userProfile || dismissed || hasNotificationsEnabled || isCheckingKey) {
@@ -101,24 +210,47 @@ export function NotificationPromptBanner() {
             }
 
             setNeedsStandaloneInstall(state.needsStandaloneInstall);
+            const permission = classifyNotificationPermissionState({
+                browserCapable: state.browserCapable,
+                messagingSupported: state.messagingSupported,
+                needsStandaloneInstall: state.needsStandaloneInstall,
+                permission: state.permission,
+            });
+            const nextCooldown = readStoredPromptCooldown(dismissKey, Date.now());
+            setCooldown(nextCooldown);
+            setDismissed(nextCooldown.active);
+            const prompt = classifyNotificationPromptStatus({
+                permission,
+                hasNotificationsEnabled,
+                cooldown: nextCooldown,
+                userScope: "signed_in",
+            });
 
-            const shouldShow = state.permission === "default"
-                || (state.needsStandaloneInstall && state.permission !== "granted")
-                || (state.permission === "granted" && state.messagingSupported && !hasNotificationsEnabled);
-
-            if (!shouldShow || state.permission === "denied") {
+            if (prompt.status === "snoozed") {
+                trackLifecycleOnce("notification_prompt_snoozed", permission, "snoozed", String(nextCooldown.snoozedUntilMs ?? "unknown"));
+                setIsVisible(false);
+                return;
+            }
+            if (!shouldShowNotificationPrompt({
+                permission,
+                hasNotificationsEnabled,
+                cooldown: nextCooldown,
+                userScope: "signed_in",
+            })) {
+                if (prompt.status === "unavailable") {
+                    trackLifecycleOnce("notification_prompt_blocked", permission, "unavailable", prompt.reason);
+                }
                 setIsVisible(false);
                 return;
             }
 
+            trackLifecycleOnce("notification_prompt_eligible", permission, "eligible", "dashboard");
             window.setTimeout(() => {
                 if (!cancelled) {
                     setIsVisible(true);
-                    trackEvent("notification_prompt_banner_viewed", {
-                        requires_pwa_install: state.needsStandaloneInstall,
-                    });
+                    trackLifecycleOnce("notification_prompt_viewed", permission, "shown", "dashboard");
                 }
-            }, 2500);
+            }, NOTIFICATION_PROMPT_VIEW_DELAY_MS);
         }
 
         void evaluateBanner();
@@ -126,7 +258,7 @@ export function NotificationPromptBanner() {
         return () => {
             cancelled = true;
         };
-    }, [dismissed, hasNotificationsEnabled, isCheckingKey, user, userProfile]);
+    }, [dismissKey, dismissed, hasNotificationsEnabled, isCheckingKey, user, userProfile]);
 
     const handleEnable = async () => {
         if (!user || !userProfile) {
@@ -135,15 +267,40 @@ export function NotificationPromptBanner() {
 
         if (needsStandaloneInstall) {
             toast.info("Add KandyDrops to your Home Screen, then open it from there to turn on browser notifications on iPhone.");
+            const permission = classifyNotificationPermissionState({
+                browserCapable: true,
+                messagingSupported: false,
+                needsStandaloneInstall: true,
+                permission: "default",
+            });
+            trackLifecycle("notification_prompt_blocked", permission, "unavailable", {
+                blockedReason: "standalone_required",
+                messagingSupported: false,
+            });
             trackEvent("notification_prompt_install_help_opened");
             return;
         }
 
         setLoading(true);
+        const requestPermission = classifyNotificationPermissionState({
+            browserCapable: typeof window !== "undefined" && "Notification" in window,
+            messagingSupported: true,
+            needsStandaloneInstall: false,
+            permission: typeof window !== "undefined" && "Notification" in window ? Notification.permission : "unsupported",
+        });
+        trackLifecycle("notification_permission_requested", requestPermission, "shown");
         try {
             const result = await enableBrowserNotifications(userProfile);
             if (result.status === "not_granted") {
                 toast.info("Browser notifications were not enabled.");
+                trackLifecycle("notification_permission_denied", {
+                    ...requestPermission,
+                    permissionState: "denied",
+                    canRequestPermission: false,
+                    blockedReason: "denied",
+                }, "denied", {
+                    messagingSupported: false,
+                });
                 return;
             }
             if (result.status === "failed") {
@@ -153,14 +310,26 @@ export function NotificationPromptBanner() {
             setIsVisible(false);
             setDismissed(true);
             if (dismissKey) {
-                window.localStorage.setItem(dismissKey, "1");
+                writePromptCooldown(dismissKey, {
+                    dismissedAtMs: Date.now(),
+                    snoozedUntilMs: Date.now() + NOTIFICATION_PROMPT_COOLDOWN_MS,
+                    retryCount: cooldown.retryCount + 1,
+                });
             }
-            trackEvent("task_notifications_enabled", {
-                source: "prompt_banner",
-                messaging_supported: result.messagingSupported,
+            trackLifecycle("notification_permission_granted", {
+                ...requestPermission,
+                permissionState: "granted",
+                canRequestPermission: false,
+                blockedReason: null,
+                messagingSupported: result.messagingSupported,
+            }, "accepted", {
+                messagingSupported: result.messagingSupported,
             });
             toast.success("Browser notifications enabled.");
         } catch (error) {
+            trackLifecycle("notification_permission_failed", requestPermission, "failed", {
+                failureReason: "notification_permission_failed",
+            });
             reportClientIssue({
                 channel: "notifications",
                 message: "Notification prompt enable failed",
@@ -181,11 +350,23 @@ export function NotificationPromptBanner() {
         setIsVisible(false);
         setDismissed(true);
         if (typeof window !== "undefined" && dismissKey) {
-            window.localStorage.setItem(dismissKey, "1");
+            const nowMs = Date.now();
+            const nextCooldown = {
+                dismissedAtMs: nowMs,
+                snoozedUntilMs: nowMs + NOTIFICATION_PROMPT_COOLDOWN_MS,
+                retryCount: cooldown.retryCount + 1,
+            };
+            writePromptCooldown(dismissKey, nextCooldown);
+            setCooldown(resolveNotificationPromptCooldown({ nowMs, ...nextCooldown }));
         }
-        trackEvent("notification_prompt_banner_dismissed", {
-            requires_pwa_install: needsStandaloneInstall,
+        const permission = classifyNotificationPermissionState({
+            browserCapable: typeof window !== "undefined" && "Notification" in window,
+            messagingSupported: !needsStandaloneInstall,
+            needsStandaloneInstall,
+            permission: typeof window !== "undefined" && "Notification" in window ? Notification.permission : "unsupported",
         });
+        trackLifecycle("notification_prompt_dismissed", permission, "dismissed");
+        trackLifecycle("notification_prompt_snoozed", permission, "snoozed");
     };
 
     if (!isVisible) {

@@ -1,0 +1,183 @@
+{
+  "generatedAtUtc": "2026-05-24T06:22:13.086Z",
+  "currentHead": "8b129dfd",
+  "productionReadsRequired": false,
+  "deployRequired": false,
+  "promptLifecycleEvents": [
+    "notification_prompt_eligible",
+    "notification_prompt_viewed",
+    "notification_prompt_dismissed",
+    "notification_permission_requested",
+    "notification_permission_granted",
+    "notification_permission_denied",
+    "notification_permission_failed",
+    "notification_prompt_snoozed",
+    "notification_prompt_blocked"
+  ],
+  "permissionStateTracked": true,
+  "autoFireOnPageLoadBlocked": true,
+  "cooldownPolicyPresent": true,
+  "retryPolicyPresent": true,
+  "ariaBusyPreserved": true,
+  "canonicalEnvelopeMapped": true,
+  "telemetryCatalogMapped": true,
+  "featureRegistrationMapped": true,
+  "personMetricsMapped": true,
+  "debugLanePresent": true,
+  "debugLane": {
+    "lane": "Notification permission",
+    "label": "Notification permission",
+    "status": "live",
+    "promptEligible": 1,
+    "promptShown": 1,
+    "granted": 1,
+    "denied": 0,
+    "failed": 0,
+    "unsupportedBrowser": 0,
+    "cooldownActive": 0,
+    "snoozed": 0,
+    "telemetryStatus": "mapped",
+    "rawDetailsCollapsedByDefault": true
+  },
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreDimensionImpact": {
+    "sourceHealth": "Notification prompt lifecycle has explicit source contract, telemetry events, and validator coverage.",
+    "runtimeHealth": "Runtime push/provider proof remains separate; this phase adds source-safe lifecycle readiness only.",
+    "evidenceCompleteness": "Prompt views, grants, denials, failures, cooldown, and blocked browser states feed debug evidence.",
+    "freshness": "Notification lifecycle report is regenerated from current source.",
+    "costRisk": "Prompt state is local and event-only; no production reads or provider calls are added.",
+    "regressionRisk": "Unit and validator checks protect no-auto-prompt, cooldown, telemetry mapping, debug lane, and protected-surface boundaries.",
+    "overallHealthScore": "Moves notification readiness evidence without clearing formal runtime/provider gates."
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/notification-permission-lifecycle.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/notification-permission-lifecycle.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-notification-permission-lifecycle.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-person-metrics-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/components/Dashboard/NotificationPromptBanner.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/notifications/notification-permission-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/notifications/notification-prompt-telemetry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/notification-permission-lifecycle.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "oldLogicReferences": [
+    {
+      "reference": "aria-busy",
+      "classification": "still_required",
+      "reason": "Loading state accessibility remains required on the permission CTA."
+    }
+  ],
+  "validationFailures": []
+}

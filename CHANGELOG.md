@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.16 - 2026-05-24
+- Notification permission lifecycle
+- Finalized notification permission prompt lifecycle.
+- Tracked notification prompt views, grants, denials, and failures.
+- Added debug visibility for notification permission health.
+
 ## 1.4.15 - 2026-05-24
 - Score dimension lock
 - Locked beta score by dimension toward the 80 target.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Connected tracked events to feature activity, person metrics, debug evidence, and score inputs.
 - Reduced false waiting-on-activity states.
 - Cleaned stale event translation logic.
-
-## 1.3.91 - 2026-05-23
-- Notification and security reliability fixes
-- Resolved open PR backlog by merging, cherry-picking, or closing stale work.
-- Integrated safe security, accessibility, and admin performance fixes.
-- Closed superseded monolith/analytics PRs where current doctrine already covers them.

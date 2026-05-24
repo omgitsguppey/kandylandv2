@@ -1,13 +1,86 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.15",
-  "betaReleaseCounter": 415,
+  "currentVersion": "1.4.16",
+  "betaReleaseCounter": 416,
   "channel": "beta",
-  "generatedAt": "2026-05-24T05:55:06.228Z",
-  "generatedAtUtc": "2026-05-24T05:55:06.228Z",
-  "lastCommitSha": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+  "generatedAt": "2026-05-24T06:17:18.714Z",
+  "generatedAtUtc": "2026-05-24T06:17:18.714Z",
+  "lastCommitSha": "8b129dfd0951ae72d088994f59ad32c7be678798",
   "notes": [
+    {
+      "version": "1.4.16",
+      "previousVersion": "1.4.15",
+      "betaReleaseCounter": 416,
+      "previousBetaReleaseCounter": 415,
+      "commitSha": "8b129dfd0951ae72d088994f59ad32c7be678798",
+      "commitTitle": "docs(beta): lock score dimensions",
+      "commitCount": 1,
+      "commitShas": [
+        "8b129dfd0951ae72d088994f59ad32c7be678798"
+      ],
+      "committedAt": "2026-05-24T06:01:42.000Z",
+      "generatedAt": "2026-05-24T06:17:18.713Z",
+      "committedAtUtc": "2026-05-24T06:01:42.000Z",
+      "generatedAtUtc": "2026-05-24T06:17:18.713Z",
+      "updatedAtUtc": "2026-05-24T06:17:18.713Z",
+      "category": "Fixed",
+      "title": "Notification permission lifecycle",
+      "summary": "Finalized the notification permission prompt lifecycle with clearer prompt states, lifecycle telemetry, and debug visibility.",
+      "userFacingTitle": "Notification permission lifecycle",
+      "surfaceCategory": "Notifications",
+      "bullets": [
+        "Finalized notification permission prompt lifecycle.",
+        "Tracked notification prompt views, grants, denials, and failures.",
+        "Added debug visibility for notification permission health."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "dashboard",
+        "notifications"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/activity-verification-engine.generated.json",
+        "agent/state/cost-risk-owner-review-closure.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/debug-signal-actionability.generated.json",
+        "agent/state/debug-signal-grouping.generated.json",
+        "agent/state/event-envelope-normalization.generated.json",
+        "agent/state/feature-registration-gate.generated.json",
+        "agent/state/formal-evidence-bridge.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/regression-risk-high-blast-refresh.generated.json",
+        "agent/state/score-dimension-80-lock.generated.json",
+        "agent/state/settings-connection-parity.generated.json",
+        "agent/state/targeted-behavior-evidence.generated.json",
+        "agent/state/telemetry-trigger-test-matrix.generated.json",
+        "agent/state/user-profile-api-contract.generated.json",
+        "docs/agent-truth/cost-risk-owner-review-closure.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/debug-signal-actionability.md",
+        "docs/agent-truth/debug-signal-grouping.md",
+        "docs/agent-truth/event-envelope-normalization.md",
+        "docs/agent-truth/formal-evidence-bridge.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "docs/agent-truth/regression-risk-high-blast-refresh.md",
+        "docs/agent-truth/score-dimension-80-lock.md",
+        "docs/agent-truth/settings-connection-parity.md",
+        "docs/agent-truth/targeted-behavior-evidence.md",
+        "docs/agent-truth/telemetry-trigger-test-matrix.md",
+        "docs/agent-truth/user-profile-api-contract.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-score-dimension-80-lock.ts",
+        "src/lib/agent-score/score-dimension-80-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/score-dimension-80-lock.spec.ts"
+      ],
+      "sourceCommit": "8b129dfd0951ae72d088994f59ad32c7be678798"
+    },
     {
       "version": "1.4.15",
       "previousVersion": "1.4.14",
@@ -6134,63 +6207,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/server/admin-debug/summary.ts",
         "tests/unit/debug-tracking-simplification.spec.ts",
         "tests/unit/event-translation-bridge.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.91",
-      "previousVersion": "1.3.90",
-      "betaReleaseCounter": 391,
-      "previousBetaReleaseCounter": 390,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "chore(repo): finalize open prs",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T02:50:00.000Z",
-      "generatedAt": "2026-05-23T02:50:00.000Z",
-      "committedAtUtc": "2026-05-23T02:50:00.000Z",
-      "generatedAtUtc": "2026-05-23T02:50:00.000Z",
-      "updatedAtUtc": "2026-05-23T02:50:00.000Z",
-      "category": "Fixed",
-      "title": "Notification and security reliability fixes",
-      "summary": "Improved notification accessibility and tightened redirect safety while cleaning up stale PR backlog work.",
-      "userFacingTitle": "Notification and security reliability fixes",
-      "surfaceCategory": "Notifications",
-      "bullets": [
-        "Resolved open PR backlog by merging, cherry-picking, or closing stale work.",
-        "Integrated safe security, accessibility, and admin performance fixes.",
-        "Closed superseded monolith/analytics PRs where current doctrine already covers them."
-      ],
-      "audience": "users",
-      "technicalDetails": [
-        "Ported code-only fixes from PRs #278, #281, #282, and #283, closed PR #279 as superseded, and added an open PR finalization validator/report lane without landing Jules scratch notes."
-      ],
-      "affectedSurfaces": [
-        "Notifications",
-        "Privacy & security",
-        "Admin tools",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/open-pr-finalization.generated.json",
-        "docs/agent-truth/open-pr-finalization.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-open-pr-finalization.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/overview/route.ts",
-        "src/components/Dashboard/NotificationPromptBanner.tsx",
-        "src/lib/admin-drop-form.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-analytics-historical-engagement.ts",
-        "tests/unit/admin-drop-form.spec.ts",
-        "tests/unit/admin-overview-route.spec.ts",
-        "tests/unit/open-pr-finalization.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }
