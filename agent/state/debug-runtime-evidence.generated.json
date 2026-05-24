@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-24T05:05:51.059Z",
-  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "generatedAtUtc": "2026-05-24T14:55:39.284Z",
+  "currentHead": "48d8c64ecce16f4ae346e49f5607099e0d686d26",
   "debugPanelSourceSnapshotStatus": "stale",
   "routeDiagnosticsStatus": "source_ready",
   "runtimeWarningStoreStatus": "source_ready",
@@ -10,7 +10,7 @@
   "errorDictionaryMappingStatus": "source_ready",
   "criticalRuntimeIssueCount": 0,
   "unresolvedWarningCount": 0,
-  "unknownEvidenceCount": 1,
+  "unknownEvidenceCount": 0,
   "sourceBackedRuntimeConfidence": 0,
   "validatorResults": [
     {
@@ -27,7 +27,7 @@
     }
   ],
   "reportKey": "debug-runtime-evidence",
-  "sourceCommit": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "sourceCommit": "48d8c64ecce16f4ae346e49f5607099e0d686d26",
   "status": "partial_debug_runtime_evidence",
   "passed": false,
   "launchGateImpact": "does_not_clear_deployed_runtime_smoke",
@@ -50,7 +50,7 @@
     "errorDictionaryMappingStatus=source_ready",
     "criticalRuntimeIssueCount=0",
     "unresolvedWarningCount=0",
-    "unknownEvidenceCount=1",
+    "unknownEvidenceCount=0",
     "sourceBackedRuntimeConfidence=0",
     "launchGateImpact=does_not_clear_deployed_runtime_smoke",
     "formalProviderSmokeCleared=false",
@@ -62,7 +62,7 @@
     "checkedSources": 5,
     "criticalRuntimeIssueCount": 0,
     "unresolvedWarningCount": 0,
-    "unknownEvidenceCount": 1,
+    "unknownEvidenceCount": 0,
     "formalRuntimeSmokeStillRequired": true
   }
 }

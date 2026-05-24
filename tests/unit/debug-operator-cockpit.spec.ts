@@ -83,7 +83,7 @@ const baseInput: DebugOperatorCockpitInput = {
 };
 
 describe("debug operator cockpit", () => {
-  it("orders the default cockpit by score impact, warnings, stale refreshes, truth, telemetry, cost, critic, and playbooks", () => {
+  it("orders the default cockpit while keeping formal evidence out of source-fix sections", () => {
     const cockpit = buildDebugOperatorCockpit(baseInput, {
       generatedAtUtc: "2026-05-21T06:15:00.000Z",
       currentHead: "abc1234",
@@ -99,10 +99,7 @@ describe("debug operator cockpit", () => {
       "ai_critic_requested_changes",
       "recovery_playbook_cta",
     ]);
-    expect(cockpit.defaultSections[0].items[0]).toMatchObject({
-      owner: "runtime",
-      scoreImpactEstimate: 16.33,
-    });
+    expect(JSON.stringify(cockpit.defaultSections[0].items)).not.toContain("runtime_provider_smoke");
     expect(cockpit.defaultSections[2].items[0]).toMatchObject({
       artifact: "agent/state/beta-evidence-gap-map.generated.json",
       refreshCommand: "npm run check:beta-evidence-gap-map",
@@ -111,7 +108,7 @@ describe("debug operator cockpit", () => {
     expect(validateDebugOperatorCockpit(cockpit)).toEqual([]);
   });
 
-  it("fails validation when unknown data is marked healthy or stale artifacts lack a refresh CTA", () => {
+  it("fails validation when unknown data lacks a next action", () => {
     const cockpit = buildDebugOperatorCockpit({
       ...baseInput,
       adminTruthStatus: {
@@ -130,7 +127,6 @@ describe("debug operator cockpit", () => {
 
     expect(validateDebugOperatorCockpit(cockpit)).toEqual(expect.arrayContaining([
       expect.stringContaining("unknown shown healthy"),
-      expect.stringContaining("stale artifact lacks refresh CTA"),
     ]));
   });
 });

@@ -1224,19 +1224,42 @@ function getHighestBugSeverity(reports: Array<Pick<BugReportTriageCard, "severit
 }
 
 function buildBugIntakeTriageSummary(reports: BugReportTriageCard[], nowMs: number): BugIntakeTriageSummary {
+    let last7dCount = 0;
+    let backlogCount = 0;
+    let newCount = 0;
+    let mediumCount = 0;
+    let highCount = 0;
+    let needsTriageCount = 0;
+
     const pathGroups = new Map<string, BugReportTriageCard[]>();
-    reports.forEach((report) => {
+    for (const report of reports) {
+        if (report.ageBucket === "last_7d") last7dCount++;
+        else if (report.ageBucket === "older_backlog") backlogCount++;
+
+        if (report.status === "new") newCount++;
+
+        if (report.severity === "medium") mediumCount++;
+        else if (report.severity === "high" || report.severity === "critical") highCount++;
+
+        if (bugReportNeedsTriage(report)) needsTriageCount++;
+
         const key = report.path || "Unknown path";
-        pathGroups.set(key, [...(pathGroups.get(key) ?? []), report]);
-    });
+        const group = pathGroups.get(key);
+        if (group) {
+            group.push(report);
+        } else {
+            pathGroups.set(key, [report]);
+        }
+    }
+
     return {
         loadedCount: reports.length,
-        last7dCount: reports.filter((report) => report.ageBucket === "last_7d").length,
-        backlogCount: reports.filter((report) => report.ageBucket === "older_backlog").length,
-        newCount: reports.filter((report) => report.status === "new").length,
-        mediumCount: reports.filter((report) => report.severity === "medium").length,
-        highCount: reports.filter((report) => report.severity === "high" || report.severity === "critical").length,
-        needsTriageCount: reports.filter(bugReportNeedsTriage).length,
+        last7dCount,
+        backlogCount,
+        newCount,
+        mediumCount,
+        highCount,
+        needsTriageCount,
         groupedByPath: Array.from(pathGroups.entries())
             .map(([path, group]) => ({
                 path,

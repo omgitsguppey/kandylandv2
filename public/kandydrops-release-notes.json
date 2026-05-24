@@ -1,11 +1,71 @@
 {
-  "currentVersion": "1.4.30",
-  "betaReleaseCounter": 430,
+  "currentVersion": "1.4.31",
+  "betaReleaseCounter": 431,
   "channel": "beta",
-  "generatedAt": "2026-05-24T14:32:27.000Z",
-  "generatedAtUtc": "2026-05-24T14:32:27.000Z",
+  "generatedAt": "2026-05-24T14:55:00.000Z",
+  "generatedAtUtc": "2026-05-24T14:55:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.31",
+      "previousVersion": "1.4.30",
+      "betaReleaseCounter": 431,
+      "previousBetaReleaseCounter": 430,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean cockpit evidence gates",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T14:55:00.000Z",
+      "generatedAt": "2026-05-24T14:55:00.000Z",
+      "committedAtUtc": "2026-05-24T14:55:00.000Z",
+      "generatedAtUtc": "2026-05-24T14:55:00.000Z",
+      "updatedAtUtc": "2026-05-24T14:55:00.000Z",
+      "category": "Improved",
+      "title": "Debug cockpit evidence gate cleanup",
+      "summary": "Cleaned up the operator cockpit so source fixes, stale refreshes, formal evidence gates, and external owner reviews are classified separately.",
+      "userFacingTitle": "Debug cockpit evidence gate cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reclassified formal evidence gates outside the source-fix queue.",
+        "Refreshed or retired stale cockpit artifacts.",
+        "Reduced operator cockpit noise around telemetry, cost, AI critic, and recovery playbooks."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin debug",
+        "Beta readiness",
+        "Evidence gates"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-truth-source-sample.generated.json",
+        "agent/state/debug-cockpit-batch1-cleanup.generated.json",
+        "agent/state/debug-operator-cockpit.generated.json",
+        "agent/state/debug-runtime-evidence.generated.json",
+        "agent/state/telemetry-parity-score.generated.json",
+        "docs/agent-truth/admin-truth-source-sample.md",
+        "docs/agent-truth/debug-cockpit-batch1-cleanup.md",
+        "docs/agent-truth/debug-operator-cockpit.md",
+        "docs/agent-truth/debug-runtime-evidence.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
+        "scripts/agent/validate-debug-operator-cockpit.ts",
+        "src/lib/agent-score/formal-gate-classifier.ts",
+        "src/lib/debug/debug-operator-cockpit.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/debug-cockpit-batch1-cleanup.spec.ts",
+        "tests/unit/debug-operator-cockpit.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "Formal provider, deployed runtime, and admin sample evidence remain required; this release only reclassifies them away from source-fix queues and retires obsolete cockpit inputs."
+      ]
+    },
     {
       "version": "1.4.30",
       "previousVersion": "1.4.29",

@@ -105,6 +105,7 @@
         "check:self-healing-refresh-queue": "tsx scripts/agent/validate-self-healing-refresh-queue.ts",
         "check:blocked-refresh-queue-resolver": "tsx scripts/agent/validate-blocked-refresh-queue-resolver.ts",
         "check:debug-operator-cockpit": "tsx scripts/agent/validate-debug-operator-cockpit.ts",
+        "check:debug-cockpit-batch1-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
         "check:final-algorithmic-debug-lock": "tsx scripts/agent/validate-final-algorithmic-debug-lock.ts",
         "check:score-80-refresh-pass": "tsx scripts/agent/validate-score-80-refresh-pass.ts",
         "check:beta-evidence-lane-prep": "tsx scripts/agent/validate-beta-evidence-lane-prep.ts",

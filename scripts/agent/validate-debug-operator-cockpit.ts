@@ -115,6 +115,16 @@ function recoveryPlaybooks(): DebugOperatorPlaybookInput[] {
 }
 
 function adminTruthStatus() {
+  const sourceSample = readJson("agent/state/admin-truth-source-sample.generated.json");
+  const sourceStatus = stringValue(sourceSample.sourceStatus ?? sourceSample.status);
+  const formalPassed = sourceSample.productionSampleAttached === true || sourceSample.formalAdminTruthSamplePassed === true;
+  if (/source_ready_admin_truth_sample|source_ready/iu.test(sourceStatus) && !formalPassed) {
+    return {
+      state: "degraded" as const,
+      label: "Admin truth source sample: source_ready_formal_sample_required",
+      nextAction: "Attach a redacted first-party admin truth sample only when clearing the formal admin truth gate.",
+    };
+  }
   const score = readJson("agent/state/public-beta-score.generated.json");
   const blockers = stringArray(score.launchBlockers);
   const adminBlocker = blockers.find((entry) => /admin truth|sample evidence/i.test(entry));
@@ -128,6 +138,14 @@ function adminTruthStatus() {
 }
 
 function telemetryLaneStatus() {
+  const parity = readJson("agent/state/telemetry-parity-score.generated.json");
+  if (stringValue(parity.status) === "clean" && numberValue(parity.score) >= 100 && recordArray(parity.findings).length === 0) {
+    return {
+      state: "live" as const,
+      label: "Telemetry parity: clean_current",
+      nextAction: "Keep telemetry parity in drilldown; no fix-first action remains.",
+    };
+  }
   const telemetry = readJson("agent/state/final-telemetry-closure-lock.generated.json");
   const status = stringValue(telemetry.overallStatus ?? telemetry.status, "unknown");
   return {
@@ -142,9 +160,9 @@ function costLanes(): DebugOperatorLaneInput[] {
     {
       id: "google-cost",
       owner: "cost",
-      label: "Google cost owner-review lane",
-      state: "degraded",
-      nextAction: "Run npm run check:global-cost.",
+      label: "Google cost external review remaining",
+      state: "live",
+      nextAction: "Keep external billing review collapsed until a human-owned artifact exists.",
     },
   ];
 }

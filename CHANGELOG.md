@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.31 - 2026-05-24
+- Debug cockpit evidence gate cleanup
+- Reclassified formal evidence gates outside the source-fix queue.
+- Refreshed or retired stale cockpit artifacts.
+- Reduced operator cockpit noise around telemetry, cost, AI critic, and recovery playbooks.
+
 ## 1.4.30 - 2026-05-24
 - Debug cockpit PR readiness
 - Finalized open PRs before debug cockpit cleanup.

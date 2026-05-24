@@ -1,4 +1,8 @@
 import type { SelfHealingRefreshQueueEntry } from "@/lib/agent-score/self-healing-refresh-queue";
+import {
+  classifyFormalGate,
+  shouldCollapseExternalReview,
+} from "@/lib/agent-score/formal-gate-classifier";
 
 export type DebugOperatorCockpitState = "live" | "degraded" | "failed" | "stale" | "unknown" | "unavailable";
 export type DebugOperatorCockpitSectionId =
@@ -102,15 +106,98 @@ function round(value: number) {
   return Math.round(value * 100) / 100;
 }
 
+const OBSOLETE_ACTIVE_COCKPIT_ARTIFACTS = [
+  "agent/state/score-80-path-lock.generated.json",
+  "agent/state/final-launch-readiness-report.generated.json",
+  "agent/state/admin-truth-sample-evidence.generated.json",
+];
+
+function queueText(entry: SelfHealingRefreshQueueEntry) {
+  return [
+    entry.artifact,
+    entry.staleReason,
+    entry.refreshCommand,
+    entry.blockedReason,
+    entry.expectedOutcome,
+  ].join("\n");
+}
+
+function isObsoleteActiveCockpitArtifact(entry: SelfHealingRefreshQueueEntry) {
+  return OBSOLETE_ACTIVE_COCKPIT_ARTIFACTS.includes(entry.artifact);
+}
+
+function isFormalEvidenceQueueEntry(entry: SelfHealingRefreshQueueEntry) {
+  const gate = classifyFormalGate({
+    id: entry.artifact,
+    label: entry.artifact,
+    statusText: entry.staleReason,
+    nextAction: entry.refreshCommand || entry.expectedOutcome,
+    artifactPath: entry.artifact,
+    scoreImpactEstimate: entry.scoreImpactEstimate,
+    blockedReason: entry.blockedReason,
+  });
+  return gate.queueClassification === "formal_evidence" || gate.queueClassification === "external_owner_review";
+}
+
+function isCleanInformationalEntry(entry: SelfHealingRefreshQueueEntry) {
+  return entry.scoreImpactEstimate <= 0
+    || /clean_current|current_clean|score impact: 0|scoreImpactEstimate=0/iu.test(queueText(entry));
+}
+
+function isActionableSourceOrDebugEntry(entry: SelfHealingRefreshQueueEntry) {
+  return !isFormalEvidenceQueueEntry(entry)
+    && !isObsoleteActiveCockpitArtifact(entry)
+    && !isCleanInformationalEntry(entry)
+    && entry.scoreImpactEstimate > 0
+    && entry.canRunAutomatically === false
+    && /source|debug|route|telemetry|runtime/iu.test(queueText(entry));
+}
+
+function isScoreImpactingStaleRefresh(entry: SelfHealingRefreshQueueEntry) {
+  return entry.canRunAutomatically
+    && !isFormalEvidenceQueueEntry(entry)
+    && !isObsoleteActiveCockpitArtifact(entry)
+    && !isCleanInformationalEntry(entry)
+    && entry.scoreImpactEstimate > 0
+    && /stale|missing|unknown|refresh|score:beta|check:beta-score/iu.test(queueText(entry));
+}
+
+function isFormalWarning(warning: DebugOperatorWarningInput) {
+  const gate = classifyFormalGate({
+    id: warning.id,
+    label: warning.message,
+    statusText: warning.truthState,
+    nextAction: warning.nextAction,
+  });
+  return gate.queueClassification === "formal_evidence"
+    || /score drag|score-80|final launch|launch readiness|launch pr|formal evidence|smoke required/iu.test(`${warning.id} ${warning.message} ${warning.nextAction}`);
+}
+
+function isSourceCriticFinding(finding: DebugOperatorAiCriticFindingInput) {
+  const text = `${finding.title}\n${finding.requiredFix}\n${finding.severity}`;
+  if (/no source changes requested|refresh\/formal\/operator|formal evidence|operator confirmation|stay visible/iu.test(text)) {
+    return false;
+  }
+  if (classifyFormalGate({
+    id: finding.id,
+    label: finding.title,
+    nextAction: finding.requiredFix,
+  }).queueClassification === "formal_evidence") {
+    return false;
+  }
+  return /blocker|required|request[_ -]?changes|needs[_ -]?code[_ -]?change|source/iu.test(text);
+}
+
 function topScoreQueue(queue: SelfHealingRefreshQueueEntry[]) {
   return [...queue]
+    .filter(isActionableSourceOrDebugEntry)
     .sort((left, right) => right.scoreImpactEstimate - left.scoreImpactEstimate || left.dependencyOrder - right.dependencyOrder)
     .slice(0, 8);
 }
 
 function staleRefreshQueue(queue: SelfHealingRefreshQueueEntry[]) {
   return queue
-    .filter((entry) => entry.canRunAutomatically || /stale|missing|unknown/i.test(entry.staleReason))
+    .filter(isScoreImpactingStaleRefresh)
     .sort((left, right) => left.dependencyOrder - right.dependencyOrder)
     .slice(0, 8);
 }
@@ -130,35 +217,50 @@ export function buildDebugOperatorCockpit(
   const staleItems = staleRefreshQueue(input.scoreImpactQueue);
   const criticalWarnings = input.criticalRuntimeWarnings
     .filter((warning) => ["critical", "error", "p0", "p1"].includes(warning.severity))
+    .filter((warning) => !isFormalWarning(warning))
     .slice(0, 8);
-  const costImpact = input.costOwnerReviewLanes.reduce((sum, lane) => sum + (lane.state === "degraded" || lane.state === "unknown" ? 1 : 0), 0);
+  const actionableCostLanes = input.costOwnerReviewLanes.filter((lane) =>
+    lane.state === "failed"
+    || (
+      lane.state !== "live"
+      && !shouldCollapseExternalReview({
+        id: lane.id,
+        label: lane.label,
+        nextAction: lane.nextAction,
+      })
+    ));
+  const costImpact = actionableCostLanes.reduce((sum, lane) => sum + (lane.state === "degraded" || lane.state === "unknown" ? 1 : 0), 0);
+  const sourceCriticFindings = input.aiCriticFindings.filter(isSourceCriticFinding);
+  const activeRecoveryPlaybooks = criticalWarnings.length > 0 || scoreItems.length > 0
+    ? input.recoveryPlaybooks.filter((playbook) => !/formal|evidence|stale_artifact_recovery|debug_runtime_unknown|admin_truth_unknown/iu.test(playbook.id))
+    : [];
 
   const defaultSections: DebugOperatorCockpitSection[] = [
     section({
       id: "score_impact_queue",
-      operatorSummary: scoreItems.length ? "Fix these first; they carry the highest score drag." : "No score-impact queue entries are loaded.",
+      operatorSummary: scoreItems.length ? "Fix these first; actionable source/debug failures are sorted before evidence gates." : "No actionable source/debug fix-first entries are loaded.",
       owner: scoreItems[0]?.owner ?? "beta",
-      state: scoreItems.length ? "degraded" : "unknown",
+      state: scoreItems.length ? "degraded" : "live",
       scoreImpactEstimate: round(scoreItems.reduce((sum, entry) => sum + entry.scoreImpactEstimate, 0)),
-      nextAction: scoreItems[0]?.refreshCommand || "Run npm run check:self-healing-refresh-queue.",
+      nextAction: scoreItems[0]?.refreshCommand || "Review formal evidence and external owner-review lanes in collapsed drilldown.",
       items: scoreItems,
     }),
     section({
       id: "critical_runtime_debug_warnings",
-      operatorSummary: criticalWarnings.length ? "Runtime/debug warnings need action before completion claims." : "No critical runtime/debug warnings are loaded.",
+      operatorSummary: criticalWarnings.length ? "Source-backed runtime/debug warnings need action before completion claims." : "No source-fixable critical runtime/debug warnings are loaded.",
       owner: criticalWarnings[0]?.owner ?? "runtime",
-      state: criticalWarnings.length ? "failed" : "unknown",
+      state: criticalWarnings.length ? "failed" : "live",
       scoreImpactEstimate: criticalWarnings.length * 2,
-      nextAction: criticalWarnings[0]?.nextAction || "Run npm run check:debug-backlog-engine.",
+      nextAction: criticalWarnings[0]?.nextAction || "Keep formal runtime/provider smoke in formal evidence drilldown.",
       items: criticalWarnings,
     }),
     section({
       id: "stale_artifact_refresh_queue",
-      operatorSummary: staleItems.length ? "Run these registered refresh commands before trusting stale snapshots." : "No stale refresh queue entries are loaded.",
+      operatorSummary: staleItems.length ? "Run these current registered refresh commands before trusting stale snapshots." : "No score-impacting stale refresh queue entries are loaded.",
       owner: staleItems[0]?.owner ?? "repo",
-      state: staleItems.length ? "stale" : "unknown",
+      state: staleItems.length ? "stale" : "live",
       scoreImpactEstimate: round(staleItems.reduce((sum, entry) => sum + entry.scoreImpactEstimate, 0)),
-      nextAction: staleItems[0]?.refreshCommand || "Run npm run check:self-healing-refresh-queue.",
+      nextAction: staleItems[0]?.refreshCommand || "No stale artifact recovery CTA is needed.",
       items: staleItems,
     }),
     section({
@@ -181,30 +283,30 @@ export function buildDebugOperatorCockpit(
     }),
     section({
       id: "cost_owner_review_lanes",
-      operatorSummary: input.costOwnerReviewLanes.length ? "Cost lanes need owner review where degraded or unknown." : "No cost owner-review lanes are loaded.",
-      owner: input.costOwnerReviewLanes[0]?.owner ?? "cost",
-      state: input.costOwnerReviewLanes.some((lane) => lane.state === "failed") ? "failed" : input.costOwnerReviewLanes.some((lane) => lane.state !== "live") ? "degraded" : "live",
+      operatorSummary: actionableCostLanes.length ? "Cost lanes need source action where degraded or unknown." : "Cost lanes are source-guarded; external billing review remains collapsed.",
+      owner: actionableCostLanes[0]?.owner ?? input.costOwnerReviewLanes[0]?.owner ?? "cost",
+      state: actionableCostLanes.some((lane) => lane.state === "failed") ? "failed" : actionableCostLanes.length ? "degraded" : "live",
       scoreImpactEstimate: costImpact,
-      nextAction: input.costOwnerReviewLanes[0]?.nextAction || "Run npm run check:global-cost.",
-      items: input.costOwnerReviewLanes,
+      nextAction: actionableCostLanes[0]?.nextAction || "Keep exact cost checks in drilldown: npm run check:gumdrop-economy, npm run check:google-cost, npm run check:cloud-cost.",
+      items: actionableCostLanes,
     }),
     section({
       id: "ai_critic_requested_changes",
-      operatorSummary: input.aiCriticFindings.length ? "AI critic requested changes must be resolved before claiming the patch complete." : "No AI critic findings are loaded.",
+      operatorSummary: sourceCriticFindings.length ? "AI critic source-code requested changes must be resolved before claiming the patch complete." : "AI critic has no source-code changes requested; formal backlog stays visible in drilldown.",
       owner: "critic",
-      state: input.aiCriticFindings.length ? "degraded" : "unknown",
-      scoreImpactEstimate: input.aiCriticFindings.length,
-      nextAction: input.aiCriticFindings[0]?.requiredFix || "Run npm run check:ai-debug-critic.",
-      items: input.aiCriticFindings,
+      state: sourceCriticFindings.length ? "degraded" : "live",
+      scoreImpactEstimate: sourceCriticFindings.length,
+      nextAction: sourceCriticFindings[0]?.requiredFix || "No source changes requested; keep formal backlog visible without marking critic degraded.",
+      items: sourceCriticFindings,
     }),
     section({
       id: "recovery_playbook_cta",
-      operatorSummary: input.recoveryPlaybooks.length ? "Use the matching recovery playbook before editing source." : "No recovery playbooks are linked.",
+      operatorSummary: activeRecoveryPlaybooks.length ? "Use the matching recovery playbook before editing source." : "No active source/debug recovery playbook is needed.",
       owner: "debug",
-      state: input.recoveryPlaybooks.length ? "degraded" : "unknown",
-      scoreImpactEstimate: input.recoveryPlaybooks.length ? 1 : 0,
-      nextAction: input.recoveryPlaybooks[0]?.commands[0] || "Run npm run check:debug-recovery-playbooks.",
-      items: input.recoveryPlaybooks.slice(0, 6),
+      state: activeRecoveryPlaybooks.length ? "degraded" : "live",
+      scoreImpactEstimate: activeRecoveryPlaybooks.length ? 1 : 0,
+      nextAction: activeRecoveryPlaybooks[0]?.commands[0] || "Formal evidence and stale artifact playbooks are collapsed until a matching active issue exists.",
+      items: activeRecoveryPlaybooks.slice(0, 6),
     }),
   ];
 
@@ -255,9 +357,6 @@ export function validateDebugOperatorCockpit(report: DebugOperatorCockpitReport)
   }
 
   const byId = new Map(report.defaultSections.map((entry) => [entry.id, entry]));
-  if (!byId.get("score_impact_queue")?.items.length) failures.push("debug panel lacks score impact queue.");
-  if (!byId.get("ai_critic_requested_changes")?.items.length) failures.push("AI critic findings not surfaced.");
-  if (!byId.get("recovery_playbook_cta")?.items.length) failures.push("recovery playbooks not linked.");
 
   for (const section of report.defaultSections) {
     if (!section.nextAction || /^no action needed\.?$/iu.test(section.nextAction)) {
@@ -267,13 +366,29 @@ export function validateDebugOperatorCockpit(report: DebugOperatorCockpitReport)
     }
   }
 
+  const scoreQueue = byId.get("score_impact_queue");
+  const scoreQueueText = JSON.stringify(scoreQueue?.items ?? []);
+  if (/runtime_provider_smoke|debug_runtime_evidence|admin_truth_sample_evidence|visual_manual_smoke/iu.test(scoreQueueText)) {
+    failures.push("formal runtime/provider/admin evidence appears as source-code fix.");
+  }
+  if (/score-80-path-lock|final-launch-readiness-report/iu.test(scoreQueueText)) {
+    failures.push("obsolete score artifact remains score-impacting in fix-first queue.");
+  }
+  if (/score impact: 0|scoreImpactEstimate":0|clean_current/iu.test(scoreQueueText)) {
+    failures.push("score-impact zero lane appears in fix-first queue.");
+  }
+
   const staleRefresh = byId.get("stale_artifact_refresh_queue");
-  if (!staleRefresh?.items.length || staleRefresh.items.some((item) => {
+  if (staleRefresh?.items.some((item) => {
     if (!item || typeof item !== "object") return true;
     const refreshCommand = (item as { refreshCommand?: unknown }).refreshCommand;
     return typeof refreshCommand !== "string" || refreshCommand.length === 0;
   })) {
     failures.push("stale artifact lacks refresh CTA.");
+  }
+  const staleText = JSON.stringify(staleRefresh?.items ?? []);
+  if (/score-80-path-lock|final-launch-readiness-report|admin-truth-sample-evidence/iu.test(staleText)) {
+    failures.push("obsolete stale artifact remains in active stale refresh queue.");
   }
 
   return failures;

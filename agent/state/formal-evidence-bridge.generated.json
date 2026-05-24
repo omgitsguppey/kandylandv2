@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T05:47:53.160Z",
+  "generatedAtUtc": "2026-05-24T14:55:37.541Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+  "currentHead": "48d8c64ecce16f4ae346e49f5607099e0d686d26",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
@@ -88,18 +88,18 @@
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
     "freshness": 83.75,
-    "costRisk": 80.5,
+    "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "overallHealthScore": 79.25
   },
   "scoreAfter": {
     "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
     "freshness": 83.75,
-    "costRisk": 80.5,
+    "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "overallHealthScore": 79.25
   },
   "scoreDimensionImpact": {
     "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",
