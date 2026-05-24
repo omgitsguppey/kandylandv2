@@ -111,14 +111,23 @@ function classifyDirtyFile(path: string): DirtyClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/push-token-registration.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/push-token-registration.md") return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-push-token-registration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-pwa-service-worker.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/notification-permission-lifecycle.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/push-token-registration.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/lib/notifications/notification-permission-contract.ts"
     || normalized === "src/lib/notifications/notification-prompt-telemetry.ts"
+    || normalized === "src/lib/notifications/push-token-contract.ts"
+    || normalized === "src/lib/notifications/push-token-telemetry.ts"
+    || normalized === "src/lib/browser-notification-enrollment.ts"
+    || normalized === "src/app/api/notifications/push-token/route.ts"
     || normalized === "src/components/Dashboard/NotificationPromptBanner.tsx"
     || normalized === "src/lib/telemetry-catalog.ts"
     || normalized === "src/lib/analytics/event-translation-bridge.ts"

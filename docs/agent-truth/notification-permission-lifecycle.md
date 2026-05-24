@@ -1,7 +1,7 @@
 # Notification Permission Lifecycle
 
-Generated: 2026-05-24T06:22:13.086Z
-Current HEAD: 8b129dfd
+Generated: 2026-05-24T06:42:26.707Z
+Current HEAD: 627ff05d
 
 ## Status
 
@@ -47,28 +47,25 @@ Current HEAD: 8b129dfd
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/notification-permission-lifecycle.generated.json: current_generated_artifact_to_commit
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: release_artifact_expected
+- agent/state/push-token-registration.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/feature-registration-gate.md: release_artifact_expected
 - docs/agent-truth/notification-permission-lifecycle.md: release_artifact_expected
-- docs/agent-truth/person-metrics-hydration.md: release_artifact_expected
+- docs/agent-truth/push-token-registration.md: release_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
 - scripts/agent/validate-notification-permission-lifecycle.ts: validator_artifact_expected
-- scripts/agent/validate-person-metrics-hydration.ts: validator_artifact_expected
-- src/components/Dashboard/NotificationPromptBanner.tsx: real_source_change_needs_review
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- scripts/agent/validate-push-token-registration.ts: validator_artifact_expected
+- scripts/agent/validate-pwa-service-worker.ts: validator_artifact_expected
+- src/app/api/notifications/push-token/route.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/browser-notification-enrollment.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
-- src/lib/notifications/notification-permission-contract.ts: real_source_change_needs_review
-- src/lib/notifications/notification-prompt-telemetry.ts: real_source_change_needs_review
+- src/lib/notifications/push-token-contract.ts: real_source_change_needs_review
+- src/lib/notifications/push-token-telemetry.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/notification-permission-lifecycle.spec.ts: test_artifact_expected
+- tests/unit/push-token-registration.spec.ts: test_artifact_expected

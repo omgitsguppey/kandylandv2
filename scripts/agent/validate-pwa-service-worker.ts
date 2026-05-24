@@ -216,7 +216,7 @@ for (const expected of [
 
 for (const expected of [
   "requestBrowserNotificationAccess",
-  "browserPushToken",
+  "/api/notifications/push-token",
   "needsStandaloneInstall",
 ]) {
   requireIncludes(browserEnrollment, expected, "notification permission/token enrollment");

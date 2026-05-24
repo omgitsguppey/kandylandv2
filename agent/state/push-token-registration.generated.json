@@ -1,41 +1,47 @@
 {
-  "generatedAtUtc": "2026-05-24T06:42:26.707Z",
+  "generatedAtUtc": "2026-05-24T06:42:24.574Z",
   "currentHead": "627ff05d",
+  "status": "pass",
   "productionReadsRequired": false,
-  "deployRequired": false,
-  "promptLifecycleEvents": [
-    "notification_prompt_eligible",
-    "notification_prompt_viewed",
-    "notification_prompt_dismissed",
-    "notification_permission_requested",
-    "notification_permission_granted",
-    "notification_permission_denied",
-    "notification_permission_failed",
-    "notification_prompt_snoozed",
-    "notification_prompt_blocked"
+  "providerCallsRequired": false,
+  "realPushNotificationsSent": false,
+  "tokenRoute": "/api/notifications/push-token",
+  "tokenStatuses": [
+    "missing",
+    "registering",
+    "registered",
+    "refreshed",
+    "revoked",
+    "failed",
+    "unsupported"
   ],
-  "permissionStateTracked": true,
-  "autoFireOnPageLoadBlocked": true,
-  "cooldownPolicyPresent": true,
-  "retryPolicyPresent": true,
-  "ariaBusyPreserved": true,
-  "canonicalEnvelopeMapped": true,
-  "telemetryCatalogMapped": true,
-  "featureRegistrationMapped": true,
-  "personMetricsMapped": true,
-  "debugLanePresent": true,
+  "tokenScopes": [
+    "user_device",
+    "guest_device",
+    "unknown"
+  ],
+  "authenticatedOnly": true,
+  "arbitraryUserBindingBlocked": true,
+  "rawTokenExposureBlocked": true,
+  "routeResponseExposesRawToken": false,
+  "telemetryEvents": [
+    "push_token_registration_started",
+    "push_token_registered",
+    "push_token_registration_failed",
+    "push_token_refreshed",
+    "push_token_revoked",
+    "push_device_scope_resolved"
+  ],
   "debugLane": {
-    "lane": "Notification permission",
-    "label": "Notification permission",
+    "lane": "Push token health",
+    "label": "Push token health",
     "status": "live",
-    "promptEligible": 1,
-    "promptShown": 1,
-    "granted": 1,
-    "denied": 0,
-    "failed": 0,
-    "unsupportedBrowser": 0,
-    "cooldownActive": 0,
-    "snoozed": 0,
+    "registeredUsers": 1,
+    "registeredDevices": 1,
+    "failedRegistrations": 0,
+    "unsupportedBrowsers": 0,
+    "staleTokens": 0,
+    "rawTokenExposureCount": 0,
     "telemetryStatus": "mapped",
     "rawDetailsCollapsedByDefault": true
   },
@@ -58,13 +64,13 @@
     "overallHealthScore": 79.25
   },
   "scoreDimensionImpact": {
-    "sourceHealth": "Notification prompt lifecycle has explicit source contract, telemetry events, and validator coverage.",
-    "runtimeHealth": "Runtime push/provider proof remains separate; this phase adds source-safe lifecycle readiness only.",
-    "evidenceCompleteness": "Prompt views, grants, denials, failures, cooldown, and blocked browser states feed debug evidence.",
-    "freshness": "Notification lifecycle report is regenerated from current source.",
-    "costRisk": "Prompt state is local and event-only; no production reads or provider calls are added.",
-    "regressionRisk": "Unit and validator checks protect no-auto-prompt, cooldown, telemetry mapping, debug lane, and protected-surface boundaries.",
-    "overallHealthScore": "Moves notification readiness evidence without clearing formal runtime/provider gates."
+    "sourceHealth": "Push token registration now has a source contract, caller-scoped route, telemetry events, and validator coverage.",
+    "runtimeHealth": "Provider push delivery remains separate; this phase validates source-safe registration and device binding only.",
+    "evidenceCompleteness": "Registration, refresh, revocation, failure, and device-scope signals feed debug evidence without raw token exposure.",
+    "freshness": "Push token report is regenerated from current source.",
+    "costRisk": "No provider calls or push sends are performed by the validator or tests.",
+    "regressionRisk": "Unit and source validator checks cover auth scope, no arbitrary user binding, redaction, debug lane, and protected surface boundaries.",
+    "overallHealthScore": "Improves notification readiness evidence without clearing formal runtime/provider gates."
   },
   "dirtyFiles": [
     {
@@ -77,7 +83,7 @@
     },
     {
       "path": "agent/state/notification-permission-lifecycle.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/public-beta-score.generated.json",
@@ -158,13 +164,6 @@
     {
       "path": "tests/unit/push-token-registration.spec.ts",
       "classification": "test_artifact_expected"
-    }
-  ],
-  "oldLogicReferences": [
-    {
-      "reference": "aria-busy",
-      "classification": "still_required",
-      "reason": "Loading state accessibility remains required on the permission CTA."
     }
   ],
   "validationFailures": []

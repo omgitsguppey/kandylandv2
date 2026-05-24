@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.17 - 2026-05-24
+- Push token registration
+- Hardened push token registration and device binding.
+- Tracked token registration, refresh, revocation, and failure states.
+- Protected push tokens from raw debug/log exposure.
+
 ## 1.4.16 - 2026-05-24
 - Notification permission lifecycle
 - Finalized notification permission prompt lifecycle.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Hydrated individual user metrics from canonical event envelopes.
 - Added confidence explanations for global, guest, user, and linked-person metrics.
 - Cleaned stale person-metric logic.
-
-## 1.3.92 - 2026-05-23
-- Event translation bridge reliability
-- Connected tracked events to feature activity, person metrics, debug evidence, and score inputs.
-- Reduced false waiting-on-activity states.
-- Cleaned stale event translation logic.

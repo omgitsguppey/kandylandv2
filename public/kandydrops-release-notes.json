@@ -1,11 +1,72 @@
 {
-  "currentVersion": "1.4.16",
-  "betaReleaseCounter": 416,
+  "currentVersion": "1.4.17",
+  "betaReleaseCounter": 417,
   "channel": "beta",
-  "generatedAt": "2026-05-24T06:17:18.714Z",
-  "generatedAtUtc": "2026-05-24T06:17:18.714Z",
-  "lastCommitSha": "8b129dfd0951ae72d088994f59ad32c7be678798",
+  "generatedAt": "2026-05-24T06:37:08.528Z",
+  "generatedAtUtc": "2026-05-24T06:37:08.528Z",
+  "lastCommitSha": "627ff05dd711e0e847a947fa5ff368dbf4ea1235",
   "notes": [
+    {
+      "version": "1.4.17",
+      "previousVersion": "1.4.16",
+      "betaReleaseCounter": 417,
+      "previousBetaReleaseCounter": 416,
+      "commitSha": "627ff05dd711e0e847a947fa5ff368dbf4ea1235",
+      "commitTitle": "fix(notifications): track permission lifecycle",
+      "commitCount": 1,
+      "commitShas": [
+        "627ff05dd711e0e847a947fa5ff368dbf4ea1235"
+      ],
+      "committedAt": "2026-05-24T06:23:21.000Z",
+      "generatedAt": "2026-05-24T06:37:08.526Z",
+      "committedAtUtc": "2026-05-24T06:23:21.000Z",
+      "generatedAtUtc": "2026-05-24T06:37:08.526Z",
+      "updatedAtUtc": "2026-05-24T06:37:08.526Z",
+      "category": "Fixed",
+      "title": "Push token registration",
+      "summary": "Hardened push token registration with authenticated device binding, lifecycle telemetry, and raw-token redaction.",
+      "userFacingTitle": "Push token registration",
+      "surfaceCategory": "Notifications",
+      "bullets": [
+        "Hardened push token registration and device binding.",
+        "Tracked token registration, refresh, revocation, and failure states.",
+        "Protected push tokens from raw debug/log exposure."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "notifications"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/feature-registration-gate.generated.json",
+        "agent/state/notification-permission-lifecycle.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/feature-registration-gate.md",
+        "docs/agent-truth/notification-permission-lifecycle.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-event-translation-bridge.ts",
+        "scripts/agent/validate-notification-permission-lifecycle.ts",
+        "scripts/agent/validate-person-metrics-hydration.ts",
+        "src/components/Dashboard/NotificationPromptBanner.tsx",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/notifications/notification-permission-contract.ts",
+        "src/lib/notifications/notification-prompt-telemetry.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/notification-permission-lifecycle.spec.ts"
+      ],
+      "sourceCommit": "627ff05dd711e0e847a947fa5ff368dbf4ea1235"
+    },
     {
       "version": "1.4.16",
       "previousVersion": "1.4.15",
@@ -6141,70 +6202,6 @@
         "tests/unit/debug-tracking-simplification.spec.ts",
         "tests/unit/person-metrics-contract.spec.ts",
         "tests/unit/person-metrics-hydration.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.92",
-      "previousVersion": "1.3.91",
-      "betaReleaseCounter": 392,
-      "previousBetaReleaseCounter": 391,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): bridge event translation",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T04:25:13.808Z",
-      "generatedAt": "2026-05-23T04:25:13.808Z",
-      "committedAtUtc": "2026-05-23T04:25:13.808Z",
-      "generatedAtUtc": "2026-05-23T04:25:13.808Z",
-      "updatedAtUtc": "2026-05-23T04:25:13.808Z",
-      "category": "Improved",
-      "title": "Event translation bridge reliability",
-      "summary": "Connected tracked events to feature activity, person metrics, debug evidence, and score inputs.",
-      "userFacingTitle": "Event translation bridge reliability",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Connected tracked events to feature activity, person metrics, debug evidence, and score inputs.",
-        "Reduced false waiting-on-activity states.",
-        "Cleaned stale event translation logic."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the source-level event translation bridge and validator covering raw events, envelopes, feature activity, person metrics, debug evidence, and score dimensions."
-      ],
-      "affectedSurfaces": [
-        "Analytics",
-        "Admin debug",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/activity-verification-engine.generated.json",
-        "agent/state/debug-tracking-simplification.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/gumdrop-economy-accuracy.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/debug-tracking-simplification.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/evidence-capture-status.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-event-translation-bridge.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/lib/analytics/activity-verification-engine.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "tests/unit/debug-tracking-simplification.spec.ts",
-        "tests/unit/event-translation-bridge.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

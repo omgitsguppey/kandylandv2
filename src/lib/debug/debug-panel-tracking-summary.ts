@@ -13,6 +13,7 @@ import { buildTaskGuidanceHealthLane } from "@/lib/tasks/daily-task-guidance-con
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
 import { buildNotificationPermissionDebugLane } from "@/lib/notifications/notification-permission-contract";
+import { buildPushTokenDebugLane } from "@/lib/notifications/push-token-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -29,6 +30,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "legacy_recovery",
   "wallet_funnel",
   "notification_permission",
+  "push_token_health",
   "daily_tasks_reset",
   "daily_task_guidance_health",
   "daily_task_lifecycle",
@@ -102,6 +104,7 @@ const TRACKING_GROUPS = [
   "legacy_recovery",
   "wallet_funnel",
   "notification_permission",
+  "push_token_health",
   "daily_tasks_reset",
   "daily_task_guidance_health",
   "daily_task_lifecycle",
@@ -234,6 +237,12 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const notificationPermission = input.notificationPermissionLifecycle?.debugLane ?? buildNotificationPermissionDebugLane();
   const notificationPermissionWarnings = toNumber(notificationPermission.failed)
     + (notificationPermission.telemetryStatus === "mapped" ? 0 : 1);
+  const pushTokenHealth = input.pushTokenRegistration?.debugLane ?? buildPushTokenDebugLane();
+  const pushTokenWarnings = toNumber(pushTokenHealth.failedRegistrations)
+    + toNumber(pushTokenHealth.unsupportedBrowsers)
+    + toNumber(pushTokenHealth.staleTokens)
+    + toNumber(pushTokenHealth.rawTokenExposureCount)
+    + (pushTokenHealth.telemetryStatus === "mapped" ? 0 : 1);
   const dailyTasksReset = input.dailyTasksResetTruth?.debugLane ?? buildDailyTaskDebugLane();
   const dailyTaskGuidanceHealth = input.dailyTaskGuidanceRouteAudit?.debugLane ?? buildTaskGuidanceHealthLane();
   const dailyTaskLifecycle = input.dailyTaskLifecycleTelemetry?.debugLane ?? buildDailyTaskLifecycleDebugLane();
@@ -459,6 +468,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: notificationPermissionWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#notification-permission",
+    }),
+    makeLane({
+      id: "push_token_health",
+      label: "Push token health",
+      trackingSystem: "push_token_registration",
+      sourceOwner: "notifications",
+      sourceOfTruth: "src/lib/notifications/push-token-contract.ts",
+      status: pushTokenHealth.status === "degraded" ? "degraded" : pushTokenHealth.status === "unavailable" ? "unavailable" : "live",
+      severity: severityFromCounts(pushTokenHealth.rawTokenExposureCount > 0 ? 1 : 0, pushTokenWarnings, pushTokenHealth.status === "degraded" ? "degraded" : pushTokenHealth.status === "unavailable" ? "unavailable" : "live"),
+      scoreImpact: "medium",
+      primarySignal: `Users=${toNumber(pushTokenHealth.registeredUsers)}; devices=${toNumber(pushTokenHealth.registeredDevices)}; failed=${toNumber(pushTokenHealth.failedRegistrations)}; unsupported=${toNumber(pushTokenHealth.unsupportedBrowsers)}; stale=${toNumber(pushTokenHealth.staleTokens)}; rawTokenExposure=${toNumber(pushTokenHealth.rawTokenExposureCount)}; telemetry=${pushTokenHealth.telemetryStatus}.`,
+      criticalCount: pushTokenHealth.rawTokenExposureCount > 0 ? 1 : 0,
+      warningCount: pushTokenWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#push-token-health",
     }),
     makeLane({
       id: "daily_tasks_reset",
