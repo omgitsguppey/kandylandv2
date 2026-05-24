@@ -1,14 +1,14 @@
 # Debug Runtime Evidence
 
-Generated: 2026-05-24T14:55:39.284Z
+Generated: 2026-05-24T17:09:46.537Z
 
-Latest code version: 48d8c64ecce16f4ae346e49f5607099e0d686d26
+Latest code version: a62f0177ba3e5bc7e86d8b5ec2c643258797c09a
 
 ## Summary
 
-- Status: `partial_debug_runtime_evidence`
-- Passed: false
-- Checked sources: 5
+- Status: `source_ready_debug_runtime_evidence`
+- Passed: true
+- Checked sources: 7
 - Critical runtime issues: 0
 - Unresolved warnings: 0
 - Unknown evidence count: 0
@@ -17,10 +17,10 @@ Latest code version: 48d8c64ecce16f4ae346e49f5607099e0d686d26
 
 ## Source Status
 
-- Debug panel source snapshot: stale
+- Debug panel source snapshot: checked_clean
 - Route diagnostics: source_ready
 - Runtime warning store: source_ready
-- Telemetry admin debug truth: stale
+- Telemetry admin debug truth: checked_clean
 - Admin Debug Control Tower: source_ready
 - Pre-catch runtime issue scan: source_ready
 - Error dictionary mapping: source_ready
@@ -29,8 +29,8 @@ Latest code version: 48d8c64ecce16f4ae346e49f5607099e0d686d26
 
 | Command | Status | Artifact | Detail |
 | --- | --- | --- | --- |
-| npm run check:debug-panel-output-triage | fail | agent/state/debug-panel-output-triage.generated.json | Artifact is not current for the latest code version. |
-| npm run check:telemetry-admin-debug-truth | fail | agent/state/telemetry-admin-debug-truth.generated.json | Artifact is not current for the latest code version. |
+| npm run check:debug-panel-output-triage | pass | agent/state/debug-panel-output-triage.generated.json | Artifact is current for the latest code version. |
+| npm run check:telemetry-admin-debug-truth | pass | agent/state/telemetry-admin-debug-truth.generated.json | Artifact is current for the latest code version. |
 
 ## Evidence Boundary
 

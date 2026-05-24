@@ -1,6 +1,8 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { AdminDebugExplanation } from "@/lib/admin-copy/admin-truth-copy";
 import { buildAdminDebugExplanation } from "@/lib/admin-copy/admin-truth-copy";
+import { classifyAiAssistantRuntimeStatus } from "@/lib/debug/ai-assistant-runtime-status";
+import { reconcileRouteHealth } from "@/lib/debug/route-health-reconciler";
 
 export type AdminDebugAiFeedStatus = "realtime" | "partial" | "polled" | "failed";
 
@@ -220,7 +222,24 @@ export function buildAdminDebugRouteHealthCard(input: {
 }) {
     const { summary, observedCount, hasRealtimeRows, hasSnapshotRows, listenerState, isLoading, hasError } = input;
     const observedWarnCount = Math.max(0, summary.warn - summary.unobserved);
-    const issueCount = observedWarnCount + summary.fail + summary.stale;
+    const reconciliation = reconcileRouteHealth({
+        routeChecksActiveFailures: hasRealtimeRows ? summary.fail : 0,
+        routeHealthFailCount: summary.fail,
+        routeHealthWarnCount: observedWarnCount,
+        routeHealthStaleCount: summary.stale,
+        trackedRoutes: summary.total,
+        observedRoutes: observedCount,
+        unseenRoutes: summary.unobserved,
+        hasRealtimeRows,
+        hasSnapshotRows,
+        routeListenerFailed: listenerState.routeHealthFailed === true,
+        missingLastFailureTimestamp: summary.fail > 0 && !hasRealtimeRows,
+        lastVerifiedAgeMs: hasSnapshotRows ? 0 : null,
+        slowCount: summary.slow,
+        serverErrorCount: summary.serverErrors,
+        clientErrorCount: summary.clientErrors,
+    });
+    const issueCount = reconciliation.currentActionCount + reconciliation.staleActionCount;
     const technicalSourceLabel = hasSnapshotRows && hasRealtimeRows
         ? "[live] API snapshot + route listener"
         : hasSnapshotRows && listenerState.routeHealthFailed
@@ -259,7 +278,7 @@ export function buildAdminDebugRouteHealthCard(input: {
         ? "loading"
         : hasError || (listenerState.routeHealthFailed && summary.total === 0)
             ? "failed"
-            : summary.fail > 0
+            : reconciliation.activeFailureCount > 0
                 ? "failed"
         : listenerState.routeHealthFailed || (!hasRealtimeRows && !listenerState.routeHealthLoaded) || observedWarnCount > 0 || summary.stale > 0
                     ? "degraded"
@@ -269,7 +288,7 @@ export function buildAdminDebugRouteHealthCard(input: {
 
     return {
         value: summary.total > 0
-            ? `${summary.healthy} ok / ${issueCount} action / ${summary.fail} fail`
+            ? `${summary.healthy} ok / ${issueCount} action / ${reconciliation.activeFailureCount} fail`
             : "0 tracked",
         meta: summary.total > 0
             ? `${operatorSourceLabel} ${issueCount > 0 ? `${issueCount} route check${issueCount === 1 ? "" : "s"} need review.` : "No action needed."}`
@@ -280,13 +299,17 @@ export function buildAdminDebugRouteHealthCard(input: {
         technicalEvidence,
         copy: createAdminDebugCardCopy({
             operatorSummary: operatorSourceLabel,
-            whyItMatters: summary.fail > 0
+            whyItMatters: reconciliation.activeFailureCount > 0
                 ? "One or more admin routes failed in the current health sample."
+                : reconciliation.staleFailureCount > 0
+                    ? "Live route checks are delayed; last verified route data has stale failures that need refresh, not current-failure treatment."
                 : summary.total > 0
                     ? "Route health tells operators whether admin tools are responding normally."
                     : "Without a route health snapshot, Debug cannot confirm route availability.",
-            recommendedNextCheck: summary.fail > 0
+            recommendedNextCheck: reconciliation.activeFailureCount > 0
                 ? "Open the route health table and check the failed route response."
+                : reconciliation.routeListenerStatus === "failed"
+                    ? "Repair the route listener and refresh route runtime evidence."
                 : issueCount > 0
                     ? "Review the delayed or slow route checks below."
                     : "No action needed.",
@@ -296,7 +319,7 @@ export function buildAdminDebugRouteHealthCard(input: {
             sourceMode: hasSnapshotRows && !hasRealtimeRows ? "snapshot" : hasRealtimeRows ? "realtime" : "unavailable",
             routeName: "/api/admin/debug",
             collectionName: "route_runtime_health",
-            debugDetails: { summary, observedCount, listenerState, hasRealtimeRows, hasSnapshotRows },
+            debugDetails: { summary, observedCount, listenerState, hasRealtimeRows, hasSnapshotRows, reconciliation },
         }),
     };
 }
@@ -314,7 +337,7 @@ export function buildAdminDebugOpenActionsCard(input: {
     isLoading: boolean;
     hasError: boolean;
 }) {
-    const buckets = [
+    const rawBuckets = [
         {
             key: "repairs",
             label: "repair proposals",
@@ -330,7 +353,11 @@ export function buildAdminDebugOpenActionsCard(input: {
         {
             key: "route_runtime",
             label: "route runtime",
-            count: input.routeWarnCount + input.routeFailCount + input.routeStaleCount,
+            count: [
+                input.routeFailCount > 0,
+                input.routeWarnCount > 0,
+                input.routeStaleCount > 0,
+            ].filter(Boolean).length,
             detail: `${input.routeFailCount} fail, ${input.routeStaleCount} stale, ${input.routeWarnCount} warn`,
         },
         {
@@ -340,6 +367,7 @@ export function buildAdminDebugOpenActionsCard(input: {
             detail: `${input.queueFailedCount} failed jobs, ${input.queueStaleCount} stale jobs, ${input.missingNotificationOutcomes} missing outcomes`,
         },
     ].filter((bucket) => bucket.count > 0);
+    const buckets = rawBuckets;
 
     const count = buckets.reduce((sum, bucket) => sum + bucket.count, 0);
     const truthState: AdminSurfaceState = input.isLoading
@@ -402,6 +430,7 @@ export function buildAdminDebugAiAssistantCard(input: {
     feedStatus?: AdminDebugAiFeedStatus | string | null;
     latencyMs?: number | null;
 }) {
+    const aiRuntime = classifyAiAssistantRuntimeStatus(input);
     const feedStatus = input.feedStatus || "polled";
     const configuredModel = input.configuredModel || "unknown model";
     const latency = typeof input.latencyMs === "number" && Number.isFinite(input.latencyMs)
@@ -493,19 +522,19 @@ export function buildAdminDebugAiAssistantCard(input: {
     }
 
     if (input.fallbackUsed) {
-        const technicalEvidence = `${configuredModel} configured | ${feedStatus === "failed" ? "preflight observers failed" : `${feedStatus} preflight lane`} | ${runtimeLabel} | deterministic fallback output | ${latency}`;
+        const technicalEvidence = aiRuntime.technicalEvidence;
         return {
             value: "Fallback",
-            meta: "Live AI summary delayed. Showing deterministic fallback.",
+            meta: aiRuntime.operatorSummary,
             truthState: "fallback" as AdminSurfaceState,
             technicalEvidence,
             copy: createAdminDebugCardCopy({
-                operatorSummary: "Live AI summary delayed. Showing deterministic fallback.",
-                whyItMatters: "Operators can still read bounded guidance, but it is not generated from a live model call.",
-                recommendedNextCheck: "Check assistant preflight and model runtime if this persists.",
+                operatorSummary: aiRuntime.operatorSummary,
+                whyItMatters: "Operators can still read bounded no-cost guidance, but it is not generated from a live model call.",
+                recommendedNextCheck: aiRuntime.nextAction,
                 technicalEvidence,
                 sourceDetails: baseSourceDetails,
-                technicalState: "ai_assistant_fallback_output",
+                technicalState: aiRuntime.status,
                 sourceMode: "fallback",
                 routeName: "/api/admin/debug/assistant",
             }),

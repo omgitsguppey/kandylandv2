@@ -42,6 +42,7 @@ import {
     buildAdminDebugRouteHealthCard,
     createAdminDebugCardCopy,
 } from "@/lib/admin-debug-summary-cards";
+import { deriveOpsHealthCanonicalState } from "@/lib/debug/ops-health-canonical-state";
 import {
     buildAdminDebugRouteRuntimeRateSummary,
     filterAdminDebugRouteRuntimeHealth,
@@ -403,26 +404,39 @@ export default function DebugConsole() {
         }),
         [aiAssistantRealtime.feedStatus, aiDebugData, aiDebugError],
     );
-    const systemStateStatus = data?.opsHealth?.canonicalState?.status || "--";
-    const systemStateHealthy = data?.opsHealth?.canonicalState?.status === "Live";
+    const opsCanonicalState = useMemo(() => deriveOpsHealthCanonicalState({
+        canonicalStateStatus: data?.opsHealth?.canonicalState?.status,
+        canonicalStateReason: data?.opsHealth?.canonicalState?.reason,
+        newestSampleAgeMs: freshestLoadedSignalAt ? Math.max(0, Date.now() - freshestLoadedSignalAt) : null,
+        activeRouteFailures: realtimeRouteHealth.length > 0 ? routeRuntimeHealthSummary.fail : 0,
+        currentOpenActionGroups: realtimeRouteHealth.length > 0 && routeRuntimeHealthSummary.fail > 0 ? openActionsCard.count : 0,
+        routeListenerFailed: debugRealtimeState.routeHealthFailed === true,
+        canTrustLastVerifiedRouteSample: routeSnapshotHealth.length > 0,
+        aiFallbackAccepted: aiAssistantCard.truthState === "fallback",
+        aiFeedFailed: aiAssistantRealtime.feedStatus === "failed",
+    }), [aiAssistantCard.truthState, aiAssistantRealtime.feedStatus, data?.opsHealth?.canonicalState?.reason, data?.opsHealth?.canonicalState?.status, debugRealtimeState.routeHealthFailed, freshestLoadedSignalAt, openActionsCard.count, realtimeRouteHealth.length, routeRuntimeHealthSummary.fail, routeSnapshotHealth.length]);
+    const systemStateStatus = data?.opsHealth?.canonicalState?.status || opsCanonicalState.displayLabel;
+    const systemStateHealthy = opsCanonicalState.status === "healthy_current";
     const systemStateMeta = !data && isLoading
         ? "Waiting for first system snapshot."
         : error
             ? "System state could not be loaded."
             : systemStateHealthy
                 ? "System checks are healthy."
-                : "System checks need review.";
+                : opsCanonicalState.status === "route_listener_delayed_with_last_verified_sample"
+                    ? "Route listener delayed; last verified sample is available."
+                    : "System checks need review.";
     const systemStateCopy = useMemo(() => createAdminDebugCardCopy({
         operatorSummary: systemStateMeta,
         whyItMatters: "System state summarizes whether the admin backend is safe to use.",
-        recommendedNextCheck: systemStateHealthy ? "No action needed." : "Open the current diagnostics below.",
-        technicalEvidence: data?.opsHealth?.canonicalState?.reason || "Awaiting canonical state",
+        recommendedNextCheck: opsCanonicalState.nextAction,
+        technicalEvidence: data?.opsHealth?.canonicalState?.reason || opsCanonicalState.sourceExplanation,
         sourceDetails: "opsHealth.canonicalState",
-        technicalState: data?.opsHealth?.canonicalState?.status || "missing_canonical_state",
+        technicalState: data?.opsHealth?.canonicalState?.status || opsCanonicalState.status,
         sourceMode: data ? "snapshot" : "loading",
         routeName: "/api/admin/debug",
-        debugDetails: data?.opsHealth?.canonicalState,
-    }), [data, systemStateHealthy, systemStateMeta]);
+        debugDetails: data?.opsHealth?.canonicalState ?? opsCanonicalState,
+    }), [data, opsCanonicalState, systemStateHealthy, systemStateMeta]);
     const pipelineCardCopy = useMemo(() => createAdminDebugCardCopy({
         operatorSummary: activePipelineFailureCount > 0
             ? "Route checks need attention."

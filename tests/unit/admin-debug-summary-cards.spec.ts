@@ -98,11 +98,11 @@ describe("admin debug summary cards", () => {
             hasError: false,
         });
 
-        expect(card.value).toBe("32 ok / 6 action / 1 fail");
+        expect(card.value).toBe("32 ok / 6 action / 0 fail");
         expect(card.meta).toContain("Live route checks are delayed. Showing last verified route data.");
         expect(card.technicalEvidence).toContain("[degraded] API snapshot; route listener failed");
         expect(card.meta).not.toContain("[fallback]");
-        expect(card.truthState).toBe("failed");
+        expect(card.truthState).toBe("degraded");
     });
 
     it("keeps unseen route coverage out of the actionable route count", () => {
@@ -185,8 +185,8 @@ describe("admin debug summary cards", () => {
             latencyMs: 97,
         });
 
-        expect(card.value).toBe("Saved summary");
-        expect(card.meta).toBe("Live AI summary is delayed. Showing saved guidance.");
+        expect(card.value).toBe("Fallback");
+        expect(card.meta).toBe("Deterministic fallback is active because assistant feed preflight failed.");
         expect(card.technicalEvidence).toContain("preflight observers failed");
         expect(card.technicalEvidence).toContain("runtime ready");
         expect(card.technicalEvidence).toContain("deterministic fallback output");
@@ -205,8 +205,9 @@ describe("admin debug summary cards", () => {
             latencyMs: 97,
         });
 
-        expect(card.value).toBe("Saved summary");
+        expect(card.value).toBe("Fallback");
         expect(card.meta).not.toContain("realtime preflight lane");
+        expect(card.meta).toBe("Deterministic fallback is active without a live model call.");
         expect(card.technicalEvidence).toContain("realtime preflight lane");
         expect(card.truthState).toBe("fallback");
     });

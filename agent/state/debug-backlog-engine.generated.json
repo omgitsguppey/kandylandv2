@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T16:45:05.120Z",
+  "generatedAtUtc": "2026-05-24T17:09:16.234Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "d02b8b2da859d47d880182fe2169db1ad6a40ad6",
+  "currentHead": "a62f0177ba3e5bc7e86d8b5ec2c643258797c09a",
   "oldScore": 41.92,
   "newScore": 79,
   "publicBetaStatus": "beta-risk",
@@ -1660,7 +1660,7 @@
     },
     {
       "id": "cost-cost-risk-0",
-      "title": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
+      "title": "cloudRunCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining).",
       "owner": "cost",
       "surface": "cost",
       "severity": "p2",
@@ -1676,9 +1676,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "external_required",
-      "evidenceReason": "Cost lane status is owner_review.",
+      "evidenceReason": "Cost lane status is review.",
       "exactNextAction": "Keep this cost lane in owner review until external billing/provider evidence is attached.",
-      "sourceMessage": "cloudRunCostReadiness remains source-cost/external-review tracked (cost_review_required).",
+      "sourceMessage": "cloudRunCostReadiness remains source-cost/external-review tracked (source_guarded_external_review_remaining).",
       "sourceValidator": "npm run check:beta-score",
       "actionability": "formal_gate",
       "estimatedPointImpact": 2,
@@ -1686,8 +1686,7 @@
       "dedupeKey": "formal_gate|cost|cost|costRisk|keep-this-cost-lane-in-owner-review-until-external-billing-provider-evidence-is-",
       "duplicateChildren": [
         "cost-cost-risk-1",
-        "cost-cost-risk-2",
-        "cost-cost-risk-3"
+        "cost-cost-risk-2"
       ]
     },
     {

@@ -1,0 +1,75 @@
+# Route health reconciliation
+
+Generated: 2026-05-24T17:07:40.526Z
+Head: a62f0177ba3e5bc7e86d8b5ec2c643258797c09a
+
+## Summary
+
+```json
+{
+  "reportKey": "route-health-reconciliation",
+  "generatedAtUtc": "2026-05-24T17:07:40.526Z",
+  "currentHead": "a62f0177ba3e5bc7e86d8b5ec2c643258797c09a",
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "scoreDimensions": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "routeChecksStatus": "0 active failures",
+  "routeHealthStatusBefore": "DEGRADED: 44 ok / 65 action / 2 fail",
+  "routeHealthStatusAfter": "route_listener_delayed",
+  "trackedRoutes": 173,
+  "observedRoutes": 109,
+  "unseenRoutes": 64,
+  "activeFailureCount": 0,
+  "staleFailureCount": 2,
+  "warningCount": 8,
+  "staleActionCount": 65,
+  "currentActionCount": 0,
+  "routeListenerStatus": "failed",
+  "canTrustLastVerified": true,
+  "lastVerifiedAgeMs": 1800000,
+  "status": "route_listener_delayed",
+  "unseenRoutesClassified": {
+    "unseen_expected": 0,
+    "unseen_inactive": 0,
+    "unseen_source_missing": 0,
+    "stale_unseen": 64
+  },
+  "currentSlowCount": 0,
+  "staleSlowCount": 6,
+  "currentServerErrorCount": 0,
+  "staleServerErrorCount": 7,
+  "currentClientErrorCount": 0,
+  "staleClientErrorCount": 4,
+  "missingFailureTimestampActionable": true,
+  "nextAction": "Repair the route listener, then refresh route runtime evidence.",
+  "validationFailures": []
+}
+```
+
+## Validation
+
+- None.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.36 - 2026-05-24
+
+- Reconciled admin ops health, route runtime, open actions, and AI fallback statuses.
+- Collapsed stale route runtime rows into actionable groups.
+- Separated deterministic AI fallback from feed/preflight failures.
+
 ## 1.4.35 - 2026-05-24
 
 - Cleaned chat, cost, backlog, and future catalog debug lane statuses.

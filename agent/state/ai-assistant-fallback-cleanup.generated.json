@@ -1,0 +1,40 @@
+{
+  "reportKey": "ai-assistant-fallback-cleanup",
+  "generatedAtUtc": "2026-05-24T17:08:02.984Z",
+  "currentHead": "a62f0177ba3e5bc7e86d8b5ec2c643258797c09a",
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "scoreDimensions": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "aiAssistantStatusBefore": "STALE fallback",
+  "aiAssistantStatusAfter": "fallback_due_to_feed_failure",
+  "aiFeedStatus": "failed",
+  "aiFallbackStatus": "deterministic_fallback_accepted",
+  "providerCallAttempted": false,
+  "degradesSystemState": false,
+  "nextAction": "Check assistant feed preflight; do not call the AI provider from this validation lane.",
+  "validationFailures": []
+}

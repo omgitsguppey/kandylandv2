@@ -582,7 +582,13 @@
         "check:cost-4xx-status-cleanup": "tsx scripts/agent/validate-cost-4xx-status-cleanup.ts",
         "check:open-backlog-status-cleanup": "tsx scripts/agent/validate-open-backlog-status-cleanup.ts",
         "check:future-activity-catalog-status-cleanup": "tsx scripts/agent/validate-future-activity-catalog-status-cleanup.ts",
-        "check:debug-cockpit-batch5-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch5-cleanup.ts"
+        "check:debug-cockpit-batch5-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch5-cleanup.ts",
+        "check:ops-canonical-state-cleanup": "tsx scripts/agent/validate-ops-canonical-state-cleanup.ts",
+        "check:route-health-reconciliation": "tsx scripts/agent/validate-route-health-reconciliation.ts",
+        "check:open-actions-route-runtime-cleanup": "tsx scripts/agent/validate-open-actions-route-runtime-cleanup.ts",
+        "check:task-user-creator-intake-status-cleanup": "tsx scripts/agent/validate-task-user-creator-intake-status-cleanup.ts",
+        "check:ai-assistant-fallback-cleanup": "tsx scripts/agent/validate-ai-assistant-fallback-cleanup.ts",
+        "check:debug-cockpit-batch6-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch6-cleanup.ts"
     },
     "dependencies": {
         "@axe-core/react": "^4.11.2",

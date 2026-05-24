@@ -1,0 +1,74 @@
+# Open actions route runtime cleanup
+
+Generated: 2026-05-24T17:07:48.340Z
+Head: a62f0177ba3e5bc7e86d8b5ec2c643258797c09a
+
+## Summary
+
+```json
+{
+  "reportKey": "open-actions-route-runtime-cleanup",
+  "generatedAtUtc": "2026-05-24T17:07:48.340Z",
+  "currentHead": "a62f0177ba3e5bc7e86d8b5ec2c643258797c09a",
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "scoreDimensions": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "openActionsBefore": 65,
+  "openActionsAfter": 4,
+  "staleRouteRuntimeRowsCollapsed": 55,
+  "rawRows": 65,
+  "groupCount": 4,
+  "groups": [
+    {
+      "kind": "current_fail_groups",
+      "rowCount": 2,
+      "action": "Inspect current route failures."
+    },
+    {
+      "kind": "current_warn_groups",
+      "rowCount": 8,
+      "action": "Review current route warning groups."
+    },
+    {
+      "kind": "stale_refresh_groups",
+      "rowCount": 55,
+      "action": "Refresh route runtime evidence."
+    },
+    {
+      "kind": "listener_failure_group",
+      "rowCount": 1,
+      "action": "Repair route health listener."
+    }
+  ],
+  "staleRowsCountAsCurrentActions": false,
+  "validationFailures": []
+}
+```
+
+## Validation
+
+- None.

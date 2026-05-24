@@ -1369,7 +1369,8 @@ for (const forbidden of [
   requireNotIncludes(debugNowDiagnostics, forbidden, "Recent diagnostics panel must not render ambiguous diagnostics chips");
 }
 
-requireIncludes(debugPage, "canonicalState?.status === \"Live\"", "Debug page must treat the canonical Live state as healthy");
+requireIncludes(debugPage, "opsCanonicalState.displayLabel", "Debug page must derive a canonical ops state when backend canonical state is missing");
+requireIncludes(debugPage, "opsCanonicalState.status", "Debug page must expose derived canonical ops state in debug evidence");
 
 for (const expected of [
   "RecentEventFlowRow",

@@ -1,0 +1,50 @@
+# Ops canonical state cleanup
+
+Generated: 2026-05-24T17:07:33.648Z
+Head: a62f0177ba3e5bc7e86d8b5ec2c643258797c09a
+
+## Summary
+
+```json
+{
+  "reportKey": "ops-canonical-state-cleanup",
+  "generatedAtUtc": "2026-05-24T17:07:33.648Z",
+  "currentHead": "a62f0177ba3e5bc7e86d8b5ec2c643258797c09a",
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "scoreDimensions": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 83.1
+  },
+  "systemStateBefore": "DEGRADED: awaiting canonical state",
+  "systemStateAfter": "route_listener_delayed_with_last_verified_sample",
+  "canonicalStateSourceExplanation": "Route listener failed, but a recent sample and last verified route snapshot are available.",
+  "nextAction": "Repair or refresh the route listener; keep using the last verified route sample until live checks resume.",
+  "validationFailures": []
+}
+```
+
+## Validation
+
+- None.
