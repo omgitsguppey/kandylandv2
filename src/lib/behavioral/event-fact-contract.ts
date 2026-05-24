@@ -1,4 +1,11 @@
-export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.5";
+import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
+import type {
+  GlobalUserDedupeDecision,
+  GlobalUserDedupeScope,
+  GlobalUserParityFields,
+} from "@/lib/analytics/global-user-dedupe-contract";
+
+export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.6";
 
 export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "home_viewed",
@@ -150,6 +157,10 @@ export type BehavioralEventFact = {
   metricExclusionReason?: BehavioralMetricExclusionReason | "";
   confidence: number;
   dedupeKey: string;
+  dedupeScope: GlobalUserDedupeScope;
+  dedupeDecision: GlobalUserDedupeDecision;
+  globalUserParity: GlobalUserParityFields;
+  identityConfidence: IdentityConfidence;
 };
 
 export type BehavioralEventFactDiagnostic = {

@@ -506,6 +506,9 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "src/lib/analytics/event-liveness-engine.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/global-user-dedupe-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/global-user-dedupe-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics-action-taxonomy.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/auth/auth-provider-conflict-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/auth/auth-provider-conflict-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/auth/auth-persistence-contract.ts") return "real_source_change_needs_review";
@@ -558,6 +561,10 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "src/lib/behavioral/event-fact-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/event-fact-normalizer.ts") return "real_source_change_needs_review";
+  if (normalized === "agent/state/global-user-dedupe-normalization.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/global-user-dedupe-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/tasks/daily-task-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-duration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-telemetry.ts") return "real_source_change_needs_review";

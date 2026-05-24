@@ -79,24 +79,22 @@ export function normalizeUserAction(input: {
 export function dedupeNormalizedUserActions(actions: Array<NormalizedUserAction | null | undefined>) {
   const facts = actions.map((action) => {
     if (!action) return null;
-    return {
+    return normalizeBehavioralEventFact({
       eventId: action.actionId,
+      eventName: action.rawEventName,
+      timestamp: action.timestamp,
       userId: action.userId,
       sessionId: action.sessionId,
-      eventName: action.rawEventName,
-      rawEventName: action.rawEventName,
-      normalizedAction: action.actionName,
-      timestampMs: action.timestamp,
       route: action.route,
       pagePath: action.route,
-      sourceComponent: action.sourceComponent,
-      ...(action.entityId ? { entityId: action.entityId } : {}),
-      ...(action.entityType !== "unknown" ? { entityType: action.entityType } : {}),
-      source: "server" as const,
-      sourceTruth: "server" as const,
+      params: {
+        sourceComponent: action.sourceComponent,
+        route: action.route,
+        ...(action.entityId ? { entityId: action.entityId } : {}),
+      },
+      source: "server",
       confidence: 1,
-      dedupeKey: action.actionId,
-    } satisfies BehavioralEventFact;
+    });
   });
 
   return dedupeBehavioralEventFacts(facts).map(toLegacyAction);

@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-24T09:06:17.425Z",
-  "currentHead": "a998782f507b2abe21ffd7be01ccbebf031d23c9",
+  "generatedAtUtc": "2026-05-24T09:44:25.446Z",
+  "currentHead": "991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -3620,28 +3620,24 @@
   "gaps": [],
   "dirtyFiles": [
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/auth-persistence-stability.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/auth-runtime-telemetry.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
@@ -3652,24 +3648,16 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/auth-persistence-stability.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-runtime-telemetry.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
@@ -3680,27 +3668,15 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-auth-persistence-stability.ts",
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-auth-provider-conflict-resolution.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-auth-runtime-telemetry.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/app/api/admin/debug/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/components/Auth/AuthModal.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/context/AuthContext.tsx",
+      "path": "src/lib/analytics-action-taxonomy.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3708,7 +3684,11 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "path": "src/lib/analytics/global-user-dedupe-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/global-user-dedupe-engine.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3716,7 +3696,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/auth/auth-telemetry-contract.ts",
+      "path": "src/lib/behavioral/event-fact-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3728,15 +3708,15 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/telemetry-catalog.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/auth-runtime-telemetry.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/user-management-refactor.spec.ts",
+      "path": "tests/unit/global-user-dedupe-normalization.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

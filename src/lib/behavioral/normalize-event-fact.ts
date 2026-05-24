@@ -1,4 +1,6 @@
 import { normalizeTelemetryEventName } from "@/lib/telemetry-catalog";
+import { normalizeGlobalUserMetric } from "@/lib/analytics/global-user-dedupe-engine";
+import type { IdentityConfidence } from "@/lib/analytics/identity-handoff-contract";
 
 import {
   BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS,
@@ -233,6 +235,13 @@ function getSourceConfidence(source: BehavioralEventSource) {
   return 0.6;
 }
 
+function normalizeIdentityConfidence(value: string): IdentityConfidence {
+  if (value === "exact" || value === "linked" || value === "inferred" || value === "weak" || value === "unknown") {
+    return value;
+  }
+  return "unknown";
+}
+
 function resolveEntityId(merged: Record<string, unknown>, config: ActionAliasConfig) {
   return readString(merged, ...config.entityKeys)
     || (config.entityType === "drop" ? readString(merged, "drop_id", "dropId") : "")
@@ -341,6 +350,10 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
   const userId = readString(merged, "user_id", "userId", "analytics_user_id", "analyticsUserId");
   const sessionId = readString(merged, "session_id", "sessionId", "watch_session_id", "watchSessionId");
   const anonymousVisitorId = readString(merged, "anonymous_visitor_id", "anonymousVisitorId");
+  const linkId = readString(merged, "link_id", "linkId", "identity_link_id", "identityLinkId");
+  const linkedPersonId = readString(merged, "linked_person_id", "linkedPersonId", "person_id", "personId");
+  const identityState = readString(merged, "identity_state", "identityState");
+  const identityConfidence = normalizeIdentityConfidence(readString(merged, "identity_confidence", "identityConfidence") || (userId ? "exact" : anonymousVisitorId ? "weak" : "unknown"));
   const entityId = resolveEntityId(merged, config);
 
   if (!route || !sourceComponent) {
@@ -363,6 +376,26 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
     timestampMs,
   ].join(":");
   const confidence = Math.max(0, Math.min(1, typeof input.confidence === "number" && Number.isFinite(input.confidence) ? input.confidence : getSourceConfidence(source)));
+  const replayOfEventId = readString(merged, "replay_of_event_id", "replayOfEventId");
+  const retryAttempt = readNumber(merged, "retry_attempt", "retryAttempt");
+  const idempotencyKey = readString(merged, "idempotency_key", "idempotencyKey") || explicitEventId;
+  const dedupeDecision = normalizeGlobalUserMetric({
+    eventId,
+    eventName: canonicalEventName || rawEventName,
+    featureId: readString(merged, "feature_id", "featureId"),
+    surface: readString(merged, "surface") || route,
+    sessionId,
+    guestId: anonymousVisitorId,
+    userId,
+    linkedPersonId,
+    linkId,
+    identityState,
+    identityConfidence,
+    idempotencyKey,
+    replayOfEventId,
+    retryAttempt,
+    legacyUnknown: source === "legacy" || identityState === "legacy_unknown",
+  });
 
   const valueUsd = readNumber({ valueUsd: input.valueUsd, ...merged }, "valueUsd", "value_usd", "gross_revenue_usd", "grossRevenueUsd", "amount_usd", "amountUsd", "price_usd", "priceUsd");
   const gumDropsAmount = readNumber({ gumDropsAmount: input.gumDropsAmount, ...merged }, "gumDropsAmount", "gumdrops_amount", "delivered_gumdrops", "deliveredGumDrops", "paid_gumdrops", "paidGumDrops", "amount");
@@ -397,6 +430,10 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
     source,
     sourceTruth: source,
     confidence,
+    identityConfidence,
+    dedupeScope: "event",
+    dedupeDecision,
+    globalUserParity: dedupeDecision.globalUserParity,
   };
 
   return {

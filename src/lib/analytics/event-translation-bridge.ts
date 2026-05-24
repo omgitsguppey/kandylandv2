@@ -455,6 +455,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/global-user-dedupe-normalization.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-provider-conflict-resolution.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-persistence-stability.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/auth-runtime-telemetry.generated.json") return "current_generated_artifact_to_commit";
@@ -463,6 +464,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "agent/state/future-activity-signal-reclassification.generated.json") return "current_generated_artifact_to_commit";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
   if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-provider-conflict-resolution.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-persistence-stability.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/auth-runtime-telemetry.md") return "documentation_artifact_expected";
@@ -471,6 +473,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "docs/agent-truth/future-activity-signal-reclassification.md") return "documentation_artifact_expected";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-runtime-telemetry.ts") return "validator_artifact_expected";
@@ -503,6 +506,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/event-translation-bridge.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/global-user-dedupe-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-provider-conflict-resolution.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-persistence-stability.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-runtime-telemetry.spec.ts") return "test_artifact_expected";
@@ -524,6 +528,9 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/components/Dashboard/DailyCheckIn.tsx") return "real_source_change_needs_review";
   if (normalized === "src/components/Dashboard/NotificationPromptBanner.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/global-user-dedupe-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/global-user-dedupe-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics-action-taxonomy.ts") return "real_source_change_needs_review";
   if (normalized === "src/context/AuthContext.tsx") return "real_source_change_needs_review";
   if (normalized === "src/components/Auth/AuthModal.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/auth-errors.ts") return "real_source_change_needs_review";

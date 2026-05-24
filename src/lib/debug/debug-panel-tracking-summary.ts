@@ -19,11 +19,13 @@ import { buildPwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-con
 import { buildAuthProviderConflictDebugLane } from "@/lib/auth/auth-provider-conflict-contract";
 import { buildAuthPersistenceDebugLane } from "@/lib/auth/auth-persistence-contract";
 import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
+import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedupe-engine";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
   "consent_tracking_mode",
   "event_envelope",
+  "global_user_dedupe",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -103,6 +105,7 @@ const TRACKING_GROUPS = [
   "identity",
   "consent",
   "event_envelope",
+  "global_user_dedupe",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -175,6 +178,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     ? input.eventEnvelope.missingEnvelopeFieldsByFeature.length
     : 0;
   const eventStatus = eventMissingCount > 0 ? "degraded" : toStatus(input.eventEnvelope?.status);
+  const globalUserDedupeLane = input.globalUserDedupeNormalization?.debugLane ?? buildGlobalUserDedupeDebugLane();
+  const globalUserDedupeWarnings = toNumber(globalUserDedupeLane.globalUserMismatchCount)
+    + (globalUserDedupeLane.sqlExportParityStatus === "mapped" ? 0 : 1)
+    + (globalUserDedupeLane.linkedGuestUserDedupeHealth === "healthy" ? 0 : 1);
   const eventBridge = input.eventTranslationBridge?.debugLane ?? {};
   const eventBridgeGaps = toNumber(eventBridge.gaps);
   const eventBridgeTranslated = toNumber(eventBridge.eventEnvelopesTranslated);
@@ -355,6 +362,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: eventMissingCount,
       drilldownTarget: "/admin/debug?tab=advanced#event-envelope",
+    }),
+    makeLane({
+      id: "global_user_dedupe",
+      label: "Global vs user dedupe",
+      trackingSystem: "global_user_dedupe",
+      sourceOwner: "analytics",
+      sourceOfTruth: "src/lib/analytics/global-user-dedupe-engine.ts",
+      status: globalUserDedupeWarnings > 0 ? "degraded" : "live",
+      severity: severityFromCounts(0, globalUserDedupeWarnings, globalUserDedupeWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: "high",
+      primarySignal: `Duplicate risks=${toNumber(globalUserDedupeLane.duplicateRiskCount)}; linked guest/user=${globalUserDedupeLane.linkedGuestUserDedupeHealth}; global/user mismatches=${toNumber(globalUserDedupeLane.globalUserMismatchCount)}; SQL/export parity=${globalUserDedupeLane.sqlExportParityStatus}; unknown legacy=${toNumber(globalUserDedupeLane.unknownLegacyCount)}.`,
+      criticalCount: 0,
+      warningCount: globalUserDedupeWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#global-user-dedupe",
     }),
     makeLane({
       id: "event_translation_bridge",

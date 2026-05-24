@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-24T09:06:17.425Z
+Generated: 2026-05-24T09:44:25.446Z
 Status: pass
-Current head: a998782f507b2abe21ffd7be01ccbebf031d23c9
+Current head: 991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f
 
 ## Contract
 
@@ -53,36 +53,31 @@ Current head: a998782f507b2abe21ffd7be01ccbebf031d23c9
 
 ## Dirty Files
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/auth-persistence-stability.generated.json: current_generated_artifact_to_commit
-- agent/state/auth-provider-conflict-resolution.generated.json: current_generated_artifact_to_commit
-- agent/state/auth-runtime-telemetry.generated.json: current_generated_artifact_to_commit
+- CHANGELOG.md: release_artifact_expected
+- agent/state/activity-verification-engine.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/global-user-dedupe-normalization.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/auth-persistence-stability.md: documentation_artifact_expected
-- docs/agent-truth/auth-provider-conflict-resolution.md: documentation_artifact_expected
-- docs/agent-truth/auth-runtime-telemetry.md: documentation_artifact_expected
+- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/global-user-dedupe-normalization.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
 - package.json: real_source_change_needs_review
-- scripts/agent/validate-auth-persistence-stability.ts: validator_artifact_expected
-- scripts/agent/validate-auth-provider-conflict-resolution.ts: validator_artifact_expected
-- scripts/agent/validate-auth-runtime-telemetry.ts: validator_artifact_expected
-- src/app/api/admin/debug/route.ts: real_source_change_needs_review
-- src/components/Auth/AuthModal.tsx: real_source_change_needs_review
-- src/context/AuthContext.tsx: real_source_change_needs_review
+- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-global-user-dedupe-normalization.ts: validator_artifact_expected
+- src/lib/analytics-action-taxonomy.ts: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
+- src/lib/analytics/global-user-dedupe-contract.ts: real_source_change_needs_review
+- src/lib/analytics/global-user-dedupe-engine.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/auth/auth-telemetry-contract.ts: real_source_change_needs_review
+- src/lib/behavioral/event-fact-contract.ts: real_source_change_needs_review
 - src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
-- src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/auth-runtime-telemetry.spec.ts: test_artifact_expected
-- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- tests/unit/global-user-dedupe-normalization.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

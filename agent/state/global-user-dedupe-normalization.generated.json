@@ -1,0 +1,398 @@
+{
+  "generatedAtUtc": "2026-05-24T09:44:02.196Z",
+  "reportKey": "global-user-dedupe-normalization",
+  "currentHead": "991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "legacyMutationAllowed": false,
+  "fakeActivityUsed": false,
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 72,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "metrics": {
+    "sourceHealth": {
+      "before": 92.5,
+      "after": 92.5,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No global/user dedupe score action needed for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 84.2,
+      "after": 84.2,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No global/user dedupe score action needed for this dimension."
+    },
+    "evidenceCompleteness": {
+      "before": 69.6,
+      "after": 72,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside analytics dedupe; do not fake runtime/provider evidence."
+    },
+    "freshness": {
+      "before": 83.75,
+      "after": 83.75,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No global/user dedupe score action needed for this dimension."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside analytics dedupe; do not fake runtime/provider evidence."
+    },
+    "regressionRisk": {
+      "before": 86,
+      "after": 86,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No global/user dedupe score action needed for this dimension."
+    },
+    "overallHealthScore": {
+      "before": 79.25,
+      "after": 79.25,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside analytics dedupe; do not fake runtime/provider evidence."
+    }
+  },
+  "debugLane": {
+    "label": "Global vs user dedupe",
+    "duplicateRiskCount": 3,
+    "linkedGuestUserDedupeHealth": "healthy",
+    "globalUserMismatchCount": 0,
+    "sqlExportParityStatus": "mapped",
+    "unknownLegacyCount": 1,
+    "rawDetailsDefaultOpen": false
+  },
+  "sampleDecisions": [
+    {
+      "input": {
+        "eventId": "validator_linked",
+        "eventName": "drop_preview_opened",
+        "featureId": "drops",
+        "surface": "drop-preview",
+        "sessionId": "session_validator",
+        "guestId": "guest_validator",
+        "userId": "user_validator",
+        "linkedPersonId": "person_validator",
+        "linkId": "link_validator",
+        "identityState": "logged_in_linked_guest",
+        "identityConfidence": "linked",
+        "idempotencyKey": "drop_preview_opened:validator_drop"
+      },
+      "dedupeScope": "event",
+      "dedupeKey": "global:drop_preview_opened:drops:drop_preview_opened:validator_drop",
+      "global": {
+        "count": true,
+        "policy": "count_once",
+        "dedupeKey": "global:drop_preview_opened:drops:drop_preview_opened:validator_drop",
+        "reason": "linked_guest_attributed_to_user"
+      },
+      "guest": {
+        "count": false,
+        "policy": "linked_user_wins",
+        "dedupeKey": "guest:guest_validator:drop_preview_opened:validator_drop",
+        "reason": "linked_guest_attributed_to_user"
+      },
+      "user": {
+        "count": true,
+        "policy": "best_identity_wins",
+        "dedupeKey": "user:user_validator:drop_preview_opened:drop_preview_opened:validator_drop",
+        "reason": "linked_guest_attributed_to_user"
+      },
+      "linkedPerson": {
+        "count": true,
+        "policy": "linked_user_wins",
+        "dedupeKey": "person:person_validator:drop_preview_opened:drop_preview_opened:validator_drop",
+        "reason": "linked_guest_attributed_to_user"
+      },
+      "sql": {
+        "count": true,
+        "policy": "preserve_raw_fact_normalized_summary",
+        "dedupeKey": "export:drop_preview_opened:drop_preview_opened:validator_drop",
+        "reason": "linked_guest_attributed_to_user"
+      },
+      "globalUserParity": {
+        "globalAggregationPolicy": "count_once",
+        "userAggregationPolicy": "best_identity_wins",
+        "sqlAggregationPolicy": "preserve_raw_fact_normalized_summary",
+        "replaySafety": "idempotency_key_required",
+        "duplicateRisk": "linked_guest_user_duplicate_risk_suppressed",
+        "identityConfidence": "linked"
+      },
+      "duplicateRisk": "linked_guest_user_duplicate_risk_suppressed",
+      "suppressedDuplicateKeys": [
+        "guest:guest_validator"
+      ],
+      "debug": {
+        "lane": "Global vs user dedupe",
+        "defaultVisible": true,
+        "explanation": "A linked guest action for drop_preview_opened is counted once globally and attributed to the linked guest user identity.",
+        "nextAction": "Keep the raw guest fact for export, but attribute normalized user metrics to the linked user once."
+      }
+    },
+    {
+      "input": {
+        "eventId": "validator_legacy",
+        "eventName": "semantic_page_viewed",
+        "featureId": "legacy",
+        "surface": "legacy-import",
+        "sessionId": "legacy_session",
+        "identityState": "legacy_unknown",
+        "identityConfidence": "unknown",
+        "legacyUnknown": true
+      },
+      "dedupeScope": "event",
+      "dedupeKey": "global:semantic_page_viewed:legacy:validator_legacy",
+      "global": {
+        "count": false,
+        "policy": "archive_only",
+        "dedupeKey": "global:semantic_page_viewed:legacy:validator_legacy",
+        "reason": "unknown_legacy_archived"
+      },
+      "guest": {
+        "count": false,
+        "policy": "linked_user_wins",
+        "dedupeKey": "session:legacy_session:semantic_page_viewed:validator_legacy",
+        "reason": "unknown_legacy_archived"
+      },
+      "user": {
+        "count": false,
+        "policy": "best_identity_wins",
+        "dedupeKey": "session:legacy_session:semantic_page_viewed:validator_legacy",
+        "reason": "unknown_legacy_archived"
+      },
+      "linkedPerson": {
+        "count": false,
+        "policy": "linked_user_wins",
+        "dedupeKey": "guest:unknown:semantic_page_viewed:validator_legacy",
+        "reason": "unknown_legacy_archived"
+      },
+      "sql": {
+        "count": true,
+        "policy": "preserve_raw_fact_normalized_summary",
+        "dedupeKey": "export:semantic_page_viewed:validator_legacy",
+        "reason": "unknown_legacy_archived"
+      },
+      "globalUserParity": {
+        "globalAggregationPolicy": "archive_only",
+        "userAggregationPolicy": "exclude_unknown_legacy",
+        "sqlAggregationPolicy": "preserve_raw_fact_normalized_summary",
+        "replaySafety": "event_id_or_idempotency_key",
+        "duplicateRisk": "unknown_legacy_archived",
+        "identityConfidence": "unknown"
+      },
+      "duplicateRisk": "unknown_legacy_archived",
+      "suppressedDuplicateKeys": [],
+      "debug": {
+        "lane": "Global vs user dedupe",
+        "defaultVisible": true,
+        "explanation": "Unknown legacy event semantic_page_viewed is kept as raw export evidence and not promoted to exact user truth.",
+        "nextAction": "Archive legacy identity evidence without promoting it to exact user metrics."
+      }
+    },
+    {
+      "input": {
+        "eventId": "validator_replay",
+        "eventName": "wallet_opened",
+        "featureId": "wallet",
+        "surface": "wallet",
+        "sessionId": "session_validator",
+        "userId": "user_validator",
+        "identityState": "logged_in_unlinked",
+        "identityConfidence": "exact",
+        "idempotencyKey": "wallet_opened:validator",
+        "replayOfEventId": "wallet_opened:validator"
+      },
+      "dedupeScope": "event",
+      "dedupeKey": "global:wallet_opened:wallet:wallet_opened:validator",
+      "global": {
+        "count": false,
+        "policy": "count_once",
+        "dedupeKey": "global:wallet_opened:wallet:wallet_opened:validator",
+        "reason": "retry_replay_not_counted"
+      },
+      "guest": {
+        "count": false,
+        "policy": "linked_user_wins",
+        "dedupeKey": "user:user_validator:wallet_opened:wallet_opened:validator",
+        "reason": "retry_replay_not_counted"
+      },
+      "user": {
+        "count": false,
+        "policy": "best_identity_wins",
+        "dedupeKey": "user:user_validator:wallet_opened:wallet_opened:validator",
+        "reason": "retry_replay_not_counted"
+      },
+      "linkedPerson": {
+        "count": false,
+        "policy": "linked_user_wins",
+        "dedupeKey": "user:user_validator:wallet_opened:wallet_opened:validator",
+        "reason": "retry_replay_not_counted"
+      },
+      "sql": {
+        "count": true,
+        "policy": "preserve_raw_fact_normalized_summary",
+        "dedupeKey": "export:wallet_opened:wallet_opened:validator",
+        "reason": "retry_replay_not_counted"
+      },
+      "globalUserParity": {
+        "globalAggregationPolicy": "count_once",
+        "userAggregationPolicy": "best_identity_wins",
+        "sqlAggregationPolicy": "preserve_raw_fact_normalized_summary",
+        "replaySafety": "idempotency_key_required",
+        "duplicateRisk": "retry_replay_suppressed",
+        "identityConfidence": "exact"
+      },
+      "duplicateRisk": "retry_replay_suppressed",
+      "suppressedDuplicateKeys": [],
+      "debug": {
+        "lane": "Global vs user dedupe",
+        "defaultVisible": true,
+        "explanation": "replay or retry event wallet_opened is preserved for export but suppressed from global and user aggregates.",
+        "nextAction": "Preserve the raw replay fact for SQL/export audit and suppress aggregate counters."
+      }
+    }
+  ],
+  "eventFactParity": {
+    "dedupeScope": "event",
+    "globalUserParity": {
+      "globalAggregationPolicy": "count_once",
+      "userAggregationPolicy": "best_identity_wins",
+      "sqlAggregationPolicy": "preserve_raw_fact_normalized_summary",
+      "replaySafety": "idempotency_key_required",
+      "duplicateRisk": "linked_guest_user_duplicate_risk_suppressed",
+      "identityConfidence": "linked"
+    },
+    "identityConfidence": "linked",
+    "dedupeDecisionExplanation": "A linked guest action for drop_preview_opened is counted once globally and attributed to the linked guest user identity."
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics-action-taxonomy.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/global-user-dedupe-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/global-user-dedupe-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/event-fact-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/global-user-dedupe-normalization.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": [],
+  "nextExactSteps": [
+    "Keep raw event facts and normalized summary identity separate for SQL/BigQuery export.",
+    "Use linked user attribution for guest-to-user handoff without incrementing guest and user counters for the same action.",
+    "Do not promote unknown legacy events to exact user metrics without a verified identity link."
+  ]
+}

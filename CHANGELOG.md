@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.25 - 2026-05-24
+- Analytics dedupe normalization
+- Normalized global and user-level analytics deduplication.
+- Prevented guest-to-user handoff from double-counting actions.
+- Added SQL/export parity fields for normalized event facts.
+
 ## 1.4.24 - 2026-05-24
 - Auth readiness lock
 - Locked auth provider conflict handling, email/password flows, and session persistence.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Locked future activity signals out of actionable debug noise.
 - Reduced false waiting-on-activity and non-event score penalties to zero.
 - Reported score progress by dimension with exact next actions.
-
-## 1.4.0 - 2026-05-23
-- Non-event beta score policy
-- Stopped future activity placeholders from reducing beta score.
-- Scored actionable signal groups instead of raw debug noise.
-- Clarified below-80 dimensions by true blocker type.

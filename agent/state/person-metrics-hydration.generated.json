@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-05-24T09:25:08.358Z",
+  "generatedAtUtc": "2026-05-24T09:44:16.917Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -3798,38 +3798,14 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "309d6b03a6e4aa5d47233d04cfb404991b75a8a8",
+  "currentHead": "991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f",
   "dirtyFiles": [
     {
       "path": "CHANGELOG.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/auth-persistence-stability.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/auth-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/auth-runtime-telemetry.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/email-password-auth-refactor.generated.json",
+      "path": "agent/state/activity-verification-engine.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -3837,16 +3813,12 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
@@ -3857,44 +3829,16 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/auth-persistence-stability.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-readiness-lock.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/auth-runtime-telemetry.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/email-password-auth-refactor.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "docs/agent-truth/event-envelope-normalization.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
@@ -3909,27 +3853,39 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-auth-persistence-stability.ts",
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-auth-provider-conflict-resolution.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/analytics-action-taxonomy.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-auth-readiness-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-auth-runtime-telemetry.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/analytics/global-user-dedupe-contract.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-email-password-auth-refactor.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/analytics/global-user-dedupe-engine.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/event-fact-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3941,7 +3897,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/auth-readiness-lock.spec.ts",
+      "path": "tests/unit/global-user-dedupe-normalization.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],
