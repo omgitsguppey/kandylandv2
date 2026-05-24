@@ -218,7 +218,25 @@ describe("/api/admin/creator-agreements", () => {
     const payload = await response.json();
 
     expect(response.status, JSON.stringify(payload)).toBe(403);
+    expect(payload).toMatchObject({
+      code: "forbidden",
+    });
     expect(payload.error).toContain("Only the primary owner");
+  });
+
+  it("returns invalid_admin_request for malformed JSON instead of generic 500", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/creator-agreements", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "{",
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      code: "invalid_admin_request",
+    });
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
   });
 
   it("sends updated agreements with actor-marked telemetry", async () => {
@@ -242,5 +260,25 @@ describe("/api/admin/creator-agreements", () => {
       performedAs: "admin_on_behalf",
       agreement_hash: "sha256:v1",
     }), "creator_1");
+  });
+
+  it("maps dispatch failures to typed safe admin responses", async () => {
+    mockState.sendCreatorAgreementDispatch.mockRejectedValueOnce(new Error("Template not found for dispatch."));
+
+    const response = await POST(new NextRequest("http://localhost/api/admin/creator-agreements", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        action: "send_agreement",
+        targetUserId: "creator_1",
+      }),
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(payload).toMatchObject({
+      code: "template_not_found",
+    });
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
   });
 });

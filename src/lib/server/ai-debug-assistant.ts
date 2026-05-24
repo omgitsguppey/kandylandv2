@@ -23,6 +23,11 @@ import {
     getAdminAiDebugAssistantSettings,
     type AdminAiDebugAssistantSettings,
 } from "@/lib/server/admin-debug-settings";
+import {
+    buildAiDebugBudgetDecision,
+    getAiDebugBudgetLimits,
+    type AiDebugBudgetDecision,
+} from "@/lib/server/ai-debug-budget-guard";
 import type { CreatorOnboardingDiagnosticIssue, CreatorOnboardingDiagnosticSummary } from "@/lib/server/creator-onboarding-diagnostics";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
@@ -484,6 +489,7 @@ export function buildAdminAiDebugFallback(input: {
     availabilityNote: string;
     latencyMs?: number;
     fallbackReason?: string;
+    budgetDecision?: AiDebugBudgetDecision;
 }) : AdminAiDebugSummary {
     const signal = input.signal;
     const eligibility = buildLiveCallEligibility(input.settings, input.runtime.project);
@@ -595,6 +601,11 @@ export function buildAdminAiDebugFallback(input: {
         last_fallback_generated_at: signal.generatedAt,
         last_fallback_latency_ms: Math.max(0, Math.round(input.latencyMs || 0)),
         latency_ms: Math.max(0, Math.round(input.latencyMs || 0)),
+        budget_guard: input.budgetDecision?.debugEvidence,
+        estimated_input_tokens: input.budgetDecision?.debugEvidence.estimatedInputTokens,
+        max_estimated_input_tokens: input.budgetDecision?.debugEvidence.maxEstimatedInputTokens,
+        max_output_tokens: input.budgetDecision?.debugEvidence.maxOutputTokens,
+        prompt_char_count: input.budgetDecision?.debugEvidence.promptCharLength,
         availability_note: input.availabilityNote,
         fallback_reason: input.fallbackReason || "live_ai_unavailable",
         last_live_call_at: input.settings.lastLiveCallAtMs ? new Date(input.settings.lastLiveCallAtMs).toISOString() : undefined,
@@ -662,7 +673,7 @@ export async function generateVertexAiDebugText(input: GenerateTextInput) {
         generationConfig: {
             temperature: 0.2,
             topP: 0.8,
-            maxOutputTokens: 700,
+            maxOutputTokens: getAiDebugBudgetLimits().maxOutputTokens,
             responseMimeType: "application/json",
             responseSchema: ADMIN_AI_DEBUG_RESPONSE_SCHEMA,
         },
@@ -724,8 +735,24 @@ export async function planAdminAiDebugFix(input: {
         };
     }
 
+    const prompt = buildAdminAiDebugFixPlannerPrompt(input);
+    const budgetDecision = buildAiDebugBudgetDecision({
+        enabled: input.settings.enabled,
+        model: runtime.model,
+        prompt,
+        project: runtime.project,
+        timeoutMs: DEFAULT_TIMEOUT_MS,
+    });
+    if (!budgetDecision.providerCallAllowed) {
+        return {
+            status: "fix_requires_manual_review" as const,
+            actionability: "manual_review" as const,
+            reason: `AI fix planner budget guard blocked provider call: ${budgetDecision.fallbackReason}.`,
+        };
+    }
+
     const rawText = await generateVertexAiDebugText({
-        prompt: buildAdminAiDebugFixPlannerPrompt(input),
+        prompt,
         project: runtime.project,
         location: runtime.location,
         model: runtime.model,
@@ -807,6 +834,26 @@ export async function generateAdminAiDebugSummary(
     const prompt = buildAdminAiDebugPrompt(signal);
     const runner = options?.runner ?? generateVertexAiDebugText;
     const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    const budgetDecision = buildAiDebugBudgetDecision({
+        enabled,
+        model: runtime.model,
+        prompt,
+        project,
+        timeoutMs,
+    });
+    // token estimate/count evidence is sourced locally by buildAiDebugBudgetDecision before any Vertex call.
+
+    if (!budgetDecision.providerCallAllowed) {
+        return buildAdminAiDebugFallback({
+            signal,
+            settings,
+            runtime,
+            availabilityNote: `AI debug assistant budget guard blocked the live provider call: ${budgetDecision.fallbackReason}.`,
+            latencyMs: Date.now() - startedAt,
+            fallbackReason: budgetDecision.fallbackReason ?? "budget_guard_blocked",
+            budgetDecision,
+        });
+    }
 
     try {
         const rawText = await runner({
@@ -832,6 +879,7 @@ export async function generateAdminAiDebugSummary(
                 fallbackUsed: false,
                 liveCallEligible: eligibility.liveCallEligible,
                 costGuardState: eligibility.costGuardState,
+                budgetGuard: budgetDecision.debugEvidence,
             },
         });
 
@@ -867,6 +915,11 @@ export async function generateAdminAiDebugSummary(
             last_fallback_generated_at: undefined,
             last_fallback_latency_ms: null,
             latency_ms: latencyMs,
+            budget_guard: budgetDecision.debugEvidence,
+            estimated_input_tokens: budgetDecision.debugEvidence.estimatedInputTokens,
+            max_estimated_input_tokens: budgetDecision.debugEvidence.maxEstimatedInputTokens,
+            max_output_tokens: budgetDecision.debugEvidence.maxOutputTokens,
+            prompt_char_count: budgetDecision.debugEvidence.promptCharLength,
             last_live_call_at: new Date().toISOString(),
         });
     } catch (error) {
@@ -888,6 +941,7 @@ export async function generateAdminAiDebugSummary(
                     fallbackUsed: true,
                     liveCallEligible: eligibility.liveCallEligible,
                     costGuardState: eligibility.costGuardState,
+                    budgetGuard: budgetDecision.debugEvidence,
                 },
             },
         );
@@ -899,6 +953,7 @@ export async function generateAdminAiDebugSummary(
             availabilityNote,
             latencyMs,
             fallbackReason: error instanceof SyntaxError ? "response_parse_failed" : "live_call_failed",
+            budgetDecision,
         });
     }
 }

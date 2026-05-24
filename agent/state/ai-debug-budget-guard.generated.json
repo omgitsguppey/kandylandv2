@@ -1,0 +1,16 @@
+{
+  "generatedAtUtc": "2026-05-24T18:37:44.842Z",
+  "reportKey": "ai-debug-budget-guard",
+  "currentHead": "e0b2faccf8604728ef1ba7efbcac53c3722049ad",
+  "killSwitch": true,
+  "modelAllowlist": true,
+  "timeoutCap": true,
+  "promptCharCap": true,
+  "estimatedInputTokenCount": true,
+  "maxEstimatedInputTokens": true,
+  "maxOutputTokens": true,
+  "providerBlockedWhenDisabledOrOverBudget": true,
+  "fallbackWithoutProviderCall": true,
+  "providerCallsInValidators": false,
+  "validationFailures": []
+}

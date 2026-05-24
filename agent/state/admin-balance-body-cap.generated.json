@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-24T18:18:28.505Z",
+  "generatedAtUtc": "2026-05-24T18:37:44.340Z",
   "reportKey": "admin-balance-body-cap",
-  "currentHead": "aa6815f74070c955ed53585f76a36c4d52065cd0",
+  "currentHead": "e0b2faccf8604728ef1ba7efbcac53c3722049ad",
   "routePath": "src/app/api/admin/balance/route.ts",
   "adminBalanceBodyCapBefore": "missing_direct_request_json",
   "adminBalanceBodyCapAfter": "bounded_parser_cap_8192",

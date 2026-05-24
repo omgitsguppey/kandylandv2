@@ -22,6 +22,14 @@ import {
 } from "@/lib/identity/actor-markers";
 import { handleApiError } from "@/lib/server/auth";
 import {
+  buildAdminErrorResponse,
+  buildAdminForbiddenResponse,
+  buildAdminInvalidRequestResponse,
+  isKnownAdminDomainError,
+  mapKnownAdminDomainError,
+} from "@/lib/server/admin-route-errors";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+import {
   CREATOR_ONBOARDING_COLLECTION,
   CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
   buildCreatorOnboardingHistoryEntry,
@@ -39,6 +47,20 @@ import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+
+const CREATOR_ACCOUNT_CONTROLS_BODY_LIMIT_BYTES = 16_384;
+export const CREATOR_ACCOUNT_CONTROLS_EXPECTED_SAFE_ERROR_CODES = [
+  "unauthorized",
+  "forbidden",
+  "invalid_admin_request",
+  "payload_too_large",
+  "not_found",
+  "conflict",
+  "role_activation_blocked",
+  "username_taken",
+  "invalid_username",
+  "no_changes_detected",
+] as const;
 
 type UserRole = "user" | "creator" | "admin";
 
@@ -248,9 +270,7 @@ async function updateRole(input: {
   nowMs: number;
 }) {
   if (input.command.role === "admin" && !input.isOwnerActor) {
-    return NextResponse.json({
-      error: "Only the owner admin can grant admin access.",
-    }, { status: 403 });
+    return buildAdminForbiddenResponse("Only the owner admin can grant admin access.");
   }
 
   const userRef = adminDb.collection("users").doc(input.command.targetUserId);
@@ -406,9 +426,12 @@ async function updateRole(input: {
       }),
     ]);
 
-    return NextResponse.json({
-      error: "Creator role requires completed intro, ID, and agreement steps.",
-    }, { status: 400 });
+    return buildAdminErrorResponse({
+      status: 400,
+      code: "role_activation_blocked",
+      message: "Creator role requires completed intro, ID, and agreement steps.",
+      detail: blockedRoleActivationDetail,
+    });
   }
 
   await emitAccountControlTelemetry({
@@ -441,14 +464,20 @@ async function POST_handler(request: NextRequest) {
       return NextResponse.json({ error: "Database or auth not available" }, { status: 500 });
     }
 
-    const parsed = parseCreatorAccountControlCommand(await request.json().catch(() => ({})));
+    const body = await readBoundedJsonBody<Record<string, unknown>>(request, {
+      maxBytes: CREATOR_ACCOUNT_CONTROLS_BODY_LIMIT_BYTES,
+      routeName: "admin/creator-account-controls",
+      allowEmpty: false,
+      allowedContentTypes: ["application/json"],
+    });
+    const parsed = parseCreatorAccountControlCommand(body);
     if (!parsed.ok) {
-      return NextResponse.json({ error: parsed.error }, { status: 400 });
+      return buildAdminInvalidRequestResponse(parsed.error);
     }
 
     const command = parsed.command;
     if (isDangerousCreatorAccountAction(command.action) && "confirmed" in command && !command.confirmed) {
-      return NextResponse.json({ error: "Confirm this account change before saving." }, { status: 400 });
+      return buildAdminInvalidRequestResponse("Confirm this account change before saving.");
     }
 
     const isOwnerActor = isCreatorOwnerEmail(caller?.email);
@@ -573,9 +602,11 @@ async function POST_handler(request: NextRequest) {
         });
 
         if (!reservation.ok) {
-          return NextResponse.json({
-            error: reservation.reason === "taken" ? "That handle is already taken." : "Enter a valid handle.",
-          }, { status: reservation.reason === "taken" ? 409 : 400 });
+          return buildAdminErrorResponse({
+            status: reservation.reason === "taken" ? 409 : 400,
+            code: reservation.reason === "taken" ? "username_taken" : "invalid_username",
+            message: reservation.reason === "taken" ? "That handle is already taken." : "Enter a valid handle.",
+          });
         }
       } else if (Object.keys(userPatch).length > 0) {
         await writeAccountAudit({
@@ -592,7 +623,11 @@ async function POST_handler(request: NextRequest) {
           onboardingPatch,
         });
       } else {
-        return NextResponse.json({ error: "No profile changes detected." }, { status: 400 });
+        return buildAdminErrorResponse({
+          status: 400,
+          code: "no_changes_detected",
+          message: "No profile changes detected.",
+        });
       }
     }
 
@@ -629,7 +664,7 @@ async function POST_handler(request: NextRequest) {
       newValueRedacted = "Reset link created";
       const email = currentEmail || (await adminAuth.getUser(command.targetUserId)).email || "";
       if (!email) {
-        return NextResponse.json({ error: "Target account does not have an email address." }, { status: 400 });
+        return buildAdminInvalidRequestResponse("Target account does not have an email address.");
       }
       passwordResetLink = await adminAuth.generatePasswordResetLink(email);
       passwordActionMode = "reset_link_created";
@@ -765,6 +800,16 @@ async function POST_handler(request: NextRequest) {
       }),
     });
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return buildAdminErrorResponse({
+        status: error.status,
+        code: error.code === "payload_too_large" ? "payload_too_large" : "invalid_admin_request",
+        message: error.message,
+      });
+    }
+    if (isKnownAdminDomainError(error)) {
+      return buildAdminErrorResponse(mapKnownAdminDomainError(error)!);
+    }
     if (error instanceof Error && error.message === "User not found") {
       return buildNotFoundResponse("user", "User not found");
     }

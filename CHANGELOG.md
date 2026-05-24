@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.40 - 2026-05-24
+
+- Hardened admin request body caps and typed admin route errors.
+- Added viewer entitlement evidence and AI debug budget guard validation.
+- Refreshed beta, self-healing, speed/security, and hardening artifacts.
+
 ## 1.4.39 - 2026-05-24
 
 - Added a bounded JSON body cap to the admin balance route.

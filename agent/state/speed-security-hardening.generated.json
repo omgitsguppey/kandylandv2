@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T18:16:20.554Z",
+  "generatedAt": "2026-05-24T18:38:26.973Z",
   "overallScore": 51,
   "overallStatus": "beta-risk",
   "domainScores": {
@@ -15,9 +15,9 @@
       "weight": 25,
       "score": 0,
       "status": "beta-risk",
-      "findingCount": 73,
+      "findingCount": 70,
       "criticalCount": 0,
-      "majorCount": 73
+      "majorCount": 70
     },
     "firebaseRulesAppCheckReadiness": {
       "weight": 20,
@@ -1954,7 +1954,7 @@
       "idempotencyRequired": 12,
       "idempotencyEvidence": 24,
       "bodyLimitRequired": 123,
-      "bodyLimitEvidence": 37
+      "bodyLimitEvidence": 38
     },
     "routes": [
       {
@@ -2527,7 +2527,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5771,57 +5771,6 @@
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 444,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_8qaltt"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 23,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_l2ek6p"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-agreements/route.ts",
-      "line": 30,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_rmebe4"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
       "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
       "line": 17,
       "title": "Route may collapse expected domain failures into generic 500s",
@@ -7221,57 +7170,6 @@
   ],
   "criticalFindings": [],
   "findings": [
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 444,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_8qaltt"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 23,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_l2ek6p"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-agreements/route.ts",
-      "line": 30,
-      "title": "Route may collapse expected domain failures into generic 500s",
-      "evidence": [
-        "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
-      ],
-      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
-      "actualPattern": "handleApiError/generic throw without expected code coverage",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
-      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_rmebe4"
-    },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
@@ -8749,5 +8647,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 89 findings across 130 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 86 findings across 130 API routes."
 }

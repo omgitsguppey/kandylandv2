@@ -221,7 +221,19 @@ function seedReadyCreatorOnboarding(userId: string) {
 function request(body: Record<string, unknown>) {
   return new NextRequest("http://localhost/api/admin/creator-account-controls", {
     method: "POST",
+    headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
+  });
+}
+
+function rawRequest(body: string, headers: Record<string, string> = {}) {
+  return new NextRequest("http://localhost/api/admin/creator-account-controls", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      ...headers,
+    },
+    body,
   });
 }
 
@@ -282,6 +294,36 @@ describe("POST /api/admin/creator-account-controls", () => {
 
     expect(response.status).toBe(403);
     expect(payload.error).toBe("Forbidden");
+  });
+
+  it("returns invalid_admin_request for malformed JSON instead of generic 500", async () => {
+    const response = await POST(rawRequest("{"));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "invalid_admin_request",
+    });
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
+  it("rejects oversized account-control bodies before command parsing", async () => {
+    const body = JSON.stringify({
+      action: "update_profile",
+      targetUserId: "creator_profile",
+      displayName: "Updated Creator",
+    });
+
+    const response = await POST(rawRequest(body, { "content-length": "20000" }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "payload_too_large",
+    });
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
   });
 
   it("updates email only through the guarded server route", async () => {
@@ -366,7 +408,10 @@ describe("POST /api/admin/creator-account-controls", () => {
     const blockedPayload = await blockedResponse.json();
 
     expect(blockedResponse.status).toBe(403);
-    expect(blockedPayload.error).toBe("Only the owner admin can grant admin access.");
+    expect(blockedPayload).toMatchObject({
+      code: "forbidden",
+      error: "Only the owner admin can grant admin access.",
+    });
   });
 
   it("audits account status changes", async () => {

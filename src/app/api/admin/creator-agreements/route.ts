@@ -28,6 +28,13 @@ import {
 } from "@/lib/server/creator-agreement-documents";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
+import {
+  buildAdminErrorPayload,
+  isKnownAdminDomainError,
+  mapKnownAdminDomainError,
+  type AdminRouteErrorCode,
+} from "@/lib/server/admin-route-errors";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { MEDIA_PROXY } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -40,6 +47,8 @@ import {
 } from "@/lib/identity/actor-markers";
 
 const MAX_AGREEMENT_UPLOAD_BYTES = 12 * 1024 * 1024;
+const CREATOR_AGREEMENT_JSON_BODY_LIMIT_BYTES = 16_384;
+const CREATOR_AGREEMENT_FORM_BODY_LIMIT_BYTES = MAX_AGREEMENT_UPLOAD_BYTES + 16_384;
 const AGREEMENT_DOCUMENT_PREFIX = "creator-agreements/";
 const AGREEMENT_DOCUMENT_SIGNED_URL_TTL_MS = 5 * 60 * 1000;
 const CREATOR_AGREEMENT_MEDIA_POLICY = "MEDIA_PROXY";
@@ -51,6 +60,8 @@ const CREATOR_AGREEMENT_ROUTE_EVIDENCE = {
   mediaProxyPolicy: CREATOR_AGREEMENT_MEDIA_POLICY,
   rawStorageUrlExposed: false,
   defaultDocumentResponse: "metadata_only",
+  requestBodyCapBytes: CREATOR_AGREEMENT_FORM_BODY_LIMIT_BYTES,
+  jsonBodyCapBytes: CREATOR_AGREEMENT_JSON_BODY_LIMIT_BYTES,
   maxPreviewTtlSeconds: AGREEMENT_DOCUMENT_SIGNED_URL_TTL_MS / 1000,
 } as const;
 const AGREEMENT_UPLOAD_MIME_TYPES = new Set([
@@ -118,8 +129,11 @@ function readRequestIp(request: NextRequest) {
   return request.headers.get("x-real-ip")?.trim() || undefined;
 }
 
-function buildJsonResponse(status: number, error: string) {
-  return NextResponse.json({ ...CREATOR_AGREEMENT_ROUTE_EVIDENCE, error }, { status });
+function buildJsonResponse(status: number, error: string, code: AdminRouteErrorCode = "invalid_admin_request") {
+  return NextResponse.json({
+    ...CREATOR_AGREEMENT_ROUTE_EVIDENCE,
+    ...buildAdminErrorPayload({ status, code, message: error }),
+  }, { status });
 }
 
 function isSafeAgreementDocumentPath(storagePath: string) {
@@ -263,6 +277,11 @@ async function readBody(request: NextRequest, actorUid: string, nowMs: number) {
   const contentType = request.headers.get("content-type") || "";
 
   if (contentType.includes("multipart/form-data")) {
+    const contentLength = Number(request.headers.get("content-length") || 0);
+    if (Number.isFinite(contentLength) && contentLength > CREATOR_AGREEMENT_FORM_BODY_LIMIT_BYTES) {
+      throw new Error("Agreement upload body is too large.");
+    }
+
     const form = await request.formData();
     const action = readOptionalString(form.get("action"));
     const file = form.get("agreementFile");
@@ -296,7 +315,12 @@ async function readBody(request: NextRequest, actorUid: string, nowMs: number) {
     };
   }
 
-  const json = await request.json().catch(() => ({})) as Record<string, unknown>;
+  const json = await readBoundedJsonBody<Record<string, unknown>>(request, {
+    maxBytes: CREATOR_AGREEMENT_JSON_BODY_LIMIT_BYTES,
+    routeName: "admin/creator-agreements",
+    allowEmpty: false,
+    allowedContentTypes: ["application/json"],
+  });
   const action = readString(json.action);
   const templateInput = json.template && typeof json.template === "object" && !Array.isArray(json.template)
     ? json.template as Record<string, unknown>
@@ -333,7 +357,7 @@ async function GET_handler(request: NextRequest) {
 
     if (shouldDownload) {
       if (!adminDb || !adminStorage) {
-        return buildJsonResponse(500, "Agreement document storage is unavailable.");
+        return buildJsonResponse(503, "Agreement document storage is unavailable.", "storage_unavailable");
       }
 
       const template = templateId
@@ -344,10 +368,10 @@ async function GET_handler(request: NextRequest) {
       const storagePath = template?.pdfStoragePath || template?.fullTextStoragePath;
 
       if (!template || !storagePath) {
-        return buildJsonResponse(404, "No uploaded agreement source is available for this template.");
+        return buildJsonResponse(404, "No uploaded agreement source is available for this template.", "template_not_found");
       }
       if (!isSafeAgreementDocumentPath(storagePath)) {
-        return buildJsonResponse(400, "Invalid agreement document reference.");
+        return buildJsonResponse(400, "Invalid agreement document reference.", "invalid_storage_path");
       }
 
       const [url] = await adminStorage.bucket().file(storagePath).getSignedUrl({
@@ -355,7 +379,7 @@ async function GET_handler(request: NextRequest) {
         expires: Date.now() + AGREEMENT_DOCUMENT_SIGNED_URL_TTL_MS,
       });
       if (!isSafeAgreementSignedUrl(url)) {
-        return buildJsonResponse(400, "Invalid agreement preview URL.");
+        return buildJsonResponse(400, "Invalid agreement preview URL.", "invalid_signed_url");
       }
 
       return NextResponse.redirect(url);
@@ -385,7 +409,7 @@ async function POST_handler(request: NextRequest) {
     });
 
     if (!caller?.uid) {
-      return buildJsonResponse(401, "Unauthorized");
+      return buildJsonResponse(401, "Unauthorized", "unauthorized");
     }
 
     const nowMs = Date.now();
@@ -394,7 +418,7 @@ async function POST_handler(request: NextRequest) {
 
     if (body.action === "create_template") {
       if (!body.template) {
-        return buildJsonResponse(400, "Agreement template details are required.");
+        return buildJsonResponse(400, "Agreement template details are required.", "invalid_admin_request");
       }
 
       const saved = await saveCreatorAgreementTemplate(body.template);
@@ -429,11 +453,11 @@ async function POST_handler(request: NextRequest) {
 
     if (body.action === "activate_template") {
       if (!isOwnerActor) {
-        return buildJsonResponse(403, "Only the primary owner can activate the agreement for new creators.");
+        return buildJsonResponse(403, "Only the primary owner can activate the agreement for new creators.", "forbidden");
       }
 
       if (!body.template) {
-        return buildJsonResponse(400, "Agreement template details are required.");
+        return buildJsonResponse(400, "Agreement template details are required.", "invalid_admin_request");
       }
 
       const activated = await activateCreatorAgreementTemplate({
@@ -471,7 +495,7 @@ async function POST_handler(request: NextRequest) {
 
     if (body.action === "send_agreement" || body.action === "send_updated_agreement") {
       if (!body.targetUserId) {
-        return buildJsonResponse(400, "Select a creator before sending an agreement.");
+        return buildJsonResponse(400, "Select a creator before sending an agreement.", "invalid_admin_request");
       }
 
       const marker = assertKnownActor(buildAdminOnBehalfMarker(
@@ -517,7 +541,7 @@ async function POST_handler(request: NextRequest) {
 
     if (body.action === "countersign_agreement") {
       if (!body.targetUserId) {
-        return buildJsonResponse(400, "Select a creator before countersigning.");
+        return buildJsonResponse(400, "Select a creator before countersigning.", "invalid_admin_request");
       }
 
       const marker = assertKnownActor(buildAdminOnBehalfMarker(
@@ -560,8 +584,22 @@ async function POST_handler(request: NextRequest) {
       });
     }
 
-    return buildJsonResponse(400, "Unknown agreement action.");
+    return buildJsonResponse(400, "Unknown agreement action.", "invalid_admin_request");
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return buildJsonResponse(
+        error.status,
+        error.message,
+        error.code === "payload_too_large" ? "payload_too_large" : "invalid_admin_request",
+      );
+    }
+    if (isKnownAdminDomainError(error)) {
+      const mapped = mapKnownAdminDomainError(error)!;
+      return NextResponse.json({
+        ...CREATOR_AGREEMENT_ROUTE_EVIDENCE,
+        ...buildAdminErrorPayload(mapped),
+      }, { status: mapped.status });
+    }
     return handleApiError(error, "Admin.CreatorAgreements.POST");
   }
 }

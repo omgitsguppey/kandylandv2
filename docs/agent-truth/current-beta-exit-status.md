@@ -1,12 +1,12 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-24T18:17:02.053Z
+Generated: 2026-05-24T18:39:40.089Z
 
-Latest code version: aa6815f74070c955ed53585f76a36c4d52065cd0
+Latest code version: e0b2faccf8604728ef1ba7efbcac53c3722049ad
 
 ## Summary
 
-- Beta version: 1.4.38
+- Beta version: 1.4.39
 - Beta score: 79
 - Beta status: Stale evidence
 - Visual evidence: source_only_screenshotEvidenceAttached_false
@@ -20,7 +20,7 @@ Latest code version: aa6815f74070c955ed53585f76a36c4d52065cd0
 - Gemini/Cloud Assist cost readiness: cost_review_required
 - Route 4xx readiness: source_inventory_complete
 - Error handling source readiness: error_handling_source_complete
-- Speed/security: 51/beta-risk; findings=89; critical=0; p2BacklogVisible=true
+- Speed/security: 51/beta-risk; findings=86; critical=0; p2BacklogVisible=true
 - Release notes: same_commit_release_note_artifacts_required
 
 ## Start Gates
