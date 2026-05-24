@@ -6,6 +6,7 @@ import {
   summarizeActionableActivitySignals,
 } from "@/lib/debug/actionable-signal-filter";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
+import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -21,6 +22,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "legacy_recovery",
   "wallet_funnel",
   "chat_gating_moderation",
+  "chat_telemetry_admin_truth",
   "runtime_debug_evidence",
   "cost_4xx",
   "open_p1_p2_backlog",
@@ -87,6 +89,7 @@ const TRACKING_GROUPS = [
   "legacy_recovery",
   "wallet_funnel",
   "chat_gating_moderation",
+  "chat_telemetry_admin_truth",
   "runtime_debug",
   "cost",
   "backlog",
@@ -198,6 +201,15 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
   const chatGating = input.chatGatingModeration?.debugLane ?? buildChatGatingDebugLane();
   const chatGatingBlocked = toNumber(chatGating.blockedAttempts);
+  const chatTelemetry = input.chatTelemetryAdminTruth?.summaryLane ?? buildChatAdminTelemetrySummaryLane();
+  const chatTelemetryMetrics = chatTelemetry.metrics ?? {};
+  const chatTelemetryWarnings = chatTelemetry.rawMessageContentDefault === false
+    && chatTelemetry.transcriptTruth === "guarded_drilldown"
+    && chatTelemetry.blockedFailedVisible === true
+    && chatTelemetry.userLevelMetricsVisible === true
+    && chatTelemetry.creatorLevelMetricsVisible === true
+    ? 0
+    : 1;
   const routeFailures = toNumber(input.routeRuntimeHealthSummary?.fail);
   const routeWarnings = toNumber(input.routeRuntimeHealthSummary?.warn) + toNumber(input.routeRuntimeHealthSummary?.stale);
   const runtimeFailures = toNumber(input.runtimeWarningSummary?.failed);
@@ -391,6 +403,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: chatGating.uiOnlyGate ? 1 : 0,
       drilldownTarget: "/admin/debug?tab=advanced#chat-gating-moderation",
+    }),
+    makeLane({
+      id: "chat_telemetry_admin_truth",
+      label: "Chat telemetry/admin truth",
+      trackingSystem: "chat_telemetry_admin_truth",
+      sourceOwner: "chat",
+      sourceOfTruth: "src/lib/chat/chat-telemetry-contract.ts",
+      status: chatTelemetryWarnings > 0 ? "degraded" : "live",
+      severity: severityFromCounts(0, chatTelemetryWarnings, chatTelemetryWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: "high",
+      primarySignal: `Active users=${toNumber(chatTelemetryMetrics.activeChatUsers)}; attempts=${toNumber(chatTelemetryMetrics.sendAttempts)}; sent=${toNumber(chatTelemetryMetrics.successfulSends)}; blocked=${toNumber(chatTelemetryMetrics.blockedSends)}; failed=${toNumber(chatTelemetryMetrics.failedSends)}; paid-GD gates=${toNumber(chatTelemetryMetrics.paidGdGateViews)}; purchase CTA=${toNumber(chatTelemetryMetrics.purchaseCtaClicks)}; attachments=${toNumber(chatTelemetryMetrics.attachmentAttempts)}; moderation=${toNumber(chatTelemetryMetrics.moderationBlocks)}; transcript=${chatTelemetry.transcriptTruth}; rawDefault=${String(chatTelemetry.rawMessageContentDefault)}; userLevelMetricsVisible=${String(chatTelemetry.userLevelMetricsVisible)}; creatorLevelMetricsVisible=${String(chatTelemetry.creatorLevelMetricsVisible)}.`,
+      criticalCount: 0,
+      warningCount: chatTelemetryWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#chat-telemetry-admin-truth",
     }),
     makeLane({
       id: "runtime_debug_evidence",

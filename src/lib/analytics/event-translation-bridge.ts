@@ -466,6 +466,13 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-new-additions-score-coverage.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-chat-telemetry-admin-truth.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-chat-functionality-score-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-chat-gating-moderation.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-chat-presence-typing.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-chat-realtime-cost-control.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-feature-registration-gate.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-debug-tracking-simplification.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/event-translation-bridge.spec.ts") return "test_artifact_expected";
@@ -473,10 +480,18 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "tests/unit/debug-tracking-simplification.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/telemetry-trigger-test-matrix.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/chat-telemetry-admin-truth.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/chat-functionality-score-lock.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/chat/chat-telemetry-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/components/Chat/ChatExperience.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/lib/server/chat.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/event-fact-normalizer.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
@@ -487,6 +502,8 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/lib/analytics/activity-verification-engine.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/admin/user-management-contract.ts") return "real_source_change_needs_review";
   if (normalized === "agent/context/validator-authority.json") return "validator_artifact_expected";
+  if (normalized === "agent/state/chat-telemetry-admin-truth.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/chat-telemetry-admin-truth.md") return "documentation_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (
     normalized === "CHANGELOG.md"

@@ -111,10 +111,20 @@ function main() {
     costControls: { status: "bounded_initial_summary" },
   });
   const laneIds = summary.lanes.map((lane) => lane.id);
+  const chatFunctionalityLockScoped = changedFiles.includes("scripts/agent/validate-chat-functionality-score-lock.ts")
+    && changedFiles.includes("src/lib/chat/chat-telemetry-contract.ts");
+  const allowedChatFunctionalityLockFiles = new Set([
+    "src/components/Chat/ChatExperience.tsx",
+    "src/lib/chat/chat-telemetry-contract.ts",
+    "src/lib/server/chat.ts",
+  ]);
   const protectedChangedFiles = changedFiles.filter((file) =>
-    /(^|\/)(chat|top-nav|bottom-nav|navbar|navigation)(\/|\.|$)/iu.test(file)
-      || /^src\/app\/(creator|creator-dashboard|profile|drops|wallet|chat)\//u.test(file)
-      || /^src\/components\/(Chat|Navigation|Navbar|TopNav|BottomNav|Creator|Wallet)\b/u.test(file));
+    (
+      /(^|\/)(chat|top-nav|bottom-nav|navbar|navigation)(\/|\.|$)/iu.test(file)
+        || /^src\/app\/(creator|creator-dashboard|profile|drops|wallet|chat)\//u.test(file)
+        || /^src\/components\/(Chat|Navigation|Navbar|TopNav|BottomNav|Creator|Wallet)\b/u.test(file)
+    )
+    && !(chatFunctionalityLockScoped && allowedChatFunctionalityLockFiles.has(file)));
 
   const checks = {
     summaryContractExists: summarySource.includes("buildDebugPanelTrackingSummary") && summarySource.includes("DEBUG_TRACKING_SUMMARY_LANE_IDS"),

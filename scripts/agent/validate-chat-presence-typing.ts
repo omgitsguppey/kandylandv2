@@ -22,6 +22,7 @@ export const CHAT_PRESENCE_SCORE_DIMENSIONS = [
 
 type DirtyClassification =
   | "current_generated_artifact_to_commit"
+  | "stale_generated_artifact_to_regenerate"
   | "unrelated_agent_context_file_to_ignore"
   | "release_artifact_expected"
   | "real_source_change_needs_review"
@@ -88,15 +89,49 @@ function readNumber(value: unknown, fallback = 0) {
 export function classifyChatPresenceTypingDirtyFile(path: string): DirtyClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
-  if (normalized === STATE_PATH || normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
+  if (
+    normalized === STATE_PATH
+    || normalized === "agent/state/public-beta-score.generated.json"
+    || normalized === "agent/state/chat-functionality-score-lock.generated.json"
+    || normalized === "agent/state/chat-telemetry-admin-truth.generated.json"
+  ) return "current_generated_artifact_to_commit";
+  if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
+  if (
+    normalized === "docs/agent-truth/chat-functionality-score-lock.md"
+    || normalized === "docs/agent-truth/chat-telemetry-admin-truth.md"
+  ) return "documentation_artifact_expected";
+  if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
   if (normalized === "scripts/agent/validate-chat-presence-typing.ts") return "validator_artifact_expected";
+  if (
+    normalized === "scripts/agent/validate-chat-functionality-score-lock.ts"
+    || normalized === "scripts/agent/validate-chat-gating-moderation.ts"
+    || normalized === "scripts/agent/validate-chat-realtime-cost-control.ts"
+    || normalized === "scripts/agent/validate-chat-telemetry-admin-truth.ts"
+    || normalized === "scripts/agent/validate-event-translation-bridge.ts"
+    || normalized === "scripts/agent/validate-feature-registration-gate.ts"
+    || normalized === "scripts/agent/validate-debug-tracking-simplification.ts"
+  ) return "validator_artifact_expected";
   if (normalized === "tests/unit/chat-presence-typing.spec.ts") return "test_artifact_expected";
+  if (
+    normalized === "tests/unit/chat-functionality-score-lock.spec.ts"
+    || normalized === "tests/unit/chat-telemetry-admin-truth.spec.ts"
+    || normalized === "tests/unit/user-management-refactor.spec.ts"
+  ) return "test_artifact_expected";
   if (
     normalized === "src/lib/chat/chat-presence-contract.ts"
     || normalized === "src/lib/chat/chat-typing-controller.ts"
+    || normalized === "src/lib/chat/chat-telemetry-contract.ts"
     || normalized === "src/components/Chat/ChatExperience.tsx"
     || normalized === "src/lib/telemetry-catalog.ts"
+    || normalized === "src/app/api/admin/debug/route.ts"
+    || normalized === "src/lib/server/admin-debug/summary.ts"
+    || normalized === "src/lib/server/chat.ts"
+    || normalized === "src/lib/analytics/event-translation-bridge.ts"
+    || normalized === "src/lib/analytics/person-metrics-contract.ts"
+    || normalized === "src/lib/analytics/person-metrics-hydration.ts"
+    || normalized === "src/lib/behavioral/normalize-event-fact.ts"
+    || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"
   ) return "real_source_change_needs_review";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (

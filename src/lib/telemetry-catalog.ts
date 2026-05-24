@@ -395,8 +395,11 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_experience_insufficient_balance", label: "Creator experience blocked by balance", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_experience_request_category_selected", label: "Creator request category selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_experience_booking_type_selected", label: "Creator booking type selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
-  { eventName: "chat_thread_opened", label: "Chat thread opened", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
-  { eventName: "chat_compose_sheet_opened", label: "Chat compose sheet opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_surface_viewed", label: "Chat surface viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "chat_thread_list_loaded", label: "Chat thread list loaded", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_thread_opened", label: "Chat thread opened", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["creator_private_chat_opened"] },
+  { eventName: "chat_compose_sheet_opened", label: "Chat compose sheet opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"], aliases: ["chat_new_message_sheet_opened"] },
+  { eventName: "chat_creator_selected", label: "Chat creator selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "creator"], aliases: ["chat_new_message_sheet_creator_selected"] },
   { eventName: "chat_new_message_sheet_opened", label: "Chat new message sheet opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_new_message_sheet_creator_selected", label: "Chat new message sheet creator selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_list_search_focused", label: "Chat list search focused", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
@@ -425,8 +428,14 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "chat_message_listener_observed", label: "Chat message listener observed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_message_reconciled", label: "Chat message reconciled", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_message_reconcile_failed", label: "Chat message reconcile failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_message_failed", label: "Chat message failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"], aliases: ["chat_message_send_failed", "chat_message_reconcile_failed"] },
+  { eventName: "chat_message_blocked", label: "Chat message blocked", category: "security", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["engagement", "security"], aliases: ["chat_send_blocked", "chat_moderation_blocked"] },
   { eventName: "chat_message_send_failed", label: "Chat message send failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_message_sent", label: "Chat message sent", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_attachment_upload_started", label: "Chat attachment upload started", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
+  { eventName: "chat_attachment_upload_failed", label: "Chat attachment upload failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"], aliases: ["chat_media_upload_blocked", "chat_media_file_rejected_size"] },
+  { eventName: "chat_unread_updated", label: "Chat unread updated", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"], aliases: ["chat_thread_unread_updated"] },
+  { eventName: "chat_read_marked", label: "Chat read marked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"], aliases: ["chat_thread_read_marked"] },
   { eventName: "chat_thread_unread_updated", label: "Chat thread unread updated", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_thread_read_marked", label: "Chat thread read marked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
   { eventName: "chat_typing_started", label: "Chat typing started", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "runtime"] },
@@ -1065,9 +1074,12 @@ function isAuthEvent(eventName: string) {
 function isChatEvent(eventName: string) {
   return eventName === "creator_message_sent"
     || eventName === "creator_media_sent"
+    || eventName === "chat_surface_viewed"
+    || eventName === "chat_thread_list_loaded"
     || eventName === "chat_no_followed_creators_prompt_viewed"
     || eventName === "chat_no_followed_creators_cta_clicked"
     || eventName === "chat_thread_auto_created_or_resolved"
+    || eventName === "chat_creator_selected"
     || eventName === "chat_paid_gd_gate_viewed"
     || eventName === "chat_paid_gd_gate_primary_clicked"
     || eventName === "chat_paid_gd_gate_secondary_clicked"
@@ -1090,8 +1102,14 @@ function isChatEvent(eventName: string) {
     || eventName === "chat_message_listener_observed"
     || eventName === "chat_message_reconciled"
     || eventName === "chat_message_reconcile_failed"
+    || eventName === "chat_message_failed"
+    || eventName === "chat_message_blocked"
     || eventName === "chat_message_send_failed"
     || eventName === "chat_message_sent"
+    || eventName === "chat_attachment_upload_started"
+    || eventName === "chat_attachment_upload_failed"
+    || eventName === "chat_unread_updated"
+    || eventName === "chat_read_marked"
     || eventName === "chat_thread_unread_updated"
     || eventName === "chat_thread_read_marked"
     || eventName === "chat_typing_started"

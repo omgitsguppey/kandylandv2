@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.5 - 2026-05-23
+- Chat functionality readiness lock
+- Locked chat realtime, typing, gating, moderation, and telemetry readiness.
+- Connected chat usage and errors to admin truth and person metrics.
+- Kept chat design, GumDrop math, and payment runtime unchanged.
+
 ## 1.4.4 - 2026-05-23
 - Chat gating and moderation reliability
 - Verified chat paid-GD gating and moderation enforcement.

@@ -1,7 +1,7 @@
 {
   "reportKey": "chat-presence-typing",
-  "generatedAtUtc": "2026-05-23T22:03:11.920Z",
-  "currentHead": "9a7b8270db20d358dae7876e061a22c823c2421d",
+  "generatedAtUtc": "2026-05-24T02:07:23.739Z",
+  "currentHead": "7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482",
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
   "deployRequired": false,
@@ -143,16 +143,16 @@
       "nextExactAction": "No score action needed for this dimension."
     },
     "runtimeHealth": {
-      "before": 67.25,
-      "after": 67.25,
+      "before": 66.75,
+      "after": 66.75,
       "target": 80,
       "status": "below_target",
       "reason": "Chat typing and presence are bounded, ephemeral, self-cleaning, and debug-visible; below-target movement still depends on formal runtime/evidence/cost gates.",
       "nextExactAction": "Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure."
     },
     "evidenceCompleteness": {
-      "before": 38.75,
-      "after": 38.75,
+      "before": 38.25,
+      "after": 38.25,
       "target": 80,
       "status": "below_target",
       "reason": "Chat typing and presence are bounded, ephemeral, self-cleaning, and debug-visible; below-target movement still depends on formal runtime/evidence/cost gates.",
@@ -189,16 +189,96 @@
       "classification": "release_artifact_expected"
     },
     {
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/chat-presence-typing.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/chat-presence-typing.md",
       "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-realtime-cost-control.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "package.json",
@@ -209,19 +289,67 @@
       "classification": "release_artifact_expected"
     },
     {
+      "path": "scripts/agent/validate-chat-functionality-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-gating-moderation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
       "path": "scripts/agent/validate-chat-presence-typing.ts",
       "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-realtime-cost-control.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-telemetry-admin-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-tracking-simplification.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-feature-registration-gate.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/components/Chat/ChatExperience.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/chat/chat-presence-contract.ts",
+      "path": "src/lib/analytics/event-translation-bridge.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/chat/chat-typing-controller.ts",
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/chat/chat-telemetry-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -233,11 +361,27 @@
       "classification": "release_artifact_expected"
     },
     {
+      "path": "src/lib/server/admin-debug/summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/server/chat.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
       "path": "src/lib/telemetry-catalog.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/chat-presence-typing.spec.ts",
+      "path": "tests/unit/chat-functionality-score-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/chat-telemetry-admin-truth.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/user-management-refactor.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

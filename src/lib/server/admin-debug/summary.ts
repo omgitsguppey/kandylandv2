@@ -12,6 +12,7 @@ import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metric
 import { buildTelemetryTriggerTestMatrixReport } from "@/lib/testing/telemetry-trigger-test-matrix";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
+import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildUserManagementRefactorReport } from "@/lib/admin/user-management-contract";
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
 import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
@@ -176,6 +177,9 @@ export async function buildAdminDebugSummaryPayload(input: {
   const chatGatingModeration = {
     debugLane: buildChatGatingDebugLane(),
   };
+  const chatTelemetryAdminTruth = {
+    summaryLane: buildChatAdminTelemetrySummaryLane(),
+  };
   const trackingSummary = buildDebugPanelTrackingSummary({
     identityHandoff,
     eventEnvelope,
@@ -184,6 +188,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     userManagementRefactor,
     telemetryTriggerTestMatrix,
     chatGatingModeration,
+    chatTelemetryAdminTruth,
     legacyRecovery,
     telemetryHealth,
     behavioralSnapshotStatus,
@@ -216,6 +221,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     userManagementRefactor,
     telemetryTriggerTestMatrix,
     chatGatingModeration,
+    chatTelemetryAdminTruth,
     legacyRecovery,
     trackingSummary,
     costControls,

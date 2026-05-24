@@ -390,7 +390,9 @@ function deferChatMessageSendAttemptedTelemetry(input: ChatTelemetryPayloadInput
 
 function deferChatMessageSendFailedTelemetry(input: ChatTelemetryPayloadInput) {
     scheduleChatPostPaintTask(() => {
-        trackEvent("chat_message_send_failed", buildChatTelemetryPayload(input));
+        const payload = buildChatTelemetryPayload(input);
+        trackEvent("chat_message_send_failed", payload);
+        trackEvent("chat_message_failed", payload);
     });
 }
 
@@ -811,6 +813,7 @@ export function ChatExperience() {
     const emptyStateViewedKeyRef = useRef<string | null>(null);
     const paidGdGateViewedKeyRef = useRef<string | null>(null);
     const autoResolvedThreadKeyRef = useRef<string | null>(null);
+    const chatSurfaceViewedKeyRef = useRef<string | null>(null);
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -879,6 +882,22 @@ export function ChatExperience() {
     const [isIosPwaChatShell, setIsIosPwaChatShell] = useState(false);
     const canComposeFromFollowedCreators = followedCreators.length > 0;
     const selectedThreadCreatorFirstName = selectedThread ? readCreatorFirstName(selectedThread.counterpartDisplayName) : "this creator";
+
+    useEffect(() => {
+        const key = user?.uid ?? "guest";
+        if (chatSurfaceViewedKeyRef.current === key) {
+            return;
+        }
+        chatSurfaceViewedKeyRef.current = key;
+        trackEvent("chat_surface_viewed", {
+            source_component: "chat_surface",
+            route: "/dashboard/chat",
+            display_mode: readChatDisplayMode(),
+            platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+            user_id: user?.uid ?? undefined,
+            ...readChatViewportSize(),
+        });
+    }, [isIosPwaChatShell, user?.uid]);
     const proactivePaidGdGate = useMemo(() => buildChatPaidGdGateState({
         viewerRole: selectedThread?.viewerRole ?? "user",
         pricing: selectedDetail?.pricing,
@@ -1402,6 +1421,17 @@ export function ChatExperience() {
 
             const nextThreads = Array.isArray(body.threads) ? body.threads : [];
             setThreads(nextThreads);
+            trackEvent("chat_thread_list_loaded", {
+                source_component: "chat_thread_list_loader",
+                route: "/dashboard/chat",
+                display_mode: readChatDisplayMode(),
+                platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+                user_id: user.uid,
+                creator_id: creatorId || undefined,
+                selected_thread_id: body.selectedThreadId ?? null,
+                thread_count: nextThreads.length,
+                background_load: background,
+            });
             if (creatorId && body.selectedThreadId) {
                 const resolvedThread = nextThreads.find((thread) => thread.id === body.selectedThreadId) ?? null;
                 const autoResolvedKey = `${creatorId}:${body.selectedThreadId}`;
@@ -1448,7 +1478,7 @@ export function ChatExperience() {
                 setThreadsLoading(false);
             }
         }
-    }, [creatorId, isCompactViewport, user]);
+    }, [creatorId, isCompactViewport, isIosPwaChatShell, user]);
 
     const loadFollowedCreators = useCallback(async () => {
         if (!user) {
@@ -1996,11 +2026,19 @@ export function ChatExperience() {
             platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
             creator_id: nextCreatorId,
         });
+        trackEvent("chat_creator_selected", {
+            source_component: "chat_new_message_sheet",
+            route: "/dashboard/chat",
+            platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+            user_id: user?.uid ?? undefined,
+            creator_id: nextCreatorId,
+            target_creator_id: nextCreatorId,
+        });
         setComposePickerOpen(false);
         setSelectedThreadId(null);
         setSelectedDetail(null);
         router.replace(`/dashboard/chat?creator=${encodeURIComponent(nextCreatorId)}`, { scroll: false });
-    }, [isIosPwaChatShell, router]);
+    }, [isIosPwaChatShell, router, user?.uid]);
 
     const returnToThreadList = useCallback(() => {
         setSelectedThreadId(null);
@@ -2484,6 +2522,15 @@ export function ChatExperience() {
 
         let preparedStoragePath: string | null = null;
         try {
+            trackEvent("chat_attachment_upload_started", {
+                source_component: "chat_thread_composer",
+                route: "/dashboard/chat",
+                user_id: user.uid,
+                thread_id: selectedThreadId,
+                message_kind: attachmentKind,
+                file_size_bytes: composerFile.size,
+                mime_type: composerFile.type || "application/octet-stream",
+            });
             const prepareResponse = await authFetch("/api/chat/attachments/prepare", {
                 method: "POST",
                 body: JSON.stringify({
@@ -2554,6 +2601,17 @@ export function ChatExperience() {
                 threadId: selectedThreadId,
                 storagePath: preparedStoragePath,
             });
+            trackEvent("chat_attachment_upload_failed", {
+                source_component: "chat_thread_composer",
+                route: "/dashboard/chat",
+                user_id: user.uid,
+                thread_id: selectedThreadId,
+                message_kind: attachmentKind,
+                file_size_bytes: composerFile.size,
+                mime_type: composerFile.type || "application/octet-stream",
+                error_message: error instanceof Error ? error.message.slice(0, 160) : "Attachment upload failed.",
+                debug_lane: "Chat telemetry/admin truth",
+            });
             throw error;
         }
     }, [composerFile, discardUploadedAttachment, selectedThreadId, user]);
@@ -2584,6 +2642,20 @@ export function ChatExperience() {
                 purchased_balance_gd: proactivePaidGdGate?.purchasedBalanceGd ?? 0,
                 paid_gd_shortfall: proactivePaidGdGate?.paidGdShortfall ?? 1,
                 debug_lane: "Chat gating/moderation",
+            });
+            trackEvent("chat_message_blocked", {
+                source_component: "chat_thread_composer",
+                route: "/dashboard/chat",
+                user_id: user?.uid ?? undefined,
+                creator_id: selectedThread.creatorId,
+                target_creator_id: selectedThread.creatorId,
+                thread_id: selectedThread.id,
+                message_kind: composerKind,
+                error_code: "insufficient_paid_gumdrops",
+                required_price_gd: proactivePaidGdGate?.requiredMinPaidGd ?? 1,
+                purchased_balance_gd: proactivePaidGdGate?.purchasedBalanceGd ?? 0,
+                paid_gd_shortfall: proactivePaidGdGate?.paidGdShortfall ?? 1,
+                debug_lane: "Chat telemetry/admin truth",
             });
             return;
         }
@@ -2700,6 +2772,20 @@ export function ChatExperience() {
                         purchased_balance_gd: body.purchasedBalanceGd,
                         paid_gd_shortfall: body.paidGdShortfall,
                         debug_lane: "Chat gating/moderation",
+                    });
+                    trackEvent("chat_message_blocked", {
+                        source_component: "chat_thread_composer",
+                        route: "/dashboard/chat",
+                        user_id: user?.uid ?? undefined,
+                        creator_id: selectedThread.creatorId,
+                        target_creator_id: selectedThread.creatorId,
+                        thread_id: selectedThread.id,
+                        message_kind: currentComposerKind,
+                        error_code: body.errorCode,
+                        required_price_gd: body.requiredPriceGd,
+                        purchased_balance_gd: body.purchasedBalanceGd,
+                        paid_gd_shortfall: body.paidGdShortfall,
+                        debug_lane: "Chat telemetry/admin truth",
                     });
                     setInsufficientFunds(body as ChatInsufficientFundsPayload);
                     return;

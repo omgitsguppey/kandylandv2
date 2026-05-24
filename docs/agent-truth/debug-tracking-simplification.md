@@ -1,8 +1,8 @@
 # Debug Tracking Simplification
 
-Generated: 2026-05-23T19:59:03.407Z
+Generated: 2026-05-24T02:09:57.449Z
 Status: pass
-Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
+Current head: 7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482
 
 ## Contract
 
@@ -33,27 +33,55 @@ Current head: 1eeb1b65ff5a54ae0549e6be3550413c566289db
 ## Changed Files
 
 - CHANGELOG.md
-- agent/context/optimized-task-context.generated.json
-- agent/state/debug-backlog-engine.generated.json
-- agent/state/debug-signal-actionability.generated.json
+- agent/state/chat-functionality-score-lock.generated.json
+- agent/state/chat-gating-moderation.generated.json
+- agent/state/chat-presence-typing.generated.json
+- agent/state/chat-realtime-cost-control.generated.json
+- agent/state/chat-telemetry-admin-truth.generated.json
+- agent/state/current-beta-exit-status.generated.json
 - agent/state/debug-tracking-simplification.generated.json
-- agent/state/future-activity-signal-reclassification.generated.json
-- docs/agent-truth/debug-backlog-engine.md
-- docs/agent-truth/debug-signal-actionability.md
+- agent/state/event-translation-bridge.generated.json
+- agent/state/feature-registration-gate.generated.json
+- agent/state/overnight-beta-readiness-lock.generated.json
+- agent/state/person-metrics-hydration.generated.json
+- agent/state/public-beta-score.generated.json
+- docs/agent-truth/chat-functionality-score-lock.md
+- docs/agent-truth/chat-gating-moderation.md
+- docs/agent-truth/chat-presence-typing.md
+- docs/agent-truth/chat-realtime-cost-control.md
+- docs/agent-truth/chat-telemetry-admin-truth.md
+- docs/agent-truth/current-beta-exit-status.md
 - docs/agent-truth/debug-tracking-simplification.md
-- docs/agent-truth/future-activity-signal-reclassification.md
+- docs/agent-truth/event-translation-bridge.md
+- docs/agent-truth/feature-registration-gate.md
+- docs/agent-truth/overnight-beta-readiness-lock.md
+- docs/agent-truth/person-metrics-hydration.md
 - package.json
 - public/kandydrops-release-notes.json
-- scripts/agent/validate-debug-backlog-engine.ts
-- scripts/agent/validate-debug-signal-actionability.ts
-- scripts/agent/validate-future-activity-signal-reclassification.ts
-- src/lib/debug/debug-backlog-builder.ts
-- src/lib/debug/debug-backlog-contract.ts
-- src/lib/debug/debug-signal-actionability.ts
+- scripts/agent/validate-chat-functionality-score-lock.ts
+- scripts/agent/validate-chat-gating-moderation.ts
+- scripts/agent/validate-chat-presence-typing.ts
+- scripts/agent/validate-chat-realtime-cost-control.ts
+- scripts/agent/validate-chat-telemetry-admin-truth.ts
+- scripts/agent/validate-debug-tracking-simplification.ts
+- scripts/agent/validate-event-translation-bridge.ts
+- scripts/agent/validate-feature-registration-gate.ts
+- src/app/api/admin/debug/route.ts
+- src/components/Chat/ChatExperience.tsx
+- src/lib/analytics/event-translation-bridge.ts
+- src/lib/analytics/person-metrics-contract.ts
+- src/lib/analytics/person-metrics-hydration.ts
+- src/lib/behavioral/normalize-event-fact.ts
+- src/lib/chat/chat-telemetry-contract.ts
+- src/lib/debug/debug-panel-tracking-summary.ts
 - src/lib/release-notes/public-release-notes.ts
 - src/lib/release-notes/release-version-contract.ts
-- tests/unit/debug-backlog-engine.spec.ts
-- tests/unit/debug-signal-actionability.spec.ts
+- src/lib/server/admin-debug/summary.ts
+- src/lib/server/chat.ts
+- src/lib/telemetry-catalog.ts
+- tests/unit/chat-functionality-score-lock.spec.ts
+- tests/unit/chat-telemetry-admin-truth.spec.ts
+- tests/unit/user-management-refactor.spec.ts
 
 ## Validation Failures
 

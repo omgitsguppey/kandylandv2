@@ -1,0 +1,801 @@
+{
+  "reportKey": "chat-telemetry-admin-truth",
+  "generatedAtUtc": "2026-05-24T02:08:25.494Z",
+  "currentHead": "7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482",
+  "productionReadsRequired": false,
+  "liveDataMutationAllowed": false,
+  "deployRequired": false,
+  "transcriptPolicy": {
+    "broadAdminSummaryIncludesMessageContent": false,
+    "transcriptDefaultOpen": false,
+    "transcriptSummarySource": "analytics_event_facts+creator_message_threads",
+    "drilldownRequiresPermissionGuard": true,
+    "sourceRoute": "src/app/api/admin/moderation/threads/[threadId]/route.ts",
+    "sourceHelper": "src/lib/server/admin-moderation.ts",
+    "rawMessageDumpPolicy": "permission_guarded_drilldown_only"
+  },
+  "eventFamilies": [
+    {
+      "eventName": "chat_surface_viewed",
+      "aliases": [],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": false,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_thread_list_loaded",
+      "aliases": [],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": false,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_thread_opened",
+      "aliases": [
+        "creator_private_chat_opened"
+      ],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_compose_sheet_opened",
+      "aliases": [
+        "chat_new_message_sheet_opened"
+      ],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": false,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_creator_selected",
+      "aliases": [
+        "chat_new_message_sheet_creator_selected"
+      ],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_message_send_attempted",
+      "aliases": [],
+      "adminMetric": "sendAttempts",
+      "normalizedAction": "chat_message_sent",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_message_sent",
+      "aliases": [
+        "creator_message_sent",
+        "creator_media_sent"
+      ],
+      "adminMetric": "successfulSends",
+      "normalizedAction": "chat_message_sent",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_message_failed",
+      "aliases": [
+        "chat_message_send_failed",
+        "chat_message_reconcile_failed"
+      ],
+      "adminMetric": "failedSends",
+      "normalizedAction": "chat_message_failed",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_message_blocked",
+      "aliases": [
+        "chat_send_blocked",
+        "chat_moderation_blocked"
+      ],
+      "adminMetric": "blockedSends",
+      "normalizedAction": "chat_message_failed",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/lib/server/chat.ts",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_attachment_upload_started",
+      "aliases": [],
+      "adminMetric": "attachmentAttempts",
+      "normalizedAction": "chat_message_sent",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_attachment_upload_failed",
+      "aliases": [
+        "chat_media_upload_blocked",
+        "chat_media_file_rejected_size"
+      ],
+      "adminMetric": "attachmentAttempts",
+      "normalizedAction": "chat_message_failed",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_presence_connected",
+      "aliases": [],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": false,
+      "sourceRoute": "src/lib/chat/chat-presence-contract.ts",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_typing_started",
+      "aliases": [],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": false,
+      "sourceRoute": "src/lib/chat/chat-typing-controller.ts",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_typing_stopped",
+      "aliases": [],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": false,
+      "sourceRoute": "src/lib/chat/chat-typing-controller.ts",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_read_marked",
+      "aliases": [
+        "chat_thread_read_marked"
+      ],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_unread_updated",
+      "aliases": [
+        "chat_thread_unread_updated"
+      ],
+      "adminMetric": "activeChatUsers",
+      "normalizedAction": "chat_thread_opened",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_paid_gd_gate_viewed",
+      "aliases": [
+        "chat_insufficient_paid_gd_viewed"
+      ],
+      "adminMetric": "paidGdGateViews",
+      "normalizedAction": "chat_message_failed",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    },
+    {
+      "eventName": "chat_purchase_cta_clicked",
+      "aliases": [
+        "chat_paid_gd_gate_primary_clicked"
+      ],
+      "adminMetric": "purchaseCtaClicks",
+      "normalizedAction": "chat_message_sent",
+      "personMetricIds": [
+        "chat_actions"
+      ],
+      "userLevelMetric": true,
+      "creatorLevelMetric": true,
+      "sourceRoute": "src/components/Chat/ChatExperience.tsx",
+      "sourceSurface": "/dashboard/chat",
+      "inTelemetryCatalog": true,
+      "eventEnvelopeMapped": true,
+      "transcriptSourceConnected": true,
+      "adminDebugVisible": true,
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "messageContentAllowedInSummary": false
+    }
+  ],
+  "adminSummaryMetrics": [
+    "activeChatUsers",
+    "sendAttempts",
+    "successfulSends",
+    "blockedSends",
+    "failedSends",
+    "paidGdGateViews",
+    "purchaseCtaClicks",
+    "attachmentAttempts",
+    "moderationBlocks"
+  ],
+  "adminSummaryLane": {
+    "label": "Chat telemetry/admin truth",
+    "sourceOfTruth": "src/lib/chat/chat-telemetry-contract.ts",
+    "eventFactSource": "analytics_event_facts",
+    "threadSource": "creator_message_threads",
+    "transcriptTruth": "guarded_drilldown",
+    "rawMessageContentDefault": false,
+    "transcriptDefaultOpen": false,
+    "permissionGuardRequired": true,
+    "blockedFailedVisible": true,
+    "userLevelMetricsVisible": true,
+    "creatorLevelMetricsVisible": true,
+    "metrics": {
+      "activeChatUsers": 0,
+      "sendAttempts": 0,
+      "successfulSends": 0,
+      "blockedSends": 0,
+      "failedSends": 0,
+      "paidGdGateViews": 0,
+      "purchaseCtaClicks": 0,
+      "attachmentAttempts": 0,
+      "moderationBlocks": 0
+    },
+    "sourceMissing": false,
+    "missingSource": null,
+    "drilldownTarget": "/admin/moderation"
+  },
+  "sourceValidation": {
+    "telemetryCatalogComplete": true,
+    "eventEnvelopePersonMetricMapped": true,
+    "adminSummaryNoRawMessageContent": true,
+    "transcriptTruthGuarded": true,
+    "blockedFailedAttemptsAdminVisible": true,
+    "userLevelChatMetricsVisible": true,
+    "creatorLevelChatMetricsVisible": true,
+    "scoreCoverageMapped": true,
+    "failures": []
+  },
+  "scoreImpactByDimension": {
+    "sourceHealth": {
+      "before": 91.7,
+      "after": 91.7,
+      "target": 80,
+      "status": "target_met",
+      "reason": "Chat events are cataloged, event-fact mapped, person-metric mapped, and admin/debug visible without exposing transcript content by default.",
+      "nextExactAction": "No score action needed for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 66.75,
+      "after": 66.75,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat events are cataloged, event-fact mapped, person-metric mapped, and admin/debug visible without exposing transcript content by default.",
+      "nextExactAction": "Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries."
+    },
+    "evidenceCompleteness": {
+      "before": 38.25,
+      "after": 38.25,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat events are cataloged, event-fact mapped, person-metric mapped, and admin/debug visible without exposing transcript content by default.",
+      "nextExactAction": "Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries."
+    },
+    "freshness": {
+      "before": 62.86,
+      "after": 62.86,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat telemetry admin truth is source-only and does not add production reads or live mutations.",
+      "nextExactAction": "Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat telemetry admin truth is source-only and does not add production reads or live mutations.",
+      "nextExactAction": "Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries."
+    },
+    "regressionRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "reason": "Chat events are cataloged, event-fact mapped, person-metric mapped, and admin/debug visible without exposing transcript content by default.",
+      "nextExactAction": "Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries."
+    }
+  },
+  "oldLogicClassification": [
+    {
+      "reference": "Chat UI-only event aliases",
+      "classification": "superseded",
+      "reason": "Legacy chat_new_message and chat_thread_* aliases remain accepted while canonical chat telemetry families feed admin truth."
+    },
+    {
+      "reference": "Broad admin transcript dumps",
+      "classification": "removed",
+      "reason": "Broad admin summaries expose counts and source states only; transcript content stays behind guarded drilldown."
+    },
+    {
+      "reference": "Chat behavioral event facts",
+      "classification": "still_required",
+      "reason": "Chat events normalize through event facts and hydrate chat_actions person metrics."
+    },
+    {
+      "reference": "Blocked/failed chat attempts",
+      "classification": "still_required",
+      "reason": "Blocked, failed, paid-GD gate, and purchase CTA signals remain visible in admin/debug summaries."
+    }
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-presence-typing.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-presence-typing.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-realtime-cost-control.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-functionality-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-gating-moderation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-presence-typing.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-realtime-cost-control.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-telemetry-admin-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-tracking-simplification.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-feature-registration-gate.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/chat/chat-telemetry-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/server/admin-debug/summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/server/chat.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/chat-functionality-score-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/chat-telemetry-admin-truth.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/user-management-refactor.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

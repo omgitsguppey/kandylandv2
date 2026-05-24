@@ -1,21 +1,21 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-05-23T19:33:27.858Z",
+  "generatedAtUtc": "2026-05-24T02:09:09.772Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeMetricsUsed": false,
   "debugLane": {
     "label": "Person metrics hydration",
-    "producersRegistered": 86,
-    "producersConnected": 24,
-    "eventEnvelopesHydrated": 33,
-    "globalMetricsHydrated": 24,
+    "producersRegistered": 108,
+    "producersConnected": 25,
+    "eventEnvelopesHydrated": 34,
+    "globalMetricsHydrated": 25,
     "guestMetricsHydrated": 0,
-    "signedInMetricsHydrated": 24,
+    "signedInMetricsHydrated": 25,
     "linkedPersonMetricsHydrated": 0,
-    "creatorRoleMetricsHydrated": 4,
-    "personMetricsMapped": 24,
+    "creatorRoleMetricsHydrated": 3,
+    "personMetricsMapped": 25,
     "lowConfidenceMetrics": 0,
     "gaps": 0
   },
@@ -77,7 +77,7 @@
         "person_metrics_validator:semantic_page_viewed:2",
         "person_metrics_validator:semantic_page_viewed:3",
         "person_metrics_validator:semantic_page_viewed:4",
-        "person_metrics_validator:watch_session_started:21"
+        "person_metrics_validator:watch_session_started:22"
       ],
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
@@ -398,6 +398,45 @@
       "missingProducer": null,
       "missingBridge": null
     },
+    "chat_actions": {
+      "metricId": "chat_actions",
+      "count": 1,
+      "confidence": "exact",
+      "provenZero": false,
+      "sourceEvents": [
+        "chat_surface_viewed",
+        "chat_thread_list_loaded",
+        "chat_thread_opened",
+        "chat_compose_sheet_opened",
+        "chat_creator_selected",
+        "chat_message_send_attempted",
+        "chat_message_sent",
+        "chat_message_failed",
+        "chat_message_blocked",
+        "chat_attachment_upload_started",
+        "chat_attachment_upload_failed",
+        "chat_presence_connected",
+        "chat_typing_started",
+        "chat_typing_stopped",
+        "chat_read_marked",
+        "chat_unread_updated",
+        "chat_paid_gd_gate_viewed",
+        "chat_purchase_cta_clicked",
+        "creator_message_sent",
+        "creator_media_sent",
+        "chat_send_blocked",
+        "chat_moderation_blocked"
+      ],
+      "hydratedEventIds": [
+        "person_metrics_validator:chat_surface_viewed:20"
+      ],
+      "suppressedDuplicateCount": 0,
+      "missingSourceExplanation": "",
+      "state": "hydrated",
+      "lowConfidenceReason": null,
+      "missingProducer": null,
+      "missingBridge": null
+    },
     "notification_interactions": {
       "metricId": "notification_interactions",
       "count": 1,
@@ -412,7 +451,7 @@
         "notification_prompt_banner_viewed"
       ],
       "hydratedEventIds": [
-        "person_metrics_validator:notification_opened:20"
+        "person_metrics_validator:notification_opened:21"
       ],
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
@@ -433,7 +472,7 @@
         "viewer_watch_checkpoint"
       ],
       "hydratedEventIds": [
-        "person_metrics_validator:watch_session_started:21"
+        "person_metrics_validator:watch_session_started:22"
       ],
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
@@ -464,7 +503,7 @@
         "cookie_consent_updated"
       ],
       "hydratedEventIds": [
-        "person_metrics_validator:user_settings_viewed:22"
+        "person_metrics_validator:user_settings_viewed:23"
       ],
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
@@ -494,7 +533,7 @@
         "account_delete_completed"
       ],
       "hydratedEventIds": [
-        "person_metrics_validator:support_inbox_viewed:23"
+        "person_metrics_validator:support_inbox_viewed:24"
       ],
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
@@ -514,7 +553,7 @@
         "admin_creator_drop_reviewed"
       ],
       "hydratedEventIds": [
-        "person_metrics_validator:creator_drop_submitted:24"
+        "person_metrics_validator:creator_drop_submitted:25"
       ],
       "suppressedDuplicateCount": 0,
       "missingSourceExplanation": "",
@@ -577,7 +616,7 @@
             "person_metrics_validator:semantic_page_viewed:2",
             "person_metrics_validator:semantic_page_viewed:3",
             "person_metrics_validator:semantic_page_viewed:4",
-            "person_metrics_validator:watch_session_started:21"
+            "person_metrics_validator:watch_session_started:22"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
@@ -830,6 +869,41 @@
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
         },
+        "chat_actions": {
+          "metricId": "chat_actions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "chat_surface_viewed",
+            "chat_thread_list_loaded",
+            "chat_thread_opened",
+            "chat_compose_sheet_opened",
+            "chat_creator_selected",
+            "chat_message_send_attempted",
+            "chat_message_sent",
+            "chat_message_failed",
+            "chat_message_blocked",
+            "chat_attachment_upload_started",
+            "chat_attachment_upload_failed",
+            "chat_presence_connected",
+            "chat_typing_started",
+            "chat_typing_stopped",
+            "chat_read_marked",
+            "chat_unread_updated",
+            "chat_paid_gd_gate_viewed",
+            "chat_purchase_cta_clicked",
+            "creator_message_sent",
+            "creator_media_sent",
+            "chat_send_blocked",
+            "chat_moderation_blocked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:chat_surface_viewed:20"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
+        },
         "notification_interactions": {
           "metricId": "notification_interactions",
           "count": 1,
@@ -844,7 +918,7 @@
             "notification_prompt_banner_viewed"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:notification_opened:20"
+            "person_metrics_validator:notification_opened:21"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
@@ -861,7 +935,7 @@
             "viewer_watch_checkpoint"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:watch_session_started:21"
+            "person_metrics_validator:watch_session_started:22"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
@@ -888,7 +962,7 @@
             "cookie_consent_updated"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:user_settings_viewed:22"
+            "person_metrics_validator:user_settings_viewed:23"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
@@ -914,7 +988,7 @@
             "account_delete_completed"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:support_inbox_viewed:23"
+            "person_metrics_validator:support_inbox_viewed:24"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
@@ -930,13 +1004,13 @@
             "admin_creator_drop_reviewed"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:creator_drop_submitted:24"
+            "person_metrics_validator:creator_drop_submitted:25"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
         }
       },
-      "totalCount": 33,
+      "totalCount": 34,
       "lowConfidenceCount": 0
     },
     "guest": {
@@ -1197,6 +1271,39 @@
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
         },
+        "chat_actions": {
+          "metricId": "chat_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "chat_surface_viewed",
+            "chat_thread_list_loaded",
+            "chat_thread_opened",
+            "chat_compose_sheet_opened",
+            "chat_creator_selected",
+            "chat_message_send_attempted",
+            "chat_message_sent",
+            "chat_message_failed",
+            "chat_message_blocked",
+            "chat_attachment_upload_started",
+            "chat_attachment_upload_failed",
+            "chat_presence_connected",
+            "chat_typing_started",
+            "chat_typing_stopped",
+            "chat_read_marked",
+            "chat_unread_updated",
+            "chat_paid_gd_gate_viewed",
+            "chat_purchase_cta_clicked",
+            "creator_message_sent",
+            "creator_media_sent",
+            "chat_send_blocked",
+            "chat_moderation_blocked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
+        },
         "notification_interactions": {
           "metricId": "notification_interactions",
           "count": 0,
@@ -1294,7 +1401,7 @@
         }
       },
       "totalCount": 0,
-      "lowConfidenceCount": 24
+      "lowConfidenceCount": 25
     },
     "signedIn": {
       "scope": "signedIn",
@@ -1348,7 +1455,7 @@
             "person_metrics_validator:semantic_page_viewed:2",
             "person_metrics_validator:semantic_page_viewed:3",
             "person_metrics_validator:semantic_page_viewed:4",
-            "person_metrics_validator:watch_session_started:21"
+            "person_metrics_validator:watch_session_started:22"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
@@ -1601,6 +1708,41 @@
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
         },
+        "chat_actions": {
+          "metricId": "chat_actions",
+          "count": 1,
+          "confidence": "exact",
+          "provenZero": false,
+          "sourceEvents": [
+            "chat_surface_viewed",
+            "chat_thread_list_loaded",
+            "chat_thread_opened",
+            "chat_compose_sheet_opened",
+            "chat_creator_selected",
+            "chat_message_send_attempted",
+            "chat_message_sent",
+            "chat_message_failed",
+            "chat_message_blocked",
+            "chat_attachment_upload_started",
+            "chat_attachment_upload_failed",
+            "chat_presence_connected",
+            "chat_typing_started",
+            "chat_typing_stopped",
+            "chat_read_marked",
+            "chat_unread_updated",
+            "chat_paid_gd_gate_viewed",
+            "chat_purchase_cta_clicked",
+            "creator_message_sent",
+            "creator_media_sent",
+            "chat_send_blocked",
+            "chat_moderation_blocked"
+          ],
+          "hydratedEventIds": [
+            "person_metrics_validator:chat_surface_viewed:20"
+          ],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
+        },
         "notification_interactions": {
           "metricId": "notification_interactions",
           "count": 1,
@@ -1615,7 +1757,7 @@
             "notification_prompt_banner_viewed"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:notification_opened:20"
+            "person_metrics_validator:notification_opened:21"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
@@ -1632,7 +1774,7 @@
             "viewer_watch_checkpoint"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:watch_session_started:21"
+            "person_metrics_validator:watch_session_started:22"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
@@ -1659,7 +1801,7 @@
             "cookie_consent_updated"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:user_settings_viewed:22"
+            "person_metrics_validator:user_settings_viewed:23"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
@@ -1685,7 +1827,7 @@
             "account_delete_completed"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:support_inbox_viewed:23"
+            "person_metrics_validator:support_inbox_viewed:24"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for support_account_actions; expected producer event(s): support_inbox_viewed, support_ticket_created, support_thread_opened, support_reply_viewed, support_reply_sent, data_export_requested, account_delete_clicked, account_delete_confirm_opened, account_delete_confirmed, account_delete_cancelled, account_delete_request_submitted, account_delete_failed, account_delete_completed."
@@ -1701,13 +1843,13 @@
             "admin_creator_drop_reviewed"
           ],
           "hydratedEventIds": [
-            "person_metrics_validator:creator_drop_submitted:24"
+            "person_metrics_validator:creator_drop_submitted:25"
           ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
         }
       },
-      "totalCount": 33,
+      "totalCount": 34,
       "lowConfidenceCount": 0
     },
     "linkedPerson": {
@@ -1968,6 +2110,39 @@
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
         },
+        "chat_actions": {
+          "metricId": "chat_actions",
+          "count": 0,
+          "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "chat_surface_viewed",
+            "chat_thread_list_loaded",
+            "chat_thread_opened",
+            "chat_compose_sheet_opened",
+            "chat_creator_selected",
+            "chat_message_send_attempted",
+            "chat_message_sent",
+            "chat_message_failed",
+            "chat_message_blocked",
+            "chat_attachment_upload_started",
+            "chat_attachment_upload_failed",
+            "chat_presence_connected",
+            "chat_typing_started",
+            "chat_typing_stopped",
+            "chat_read_marked",
+            "chat_unread_updated",
+            "chat_paid_gd_gate_viewed",
+            "chat_purchase_cta_clicked",
+            "creator_message_sent",
+            "creator_media_sent",
+            "chat_send_blocked",
+            "chat_moderation_blocked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
+        },
         "notification_interactions": {
           "metricId": "notification_interactions",
           "count": 0,
@@ -2065,7 +2240,7 @@
         }
       },
       "totalCount": 0,
-      "lowConfidenceCount": 24
+      "lowConfidenceCount": 25
     },
     "creatorRole": {
       "scope": "creatorRole",
@@ -2100,17 +2275,15 @@
         },
         "active_days": {
           "metricId": "active_days",
-          "count": 1,
-          "confidence": "exact",
+          "count": 0,
+          "confidence": "unknown",
           "provenZero": false,
           "sourceEvents": [
             "semantic_page_viewed",
             "session_started",
             "watch_session_started"
           ],
-          "hydratedEventIds": [
-            "person_metrics_validator:watch_session_started:21"
-          ],
+          "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
         },
@@ -2331,10 +2504,43 @@
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
         },
-        "notification_interactions": {
-          "metricId": "notification_interactions",
+        "chat_actions": {
+          "metricId": "chat_actions",
           "count": 0,
           "confidence": "unknown",
+          "provenZero": false,
+          "sourceEvents": [
+            "chat_surface_viewed",
+            "chat_thread_list_loaded",
+            "chat_thread_opened",
+            "chat_compose_sheet_opened",
+            "chat_creator_selected",
+            "chat_message_send_attempted",
+            "chat_message_sent",
+            "chat_message_failed",
+            "chat_message_blocked",
+            "chat_attachment_upload_started",
+            "chat_attachment_upload_failed",
+            "chat_presence_connected",
+            "chat_typing_started",
+            "chat_typing_stopped",
+            "chat_read_marked",
+            "chat_unread_updated",
+            "chat_paid_gd_gate_viewed",
+            "chat_purchase_cta_clicked",
+            "creator_message_sent",
+            "creator_media_sent",
+            "chat_send_blocked",
+            "chat_moderation_blocked"
+          ],
+          "hydratedEventIds": [],
+          "suppressedDuplicateCount": 0,
+          "missingSourceExplanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
+        },
+        "notification_interactions": {
+          "metricId": "notification_interactions",
+          "count": 1,
+          "confidence": "exact",
           "provenZero": false,
           "sourceEvents": [
             "notification_opened",
@@ -2344,14 +2550,16 @@
             "notification_cleared",
             "notification_prompt_banner_viewed"
           ],
-          "hydratedEventIds": [],
+          "hydratedEventIds": [
+            "person_metrics_validator:notification_opened:21"
+          ],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
         },
         "runtime_watch_sessions": {
           "metricId": "runtime_watch_sessions",
-          "count": 1,
-          "confidence": "exact",
+          "count": 0,
+          "confidence": "unknown",
           "provenZero": false,
           "sourceEvents": [
             "watch_session_started",
@@ -2359,9 +2567,7 @@
             "watch_session_ended",
             "viewer_watch_checkpoint"
           ],
-          "hydratedEventIds": [
-            "person_metrics_validator:watch_session_started:21"
-          ],
+          "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
           "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
         },
@@ -2429,8 +2635,8 @@
           "missingSourceExplanation": "Missing producer activity for creator_drop_manager_actions; expected producer event(s): creator_drop_submitted, creator_drop_updated, admin_creator_drop_reviewed."
         }
       },
-      "totalCount": 4,
-      "lowConfidenceCount": 20
+      "totalCount": 3,
+      "lowConfidenceCount": 22
     }
   },
   "lowConfidenceMetrics": [],
@@ -2480,18 +2686,54 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "7436c77c58d8873952a130244cf8117ee99660db",
+  "currentHead": "7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482",
   "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-presence-typing.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
     {
       "path": "agent/state/debug-tracking-simplification.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/future-activity-signal-reclassification.generated.json",
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -2499,16 +2741,152 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-presence-typing.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-realtime-cost-control.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/debug-tracking-simplification.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
+      "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/future-activity-signal-reclassification.md",
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-functionality-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-gating-moderation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-presence-typing.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-realtime-cost-control.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-chat-telemetry-admin-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-tracking-simplification.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-feature-registration-gate.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/chat/chat-telemetry-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/server/admin-debug/summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/server/chat.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/chat-functionality-score-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/chat-telemetry-admin-truth.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/user-management-refactor.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "activeOldLogic": [],

@@ -1397,6 +1397,20 @@ export async function safeSendChatMessageForViewer(input: SendChatMessageInput) 
                 paidGdShortfall: typeof error.body.paidGdShortfall === "number" ? error.body.paidGdShortfall : null,
                 sourceComponent: "chat_server_send",
             }), input.callerUid).catch(() => null);
+            await trackServerEvent("chat_message_blocked", {
+                source_component: "chat_server_send",
+                route: "/dashboard/chat",
+                user_id: input.callerUid,
+                thread_id: input.threadId,
+                creator_id: parseCreatorThreadId(input.threadId)?.creatorId ?? null,
+                target_creator_id: parseCreatorThreadId(input.threadId)?.creatorId ?? null,
+                message_kind: messageKind,
+                error_code: errorCode,
+                required_price_gd: typeof error.body.requiredPriceGd === "number" ? error.body.requiredPriceGd : null,
+                purchased_balance_gd: typeof error.body.purchasedBalanceGd === "number" ? error.body.purchasedBalanceGd : null,
+                paid_gd_shortfall: typeof error.body.paidGdShortfall === "number" ? error.body.paidGdShortfall : null,
+                debug_lane: "Chat telemetry/admin truth",
+            }, input.callerUid).catch(() => null);
             if (errorCode === "moderation_blocked") {
                 await trackServerEvent("chat_moderation_blocked", buildChatGatingTelemetryPayload({
                     eventName: "chat_moderation_blocked",

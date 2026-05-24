@@ -1,6 +1,6 @@
 # Chat Presence Typing
 
-Generated: 2026-05-23T22:03:11.920Z
+Generated: 2026-05-24T02:07:23.739Z
 
 ## Ephemeral State
 
@@ -32,8 +32,8 @@ Generated: 2026-05-23T22:03:11.920Z
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
 | sourceHealth | 91.7 | 91.7 | target_met | No score action needed for this dimension. |
-| runtimeHealth | 67.25 | 67.25 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure. |
-| evidenceCompleteness | 38.75 | 38.75 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure. |
+| runtimeHealth | 66.75 | 66.75 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure. |
+| evidenceCompleteness | 38.25 | 38.25 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure. |
 | freshness | 62.86 | 62.86 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure. |
 | costRisk | 42 | 42 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure. |
 | regressionRisk | 42 | 42 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat absence of live typing as a failure. |
