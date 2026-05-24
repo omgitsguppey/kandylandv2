@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.9",
-  "betaReleaseCounter": 409,
+  "currentVersion": "1.4.10",
+  "betaReleaseCounter": 410,
   "channel": "beta",
-  "generatedAt": "2026-05-24T03:40:00.000Z",
-  "generatedAtUtc": "2026-05-24T03:40:00.000Z",
+  "generatedAt": "2026-05-24T04:10:00.000Z",
+  "generatedAtUtc": "2026-05-24T04:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.10",
+      "previousVersion": "1.4.9",
+      "betaReleaseCounter": 410,
+      "previousBetaReleaseCounter": 409,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(tasks): lock daily task telemetry",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T04:10:00.000Z",
+      "generatedAt": "2026-05-24T04:10:00.000Z",
+      "committedAtUtc": "2026-05-24T04:10:00.000Z",
+      "generatedAtUtc": "2026-05-24T04:10:00.000Z",
+      "updatedAtUtc": "2026-05-24T04:10:00.000Z",
+      "category": "Improved",
+      "title": "Daily task reliability",
+      "summary": "Daily tasks now explain eligibility, reset timing, reward status, and task progress more clearly while keeping reward GumDrops separate from paid GumDrops.",
+      "userFacingTitle": "Daily task reliability",
+      "surfaceCategory": "Daily tasks",
+      "bullets": [
+        "Locked daily task reset, telemetry, reward ledger, and guidance truth.",
+        "Added task duration and failure tracking.",
+        "Connected task rewards to reward-GD source truth."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a final daily task debug score lock validator, generated report, agent-truth documentation, and unit tests that aggregate reset, lifecycle, reward ledger, guidance, metrics, and score evidence."
+      ],
+      "affectedSurfaces": [
+        "Daily tasks",
+        "Admin debug",
+        "Telemetry",
+        "Person metrics",
+        "Public beta score"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/daily-task-debug-score-lock.generated.json",
+        "docs/agent-truth/daily-task-debug-score-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-daily-task-debug-score-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/daily-task-debug-score-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.9",
       "previousVersion": "1.4.8",
@@ -1375,60 +1426,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/telemetry.ts",
         "tests/unit/account-settings-mobile-padding.spec.ts",
         "tests/unit/settings-connection-parity.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.85",
-      "previousVersion": "1.3.84",
-      "betaReleaseCounter": 385,
-      "previousBetaReleaseCounter": 384,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(account): finalize delete flow",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-22T23:58:00.000Z",
-      "generatedAt": "2026-05-22T23:58:00.000Z",
-      "committedAtUtc": "2026-05-22T23:58:00.000Z",
-      "generatedAtUtc": "2026-05-22T23:58:00.000Z",
-      "updatedAtUtc": "2026-05-22T23:58:00.000Z",
-      "category": "Fixed",
-      "title": "Account settings delete flow",
-      "summary": "Refined Account Settings mobile spacing and finalized the Delete Account confirmation flow with clear failure states.",
-      "userFacingTitle": "Account settings delete flow",
-      "surfaceCategory": "Account & onboarding",
-      "bullets": [
-        "Added safe bottom spacing for Account Settings on mobile.",
-        "Finalized the Delete Account flow with confirmation and clear failure states.",
-        "Kept Report issue, navigation, chat, payment, and GumDrop logic unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added Account Settings bottom safe-area markers, modal confirmation, deletion telemetry, debug-visible failure reporting, generated evidence, and unit coverage without changing Report issue, navigation, chat, payment, wallet, PayPal, or GumDrop logic."
-      ],
-      "affectedSurfaces": [
-        "Account Settings",
-        "Privacy & security",
-        "Mobile UI"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/account-settings-delete-flow.generated.json",
-        "docs/agent-truth/account-settings-delete-flow.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-account-settings-delete-flow.ts",
-        "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
-        "src/app/dashboard/profile/hooks/useProfileState.tsx",
-        "src/components/Settings/UserSettingsPage.tsx",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/telemetry.ts",
-        "tests/unit/account-settings-delete-flow.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

@@ -473,6 +473,9 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "scripts/agent/validate-chat-realtime-cost-control.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-reset-truth.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-lifecycle-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-reward-ledger.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-guidance-route-audit.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-feature-registration-gate.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-debug-tracking-simplification.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
@@ -485,6 +488,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "tests/unit/chat-telemetry-admin-truth.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/chat-functionality-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/daily-task-lifecycle-telemetry.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/daily-task-debug-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/checkin/route.ts") return "real_source_change_needs_review";

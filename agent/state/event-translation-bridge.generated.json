@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-24T03:03:49.846Z",
-  "currentHead": "b24ad4bcdf2a95966906d0e8731d9a5306f653fc",
+  "generatedAtUtc": "2026-05-24T03:58:06.020Z",
+  "currentHead": "6a7ba11a935a5d4c2df6346d179934c98bf13a79",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -3253,6 +3253,18 @@
       "classification": "release_artifact_expected"
     },
     {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -3261,8 +3273,20 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
@@ -3277,6 +3301,18 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
@@ -3285,8 +3321,16 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
@@ -3305,6 +3349,14 @@
       "classification": "release_artifact_expected"
     },
     {
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-guidance-route-audit.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
       "path": "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
       "classification": "validator_artifact_expected"
     },
@@ -3313,43 +3365,15 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/api/admin/debug/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/api/checkin/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/components/Dashboard/DailyCheckIn.tsx",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-daily-task-reward-ledger.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "src/lib/analytics/event-translation-bridge.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/person-metrics-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/event-fact-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/event-fact-normalizer.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/normalize-event-fact.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3361,35 +3385,11 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/server/admin-debug/summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/tasks/daily-task-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/tasks/daily-task-duration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/tasks/daily-task-telemetry.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/telemetry-catalog.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/daily-task-lifecycle-telemetry.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/user-management-refactor.spec.ts",
+      "path": "tests/unit/daily-task-debug-score-lock.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

@@ -37,9 +37,17 @@ export function classifyDailyTaskGuidanceDirtyFile(path: string) {
   if (normalized === "src/lib/release-notes/public-release-notes.ts") return "release_artifact_expected";
   if (normalized === "src/lib/release-notes/release-version-contract.ts") return "release_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-daily-task-reset-truth.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-lifecycle-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-reward-ledger.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-guidance-route-audit.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/daily-task-guidance-route-audit.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/daily-task-debug-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/tasks/daily-task-guidance-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/task-guidance.ts") return "real_source_change_needs_review";
   if (normalized === "src/components/Dashboard/DailyTasksModule.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";

@@ -108,9 +108,12 @@ export function classifyDailyTaskResetTruthDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-daily-task-reset-truth.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-daily-task-lifecycle-telemetry.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-daily-task-guidance-route-audit.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-daily-task-reward-ledger.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/daily-task-reset-truth.spec.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/daily-task-lifecycle-telemetry.spec.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/daily-task-guidance-route-audit.spec.ts") return "real_source_change_needs_review";
+  if (normalized === "tests/unit/daily-task-debug-score-lock.spec.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-reset.ts") return "real_source_change_needs_review";

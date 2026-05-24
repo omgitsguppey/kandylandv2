@@ -1,0 +1,301 @@
+{
+  "generatedAtUtc": "2026-05-24T03:58:01.884Z",
+  "currentHead": "6a7ba11a",
+  "resetTruthStatus": "pass",
+  "lifecycleTelemetryStatus": "pass",
+  "durationTrackingStatus": "active_duration_only",
+  "rewardLedgerStatus": "pass",
+  "guidanceRouteStatus": "pass",
+  "taskFailureDebugStatus": "present",
+  "taskPersonMetricsStatus": "present",
+  "taskScoreCoverageStatus": "present",
+  "rewardGdSourceTruth": "reward_gd_only",
+  "unknownLegacyTaskCount": 0,
+  "duplicateRewardRiskCount": 0,
+  "activeTaskRouteMismatchCount": 0,
+  "activeTaskMissingCompletionSignalCount": 0,
+  "scoreBefore": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 66.25,
+    "evidenceCompleteness": 37.75,
+    "freshness": 62.86,
+    "costRisk": 42,
+    "regressionRisk": 42,
+    "overallHealthScore": 61.55
+  },
+  "scoreAfter": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 66.25,
+    "evidenceCompleteness": 37.75,
+    "freshness": 62.86,
+    "costRisk": 42,
+    "regressionRisk": 42,
+    "overallHealthScore": 61.55
+  },
+  "scoreDimensions": {
+    "sourceHealth": {
+      "before": 91.7,
+      "after": 91.7,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No daily-task score action needed for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 66.25,
+      "after": 66.25,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Attach formal runtime/provider/admin evidence without promoting source validators to runtime proof."
+    },
+    "evidenceCompleteness": {
+      "before": 37.75,
+      "after": 37.75,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Complete formal beta evidence gates and keep daily task generated reports fresh."
+    },
+    "freshness": {
+      "before": 62.86,
+      "after": 62.86,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Refresh stale score-impacting artifacts with targeted validators."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve owner-review cost lanes without touching payment or GumDrop paid math."
+    },
+    "regressionRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Refresh targeted evidence for changed high-blast files and keep task validators green."
+    },
+    "overallHealthScore": {
+      "before": 61.55,
+      "after": 61.55,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Raise below-target component dimensions before treating overall health as solved."
+    }
+  },
+  "remainingGaps": [
+    "runtimeHealth below 80: Attach formal runtime/provider/admin evidence without promoting source validators to runtime proof.",
+    "evidenceCompleteness below 80: Complete formal beta evidence gates and keep daily task generated reports fresh.",
+    "freshness below 80: Refresh stale score-impacting artifacts with targeted validators.",
+    "costRisk below 80: Resolve owner-review cost lanes without touching payment or GumDrop paid math.",
+    "regressionRisk below 80: Refresh targeted evidence for changed high-blast files and keep task validators green.",
+    "overallHealthScore below 80: Raise below-target component dimensions before treating overall health as solved."
+  ],
+  "nextExactSteps": [
+    "runtimeHealth below 80: Attach formal runtime/provider/admin evidence without promoting source validators to runtime proof.",
+    "evidenceCompleteness below 80: Complete formal beta evidence gates and keep daily task generated reports fresh.",
+    "freshness below 80: Refresh stale score-impacting artifacts with targeted validators.",
+    "costRisk below 80: Resolve owner-review cost lanes without touching payment or GumDrop paid math.",
+    "regressionRisk below 80: Refresh targeted evidence for changed high-blast files and keep task validators green.",
+    "overallHealthScore below 80: Raise below-target component dimensions before treating overall health as solved."
+  ],
+  "sourceReports": {
+    "resetTruth": "agent/state/daily-task-reset-truth.generated.json",
+    "lifecycleTelemetry": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+    "rewardLedger": "agent/state/daily-task-reward-ledger.generated.json",
+    "guidanceRouteAudit": "agent/state/daily-task-guidance-route-audit.generated.json",
+    "publicBetaScore": "agent/state/public-beta-score.generated.json"
+  },
+  "debugLanes": [
+    {
+      "lane": "Daily tasks/reset",
+      "status": "present",
+      "source": "daily-task-reset-truth"
+    },
+    {
+      "lane": "Daily task lifecycle",
+      "status": "present",
+      "source": "daily-task-lifecycle-telemetry"
+    },
+    {
+      "lane": "Daily task reward ledger",
+      "status": "present",
+      "source": "daily-task-reward-ledger"
+    },
+    {
+      "lane": "Task guidance health",
+      "status": "present",
+      "source": "daily-task-guidance-route-audit"
+    }
+  ],
+  "dirtyFileClassifications": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-reset-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reset-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-guidance-route-audit.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-reset-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-reward-ledger.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/daily-task-debug-score-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "oldTaskLogicClassification": [
+    {
+      "reference": "unknown_legacy reset handling",
+      "classification": "still_required",
+      "reason": "Legacy reset anchors remain explicitly unavailable instead of claimable truth."
+    },
+    {
+      "reference": "passive page time duration",
+      "classification": "stale_removed",
+      "reason": "Task lifecycle report requires active start/attempt duration and rejects passive page time."
+    },
+    {
+      "reference": "unfiltered task guidance rendering",
+      "classification": "superseded",
+      "reason": "Guidance route audit filters unsupported active tasks before rendering/claiming."
+    }
+  ],
+  "protectedSurfaceStatus": {
+    "chatTouched": false,
+    "navTouched": false,
+    "paymentRuntimeTouched": false,
+    "paidGdMathTouched": false
+  },
+  "validationFailures": []
+}

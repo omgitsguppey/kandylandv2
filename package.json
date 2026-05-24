@@ -296,6 +296,7 @@
         "check:daily-task-lifecycle-telemetry": "tsx scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
         "check:daily-task-reward-ledger": "tsx scripts/agent/validate-daily-task-reward-ledger.ts",
         "check:daily-task-guidance-route-audit": "tsx scripts/agent/validate-daily-task-guidance-route-audit.ts",
+        "check:daily-task-debug-score-lock": "tsx scripts/agent/validate-daily-task-debug-score-lock.ts",
         "check:task-catalog-coverage": "tsx scripts/agent/validate-task-catalog-coverage.ts",
         "check:viewer-file-tracking": "tsx scripts/agent/validate-viewer-file-tracking.ts",
         "check:support-tracking-truth": "tsx scripts/agent/validate-support-tracking-truth.ts",

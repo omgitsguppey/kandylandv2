@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.10 - 2026-05-23
+- Daily task debug and score lock
+- Locked daily task reset, telemetry, reward ledger, and guidance truth.
+- Added task duration and failure tracking.
+- Connected task rewards to reward-GD source truth.
+
 ## 1.4.9 - 2026-05-23
 - Daily task guidance route accuracy
 - Aligned daily task guidance with current site routes and completion signals.

@@ -1,13 +1,13 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-24T02:10:18.248Z
+Generated: 2026-05-24T03:43:08.855Z
 
-Latest code version: 7a7ad97d75695ba776d2fe2b5f2e82dfdfd8e482
+Latest code version: 6a7ba11a935a5d4c2df6346d179934c98bf13a79
 
 ## Summary
 
-- Beta version: 1.4.5
-- Beta score: 61.65
+- Beta version: 1.4.9
+- Beta score: 61.55
 - Beta status: Stale evidence
 - Visual evidence: source_only_screenshotEvidenceAttached_false
 - Provider smoke: missing_formal_evidence

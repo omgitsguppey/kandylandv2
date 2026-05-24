@@ -389,11 +389,15 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "scripts/agent/validate-new-additions-score-coverage.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-reset-truth.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-lifecycle-telemetry.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-reward-ledger.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-guidance-route-audit.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/telemetry-trigger-test-matrix.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/future-activity-signal-reclassification.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/debug-tracking-simplification.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/daily-task-lifecycle-telemetry.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/daily-task-debug-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";

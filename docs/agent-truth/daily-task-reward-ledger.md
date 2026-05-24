@@ -1,7 +1,7 @@
 # Daily Task Reward Ledger
 
-Generated: 2026-05-24T03:20:43.823Z
-Current head: 8d9a6712
+Generated: 2026-05-24T03:57:57.649Z
+Current head: 6a7ba11a
 Status: pass
 
 ## Contract
@@ -40,25 +40,41 @@ Status: pass
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
+- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-guidance-route-audit.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/daily-task-lifecycle-telemetry.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/daily-task-reward-ledger.generated.json: current_generated_artifact_to_commit
-- agent/state/gumdrop-economy-accuracy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-guidance-route-audit.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-reset-truth.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/daily-task-reward-ledger.md: release_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/telemetry-trigger-test-matrix.md: stale_generated_artifact_to_regenerate
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-daily-task-debug-score-lock.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-guidance-route-audit.ts: validator_artifact_expected
 - scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-reset-truth.ts: validator_artifact_expected
 - scripts/agent/validate-daily-task-reward-ledger.ts: validator_artifact_expected
-- src/app/api/admin/debug/route.ts: real_source_change_needs_review
-- src/app/api/checkin/route.ts: real_source_change_needs_review
-- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/server/admin-debug/summary.ts: real_source_change_needs_review
-- src/lib/server/daily-tasks.ts: real_source_change_needs_review
-- src/lib/tasks/daily-task-reward-ledger.ts: real_source_change_needs_review
-- tests/unit/daily-task-reward-ledger.spec.ts: test_artifact_expected
+- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
+- tests/unit/daily-task-debug-score-lock.spec.ts: test_artifact_expected
 
 ## Validation Failures
 
