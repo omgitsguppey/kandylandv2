@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-24T07:37:50.669Z",
-  "currentHead": "8feac3472ec6fc81893d449c93af6d1c3316bcbd",
+  "generatedAtUtc": "2026-05-24T08:06:25.495Z",
+  "currentHead": "ecd519b1d3b539b56fc3e5a49ca9663cf1b43435",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -45,14 +45,49 @@
   },
   "debugLane": {
     "label": "Event translation bridge",
-    "producersRegistered": 481,
-    "producersConnected": 481,
-    "eventEnvelopesTranslated": 481,
-    "materializersMapped": 481,
+    "producersRegistered": 486,
+    "producersConnected": 486,
+    "eventEnvelopesTranslated": 486,
+    "materializersMapped": 486,
     "personMetricsMapped": 130,
     "gaps": 0
   },
   "waitingOnActivity": [
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
     {
       "reason": "future_real_activity_pending",
       "scoreDrag": false,
@@ -3432,12 +3467,8 @@
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/auth-provider-conflict-resolution.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
@@ -3448,71 +3479,19 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/notification-permission-lifecycle.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/notification-pwa-score-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/notification-targeting-intent.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/push-token-registration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/pwa-service-worker-safety.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/auth-provider-conflict-resolution.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/notification-permission-lifecycle.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/notification-pwa-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/notification-targeting-intent.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/push-token-registration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/pwa-service-worker-safety.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "path": "docs/agent-truth/feature-registration-gate.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -3524,27 +3503,35 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-notification-permission-lifecycle.ts",
+      "path": "scripts/agent/validate-auth-provider-conflict-resolution.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-notification-pwa-score-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/components/Auth/AuthModal.tsx",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-notification-targeting-intent.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-push-token-registration.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-pwa-service-worker-safety.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/context/AuthContext.tsx",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/auth-errors.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/auth/auth-provider-conflict-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/auth/auth-provider-conflict-resolver.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3556,11 +3543,15 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      "path": "src/lib/telemetry-catalog.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/notification-pwa-score-lock.spec.ts",
+      "path": "tests/unit/auth-errors.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/auth-provider-conflict-resolution.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

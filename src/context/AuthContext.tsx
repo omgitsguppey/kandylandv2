@@ -31,8 +31,15 @@ import {
 import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import {
     buildFirebaseLikeAuthError,
+    looksLikeEmailAddress,
     normalizeEmailAddress,
 } from "@/lib/auth-errors";
+import type { AuthProviderConflict } from "@/lib/auth/auth-provider-conflict-contract";
+import {
+    buildAuthConflictTelemetry,
+    classifyAuthError,
+    resolveProviderConflictMessage,
+} from "@/lib/auth/auth-provider-conflict-resolver";
 import {
     emitAuthLifecycleEvent,
     type AuthOutcomeMethod,
@@ -113,6 +120,11 @@ type AuthFlowTelemetryInput = {
     startedAtUtc?: string;
 };
 
+type AuthProviderConflictError = Error & {
+    code?: string;
+    authProviderConflict?: AuthProviderConflict;
+};
+
 function ensureAuthPersistence() {
     if (!auth) {
         return Promise.resolve();
@@ -143,6 +155,41 @@ function normalizeAuthErrorMessage(error: unknown) {
         default:
             return firebaseError?.message || "Authentication failed";
     }
+}
+
+function emitAuthProviderConflictTelemetry(input: {
+    eventName?: "auth_provider_conflict_detected" | "auth_provider_conflict_resolution_shown" | "auth_provider_conflict_cta_clicked";
+    conflict: AuthProviderConflict;
+    telemetry?: AuthFlowTelemetryInput;
+    sourceComponent?: string;
+}) {
+    const event = buildAuthConflictTelemetry(input.conflict, {
+        authAttemptId: input.telemetry?.authAttemptId,
+        route: input.telemetry?.route,
+        sourceComponent: input.sourceComponent || input.telemetry?.sourceComponent || "AuthContext",
+    }, input.eventName ?? "auth_provider_conflict_detected");
+    trackEvent(event.eventName, event.params);
+}
+
+function buildAuthProviderConflictError(input: {
+    error: unknown;
+    attemptedMethod: "google" | "email_password";
+    email?: string | null;
+    telemetry?: AuthFlowTelemetryInput;
+    sourceComponent?: string;
+}) {
+    const conflict = classifyAuthError(input.error, input.attemptedMethod, input.email);
+    const firebaseError = input.error as { code?: string };
+    const code = firebaseError?.code || conflict.firebaseCode;
+    const message = resolveProviderConflictMessage(conflict);
+    emitAuthProviderConflictTelemetry({
+        conflict,
+        telemetry: input.telemetry,
+        sourceComponent: input.sourceComponent,
+    });
+    const nextError = buildFirebaseLikeAuthError(code, message) as AuthProviderConflictError;
+    nextError.authProviderConflict = conflict;
+    return nextError;
 }
 
 function setGoogleRedirectPending(value: boolean) {
@@ -608,6 +655,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             const message = normalizeAuthErrorMessage(error);
+            if (firebaseError?.code === "auth/account-exists-with-different-credential") {
+                const conflictError = buildAuthProviderConflictError({
+                    error,
+                    attemptedMethod: "google",
+                    email: null,
+                    telemetry,
+                    sourceComponent: "AuthContext",
+                });
+                toast.error(conflictError.message);
+                throw conflictError;
+            }
             toast.error(message);
             throw buildFirebaseLikeAuthError(firebaseError?.code || "auth/google-sign-in-failed", message);
         }
@@ -623,8 +681,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         await ensureAuthPersistence();
-        const resolvedIdentity = await resolveManualSignInIdentity(identifier);
-        const credential = await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
+        let resolvedIdentity: Awaited<ReturnType<typeof resolveManualSignInIdentity>>;
+        try {
+            resolvedIdentity = await resolveManualSignInIdentity(identifier);
+        } catch (error) {
+            const emailForHash = looksLikeEmailAddress(identifier) ? normalizeEmailAddress(identifier) : null;
+            trackEvent("auth_email_sign_in_failed", {
+                failureCode: (error as { code?: string }).code || "auth/manual-lookup-failed",
+                failure_code: (error as { code?: string }).code || "auth/manual-lookup-failed",
+                sourceTruth: "client_auth",
+                authAttemptId: telemetry?.authAttemptId || "",
+                route: telemetry?.route || "",
+                sourceComponent: telemetry?.sourceComponent || "AuthContext",
+            });
+            throw buildAuthProviderConflictError({
+                error,
+                attemptedMethod: "email_password",
+                email: emailForHash,
+                telemetry,
+                sourceComponent: "AuthContext",
+            });
+        }
+
+        let credential: Awaited<ReturnType<typeof signInWithEmailAndPassword>>;
+        try {
+            credential = await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
+        } catch (error) {
+            trackEvent("auth_email_sign_in_failed", {
+                failureCode: (error as { code?: string }).code || "auth/email-sign-in-failed",
+                failure_code: (error as { code?: string }).code || "auth/email-sign-in-failed",
+                sourceTruth: "firebase_auth",
+                authAttemptId: telemetry?.authAttemptId || "",
+                route: telemetry?.route || "",
+                sourceComponent: telemetry?.sourceComponent || "AuthContext",
+            });
+            throw buildAuthProviderConflictError({
+                error,
+                attemptedMethod: "email_password",
+                email: resolvedIdentity.resolvedEmail,
+                telemetry,
+                sourceComponent: "AuthContext",
+            });
+        }
         emitIdentityLinkContinuity(credential.user.uid, "login");
         await ensureNavigationSessionEstablished({
             userId: credential.user.uid,
@@ -652,7 +750,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         try {
             await ensureAuthPersistence();
-            const credential = await createUserWithEmailAndPassword(auth, normalizedEmail, input.password);
+            let credential: Awaited<ReturnType<typeof createUserWithEmailAndPassword>>;
+            try {
+                credential = await createUserWithEmailAndPassword(auth, normalizedEmail, input.password);
+            } catch (error) {
+                trackEvent("auth_email_sign_up_failed", {
+                    failureCode: (error as { code?: string }).code || "auth/email-sign-up-failed",
+                    failure_code: (error as { code?: string }).code || "auth/email-sign-up-failed",
+                    sourceTruth: "firebase_auth",
+                    authAttemptId: telemetry?.authAttemptId || "",
+                    route: telemetry?.route || "",
+                    sourceComponent: telemetry?.sourceComponent || "AuthContext",
+                });
+                throw buildAuthProviderConflictError({
+                    error,
+                    attemptedMethod: "email_password",
+                    email: normalizedEmail,
+                    telemetry,
+                    sourceComponent: "AuthContext",
+                });
+            }
             emitIdentityLinkContinuity(credential.user.uid, "signup");
             createdUser = credential.user;
             manualRegistrationStateRef.current = {

@@ -1,11 +1,62 @@
 {
-  "currentVersion": "1.4.20",
-  "betaReleaseCounter": 420,
+  "currentVersion": "1.4.21",
+  "betaReleaseCounter": 421,
   "channel": "beta",
-  "generatedAt": "2026-05-24T07:33:42.138Z",
-  "generatedAtUtc": "2026-05-24T07:33:42.138Z",
-  "lastCommitSha": "pending-same-commit",
+  "generatedAt": "2026-05-24T08:04:31.229Z",
+  "generatedAtUtc": "2026-05-24T08:04:31.229Z",
+  "lastCommitSha": "ecd519b1d3b539b56fc3e5a49ca9663cf1b43435",
   "notes": [
+    {
+      "version": "1.4.21",
+      "previousVersion": "1.4.20",
+      "betaReleaseCounter": 421,
+      "previousBetaReleaseCounter": 420,
+      "commitSha": "ecd519b1d3b539b56fc3e5a49ca9663cf1b43435",
+      "commitTitle": "docs(pwa): lock notification readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "ecd519b1d3b539b56fc3e5a49ca9663cf1b43435"
+      ],
+      "committedAt": "2026-05-24T07:45:10.000Z",
+      "generatedAt": "2026-05-24T08:04:31.222Z",
+      "committedAtUtc": "2026-05-24T07:45:10.000Z",
+      "generatedAtUtc": "2026-05-24T08:04:31.222Z",
+      "updatedAtUtc": "2026-05-24T08:04:31.222Z",
+      "category": "Improved",
+      "title": "Auth provider conflict guidance",
+      "summary": "Improved auth guidance when Google and email/password sign-in methods conflict.",
+      "userFacingTitle": "Clearer sign-in help",
+      "surfaceCategory": "Account & onboarding",
+      "bullets": [
+        "Improved auth guidance when Google and email/password sign-in methods conflict.",
+        "Mapped common Firebase auth errors to clear next steps.",
+        "Added telemetry for auth provider conflicts."
+      ],
+      "audience": "users",
+      "technicalDetails": [
+        "Provider conflict resolution now maps Google-only, email/password, existing-email, wrong-password, and invalid-credential paths without exposing raw Firebase errors.",
+        "Auth provider conflict telemetry redacts email values and feeds the debug lane."
+      ],
+      "affectedSurfaces": [
+        "Auth modal",
+        "Auth context",
+        "Auth telemetry",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/context/AuthContext.tsx",
+        "src/components/Auth/AuthModal.tsx",
+        "src/lib/auth/auth-provider-conflict-contract.ts",
+        "src/lib/auth/auth-provider-conflict-resolver.ts",
+        "src/lib/auth-errors.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "effectiveChangeCount": 7,
+      "excludedGeneratedChangeCount": 0
+    },
     {
       "version": "1.4.20",
       "previousVersion": "1.4.19",
@@ -6119,51 +6170,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/future-activity-signal-reclassification.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.96",
-      "previousVersion": "1.3.95",
-      "betaReleaseCounter": 396,
-      "previousBetaReleaseCounter": 395,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(analytics): lock testing telemetry score",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T06:48:17.048Z",
-      "generatedAt": "2026-05-23T06:48:17.048Z",
-      "committedAtUtc": "2026-05-23T06:48:17.048Z",
-      "generatedAtUtc": "2026-05-23T06:48:17.048Z",
-      "updatedAtUtc": "2026-05-23T06:48:17.048Z",
-      "category": "Improved",
-      "title": "Improved internal beta reliability",
-      "summary": "Improved internal beta reliability for testing, tracking, and score reporting.",
-      "userFacingTitle": "Improved internal beta reliability",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked testing, tracking, telemetry triggers, and person metric hydration.",
-        "Reduced false waiting-on-activity states.",
-        "Reported score progress by dimension, not just overall."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only final lock validator, generated evidence, and unit coverage for score dimensions without production reads, fake activity, payment changes, chat/nav changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Analytics",
-        "Admin debug",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/final-testing-tracking-telemetry-lock.generated.json",
-        "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
-        "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-        "tests/unit/final-testing-tracking-telemetry-lock.spec.ts",
-        "package.json"
       ],
       "sourceCommit": "pending-same-commit"
     }

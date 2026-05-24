@@ -233,6 +233,7 @@
         "check:admin-analytics-operations-mobile": "tsx scripts/agent/validate-admin-analytics-operations-mobile.ts",
         "check:admin-analytics-auth-outcomes-mobile": "tsx scripts/agent/validate-admin-analytics-auth-outcomes-mobile.ts",
         "check:admin-analytics-audience-snapshot": "tsx scripts/check-admin-analytics-audience-snapshot.ts",
+        "check:auth-provider-conflict-resolution": "tsx scripts/agent/validate-auth-provider-conflict-resolution.ts",
         "check:admin-analytics-commerce-snapshot": "tsx scripts/check-admin-analytics-commerce-snapshot.ts",
         "check:admin-analytics-live-pulse": "tsx scripts/check-admin-analytics-live-pulse.ts",
         "check:admin-analytics-journey-funnel": "tsx scripts/check-admin-analytics-journey-funnel.ts",

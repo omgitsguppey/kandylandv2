@@ -38,7 +38,7 @@ describe("auth error helpers", () => {
     it("maps invalid credentials to a friendly sign-in error", () => {
         const resolution = resolveEmailAuthError({ code: "auth/invalid-credential" }, "sign_in");
 
-        expect(resolution.userMessage).toBe("Invalid email, username, or password.");
+        expect(resolution.userMessage).toBe("That email, username, or password did not match. Try again or reset your password.");
         expect(resolution.localCooldownMs).toBe(0);
     });
 

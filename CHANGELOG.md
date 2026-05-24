@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.21 - 2026-05-24
+- Auth provider conflict guidance
+- Improved auth guidance when Google and email/password sign-in methods conflict.
+- Mapped common Firebase auth errors to clear next steps.
+- Added telemetry for auth provider conflicts.
+
 ## 1.4.20 - 2026-05-24
 - Notification and PWA readiness lock
 - Locked notification permission, targeting, and PWA service worker readiness.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Reclassified future user activity placeholders as quiet catalog items.
 - Stopped source-ready future activity from appearing as actionable debug noise.
 - Kept broken telemetry paths actionable.
-
-## 1.3.96 - 2026-05-23
-- Improved internal beta reliability
-- Locked testing, tracking, telemetry triggers, and person metric hydration.
-- Reduced false waiting-on-activity states.
-- Reported score progress by dimension, not just overall.

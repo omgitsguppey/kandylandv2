@@ -22,6 +22,14 @@ import {
     normalizeEmailAddress,
     resolveEmailAuthError,
 } from "@/lib/auth-errors";
+import type { AuthProviderConflict } from "@/lib/auth/auth-provider-conflict-contract";
+import {
+    buildAuthConflictTelemetry,
+    resolveProviderConflictCta,
+    resolveProviderConflictMessage,
+    shouldOfferGoogleSignIn,
+    shouldOfferPasswordReset,
+} from "@/lib/auth/auth-provider-conflict-resolver";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
 import {
@@ -69,6 +77,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const [mode, setMode] = useState<AuthMode>(initialMode);
     const [isLoading, setIsLoading] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
+    const [authConflict, setAuthConflict] = useState<AuthProviderConflict | null>(null);
     const [resetSent, setResetSent] = useState(false);
     const [checkingUsername, setCheckingUsername] = useState(false);
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
@@ -303,6 +312,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         emailAuthSubmissionInFlightRef.current = false;
         setMode(newMode);
         setAuthError(null);
+        setAuthConflict(null);
         setResetSent(false);
         setCreatorStep(0);
         creatorIntakeStartedRef.current = false;
@@ -451,7 +461,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             });
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
             trackEvent("auth_google_sign_in_failed", mergedParams);
-            setAuthError(error instanceof Error ? error.message : "Failed to sign in with Google.");
+            const conflict = (error as { authProviderConflict?: AuthProviderConflict }).authProviderConflict ?? null;
+            if (conflict) {
+                const shown = buildAuthConflictTelemetry(conflict, {
+                    authAttemptId: attempt.authAttemptId,
+                    route: attempt.route,
+                    sourceComponent: "AuthModal",
+                }, "auth_provider_conflict_resolution_shown");
+                trackEvent(shown.eventName, shown.params);
+                setAuthConflict(conflict);
+                setAuthError(resolveProviderConflictMessage(conflict));
+            } else {
+                setAuthError(error instanceof Error ? error.message : "Failed to sign in with Google.");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -465,6 +487,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         }
 
         setAuthError(null);
+        setAuthConflict(null);
         trackCreatorIntakeStepCompleted(creatorStep);
         setCreatorStep((previous) => Math.min(previous + 1, CREATOR_SIGNUP_STEPS - 1));
     };
@@ -501,6 +524,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         emailAuthSubmissionInFlightRef.current = true;
         setIsLoading(true);
         setAuthError(null);
+        setAuthConflict(null);
         let authAttempt: ReturnType<typeof createAuthAttemptTelemetryContext> | null = null;
 
         try {
@@ -684,9 +708,49 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 }
                 setAuthError(resolution.userMessage);
             }
+            const conflict = (error as { authProviderConflict?: AuthProviderConflict }).authProviderConflict ?? null;
+            if (conflict) {
+                const shown = buildAuthConflictTelemetry(conflict, {
+                    authAttemptId: authAttempt?.authAttemptId,
+                    route: authAttempt?.route,
+                    sourceComponent: "AuthModal",
+                }, "auth_provider_conflict_resolution_shown");
+                trackEvent(shown.eventName, shown.params);
+                setAuthConflict(conflict);
+                setAuthError(resolveProviderConflictMessage(conflict));
+            }
         } finally {
             setIsLoading(false);
             emailAuthSubmissionInFlightRef.current = false;
+        }
+    };
+
+    const handleAuthConflictPrimaryCta = () => {
+        if (!authConflict) {
+            return;
+        }
+
+        const clicked = buildAuthConflictTelemetry(authConflict, {
+            route: typeof window !== "undefined" ? window.location.pathname : "/auth",
+            sourceComponent: "AuthModal",
+        }, "auth_provider_conflict_cta_clicked");
+        trackEvent(clicked.eventName, {
+            ...clicked.params,
+            cta: authConflict.primaryCta,
+        });
+
+        if (shouldOfferGoogleSignIn(authConflict)) {
+            void handleGoogleSignIn();
+            return;
+        }
+
+        if (shouldOfferPasswordReset(authConflict)) {
+            switchMode("forgot_password");
+            return;
+        }
+
+        if (authConflict.resolution === "use_email_password") {
+            switchMode("signin");
         }
     };
 
@@ -1006,9 +1070,25 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                 ) : null}
 
                                 {authError ? (
-                                    <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">
-                                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                                        <span>{authError}</span>
+                                    <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">
+                                        <div className="flex items-start gap-2">
+                                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                                            <span>{authError}</span>
+                                        </div>
+                                        {authConflict ? (
+                                            <div className="mt-3 flex flex-wrap gap-2 pl-6">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAuthConflictPrimaryCta}
+                                                    className="rounded-lg border border-red-300/30 bg-red-200/10 px-3 py-1.5 text-xs font-semibold text-red-100 transition-colors hover:bg-red-200/20"
+                                                >
+                                                    {resolveProviderConflictCta(authConflict).primary}
+                                                </button>
+                                                {authConflict.secondaryCta ? (
+                                                    <span className="self-center text-xs text-red-100/70">{authConflict.secondaryCta}</span>
+                                                ) : null}
+                                            </div>
+                                        ) : null}
                                     </div>
                                 ) : null}
 

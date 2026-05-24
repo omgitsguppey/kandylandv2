@@ -56,9 +56,9 @@ export function resolveEmailAuthError(error: unknown, action: EmailAuthAction): 
     if (code === "auth/email-already-in-use") {
         return {
             code,
-            userMessage: "Email is already registered.",
+            userMessage: "An account already exists for this email. Sign in instead, or reset your password if you need access.",
             localCooldownMs: 0,
-            allowPasswordReset: false,
+            allowPasswordReset: true,
         };
     }
 
@@ -74,7 +74,34 @@ export function resolveEmailAuthError(error: unknown, action: EmailAuthAction): 
     if (code === "auth/invalid-credential") {
         return {
             code,
-            userMessage: "Invalid email, username, or password.",
+            userMessage: "That email, username, or password did not match. Try again or reset your password.",
+            localCooldownMs: 0,
+            allowPasswordReset: true,
+        };
+    }
+
+    if (code === "auth/wrong-password") {
+        return {
+            code,
+            userMessage: "That password did not match. Try again or reset your password.",
+            localCooldownMs: 0,
+            allowPasswordReset: true,
+        };
+    }
+
+    if (code === "auth/missing-password") {
+        return {
+            code,
+            userMessage: "Enter your password to continue.",
+            localCooldownMs: 0,
+            allowPasswordReset: false,
+        };
+    }
+
+    if (code === "auth/account-exists-with-different-credential") {
+        return {
+            code,
+            userMessage: "This email is already connected to another sign-in method. Use the method you originally used or contact support.",
             localCooldownMs: 0,
             allowPasswordReset: true,
         };

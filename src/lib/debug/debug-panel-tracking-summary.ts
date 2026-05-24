@@ -16,6 +16,7 @@ import { buildNotificationPermissionDebugLane } from "@/lib/notifications/notifi
 import { buildPushTokenDebugLane } from "@/lib/notifications/push-token-contract";
 import { buildNotificationTargetingDebugLane } from "@/lib/notifications/notification-intent-contract";
 import { buildPwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-contract";
+import { buildAuthProviderConflictDebugLane } from "@/lib/auth/auth-provider-conflict-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -31,6 +32,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "settings_health",
   "legacy_recovery",
   "wallet_funnel",
+  "auth_provider_conflict",
   "notification_permission",
   "push_token_health",
   "notification_targeting",
@@ -107,6 +109,7 @@ const TRACKING_GROUPS = [
   "settings",
   "legacy_recovery",
   "wallet_funnel",
+  "auth_provider_conflict",
   "notification_permission",
   "push_token_health",
   "notification_targeting",
@@ -240,6 +243,10 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const behaviorStatus = toStatus(input.behavioralSnapshotStatus?.status);
   const legacyStatus = toStatus(input.legacyRecovery?.status);
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
+  const authProviderConflict = input.authProviderConflictResolution?.debugLane ?? buildAuthProviderConflictDebugLane();
+  const authProviderConflictWarnings = toNumber(authProviderConflict.unresolvedAuthFailures)
+    + (authProviderConflict.rawEmailPasswordExposed ? 1 : 0)
+    + (authProviderConflict.telemetryStatus === "mapped" ? 0 : 1);
   const notificationPermission = input.notificationPermissionLifecycle?.debugLane ?? buildNotificationPermissionDebugLane();
   const notificationPermissionWarnings = toNumber(notificationPermission.failed)
     + (notificationPermission.telemetryStatus === "mapped" ? 0 : 1);
@@ -472,6 +479,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: walletCount > 0 ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=monitoring#wallet-funnel",
+    }),
+    makeLane({
+      id: "auth_provider_conflict",
+      label: "Auth provider conflict",
+      trackingSystem: "auth_provider_conflict",
+      sourceOwner: "auth",
+      sourceOfTruth: "src/lib/auth/auth-provider-conflict-resolver.ts",
+      status: authProviderConflictWarnings > 0 || authProviderConflict.status === "degraded" ? "degraded" : authProviderConflict.status === "unavailable" ? "unavailable" : "live",
+      severity: severityFromCounts(authProviderConflict.rawEmailPasswordExposed ? 1 : 0, authProviderConflictWarnings, authProviderConflictWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: "medium",
+      primarySignal: `Mapped conflict types=${toNumber(authProviderConflict.conflictTypesMapped)}; resolutionShown=${String(authProviderConflict.resolutionShown)}; unresolvedFailures=${toNumber(authProviderConflict.unresolvedAuthFailures)}; rawCredentialExposure=${String(Boolean(authProviderConflict.rawEmailPasswordExposed))}; telemetry=${authProviderConflict.telemetryStatus}.`,
+      criticalCount: authProviderConflict.rawEmailPasswordExposed ? 1 : 0,
+      warningCount: authProviderConflictWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#auth-provider-conflict",
     }),
     makeLane({
       id: "notification_permission",
