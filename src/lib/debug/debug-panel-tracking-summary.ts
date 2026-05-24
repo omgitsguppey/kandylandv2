@@ -17,6 +17,7 @@ import { buildPushTokenDebugLane } from "@/lib/notifications/push-token-contract
 import { buildNotificationTargetingDebugLane } from "@/lib/notifications/notification-intent-contract";
 import { buildPwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-contract";
 import { buildAuthProviderConflictDebugLane } from "@/lib/auth/auth-provider-conflict-contract";
+import { buildAuthPersistenceDebugLane } from "@/lib/auth/auth-persistence-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -33,6 +34,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "legacy_recovery",
   "wallet_funnel",
   "auth_provider_conflict",
+  "auth_persistence",
   "notification_permission",
   "push_token_health",
   "notification_targeting",
@@ -110,6 +112,7 @@ const TRACKING_GROUPS = [
   "legacy_recovery",
   "wallet_funnel",
   "auth_provider_conflict",
+  "auth_persistence",
   "notification_permission",
   "push_token_health",
   "notification_targeting",
@@ -247,6 +250,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const authProviderConflictWarnings = toNumber(authProviderConflict.unresolvedAuthFailures)
     + (authProviderConflict.rawEmailPasswordExposed ? 1 : 0)
     + (authProviderConflict.telemetryStatus === "mapped" ? 0 : 1);
+  const authPersistence = input.authPersistenceStability?.debugLane ?? buildAuthPersistenceDebugLane();
+  const authPersistenceWarnings = toNumber(authPersistence.unexpectedDrops)
+    + toNumber(authPersistence.navigationSessionFailures)
+    + toNumber(authPersistence.profileSnapshotReconnects)
+    + (authPersistence.telemetryStatus === "mapped" ? 0 : 1);
   const notificationPermission = input.notificationPermissionLifecycle?.debugLane ?? buildNotificationPermissionDebugLane();
   const notificationPermissionWarnings = toNumber(notificationPermission.failed)
     + (notificationPermission.telemetryStatus === "mapped" ? 0 : 1);
@@ -493,6 +501,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: authProviderConflict.rawEmailPasswordExposed ? 1 : 0,
       warningCount: authProviderConflictWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#auth-provider-conflict",
+    }),
+    makeLane({
+      id: "auth_persistence",
+      label: "Auth persistence",
+      trackingSystem: "auth_persistence",
+      sourceOwner: "auth",
+      sourceOfTruth: "src/lib/auth/auth-session-stability.ts",
+      status: authPersistence.status === "degraded" ? "degraded" : authPersistence.status === "failed" ? "failed" : authPersistence.status === "unavailable" ? "unavailable" : "live",
+      severity: severityFromCounts(0, authPersistenceWarnings, authPersistenceWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: "medium",
+      primarySignal: `Persistence=${authPersistence.persistenceStatus}; restored=${toNumber(authPersistence.restoredSessions)}; unexpectedDrops=${toNumber(authPersistence.unexpectedDrops)}; navigationFailures=${toNumber(authPersistence.navigationSessionFailures)}; profileReconnects=${toNumber(authPersistence.profileSnapshotReconnects)}; securityLogouts=${toNumber(authPersistence.securityLogoutCount)}; telemetry=${authPersistence.telemetryStatus}.`,
+      criticalCount: 0,
+      warningCount: authPersistenceWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#auth-persistence",
     }),
     makeLane({
       id: "notification_permission",

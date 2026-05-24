@@ -1,0 +1,190 @@
+{
+  "generatedAtUtc": "2026-05-24T08:43:26.222Z",
+  "currentHead": "076243a2",
+  "persistenceStatus": "established",
+  "transitionClassifierStatus": "mapped",
+  "navigationSessionDeletePolicy": "reasoned_only",
+  "profileSnapshotRetryStatus": "transient_retry_keeps_user",
+  "logoutReasonStatus": "mapped",
+  "securityLogoutStatus": "preserved",
+  "explicitLogoutStatus": "clears_session",
+  "telemetryEvents": [
+    "auth_persistence_established",
+    "auth_session_restored",
+    "auth_state_changed",
+    "auth_unexpected_session_drop",
+    "auth_logout_started",
+    "auth_logout_completed",
+    "auth_navigation_session_deleted",
+    "auth_profile_snapshot_reconnect",
+    "auth_profile_snapshot_failed"
+  ],
+  "debugLane": {
+    "laneId": "auth_persistence",
+    "label": "Auth persistence",
+    "status": "live",
+    "persistenceStatus": "browser_local_persistence_established",
+    "restoredSessions": 0,
+    "unexpectedDrops": 0,
+    "navigationSessionFailures": 0,
+    "profileSnapshotReconnects": 0,
+    "securityLogoutCount": 0,
+    "telemetryStatus": "mapped",
+    "rawCredentialsExposed": false,
+    "rawDetailsCollapsedByDefault": true
+  },
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreDimensions": {
+    "sourceHealth": {
+      "before": 92.5,
+      "after": 92.5,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth persistence-specific score action required."
+    },
+    "runtimeHealth": {
+      "before": 84.2,
+      "after": 84.2,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth persistence-specific score action required."
+    },
+    "evidenceCompleteness": {
+      "before": 69.6,
+      "after": 69.6,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence/cost gates; auth persistence source evidence is now mapped."
+    },
+    "freshness": {
+      "before": 83.75,
+      "after": 83.75,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth persistence-specific score action required."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence/cost gates; auth persistence source evidence is now mapped."
+    },
+    "regressionRisk": {
+      "before": 86,
+      "after": 86,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No auth persistence-specific score action required."
+    },
+    "overallHealthScore": {
+      "before": 79.25,
+      "after": 79.25,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Remaining below-target score is governed by formal evidence/cost gates; auth persistence source evidence is now mapped."
+    }
+  },
+  "dirtyFiles": [
+    {
+      "path": "agent/state/auth-persistence-stability.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/auth-persistence-stability.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-auth-persistence-stability.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/context/AuthContext.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/auth/auth-persistence-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/auth/auth-session-stability.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/auth-persistence-stability.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "oldLogicClassification": [
+    {
+      "reference": "browserLocalPersistence",
+      "classification": "still_required",
+      "reason": "Firebase browser local persistence is the source-backed restore mechanism."
+    },
+    {
+      "reference": "navigation-session DELETE inside onAuthStateChanged",
+      "classification": "stale_removed",
+      "reason": "Navigation session deletion is now reasoned through shouldDeleteNavigationSession/deleteNavigationSession."
+    },
+    {
+      "reference": "auth profile snapshot auto-healing",
+      "classification": "still_required",
+      "reason": "Profile listener reconnects remain active and now emit retry/failure telemetry."
+    }
+  ],
+  "protectedSurfaceStatus": {
+    "chatTouched": false,
+    "taskImplementationTouched": false,
+    "notificationTouched": false,
+    "paymentRuntimeTouched": false,
+    "walletRuntimeTouched": false,
+    "gumdropRuntimeTouched": false
+  },
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "Run a local browser restore/logout smoke when browser QA is explicitly authorized.",
+    "Attach deployed runtime evidence before clearing any formal beta runtime gate."
+  ],
+  "validationFailures": []
+}

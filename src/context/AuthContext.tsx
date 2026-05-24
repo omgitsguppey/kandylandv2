@@ -48,6 +48,15 @@ import {
     prepareEmailSignup,
     validateEmailSignupInput,
 } from "@/lib/auth/email-password-auth-flow";
+import type { AuthLogoutReason } from "@/lib/auth/auth-persistence-contract";
+import {
+    buildAuthPersistenceTelemetry,
+    classifyAuthStateTransition,
+    classifyLogoutReason,
+    shouldClearUserState as shouldClearAuthUserState,
+    shouldDeleteNavigationSession as shouldDeleteAuthNavigationSession,
+    shouldRetryProfileSnapshot,
+} from "@/lib/auth/auth-session-stability";
 import {
     emitAuthLifecycleEvent,
     type AuthOutcomeMethod,
@@ -219,6 +228,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const manualRegistrationStateRef = useRef<{ uid: string | null; email: string } | null>(null);
     const navigationSessionSyncKeyRef = useRef<string | null>(null);
     const currentAuthUidRef = useRef<string | null>(null);
+    const explicitLogoutInFlightRef = useRef(false);
+    const navigationSessionFailureInFlightRef = useRef(false);
+    const persistenceTelemetryEmittedRef = useRef(false);
     const router = useRouter();
     const pathname = usePathname();
     const pathnameRef = useRef(pathname);
@@ -278,6 +290,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
         });
     }, []);
+
+    const emitAuthPersistenceEvent = useCallback((input: Parameters<typeof buildAuthPersistenceTelemetry>[0]) => {
+        const event = buildAuthPersistenceTelemetry(input);
+        trackEvent(event.eventName, event.params);
+    }, []);
+
+    const deleteNavigationSession = useCallback(async (
+        logoutReason: AuthLogoutReason,
+        sourceComponent = "AuthContext",
+    ) => {
+        try {
+            await fetch("/api/auth/navigation-session", {
+                method: "DELETE",
+                keepalive: true,
+            });
+            emitAuthPersistenceEvent({
+                eventName: "auth_navigation_session_deleted",
+                logoutReason,
+                navigationSessionStatus: "deleted",
+                sourceComponent,
+                sourceTruth: "server_session",
+            });
+        } catch (error) {
+            reportRealtimeIssue("auth navigation session delete failed", error, {
+                logoutReason,
+                sourceComponent,
+            });
+            emitAuthPersistenceEvent({
+                eventName: "auth_navigation_session_deleted",
+                logoutReason,
+                navigationSessionStatus: "failed",
+                sourceComponent,
+                sourceTruth: "server_session",
+                failureCode: "navigation_session_delete_failed",
+            });
+        }
+    }, [emitAuthPersistenceEvent]);
 
     const ensureNavigationSessionEstablished = useCallback(async (input: {
         userId: string;
@@ -352,6 +401,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
 
             if (auth) {
+                navigationSessionFailureInFlightRef.current = true;
                 try {
                     await signOut(auth);
                 } catch (signOutError) {
@@ -384,6 +434,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 }
 
                 await ensureAuthPersistence();
+                if (!persistenceTelemetryEmittedRef.current) {
+                    persistenceTelemetryEmittedRef.current = true;
+                    emitAuthPersistenceEvent({
+                        eventName: "auth_persistence_established",
+                        navigationSessionStatus: "sync_pending",
+                        sourceComponent: "AuthContext",
+                        sourceTruth: "client_auth",
+                    });
+                }
 
                 try {
                     const redirectResult = await getRedirectResult(auth);
@@ -404,37 +463,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     const nextUserId = currentUser?.uid ?? null;
                     const previousUserId = currentAuthUidRef.current;
                     const authIdentityChanged = previousUserId !== nextUserId;
+                    const transition = classifyAuthStateTransition({
+                        previousUserId,
+                        nextUserId,
+                        initialAuthResolved: initialAuthResolvedRef.current,
+                        explicitLogoutInFlight: explicitLogoutInFlightRef.current,
+                        navigationSessionFailureInFlight: navigationSessionFailureInFlightRef.current,
+                    });
 
                     if (authIdentityChanged) {
                         currentAuthUidRef.current = nextUserId;
                         navigationSessionSyncKeyRef.current = null;
                         autoRegisterInFlightRef.current.clear();
-                        setUserProfile(null);
-                        setLoading(Boolean(currentUser));
-                        syncClientSessionOwnership(nextUserId ? `user:${nextUserId}` : null);
-                        syncIdentifiedTelemetryOwnership(nextUserId);
-                        syncLastVisitedPathOwner(nextUserId);
-                        clearTaskGuidanceStorage();
-
-                        void fetch("/api/auth/navigation-session", {
-                            method: "DELETE",
-                            keepalive: true,
-                        }).catch((error) => {
-                            reportRealtimeIssue("auth navigation session delete failed", error);
+                        emitAuthPersistenceEvent({
+                            eventName: "auth_state_changed",
+                            previousUserId,
+                            nextUserId,
+                            authProvider: currentUser?.providerData[0]?.providerId || "unknown",
+                            logoutReason: transition.logoutReason,
+                            sessionRestoreReason: transition.sessionRestoreReason,
+                            sourceComponent: "AuthContext",
+                            sourceTruth: transition.authStateSource,
                         });
+
+                        if (nextUserId) {
+                            setUserProfile(null);
+                            setLoading(true);
+                            syncClientSessionOwnership(`user:${nextUserId}`);
+                            syncIdentifiedTelemetryOwnership(nextUserId);
+                            syncLastVisitedPathOwner(nextUserId);
+                            if (previousUserId && previousUserId !== nextUserId) {
+                                clearTaskGuidanceStorage();
+                            }
+                        } else if (shouldClearAuthUserState({ logoutReason: transition.logoutReason })) {
+                            setUserProfile(null);
+                            setLoading(false);
+                            syncClientSessionOwnership(null);
+                            syncIdentifiedTelemetryOwnership(null);
+                            syncLastVisitedPathOwner(null);
+                            clearTaskGuidanceStorage();
+                        }
+
+                        if (transition.unexpectedDrop) {
+                            emitAuthPersistenceEvent({
+                                eventName: "auth_unexpected_session_drop",
+                                previousUserId,
+                                nextUserId,
+                                logoutReason: transition.logoutReason,
+                                sourceComponent: "AuthContext",
+                                sourceTruth: transition.authStateSource,
+                            });
+                        }
+
+                        if (shouldDeleteAuthNavigationSession({
+                            logoutReason: transition.logoutReason,
+                            explicitLogoutAlreadyDeleted: explicitLogoutInFlightRef.current,
+                        })) {
+                            void deleteNavigationSession(transition.logoutReason ?? "unknown", "AuthContext");
+                        }
                     }
 
                     setUser(currentUser);
                     setAuthStateResolved(true);
 
                     if (!initialAuthResolvedRef.current && currentUser) {
-                        trackEvent("auth_session_restored", {
-                            restoration_source: "browser_local_persistence",
-                            auth_provider: currentUser.providerData[0]?.providerId || "unknown",
+                        emitAuthPersistenceEvent({
+                            eventName: "auth_session_restored",
+                            userId: currentUser.uid,
+                            authProvider: currentUser.providerData[0]?.providerId || "unknown",
+                            sessionRestoreReason: "initial_browser_local_restore",
+                            navigationSessionStatus: "sync_pending",
+                            sourceComponent: "AuthContext",
+                            sourceTruth: "browser_local_persistence",
                         });
                         emitIdentityLinkContinuity(currentUser.uid, "session_restore");
                     }
                     initialAuthResolvedRef.current = true;
+                    if (currentUser === null) {
+                        navigationSessionFailureInFlightRef.current = false;
+                    }
 
                     if (currentUser === null) {
                         setLoading(false);
@@ -455,7 +562,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             cancelled = true;
             unsubscribe();
         };
-    }, [emitIdentityLinkContinuity]);
+    }, [deleteNavigationSession, emitAuthPersistenceEvent, emitIdentityLinkContinuity]);
 
     useEffect(() => {
         if (!authStateResolved) {
@@ -497,6 +604,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         autoRegisterInFlight.delete(currentUserId);
 
                         if (profile && (profile.status === "banned" || profile.status === "suspended")) {
+                            const logoutReason = classifyLogoutReason({
+                                securityStatus: profile.status,
+                            });
+                            emitAuthPersistenceEvent({
+                                eventName: "auth_state_changed",
+                                userId: currentUserId,
+                                logoutReason,
+                                profileSnapshotStatus: "security_blocked",
+                                sourceComponent: "AuthContext",
+                                sourceTruth: "profile_snapshot",
+                            });
                             setUserProfile(profile);
                             setLoading(false);
                             if (pathnameRef.current !== "/banned") {
@@ -542,18 +660,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             });
                             if (!response.ok && !cancelled) {
                                 autoRegisterInFlight.delete(currentUserId);
+                                emitAuthPersistenceEvent({
+                                    eventName: "auth_profile_snapshot_failed",
+                                    userId: currentUserId,
+                                    logoutReason: "backend_registration_failed",
+                                    profileSnapshotStatus: "failed",
+                                    sourceComponent: "AuthContext",
+                                    sourceTruth: "profile_snapshot",
+                                    failureCode: `profile_registration_http_${response.status}`,
+                                });
                                 setLoading(false);
                             }
                         } catch (error) {
                             reportRealtimeIssue("auth profile bootstrap failed", error);
                             if (!cancelled) {
                                 autoRegisterInFlight.delete(currentUserId);
+                                emitAuthPersistenceEvent({
+                                    eventName: "auth_profile_snapshot_failed",
+                                    userId: currentUserId,
+                                    logoutReason: "backend_registration_failed",
+                                    profileSnapshotStatus: "failed",
+                                    sourceComponent: "AuthContext",
+                                    sourceTruth: "profile_snapshot",
+                                    failureCode: "profile_registration_exception",
+                                });
                                 setLoading(false);
                             }
                         }
                     }
                 }, (error: unknown) => {
                     if (!cancelled) {
+                        if (shouldRetryProfileSnapshot({
+                            profileSnapshotStatus: "reconnecting",
+                            hasAuthUser: auth?.currentUser?.uid === currentUserId,
+                        })) {
+                            emitAuthPersistenceEvent({
+                                eventName: "auth_profile_snapshot_reconnect",
+                                userId: currentUserId,
+                                profileSnapshotStatus: "reconnecting",
+                                sourceComponent: "AuthContext",
+                                sourceTruth: "profile_snapshot",
+                                failureCode: error instanceof Error ? error.name : "snapshot_error",
+                            });
+                            setLoading(true);
+                        }
                         observerControl.triggerReconnect(error);
                     }
                 });
@@ -575,6 +725,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             reportRealtimeIssue("auth profile snapshot", error, {
                 userId: currentUserId,
             });
+            emitAuthPersistenceEvent({
+                eventName: "auth_profile_snapshot_failed",
+                userId: currentUserId,
+                profileSnapshotStatus: "failed",
+                sourceComponent: "AuthContext",
+                sourceTruth: "profile_snapshot",
+                failureCode: error instanceof Error ? error.name : "snapshot_error",
+            });
         });
 
         return () => {
@@ -582,7 +740,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             autoRegisterInFlight.delete(currentUserId);
             observerControl.cleanup();
         };
-    }, [authStateResolved, router, user]);
+    }, [authStateResolved, emitAuthPersistenceEvent, router, user]);
 
     useEffect(() => {
         if (!user) {
@@ -910,16 +1068,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const logout = useCallback(async () => {
+        explicitLogoutInFlightRef.current = true;
+        const authProvider = auth?.currentUser?.providerData[0]?.providerId || "unknown";
+        emitAuthPersistenceEvent({
+            eventName: "auth_logout_started",
+            userId: auth?.currentUser?.uid ?? null,
+            authProvider,
+            logoutReason: "explicit_user_logout",
+            navigationSessionStatus: "delete_pending",
+            sourceComponent: "AuthContext",
+            sourceTruth: "explicit_logout",
+        });
         clearLastVisitedPath();
         navigationSessionSyncKeyRef.current = null;
-        await fetch("/api/auth/navigation-session", {
-            method: "DELETE",
-            keepalive: true,
-        }).catch((error) => {
-            reportRealtimeIssue("auth logout navigation session delete failed", error);
-        });
+        await deleteNavigationSession("explicit_user_logout", "AuthContext.logout");
 
         if (!auth) {
+            emitAuthPersistenceEvent({
+                eventName: "auth_logout_completed",
+                logoutReason: "explicit_user_logout",
+                sourceComponent: "AuthContext",
+                sourceTruth: "explicit_logout",
+            });
+            explicitLogoutInFlightRef.current = false;
             router.replace("/");
             return;
         }
@@ -930,9 +1101,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
         }
 
-        await signOut(auth);
-        router.replace("/");
-    }, [router]);
+        try {
+            await signOut(auth);
+            emitAuthPersistenceEvent({
+                eventName: "auth_logout_completed",
+                userId: null,
+                authProvider,
+                logoutReason: "explicit_user_logout",
+                navigationSessionStatus: "deleted",
+                sourceComponent: "AuthContext",
+                sourceTruth: "explicit_logout",
+            });
+            router.replace("/");
+        } finally {
+            explicitLogoutInFlightRef.current = false;
+        }
+    }, [deleteNavigationSession, emitAuthPersistenceEvent, router]);
 
     const identityValue = useMemo(
         () => ({
