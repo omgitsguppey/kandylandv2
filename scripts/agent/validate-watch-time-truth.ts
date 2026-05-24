@@ -96,4 +96,21 @@ requireIncludes(behavioralRuntime, "watchScoreConfidence", "behavioral intellige
   "respects identified analytics consent denial",
 ].forEach((label) => requireIncludes(routeTests, label, "watch route tests"));
 
+const generatedAtUtc = new Date().toISOString();
+const report = {
+  generatedAt: generatedAtUtc,
+  generatedAtUtc,
+  status: "source_ready_evidence_gap",
+  sourceStatus: "current_static_validator",
+  dropWatchTimeEngineExists: true,
+  pageTimeCountsAsWatchTime: false,
+  hiddenOrIdleExcluded: true,
+  claimsPersistedLiveMetric: false,
+  productionReadsRun: false,
+  nextAction: "Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output.",
+};
+const reportPath = path.join(repoRoot, "agent/state/watch-time-truth.generated.json");
+fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+
 console.log("Watch time truth validator passed.");

@@ -1,6 +1,6 @@
 # Privacy Behavior Legacy Recovery
 
-Generated: 2026-05-21T19:30:39.223Z
+Generated: 2026-05-24T19:30:37.255Z
 
 This is a dry-run recovery contract for legacy and orphaned privacy/behavior records from March 1, 2026 onward. It does not read production data, run live backfill, mutate records, or promote unknown legacy consent into full behavioral tracking.
 

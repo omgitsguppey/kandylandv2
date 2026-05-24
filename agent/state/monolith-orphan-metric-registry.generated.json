@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-21T19:03:54.558Z",
-  "sourceCommit": "71a910fcbbe06296e4ffd189192543233af30cb6",
-  "currentHead": "71a910fcbbe06296e4ffd189192543233af30cb6",
+  "generatedAt": "2026-05-24T19:30:37.601Z",
+  "sourceCommit": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
   "overallStatus": "pass",
   "overallScore": 80,
   "metricSummary": {
@@ -49,7 +49,7 @@
       "humanReadableWarning": "Extract named drilldown loaders for the highest-churn debug sections before adding more evidence lanes.",
       "filePath": "src/app/api/admin/debug/route.ts",
       "evidence": [
-        "lineCount=6371",
+        "lineCount=6791",
         "owner=admin-debug",
         "splitRecommendation=Split the all-section branch into section-specific drilldown loaders after UI callers support section-specific requests."
       ]
@@ -61,7 +61,7 @@
       "humanReadableWarning": "Split state by tab the next time a metric source or consumer changes in admin analytics.",
       "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
       "evidence": [
-        "lineCount=3082",
+        "lineCount=3205",
         "owner=admin-analytics",
         "splitRecommendation=Move metric fetch, freshness derivation, and tab-specific state into named admin analytics hooks."
       ]
@@ -334,7 +334,7 @@
   "monolithRegistry": [
     {
       "filePath": "src/app/api/admin/debug/route.ts",
-      "lineCount": 6371,
+      "lineCount": 6791,
       "domainsMixed": [
         "admin-debug",
         "telemetry",
@@ -358,7 +358,7 @@
     },
     {
       "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "lineCount": 3082,
+      "lineCount": 3205,
       "domainsMixed": [
         "admin-analytics",
         "state",

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.43 - 2026-05-24
+
+- Refreshed cost, telemetry, behavior, support, and creator readiness lanes.
+- Added watch-time truth evidence-gap reporting and Data Connect mirror safety classification.
+- Documented admin debug and admin analytics monolith split plans without unsafe broad refactors.
+
 ## 1.4.42 - 2026-05-24
 
 - Refreshed debug evidence, pre-catcher, device, hydration, content, image, and GumDrop economy readiness.

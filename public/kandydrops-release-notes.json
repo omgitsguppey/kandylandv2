@@ -1,11 +1,64 @@
 {
-  "currentVersion": "1.4.42",
-  "betaReleaseCounter": 442,
+  "currentVersion": "1.4.43",
+  "betaReleaseCounter": 443,
   "channel": "beta",
   "generatedAt": "2026-05-24T20:20:00.000Z",
   "generatedAtUtc": "2026-05-24T20:20:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.43",
+      "previousVersion": "1.4.42",
+      "betaReleaseCounter": 443,
+      "previousBetaReleaseCounter": 442,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): refresh telemetry cost support lanes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T20:35:00.000Z",
+      "generatedAt": "2026-05-24T20:35:00.000Z",
+      "committedAtUtc": "2026-05-24T20:35:00.000Z",
+      "generatedAtUtc": "2026-05-24T20:35:00.000Z",
+      "updatedAtUtc": "2026-05-24T20:35:00.000Z",
+      "category": "Improved",
+      "title": "Telemetry and support readiness refresh",
+      "summary": "Refreshed cost, telemetry, behavior, support, and creator readiness while keeping watch-time evidence gaps and monolith split plans explicit.",
+      "userFacingTitle": "Telemetry and support readiness refresh",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed cost, telemetry, behavior, support, and creator readiness lanes.",
+        "Added watch-time truth evidence-gap reporting and Data Connect mirror safety classification.",
+        "Documented admin debug and admin analytics monolith split plans without unsafe broad refactors."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "App experience",
+        "Admin diagnostics",
+        "Creator tools",
+        "Support",
+        "Internal reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/debug-cockpit-batch13-cleanup.generated.json",
+        "agent/state/cost-data-connect-refresh.generated.json",
+        "agent/state/telemetry-behavior-refresh.generated.json",
+        "agent/state/runtime-watch-time-evidence-gap.generated.json",
+        "agent/state/support-creator-refresh.generated.json",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/debug-cockpit-batch13-shared.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "effectiveChangeCount": 11,
+      "excludedGeneratedChangeCount": 5,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.42",
       "previousVersion": "1.4.41",

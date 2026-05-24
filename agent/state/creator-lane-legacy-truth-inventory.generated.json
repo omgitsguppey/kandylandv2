@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T00:00:00.000-05:00",
+  "generatedAt": "2026-05-24T19:37:50.059Z",
   "task": "creator-lane-legacy-truth-inventory",
   "scope": "Creator onboarding, admin roster, agreement, creator experience, tests, and Firebase rules truth-lane inventory.",
   "doctrine": {
@@ -43,10 +43,21 @@
       "writesHistory": false,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["guest", "user", "creator", "admin", "owner_admin", "system", "unknown"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator",
+        "admin",
+        "owner_admin",
+        "system",
+        "unknown"
+      ],
       "risk": "Shared helper still carries legacy/projection compatibility in the same file as canonical typing, so future contributors can mistake projection helpers for the source of truth.",
       "cleanupRecommendation": "Keep this as the contract owner, but keep comments explicit that creator_onboarding is canonical and users.creatorApplication is projection only.",
-      "testsNeeded": ["tests/unit/creator-onboarding.spec.ts", "tests/unit/creator-onboarding-server.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-onboarding.spec.ts",
+        "tests/unit/creator-onboarding-server.spec.ts"
+      ]
     },
     {
       "filePath": "src/lib/server/creator-onboarding.ts",
@@ -61,10 +72,19 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["user", "creator", "admin", "owner_admin", "system"],
+      "actorLanesInvolved": [
+        "user",
+        "creator",
+        "admin",
+        "owner_admin",
+        "system"
+      ],
       "risk": "This is the critical dual-write bridge; drift here can desync canonical onboarding, roster projection, and user projection.",
       "cleanupRecommendation": "Keep dual-write centralized here until legacy projection consumers are migrated. Do not add independent creatorApplication writes elsewhere.",
-      "testsNeeded": ["tests/unit/creator-onboarding-server.spec.ts", "tests/unit/user-register-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-onboarding-server.spec.ts",
+        "tests/unit/user-register-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/lib/server/creator-onboarding-diagnostics.ts",
@@ -79,10 +99,15 @@
       "writesHistory": false,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["admin", "system"],
+      "actorLanesInvolved": [
+        "admin",
+        "system"
+      ],
       "risk": "Diagnostics depend on all three lanes and are the main safety net for projection/canonical drift.",
       "cleanupRecommendation": "Keep reporting projection_without_source until every creatorApplication-only record is migrated or intentionally archived.",
-      "testsNeeded": ["tests/unit/creator-onboarding-diagnostics.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-onboarding-diagnostics.spec.ts"
+      ]
     },
     {
       "filePath": "src/lib/server/creator-onboarding-alerts.ts",
@@ -97,10 +122,16 @@
       "writesHistory": false,
       "classification": "projection",
       "truthClass": "projection",
-      "actorLanesInvolved": ["system", "admin"],
+      "actorLanesInvolved": [
+        "system",
+        "admin"
+      ],
       "risk": "Notification dispatch can make a creator lane appear acted on even if canonical materialization failed elsewhere.",
       "cleanupRecommendation": "Keep notification dispatch dependent on canonical submission outcomes and preserve dedupe locks.",
-      "testsNeeded": ["tests/unit/creator-onboarding-alerts.spec.ts", "tests/unit/user-register-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-onboarding-alerts.spec.ts",
+        "tests/unit/user-register-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/user/register/route.ts",
@@ -115,10 +146,18 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["guest", "user", "creator", "unknown"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator",
+        "unknown"
+      ],
       "risk": "Signup response uses projection language because client routing still expects creatorApplication.",
       "cleanupRecommendation": "Keep using ensureCreatorOnboardingSubmission; future client response can add canonical onboarding metadata but must not bypass the server materializer.",
-      "testsNeeded": ["tests/unit/user-register-route.spec.ts", "tests/unit/creator-intake-flow.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/user-register-route.spec.ts",
+        "tests/unit/creator-intake-flow.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/onboarding/application/route.ts",
@@ -133,10 +172,15 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["creator", "user"],
+      "actorLanesInvolved": [
+        "creator",
+        "user"
+      ],
       "risk": "Legacy projection fallback is still used to bootstrap canonical state when needed.",
       "cleanupRecommendation": "Keep all writes routed through syncCreatorOnboardingDocuments and remove projection bootstrap only after migration tooling confirms no projection-only records remain.",
-      "testsNeeded": ["tests/unit/creator-onboarding-application-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-onboarding-application-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/onboarding/intro/route.ts",
@@ -151,10 +195,15 @@
       "writesHistory": true,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "user"],
+      "actorLanesInvolved": [
+        "creator",
+        "user"
+      ],
       "risk": "Intro state must remain canonical-first or Admin Roster action labels will drift.",
       "cleanupRecommendation": "Keep intro updates on creator_onboarding and projection sync in the same transaction.",
-      "testsNeeded": ["tests/unit/creator-onboarding-intro-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-onboarding-intro-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
@@ -169,10 +218,15 @@
       "writesHistory": true,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "user"],
+      "actorLanesInvolved": [
+        "creator",
+        "user"
+      ],
       "risk": "Sensitive ID evidence must not be copied into public-facing creator profile surfaces.",
       "cleanupRecommendation": "Keep ID details in canonical/debug paths and project only review-safe status fields.",
-      "testsNeeded": ["tests/unit/creator-id-submission-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-id-submission-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
@@ -187,10 +241,16 @@
       "writesHistory": true,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "user"],
+      "actorLanesInvolved": [
+        "creator",
+        "user"
+      ],
       "risk": "Legal evidence must preserve prior signatures and exact agreement hash/version.",
       "cleanupRecommendation": "Do not write signature evidence outside creator_onboarding agreement subcollections; preserve versioned dispatch records.",
-      "testsNeeded": ["tests/unit/creator-contract-signature-route.spec.ts", "tests/unit/creator-agreement-signature-ux.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-contract-signature-route.spec.ts",
+        "tests/unit/creator-agreement-signature-ux.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/onboarding/agreement-document/route.ts",
@@ -205,10 +265,16 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "user"],
+      "actorLanesInvolved": [
+        "creator",
+        "user"
+      ],
       "risk": "Raw storage paths must not leak to creators.",
       "cleanupRecommendation": "Keep document reads scoped to the authenticated creator and expose source availability rather than raw paths.",
-      "testsNeeded": ["tests/unit/creator-agreement-documents.spec.ts", "tests/unit/creator-agreement-signature-ux.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-agreement-documents.spec.ts",
+        "tests/unit/creator-agreement-signature-ux.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/admin/roster/route.ts",
@@ -223,10 +289,17 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["admin", "owner_admin", "system"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin",
+        "system"
+      ],
       "risk": "Roster uses queue projection for speed but still falls back to user projection for hidden or legacy entries.",
       "cleanupRecommendation": "Keep admin creation and synthetic creation on canonical sync helpers; migrate roster reads to queue/canonical first and projection fallback second.",
-      "testsNeeded": ["tests/unit/admin-roster-route.spec.ts", "tests/unit/synthetic-creators-view-as.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/synthetic-creators-view-as.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/admin/users/route.ts",
@@ -241,10 +314,15 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin"
+      ],
       "risk": "Generic admin user updates can become a legacy backdoor if future code writes creatorApplication directly.",
       "cleanupRecommendation": "Keep creatorApplication patches wrapped by canonical rebuild/sync and prefer narrower creator admin routes for new actions.",
-      "testsNeeded": ["tests/unit/admin-users-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-users-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/admin/creator-account-controls/route.ts",
@@ -259,10 +337,15 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin"
+      ],
       "risk": "Account controls can cross user profile truth, creator role activation, and creator onboarding approval truth in one action.",
       "cleanupRecommendation": "Keep elevated account controls server-only, actor-marked, and history-backed. Do not let account controls write creatorApplication without canonical sync.",
-      "testsNeeded": ["tests/unit/admin-creator-account-controls-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-creator-account-controls-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/admin/user/[userId]/creator-onboarding/id-document/route.ts",
@@ -277,10 +360,15 @@
       "writesHistory": true,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin"
+      ],
       "risk": "ID review is sensitive and must not leak document metadata into public projection fields.",
       "cleanupRecommendation": "Keep review actions on canonical onboarding, project only status/safe summaries, and preserve reviewer history.",
-      "testsNeeded": ["tests/unit/admin-creator-id-document-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-creator-id-document-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/admin/view-as-creator/route.ts",
@@ -295,10 +383,17 @@
       "writesHistory": true,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["admin", "owner_admin", "creator"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin",
+        "creator"
+      ],
       "risk": "View-as must not become real session takeover or wallet/payment impersonation.",
       "cleanupRecommendation": "Keep view-as as simulation context with explicit performedAs markers and history events.",
-      "testsNeeded": ["tests/unit/admin-view-as-creator-route.spec.ts", "tests/unit/synthetic-creators-view-as.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-view-as-creator-route.spec.ts",
+        "tests/unit/synthetic-creators-view-as.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/admin/user/[userId]/route.ts",
@@ -313,10 +408,16 @@
       "writesHistory": false,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin"
+      ],
       "risk": "Fallback canonical reconstruction from creatorApplication can mask projection-only records if Debug does not surface it.",
       "cleanupRecommendation": "Keep returning both canonical and projection fields until Admin Debug can explicitly flag fallback canonical reconstruction.",
-      "testsNeeded": ["tests/unit/admin-user-commerce.spec.ts", "tests/unit/admin-user-metrics.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-user-commerce.spec.ts",
+        "tests/unit/admin-user-metrics.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/admin/roster/page.tsx",
@@ -331,10 +432,16 @@
       "writesHistory": false,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin"
+      ],
       "risk": "Large UI surface still shows projection and canonical values together; wrong precedence can mislead operators.",
       "cleanupRecommendation": "Keep canonical selected detail as primary and use user.creatorApplication only as explicit projection fallback.",
-      "testsNeeded": ["tests/unit/admin-roster-decision-queue.spec.ts", "tests/unit/admin-roster-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-roster-decision-queue.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/admin/roster/decision-queue.ts",
@@ -349,10 +456,15 @@
       "writesHistory": false,
       "classification": "projection",
       "truthClass": "projection",
-      "actorLanesInvolved": ["admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin"
+      ],
       "risk": "Queue classification depends on projected statuses remaining in parity with canonical onboarding.",
       "cleanupRecommendation": "Keep this pure and backed by tests; do not add Firestore reads or side effects.",
-      "testsNeeded": ["tests/unit/admin-roster-decision-queue.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-roster-decision-queue.spec.ts"
+      ]
     },
     {
       "filePath": "src/components/Admin/CreatorAuditTrailPanel.tsx",
@@ -367,10 +479,15 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin"
+      ],
       "risk": "If raw enum labels leak into primary UI, operators may misunderstand lifecycle truth.",
       "cleanupRecommendation": "Keep latest-three compaction and Details disclosure; Debug can carry raw metadata.",
-      "testsNeeded": ["tests/unit/creator-audit-trail-panel.spec.tsx"]
+      "testsNeeded": [
+        "tests/unit/creator-audit-trail-panel.spec.tsx"
+      ]
     },
     {
       "filePath": "src/lib/creator-application.ts",
@@ -385,10 +502,18 @@
       "writesHistory": false,
       "classification": "projection",
       "truthClass": "projection",
-      "actorLanesInvolved": ["guest", "user", "creator", "admin"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator",
+        "admin"
+      ],
       "risk": "This file name and helpers can make projection state feel canonical to future code.",
       "cleanupRecommendation": "Treat as a projection/legacy adapter only; new creator lifecycle logic must use creator_onboarding helpers.",
-      "testsNeeded": ["tests/unit/creator-onboarding.spec.ts", "tests/unit/creator-waitlist-page.spec.tsx"]
+      "testsNeeded": [
+        "tests/unit/creator-onboarding.spec.ts",
+        "tests/unit/creator-waitlist-page.spec.tsx"
+      ]
     },
     {
       "filePath": "src/types/db.ts",
@@ -403,10 +528,18 @@
       "writesHistory": false,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["guest", "user", "creator", "admin", "system"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator",
+        "admin",
+        "system"
+      ],
       "risk": "Type presence alone does not express whether a field is canonical or projection.",
       "cleanupRecommendation": "Keep doc comments and inventory clear that CreatorApplication is projection/legacy-compatible while CreatorSettings/CreatorRestrictions are current fan-experience settings.",
-      "testsNeeded": ["npx tsc --noEmit --pretty false"]
+      "testsNeeded": [
+        "npx tsc --noEmit --pretty false"
+      ]
     },
     {
       "filePath": "src/lib/creator-contract.ts",
@@ -421,10 +554,16 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "creator",
+        "admin",
+        "owner_admin"
+      ],
       "risk": "Static constants are not enough for active template/version evidence if agreement manager state exists.",
       "cleanupRecommendation": "Use as fallback/native full text source; active agreement lifecycle should stay in creator agreement template/dispatch helpers.",
-      "testsNeeded": ["tests/unit/creator-agreement-documents.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-agreement-documents.spec.ts"
+      ]
     },
     {
       "filePath": "src/lib/creator-agreement-documents.ts",
@@ -439,10 +578,17 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "admin", "owner_admin", "system"],
+      "actorLanesInvolved": [
+        "creator",
+        "admin",
+        "owner_admin",
+        "system"
+      ],
       "risk": "Agreement hash/version must stay immutable for signed records.",
       "cleanupRecommendation": "Keep agreement evidence versioned and do not mirror full legal source into users.creatorApplication beyond status/projection fields.",
-      "testsNeeded": ["tests/unit/creator-agreement-documents.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-agreement-documents.spec.ts"
+      ]
     },
     {
       "filePath": "src/lib/server/creator-agreement-documents.ts",
@@ -457,10 +603,17 @@
       "writesHistory": true,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["admin", "owner_admin", "creator"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin",
+        "creator"
+      ],
       "risk": "Agreement updates can invalidate current creator signature if not tied to dispatch/hash.",
       "cleanupRecommendation": "Keep dispatch/version/hash as the evidence boundary and use agreement_update_sent history for re-sign flows.",
-      "testsNeeded": ["tests/unit/admin-creator-agreements-route.spec.ts", "tests/unit/creator-contract-signature-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-creator-agreements-route.spec.ts",
+        "tests/unit/creator-contract-signature-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/lib/server/creator-agreement-templates.ts",
@@ -475,10 +628,17 @@
       "writesHistory": true,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["admin", "owner_admin", "system"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin",
+        "system"
+      ],
       "risk": "Template activation affects future creators and must remain owner/admin guarded.",
       "cleanupRecommendation": "Keep active template version/hash separate from already-signed creator records.",
-      "testsNeeded": ["tests/unit/admin-creator-agreements-route.spec.ts", "tests/unit/creator-agreement-documents.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-creator-agreements-route.spec.ts",
+        "tests/unit/creator-agreement-documents.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/admin/creator-agreements/route.ts",
@@ -493,10 +653,15 @@
       "writesHistory": true,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["admin", "owner_admin"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin"
+      ],
       "risk": "Admin legal actions need target user, version, hash, and actor evidence.",
       "cleanupRecommendation": "Keep all agreement lifecycle writes on creator_onboarding/creator_agreement_templates and avoid direct projection edits.",
-      "testsNeeded": ["tests/unit/admin-creator-agreements-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-creator-agreements-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/components/Creators/CreatorAgreementReview.tsx",
@@ -511,10 +676,16 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "user"],
+      "actorLanesInvolved": [
+        "creator",
+        "user"
+      ],
       "risk": "Visible status copy must not expose raw legal enum names or imply activation before admin completion.",
       "cleanupRecommendation": "Keep UI state fed by canonical agreement dispatch/version/hash readiness.",
-      "testsNeeded": ["tests/unit/creator-agreement-signature-ux.spec.ts", "tests/unit/creator-waitlist-page.spec.tsx"]
+      "testsNeeded": [
+        "tests/unit/creator-agreement-signature-ux.spec.ts",
+        "tests/unit/creator-waitlist-page.spec.tsx"
+      ]
     },
     {
       "filePath": "src/lib/creator-experiences.ts",
@@ -529,10 +700,18 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "user", "admin", "system"],
+      "actorLanesInvolved": [
+        "creator",
+        "user",
+        "admin",
+        "system"
+      ],
       "risk": "Settings defaults can be mistaken for stored creator settings if source labels are lost.",
       "cleanupRecommendation": "Keep this as the single settings/restrictions model; do not create parallel fan experience settings.",
-      "testsNeeded": ["tests/unit/creator-experiences.spec.ts", "tests/unit/creator-experiences-panel.spec.tsx"]
+      "testsNeeded": [
+        "tests/unit/creator-experiences.spec.ts",
+        "tests/unit/creator-experiences-panel.spec.tsx"
+      ]
     },
     {
       "filePath": "src/lib/server/creator-experiences.ts",
@@ -547,10 +726,17 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "admin", "system"],
+      "actorLanesInvolved": [
+        "creator",
+        "admin",
+        "system"
+      ],
       "risk": "Server sanitizers must remain aligned with the client-facing settings shape.",
       "cleanupRecommendation": "Keep server update merge helpers importing the canonical CreatorSettings/CreatorRestrictions model.",
-      "testsNeeded": ["tests/unit/creator-settings-route.spec.ts", "tests/unit/admin-creator-fan-experience-settings-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-settings-route.spec.ts",
+        "tests/unit/admin-creator-fan-experience-settings-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/settings/route.ts",
@@ -565,10 +751,15 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "admin"],
+      "actorLanesInvolved": [
+        "creator",
+        "admin"
+      ],
       "risk": "Route allows own-account settings but admin restriction updates must remain explicitly marked.",
       "cleanupRecommendation": "Keep settings writes on the existing CreatorSettings/CreatorRestrictions shape and maintain actor markers for restrictions.",
-      "testsNeeded": ["tests/unit/creator-settings-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-settings-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
@@ -583,10 +774,16 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["admin", "owner_admin", "creator"],
+      "actorLanesInvolved": [
+        "admin",
+        "owner_admin",
+        "creator"
+      ],
       "risk": "Fan experience writes live on users while audit history lives under creator_onboarding.",
       "cleanupRecommendation": "Keep the settings model on users unless a future migration explicitly moves creator experience settings and writes migration adapters.",
-      "testsNeeded": ["tests/unit/admin-creator-fan-experience-settings-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/admin-creator-fan-experience-settings-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
@@ -601,10 +798,17 @@
       "writesHistory": false,
       "classification": "projection",
       "truthClass": "projection",
-      "actorLanesInvolved": ["guest", "user", "creator"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator"
+      ],
       "risk": "Fan panel can show default settings as if creator-specific settings were loaded if source is not clear.",
       "cleanupRecommendation": "Keep settings/restrictions passed from the public creator profile and preserve telemetry/debug source markers.",
-      "testsNeeded": ["tests/unit/creator-experiences-panel.spec.tsx", "tests/unit/creator-experiences.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-experiences-panel.spec.tsx",
+        "tests/unit/creator-experiences.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/relationships/route.ts",
@@ -619,10 +823,16 @@
       "writesHistory": false,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["guest", "user", "creator"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator"
+      ],
       "risk": "Public creator availability still reads approval through user projection.",
       "cleanupRecommendation": "Prefer role/public-profile eligibility for public routes and use creatorApplication only as projection fallback.",
-      "testsNeeded": ["tests/unit/creator-relationships-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-relationships-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/subscriptions/route.ts",
@@ -637,10 +847,16 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["user", "creator", "system"],
+      "actorLanesInvolved": [
+        "user",
+        "creator",
+        "system"
+      ],
       "risk": "Monetized fan experience relies on users.creatorSettings being accurate and server-authoritative.",
       "cleanupRecommendation": "Keep billing/economy truth out of creator onboarding projection lanes.",
-      "testsNeeded": ["tests/unit/creator-subscriptions-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-subscriptions-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/requests/route.ts",
@@ -655,10 +871,17 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["user", "creator", "system"],
+      "actorLanesInvolved": [
+        "user",
+        "creator",
+        "system"
+      ],
       "risk": "Request lane must not use client-provided price as truth.",
       "cleanupRecommendation": "Keep pricing derived from CreatorSettings categories server-side.",
-      "testsNeeded": ["tests/unit/creator-bookings-route.spec.ts", "tests/unit/creator-experiences.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-bookings-route.spec.ts",
+        "tests/unit/creator-experiences.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/bookings/route.ts",
@@ -673,10 +896,16 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["user", "creator", "system"],
+      "actorLanesInvolved": [
+        "user",
+        "creator",
+        "system"
+      ],
       "risk": "Availability and rate calculations must remain server-side.",
       "cleanupRecommendation": "Keep booking settings normalized through CreatorSettings and test subscriber discount/rate paths.",
-      "testsNeeded": ["tests/unit/creator-bookings-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-bookings-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/messages/route.ts",
@@ -691,10 +920,17 @@
       "writesHistory": false,
       "classification": "legacy",
       "truthClass": "legacy",
-      "actorLanesInvolved": ["user", "creator", "admin"],
+      "actorLanesInvolved": [
+        "user",
+        "creator",
+        "admin"
+      ],
       "risk": "Compatibility route is explicitly legacy and can obscure native chat truth if not separated.",
       "cleanupRecommendation": "Keep compatibility headers/removal target and migrate callers to native chat paths.",
-      "testsNeeded": ["tests/unit/creator-messages-route.spec.ts", "tests/unit/server-chat.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-messages-route.spec.ts",
+        "tests/unit/server-chat.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/broadcasts/route.ts",
@@ -709,10 +945,17 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "user", "system"],
+      "actorLanesInvolved": [
+        "creator",
+        "user",
+        "system"
+      ],
       "risk": "Broadcasts can notify followers/subscribers; duplicate prevention must stay separate from onboarding truth.",
       "cleanupRecommendation": "Keep broadcast enablement tied to creatorRestrictions and notification dedupe.",
-      "testsNeeded": ["tests/unit/notifications-route.spec.ts", "tests/unit/creator-settings-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/notifications-route.spec.ts",
+        "tests/unit/creator-settings-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/payouts/route.ts",
@@ -727,10 +970,16 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "admin", "system"],
+      "actorLanesInvolved": [
+        "creator",
+        "admin",
+        "system"
+      ],
       "risk": "Payout restrictions are creator experience settings, not onboarding approval.",
       "cleanupRecommendation": "Keep payout restriction truth in creatorRestrictions and payout records in CREATOR_COLLECTIONS.",
-      "testsNeeded": ["tests/unit/creator-settings-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-settings-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/drops/route.ts",
@@ -745,10 +994,16 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "admin"],
+      "actorLanesInvolved": [
+        "creator",
+        "admin"
+      ],
       "risk": "Creator role activation and dropSubmissionsRestricted must remain server-authoritative.",
       "cleanupRecommendation": "Keep route gated by role/restrictions; do not infer creator access from creatorApplication alone.",
-      "testsNeeded": ["tests/unit/creator-drops-assets-route.spec.ts", "tests/unit/admin-cms-workflow.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/admin-cms-workflow.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/drops/assets/route.ts",
@@ -763,10 +1018,16 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["creator", "admin"],
+      "actorLanesInvolved": [
+        "creator",
+        "admin"
+      ],
       "risk": "Asset upload must not be enabled for unapproved or restricted creators.",
       "cleanupRecommendation": "Keep role/restriction gating server-side and storage paths entitlement-safe.",
-      "testsNeeded": ["tests/unit/creator-drops-assets-route.spec.ts", "tests/unit/content-media-pipeline.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-drops-assets-route.spec.ts",
+        "tests/unit/content-media-pipeline.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creator/discovery/route.ts",
@@ -781,10 +1042,16 @@
       "writesHistory": false,
       "classification": "projection",
       "truthClass": "projection",
-      "actorLanesInvolved": ["guest", "user", "creator"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator"
+      ],
       "risk": "Public discovery should expose only public-safe creator data.",
       "cleanupRecommendation": "Keep discovery output independent of private onboarding/legal fields.",
-      "testsNeeded": ["tests/unit/creator-discovery-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-discovery-route.spec.ts"
+      ]
     },
     {
       "filePath": "src/app/api/creators/[username]/route.ts",
@@ -799,10 +1066,17 @@
       "writesHistory": false,
       "classification": "projection",
       "truthClass": "projection",
-      "actorLanesInvolved": ["guest", "user", "creator"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator"
+      ],
       "risk": "Public route must not leak onboarding/legal/debug details.",
       "cleanupRecommendation": "Keep public profile payload limited to role/status/profile/settings/drop public data.",
-      "testsNeeded": ["tests/unit/creator-profile-route.spec.ts", "tests/unit/creator-public-pages.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-profile-route.spec.ts",
+        "tests/unit/creator-public-pages.spec.ts"
+      ]
     },
     {
       "filePath": "src/lib/creator-public-pages.ts",
@@ -817,10 +1091,17 @@
       "writesHistory": false,
       "classification": "projection",
       "truthClass": "projection",
-      "actorLanesInvolved": ["guest", "user", "creator"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator"
+      ],
       "risk": "Projection-based public visibility can diverge from canonical approval if sync fails.",
       "cleanupRecommendation": "Future cleanup should use role/public-profile state first and only use creatorApplication as a documented projection fallback.",
-      "testsNeeded": ["tests/unit/creator-public-pages.spec.ts", "tests/unit/creator-profile-route.spec.ts"]
+      "testsNeeded": [
+        "tests/unit/creator-public-pages.spec.ts",
+        "tests/unit/creator-profile-route.spec.ts"
+      ]
     },
     {
       "filePath": "firestore.rules",
@@ -835,10 +1116,17 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["user", "creator", "admin"],
+      "actorLanesInvolved": [
+        "user",
+        "creator",
+        "admin"
+      ],
       "risk": "No direct client rules are present for creator_onboarding or creator_review_queue; those are server/admin surfaces by omission.",
       "cleanupRecommendation": "Keep creator_onboarding, creator_review_queue, creator relationships, requests, bookings, subscriptions, and payouts server-mediated unless explicit client rules are added with tests.",
-      "testsNeeded": ["tests/firebase/firestore.rules.spec.ts", "npm run check:firebase:rules"]
+      "testsNeeded": [
+        "tests/firebase/firestore.rules.spec.ts",
+        "npm run check:firebase:rules"
+      ]
     },
     {
       "filePath": "database.rules.json",
@@ -853,10 +1141,14 @@
       "writesHistory": false,
       "classification": "unknown",
       "truthClass": "unknown",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Creator lane currently appears Firestore/server-mediated, but future RTDB paths would need explicit classification.",
       "cleanupRecommendation": "Document any future creator RTDB path before adding it and include role-boundary tests.",
-      "testsNeeded": ["npm run check:firebase:rules"]
+      "testsNeeded": [
+        "npm run check:firebase:rules"
+      ]
     },
     {
       "filePath": "storage.rules",
@@ -871,10 +1163,18 @@
       "writesHistory": false,
       "classification": "unknown",
       "truthClass": "unknown",
-      "actorLanesInvolved": ["guest", "user", "creator", "admin"],
+      "actorLanesInvolved": [
+        "guest",
+        "user",
+        "creator",
+        "admin"
+      ],
       "risk": "Creator ID and agreement source paths are sensitive even when storage rules do not name them directly.",
       "cleanupRecommendation": "Keep protected creator legal/ID media behind server routes or explicit storage rules tests before adding client access.",
-      "testsNeeded": ["tests/firebase/storage.rules.spec.ts", "npm run check:firebase:rules"]
+      "testsNeeded": [
+        "tests/firebase/storage.rules.spec.ts",
+        "npm run check:firebase:rules"
+      ]
     },
     {
       "filePath": "tests/unit/creator-onboarding.spec.ts",
@@ -889,10 +1189,14 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Tests must continue to assert projection compatibility without blessing projection as canonical.",
       "cleanupRecommendation": "Add migration assertions if creatorApplication fallback is removed later.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/creator-onboarding-server.spec.ts",
@@ -907,10 +1211,14 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "This is the main regression guard for dual-write drift.",
       "cleanupRecommendation": "Keep this test close to any future projection cleanup.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/admin-roster-route.spec.ts",
@@ -925,10 +1233,14 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Roster tests should catch projection/canonical precedence regressions.",
       "cleanupRecommendation": "Keep explicit queue/canonical/projection fixtures.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/admin-users-route.spec.ts",
@@ -943,10 +1255,14 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Generic user route can regress into direct projection writes.",
       "cleanupRecommendation": "Keep test expectations on canonical sync and role/owner boundaries.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/user-register-route.spec.ts",
@@ -961,10 +1277,14 @@
       "writesHistory": true,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Signup tests must keep creator onboarding materialization mandatory for creator intent.",
       "cleanupRecommendation": "Keep notification dedupe and telemetry assertions tied to canonical submission.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/creator-experiences.spec.ts",
@@ -979,10 +1299,14 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Fan experience settings must remain one model.",
       "cleanupRecommendation": "Keep this test in the fan settings signoff lane.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/creator-experiences-panel.spec.tsx",
@@ -997,10 +1321,14 @@
       "writesHistory": false,
       "classification": "projection",
       "truthClass": "projection",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Panel can regress to generic defaults or missing telemetry if settings source changes.",
       "cleanupRecommendation": "Keep telemetry and copy tests alongside settings source tests.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/creator-agreement-documents.spec.ts",
@@ -1015,10 +1343,14 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Agreement evidence integrity depends on version/hash helpers.",
       "cleanupRecommendation": "Keep prior-signature preservation tests whenever agreement templates change.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/creator-audit-trail-panel.spec.tsx",
@@ -1033,10 +1365,14 @@
       "writesHistory": false,
       "classification": "canonical",
       "truthClass": "canonical",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Audit trail UI can become overwhelming or leak raw metadata if compaction fails.",
       "cleanupRecommendation": "Keep latest-three and Details disclosure assertions.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     },
     {
       "filePath": "tests/unit/creator-onboarding-diagnostics.spec.ts",
@@ -1051,10 +1387,14 @@
       "writesHistory": false,
       "classification": "mixed",
       "truthClass": "mixed",
-      "actorLanesInvolved": ["system"],
+      "actorLanesInvolved": [
+        "system"
+      ],
       "risk": "Diagnostics can hide projection-only legacy debt if coverage weakens.",
       "cleanupRecommendation": "Keep projection_without_source and missing_queue fixtures.",
-      "testsNeeded": ["self"]
+      "testsNeeded": [
+        "self"
+      ]
     }
   ],
   "cleanupPlan": [
@@ -1073,5 +1413,10 @@
     "Do not create a second creator intake or audit collection while creator_onboarding/{uid}/history exists.",
     "Do not make public creator routes read private onboarding/legal/ID metadata.",
     "Do not create a parallel CreatorSettings model for fan experiences."
-  ]
+  ],
+  "generatedAtUtc": "2026-05-24T19:37:50.059Z",
+  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "sourceCommit": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "status": "current_review",
+  "sourceStatus": "current_static_inventory"
 }

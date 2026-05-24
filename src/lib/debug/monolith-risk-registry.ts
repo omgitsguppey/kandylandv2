@@ -17,7 +17,7 @@ export const MONOLITH_LINE_THRESHOLD = 1_000;
 const DEFAULT_MONOLITH_REGISTRY: MonolithRiskRegistryItem[] = [
   {
     filePath: "src/app/api/admin/debug/route.ts",
-    lineCount: 6371,
+    lineCount: 6791,
     domainsMixed: ["admin-debug", "telemetry", "runtime-evidence", "route-diagnostics", "cost-evidence"],
     riskLevel: "critical",
     splitRecommendation: "Split the all-section branch into section-specific drilldown loaders after UI callers support section-specific requests.",
@@ -28,7 +28,7 @@ const DEFAULT_MONOLITH_REGISTRY: MonolithRiskRegistryItem[] = [
   },
   {
     filePath: "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-    lineCount: 3082,
+    lineCount: 3205,
     domainsMixed: ["admin-analytics", "state", "metric-snapshots", "telemetry-freshness"],
     riskLevel: "critical",
     splitRecommendation: "Move metric fetch, freshness derivation, and tab-specific state into named admin analytics hooks.",

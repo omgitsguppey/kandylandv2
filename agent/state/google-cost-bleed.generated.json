@@ -1,7 +1,7 @@
 {
   "score": 100,
   "status": "clean",
-  "generatedAt": "2026-05-24T19:00:24.307Z",
+  "generatedAt": "2026-05-24T19:37:38.785Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [],
   "criticalCount": 0,
@@ -5762,7 +5762,7 @@
     {
       "filePath": "src/lib/admin-debug-control-tower.ts",
       "line": 217,
-      "excerpt": "{ id: \"sql-mirror\", label: \"Data Connect Mirror\", section: \"money_cost\", fileName: \"sql-mirror-status.generated.json\", command: \"npm run agent:sync-sql\" },",
+      "excerpt": "{ id: \"sql-mirror\", label: \"Data Connect Mirror\", section: \"money_cost\", fileName: \"data-connect-mirror-status.generated.json\", command: \"npm run check:data-connect-mirror-status\" },",
       "kind": "data-connect"
     },
     {
@@ -5896,6 +5896,12 @@
       "line": 3,
       "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/release-notes/public-release-notes.ts",
+      "line": 34,
+      "excerpt": "\"Added watch-time truth evidence-gap reporting and Data Connect mirror safety classification.\",",
+      "kind": "data-connect"
     },
     {
       "filePath": "src/lib/server/admin-analytics/ga4-evidence.ts",
@@ -6468,6 +6474,12 @@
       "kind": "data-connect"
     },
     {
+      "filePath": "scripts/agent/debug-cockpit-batch13-shared.ts",
+      "line": 159,
+      "excerpt": "if (report.status !== \"manual_only_safe\" && report.status !== \"dry_run_available\") failures.push(\"Data Connect mirror is not manual-only or dry-run classified.\");",
+      "kind": "data-connect"
+    },
+    {
       "filePath": "scripts/agent/inject-debug-evidence.ts",
       "line": 15,
       "excerpt": "const admin = await import(\"firebase-admin\");",
@@ -6792,6 +6804,12 @@
       "kind": "cloud-sql"
     },
     {
+      "filePath": "scripts/agent/validate-cost-data-connect-refresh.ts",
+      "line": 10,
+      "excerpt": "console.error(\"Cost/Data Connect refresh validation failed:\");",
+      "kind": "data-connect"
+    },
+    {
       "filePath": "scripts/agent/validate-cost-owner-review-source-closure.ts",
       "line": 208,
       "excerpt": "\"Attach Cloud SQL/Data Connect provider owner review before converting mirror cost status to fully reviewed.\",",
@@ -6814,6 +6832,12 @@
       "line": 195,
       "excerpt": "\"Source doctrine and Data Connect config classify Cloud SQL as an agent-context mirror; no creator dashboard runtime SQL path was found in this pass.\",",
       "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-data-connect-mirror-status.ts",
+      "line": 10,
+      "excerpt": "console.error(\"Data Connect mirror status validation failed:\");",
+      "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-debug-evidence-pipeline.ts",

@@ -1,8 +1,8 @@
 # Support Policy Surface Cleanup
 
-Generated: 2026-05-23T01:50:58.948Z
+Generated: 2026-05-24T19:32:24.488Z
 Status: pass
-Head: 18c4a4b20ba328b9c953afa4176ecfa0baced66b
+Head: afdc394d07b0dd0ea93aae14ae32bc47886165d9
 
 ## Canonical Trust Surface Map
 

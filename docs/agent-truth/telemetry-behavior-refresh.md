@@ -1,0 +1,28 @@
+# Telemetry Behavior Refresh
+
+Generated source-only artifact. No production reads, provider calls, deployed runtime calls, payment runtime changes, or GumDrop math changes were performed.
+
+```json
+{
+  "generatedAtUtc": "2026-05-24T19:37:49.329Z",
+  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
+  "telemetryParityAgeBefore": 488.7,
+  "telemetryParityAgeAfter": 0.12,
+  "behaviorMathAgeBefore": 67.3,
+  "behaviorMathAgeAfter": 0.12,
+  "privacyBehaviorLegacyHeadStatus": "current",
+  "monolithOrphanHeadStatus": "current_warning",
+  "eventCatalogStatusBefore": "delayed_unknown",
+  "eventCatalogStatusAfter": "current",
+  "externalAnalyticsArchiveStatus": "archive_only_external_evidence",
+  "legacyRecoveryMutatesProduction": false,
+  "noExternalProviderCalls": true,
+  "refreshedArtifacts": [
+    "agent/state/telemetry-parity-score.generated.json",
+    "agent/state/behavior-math-verification.generated.json",
+    "agent/state/privacy-behavior-legacy-recovery.generated.json",
+    "agent/state/monolith-orphan-metric-registry.generated.json",
+    "agent/state/event-catalog-telemetry-audit.generated.json"
+  ]
+}
+```

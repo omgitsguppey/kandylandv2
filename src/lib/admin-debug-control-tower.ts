@@ -214,7 +214,7 @@ export const ADMIN_DEBUG_CONTROL_TOWER_REPORTS: ReportDefinition[] = [
     { id: "gumdrop-economy", label: "GumDrops Economy", section: "money_cost", fileName: "gumdrop-economy-score.generated.json", command: "npm run check:gumdrop-economy", required: true },
     { id: "google-cost", label: "Google Cost", section: "money_cost", fileName: "google-cost-bleed.generated.json", command: "npm run check:google-cost", required: true },
     { id: "cloud-cost", label: "Cloud Run / SQL / BigQuery", section: "money_cost", fileName: "cloudrun-sql-bigquery-guardrails.generated.json", command: "npm run check:cloud-cost", required: true },
-    { id: "sql-mirror", label: "Data Connect Mirror", section: "money_cost", fileName: "sql-mirror-status.generated.json", command: "npm run agent:sync-sql" },
+    { id: "sql-mirror", label: "Data Connect Mirror", section: "money_cost", fileName: "data-connect-mirror-status.generated.json", command: "npm run check:data-connect-mirror-status" },
     { id: "telemetry-parity", label: "Telemetry Parity", section: "telemetry_behavior", fileName: "telemetry-parity-score.generated.json", command: "npm run check:telemetry-parity-score", required: true },
     { id: "behavior-math", label: "Behavior Math", section: "telemetry_behavior", fileName: "behavior-math-verification.generated.json", command: "npm run check:behavior-math-verification", required: true },
     { id: "privacy-behavior-legacy-recovery", label: "Privacy Behavior Legacy Recovery", section: "telemetry_behavior", fileName: "privacy-behavior-legacy-recovery.generated.json", command: "npm run check:privacy-behavior-legacy-recovery" },

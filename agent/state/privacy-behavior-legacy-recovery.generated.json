@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-21T19:30:39.221Z",
-  "generatedAtUtc": "2026-05-21T19:30:39.223Z",
+  "generatedAt": "2026-05-24T19:30:37.253Z",
+  "generatedAtUtc": "2026-05-24T19:30:37.255Z",
   "source": "local_static_validator",
   "reportKey": "privacy-behavior-legacy-recovery",
-  "currentHead": "edd31cbee1e569fa059397c4782dd9f608c02fe9",
+  "currentHead": "afdc394d07b0dd0ea93aae14ae32bc47886165d9",
   "overallStatus": "live",
   "overallScore": 100,
   "productionReads": false,
@@ -420,12 +420,9 @@
   "protectedChanges": [],
   "changedFiles": [
     "agent/context/optimized-task-context.generated.json",
-    "agent/state/behavioral-extensibility-layer.generated.json",
-    "agent/state/consent-tracking-contract.generated.json",
-    "agent/state/cookie-banner-settings-sync.generated.json",
-    "agent/state/identity-handoff-refinement.generated.json",
-    "docs/agent-truth/identity-handoff-refinement.md",
-    "package.json"
+    "agent/state/telemetry-parity-score.generated.json",
+    "package.json",
+    "src/lib/debug/monolith-risk-registry.ts"
   ],
   "findings": []
 }
