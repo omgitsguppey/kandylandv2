@@ -443,12 +443,19 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/event-liveness-audit.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/future-activity-signal-reclassification.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/event-liveness-audit.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/future-activity-signal-reclassification.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-event-liveness-audit.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-future-activity-signal-reclassification.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-debug-signal-actionability.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-non-event-score-policy.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/person-metrics-hydration.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/future-activity-signal-reclassification.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/person-metrics-contract.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/debug-tracking-simplification.spec.ts") return "test_artifact_expected";
@@ -467,6 +474,8 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/event-liveness-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/event-liveness-engine.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";

@@ -190,6 +190,7 @@
         "check:debug-signal-grouping": "tsx scripts/agent/validate-debug-signal-grouping.ts",
         "check:non-event-score-policy": "tsx scripts/agent/validate-non-event-score-policy.ts",
         "check:final-signal-zero-lock": "tsx scripts/agent/validate-final-signal-zero-lock.ts",
+        "check:event-liveness-audit": "tsx scripts/agent/validate-event-liveness-audit.ts",
         "check:chat-realtime-cost-control": "tsx scripts/agent/validate-chat-realtime-cost-control.ts",
         "check:chat-presence-typing": "tsx scripts/agent/validate-chat-presence-typing.ts",
         "check:chat-gating-moderation": "tsx scripts/agent/validate-chat-gating-moderation.ts",

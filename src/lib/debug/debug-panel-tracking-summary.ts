@@ -5,6 +5,7 @@ import {
 import {
   summarizeActionableActivitySignals,
 } from "@/lib/debug/actionable-signal-filter";
+import { buildEventLivenessSummary } from "@/lib/analytics/event-liveness-engine";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
@@ -17,6 +18,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "consent_tracking_mode",
   "event_envelope",
   "event_translation_bridge",
+  "event_liveness",
   "person_metrics_hydration",
   "user_management",
   "testing_coverage",
@@ -88,6 +90,7 @@ const TRACKING_GROUPS = [
   "consent",
   "event_envelope",
   "event_translation_bridge",
+  "event_liveness",
   "person_metrics_hydration",
   "user_management",
   "testing_coverage",
@@ -170,6 +173,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     : eventBridgeTranslated > 0 || eventBridgeConnected > 0
       ? "live"
       : toStatus(input.eventTranslationBridge?.status);
+  const eventLiveness = input.eventLivenessAudit ?? buildEventLivenessSummary({
+    rawQuietFutureCount: activitySignalSummary.quietFutureActivityCount,
+  });
+  const eventLivenessLane = eventLiveness.debugLane ?? {};
+  const eventLivenessWarnings = toNumber(eventLivenessLane.suspiciousIdleEvents)
+    + toNumber(eventLivenessLane.sourceMissing)
+    + toNumber(eventLivenessLane.materializerMissing)
+    + toNumber(eventLivenessLane.translationMissing)
+    + toNumber(eventLivenessLane.hydrationMissing);
+  const eventLivenessStatus = eventLivenessWarnings > 0
+    ? "degraded"
+    : toNumber(eventLivenessLane.expectedLiveEvents) > 0
+      ? "live"
+      : "unknown";
   const personHydration = input.personMetricsHydration?.debugLane ?? {};
   const personHydrationGaps = toNumber(personHydration.gaps);
   const personHydrationMapped = toNumber(personHydration.personMetricsMapped);
@@ -292,6 +309,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: eventBridgeGaps + eventBridgeActionableSignals,
       drilldownTarget: "/admin/debug?tab=advanced#event-translation-bridge",
+    }),
+    makeLane({
+      id: "event_liveness",
+      label: "Event liveness",
+      trackingSystem: "telemetry_liveness",
+      sourceOwner: "analytics",
+      sourceOfTruth: "src/lib/analytics/event-liveness-engine.ts",
+      status: eventLivenessStatus,
+      severity: severityFromCounts(0, eventLivenessWarnings, eventLivenessStatus),
+      scoreImpact: eventLivenessWarnings > 0 ? "medium" : "none",
+      primarySignal: `Expected live=${toNumber(eventLivenessLane.expectedLiveEvents)}; recent=${toNumber(eventLivenessLane.observedRecently)}; suspicious=${toNumber(eventLivenessLane.suspiciousIdleEvents)}; sourceMissing=${toNumber(eventLivenessLane.sourceMissing)}; materializerMissing=${toNumber(eventLivenessLane.materializerMissing)}; translationMissing=${toNumber(eventLivenessLane.translationMissing)}; hydrationMissing=${toNumber(eventLivenessLane.hydrationMissing)}; quietFuture=${toNumber(eventLivenessLane.quietFutureCatalogCount)}.`,
+      criticalCount: 0,
+      warningCount: eventLivenessWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#event-liveness",
     }),
     makeLane({
       id: "person_metrics_hydration",

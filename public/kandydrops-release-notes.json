@@ -1,11 +1,65 @@
 {
-  "currentVersion": "1.4.10",
-  "betaReleaseCounter": 410,
+  "currentVersion": "1.4.11",
+  "betaReleaseCounter": 411,
   "channel": "beta",
-  "generatedAt": "2026-05-24T04:10:00.000Z",
-  "generatedAtUtc": "2026-05-24T04:10:00.000Z",
+  "generatedAt": "2026-05-24T04:20:00.000Z",
+  "generatedAtUtc": "2026-05-24T04:20:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.11",
+      "previousVersion": "1.4.10",
+      "betaReleaseCounter": 411,
+      "previousBetaReleaseCounter": 410,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): audit event liveness",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T04:20:00.000Z",
+      "generatedAt": "2026-05-24T04:20:00.000Z",
+      "committedAtUtc": "2026-05-24T04:20:00.000Z",
+      "generatedAtUtc": "2026-05-24T04:20:00.000Z",
+      "updatedAtUtc": "2026-05-24T04:20:00.000Z",
+      "category": "Improved",
+      "title": "Event tracking liveness checks",
+      "summary": "Event tracking now separates truly future-only activity from visible app events that still need safe last-seen evidence.",
+      "userFacingTitle": "Event tracking liveness checks",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added event liveness checks for quiet future activity signals.",
+        "Separated true future-only events from suspicious idle tracking paths.",
+        "Mapped expected daily activity into debug and score readiness."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added an event liveness contract, engine, debug lane, generated report, validator, and unit tests that classify expected visible events separately from quiet future-only activity."
+      ],
+      "affectedSurfaces": [
+        "App experience",
+        "Telemetry",
+        "Beta readiness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/event-liveness-audit.generated.json",
+        "docs/agent-truth/event-liveness-audit.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-event-liveness-audit.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/analytics/event-liveness-contract.ts",
+        "src/lib/analytics/event-liveness-engine.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "tests/unit/event-liveness-audit.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.10",
       "previousVersion": "1.4.9",

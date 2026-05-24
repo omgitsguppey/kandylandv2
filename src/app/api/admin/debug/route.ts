@@ -41,6 +41,7 @@ import { buildAdminDebugSummaryPayload } from "@/lib/server/admin-debug/summary"
 import { buildIdentityHandoffDebugSummary } from "@/lib/server/admin-debug/identity-handoff-summary";
 import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-envelope-summary";
 import { buildEventTranslationBridgeReport } from "@/lib/analytics/event-translation-bridge";
+import { buildEventLivenessSummary } from "@/lib/analytics/event-liveness-engine";
 import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
 import { buildTelemetryTriggerTestMatrixReport } from "@/lib/testing/telemetry-trigger-test-matrix";
 import { buildUserManagementRefactorReport } from "@/lib/admin/user-management-contract";
@@ -6608,6 +6609,7 @@ export async function GET(request: NextRequest) {
             identityHandoff: buildIdentityHandoffDebugSummary(),
             eventEnvelope: buildEventEnvelopeDebugSummary(),
             eventTranslationBridge: buildEventTranslationBridgeReport(),
+            eventLivenessAudit: buildEventLivenessSummary(),
             personMetricsHydration: buildPersonMetricsHydrationReport(),
             userManagementRefactor: buildUserManagementRefactorReport({
                 personMetricsHydration: buildPersonMetricsHydrationReport(),
@@ -6634,6 +6636,7 @@ export async function GET(request: NextRequest) {
                 ["identity" + "Handoff"]: buildIdentityHandoffDebugSummary(),
                 ["event" + "Envelope"]: buildEventEnvelopeDebugSummary(),
                 eventTranslationBridge: buildEventTranslationBridgeReport(),
+                eventLivenessAudit: buildEventLivenessSummary(),
                 personMetricsHydration: buildPersonMetricsHydrationReport(),
                 userManagementRefactor: buildUserManagementRefactorReport({
                     personMetricsHydration: buildPersonMetricsHydrationReport(),

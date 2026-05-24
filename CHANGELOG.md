@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.11 - 2026-05-23
+- Event tracking liveness checks
+- Added event liveness checks for quiet future activity signals.
+- Separated true future-only events from suspicious idle tracking paths.
+- Mapped expected daily activity into debug and score readiness.
+
 ## 1.4.10 - 2026-05-23
 - Daily task debug and score lock
 - Locked daily task reset, telemetry, reward ledger, and guidance truth.

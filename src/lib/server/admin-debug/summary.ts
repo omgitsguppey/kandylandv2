@@ -8,6 +8,7 @@ import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildEventTranslationBridgeReport } from "@/lib/analytics/event-translation-bridge";
+import { buildEventLivenessSummary } from "@/lib/analytics/event-liveness-engine";
 import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
 import { buildTelemetryTriggerTestMatrixReport } from "@/lib/testing/telemetry-trigger-test-matrix";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
@@ -167,6 +168,12 @@ export async function buildAdminDebugSummaryPayload(input: {
   const eventTranslationBridge = buildEventTranslationBridgeReport({
     generatedAtUtc: new Date(nowMs).toISOString(),
   });
+  const eventLivenessAudit = buildEventLivenessSummary({
+    generatedAtUtc: new Date(nowMs).toISOString(),
+    rawQuietFutureCount: Array.isArray(eventTranslationBridge.waitingOnActivity)
+      ? eventTranslationBridge.waitingOnActivity.length
+      : undefined,
+  });
   const personMetricsHydration = buildPersonMetricsHydrationReport({
     generatedAtUtc: new Date(nowMs).toISOString(),
   });
@@ -198,6 +205,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     identityHandoff,
     eventEnvelope,
     eventTranslationBridge,
+    eventLivenessAudit,
     personMetricsHydration,
     userManagementRefactor,
     telemetryTriggerTestMatrix,
@@ -235,6 +243,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     identityHandoff,
     eventEnvelope,
     eventTranslationBridge,
+    eventLivenessAudit,
     personMetricsHydration,
     userManagementRefactor,
     telemetryTriggerTestMatrix,

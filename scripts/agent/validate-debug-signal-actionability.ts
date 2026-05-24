@@ -123,18 +123,26 @@ function classifyDirtyFile(path: string): DirtyFileClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === REPORT_PATH || normalized === "agent/state/debug-backlog-engine.generated.json" || normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/event-liveness-audit.generated.json") return "current_generated_artifact_to_commit";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
   if (normalized === DOC_PATH || normalized === "docs/agent-truth/debug-backlog-engine.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/event-liveness-audit.md") return "documentation_artifact_expected";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
   if (normalized === "src/lib/debug/debug-signal-actionability.ts") return "actionability_source_change";
   if (normalized === "src/lib/debug/debug-backlog-builder.ts" || normalized === "src/lib/debug/debug-backlog-contract.ts") return "debug_backlog_source_change";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts" || normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx") return "debug_panel_source_change";
+  if (normalized === "src/lib/server/admin-debug/summary.ts" || normalized === "src/app/api/admin/debug/route.ts") return "debug_panel_source_change";
+  if (normalized === "src/lib/analytics/event-liveness-contract.ts" || normalized === "src/lib/analytics/event-liveness-engine.ts") return "actionability_source_change";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts" || normalized === "src/lib/analytics/person-metrics-hydration.ts" || normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "actionability_source_change";
   if (
     normalized === "scripts/agent/validate-debug-signal-actionability.ts"
     || normalized === "scripts/agent/validate-debug-backlog-engine.ts"
     || normalized === "scripts/agent/validate-future-activity-signal-reclassification.ts"
+    || normalized === "scripts/agent/validate-event-liveness-audit.ts"
+    || normalized === "scripts/agent/validate-debug-signal-grouping.ts"
+    || normalized === "scripts/agent/validate-non-event-score-policy.ts"
   ) return "validator_artifact_expected";
-  if (normalized === "tests/unit/debug-signal-actionability.spec.ts" || normalized === "tests/unit/debug-backlog-engine.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/debug-signal-actionability.spec.ts" || normalized === "tests/unit/debug-backlog-engine.spec.ts" || normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "validator_artifact_expected";
   if (
     normalized === "CHANGELOG.md"
