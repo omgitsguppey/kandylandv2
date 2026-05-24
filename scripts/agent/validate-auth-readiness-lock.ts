@@ -191,6 +191,7 @@ function statusFrom(condition: boolean, evidence: string[], missing: string[], n
 
 export function classifyAuthReadinessLockDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
+  if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
@@ -209,6 +210,11 @@ export function classifyAuthReadinessLockDirtyFile(path: string) {
     || normalized === "agent/state/public-beta-score.generated.json"
     || normalized === "agent/state/current-beta-exit-status.generated.json"
     || normalized === "agent/state/overnight-beta-readiness-lock.generated.json"
+    || normalized === "agent/state/user-management-refactor.generated.json"
+    || normalized === "agent/state/telemetry-trigger-test-matrix.generated.json"
+    || normalized === "agent/state/settings-debug-validator-authority.generated.json"
+    || normalized === "agent/state/notification-pwa-score-lock.generated.json"
+    || normalized === "agent/state/daily-task-debug-score-lock.generated.json"
   ) return "current_generated_artifact_to_commit";
   if (
     normalized === "docs/agent-truth/auth-provider-conflict-resolution.md"
@@ -222,6 +228,11 @@ export function classifyAuthReadinessLockDirtyFile(path: string) {
     || normalized === "docs/agent-truth/debug-tracking-simplification.md"
     || normalized === "docs/agent-truth/current-beta-exit-status.md"
     || normalized === "docs/agent-truth/overnight-beta-readiness-lock.md"
+    || normalized === "docs/agent-truth/user-management-refactor.md"
+    || normalized === "docs/agent-truth/telemetry-trigger-test-matrix.md"
+    || normalized === "docs/agent-truth/settings-debug-validator-authority.md"
+    || normalized === "docs/agent-truth/notification-pwa-score-lock.md"
+    || normalized === "docs/agent-truth/daily-task-debug-score-lock.md"
   ) return "documentation_artifact_expected";
   if (
     normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts"
@@ -242,8 +253,21 @@ export function classifyAuthReadinessLockDirtyFile(path: string) {
     || normalized === "src/lib/analytics/person-metrics-contract.ts"
     || normalized === "src/lib/analytics/person-metrics-hydration.ts"
     || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"
+    || normalized === "src/lib/debug/admin-summary-lane-status-classifier.ts"
+    || normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx"
+    || normalized === "src/lib/admin/user-management-contract.ts"
+    || normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts"
     || normalized === "src/app/api/admin/debug/route.ts"
   ) return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/admin-status-lane-cleanup-shared.ts") return "validator_artifact_expected";
+  if (
+    normalized === "scripts/agent/validate-notification-pwa-score-lock.ts"
+    || normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts"
+  ) return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"

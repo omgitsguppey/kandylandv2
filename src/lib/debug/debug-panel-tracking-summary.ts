@@ -26,6 +26,7 @@ import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contrac
 import { buildSqlDatabaseParityDebugLane } from "@/lib/analytics/sql-database-parity-contract";
 import { buildFeatureRegistrationGateReport } from "@/lib/features/feature-registration-registry";
 import { classifyEmptyLiveLane, type EmptyLiveLaneStatus } from "@/lib/debug/empty-live-lane-classifier";
+import { classifyAdminSummaryLaneStatus, type AdminSummaryLaneStatus } from "@/lib/debug/admin-summary-lane-status-classifier";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -74,6 +75,7 @@ export type DebugTrackingStatus =
   | "unavailable"
   | "unknown"
   | EmptyLiveLaneStatus
+  | AdminSummaryLaneStatus
   | "source_ready_not_registered"
   | "source_live_artifact_stale";
 
@@ -172,10 +174,16 @@ function toNumber(value: unknown) {
 function toStatus(value: unknown): DebugTrackingStatus {
   const text = String(value ?? "").toLowerCase();
   if (text.includes("fail") || text.includes("error")) return "failed";
+  if (text.includes("stale_artifact_refresh_required")) return "stale_artifact_refresh_required";
+  if (text.includes("source_live_artifact_stale")) return "source_live_artifact_stale";
   if (text.includes("stale")) return "stale";
+  if (text.includes("healthy_current")) return "healthy_current";
+  if (text.includes("healthy_proven_zero")) return "healthy_proven_zero";
   if (text.includes("collecting")) return "source_ready_collecting";
   if (text.includes("no_sample")) return "source_ready_no_sample_loaded";
   if (text.includes("proven_zero")) return "healthy_proven_zero";
+  if (text.includes("source_missing_actionable")) return "source_missing_actionable";
+  if (text.includes("sample_source_missing")) return "sample_source_missing";
   if (text.includes("source_missing")) return "source_missing";
   if (text.includes("degraded") || text.includes("review") || text.includes("unproven")) return "degraded";
   if (text.includes("unavailable") || text.includes("missing") || text.includes("disabled")) return "unavailable";
@@ -185,8 +193,22 @@ function toStatus(value: unknown): DebugTrackingStatus {
 
 function severityFromCounts(criticalCount: number, warningCount: number, status: DebugTrackingStatus): DebugTrackingSeverity {
   if (criticalCount > 0 || status === "failed") return "p1";
-  if (warningCount > 0 || status === "degraded" || status === "stale" || status === "source_missing" || status === "source_live_artifact_stale") return "p2";
-  if (status === "unavailable" || status === "unknown") return "p3";
+  if (
+    warningCount > 0
+    || status === "degraded"
+    || status === "stale"
+    || status === "source_missing"
+    || status === "source_missing_actionable"
+    || status === "sample_source_missing"
+    || status === "stale_artifact_refresh_required"
+    || status === "source_live_artifact_stale"
+  ) return "p2";
+  if (
+    status === "unavailable"
+    || status === "unknown"
+    || status === "source_ready_collecting"
+    || status === "source_ready_no_sample_loaded"
+  ) return "p3";
   return "info";
 }
 
@@ -293,11 +315,13 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const userManagement = input.userManagementRefactor?.debugLane ?? {};
   const userManagementLowConfidence = toNumber(userManagement.lowConfidenceMetrics);
   const userManagementSummarized = toNumber(userManagement.usersSummarized);
-  const userManagementStatus = userManagementLowConfidence > 0
-    ? "degraded"
-    : userManagementSummarized > 0 || input.userManagementRefactor?.routePolicy?.summaryFirstMode === true
-      ? "live"
-      : toStatus(input.userManagementRefactor?.status);
+  const userManagementStatus = classifyAdminSummaryLaneStatus({
+    laneId: "user_management",
+    sourceContractPresent: true,
+    sampleLoaded: userManagementSummarized > 0,
+    counts: [userManagementSummarized],
+    warningCount: userManagementLowConfidence,
+  }).status;
   const testingCoverage = input.telemetryTriggerTestMatrix?.debugLane ?? {};
   const testingCoverageTotal = toNumber(testingCoverage.totalTriggers);
   const testingCoverageCovered = toNumber(testingCoverage.coveredTriggers);
@@ -305,11 +329,14 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const testingCoverageUiOnly = toNumber(testingCoverage.uiOnlyTests);
   const testingCoverageWaitingGaps = toNumber(testingCoverage.waitingOnActivityDeterministicGaps);
   const testingCoverageWarnings = testingCoverageMissing + testingCoverageUiOnly + testingCoverageWaitingGaps;
-  const testingCoverageStatus = testingCoverageWarnings > 0
-    ? "degraded"
-    : testingCoverageTotal > 0 && testingCoverageCovered >= testingCoverageTotal
-      ? "live"
-      : toStatus(input.telemetryTriggerTestMatrix?.status);
+  const testingCoverageStatus = classifyAdminSummaryLaneStatus({
+    laneId: "testing_coverage",
+    sourceContractPresent: true,
+    sampleLoaded: testingCoverageTotal > 0,
+    configTruthHealthy: testingCoverageWarnings === 0 && testingCoverageTotal > 0 && testingCoverageCovered >= testingCoverageTotal,
+    counts: [testingCoverageCovered],
+    warningCount: testingCoverageWarnings,
+  }).status;
   const telemetrySummary = input.telemetryHealth?.summary ?? {};
   const featureWarnings = toNumber(telemetrySummary.degraded) + toNumber(telemetrySummary.runtimeUnproven);
   const featureCritical = toNumber(telemetrySummary.unavailable) + toNumber(telemetrySummary.configMissing);
@@ -329,11 +356,16 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     ? consentCleanup.debugLane.blockedEventFamilies.length
     : 0;
   const consentStatus: DebugTrackingStatus = consentCleanup?.status === "degraded" ? "degraded" : "live";
-  const settingsStatus = toStatus(input.settingsConnectionParity?.status ?? "source_ready");
   const disconnectedSettings = toNumber(input.settingsConnectionParity?.disconnectedSettingCount);
   const staleClientPreferences = toNumber(input.staleClientPreferences?.staleBypassCount);
   const unsafeClientPreferences = toNumber(input.staleClientPreferences?.unsafeUnknownCount);
   const settingsWarningCount = disconnectedSettings + staleClientPreferences + unsafeClientPreferences;
+  const settingsStatus = classifyAdminSummaryLaneStatus({
+    laneId: "settings_health",
+    sourceContractPresent: true,
+    configTruthHealthy: true,
+    warningCount: settingsWarningCount,
+  }).status;
   const behaviorCleanup = input.behaviorMathStatusCleanup;
   const behaviorStatus = behaviorCleanup?.status === "healthy" || behaviorCleanup?.status === `source_ready_${"waiting_for_activity"}`
     ? "live"
@@ -352,11 +384,37 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const authProviderConflictWarnings = toNumber(authProviderConflict.unresolvedAuthFailures)
     + (authProviderConflict.rawEmailPasswordExposed ? 1 : 0)
     + (authProviderConflict.telemetryStatus === "mapped" ? 0 : 1);
+  const authProviderConflictStatus = classifyAdminSummaryLaneStatus({
+    laneId: "auth_provider_conflict",
+    sourceContractPresent: true,
+    configTruthHealthy: toNumber(authProviderConflict.conflictTypesMapped) > 0 && authProviderConflict.resolutionShown === true,
+    warningCount: authProviderConflictWarnings,
+    criticalCount: authProviderConflict.rawEmailPasswordExposed ? 1 : 0,
+  }).status;
   const authPersistence = input.authPersistenceStability?.debugLane ?? buildAuthPersistenceDebugLane();
   const authPersistenceWarnings = toNumber(authPersistence.unexpectedDrops)
     + toNumber(authPersistence.navigationSessionFailures)
     + toNumber(authPersistence.profileSnapshotReconnects)
     + (authPersistence.telemetryStatus === "mapped" ? 0 : 1);
+  const authPersistenceStatus = classifyAdminSummaryLaneStatus({
+    laneId: "auth_persistence",
+    sourceContractPresent: true,
+    telemetryMapped: authPersistence.telemetryStatus === "mapped",
+    expectedRuntimeActivity: true,
+    sampleLoaded: toNumber(authPersistence.restoredSessions)
+      + toNumber(authPersistence.unexpectedDrops)
+      + toNumber(authPersistence.navigationSessionFailures)
+      + toNumber(authPersistence.profileSnapshotReconnects)
+      + toNumber(authPersistence.securityLogoutCount) > 0,
+    counts: [
+      toNumber(authPersistence.restoredSessions),
+      toNumber(authPersistence.unexpectedDrops),
+      toNumber(authPersistence.navigationSessionFailures),
+      toNumber(authPersistence.profileSnapshotReconnects),
+      toNumber(authPersistence.securityLogoutCount),
+    ],
+    warningCount: authPersistenceWarnings,
+  }).status;
   const authRuntime = input.authRuntimeTelemetry?.debugLane ?? buildAuthRuntimeDebugLane();
   const authRuntimeWarnings = toNumber(authRuntime.unexpectedLogoutCount)
     + toNumber(authRuntime.navigationSessionFailureCount)
@@ -366,20 +424,93 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     + (authRuntime.eventEnvelopeStatus === "mapped" ? 0 : 1)
     + (authRuntime.rawPiiExposed ? 1 : 0)
     + (authRuntime.rawTokensExposed ? 1 : 0);
+  const authRuntimeStatus = classifyAdminSummaryLaneStatus({
+    laneId: "auth_runtime",
+    sourceContractPresent: true,
+    telemetryMapped: authRuntime.telemetryStatus === "mapped" && authRuntime.personMetricsStatus === "mapped" && authRuntime.eventEnvelopeStatus === "mapped",
+    expectedRuntimeActivity: true,
+    sampleLoaded: toNumber(authRuntime.signupAttempts)
+      + toNumber(authRuntime.loginAttempts)
+      + toNumber(authRuntime.successByMethod?.google)
+      + toNumber(authRuntime.successByMethod?.email_password)
+      + toNumber(authRuntime.providerConflictCount) > 0,
+    counts: [
+      toNumber(authRuntime.signupAttempts),
+      toNumber(authRuntime.loginAttempts),
+      toNumber(authRuntime.successByMethod?.google),
+      toNumber(authRuntime.successByMethod?.email_password),
+      toNumber(authRuntime.providerConflictCount),
+    ],
+    warningCount: authRuntimeWarnings,
+    criticalCount: authRuntime.rawPiiExposed || authRuntime.rawTokensExposed ? 1 : 0,
+  }).status;
   const notificationPermission = input.notificationPermissionLifecycle?.debugLane ?? buildNotificationPermissionDebugLane();
   const notificationPermissionWarnings = toNumber(notificationPermission.failed)
     + (notificationPermission.telemetryStatus === "mapped" ? 0 : 1);
+  const notificationPermissionStatus = classifyAdminSummaryLaneStatus({
+    laneId: "notification_permission",
+    sourceContractPresent: true,
+    telemetryMapped: notificationPermission.telemetryStatus === "mapped",
+    expectedRuntimeActivity: true,
+    sampleLoaded: toNumber(notificationPermission.promptEligible)
+      + toNumber(notificationPermission.promptShown)
+      + toNumber(notificationPermission.granted)
+      + toNumber(notificationPermission.denied)
+      + toNumber(notificationPermission.failed)
+      + toNumber(notificationPermission.unsupportedBrowser)
+      + toNumber(notificationPermission.cooldownActive)
+      + toNumber(notificationPermission.snoozed) > 0,
+    counts: [
+      toNumber(notificationPermission.promptEligible),
+      toNumber(notificationPermission.promptShown),
+      toNumber(notificationPermission.granted),
+      toNumber(notificationPermission.denied),
+      toNumber(notificationPermission.failed),
+      toNumber(notificationPermission.unsupportedBrowser),
+      toNumber(notificationPermission.cooldownActive),
+      toNumber(notificationPermission.snoozed),
+    ],
+    warningCount: notificationPermissionWarnings,
+  }).status;
   const pushTokenHealth = input.pushTokenRegistration?.debugLane ?? buildPushTokenDebugLane();
   const pushTokenWarnings = toNumber(pushTokenHealth.failedRegistrations)
     + toNumber(pushTokenHealth.unsupportedBrowsers)
     + toNumber(pushTokenHealth.staleTokens)
     + toNumber(pushTokenHealth.rawTokenExposureCount)
     + (pushTokenHealth.telemetryStatus === "mapped" ? 0 : 1);
+  const pushTokenStatus = classifyAdminSummaryLaneStatus({
+    laneId: "push_token_health",
+    sourceContractPresent: true,
+    telemetryMapped: pushTokenHealth.telemetryStatus === "mapped",
+    expectedRuntimeActivity: true,
+    sampleLoaded: toNumber(pushTokenHealth.registeredUsers)
+      + toNumber(pushTokenHealth.registeredDevices)
+      + toNumber(pushTokenHealth.failedRegistrations)
+      + toNumber(pushTokenHealth.unsupportedBrowsers)
+      + toNumber(pushTokenHealth.staleTokens) > 0,
+    counts: [
+      toNumber(pushTokenHealth.registeredUsers),
+      toNumber(pushTokenHealth.registeredDevices),
+      toNumber(pushTokenHealth.failedRegistrations),
+      toNumber(pushTokenHealth.unsupportedBrowsers),
+      toNumber(pushTokenHealth.staleTokens),
+    ],
+    warningCount: pushTokenWarnings,
+    criticalCount: toNumber(pushTokenHealth.rawTokenExposureCount),
+  }).status;
   const notificationTargeting = input.notificationTargetingIntent?.debugLane ?? buildNotificationTargetingDebugLane();
   const notificationTargetingWarnings = toNumber(notificationTargeting.missingAudienceSource)
     + toNumber(notificationTargeting.blockedByMissingToken)
     + toNumber(notificationTargeting.blockedByConsent)
     + (notificationTargeting.telemetryStatus === "mapped" ? 0 : 1);
+  const notificationTargetingStatus = classifyAdminSummaryLaneStatus({
+    laneId: "notification_targeting",
+    sourceContractPresent: toNumber(notificationTargeting.intentTypesRegistered) > 0,
+    telemetryMapped: notificationTargeting.telemetryStatus === "mapped",
+    sampleLoaded: toNumber(notificationTargeting.dryRunEligible) > 0,
+    counts: [toNumber(notificationTargeting.dryRunEligible)],
+    warningCount: notificationTargetingWarnings,
+  }).status;
   const pwaServiceWorker = input.pwaServiceWorkerSafety?.debugLane ?? buildPwaServiceWorkerDebugLane();
   const pwaRegistrationActionable = pwaServiceWorker.status === "degraded"
     && pwaServiceWorker.registrationStatusReason !== "optional_not_registered";
@@ -396,6 +527,49 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const dailyTaskLifecycleWarnings = toNumber(dailyTaskLifecycle.missingStarts)
     + toNumber(dailyTaskLifecycle.completionsWithoutStarts)
     + toNumber(dailyTaskLifecycle.rewardsWithoutCompletions);
+  const dailyTaskResetStatus = classifyAdminSummaryLaneStatus({
+    laneId: "daily_tasks_reset",
+    sourceContractPresent: true,
+    configTruthHealthy: dailyTasksReset.duplicateClaimGuard === true && dailyTasksReset.rewardSourceTruth === "reward_gd_only",
+    warningCount: dailyTasksReset.duplicateClaimGuard ? 0 : 1,
+  }).status;
+  const dailyTaskGuidanceStatus = classifyAdminSummaryLaneStatus({
+    laneId: "daily_task_guidance_health",
+    sourceContractPresent: true,
+    configTruthHealthy: toNumber(dailyTaskGuidanceHealth.activeTasks) > 0,
+    warningCount: toNumber(dailyTaskGuidanceHealth.brokenRoutes)
+      + toNumber(dailyTaskGuidanceHealth.missingCompletionSignals)
+      + toNumber(dailyTaskGuidanceHealth.missingTelemetry)
+      + toNumber(dailyTaskGuidanceHealth.wrongSurfaceTasks),
+  }).status;
+  const dailyTaskLifecycleStatus = classifyAdminSummaryLaneStatus({
+    laneId: "daily_task_lifecycle",
+    sourceContractPresent: true,
+    telemetryMapped: true,
+    expectedRuntimeActivity: true,
+    sampleLoaded: false,
+    counts: [0],
+    warningCount: dailyTaskLifecycleWarnings
+      + toNumber(dailyTaskLifecycle.durationUnavailableCount)
+      + toNumber(dailyTaskLifecycle.failureReasons?.length),
+  }).status;
+  const dailyTaskRewardLedgerStatus = classifyAdminSummaryLaneStatus({
+    laneId: "daily_task_reward_ledger",
+    sourceContractPresent: true,
+    telemetryMapped: true,
+    expectedRuntimeActivity: true,
+    sampleLoaded: toNumber(dailyTaskRewardLedger.grantedRewards)
+      + toNumber(dailyTaskRewardLedger.blockedDuplicateClaims)
+      + toNumber(dailyTaskRewardLedger.unknownLegacyRewards)
+      + toNumber(dailyTaskRewardLedger.failedGrantCount) > 0,
+    counts: [
+      toNumber(dailyTaskRewardLedger.grantedRewards),
+      toNumber(dailyTaskRewardLedger.blockedDuplicateClaims),
+      toNumber(dailyTaskRewardLedger.unknownLegacyRewards),
+      toNumber(dailyTaskRewardLedger.failedGrantCount),
+    ],
+    warningCount: toNumber(dailyTaskRewardLedger.unknownLegacyRewards) + toNumber(dailyTaskRewardLedger.failedGrantCount),
+  }).status;
   const chatGating = input.chatGatingModeration?.debugLane ?? buildChatGatingDebugLane();
   const chatGatingBlocked = toNumber(chatGating.blockedAttempts);
   const chatTelemetry = input.chatTelemetryAdminTruth?.summaryLane ?? buildChatAdminTelemetrySummaryLane();
@@ -693,8 +867,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "auth_provider_conflict",
       sourceOwner: "auth",
       sourceOfTruth: "src/lib/auth/auth-provider-conflict-resolver.ts",
-      status: authProviderConflictWarnings > 0 || authProviderConflict.status === "degraded" ? "degraded" : authProviderConflict.status === "unavailable" ? "unavailable" : "live",
-      severity: severityFromCounts(authProviderConflict.rawEmailPasswordExposed ? 1 : 0, authProviderConflictWarnings, authProviderConflictWarnings > 0 ? "degraded" : "live"),
+      status: authProviderConflictStatus,
+      severity: severityFromCounts(authProviderConflict.rawEmailPasswordExposed ? 1 : 0, authProviderConflictWarnings, authProviderConflictStatus),
       scoreImpact: "medium",
       primarySignal: `Mapped conflict types=${toNumber(authProviderConflict.conflictTypesMapped)}; resolutionShown=${String(authProviderConflict.resolutionShown)}; unresolvedFailures=${toNumber(authProviderConflict.unresolvedAuthFailures)}; rawCredentialExposure=${String(Boolean(authProviderConflict.rawEmailPasswordExposed))}; telemetry=${authProviderConflict.telemetryStatus}.`,
       criticalCount: authProviderConflict.rawEmailPasswordExposed ? 1 : 0,
@@ -707,8 +881,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "auth_persistence",
       sourceOwner: "auth",
       sourceOfTruth: "src/lib/auth/auth-session-stability.ts",
-      status: authPersistence.status === "degraded" ? "degraded" : authPersistence.status === "failed" ? "failed" : authPersistence.status === "unavailable" ? "unavailable" : "live",
-      severity: severityFromCounts(0, authPersistenceWarnings, authPersistenceWarnings > 0 ? "degraded" : "live"),
+      status: authPersistenceStatus,
+      severity: severityFromCounts(0, authPersistenceWarnings, authPersistenceStatus),
       scoreImpact: "medium",
       primarySignal: `Persistence=${authPersistence.persistenceStatus}; restored=${toNumber(authPersistence.restoredSessions)}; unexpectedDrops=${toNumber(authPersistence.unexpectedDrops)}; navigationFailures=${toNumber(authPersistence.navigationSessionFailures)}; profileReconnects=${toNumber(authPersistence.profileSnapshotReconnects)}; securityLogouts=${toNumber(authPersistence.securityLogoutCount)}; telemetry=${authPersistence.telemetryStatus}.`,
       criticalCount: 0,
@@ -721,8 +895,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "auth_runtime",
       sourceOwner: "auth",
       sourceOfTruth: "src/lib/auth/auth-telemetry-contract.ts",
-      status: authRuntimeWarnings > 0 || authRuntime.status === "degraded" ? "degraded" : authRuntime.status === "unavailable" ? "unavailable" : "live",
-      severity: severityFromCounts(authRuntime.rawPiiExposed || authRuntime.rawTokensExposed ? 1 : 0, authRuntimeWarnings, authRuntimeWarnings > 0 ? "degraded" : "live"),
+      status: authRuntimeStatus,
+      severity: severityFromCounts(authRuntime.rawPiiExposed || authRuntime.rawTokensExposed ? 1 : 0, authRuntimeWarnings, authRuntimeStatus),
       scoreImpact: "medium",
       primarySignal: `Signup attempts=${toNumber(authRuntime.signupAttempts)}; login attempts=${toNumber(authRuntime.loginAttempts)}; google success=${toNumber(authRuntime.successByMethod?.google)}; email success=${toNumber(authRuntime.successByMethod?.email_password)}; providerConflicts=${toNumber(authRuntime.providerConflictCount)}; unexpectedLogouts=${toNumber(authRuntime.unexpectedLogoutCount)}; navigationFailures=${toNumber(authRuntime.navigationSessionFailureCount)}; profileBootstrapFailures=${toNumber(authRuntime.profileBootstrapFailureCount)}; persistence=${authRuntime.persistenceStatus}; telemetry=${authRuntime.telemetryStatus}; personMetrics=${authRuntime.personMetricsStatus}.`,
       criticalCount: authRuntime.rawPiiExposed || authRuntime.rawTokensExposed ? 1 : 0,
@@ -735,8 +909,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "notification_permission",
       sourceOwner: "notifications",
       sourceOfTruth: "src/lib/notifications/notification-permission-contract.ts",
-      status: notificationPermission.status === "degraded" ? "degraded" : notificationPermission.status === "unavailable" ? "unavailable" : "live",
-      severity: severityFromCounts(0, notificationPermissionWarnings, notificationPermission.status === "degraded" ? "degraded" : notificationPermission.status === "unavailable" ? "unavailable" : "live"),
+      status: notificationPermissionStatus,
+      severity: severityFromCounts(0, notificationPermissionWarnings, notificationPermissionStatus),
       scoreImpact: "medium",
       primarySignal: `Eligible=${toNumber(notificationPermission.promptEligible)}; shown=${toNumber(notificationPermission.promptShown)}; granted=${toNumber(notificationPermission.granted)}; denied=${toNumber(notificationPermission.denied)}; failed=${toNumber(notificationPermission.failed)}; unsupported=${toNumber(notificationPermission.unsupportedBrowser)}; cooldown=${toNumber(notificationPermission.cooldownActive)}; snoozed=${toNumber(notificationPermission.snoozed)}; telemetry=${notificationPermission.telemetryStatus}.`,
       criticalCount: 0,
@@ -749,8 +923,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "push_token_registration",
       sourceOwner: "notifications",
       sourceOfTruth: "src/lib/notifications/push-token-contract.ts",
-      status: pushTokenHealth.status === "degraded" ? "degraded" : pushTokenHealth.status === "unavailable" ? "unavailable" : "live",
-      severity: severityFromCounts(pushTokenHealth.rawTokenExposureCount > 0 ? 1 : 0, pushTokenWarnings, pushTokenHealth.status === "degraded" ? "degraded" : pushTokenHealth.status === "unavailable" ? "unavailable" : "live"),
+      status: pushTokenStatus,
+      severity: severityFromCounts(pushTokenHealth.rawTokenExposureCount > 0 ? 1 : 0, pushTokenWarnings, pushTokenStatus),
       scoreImpact: "medium",
       primarySignal: `Users=${toNumber(pushTokenHealth.registeredUsers)}; devices=${toNumber(pushTokenHealth.registeredDevices)}; failed=${toNumber(pushTokenHealth.failedRegistrations)}; unsupported=${toNumber(pushTokenHealth.unsupportedBrowsers)}; stale=${toNumber(pushTokenHealth.staleTokens)}; rawTokenExposure=${toNumber(pushTokenHealth.rawTokenExposureCount)}; telemetry=${pushTokenHealth.telemetryStatus}.`,
       criticalCount: pushTokenHealth.rawTokenExposureCount > 0 ? 1 : 0,
@@ -763,8 +937,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "notification_targeting",
       sourceOwner: "notifications",
       sourceOfTruth: "src/lib/notifications/notification-intent-contract.ts",
-      status: notificationTargeting.status === "unavailable" ? "unavailable" : notificationTargeting.status === "degraded" ? "degraded" : "live",
-      severity: severityFromCounts(0, notificationTargetingWarnings, notificationTargeting.status === "unavailable" ? "unavailable" : notificationTargeting.status === "degraded" ? "degraded" : "live"),
+      status: notificationTargetingStatus,
+      severity: severityFromCounts(0, notificationTargetingWarnings, notificationTargetingStatus),
       scoreImpact: "medium",
       primarySignal: `Intents=${toNumber(notificationTargeting.intentTypesRegistered)}; missingAudience=${toNumber(notificationTargeting.missingAudienceSource)}; optOut=${toNumber(notificationTargeting.blockedByOptOut)}; missingToken=${toNumber(notificationTargeting.blockedByMissingToken)}; consent=${toNumber(notificationTargeting.blockedByConsent)}; dryRunEligible=${toNumber(notificationTargeting.dryRunEligible)}; telemetry=${notificationTargeting.telemetryStatus}.`,
       criticalCount: 0,
@@ -791,8 +965,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "daily_tasks_reset",
       sourceOwner: "retention",
       sourceOfTruth: "src/lib/tasks/daily-task-contract.ts",
-      status: dailyTasksReset.duplicateClaimGuard && dailyTasksReset.rewardSourceTruth === "reward_gd_only" ? "live" : "degraded",
-      severity: severityFromCounts(0, dailyTasksReset.duplicateClaimGuard ? 0 : 1, dailyTasksReset.duplicateClaimGuard ? "live" : "degraded"),
+      status: dailyTaskResetStatus,
+      severity: severityFromCounts(0, dailyTasksReset.duplicateClaimGuard ? 0 : 1, dailyTaskResetStatus),
       scoreImpact: "medium",
       primarySignal: `Reset=${dailyTasksReset.resetPolicy}; anchor=${dailyTasksReset.resetAnchor}; rewardSource=${dailyTasksReset.rewardSourceTruth}; duplicateGuard=${String(dailyTasksReset.duplicateClaimGuard)}; failures=${toNumber(dailyTasksReset.failureCount)}; unknownLegacy=${toNumber(dailyTasksReset.unknownLegacyCount)}.`,
       criticalCount: 0,
@@ -805,14 +979,14 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "daily_task_guidance_route_audit",
       sourceOwner: "retention",
       sourceOfTruth: "src/lib/tasks/daily-task-guidance-contract.ts",
-      status: dailyTaskGuidanceHealth.status === "degraded" ? "degraded" : "live",
+      status: dailyTaskGuidanceStatus,
       severity: severityFromCounts(
         0,
         toNumber(dailyTaskGuidanceHealth.brokenRoutes)
           + toNumber(dailyTaskGuidanceHealth.missingCompletionSignals)
           + toNumber(dailyTaskGuidanceHealth.missingTelemetry)
           + toNumber(dailyTaskGuidanceHealth.wrongSurfaceTasks),
-        dailyTaskGuidanceHealth.status === "degraded" ? "degraded" : "live",
+        dailyTaskGuidanceStatus,
       ),
       scoreImpact: "medium",
       primarySignal: `Active=${toNumber(dailyTaskGuidanceHealth.activeTasks)}; hiddenDeprecated=${toNumber(dailyTaskGuidanceHealth.hiddenDeprecatedTasks)}; brokenRoutes=${toNumber(dailyTaskGuidanceHealth.brokenRoutes)}; missingSignals=${toNumber(dailyTaskGuidanceHealth.missingCompletionSignals)}; missingTelemetry=${toNumber(dailyTaskGuidanceHealth.missingTelemetry)}.`,
@@ -829,8 +1003,8 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "daily_task_lifecycle",
       sourceOwner: "retention",
       sourceOfTruth: "src/lib/tasks/daily-task-telemetry.ts",
-      status: dailyTaskLifecycle.status === "degraded" ? "degraded" : dailyTaskLifecycle.status === "review" ? "degraded" : "live",
-      severity: severityFromCounts(0, dailyTaskLifecycleWarnings, dailyTaskLifecycle.status === "degraded" ? "degraded" : dailyTaskLifecycle.status === "review" ? "degraded" : "live"),
+      status: dailyTaskLifecycleStatus,
+      severity: severityFromCounts(0, dailyTaskLifecycleWarnings, dailyTaskLifecycleStatus),
       scoreImpact: "medium",
       primarySignal: `Missing starts=${toNumber(dailyTaskLifecycle.missingStarts)}; completions-without-starts=${toNumber(dailyTaskLifecycle.completionsWithoutStarts)}; rewards-without-completions=${toNumber(dailyTaskLifecycle.rewardsWithoutCompletions)}; duration-unavailable=${toNumber(dailyTaskLifecycle.durationUnavailableCount)}; failure-reasons=${dailyTaskLifecycle.failureReasons?.length ?? 0}.`,
       criticalCount: 0,
@@ -843,11 +1017,11 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       trackingSystem: "daily_task_reward_ledger",
       sourceOwner: "retention",
       sourceOfTruth: "src/lib/tasks/daily-task-reward-ledger.ts",
-      status: dailyTaskRewardLedger.status === "degraded" ? "degraded" : "live",
+      status: dailyTaskRewardLedgerStatus,
       severity: severityFromCounts(
         0,
         toNumber(dailyTaskRewardLedger.unknownLegacyRewards) + toNumber(dailyTaskRewardLedger.failedGrantCount),
-        dailyTaskRewardLedger.status === "degraded" ? "degraded" : "live",
+        dailyTaskRewardLedgerStatus,
       ),
       scoreImpact: "medium",
       primarySignal: `Granted=${toNumber(dailyTaskRewardLedger.grantedRewards)}; duplicateBlocked=${toNumber(dailyTaskRewardLedger.blockedDuplicateClaims)}; ledger=${dailyTaskRewardLedger.ledgerSource}; sourceOfFunds=${dailyTaskRewardLedger.sourceOfFunds}; unknownLegacy=${toNumber(dailyTaskRewardLedger.unknownLegacyRewards)}; failedGrants=${toNumber(dailyTaskRewardLedger.failedGrantCount)}.`,

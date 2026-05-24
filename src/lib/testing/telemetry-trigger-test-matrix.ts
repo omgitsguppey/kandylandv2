@@ -407,6 +407,7 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-new-additions-score-coverage.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-reset-truth.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-lifecycle-telemetry.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-reward-ledger.ts") return "validator_artifact_expected";
@@ -440,6 +441,7 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/admin-summary-lane-status-classifier.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/future-activity-classifier.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/actionable-signal-filter.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx") return "real_source_change_needs_review";
@@ -458,6 +460,11 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "agent/context/validator-authority.json") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/admin-status-lane-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (
     normalized === "CHANGELOG.md"

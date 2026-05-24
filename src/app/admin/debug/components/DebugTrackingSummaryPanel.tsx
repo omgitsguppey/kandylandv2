@@ -44,17 +44,32 @@ type TrackingSummary = {
 };
 
 function toneForStatus(status?: string) {
-    if (status === "live") return "good" as const;
+    if (status === "live" || status === "healthy_current" || status === "healthy_proven_zero") return "good" as const;
     if (status === "failed") return "bad" as const;
-    if (status === "degraded" || status === "stale") return "warn" as const;
+    if (
+        status === "degraded"
+        || status === "stale"
+        || status === "stale_artifact_refresh_required"
+        || status === "source_missing_actionable"
+        || status === "sample_source_missing"
+        || status === "source_live_artifact_stale"
+    ) return "warn" as const;
     return "neutral" as const;
 }
 
 function truthForStatus(status?: string) {
-    if (status === "live") return "live" as const;
+    if (status === "live" || status === "healthy_current" || status === "healthy_proven_zero") return "live" as const;
     if (status === "failed") return "failed" as const;
-    if (status === "degraded") return "degraded" as const;
-    if (status === "stale") return "stale" as const;
+    if (
+        status === "degraded"
+        || status === "source_missing_actionable"
+        || status === "sample_source_missing"
+    ) return "degraded" as const;
+    if (
+        status === "stale"
+        || status === "stale_artifact_refresh_required"
+        || status === "source_live_artifact_stale"
+    ) return "stale" as const;
     return "unavailable" as const;
 }
 

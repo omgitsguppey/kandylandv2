@@ -493,6 +493,9 @@ export function classifyUserManagementDirtyFile(path: string): UserManagementDir
   if (normalized === "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-new-additions-score-coverage.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/final-testing-tracking-telemetry-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/admin/user-management-contract.ts") return "real_source_change_needs_review";
@@ -501,6 +504,8 @@ export function classifyUserManagementDirtyFile(path: string): UserManagementDir
   if (normalized === "src/app/api/admin/users/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/admin-summary-lane-status-classifier.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
@@ -509,6 +514,11 @@ export function classifyUserManagementDirtyFile(path: string): UserManagementDir
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (normalized === "agent/context/validator-authority.json") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/admin-status-lane-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"

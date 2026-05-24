@@ -1,0 +1,370 @@
+# Debug cockpit batch4 cleanup
+
+Generated: 2026-05-24T16:27:38.129Z
+Head: 3198b27d8499d675aa8e3ee98fe4e3368f2c77e0
+
+## Status
+
+Validation failures: none
+
+## Summary
+
+```json
+{
+  "reportKey": "debug-cockpit-batch4-cleanup",
+  "generatedAtUtc": "2026-05-24T16:27:38.129Z",
+  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
+  "userManagementStatusBefore": "live_stale",
+  "userManagementStatusAfter": "source_ready_no_sample_loaded",
+  "testingCoverageStatusBefore": "live_stale",
+  "testingCoverageStatusAfter": "healthy_current",
+  "settingsHealthStatusBefore": "live_stale",
+  "settingsHealthStatusAfter": "healthy_current",
+  "authProviderConflictStatusBefore": "live_stale",
+  "authProviderConflictStatusAfter": "healthy_current",
+  "authPersistenceStatusBefore": "live_stale",
+  "authPersistenceStatusAfter": "source_ready_collecting",
+  "authRuntimeStatusBefore": "live_stale",
+  "authRuntimeStatusAfter": "source_ready_collecting",
+  "notificationPermissionStatusBefore": "live_stale",
+  "notificationPermissionStatusAfter": "source_ready_collecting",
+  "pushTokenStatusBefore": "live_stale",
+  "pushTokenStatusAfter": "source_ready_collecting",
+  "notificationTargetingStatusBefore": "live_stale",
+  "notificationTargetingStatusAfter": "source_ready_no_sample_loaded",
+  "dailyResetStatusBefore": "live_stale",
+  "dailyResetStatusAfter": "healthy_current",
+  "taskGuidanceStatusBefore": "live_stale",
+  "taskGuidanceStatusAfter": "healthy_current",
+  "taskLifecycleStatusBefore": "live_stale",
+  "taskLifecycleStatusAfter": "source_ready_collecting",
+  "taskRewardLedgerStatusBefore": "live_stale",
+  "taskRewardLedgerStatusAfter": "source_ready_collecting",
+  "emptyLiveLanesBefore": 8,
+  "emptyLiveLanesAfter": 0,
+  "staleBadgeConflictsBefore": 13,
+  "staleBadgeConflictsAfter": 0,
+  "sourceReadyCollectingLanes": [
+    "auth_persistence",
+    "auth_runtime",
+    "notification_permission",
+    "push_token_health",
+    "daily_task_lifecycle",
+    "daily_task_reward_ledger"
+  ],
+  "sourceReadyNoSampleLanes": [
+    "user_management",
+    "notification_targeting"
+  ],
+  "healthyCurrentLanes": [
+    "testing_coverage",
+    "settings_health",
+    "auth_provider_conflict",
+    "daily_tasks_reset",
+    "daily_task_guidance_health"
+  ],
+  "healthyProvenZeroLanes": [],
+  "sourceMissingActionableLanes": [],
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreDimensions": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/admin-summary-lane-status-classifier.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-lane-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-lane-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch4-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/notification-lane-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/notification-pwa-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/settings-debug-validator-authority.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/settings-health-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/testing-coverage-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/user-management-refactor.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/user-management-status-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/admin-summary-lane-status-classifier.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-lane-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lane-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-cockpit-batch4-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/notification-lane-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/notification-pwa-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/settings-debug-validator-authority.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/settings-health-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/testing-coverage-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/user-management-refactor.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/user-management-status-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-admin-summary-lane-status-classifier.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-auth-lane-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-auth-readiness-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-lane-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-cockpit-batch4-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-notification-lane-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-notification-pwa-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-settings-health-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-testing-coverage-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-user-management-status-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/admin/user-management-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/admin-summary-lane-status-classifier.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/admin-summary-lane-status-classifier.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/auth-lane-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/daily-task-lane-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/debug-cockpit-batch4-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/notification-lane-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/settings-health-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/testing-coverage-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/user-management-status-truth.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "openPrs": [],
+  "remainingGaps": [
+    "Bounded runtime samples are still needed before all-zero auth, notification, and task runtime lanes can be promoted to live."
+  ],
+  "nextExactSteps": [
+    "Load bounded source windows for runtime samples; keep config-truth lanes healthy-current without faking live activity."
+  ],
+  "validationFailures": []
+}
+```

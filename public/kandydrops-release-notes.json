@@ -1,11 +1,94 @@
 {
-  "currentVersion": "1.4.33",
-  "betaReleaseCounter": 433,
+  "currentVersion": "1.4.34",
+  "betaReleaseCounter": 434,
   "channel": "beta",
-  "generatedAt": "2026-05-24T15:59:22.516Z",
-  "generatedAtUtc": "2026-05-24T15:59:22.516Z",
+  "generatedAt": "2026-05-24T16:18:32.326Z",
+  "generatedAtUtc": "2026-05-24T16:18:32.326Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.34",
+      "previousVersion": "1.4.33",
+      "betaReleaseCounter": 434,
+      "previousBetaReleaseCounter": 433,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean admin status lanes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T16:18:32.326Z",
+      "generatedAt": "2026-05-24T16:18:32.326Z",
+      "committedAtUtc": "2026-05-24T16:18:32.326Z",
+      "generatedAtUtc": "2026-05-24T16:18:32.326Z",
+      "updatedAtUtc": "2026-05-24T16:18:32.326Z",
+      "category": "Improved",
+      "title": "Admin status lane cleanup",
+      "summary": "Cleaned up admin, user, auth, notification, and task debug lane status truth so empty samples no longer appear as live activity.",
+      "userFacingTitle": "Admin status lane cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleaned admin/user/auth/notification/task debug lane status truth.",
+        "Separated config health from live activity samples.",
+        "Reclassified all-zero lanes as collecting, proven-zero, or source-missing."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin debug",
+        "Tracking summary",
+        "Auth readiness",
+        "Notifications",
+        "Daily tasks"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/admin-summary-lane-status-classifier.generated.json",
+        "agent/state/auth-lane-status-cleanup.generated.json",
+        "agent/state/daily-task-lane-status-cleanup.generated.json",
+        "agent/state/debug-cockpit-batch4-cleanup.generated.json",
+        "agent/state/notification-lane-status-cleanup.generated.json",
+        "agent/state/settings-health-status-cleanup.generated.json",
+        "agent/state/testing-coverage-status-cleanup.generated.json",
+        "agent/state/user-management-status-truth.generated.json",
+        "docs/agent-truth/admin-summary-lane-status-classifier.md",
+        "docs/agent-truth/auth-lane-status-cleanup.md",
+        "docs/agent-truth/daily-task-lane-status-cleanup.md",
+        "docs/agent-truth/debug-cockpit-batch4-cleanup.md",
+        "docs/agent-truth/notification-lane-status-cleanup.md",
+        "docs/agent-truth/settings-health-status-cleanup.md",
+        "docs/agent-truth/testing-coverage-status-cleanup.md",
+        "docs/agent-truth/user-management-status-truth.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/admin-status-lane-cleanup-shared.ts",
+        "scripts/agent/validate-admin-summary-lane-status-classifier.ts",
+        "scripts/agent/validate-auth-lane-status-cleanup.ts",
+        "scripts/agent/validate-daily-task-lane-status-cleanup.ts",
+        "scripts/agent/validate-debug-cockpit-batch4-cleanup.ts",
+        "scripts/agent/validate-notification-lane-status-cleanup.ts",
+        "scripts/agent/validate-settings-health-status-cleanup.ts",
+        "scripts/agent/validate-testing-coverage-status-cleanup.ts",
+        "scripts/agent/validate-user-management-status-truth.ts",
+        "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
+        "src/lib/debug/admin-summary-lane-status-classifier.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-summary-lane-status-classifier.spec.ts",
+        "tests/unit/auth-lane-status-cleanup.spec.ts",
+        "tests/unit/daily-task-lane-status-cleanup.spec.ts",
+        "tests/unit/debug-cockpit-batch4-cleanup.spec.ts",
+        "tests/unit/notification-lane-status-cleanup.spec.ts",
+        "tests/unit/settings-health-status-cleanup.spec.ts",
+        "tests/unit/testing-coverage-status-cleanup.spec.ts",
+        "tests/unit/user-management-status-truth.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "All-zero admin summary lanes now require a bounded source window before displaying as live.",
+        "Config-truth lanes can remain healthy-current without pretending runtime samples exist."
+      ]
+    },
     {
       "version": "1.4.33",
       "previousVersion": "1.4.32",
@@ -6229,62 +6312,6 @@
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/daily-task-debug-score-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.9",
-      "previousVersion": "1.4.8",
-      "betaReleaseCounter": 409,
-      "previousBetaReleaseCounter": 408,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(tasks): align guidance routes",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T03:40:00.000Z",
-      "generatedAt": "2026-05-24T03:40:00.000Z",
-      "committedAtUtc": "2026-05-24T03:40:00.000Z",
-      "generatedAtUtc": "2026-05-24T03:40:00.000Z",
-      "updatedAtUtc": "2026-05-24T03:40:00.000Z",
-      "category": "Improved",
-      "title": "Daily task guidance route accuracy",
-      "summary": "Aligned daily task guidance prompts, CTAs, routes, completion signals, telemetry, and debug visibility with the current site structure.",
-      "userFacingTitle": "Daily task guidance route accuracy",
-      "surfaceCategory": "Daily tasks",
-      "bullets": [
-        "Aligned daily task guidance with current site routes and completion signals.",
-        "Hid or classified tasks that cannot be completed yet.",
-        "Added debug visibility for task guidance health."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a daily task guidance route contract, source validator, generated evidence, debug lane coverage, and unit tests so task guidance cannot point to missing routes, missing telemetry, stale surfaces, or unsupported completion signals."
-      ],
-      "affectedSurfaces": [
-        "Daily tasks",
-        "Task guidance",
-        "Experiences",
-        "Admin debug",
-        "Telemetry"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/daily-task-guidance-route-audit.generated.json",
-        "docs/agent-truth/daily-task-guidance-route-audit.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-daily-task-guidance-route-audit.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/components/Dashboard/DailyTasksModule.tsx",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "src/lib/tasks/daily-task-guidance-contract.ts",
-        "tests/unit/daily-task-guidance-route-audit.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

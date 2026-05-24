@@ -180,6 +180,8 @@ export function classifyNotificationPwaScoreLockDirtyFile(path: string) {
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-push-token-registration.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
@@ -199,12 +201,18 @@ export function classifyNotificationPwaScoreLockDirtyFile(path: string) {
     normalized.startsWith("src/lib/notifications/")
     || normalized.startsWith("src/lib/pwa/")
     || normalized === "src/lib/debug/empty-live-lane-classifier.ts"
+    || normalized === "src/lib/debug/admin-summary-lane-status-classifier.ts"
     || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"
+    || normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx"
     || normalized === "src/components/PwaRuntimeBridge.tsx"
     || normalized === "public/firebase-messaging-sw.js"
     || normalized === "src/lib/analytics/event-translation-bridge.ts"
     || normalized === "src/lib/analytics/person-metrics-hydration.ts"
+    || normalized === "src/lib/admin/user-management-contract.ts"
   ) return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/admin-status-lane-cleanup-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(admin-summary-lane-status-classifier|user-management-status-truth|testing-coverage-status-cleanup|settings-health-status-cleanup|auth-lane-status-cleanup|notification-lane-status-cleanup|daily-task-lane-status-cleanup|debug-cockpit-batch4-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   return "unsafe_unknown";
 }
 

@@ -567,7 +567,15 @@
         "check:wallet-funnel-sample-cleanup": "tsx scripts/agent/validate-wallet-funnel-sample-cleanup.ts",
         "check:empty-live-lane-status-cleanup": "tsx scripts/agent/validate-empty-live-lane-status-cleanup.ts",
         "check:tracking-lane-freshness-display-cleanup": "tsx scripts/agent/validate-tracking-lane-freshness-display-cleanup.ts",
-        "check:debug-cockpit-batch3-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch3-cleanup.ts"
+        "check:debug-cockpit-batch3-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch3-cleanup.ts",
+        "check:admin-summary-lane-status-classifier": "tsx scripts/agent/validate-admin-summary-lane-status-classifier.ts",
+        "check:user-management-status-truth": "tsx scripts/agent/validate-user-management-status-truth.ts",
+        "check:testing-coverage-status-cleanup": "tsx scripts/agent/validate-testing-coverage-status-cleanup.ts",
+        "check:settings-health-status-cleanup": "tsx scripts/agent/validate-settings-health-status-cleanup.ts",
+        "check:auth-lane-status-cleanup": "tsx scripts/agent/validate-auth-lane-status-cleanup.ts",
+        "check:notification-lane-status-cleanup": "tsx scripts/agent/validate-notification-lane-status-cleanup.ts",
+        "check:daily-task-lane-status-cleanup": "tsx scripts/agent/validate-daily-task-lane-status-cleanup.ts",
+        "check:debug-cockpit-batch4-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch4-cleanup.ts"
     },
     "dependencies": {
         "@axe-core/react": "^4.11.2",

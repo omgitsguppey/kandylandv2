@@ -1,0 +1,93 @@
+# Admin summary lane status classifier
+
+Generated: 2026-05-24T16:27:20.707Z
+Head: 3198b27d8499d675aa8e3ee98fe4e3368f2c77e0
+
+## Status
+
+Validation failures: none
+
+## Summary
+
+```json
+{
+  "reportKey": "admin-summary-lane-status-classifier",
+  "scoreBefore": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreAfter": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "scoreDimensions": {
+    "sourceHealth": 92.5,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 83.75,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 79.25
+  },
+  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
+  "generatedAtUtc": "2026-05-24T16:27:20.707Z",
+  "statusVocabulary": [
+    "healthy_current",
+    "healthy_proven_zero",
+    "source_ready_collecting",
+    "source_ready_no_sample_loaded",
+    "sample_source_missing",
+    "source_missing_actionable",
+    "degraded",
+    "stale_artifact_refresh_required",
+    "external_review_required",
+    "formal_gate_required",
+    "unknown"
+  ],
+  "decisions": [
+    {
+      "laneId": "no_sample",
+      "status": "source_ready_no_sample_loaded",
+      "displayState": "collecting",
+      "reason": "The source contract is present, but no bounded sample is loaded.",
+      "nextAction": "Load or attach the lane source sample.",
+      "liveDisplayAllowed": false
+    },
+    {
+      "laneId": "collecting",
+      "status": "source_ready_collecting",
+      "displayState": "collecting",
+      "reason": "Telemetry/source contracts are mapped, but no bounded runtime sample is loaded.",
+      "nextAction": "Load a bounded source summary before displaying this lane as live.",
+      "liveDisplayAllowed": false
+    },
+    {
+      "laneId": "stale",
+      "status": "stale_artifact_refresh_required",
+      "displayState": "stale",
+      "reason": "Artifact freshness is stale; source health is not being downgraded.",
+      "nextAction": "npm run check:lane-owner",
+      "liveDisplayAllowed": false
+    },
+    {
+      "laneId": "source_missing",
+      "status": "source_missing_actionable",
+      "displayState": "degraded",
+      "reason": "Required source contract or source summary is missing.",
+      "nextAction": "Wire the lane to its source contract or summary artifact.",
+      "liveDisplayAllowed": false
+    }
+  ],
+  "validationFailures": []
+}
+```

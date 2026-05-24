@@ -1,7 +1,7 @@
 {
   "reportKey": "user-management-refactor",
-  "generatedAtUtc": "2026-05-23T06:56:58.537Z",
-  "currentHead": "a817e6e36f47ff3ecc71cd643737f18dc70558a3",
+  "generatedAtUtc": "2026-05-24T16:27:40.108Z",
+  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
   "status": "pass",
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
@@ -57,8 +57,8 @@
       },
       "personMetricConfidence": {
         "source": "person_metrics_hydration",
-        "mappedMetrics": 24,
-        "lowConfidenceCount": 24,
+        "mappedMetrics": 34,
+        "lowConfidenceCount": 34,
         "lowConfidenceMetrics": [
           {
             "metricId": "active_days",
@@ -70,6 +70,17 @@
             "missingBridge": "person_metrics.active_days",
             "missingMaterializer": "person_metrics.active_days",
             "explanation": "Missing producer activity for active_days; expected producer event(s): semantic_page_viewed, session_started, watch_session_started."
+          },
+          {
+            "metricId": "auth_runtime_events",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "auth_surface_viewed",
+            "missingBridge": "person_metrics.auth_runtime_events",
+            "missingMaterializer": "person_metrics.auth_runtime_events",
+            "explanation": "Missing producer activity for auth_runtime_events; expected producer event(s): auth_surface_viewed, auth_google_started, auth_google_completed, auth_google_failed, auth_email_login_started, auth_email_login_completed, auth_email_login_failed, auth_email_signup_started, auth_email_signup_completed, auth_email_signup_failed, auth_provider_conflict_detected, auth_password_reset_requested, auth_password_reset_failed, auth_navigation_session_started, auth_navigation_session_completed, auth_navigation_session_failed, auth_session_restored, auth_unexpected_session_drop, auth_logout_started, auth_logout_completed, auth_profile_bootstrap_started, auth_profile_bootstrap_completed, auth_profile_bootstrap_failed, auth_modal_opened, auth_google_sign_in_attempted, auth_google_sign_in_success, auth_google_sign_in_failed, auth_sign_in_attempted, auth_sign_in_success, auth_sign_in_failed, auth_sign_up_attempted, auth_sign_up_success, auth_sign_up_failed, password_reset_requested, password_reset_failed, auth_profile_snapshot_failed."
           },
           {
             "metricId": "broadcasts_clicked",
@@ -92,6 +103,17 @@
             "missingBridge": "person_metrics.broadcasts_viewed",
             "missingMaterializer": "person_metrics.broadcasts_viewed",
             "explanation": "Missing producer activity for broadcasts_viewed; expected producer event(s): creator_broadcast_detail_viewed, creator_broadcast_opened."
+          },
+          {
+            "metricId": "chat_actions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "chat_surface_viewed",
+            "missingBridge": "person_metrics.chat_actions",
+            "missingMaterializer": "person_metrics.chat_actions",
+            "explanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
           },
           {
             "metricId": "checkout_starts",
@@ -125,6 +147,94 @@
             "missingBridge": "person_metrics.creator_profile_views",
             "missingMaterializer": "person_metrics.creator_profile_views",
             "explanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
+          },
+          {
+            "metricId": "daily_task_abandonments",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_abandoned",
+            "missingBridge": "person_metrics.daily_task_abandonments",
+            "missingMaterializer": "person_metrics.daily_task_abandonments",
+            "explanation": "Missing producer activity for daily_task_abandonments; expected producer event(s): daily_task_abandoned."
+          },
+          {
+            "metricId": "daily_task_average_duration",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_completed",
+            "missingBridge": "person_metrics.daily_task_average_duration",
+            "missingMaterializer": "person_metrics.daily_task_average_duration",
+            "explanation": "Missing producer activity for daily_task_average_duration; expected producer event(s): daily_task_completed, daily_task_failed, daily_task_abandoned."
+          },
+          {
+            "metricId": "daily_task_completions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_completed",
+            "missingBridge": "person_metrics.daily_task_completions",
+            "missingMaterializer": "person_metrics.daily_task_completions",
+            "explanation": "Missing producer activity for daily_task_completions; expected producer event(s): daily_task_completed, task_completed, daily_checkin_claimed."
+          },
+          {
+            "metricId": "daily_task_failures",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_failed",
+            "missingBridge": "person_metrics.daily_task_failures",
+            "missingMaterializer": "person_metrics.daily_task_failures",
+            "explanation": "Missing producer activity for daily_task_failures; expected producer event(s): daily_task_failed."
+          },
+          {
+            "metricId": "daily_task_reset_locked_views",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_reset_locked",
+            "missingBridge": "person_metrics.daily_task_reset_locked_views",
+            "missingMaterializer": "person_metrics.daily_task_reset_locked_views",
+            "explanation": "Missing producer activity for daily_task_reset_locked_views; expected producer event(s): daily_task_reset_locked, daily_task_next_eligible_viewed."
+          },
+          {
+            "metricId": "daily_task_rewards_granted",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_reward_granted",
+            "missingBridge": "person_metrics.daily_task_rewards_granted",
+            "missingMaterializer": "person_metrics.daily_task_rewards_granted",
+            "explanation": "Missing producer activity for daily_task_rewards_granted; expected producer event(s): daily_task_reward_granted, daily_task_claimed."
+          },
+          {
+            "metricId": "daily_task_starts",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_started",
+            "missingBridge": "person_metrics.daily_task_starts",
+            "missingMaterializer": "person_metrics.daily_task_starts",
+            "explanation": "Missing producer activity for daily_task_starts; expected producer event(s): daily_task_started."
+          },
+          {
+            "metricId": "daily_task_views",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_surface_viewed",
+            "missingBridge": "person_metrics.daily_task_views",
+            "missingMaterializer": "person_metrics.daily_task_views",
+            "explanation": "Missing producer activity for daily_task_views; expected producer event(s): daily_task_surface_viewed, daily_task_card_viewed, daily_tasks_viewed."
           },
           {
             "metricId": "drop_opens",
@@ -179,7 +289,7 @@
             "missingProducer": "notification_opened",
             "missingBridge": "person_metrics.notification_interactions",
             "missingMaterializer": "person_metrics.notification_interactions",
-            "explanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_banner_viewed."
+            "explanation": "Missing producer activity for notification_interactions; expected producer event(s): notification_opened, notification_read, notification_action_clicked, notification_mark_all_read, notification_cleared, notification_prompt_eligible, notification_prompt_viewed, notification_prompt_dismissed, notification_permission_requested, notification_permission_granted, notification_permission_denied, notification_permission_failed, notification_prompt_snoozed, notification_prompt_blocked, push_token_registration_started, push_token_registered, push_token_registration_failed, push_token_refreshed, push_token_revoked, push_device_scope_resolved, notification_intent_evaluated, notification_targeting_blocked, notification_targeting_dry_run_eligible."
           },
           {
             "metricId": "package_selections",
@@ -245,7 +355,7 @@
             "missingProducer": "watch_session_started",
             "missingBridge": "person_metrics.runtime_watch_sessions",
             "missingMaterializer": "person_metrics.runtime_watch_sessions",
-            "explanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+            "explanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint, drop_watch_started, drop_watch_progress, drop_watch_completed, drop_watch_abandoned, drop_watch_hidden, drop_watch_replayed, drop_watch_duration_unavailable."
           },
           {
             "metricId": "sessions",
@@ -256,7 +366,7 @@
             "missingProducer": "session_started",
             "missingBridge": "person_metrics.sessions",
             "missingMaterializer": "person_metrics.sessions",
-            "explanation": "Missing producer activity for sessions; expected producer event(s): session_started, auth_session_established, auth_session_restored."
+            "explanation": "Missing producer activity for sessions; expected producer event(s): session_started, session_activity_tick, session_meaningful_interaction, session_closed, session_bounced, session_engaged, auth_session_established, auth_session_restored."
           },
           {
             "metricId": "settings_actions",
@@ -356,7 +466,7 @@
         "source": "src/lib/admin/user-management-contract.ts"
       },
       "lastActivity": {
-        "timestampMs": 1779519361046,
+        "timestampMs": 1779640002083,
         "source": "analytics_users_rollup",
         "freshness": "recent"
       },
@@ -366,11 +476,11 @@
   "debugLane": {
     "label": "User management",
     "usersSummarized": 1,
-    "lowConfidenceMetrics": 24,
+    "lowConfidenceMetrics": 34,
     "rawDumpsBeforeSummary": false,
     "duplicateUserMetricSections": 0,
     "summaryFirstRoute": true,
-    "missingHydrationExplanations": 24
+    "missingHydrationExplanations": 34
   },
   "routePolicy": {
     "defaultMode": "summary",
@@ -424,7 +534,19 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/activity-verification-engine.generated.json",
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/admin-summary-lane-status-classifier.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-lane-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-readiness-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -432,43 +554,27 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-backlog-engine.generated.json",
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-lane-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch4-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/debug-tracking-simplification.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/notification-lane-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-behavioral-privacy-telemetry-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/march-first-event-recovery.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/new-additions-score-coverage.generated.json",
+      "path": "agent/state/notification-pwa-score-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -476,63 +582,71 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/person-metrics-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/settings-debug-validator-authority.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/settings-health-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/testing-coverage-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/user-management-refactor.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/user-management-status-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/admin-summary-lane-status-classifier.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-lane-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/current-beta-exit-status.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lane-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-cockpit-batch4-cleanup.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/debug-tracking-simplification.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/notification-lane-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-behavioral-privacy-telemetry-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/final-testing-tracking-telemetry-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/march-first-event-recovery.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/new-additions-score-coverage.md",
+      "path": "docs/agent-truth/notification-pwa-score-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -540,19 +654,27 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/person-metrics-contract.md",
+      "path": "docs/agent-truth/settings-debug-validator-authority.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/settings-health-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/testing-coverage-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/user-management-refactor.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/user-management-status-truth.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -564,27 +686,67 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "path": "scripts/agent/validate-admin-summary-lane-status-classifier.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-new-additions-score-coverage.ts",
+      "path": "scripts/agent/validate-auth-lane-status-cleanup.ts",
       "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-auth-readiness-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-lane-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-cockpit-batch4-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-notification-lane-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-notification-pwa-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-settings-health-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-testing-coverage-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-user-management-status-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/admin/user-management-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "path": "src/lib/debug/admin-summary-lane-status-classifier.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -600,7 +762,35 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/final-testing-tracking-telemetry-lock.spec.ts",
+      "path": "tests/unit/admin-summary-lane-status-classifier.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/auth-lane-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/daily-task-lane-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/debug-cockpit-batch4-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/notification-lane-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/settings-health-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/testing-coverage-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/user-management-status-truth.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

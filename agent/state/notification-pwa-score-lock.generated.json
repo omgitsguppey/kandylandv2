@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-24T16:01:29.738Z",
-  "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+  "generatedAtUtc": "2026-05-24T16:27:53.129Z",
+  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
   "productionReadsRequired": false,
   "providerCallsRequired": false,
   "deployRequired": false,
@@ -157,11 +157,31 @@
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
+      "path": "agent/state/admin-summary-lane-status-classifier.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-lane-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/auth-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/current-beta-exit-status.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-lane-status-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch4-cleanup.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -169,23 +189,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/drop-watch-time-accuracy.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/empty-live-lane-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/identity-handoff-status-cleanup.generated.json",
+      "path": "agent/state/notification-lane-status-cleanup.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -197,47 +201,59 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/pwa-service-worker-safety.generated.json",
+      "path": "agent/state/settings-debug-validator-authority.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/pwa-service-worker-status-cleanup.generated.json",
+      "path": "agent/state/settings-health-status-cleanup.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/session-bounce-calculation.generated.json",
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/sql-database-parity-cost-lock.generated.json",
+      "path": "agent/state/testing-coverage-status-cleanup.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/tracking-lane-freshness-display-cleanup.generated.json",
+      "path": "agent/state/user-management-refactor.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/user-journey-behavioral-intelligence.generated.json",
+      "path": "agent/state/user-management-status-truth.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/wallet-funnel-sample-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/admin-summary-lane-status-classifier.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-lane-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/auth-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/current-beta-exit-status.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch3-cleanup.md",
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lane-status-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-cockpit-batch4-cleanup.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -245,23 +261,7 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/empty-live-lane-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-status-cleanup.md",
+      "path": "docs/agent-truth/notification-lane-status-cleanup.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -273,35 +273,27 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "path": "docs/agent-truth/settings-debug-validator-authority.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/pwa-service-worker-safety.md",
+      "path": "docs/agent-truth/settings-health-status-cleanup.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/pwa-service-worker-status-cleanup.md",
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/session-bounce-calculation.md",
+      "path": "docs/agent-truth/testing-coverage-status-cleanup.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/sql-database-parity-cost-lock.md",
+      "path": "docs/agent-truth/user-management-refactor.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/tracking-lane-freshness-display-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-journey-behavioral-intelligence.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/wallet-funnel-sample-cleanup.md",
+      "path": "docs/agent-truth/user-management-status-truth.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -313,23 +305,35 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts",
+      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch3-cleanup.ts",
+      "path": "scripts/agent/validate-admin-summary-lane-status-classifier.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
+      "path": "scripts/agent/validate-auth-lane-status-cleanup.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-empty-live-lane-status-cleanup.ts",
+      "path": "scripts/agent/validate-auth-readiness-lock.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-identity-handoff-status-cleanup.ts",
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-lane-status-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-debug-cockpit-batch4-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-notification-lane-status-cleanup.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -337,51 +341,31 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-pwa-service-worker-safety.ts",
+      "path": "scripts/agent/validate-settings-health-status-cleanup.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-pwa-service-worker-status-cleanup.ts",
+      "path": "scripts/agent/validate-testing-coverage-status-cleanup.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-session-bounce-calculation.ts",
+      "path": "scripts/agent/validate-user-management-status-truth.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-sql-database-parity-cost-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-tracking-lane-freshness-display-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-wallet-funnel-sample-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "path": "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "path": "src/lib/admin/user-management-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/admin-summary-lane-status-classifier.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/empty-live-lane-classifier.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/pwa/pwa-service-worker-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -393,27 +377,39 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/debug-cockpit-batch3-cleanup.spec.ts",
+      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/admin-summary-lane-status-classifier.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/empty-live-lane-status-cleanup.spec.ts",
+      "path": "tests/unit/auth-lane-status-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/identity-handoff-status-cleanup.spec.ts",
+      "path": "tests/unit/daily-task-lane-status-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/pwa-service-worker-status-cleanup.spec.ts",
+      "path": "tests/unit/debug-cockpit-batch4-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/tracking-lane-freshness-display-cleanup.spec.ts",
+      "path": "tests/unit/notification-lane-status-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/wallet-funnel-sample-cleanup.spec.ts",
+      "path": "tests/unit/settings-health-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/testing-coverage-status-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/user-management-status-truth.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

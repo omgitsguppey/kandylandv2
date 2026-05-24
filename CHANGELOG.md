@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.34 - 2026-05-24
+
+- Cleaned admin/user/auth/notification/task debug lane status truth.
+- Separated config health from live activity samples.
+- Reclassified all-zero lanes as collecting, proven-zero, or source-missing.
+
 ## 1.4.33 - 2026-05-24
 
 - Reclassified empty live tracking lanes as collecting, source-missing, or proven-zero.
