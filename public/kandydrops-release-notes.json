@@ -1,11 +1,90 @@
 {
-  "currentVersion": "1.4.45",
-  "betaReleaseCounter": 445,
+  "currentVersion": "1.4.46",
+  "betaReleaseCounter": 446,
   "channel": "beta",
-  "generatedAt": "2026-05-24T20:11:26.286Z",
-  "generatedAtUtc": "2026-05-24T20:11:26.286Z",
+  "generatedAt": "2026-05-24T20:30:59.435Z",
+  "generatedAtUtc": "2026-05-24T20:30:59.435Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.46",
+      "previousVersion": "1.4.45",
+      "betaReleaseCounter": 446,
+      "previousBetaReleaseCounter": 445,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): refactor ai repair orchestration",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T20:30:59.435Z",
+      "generatedAt": "2026-05-24T20:30:59.435Z",
+      "committedAtUtc": "2026-05-24T20:30:59.435Z",
+      "generatedAtUtc": "2026-05-24T20:30:59.435Z",
+      "updatedAtUtc": "2026-05-24T20:30:59.435Z",
+      "category": "Improved",
+      "title": "AI debug repair orchestration",
+      "summary": "Refactored AI debug into bounded async work-item, planner, critic, and repair proposal contracts while keeping zero-sample states and manual utilities out of live health.",
+      "userFacingTitle": "AI debug repair orchestration",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refactored AI debug into bounded async work items, planner, critic, and repair proposal contracts.",
+        "Separated task/bug/repair zero-sample states from healthy live status.",
+        "Kept manual utilities out of live health while preserving admin audit and GumDrop safeguards."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Admin diagnostics",
+        "Internal reliability",
+        "AI debug assistant"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/ai-debug-critic-review.generated.json",
+        "agent/state/ai-debug-planner.generated.json",
+        "agent/state/ai-debug-queue-truth.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/debug-cockpit-batch16-ai-debug-orchestration.generated.json",
+        "agent/state/manual-utility-separation.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/ai-debug-critic-review.md",
+        "docs/agent-truth/ai-debug-planner.md",
+        "docs/agent-truth/ai-debug-queue-truth.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/debug-cockpit-batch16-ai-debug-orchestration.md",
+        "docs/agent-truth/manual-utility-separation.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "package.json",
+        "scripts/agent/debug-cockpit-batch16-shared.ts",
+        "scripts/agent/validate-ai-debug-critic-review.ts",
+        "scripts/agent/validate-ai-debug-planner.ts",
+        "scripts/agent/validate-ai-debug-queue-truth.ts",
+        "scripts/agent/validate-debug-cockpit-batch16-ai-debug-orchestration.ts",
+        "scripts/agent/validate-manual-utility-separation.ts",
+        "src/lib/debug/ai-debug-orchestration-contract.ts",
+        "src/lib/debug/ai-debug-queue-truth.ts",
+        "src/lib/debug/ai-debug-triage-engine.ts",
+        "src/lib/debug/bug-intake-triage-status.ts",
+        "src/lib/debug/debug-cockpit-batch16-ai-debug-orchestration.ts",
+        "src/lib/debug/manual-utility-contract.ts",
+        "src/lib/debug/repair-proposal-review.ts",
+        "src/lib/debug/repair-queue-status.ts",
+        "src/lib/debug/task-issue-attribution-status.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/ai-debug-planner.ts",
+        "tests/unit/ai-debug-critic-review.spec.ts",
+        "tests/unit/ai-debug-planner.spec.ts",
+        "tests/unit/ai-debug-queue-truth.spec.ts",
+        "tests/unit/debug-cockpit-batch16-ai-debug-orchestration.spec.ts",
+        "tests/unit/manual-utility-separation.spec.ts"
+      ],
+      "effectiveChangeCount": 39,
+      "excludedGeneratedChangeCount": 8,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.45",
       "previousVersion": "1.4.44",
@@ -1583,57 +1662,6 @@
         "tests/unit/auth-provider-conflict-resolution.spec.ts"
       ],
       "sourceCommit": "085ad0beaca951aa811900ed42724962773d3815"
-    },
-    {
-      "version": "1.4.21",
-      "previousVersion": "1.4.20",
-      "betaReleaseCounter": 421,
-      "previousBetaReleaseCounter": 420,
-      "commitSha": "ecd519b1d3b539b56fc3e5a49ca9663cf1b43435",
-      "commitTitle": "docs(pwa): lock notification readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "ecd519b1d3b539b56fc3e5a49ca9663cf1b43435"
-      ],
-      "committedAt": "2026-05-24T07:45:10.000Z",
-      "generatedAt": "2026-05-24T08:04:31.222Z",
-      "committedAtUtc": "2026-05-24T07:45:10.000Z",
-      "generatedAtUtc": "2026-05-24T08:04:31.222Z",
-      "updatedAtUtc": "2026-05-24T08:04:31.222Z",
-      "category": "Improved",
-      "title": "Auth provider conflict guidance",
-      "summary": "Improved auth guidance when Google and email/password sign-in methods conflict.",
-      "userFacingTitle": "Clearer sign-in help",
-      "surfaceCategory": "Account & onboarding",
-      "bullets": [
-        "Improved auth guidance when Google and email/password sign-in methods conflict.",
-        "Mapped common Firebase auth errors to clear next steps.",
-        "Added telemetry for auth provider conflicts."
-      ],
-      "audience": "users",
-      "technicalDetails": [
-        "Provider conflict resolution now maps Google-only, email/password, existing-email, wrong-password, and invalid-credential paths without exposing raw Firebase errors.",
-        "Auth provider conflict telemetry redacts email values and feeds the debug lane."
-      ],
-      "affectedSurfaces": [
-        "Auth modal",
-        "Auth context",
-        "Auth telemetry",
-        "Admin debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/context/AuthContext.tsx",
-        "src/components/Auth/AuthModal.tsx",
-        "src/lib/auth/auth-provider-conflict-contract.ts",
-        "src/lib/auth/auth-provider-conflict-resolver.ts",
-        "src/lib/auth-errors.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "effectiveChangeCount": 7,
-      "excludedGeneratedChangeCount": 0
     }
   ]
 }

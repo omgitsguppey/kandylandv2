@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.46 - 2026-05-24
+
+- Refactored AI debug into bounded async work items, planner, critic, and repair proposal contracts.
+- Separated task/bug/repair zero-sample states from healthy live status.
+- Kept manual utilities out of live health while preserving admin audit and GumDrop safeguards.
+
 ## 1.4.45 - 2026-05-24
 
 - Fixed false-positive LIVE states for empty diagnostics and panel-log lanes.

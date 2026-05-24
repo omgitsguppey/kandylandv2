@@ -1,0 +1,44 @@
+{
+  "generatedAtUtc": "2026-05-24T20:31:24.109Z",
+  "taskIssueAttributionStatusBefore": "live_zero_sample",
+  "taskIssueAttributionStatusAfter": "source_ready_no_sample_loaded",
+  "repairQueueStatusBefore": "live_zero_sample",
+  "repairQueueStatusAfter": "source_ready_no_sample_loaded",
+  "bugTriageStatusBefore": "live_zero_sample",
+  "bugTriageStatusAfter": "source_ready_no_sample_loaded",
+  "manualUtilityStatus": "manual_utility_not_health",
+  "aiPlannerStatus": "deterministic_fallback_ready",
+  "aiCriticStatus": "critic_required_for_source_patch",
+  "providerCallsInTests": false,
+  "deterministicFallbackStatus": "ready",
+  "budgetGuardStatus": "source_visible",
+  "privacyRedactionStatus": "raw_bodies_blocked",
+  "workItemQueueStatus": "source_ready_no_sample_loaded",
+  "repairProposalStatus": "human_approval_required",
+  "contaminationRiskStatus": "clear",
+  "scoreBefore": 79,
+  "scoreAfter": 79,
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk",
+    "regressionRisk"
+  ],
+  "remainingGaps": [
+    "No live task, bug, or repair orchestration sample is loaded; keep lanes source_ready_no_sample_loaded.",
+    "Provider-backed planning remains optional and budget-gated; validators must not call Gemini or Vertex."
+  ],
+  "nextExactSteps": [
+    "Wire loaded task/bug/repair samples into AiDebugWorkItem queue when bounded samples are available.",
+    "Require critic review and human approval before any source patch proposal can be applied."
+  ],
+  "releaseNotes": [
+    "Refactored AI debug into bounded async work items, planner, critic, and repair proposal contracts.",
+    "Separated task/bug/repair zero-sample states from healthy live status.",
+    "Kept manual utilities out of live health while preserving admin audit and GumDrop safeguards."
+  ],
+  "openPrsClassified": true,
+  "dirtyFilesClassified": true
+}

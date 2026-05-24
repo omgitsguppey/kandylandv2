@@ -1,0 +1,22 @@
+{
+  "generatedAtUtc": "2026-05-24T20:31:23.647Z",
+  "plannerStatus": "deterministic_fallback",
+  "providerCallAttempted": false,
+  "boundedContextPacket": {
+    "packetId": "packet-batch16-sample-route-diagnostic",
+    "deterministicPreflight": "pass",
+    "forbiddenPayloadFlags": [
+      "raw_support_body_redacted",
+      "private_creator_content_redacted"
+    ],
+    "tokenEstimate": 105,
+    "maxTokenBudget": 9000,
+    "modelRole": "admin_debug_fix_planner"
+  },
+  "budgetGuardStatus": "provider_blocked",
+  "deterministicFallbackStatus": "ready",
+  "proposalMode": "inspect_only",
+  "humanApprovalRequired": true,
+  "autoApplyAllowed": false,
+  "criticReviewRequiredForSourcePatch": true
+}

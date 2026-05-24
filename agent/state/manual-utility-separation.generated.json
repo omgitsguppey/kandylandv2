@@ -1,0 +1,28 @@
+{
+  "generatedAtUtc": "2026-05-24T20:31:23.682Z",
+  "utilities": [
+    {
+      "id": "admin-balance-adjust-current-admin",
+      "label": "Add Gum Drops to current admin user",
+      "kind": "manual_operator_action",
+      "adminOnly": true,
+      "audited": true,
+      "sourceOfFundsGuard": true,
+      "affectsHealth": false,
+      "affectsScore": false,
+      "copy": "Manual operator utility; not live health, not diagnostics, and not a repair proposal.",
+      "sourceRefs": [
+        "src/app/api/admin/balance/route.ts",
+        "src/lib/server/gumdrop-ledger.ts"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "healthImpactingUtilities": 0,
+    "scoreImpactingUtilities": 0,
+    "auditedUtilities": 1
+  },
+  "validationFailures": [],
+  "status": "manual_utility_not_health"
+}

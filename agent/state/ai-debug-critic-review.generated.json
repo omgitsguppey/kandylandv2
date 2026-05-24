@@ -1,0 +1,38 @@
+{
+  "generatedAtUtc": "2026-05-24T20:31:23.647Z",
+  "criticStatus": "critic_required_for_source_patch",
+  "sourcePatchReview": {
+    "criticId": "critic-batch16-source-patch",
+    "proposalId": "batch16-source-patch",
+    "result": "pass_to_human_review",
+    "issues": [],
+    "securityRisk": "low",
+    "costRisk": "low",
+    "privacyRisk": "medium",
+    "correctnessRisk": "low",
+    "testCoverageRisk": "low"
+  },
+  "unsafeReview": {
+    "criticId": "critic-batch16-unsafe-payment",
+    "proposalId": "batch16-unsafe-payment",
+    "result": "reject_unsafe",
+    "issues": [
+      "Proposal touches payment, wallet, PayPal, GumDrop math, or ledger/source-of-funds paths."
+    ],
+    "securityRisk": "high",
+    "costRisk": "high",
+    "privacyRisk": "medium",
+    "correctnessRisk": "high",
+    "testCoverageRisk": "low"
+  },
+  "securityPrivacyCostCoverage": [
+    "security",
+    "privacy",
+    "cost",
+    "correctness",
+    "testCoverage"
+  ],
+  "paymentGumdropMathBlocked": true,
+  "formalEvidenceRequestStaysEvidence": true,
+  "autoApplyBlocked": true
+}

@@ -1,0 +1,26 @@
+{
+  "generatedAtUtc": "2026-05-24T20:31:23.678Z",
+  "taskIssueStatus": {
+    "status": "source_ready_no_sample_loaded",
+    "provenZero": false,
+    "sourceWindow": null,
+    "nextAction": "Load the task issue attribution sample before treating impacted users=0 as healthy."
+  },
+  "repairQueueStatus": {
+    "status": "source_ready_no_sample_loaded",
+    "sampleLoaded": false,
+    "provenZero": false,
+    "nextAction": "Load the repair orchestration sample before treating repairs=0 as healthy."
+  },
+  "bugTriageStatus": {
+    "status": "source_ready_no_sample_loaded",
+    "currentIntakeCount": 0,
+    "olderBacklogCount": 0,
+    "provenZero": false,
+    "nextAction": "Load the bug intake sample before treating loaded=0 as healthy."
+  },
+  "manualUtilityCount": 1,
+  "manualUtilitiesAffectHealth": false,
+  "workItems": [],
+  "contaminationRiskGate": "clear"
+}
