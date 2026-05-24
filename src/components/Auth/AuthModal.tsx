@@ -50,6 +50,7 @@ import {
     emitAuthAttemptUnfinished,
     emitAuthLifecycleEvent,
 } from "@/lib/auth-outcome-telemetry";
+import { buildAuthRuntimeTelemetry } from "@/lib/auth/auth-telemetry-contract";
 
 import {
     CREATOR_SIGNUP_STEPS,
@@ -157,6 +158,15 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     useEffect(() => {
         if (isOpen && !wasOpenRef.current) {
             trackEvent("auth_modal_opened", { mode });
+            const event = buildAuthRuntimeTelemetry({
+                eventName: "auth_surface_viewed",
+                method: "unknown",
+                route: typeof window !== "undefined" ? window.location.pathname : "/auth",
+                sourceComponent: "AuthModal",
+                sourceTruth: "client_auth",
+                metadata: { mode },
+            });
+            trackEvent(event.eventName, event.params);
         }
 
         wasOpenRef.current = isOpen;
@@ -412,6 +422,16 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         });
         startTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
         emitAuthAttemptStarted(attempt, { entry_mode: mode });
+        const startedEvent = buildAuthRuntimeTelemetry({
+            eventName: "auth_google_started",
+            method: "google",
+            authAttemptId: attempt.authAttemptId,
+            route: attempt.route,
+            sourceComponent: attempt.sourceComponent,
+            sourceTruth: "client_auth",
+            metadata: { entry_mode: mode },
+        });
+        trackEvent(startedEvent.eventName, startedEvent.params);
         trackEvent("auth_google_sign_in_attempted", { source_mode: mode });
         try {
             const result = await signInWithGoogle({
@@ -438,6 +458,16 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 },
             });
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
+            const completedEvent = buildAuthRuntimeTelemetry({
+                eventName: "auth_google_completed",
+                method: "google",
+                authAttemptId: attempt.authAttemptId,
+                route: attempt.route,
+                sourceComponent: attempt.sourceComponent,
+                sourceTruth: "server_session",
+                metadata: { entry_mode: mode },
+            });
+            trackEvent(completedEvent.eventName, completedEvent.params);
             trackEvent("auth_google_sign_in_success", mergedParams);
             onClose();
         } catch (error: unknown) {
@@ -460,6 +490,17 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 },
             });
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
+            const failedEvent = buildAuthRuntimeTelemetry({
+                eventName: "auth_google_failed",
+                method: "google",
+                authAttemptId: attempt.authAttemptId,
+                route: attempt.route,
+                sourceComponent: attempt.sourceComponent,
+                sourceTruth: "client_auth",
+                failureCode: safeCode,
+                metadata: { entry_mode: mode },
+            });
+            trackEvent(failedEvent.eventName, failedEvent.params);
             trackEvent("auth_google_sign_in_failed", mergedParams);
             const conflict = (error as { authProviderConflict?: AuthProviderConflict }).authProviderConflict ?? null;
             if (conflict) {
@@ -542,6 +583,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     entry_mode: initialMode,
                     signup_intent: signupIntent,
                 });
+                const startedEvent = buildAuthRuntimeTelemetry({
+                    eventName: "auth_email_signup_started",
+                    method: "email_password",
+                    authAttemptId: authAttempt.authAttemptId,
+                    route: authAttempt.route,
+                    sourceComponent: authAttempt.sourceComponent,
+                    sourceTruth: "client_auth",
+                    metadata: {
+                        entry_mode: initialMode,
+                        signup_intent: signupIntent,
+                    },
+                });
+                trackEvent(startedEvent.eventName, startedEvent.params);
                 emitAuthLifecycleEvent({
                     eventName: "auth_registration_started",
                     authAttemptId: authAttempt.authAttemptId,
@@ -618,6 +672,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     creator_recommended_setup: creatorIntake?.creatorRecommendedSetup || "",
                     creator_has_content_focus: Boolean(data.creatorContentFocus?.trim()),
                 });
+                const completedEvent = buildAuthRuntimeTelemetry({
+                    eventName: "auth_email_signup_completed",
+                    method: "email_password",
+                    authAttemptId: authAttempt.authAttemptId,
+                    route: authAttempt.route,
+                    sourceComponent: authAttempt.sourceComponent,
+                    sourceTruth: "server_session",
+                    metadata: {
+                        entry_mode: initialMode,
+                        signup_intent: signupIntent,
+                    },
+                });
+                trackEvent(completedEvent.eventName, completedEvent.params);
                 trackEvent("auth_sign_up_success", mergedParams);
             } else {
                 authAttempt = createAuthAttemptTelemetryContext({
@@ -632,6 +699,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     entry_mode: initialMode,
                     manual_identifier_type: manualIdentifierType,
                 });
+                const startedEvent = buildAuthRuntimeTelemetry({
+                    eventName: "auth_email_login_started",
+                    method: "email_password",
+                    authAttemptId: authAttempt.authAttemptId,
+                    route: authAttempt.route,
+                    sourceComponent: authAttempt.sourceComponent,
+                    sourceTruth: "client_auth",
+                    metadata: {
+                        entry_mode: initialMode,
+                        manual_identifier_type: manualIdentifierType,
+                    },
+                });
+                trackEvent(startedEvent.eventName, startedEvent.params);
                 trackEvent("auth_sign_in_attempted", {
                     entry_mode: initialMode,
                     manual_identifier_type: manualIdentifierType,
@@ -655,6 +735,19 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     entry_mode: initialMode,
                     manual_identifier_type: manualIdentifierType,
                 });
+                const completedEvent = buildAuthRuntimeTelemetry({
+                    eventName: "auth_email_login_completed",
+                    method: "email_password",
+                    authAttemptId: authAttempt.authAttemptId,
+                    route: authAttempt.route,
+                    sourceComponent: authAttempt.sourceComponent,
+                    sourceTruth: "server_session",
+                    metadata: {
+                        entry_mode: initialMode,
+                        manual_identifier_type: manualIdentifierType,
+                    },
+                });
+                trackEvent(completedEvent.eventName, completedEvent.params);
                 trackEvent("auth_sign_in_success", mergedParams);
             }
 
@@ -693,8 +786,36 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 });
             }
             if (isSignupMode(mode)) {
+                const failedEvent = buildAuthRuntimeTelemetry({
+                    eventName: "auth_email_signup_failed",
+                    method: "email_password",
+                    authAttemptId: authAttempt?.authAttemptId,
+                    route: authAttempt?.route,
+                    sourceComponent: authAttempt?.sourceComponent || "AuthModal",
+                    sourceTruth: failureCode.includes("navigation-session") ? "server_session" : "client_auth",
+                    failureCode,
+                    metadata: {
+                        entry_mode: initialMode,
+                        signup_intent: signupIntent,
+                    },
+                });
+                trackEvent(failedEvent.eventName, failedEvent.params);
                 trackEvent("auth_sign_up_failed", mergedParams);
             } else {
+                const failedEvent = buildAuthRuntimeTelemetry({
+                    eventName: "auth_email_login_failed",
+                    method: "email_password",
+                    authAttemptId: authAttempt?.authAttemptId,
+                    route: authAttempt?.route,
+                    sourceComponent: authAttempt?.sourceComponent || "AuthModal",
+                    sourceTruth: failureCode.includes("navigation-session") ? "server_session" : "client_auth",
+                    failureCode,
+                    metadata: {
+                        entry_mode: initialMode,
+                        manual_identifier_type: manualIdentifierType,
+                    },
+                });
+                trackEvent(failedEvent.eventName, failedEvent.params);
                 trackEvent("auth_sign_in_failed", mergedParams);
             }
 
@@ -764,6 +885,14 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
         setIsLoading(true);
         setAuthError(null);
+        const requestedEvent = buildAuthRuntimeTelemetry({
+            eventName: "auth_password_reset_requested",
+            method: "password_reset",
+            route: typeof window !== "undefined" ? window.location.pathname : "/auth",
+            sourceComponent: "AuthModal",
+            sourceTruth: "client_auth",
+        });
+        trackEvent(requestedEvent.eventName, requestedEvent.params);
         trackEvent("password_reset_requested");
         try {
             await sendPasswordResetLink(normalizeEmailAddress(email));
@@ -776,7 +905,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 error,
                 detail: {
                     action: "password_reset",
-                    email,
+                    emailPresent: Boolean(email),
                 },
                 consoleLabel: "[Auth Modal] password reset failed",
             });
@@ -786,6 +915,15 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 trackEvent("password_reset_sent");
                 setResetSent(true);
             } else {
+                const failedEvent = buildAuthRuntimeTelemetry({
+                    eventName: "auth_password_reset_failed",
+                    method: "password_reset",
+                    route: typeof window !== "undefined" ? window.location.pathname : "/auth",
+                    sourceComponent: "AuthModal",
+                    sourceTruth: "client_auth",
+                    failureCode: firebaseError.code || "unknown",
+                });
+                trackEvent(failedEvent.eventName, failedEvent.params);
                 trackEvent("password_reset_failed", { error_code: firebaseError.code || "unknown" });
                 setAuthError(resolution.userMessage);
             }

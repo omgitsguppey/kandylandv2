@@ -37,11 +37,12 @@ export const PERSON_METRIC_IDS = [
   "settings_actions",
   "support_account_actions",
   "creator_drop_manager_actions",
+  "auth_runtime_events",
 ] as const;
 
 export type PersonMetricId = (typeof PERSON_METRIC_IDS)[number];
 export type PersonMetricConsentDepth = "necessary_product" | "minimal_product" | "behavioral";
-export type PersonMetricDebugOwner = "analytics" | "behavioral-intelligence" | "wallet" | "commerce" | "creator" | "notifications" | "viewer-runtime" | "settings" | "support" | "retention";
+export type PersonMetricDebugOwner = "analytics" | "behavioral-intelligence" | "wallet" | "commerce" | "creator" | "notifications" | "viewer-runtime" | "settings" | "support" | "retention" | "auth";
 export type PersonMetricLegacyAction = "normalize_candidate" | "link_candidate" | "archive_only" | "needs_manual_review";
 export type PersonMetricScoreImpact = "evidence_completeness" | "runtime_health" | "behavior_confidence" | "commerce_parity" | "none";
 
@@ -588,6 +589,55 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
     debugOwner: "creator",
     scoreEvidenceImpact: "evidence_completeness",
     legacyRecoveryMapping: { action: "normalize_candidate", confidence: "weak", source: "legacy creator drop manager events" },
+    minimumConfidence: "weak",
+  }),
+  metric({
+    id: "auth_runtime_events",
+    label: "Auth runtime events",
+    eventNames: [
+      "auth_surface_viewed",
+      "auth_google_started",
+      "auth_google_completed",
+      "auth_google_failed",
+      "auth_email_login_started",
+      "auth_email_login_completed",
+      "auth_email_login_failed",
+      "auth_email_signup_started",
+      "auth_email_signup_completed",
+      "auth_email_signup_failed",
+      "auth_provider_conflict_detected",
+      "auth_password_reset_requested",
+      "auth_password_reset_failed",
+      "auth_navigation_session_started",
+      "auth_navigation_session_completed",
+      "auth_navigation_session_failed",
+      "auth_session_restored",
+      "auth_unexpected_session_drop",
+      "auth_logout_started",
+      "auth_logout_completed",
+      "auth_profile_bootstrap_started",
+      "auth_profile_bootstrap_completed",
+      "auth_profile_bootstrap_failed",
+      "auth_modal_opened",
+      "auth_google_sign_in_attempted",
+      "auth_google_sign_in_success",
+      "auth_google_sign_in_failed",
+      "auth_sign_in_attempted",
+      "auth_sign_in_success",
+      "auth_sign_in_failed",
+      "auth_sign_up_attempted",
+      "auth_sign_up_success",
+      "auth_sign_up_failed",
+      "password_reset_requested",
+      "password_reset_failed",
+      "auth_profile_snapshot_failed",
+    ],
+    sourceOfTruth: "first-party auth runtime telemetry event envelopes; no raw password, email, or Firebase token fields",
+    consentEligibility: { depth: "necessary_product", allowedModes: NECESSARY_MODES },
+    materializer: "person_metrics.auth_runtime_events",
+    debugOwner: "auth",
+    scoreEvidenceImpact: "evidence_completeness",
+    legacyRecoveryMapping: { action: "normalize_candidate", confidence: "weak", source: "legacy auth outcome telemetry" },
     minimumConfidence: "weak",
   }),
 ];

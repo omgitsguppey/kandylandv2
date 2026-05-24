@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-05-24T07:38:33.422Z
+Generated: 2026-05-24T09:06:17.483Z
 Status: pass
-Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
+Current head: a998782f507b2abe21ffd7be01ccbebf031d23c9
 
 ## Contract
 
@@ -14,10 +14,10 @@ Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
 
 ## Debug Lane
 
-- Producers registered: 141
-- Producers connected: 33
-- Event envelopes hydrated: 46
-- Person metrics mapped: 33
+- Producers registered: 177
+- Producers connected: 34
+- Event envelopes hydrated: 47
+- Person metrics mapped: 34
 - Low-confidence metrics: 0
 - Gaps: 0
 
@@ -56,6 +56,7 @@ Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
 - settings_actions: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - support_account_actions: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - creator_drop_manager_actions: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
+- auth_runtime_events: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 
 ## Score Impact
 
@@ -68,42 +69,36 @@ Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/auth-persistence-stability.generated.json: current_generated_artifact_to_commit
+- agent/state/auth-provider-conflict-resolution.generated.json: current_generated_artifact_to_commit
+- agent/state/auth-runtime-telemetry.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/notification-permission-lifecycle.generated.json: current_generated_artifact_to_commit
-- agent/state/notification-pwa-score-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/notification-targeting-intent.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/push-token-registration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/pwa-service-worker-safety.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/notification-permission-lifecycle.md: documentation_artifact_expected
-- docs/agent-truth/notification-pwa-score-lock.md: documentation_artifact_expected
-- docs/agent-truth/notification-targeting-intent.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/auth-persistence-stability.md: documentation_artifact_expected
+- docs/agent-truth/auth-provider-conflict-resolution.md: documentation_artifact_expected
+- docs/agent-truth/auth-runtime-telemetry.md: documentation_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/push-token-registration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/pwa-service-worker-safety.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-notification-permission-lifecycle.ts: validator_artifact_expected
-- scripts/agent/validate-notification-pwa-score-lock.ts: validator_artifact_expected
-- scripts/agent/validate-notification-targeting-intent.ts: validator_artifact_expected
-- scripts/agent/validate-push-token-registration.ts: validator_artifact_expected
-- scripts/agent/validate-pwa-service-worker-safety.ts: validator_artifact_expected
+- scripts/agent/validate-auth-persistence-stability.ts: validator_artifact_expected
+- scripts/agent/validate-auth-provider-conflict-resolution.ts: validator_artifact_expected
+- scripts/agent/validate-auth-runtime-telemetry.ts: validator_artifact_expected
+- src/app/api/admin/debug/route.ts: real_source_change_needs_review
+- src/components/Auth/AuthModal.tsx: real_source_change_needs_review
+- src/context/AuthContext.tsx: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/notification-pwa-score-lock.spec.ts: test_artifact_expected
+- src/lib/auth/auth-telemetry-contract.ts: real_source_change_needs_review
+- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
+- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
+- src/lib/telemetry-catalog.ts: real_source_change_needs_review
+- tests/unit/auth-runtime-telemetry.spec.ts: test_artifact_expected
+- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

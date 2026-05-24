@@ -149,18 +149,37 @@ function classifyDirtyFile(path: string): DirtyClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/auth-provider-conflict-resolution.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/auth-runtime-telemetry.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/feature-registration-gate.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/auth-provider-conflict-resolution.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/event-translation-bridge.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/auth-runtime-telemetry.md") return "release_artifact_expected";
   if (normalized === "docs/agent-truth/feature-registration-gate.md") return "release_artifact_expected";
+  if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "release_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-persistence-stability.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-auth-runtime-telemetry.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/auth-persistence-stability.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/auth-runtime-telemetry.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/context/AuthContext.tsx"
     || normalized === "src/lib/auth/auth-persistence-contract.ts"
     || normalized === "src/lib/auth/auth-session-stability.ts"
+    || normalized === "src/lib/auth/auth-telemetry-contract.ts"
     || normalized === "src/lib/telemetry-catalog.ts"
+    || normalized === "src/lib/analytics/person-metrics-contract.ts"
+    || normalized === "src/lib/analytics/event-translation-bridge.ts"
+    || normalized === "src/lib/analytics/person-metrics-hydration.ts"
+    || normalized === "src/lib/behavioral/normalize-event-fact.ts"
     || normalized === "src/lib/debug/debug-panel-tracking-summary.ts"
+    || normalized === "src/app/api/admin/debug/route.ts"
+    || normalized === "src/components/Auth/AuthModal.tsx"
     || normalized === "package.json"
   ) return "real_source_change_needs_review";
   if (

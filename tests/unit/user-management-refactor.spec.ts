@@ -169,6 +169,7 @@ function hydration(overrides: Partial<PersonMetricsHydrationReport> = {}): Perso
       support_account_actions: { metricId: "support_account_actions", count: 1, confidence: "exact", provenZero: false, sourceEvents: ["support_ticket_created"], hydratedEventIds: ["support_1"], suppressedDuplicateCount: 0, missingSourceExplanation: "", state: "hydrated", lowConfidenceReason: null, missingProducer: null, missingBridge: null },
       chat_actions: { metricId: "chat_actions", count: 1, confidence: "exact", provenZero: false, sourceEvents: ["chat_message_sent"], hydratedEventIds: ["chat_1"], suppressedDuplicateCount: 0, missingSourceExplanation: "", state: "hydrated", lowConfidenceReason: null, missingProducer: null, missingBridge: null },
       creator_drop_manager_actions: { metricId: "creator_drop_manager_actions", count: 1, confidence: "exact", provenZero: false, sourceEvents: ["creator_drop_submitted"], hydratedEventIds: ["creator_drop_1"], suppressedDuplicateCount: 0, missingSourceExplanation: "", state: "hydrated", lowConfidenceReason: null, missingProducer: null, missingBridge: null },
+      auth_runtime_events: { metricId: "auth_runtime_events", count: 2, confidence: "exact", provenZero: false, sourceEvents: ["auth_email_login_completed"], hydratedEventIds: ["auth_runtime_1"], suppressedDuplicateCount: 0, missingSourceExplanation: "", state: "hydrated", lowConfidenceReason: null, missingProducer: null, missingBridge: null },
     },
     scopes: {} as PersonMetricsHydrationReport["scopes"],
     lowConfidenceMetrics: [],

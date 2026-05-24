@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-24T08:06:25.495Z
+Generated: 2026-05-24T09:06:17.425Z
 Status: pass
-Current head: ecd519b1d3b539b56fc3e5a49ca9663cf1b43435
+Current head: a998782f507b2abe21ffd7be01ccbebf031d23c9
 
 ## Contract
 
@@ -12,11 +12,11 @@ Current head: ecd519b1d3b539b56fc3e5a49ca9663cf1b43435
 
 ## Debug Lane
 
-- Producers registered: 486
-- Producers connected: 486
-- Event envelopes translated: 486
-- Materializers mapped: 486
-- Person metrics mapped: 130
+- Producers registered: 509
+- Producers connected: 509
+- Event envelopes translated: 509
+- Materializers mapped: 509
+- Person metrics mapped: 165
 - Gaps: 0
 
 ## Score Impact
@@ -53,30 +53,36 @@ Current head: ecd519b1d3b539b56fc3e5a49ca9663cf1b43435
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/auth-persistence-stability.generated.json: current_generated_artifact_to_commit
 - agent/state/auth-provider-conflict-resolution.generated.json: current_generated_artifact_to_commit
+- agent/state/auth-runtime-telemetry.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/auth-persistence-stability.md: documentation_artifact_expected
 - docs/agent-truth/auth-provider-conflict-resolution.md: documentation_artifact_expected
+- docs/agent-truth/auth-runtime-telemetry.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 - docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
 - package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-auth-persistence-stability.ts: validator_artifact_expected
 - scripts/agent/validate-auth-provider-conflict-resolution.ts: validator_artifact_expected
+- scripts/agent/validate-auth-runtime-telemetry.ts: validator_artifact_expected
+- src/app/api/admin/debug/route.ts: real_source_change_needs_review
 - src/components/Auth/AuthModal.tsx: real_source_change_needs_review
 - src/context/AuthContext.tsx: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/auth-errors.ts: real_source_change_needs_review
-- src/lib/auth/auth-provider-conflict-contract.ts: real_source_change_needs_review
-- src/lib/auth/auth-provider-conflict-resolver.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/auth/auth-telemetry-contract.ts: real_source_change_needs_review
+- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/auth-errors.spec.ts: test_artifact_expected
-- tests/unit/auth-provider-conflict-resolution.spec.ts: test_artifact_expected
+- tests/unit/auth-runtime-telemetry.spec.ts: test_artifact_expected
+- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

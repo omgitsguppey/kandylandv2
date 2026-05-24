@@ -1,13 +1,81 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.22",
-  "betaReleaseCounter": 422,
+  "currentVersion": "1.4.23",
+  "betaReleaseCounter": 423,
   "channel": "beta",
-  "generatedAt": "2026-05-24T08:20:17.056Z",
-  "generatedAtUtc": "2026-05-24T08:20:17.056Z",
-  "lastCommitSha": "085ad0beaca951aa811900ed42724962773d3815",
+  "generatedAt": "2026-05-24T09:07:41.122Z",
+  "generatedAtUtc": "2026-05-24T09:07:41.122Z",
+  "lastCommitSha": "a998782f507b2abe21ffd7be01ccbebf031d23c9",
   "notes": [
+    {
+      "version": "1.4.23",
+      "previousVersion": "1.4.22",
+      "betaReleaseCounter": 423,
+      "previousBetaReleaseCounter": 422,
+      "commitSha": "a998782f507b2abe21ffd7be01ccbebf031d23c9",
+      "commitTitle": "fix(auth): stabilize session persistence",
+      "commitCount": 2,
+      "commitShas": [
+        "076243a2426dce88bf4eef81600dacc45108f70b",
+        "a998782f507b2abe21ffd7be01ccbebf031d23c9"
+      ],
+      "committedAt": "2026-05-24T08:44:47.000Z",
+      "generatedAt": "2026-05-24T09:07:41.121Z",
+      "committedAtUtc": "2026-05-24T08:44:47.000Z",
+      "generatedAtUtc": "2026-05-24T09:07:41.121Z",
+      "updatedAtUtc": "2026-05-24T09:07:41.121Z",
+      "category": "Improved",
+      "title": "Auth runtime telemetry and debug truth",
+      "summary": "Auth signup, login, provider conflicts, and session stability now feed privacy-safe telemetry and admin debug truth.",
+      "userFacingTitle": "Auth runtime telemetry and debug truth",
+      "surfaceCategory": "Account & onboarding",
+      "bullets": [
+        "Connected auth signup, login, provider conflicts, and session stability to telemetry.",
+        "Added admin debug visibility for auth runtime health.",
+        "Protected auth telemetry from raw PII or token exposure."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "account-onboarding",
+        "admin-debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/auth-persistence-stability.generated.json",
+        "agent/state/auth-provider-conflict-resolution.generated.json",
+        "agent/state/email-password-auth-refactor.generated.json",
+        "agent/state/feature-registration-gate.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/auth-persistence-stability.md",
+        "docs/agent-truth/auth-provider-conflict-resolution.md",
+        "docs/agent-truth/email-password-auth-refactor.md",
+        "docs/agent-truth/feature-registration-gate.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-auth-persistence-stability.ts",
+        "scripts/agent/validate-auth-provider-conflict-resolution.ts",
+        "scripts/agent/validate-email-password-auth-refactor.ts",
+        "src/context/AuthContext.tsx",
+        "src/lib/auth-errors.ts",
+        "src/lib/auth/auth-persistence-contract.ts",
+        "src/lib/auth/auth-session-stability.ts",
+        "src/lib/auth/email-password-auth-contract.ts",
+        "src/lib/auth/email-password-auth-flow.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/auth-errors.spec.ts",
+        "tests/unit/auth-persistence-stability.spec.ts",
+        "tests/unit/email-password-auth-refactor.spec.ts"
+      ],
+      "sourceCommit": "a998782f507b2abe21ffd7be01ccbebf031d23c9"
+    },
     {
       "version": "1.4.22",
       "previousVersion": "1.4.21",
@@ -6126,57 +6194,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/public-release-notes.ts",
         "src/lib/release-notes/release-version-contract.ts",
         "tests/unit/debug-signal-grouping.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.98",
-      "previousVersion": "1.3.97",
-      "betaReleaseCounter": 398,
-      "previousBetaReleaseCounter": 397,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): score signal actionability",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T19:50:00.000Z",
-      "generatedAt": "2026-05-23T19:50:00.000Z",
-      "committedAtUtc": "2026-05-23T19:50:00.000Z",
-      "generatedAtUtc": "2026-05-23T19:50:00.000Z",
-      "updatedAtUtc": "2026-05-23T19:50:00.000Z",
-      "category": "Improved",
-      "title": "Debug signal actionability scoring",
-      "summary": "Improved internal beta reliability for debug signal prioritization.",
-      "userFacingTitle": "Debug signal actionability scoring",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added actionability scoring for debug and telemetry signals.",
-        "Collapsed duplicate and non-actionable future activity signals.",
-        "Focused debug output on score-impacting work."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added source-only debug signal actionability scoring, backlog integration, generated evidence, and unit coverage without production reads, fake evidence, payment changes, chat/nav changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Admin debug",
-        "Analytics",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/debug-signal-actionability.generated.json",
-        "docs/agent-truth/debug-signal-actionability.md",
-        "package.json",
-        "scripts/agent/validate-debug-signal-actionability.ts",
-        "scripts/agent/validate-debug-backlog-engine.ts",
-        "src/lib/debug/debug-signal-actionability.ts",
-        "src/lib/debug/debug-backlog-builder.ts",
-        "src/lib/debug/debug-backlog-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/debug-signal-actionability.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

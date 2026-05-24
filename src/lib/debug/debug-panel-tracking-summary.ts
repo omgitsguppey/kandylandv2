@@ -18,6 +18,7 @@ import { buildNotificationTargetingDebugLane } from "@/lib/notifications/notific
 import { buildPwaServiceWorkerDebugLane } from "@/lib/pwa/pwa-service-worker-contract";
 import { buildAuthProviderConflictDebugLane } from "@/lib/auth/auth-provider-conflict-contract";
 import { buildAuthPersistenceDebugLane } from "@/lib/auth/auth-persistence-contract";
+import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -35,6 +36,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "wallet_funnel",
   "auth_provider_conflict",
   "auth_persistence",
+  "auth_runtime",
   "notification_permission",
   "push_token_health",
   "notification_targeting",
@@ -113,6 +115,7 @@ const TRACKING_GROUPS = [
   "wallet_funnel",
   "auth_provider_conflict",
   "auth_persistence",
+  "auth_runtime",
   "notification_permission",
   "push_token_health",
   "notification_targeting",
@@ -255,6 +258,15 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     + toNumber(authPersistence.navigationSessionFailures)
     + toNumber(authPersistence.profileSnapshotReconnects)
     + (authPersistence.telemetryStatus === "mapped" ? 0 : 1);
+  const authRuntime = input.authRuntimeTelemetry?.debugLane ?? buildAuthRuntimeDebugLane();
+  const authRuntimeWarnings = toNumber(authRuntime.unexpectedLogoutCount)
+    + toNumber(authRuntime.navigationSessionFailureCount)
+    + toNumber(authRuntime.profileBootstrapFailureCount)
+    + (authRuntime.telemetryStatus === "mapped" ? 0 : 1)
+    + (authRuntime.personMetricsStatus === "mapped" ? 0 : 1)
+    + (authRuntime.eventEnvelopeStatus === "mapped" ? 0 : 1)
+    + (authRuntime.rawPiiExposed ? 1 : 0)
+    + (authRuntime.rawTokensExposed ? 1 : 0);
   const notificationPermission = input.notificationPermissionLifecycle?.debugLane ?? buildNotificationPermissionDebugLane();
   const notificationPermissionWarnings = toNumber(notificationPermission.failed)
     + (notificationPermission.telemetryStatus === "mapped" ? 0 : 1);
@@ -515,6 +527,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: authPersistenceWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#auth-persistence",
+    }),
+    makeLane({
+      id: "auth_runtime",
+      label: "Auth runtime",
+      trackingSystem: "auth_runtime",
+      sourceOwner: "auth",
+      sourceOfTruth: "src/lib/auth/auth-telemetry-contract.ts",
+      status: authRuntimeWarnings > 0 || authRuntime.status === "degraded" ? "degraded" : authRuntime.status === "unavailable" ? "unavailable" : "live",
+      severity: severityFromCounts(authRuntime.rawPiiExposed || authRuntime.rawTokensExposed ? 1 : 0, authRuntimeWarnings, authRuntimeWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: "medium",
+      primarySignal: `Signup attempts=${toNumber(authRuntime.signupAttempts)}; login attempts=${toNumber(authRuntime.loginAttempts)}; google success=${toNumber(authRuntime.successByMethod?.google)}; email success=${toNumber(authRuntime.successByMethod?.email_password)}; providerConflicts=${toNumber(authRuntime.providerConflictCount)}; unexpectedLogouts=${toNumber(authRuntime.unexpectedLogoutCount)}; navigationFailures=${toNumber(authRuntime.navigationSessionFailureCount)}; profileBootstrapFailures=${toNumber(authRuntime.profileBootstrapFailureCount)}; persistence=${authRuntime.persistenceStatus}; telemetry=${authRuntime.telemetryStatus}; personMetrics=${authRuntime.personMetricsStatus}.`,
+      criticalCount: authRuntime.rawPiiExposed || authRuntime.rawTokensExposed ? 1 : 0,
+      warningCount: authRuntimeWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#auth-runtime",
     }),
     makeLane({
       id: "notification_permission",

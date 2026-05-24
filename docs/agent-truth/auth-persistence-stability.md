@@ -1,7 +1,7 @@
 # Auth Persistence Stability
 
-Generated: 2026-05-24T08:43:26.222Z
-Current HEAD: 076243a2
+Generated: 2026-05-24T09:07:24.018Z
+Current HEAD: a998782f
 
 ## Status
 
@@ -28,19 +28,36 @@ Current HEAD: 076243a2
 
 ## Dirty File Classification
 
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/auth-persistence-stability.generated.json: current_generated_artifact_to_commit
+- agent/state/auth-provider-conflict-resolution.generated.json: current_generated_artifact_to_commit
+- agent/state/auth-runtime-telemetry.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
 - agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/auth-persistence-stability.md: release_artifact_expected
+- docs/agent-truth/auth-provider-conflict-resolution.md: release_artifact_expected
+- docs/agent-truth/auth-runtime-telemetry.md: release_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: release_artifact_expected
 - docs/agent-truth/feature-registration-gate.md: release_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: release_artifact_expected
 - package.json: real_source_change_needs_review
 - scripts/agent/validate-auth-persistence-stability.ts: validator_artifact_expected
+- scripts/agent/validate-auth-provider-conflict-resolution.ts: validator_artifact_expected
+- scripts/agent/validate-auth-runtime-telemetry.ts: validator_artifact_expected
+- src/app/api/admin/debug/route.ts: real_source_change_needs_review
+- src/components/Auth/AuthModal.tsx: real_source_change_needs_review
 - src/context/AuthContext.tsx: real_source_change_needs_review
-- src/lib/auth/auth-persistence-contract.ts: real_source_change_needs_review
-- src/lib/auth/auth-session-stability.ts: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/auth/auth-telemetry-contract.ts: real_source_change_needs_review
+- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/auth-persistence-stability.spec.ts: test_artifact_expected
+- tests/unit/auth-runtime-telemetry.spec.ts: test_artifact_expected
+- tests/unit/user-management-refactor.spec.ts: test_artifact_expected
 
 ## Score Dimensions
 

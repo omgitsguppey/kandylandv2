@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.23 - 2026-05-24
+- Auth runtime telemetry and debug truth
+- Connected auth signup, login, provider conflicts, and session stability to telemetry.
+- Added admin debug visibility for auth runtime health.
+- Protected auth telemetry from raw PII or token exposure.
+
 ## 1.4.22 - 2026-05-24
 - Email/password auth reliability
 - Refined email/password signup and login reliability.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Grouped duplicate debug and telemetry signals by root cause.
 - Collapsed future activity catalog noise by default.
 - Reduced P1/P2 counts to actionable groups.
-
-## 1.3.98 - 2026-05-23
-- Debug signal actionability scoring
-- Added actionability scoring for debug and telemetry signals.
-- Collapsed duplicate and non-actionable future activity signals.
-- Focused debug output on score-impacting work.

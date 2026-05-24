@@ -61,6 +61,7 @@ import {
     emitAuthLifecycleEvent,
     type AuthOutcomeMethod,
 } from "@/lib/auth-outcome-telemetry";
+import { buildAuthRuntimeTelemetry } from "@/lib/auth/auth-telemetry-contract";
 import { getClientAnalyticsIdentitySnapshot, syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent, trackIdentityLinked } from "@/lib/telemetry";
@@ -293,6 +294,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const emitAuthPersistenceEvent = useCallback((input: Parameters<typeof buildAuthPersistenceTelemetry>[0]) => {
         const event = buildAuthPersistenceTelemetry(input);
+        trackEvent(event.eventName, event.params);
+    }, []);
+
+    const emitAuthRuntimeEvent = useCallback((input: Parameters<typeof buildAuthRuntimeTelemetry>[0]) => {
+        const event = buildAuthRuntimeTelemetry(input);
         trackEvent(event.eventName, event.params);
     }, []);
 
@@ -585,6 +591,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let cancelled = false;
         setUserProfile(null);
         setLoading(true);
+        emitAuthRuntimeEvent({
+            eventName: "auth_profile_bootstrap_started",
+            method: "profile_bootstrap",
+            provider: user.providerData[0]?.providerId || "unknown",
+            sourceComponent: "AuthContext",
+            sourceTruth: "profile_snapshot",
+        });
 
         const observerControl = createAutoHealingObserver(() => {
             const connect = async () => {
@@ -624,6 +637,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         }
 
                         if (profile) {
+                            emitAuthRuntimeEvent({
+                                eventName: "auth_profile_bootstrap_completed",
+                                method: "profile_bootstrap",
+                                provider: user.providerData[0]?.providerId || "unknown",
+                                sourceComponent: "AuthContext",
+                                sourceTruth: "profile_snapshot",
+                            });
                             setUserProfile(profile);
                             setLoading(false);
                         }
@@ -669,6 +689,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                                     sourceTruth: "profile_snapshot",
                                     failureCode: `profile_registration_http_${response.status}`,
                                 });
+                                emitAuthRuntimeEvent({
+                                    eventName: "auth_profile_bootstrap_failed",
+                                    method: "profile_bootstrap",
+                                    provider: user.providerData[0]?.providerId || "unknown",
+                                    sourceComponent: "AuthContext",
+                                    sourceTruth: "profile_snapshot",
+                                    failureCode: `profile_registration_http_${response.status}`,
+                                });
                                 setLoading(false);
                             }
                         } catch (error) {
@@ -680,6 +708,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                                     userId: currentUserId,
                                     logoutReason: "backend_registration_failed",
                                     profileSnapshotStatus: "failed",
+                                    sourceComponent: "AuthContext",
+                                    sourceTruth: "profile_snapshot",
+                                    failureCode: "profile_registration_exception",
+                                });
+                                emitAuthRuntimeEvent({
+                                    eventName: "auth_profile_bootstrap_failed",
+                                    method: "profile_bootstrap",
+                                    provider: user.providerData[0]?.providerId || "unknown",
                                     sourceComponent: "AuthContext",
                                     sourceTruth: "profile_snapshot",
                                     failureCode: "profile_registration_exception",
@@ -733,6 +769,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 sourceTruth: "profile_snapshot",
                 failureCode: error instanceof Error ? error.name : "snapshot_error",
             });
+            emitAuthRuntimeEvent({
+                eventName: "auth_profile_bootstrap_failed",
+                method: "profile_bootstrap",
+                provider: user.providerData[0]?.providerId || "unknown",
+                sourceComponent: "AuthContext",
+                sourceTruth: "profile_snapshot",
+                failureCode: error instanceof Error ? error.name : "snapshot_error",
+            });
         });
 
         return () => {
@@ -740,7 +784,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             autoRegisterInFlight.delete(currentUserId);
             observerControl.cleanup();
         };
-    }, [authStateResolved, emitAuthPersistenceEvent, router, user]);
+    }, [authStateResolved, emitAuthPersistenceEvent, emitAuthRuntimeEvent, router, user]);
 
     useEffect(() => {
         if (!user) {

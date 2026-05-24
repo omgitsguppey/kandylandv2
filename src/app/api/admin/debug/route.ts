@@ -45,6 +45,7 @@ import { buildEventLivenessSummary } from "@/lib/analytics/event-liveness-engine
 import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
 import { buildTelemetryTriggerTestMatrixReport } from "@/lib/testing/telemetry-trigger-test-matrix";
 import { buildUserManagementRefactorReport } from "@/lib/admin/user-management-contract";
+import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 import { buildLegacyRecoveryDebugSummary } from "@/lib/server/admin-debug/legacy-recovery-summary";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
@@ -6614,6 +6615,9 @@ export async function GET(request: NextRequest) {
             userManagementRefactor: buildUserManagementRefactorReport({
                 personMetricsHydration: buildPersonMetricsHydrationReport(),
             }),
+            authRuntimeTelemetry: {
+                debugLane: buildAuthRuntimeDebugLane(),
+            },
             telemetryTriggerTestMatrix: buildTelemetryTriggerTestMatrixReport(),
             chatGatingModeration: {
                 debugLane: buildChatGatingDebugLane(),
@@ -6641,6 +6645,9 @@ export async function GET(request: NextRequest) {
                 userManagementRefactor: buildUserManagementRefactorReport({
                     personMetricsHydration: buildPersonMetricsHydrationReport(),
                 }),
+                authRuntimeTelemetry: {
+                    debugLane: buildAuthRuntimeDebugLane(),
+                },
                 telemetryTriggerTestMatrix: buildTelemetryTriggerTestMatrixReport(),
                 dailyTasksResetTruth: {
                     debugLane: buildDailyTaskDebugLane(),
