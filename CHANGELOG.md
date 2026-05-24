@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.14 - 2026-05-24
+- Regression evidence refresh
+- Refreshed regression evidence for high-blast analytics, debug, chat, task, settings, and wallet lanes.
+- Rebuilt targeted behavior evidence from current validators.
+- Separated in-flight work from stale regression drag.
+
 ## 1.4.13 - 2026-05-24
 - Formal evidence bridge
 - Bridged source-backed, operator-confirmed, and formal evidence without faking runtime proof.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Hardened Account Settings profile saves around one backend profile contract.
 - Blocked stale profile writes from changing server-owned account fields.
 - Kept Delete Account, Creator Settings, chat, navigation, payment, and GumDrop logic unchanged.
-
-## 1.3.89 - 2026-05-23
-- Support and policy surface cleanup
-- Connected FAQ, Support, Policies, Privacy Policy, and Download My Data to canonical trust surfaces.
-- Consolidated policy links so Account Settings avoids dead or duplicated placeholder pages.
-- Added debug visibility for support and policy surface health.

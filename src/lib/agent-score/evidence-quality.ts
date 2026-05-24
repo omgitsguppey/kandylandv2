@@ -60,6 +60,10 @@ export type PublicBetaRegressionRiskInput = {
   recentHighBlastFilesChanged?: boolean;
   staleGeneratedArtifacts?: string[];
   sourceValidatorsMissing?: string[];
+  highBlastRefreshCurrent?: boolean;
+  highBlastRefreshScore?: number;
+  highBlastRefreshFailedLaneCount?: number;
+  highBlastRefreshInFlightLaneCount?: number;
 };
 
 export type PublicBetaRegressionRiskScore = {
@@ -316,6 +320,25 @@ export function scoreCostReadiness(costReadiness: PublicBetaCostReadiness): Publ
 export function scoreRegressionRisk(input: PublicBetaRegressionRiskInput): PublicBetaRegressionRiskScore {
   const reasons: string[] = [];
   let penalty = 0;
+
+  if (input.highBlastRefreshCurrent) {
+    const failedLanePenalty = Math.min(20, (input.highBlastRefreshFailedLaneCount ?? 0) * 8);
+    const inFlightLanePenalty = Math.min(8, (input.highBlastRefreshInFlightLaneCount ?? 0) * 2);
+    const refreshScore = input.highBlastRefreshScore ?? 88;
+    reasons.push("Current high-blast regression refresh covers analytics, debug, chat, task, settings, wallet, admin, score, and cost lanes.");
+    if ((input.highBlastRefreshInFlightLaneCount ?? 0) > 0) {
+      reasons.push("In-flight lanes are classified separately and do not count as stale regression evidence.");
+    }
+    if ((input.highBlastRefreshFailedLaneCount ?? 0) > 0) {
+      reasons.push("Some high-blast validators failed and remain regression risk.");
+    }
+    const riskPenalty = round(clamp((100 - refreshScore) + failedLanePenalty + inFlightLanePenalty, 0, 100));
+    return {
+      score: round(clamp(100 - riskPenalty, 0, 100)),
+      riskPenalty,
+      reasons: reasons.map(normalizeTechnicalFreshnessTerms),
+    };
+  }
 
   for (const report of input.requiredReports ?? []) {
     if (report.sourceCommit && report.currentHead && report.sourceCommit !== report.currentHead) {

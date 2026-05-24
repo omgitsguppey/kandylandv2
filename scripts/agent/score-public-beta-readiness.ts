@@ -59,6 +59,7 @@ const USER_MANAGEMENT_REFACTOR_PATH = "agent/state/user-management-refactor.gene
 const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
 const ADMIN_TRUTH_SOURCE_SAMPLE_PATH = "agent/state/admin-truth-source-sample.generated.json";
 const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
+const REGRESSION_RISK_REFRESH_PATH = "agent/state/regression-risk-high-blast-refresh.generated.json";
 const UI_VISUAL_SMOKE_MINIMAL_PATH = "agent/state/ui-visual-smoke-minimal.generated.json";
 const UI_VISUAL_SMOKE_REQUIRED_SURFACES_EVIDENCE_KEY = "uiVisualSmoke.requiredSurfaces";
 const VISUAL_MANUAL_EVIDENCE_PATHS = [
@@ -486,6 +487,19 @@ function readTargetedBehaviorEvidence(root: string): PublicBetaEvidenceArtifact 
   );
 }
 
+function readRegressionRiskRefreshEvidence(root: string) {
+  const parsed = readJsonFile(root, REGRESSION_RISK_REFRESH_PATH);
+  if (!parsed) return undefined;
+  const scoreAfter = readRecord(parsed.scoreAfter);
+  const highBlastCoverageCurrent = readBoolean(parsed.highBlastCoverageCurrent) === true;
+  return {
+    highBlastCoverageCurrent,
+    regressionRiskScore: readNumber(scoreAfter.regressionRisk),
+    failedLaneCount: Array.isArray(parsed.failedLanes) ? parsed.failedLanes.length : undefined,
+    inFlightLaneCount: Array.isArray(parsed.inFlightLanes) ? parsed.inFlightLanes.length : undefined,
+  };
+}
+
 function readSourceBackedRuntimeConfidenceEvidence(root: string): PublicBetaEvidenceArtifact {
   return readEvidenceArtifact(
     root,
@@ -832,6 +846,7 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
       adminTruthSampleEvidence: readAdminTruthSampleEvidence(root),
       costReadiness: buildScore80CostReadinessFromRepo(root).costReadiness,
       nonEventScorePolicy: readNonEventScorePolicyEvidence(root),
+      regressionRiskRefreshEvidence: readRegressionRiskRefreshEvidence(root),
       openPrTriageFresh: true,
     },
   });

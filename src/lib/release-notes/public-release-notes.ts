@@ -1,13 +1,80 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.13",
-  "betaReleaseCounter": 413,
+  "currentVersion": "1.4.14",
+  "betaReleaseCounter": 414,
   "channel": "beta",
-  "generatedAt": "2026-05-24T05:09:58.469Z",
-  "generatedAtUtc": "2026-05-24T05:09:58.469Z",
-  "lastCommitSha": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "generatedAt": "2026-05-24T05:32:51.168Z",
+  "generatedAtUtc": "2026-05-24T05:32:51.168Z",
+  "lastCommitSha": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
   "notes": [
+    {
+      "version": "1.4.14",
+      "previousVersion": "1.4.13",
+      "betaReleaseCounter": 414,
+      "previousBetaReleaseCounter": 413,
+      "commitSha": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "commitTitle": "docs(beta): refresh regression evidence",
+      "commitCount": 1,
+      "commitShas": [
+        "2de05abe97f909b1414dc165bb3cfdd19309cb58"
+      ],
+      "committedAt": "2026-05-24T05:13:18.000Z",
+      "generatedAt": "2026-05-24T05:32:51.166Z",
+      "committedAtUtc": "2026-05-24T05:13:18.000Z",
+      "generatedAtUtc": "2026-05-24T05:32:51.166Z",
+      "updatedAtUtc": "2026-05-24T05:32:51.166Z",
+      "category": "Fixed",
+      "title": "Regression evidence refresh",
+      "summary": "Refreshed high-blast regression evidence for analytics, debug, chat, task, settings, wallet, admin, and score lanes.",
+      "userFacingTitle": "Regression evidence refresh",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed regression evidence for high-blast analytics, debug, chat, task, settings, and wallet lanes.",
+        "Rebuilt targeted behavior evidence from current validators.",
+        "Separated in-flight work from stale regression drag."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "beta-readiness",
+        "admin-debug",
+        "evidence-reporting"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-truth-source-sample.generated.json",
+        "agent/state/algorithmic-evidence-policy.generated.json",
+        "agent/state/cost-risk-owner-review-closure.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/debug-runtime-evidence.generated.json",
+        "agent/state/formal-evidence-bridge.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/real-usage-confidence.generated.json",
+        "agent/state/score-80-cost-readiness.generated.json",
+        "agent/state/source-backed-runtime-confidence.generated.json",
+        "docs/agent-truth/admin-truth-source-sample.md",
+        "docs/agent-truth/algorithmic-evidence-policy.md",
+        "docs/agent-truth/cost-risk-owner-review-closure.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/debug-runtime-evidence.md",
+        "docs/agent-truth/formal-evidence-bridge.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "docs/agent-truth/score-80-cost-readiness.md",
+        "docs/agent-truth/source-backed-runtime-confidence.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-formal-evidence-bridge.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/formal-evidence-bridge.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/formal-evidence-bridge.spec.ts"
+      ],
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58"
+    },
     {
       "version": "1.4.13",
       "previousVersion": "1.4.12",
@@ -6120,60 +6187,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/user/user-profile-contract.ts",
         "tests/unit/user-profile-api-contract.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.89",
-      "previousVersion": "1.3.88",
-      "betaReleaseCounter": 389,
-      "previousBetaReleaseCounter": 388,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(settings): consolidate support policy surfaces",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T01:50:00.000Z",
-      "generatedAt": "2026-05-23T01:50:00.000Z",
-      "committedAtUtc": "2026-05-23T01:50:00.000Z",
-      "generatedAtUtc": "2026-05-23T01:50:00.000Z",
-      "updatedAtUtc": "2026-05-23T01:50:00.000Z",
-      "category": "Fixed",
-      "title": "Support and policy surface cleanup",
-      "summary": "Connected support, FAQ, policy, privacy, and data export links to canonical trust surfaces with debug visibility.",
-      "userFacingTitle": "Support and policy surface cleanup",
-      "surfaceCategory": "Account & onboarding",
-      "bullets": [
-        "Connected FAQ, Support, Policies, Privacy Policy, and Download My Data to canonical trust surfaces.",
-        "Consolidated policy links so Account Settings avoids dead or duplicated placeholder pages.",
-        "Added debug visibility for support and policy surface health."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a support policy surface contract, validator, generated evidence, and unit coverage while preserving Delete Account, account settings padding, chat, navigation components, payment, wallet, PayPal, and GumDrop math."
-      ],
-      "affectedSurfaces": [
-        "Account Settings",
-        "Support",
-        "FAQ",
-        "Privacy & security",
-        "Admin debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/support-policy-surface-cleanup.generated.json",
-        "docs/agent-truth/support-policy-surface-cleanup.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-support-policy-surface-cleanup.ts",
-        "src/lib/admin-debug-control-tower.ts",
-        "src/lib/features/feature-registration-registry.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/support-policy/support-policy-surface-contract.ts",
-        "tests/unit/support-policy-surface-cleanup.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

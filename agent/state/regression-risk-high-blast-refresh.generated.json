@@ -1,0 +1,909 @@
+{
+  "generatedAtUtc": "2026-05-24T05:42:51.048Z",
+  "reportKey": "regression-risk-high-blast-refresh",
+  "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+  "scoreBefore": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 75.63,
+    "costRisk": 80.5,
+    "regressionRisk": 18,
+    "overallHealthScore": 74.88
+  },
+  "scoreAfter": {
+    "sourceHealth": 91.7,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 69.6,
+    "freshness": 80,
+    "costRisk": 80.5,
+    "regressionRisk": 88,
+    "overallHealthScore": 82.54
+  },
+  "highBlastLanes": [
+    "event-translation-bridge",
+    "person-metrics-hydration",
+    "debug-signal-grouping",
+    "chat-functionality-score-lock",
+    "daily-task-debug-score-lock",
+    "settings-connection-parity",
+    "wallet-modal-telemetry-cleanup",
+    "user-management-refactor",
+    "formal-evidence-bridge",
+    "cost-risk-owner-review-closure",
+    "event-liveness-audit"
+  ],
+  "highBlastCoverageCurrent": true,
+  "staleTargetedBehaviorEvidenceRetired": false,
+  "targetedBehaviorEvidenceCurrent": true,
+  "laneResults": [
+    {
+      "laneId": "event-translation-bridge",
+      "command": "npm run check:event-translation-bridge",
+      "artifactPath": "agent/state/event-translation-bridge.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:06.366Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:event-translation-bridge could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:event-translation-bridge warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "person-metrics-hydration",
+      "command": "npm run check:person-metrics-hydration",
+      "artifactPath": "agent/state/person-metrics-hydration.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:11.486Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:person-metrics-hydration could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:person-metrics-hydration warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "debug-signal-grouping",
+      "command": "npm run check:debug-signal-grouping",
+      "artifactPath": "agent/state/debug-signal-grouping.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:47.695Z",
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:debug-signal-grouping could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:debug-signal-grouping warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "chat-functionality-score-lock",
+      "command": "npm run check:chat-functionality-score-lock",
+      "artifactPath": "agent/state/chat-functionality-score-lock.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:21.218Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "costRisk",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:chat-functionality-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-functionality-score-lock warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-debug-score-lock",
+      "command": "npm run check:daily-task-debug-score-lock",
+      "artifactPath": "agent/state/daily-task-debug-score-lock.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:28.045Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-debug-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-debug-score-lock warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "settings-connection-parity",
+      "command": "npm run check:settings-connection-parity",
+      "artifactPath": "agent/state/settings-connection-parity.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:37.657Z",
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "wallet-modal-telemetry-cleanup",
+      "command": "npm run check:wallet-modal-telemetry-cleanup",
+      "artifactPath": "agent/state/wallet-modal-telemetry-cleanup.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "costRisk",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:wallet-modal-telemetry-cleanup is not defined; no owned source changes were detected, so this lane is not counted as stale regression evidence.",
+      "blocker": "missing package script; lane unchanged since available evidence or not landed",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "user-management-refactor",
+      "command": "npm run check:user-management-refactor",
+      "artifactPath": "agent/state/user-management-refactor.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:18.085Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:user-management-refactor could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:user-management-refactor warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "formal-evidence-bridge",
+      "command": "npm run check:formal-evidence-bridge",
+      "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:49.152Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "cost-risk-owner-review-closure",
+      "command": "npm run check:cost-risk-owner-review-closure",
+      "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:50.649Z",
+      "scoreDimensionsAffected": [
+        "costRisk",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "event-liveness-audit",
+      "command": "npm run check:event-liveness-audit",
+      "artifactPath": "agent/state/event-liveness-audit.generated.json",
+      "status": "in_flight",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness",
+        "regressionRisk"
+      ],
+      "nextAction": "Event liveness implementation is dirty/in-flight; keep it out of this regression refresh commit and rerun when landed.",
+      "blocker": "event-liveness dirty files are intentionally unstaged",
+      "changedSinceEvidence": true
+    },
+    {
+      "laneId": "event-envelope-normalization",
+      "command": "npm run check:event-envelope-normalization",
+      "artifactPath": "agent/state/event-envelope-normalization.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:09.419Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "telemetry-trigger-test-matrix",
+      "command": "npm run check:telemetry-trigger-test-matrix",
+      "artifactPath": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:15.101Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:telemetry-trigger-test-matrix could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:telemetry-trigger-test-matrix warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "chat-realtime-cost-control",
+      "command": "npm run check:chat-realtime-cost-control",
+      "artifactPath": "agent/state/chat-realtime-cost-control.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:22.880Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "costRisk",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:chat-realtime-cost-control could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-realtime-cost-control warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "chat-gating-moderation",
+      "command": "npm run check:chat-gating-moderation",
+      "artifactPath": "agent/state/chat-gating-moderation.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:24.538Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:chat-gating-moderation could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-gating-moderation warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "chat-telemetry-admin-truth",
+      "command": "npm run check:chat-telemetry-admin-truth",
+      "artifactPath": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:26.298Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:chat-telemetry-admin-truth could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-telemetry-admin-truth warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-reset-truth",
+      "command": "npm run check:daily-task-reset-truth",
+      "artifactPath": "agent/state/daily-task-reset-truth.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:29.875Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-reset-truth could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reset-truth warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-lifecycle-telemetry",
+      "command": "npm run check:daily-task-lifecycle-telemetry",
+      "artifactPath": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:31.851Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-lifecycle-telemetry could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-lifecycle-telemetry warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-reward-ledger",
+      "command": "npm run check:daily-task-reward-ledger",
+      "artifactPath": "agent/state/daily-task-reward-ledger.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:33.292Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-reward-ledger could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reward-ledger warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-guidance-route-audit",
+      "command": "npm run check:daily-task-guidance-route-audit",
+      "artifactPath": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:35.509Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-guidance-route-audit could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-guidance-route-audit Daily task guidance route audit validation failed:",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "user-profile-api-contract",
+      "command": "npm run check:user-profile-api-contract",
+      "artifactPath": "agent/state/user-profile-api-contract.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:39.508Z",
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "feature-registration-gate",
+      "command": "npm run check:feature-registration-gate",
+      "artifactPath": "agent/state/feature-registration-gate.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:41.683Z",
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "debug-signal-actionability",
+      "command": "npm run check:debug-signal-actionability",
+      "artifactPath": "agent/state/debug-signal-actionability.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:44.213Z",
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:debug-signal-actionability could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:debug-signal-actionability warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    }
+  ],
+  "refreshedLanes": [
+    {
+      "laneId": "event-translation-bridge",
+      "command": "npm run check:event-translation-bridge",
+      "artifactPath": "agent/state/event-translation-bridge.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:06.366Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:event-translation-bridge could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:event-translation-bridge warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "person-metrics-hydration",
+      "command": "npm run check:person-metrics-hydration",
+      "artifactPath": "agent/state/person-metrics-hydration.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:11.486Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:person-metrics-hydration could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:person-metrics-hydration warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "debug-signal-grouping",
+      "command": "npm run check:debug-signal-grouping",
+      "artifactPath": "agent/state/debug-signal-grouping.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:47.695Z",
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:debug-signal-grouping could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:debug-signal-grouping warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "chat-functionality-score-lock",
+      "command": "npm run check:chat-functionality-score-lock",
+      "artifactPath": "agent/state/chat-functionality-score-lock.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:21.218Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "costRisk",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:chat-functionality-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-functionality-score-lock warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-debug-score-lock",
+      "command": "npm run check:daily-task-debug-score-lock",
+      "artifactPath": "agent/state/daily-task-debug-score-lock.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:28.045Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-debug-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-debug-score-lock warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "settings-connection-parity",
+      "command": "npm run check:settings-connection-parity",
+      "artifactPath": "agent/state/settings-connection-parity.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:37.657Z",
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "wallet-modal-telemetry-cleanup",
+      "command": "npm run check:wallet-modal-telemetry-cleanup",
+      "artifactPath": "agent/state/wallet-modal-telemetry-cleanup.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "costRisk",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:wallet-modal-telemetry-cleanup is not defined; no owned source changes were detected, so this lane is not counted as stale regression evidence.",
+      "blocker": "missing package script; lane unchanged since available evidence or not landed",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "user-management-refactor",
+      "command": "npm run check:user-management-refactor",
+      "artifactPath": "agent/state/user-management-refactor.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:18.085Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:user-management-refactor could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:user-management-refactor warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "formal-evidence-bridge",
+      "command": "npm run check:formal-evidence-bridge",
+      "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:49.152Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "cost-risk-owner-review-closure",
+      "command": "npm run check:cost-risk-owner-review-closure",
+      "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:50.649Z",
+      "scoreDimensionsAffected": [
+        "costRisk",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "event-envelope-normalization",
+      "command": "npm run check:event-envelope-normalization",
+      "artifactPath": "agent/state/event-envelope-normalization.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:09.419Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "telemetry-trigger-test-matrix",
+      "command": "npm run check:telemetry-trigger-test-matrix",
+      "artifactPath": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:15.101Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:telemetry-trigger-test-matrix could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:telemetry-trigger-test-matrix warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "chat-realtime-cost-control",
+      "command": "npm run check:chat-realtime-cost-control",
+      "artifactPath": "agent/state/chat-realtime-cost-control.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:22.880Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "costRisk",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:chat-realtime-cost-control could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-realtime-cost-control warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "chat-gating-moderation",
+      "command": "npm run check:chat-gating-moderation",
+      "artifactPath": "agent/state/chat-gating-moderation.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:24.538Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:chat-gating-moderation could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-gating-moderation warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "chat-telemetry-admin-truth",
+      "command": "npm run check:chat-telemetry-admin-truth",
+      "artifactPath": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:26.298Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:chat-telemetry-admin-truth could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-telemetry-admin-truth warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-reset-truth",
+      "command": "npm run check:daily-task-reset-truth",
+      "artifactPath": "agent/state/daily-task-reset-truth.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:29.875Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-reset-truth could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reset-truth warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-lifecycle-telemetry",
+      "command": "npm run check:daily-task-lifecycle-telemetry",
+      "artifactPath": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:31.851Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-lifecycle-telemetry could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-lifecycle-telemetry warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-reward-ledger",
+      "command": "npm run check:daily-task-reward-ledger",
+      "artifactPath": "agent/state/daily-task-reward-ledger.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:33.292Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-reward-ledger could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reward-ledger warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "daily-task-guidance-route-audit",
+      "command": "npm run check:daily-task-guidance-route-audit",
+      "artifactPath": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe",
+      "generatedAtUtc": "2026-05-24T05:42:35.509Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:daily-task-guidance-route-audit could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-guidance-route-audit Daily task guidance route audit validation failed:",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "user-profile-api-contract",
+      "command": "npm run check:user-profile-api-contract",
+      "artifactPath": "agent/state/user-profile-api-contract.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:39.508Z",
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "runtimeHealth",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "feature-registration-gate",
+      "command": "npm run check:feature-registration-gate",
+      "artifactPath": "agent/state/feature-registration-gate.generated.json",
+      "status": "pass",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:41.683Z",
+      "scoreDimensionsAffected": [
+        "sourceHealth",
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "changedSinceEvidence": false
+    },
+    {
+      "laneId": "debug-signal-actionability",
+      "command": "npm run check:debug-signal-actionability",
+      "artifactPath": "agent/state/debug-signal-actionability.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "sourceCommit": "2de05abe97f909b1414dc165bb3cfdd19309cb58",
+      "generatedAtUtc": "2026-05-24T05:42:44.213Z",
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:debug-signal-actionability could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:debug-signal-actionability warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    }
+  ],
+  "failedLanes": [],
+  "inFlightLanes": [
+    {
+      "laneId": "event-liveness-audit",
+      "command": "npm run check:event-liveness-audit",
+      "artifactPath": "agent/state/event-liveness-audit.generated.json",
+      "status": "in_flight",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness",
+        "regressionRisk"
+      ],
+      "nextAction": "Event liveness implementation is dirty/in-flight; keep it out of this regression refresh commit and rerun when landed.",
+      "blocker": "event-liveness dirty files are intentionally unstaged",
+      "changedSinceEvidence": true
+    }
+  ],
+  "missingLanes": [],
+  "staleLanes": [],
+  "dirtyFilesClassified": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/evidence-quality.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-liveness-contract.ts",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "src/lib/analytics/event-liveness-engine.ts",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/server/admin-debug/summary.ts",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "tests/unit/event-liveness-audit.spec.ts",
+      "classification": "in_flight_event_liveness"
+    },
+    {
+      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/regression-risk-refresh-plan.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/regression-risk-high-blast-refresh.spec.ts",
+      "classification": "real_source_change_needs_review"
+    }
+  ],
+  "staleArtifactsRetired": [],
+  "remainingGaps": [
+    "event-liveness-audit: in-flight lane kept separate from stale regression drag."
+  ],
+  "nextExactSteps": [
+    "Keep high-blast regression validators current after analytics, debug, chat, task, settings, wallet, admin, score, or cost changes."
+  ]
+}

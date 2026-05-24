@@ -183,6 +183,12 @@ export type PublicBetaEvidenceInput = {
   runtimeCodeChangedSinceReport?: boolean;
   launchWarningCount?: number;
   nonEventScorePolicy?: NonEventScorePolicySummary;
+  regressionRiskRefreshEvidence?: {
+    highBlastCoverageCurrent?: boolean;
+    regressionRiskScore?: number;
+    failedLaneCount?: number;
+    inFlightLaneCount?: number;
+  };
 };
 
 export type PublicBetaEvidenceGate = {
@@ -1436,6 +1442,10 @@ export function buildPublicBetaScoreReport(
     openPrTriageFresh: options.evidence?.openPrTriageFresh,
     recentHighBlastFilesChanged: recentFiles.some((file) =>
       /paypal|wallet|gumdrop|booking|analytics|admin|runtime|creator/iu.test(file)),
+    highBlastRefreshCurrent: options.evidence?.regressionRiskRefreshEvidence?.highBlastCoverageCurrent,
+    highBlastRefreshScore: options.evidence?.regressionRiskRefreshEvidence?.regressionRiskScore,
+    highBlastRefreshFailedLaneCount: options.evidence?.regressionRiskRefreshEvidence?.failedLaneCount,
+    highBlastRefreshInFlightLaneCount: options.evidence?.regressionRiskRefreshEvidence?.inFlightLaneCount,
   });
   const sourceGates = evidenceReadiness.evidenceGates.filter((gate) =>
     gate.id === "sourceSafety" || gate.id === "targetedBehaviorTests" || gate.id === "freshnessIntegrity");
