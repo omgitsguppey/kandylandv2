@@ -1,7 +1,7 @@
 # Auth Provider Conflict Resolution
 
-Generated: 2026-05-24T08:07:26.540Z
-Current head: ecd519b1
+Generated: 2026-05-24T08:26:33.944Z
+Current head: 085ad0be
 
 This source-only lock maps common Firebase auth provider conflicts to safe user guidance, telemetry, and debug evidence. It does not auto-link providers, expose raw passwords, expose raw email addresses in telemetry, mutate accounts outside the existing signup rollback flow, or run production reads.
 

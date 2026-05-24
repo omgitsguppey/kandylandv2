@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.22 - 2026-05-24
+- Email/password auth reliability
+- Refined email/password signup and login reliability.
+- Improved registration rollback, creator intent, and welcome bonus handling.
+- Kept Google auth and GumDrop math unchanged.
+
 ## 1.4.21 - 2026-05-24
 - Auth provider conflict guidance
 - Improved auth guidance when Google and email/password sign-in methods conflict.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added actionability scoring for debug and telemetry signals.
 - Collapsed duplicate and non-actionable future activity signals.
 - Focused debug output on score-impacting work.
-
-## 1.3.97 - 2026-05-23
-- Beta activity signal cleanup
-- Reclassified future user activity placeholders as quiet catalog items.
-- Stopped source-ready future activity from appearing as actionable debug noise.
-- Kept broken telemetry paths actionable.

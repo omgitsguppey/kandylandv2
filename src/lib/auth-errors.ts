@@ -17,7 +17,7 @@ export type EmailAuthErrorResolution = {
 export const LOCAL_EMAIL_AUTH_SIGN_IN_COOLDOWN_MS = 30_000;
 
 export function normalizeEmailAddress(email: string) {
-    return email.trim();
+    return email.trim().toLowerCase();
 }
 
 export function looksLikeEmailAddress(value: string) {

@@ -176,11 +176,15 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-provider-conflict-resolution.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-email-password-auth-refactor.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/auth-provider-conflict-resolution.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/email-password-auth-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/auth-errors.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/lib/auth/auth-provider-conflict-contract.ts"
     || normalized === "src/lib/auth/auth-provider-conflict-resolver.ts"
+    || normalized === "src/lib/auth/email-password-auth-contract.ts"
+    || normalized === "src/lib/auth/email-password-auth-flow.ts"
     || normalized === "src/context/AuthContext.tsx"
     || normalized === "src/components/Auth/AuthModal.tsx"
     || normalized === "src/lib/auth-errors.ts"
@@ -410,7 +414,7 @@ export function validateAuthProviderConflictResolution(report: AuthProviderConfl
   }
   if (!debugSummary.includes("auth_provider_conflict")) failures.push("debug lane missing.");
   if (report.authPersistenceStatus !== "browser_local_persistence_enabled") failures.push("existing auth persistence disabled.");
-  if (!authContext.includes("deleteUser(createdUser)") || !authContext.includes("shouldRollbackCreatedUser")) {
+  if (!authContext.includes("deleteUser(createdUser)") || (!authContext.includes("shouldRollbackCreatedUser") && !authContext.includes("buildRegistrationRollbackPlan"))) {
     failures.push("existing safe signup rollback flow missing.");
   }
   for (const dimension of SCORE_DIMENSIONS) {

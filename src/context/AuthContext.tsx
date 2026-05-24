@@ -31,7 +31,6 @@ import {
 import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import {
     buildFirebaseLikeAuthError,
-    looksLikeEmailAddress,
     normalizeEmailAddress,
 } from "@/lib/auth-errors";
 import type { AuthProviderConflict } from "@/lib/auth/auth-provider-conflict-contract";
@@ -40,6 +39,15 @@ import {
     classifyAuthError,
     resolveProviderConflictMessage,
 } from "@/lib/auth/auth-provider-conflict-resolver";
+import type { EmailPasswordSignupInput, EmailPasswordSignupIntent } from "@/lib/auth/email-password-auth-contract";
+import {
+    buildEmailAuthTelemetry,
+    buildRegistrationRollbackPlan,
+    classifyEmailAuthFailure,
+    prepareEmailLogin,
+    prepareEmailSignup,
+    validateEmailSignupInput,
+} from "@/lib/auth/email-password-auth-flow";
 import {
     emitAuthLifecycleEvent,
     type AuthOutcomeMethod,
@@ -60,23 +68,8 @@ import {
 } from "@/lib/manual-email-auth";
 import { createAutoHealingObserver } from "@/lib/self-healing";
 
-type SignupIntent = "fan" | "creator";
-
-type SignUpInput = {
-    email: string;
-    password: string;
-    username: string;
-    dob: string;
-    signupIntent?: SignupIntent;
-    creatorDisplayName?: string;
-    creatorMonetizationGoals?: string[];
-    creatorPrimaryPlatform?: string;
-    creatorFollowerRange?: string;
-    creatorPostingFrequency?: string;
-    creatorContentFocus?: string;
-    fansAlreadyAskForAccess?: string;
-    creatorRecommendedSetup?: string;
-};
+type SignupIntent = EmailPasswordSignupIntent;
+type SignUpInput = EmailPasswordSignupInput;
 
 type SignUpResult = {
     welcomeBonus: number;
@@ -681,19 +674,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         await ensureAuthPersistence();
+        const preparedLogin = prepareEmailLogin(identifier);
         let resolvedIdentity: Awaited<ReturnType<typeof resolveManualSignInIdentity>>;
         try {
-            resolvedIdentity = await resolveManualSignInIdentity(identifier);
+            resolvedIdentity = await resolveManualSignInIdentity(preparedLogin.normalizedIdentifier);
         } catch (error) {
-            const emailForHash = looksLikeEmailAddress(identifier) ? normalizeEmailAddress(identifier) : null;
-            trackEvent("auth_email_sign_in_failed", {
-                failureCode: (error as { code?: string }).code || "auth/manual-lookup-failed",
-                failure_code: (error as { code?: string }).code || "auth/manual-lookup-failed",
-                sourceTruth: "client_auth",
+            const emailForHash = preparedLogin.identifierType === "email" ? preparedLogin.normalizedIdentifier : null;
+            const failure = classifyEmailAuthFailure((error as { code?: string }).code ? error : {
+                code: "auth/manual-lookup-failed",
+                message: error instanceof Error ? error.message : undefined,
+            });
+            const event = buildEmailAuthTelemetry({
+                eventName: "auth_email_sign_in_failed",
+                failure,
+                email: emailForHash,
                 authAttemptId: telemetry?.authAttemptId || "",
                 route: telemetry?.route || "",
                 sourceComponent: telemetry?.sourceComponent || "AuthContext",
+                identifierType: preparedLogin.identifierType,
             });
+            trackEvent(event.eventName, event.params);
             throw buildAuthProviderConflictError({
                 error,
                 attemptedMethod: "email_password",
@@ -707,14 +707,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             credential = await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
         } catch (error) {
-            trackEvent("auth_email_sign_in_failed", {
-                failureCode: (error as { code?: string }).code || "auth/email-sign-in-failed",
-                failure_code: (error as { code?: string }).code || "auth/email-sign-in-failed",
-                sourceTruth: "firebase_auth",
+            const failure = classifyEmailAuthFailure(error);
+            const event = buildEmailAuthTelemetry({
+                eventName: "auth_email_sign_in_failed",
+                failure,
+                email: resolvedIdentity.resolvedEmail,
                 authAttemptId: telemetry?.authAttemptId || "",
                 route: telemetry?.route || "",
                 sourceComponent: telemetry?.sourceComponent || "AuthContext",
+                identifierType: resolvedIdentity.identifierType,
             });
+            trackEvent(event.eventName, event.params);
             throw buildAuthProviderConflictError({
                 error,
                 attemptedMethod: "email_password",
@@ -738,11 +741,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             throw new Error("Authentication is unavailable in this environment.");
         }
 
-        const signupIntent: SignupIntent = input.signupIntent === "creator" ? "creator" : "fan";
-        const normalizedEmail = normalizeEmailAddress(input.email);
-        const normalizedUsername = await ensureManualSignupUsername(input.username);
+        const validation = validateEmailSignupInput(input);
+        if (!validation.ok) {
+            const failure = classifyEmailAuthFailure({ code: validation.failureCodes[0] });
+            const event = buildEmailAuthTelemetry({
+                eventName: "auth_email_sign_up_failed",
+                failure,
+                email: input.email,
+                authAttemptId: telemetry?.authAttemptId,
+                route: telemetry?.route,
+                sourceComponent: telemetry?.sourceComponent || "AuthContext",
+                signupIntent: input.signupIntent === "creator" ? "creator" : "fan",
+            });
+            trackEvent(event.eventName, event.params);
+            throw buildFirebaseLikeAuthError(failure.firebaseCode, failure.safeUserMessage);
+        }
+
+        const preparedSignup = prepareEmailSignup(input);
+        const signupIntent: SignupIntent = preparedSignup.signupIntent;
+        const normalizedEmail = preparedSignup.normalizedEmail;
+        let normalizedUsername: string;
+        try {
+            normalizedUsername = await ensureManualSignupUsername(preparedSignup.rawUsername);
+        } catch (error) {
+            const failure = classifyEmailAuthFailure(error);
+            const event = buildEmailAuthTelemetry({
+                eventName: "auth_email_sign_up_failed",
+                failure,
+                email: normalizedEmail,
+                authAttemptId: telemetry?.authAttemptId,
+                route: telemetry?.route,
+                sourceComponent: telemetry?.sourceComponent || "AuthContext",
+                signupIntent,
+            });
+            trackEvent(event.eventName, event.params);
+            throw error;
+        }
         let createdUser: User | null = null;
-        let shouldRollbackCreatedUser = false;
+        let profileRegistrationSucceeded = false;
+        let navigationSessionSucceeded = false;
         manualRegistrationStateRef.current = {
             uid: null,
             email: normalizedEmail,
@@ -752,16 +789,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await ensureAuthPersistence();
             let credential: Awaited<ReturnType<typeof createUserWithEmailAndPassword>>;
             try {
-                credential = await createUserWithEmailAndPassword(auth, normalizedEmail, input.password);
+                credential = await createUserWithEmailAndPassword(auth, normalizedEmail, preparedSignup.password);
             } catch (error) {
-                trackEvent("auth_email_sign_up_failed", {
-                    failureCode: (error as { code?: string }).code || "auth/email-sign-up-failed",
-                    failure_code: (error as { code?: string }).code || "auth/email-sign-up-failed",
-                    sourceTruth: "firebase_auth",
+                const failure = classifyEmailAuthFailure(error);
+                const event = buildEmailAuthTelemetry({
+                    eventName: "auth_email_sign_up_failed",
+                    failure,
+                    email: normalizedEmail,
                     authAttemptId: telemetry?.authAttemptId || "",
                     route: telemetry?.route || "",
                     sourceComponent: telemetry?.sourceComponent || "AuthContext",
+                    signupIntent,
                 });
+                trackEvent(event.eventName, event.params);
                 throw buildAuthProviderConflictError({
                     error,
                     attemptedMethod: "email_password",
@@ -780,38 +820,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const response = await authFetch("/api/user/register", {
                 method: "POST",
                 body: JSON.stringify({
+                    ...preparedSignup.registrationPayload,
                     displayName: signupIntent === "creator"
-                        ? input.creatorDisplayName || normalizedUsername
+                        ? preparedSignup.registrationPayload.creatorDisplayName || normalizedUsername
                         : normalizedUsername,
                     username: normalizedUsername,
-                    dateOfBirth: input.dob,
-                    registrationMethod: "email",
-                    signupIntent,
-                    creatorDisplayName: input.creatorDisplayName,
-                    creatorMonetizationGoals: input.creatorMonetizationGoals,
-                    creatorPrimaryPlatform: input.creatorPrimaryPlatform,
-                    creatorFollowerRange: input.creatorFollowerRange,
-                    creatorPostingFrequency: input.creatorPostingFrequency,
-                    creatorContentFocus: input.creatorContentFocus,
-                    fansAlreadyAskForAccess: input.fansAlreadyAskForAccess,
-                    creatorRecommendedSetup: input.creatorRecommendedSetup,
                     referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
                 }),
             });
-            shouldRollbackCreatedUser = !response.ok;
-
             const result = await readManualRegistrationResult(response);
+            profileRegistrationSucceeded = true;
             const welcomeBonus = result.welcomeBonus;
             await ensureNavigationSessionEstablished({
                 userId: credential.user.uid,
                 method: "email_sign_up",
                 telemetry,
             });
+            navigationSessionSucceeded = true;
             if (signupIntent === "creator") {
                 toast.success("Creator intake received. Check your creator status page for next steps.");
                 router.push(CREATOR_WAITLIST_PATH);
             } else {
-                toast.success(welcomeBonus > 0 ? `Account created! +${welcomeBonus} Gum Drops` : "Account created!");
+                toast.success(welcomeBonus > 0 ? `Account created! +${welcomeBonus} reward GumDrops` : "Account created!");
                 if (pathname === "/") {
                     router.push(getPostAuthDestination({ role: "user" }, auth.currentUser?.uid ?? null));
                 }
@@ -822,15 +852,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 userId: credential.user.uid,
             };
         } catch (error: unknown) {
-            if (shouldRollbackCreatedUser && createdUser && auth.currentUser?.uid === createdUser.uid) {
+            const rollbackPlan = buildRegistrationRollbackPlan({
+                firebaseUserCreated: Boolean(createdUser),
+                profileRegistrationSucceeded,
+                navigationSessionSucceeded,
+            });
+
+            if (createdUser && !profileRegistrationSucceeded) {
+                const registrationFailure = classifyEmailAuthFailure({
+                    code: (error as { code?: string }).code || "auth/profile-registration-failed",
+                    message: error instanceof Error ? error.message : undefined,
+                });
+                const event = buildEmailAuthTelemetry({
+                    eventName: "auth_email_sign_up_failed",
+                    failure: registrationFailure,
+                    email: normalizedEmail,
+                    authAttemptId: telemetry?.authAttemptId,
+                    route: telemetry?.route,
+                    sourceComponent: telemetry?.sourceComponent || "AuthContext",
+                    signupIntent,
+                });
+                trackEvent(event.eventName, event.params);
+            }
+
+            if (rollbackPlan.deleteFirebaseUser && createdUser && auth.currentUser?.uid === createdUser.uid) {
                 try {
                     await deleteUser(createdUser);
                 } catch (cleanupError) {
                     reportRealtimeIssue("auth signup rollback delete failed", cleanupError);
-                    try {
-                        await signOut(auth);
-                    } catch (signOutError) {
-                        reportRealtimeIssue("auth signup rollback sign-out failed", signOutError);
+                    if (rollbackPlan.signOutAfterDeleteFailure) {
+                        try {
+                            await signOut(auth);
+                        } catch (signOutError) {
+                            reportRealtimeIssue("auth signup rollback sign-out failed", signOutError);
+                        }
                     }
                 }
             }

@@ -9,8 +9,8 @@ import {
 } from "@/lib/auth-errors";
 
 describe("auth error helpers", () => {
-    it("trims email addresses before Firebase auth calls", () => {
-        expect(normalizeEmailAddress("  test@example.com  ")).toBe("test@example.com");
+    it("normalizes email addresses before Firebase auth calls", () => {
+        expect(normalizeEmailAddress("  Test@Example.COM  ")).toBe("test@example.com");
     });
 
     it("distinguishes likely email addresses from usernames for manual sign-in", () => {
