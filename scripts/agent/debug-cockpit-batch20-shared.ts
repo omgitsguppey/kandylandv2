@@ -162,7 +162,7 @@ export function validateNoSampleRouteCohortCleanup() {
   const required = classifyNoSampleRouteCohort("admin/creator-account-controls:POST");
   const failures: string[] = [];
   pushIf(optional.displaysLive === false && optional.status === "unseen_optional_quiet", failures, "optional route treated as failure solely due to no sample or displayed LIVE.");
-  pushIf(required.displaysLive === false && required.cohort === "required_admin_write", failures, "high-risk no-sample route lacks cohort.");
+  pushIf(required.displaysLive === false && required.status === "unseen_required_smoke_needed", failures, "high-risk no-sample route lacks cohort.");
   pushIf(required.nextAction.length > 0, failures, "high-risk no-sample route lacks smoke/evidence next action.");
   runValidation("no-sample-route-cohort-cleanup", { optional, required }, failures);
 }
@@ -186,6 +186,16 @@ export function validateDebugCockpitBatch20StaleRouteSweep() {
   const summary = readText("src/lib/admin-debug-summary-cards.ts");
   const ui = readText("src/app/admin/debug/components/DebugMonitoringRoutes.tsx");
   pushIf(containsAll(summary, ["[stale] API snapshot; stale route samples", "[partial] API snapshot; no-sample routes"]), failures, "stale or no-sample summary still displays live.");
-  pushIf(containsAll(ui, ["sampleIsStale", "STALE SAMPLE", "No runtime sample has been recorded; metrics are unavailable, not zero."]), failures, "route cards not grouped/classified with no-sample unavailable state.");
+  pushIf(
+    ui.includes("sampleIsStale")
+    && ui.includes("STALE SAMPLE")
+    && (
+      ui.includes("No runtime sample has been recorded; metrics are unavailable, not zero.")
+      || ui.includes("No runtime sample has been recorded. Metrics are unavailable, not zero.")
+      || ui.includes("noSampleDisplay?.copy")
+    ),
+    failures,
+    "route cards not grouped/classified with no-sample unavailable state.",
+  );
   runValidation("debug-cockpit-batch20-stale-route-sweep", report as unknown as Report, failures);
 }

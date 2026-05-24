@@ -1,0 +1,39 @@
+{
+  "reportKey": "optional-manual-legacy-route-policy",
+  "generatedAtUtc": "2026-05-24T22:24:29.709Z",
+  "policies": [
+    {
+      "routeKey": "creator/messages:POST",
+      "policy": "legacy_visible_until_removal",
+      "displaysLive": false,
+      "affectsScore": false,
+      "removalPolicy": "legacy creator-message routes remain visible until product-approved removal.",
+      "nextAction": "Keep no-sample route out of live diagnostic health."
+    },
+    {
+      "routeKey": "creator/messages:DELETE",
+      "policy": "legacy_visible_until_removal",
+      "displaysLive": false,
+      "affectsScore": false,
+      "removalPolicy": "legacy creator-message routes remain visible until product-approved removal.",
+      "nextAction": "Keep no-sample route out of live diagnostic health."
+    },
+    {
+      "routeKey": "admin/drops/[dropId]:DELETE",
+      "policy": "optional_quiet",
+      "displaysLive": false,
+      "affectsScore": false,
+      "removalPolicy": null,
+      "nextAction": "Keep no-sample route out of live diagnostic health."
+    },
+    {
+      "routeKey": "admin/manual/balance-adjust:POST",
+      "policy": "manual_operator_action",
+      "displaysLive": false,
+      "affectsScore": false,
+      "removalPolicy": null,
+      "nextAction": "Keep no-sample route out of live diagnostic health."
+    }
+  ],
+  "validationFailures": []
+}

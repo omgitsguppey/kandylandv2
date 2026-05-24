@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.51 - 2026-05-24
+- No-sample route cohort cleanup
+- Finalized no-sample route cohort classification.
+- Removed false LIVE states from unseen route runtime cards.
+- Added high-risk smoke plans and optional/manual/legacy route policies.
+
 ## 1.4.50 - 2026-05-24
 - Runtime evidence cleanup
 - Classified stale and no-sample route runtime states without treating them as live health.

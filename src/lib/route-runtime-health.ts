@@ -1078,7 +1078,7 @@ export type RouteRuntimeRecordTruth = {
     lastSeenAtUtc: string | null;
     status: "healthy" | "healthy_with_history" | "latency_review" | "client_error_review" | "server_error" | "unseen" | "quiet" | "stale";
     coverage: "observed" | "unseen";
-    freshness: "fresh" | "stale" | "expired" | "unknown";
+    freshness: "fresh" | "stale" | "expired" | "unknown" | "unseen";
     cluster: string;
     lastResult: RouteRuntimeHealthLastResult;
     hasSample: boolean;
@@ -1259,7 +1259,7 @@ export function buildRouteRuntimeRecordTruth(item: RouteRuntimeHealthItem, nowMs
                         ? "client_history"
                         : "none";
     const stateReasons: string[] = [];
-    if (!hasSample) stateReasons.push("No runtime sample has been recorded; metrics are unavailable, not zero.");
+    if (!hasSample) stateReasons.push("No runtime sample has been recorded. Metrics are unavailable, not zero.");
     if (rawFreshness === "stale") stateReasons.push("Last runtime sample is outside the freshness window.");
     if (status === "fail") stateReasons.push("Current route result has an active server failure.");
     if (lastResult === "client_error") stateReasons.push("Latest route result was a client error; historical counters are shown separately.");
@@ -1288,7 +1288,7 @@ export function buildRouteRuntimeRecordTruth(item: RouteRuntimeHealthItem, nowMs
         lastSeenAtUtc: toNumber(item.updatedAtMs) > 0 ? new Date(item.updatedAtMs).toISOString() : null,
         status: derivedStatus,
         coverage,
-        freshness: rawFreshness === "fresh" ? "fresh" : rawFreshness === "stale" ? "stale" : "unknown",
+        freshness: rawFreshness === "fresh" ? "fresh" : rawFreshness === "stale" ? "stale" : "unseen",
         cluster: getRouteRuntimeHealthCluster(item.key),
         lastResult,
         hasSample,

@@ -1,13 +1,60 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.50",
-  "betaReleaseCounter": 450,
+  "currentVersion": "1.4.51",
+  "betaReleaseCounter": 451,
   "channel": "beta",
   "generatedAt": "2026-05-24T22:05:00.000Z",
   "generatedAtUtc": "2026-05-24T22:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.51",
+      "previousVersion": "1.4.50",
+      "betaReleaseCounter": 451,
+      "previousBetaReleaseCounter": 450,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(runtime): classify no-sample routes",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T22:25:00.000Z",
+      "generatedAt": "2026-05-24T22:25:00.000Z",
+      "committedAtUtc": "2026-05-24T22:25:00.000Z",
+      "generatedAtUtc": "2026-05-24T22:25:00.000Z",
+      "category": "Fixed",
+      "title": "No-sample route cohort cleanup",
+      "updatedAtUtc": "2026-05-24T22:25:00.000Z",
+      "summary": "Improved route runtime reporting so unseen routes are grouped by cohort and never shown as live health.",
+      "userFacingTitle": "No-sample route cohort cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Finalized no-sample route cohort classification.",
+        "Removed false LIVE states from unseen route runtime cards.",
+        "Added high-risk smoke plans and optional/manual/legacy route policies."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "No route samples were faked; no production reads, payment runtime, GumDrop math, or legacy creator-message routes changed."
+      ],
+      "affectedSurfaces": [
+        "Debug cockpit route runtime",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/app/admin/debug/components/DebugMonitoringRoutes.tsx",
+        "src/lib/debug/no-sample-route-cohort-classifier.ts",
+        "src/lib/debug/no-sample-route-display.ts",
+        "src/lib/debug/high-risk-route-smoke-plan.ts",
+        "src/lib/debug/optional-manual-legacy-route-policy.ts"
+      ],
+      "effectiveChangeCount": 5,
+      "excludedGeneratedChangeCount": 10,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.50",
       "previousVersion": "1.4.49",

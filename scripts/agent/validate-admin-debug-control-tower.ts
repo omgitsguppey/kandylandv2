@@ -959,7 +959,7 @@ for (const expected of [
   "maxLatencyState",
   "errorHistoryState",
   "latencyState",
-  "No runtime sample has been recorded; metrics are unavailable, not zero.",
+  "No runtime sample has been recorded. Metrics are unavailable, not zero.",
   "Historical latency contains slow samples; current health can still be healthy.",
 ]) {
   requireIncludes(runtimeHealth, expected, "Route runtime health truth model");
@@ -1170,7 +1170,7 @@ for (const expected of [
   "truth.hasSample ?",
   "value=\"—\"",
   "badgeLabel=\"NO SAMPLE\"",
-  "No runtime sample has been recorded; metrics are unavailable, not zero.",
+  "No runtime sample has been recorded. Metrics are unavailable, not zero.",
   "healthy with latency review",
 ]) {
   requireIncludes(debugMonitoringRoutes, expected, "Tracked route runtime rows must label loaded counts, chat triples, and latency review states");
@@ -2702,6 +2702,7 @@ try {
     /^agent\/state\/debug-cockpit-batch18-route-hotspots\.generated\.json$/u,
     /^agent\/state\/admin-users-latency-repair\.generated\.json$/u,
     /^agent\/state\/debug-cockpit-batch19-product-routes\.generated\.json$/u,
+    /^agent\/state\/debug-cockpit-batch20-stale-route-sweep\.generated\.json$/u,
     /^agent\/state\/stale-route-sample-classification\.generated\.json$/u,
     /^agent\/state\/support-threads-index-repair\.generated\.json$/u,
     /^agent\/state\/tasks-rotate-runtime-repair\.generated\.json$/u,
@@ -2740,6 +2741,7 @@ try {
     /^docs\/agent-truth\/debug-cockpit-batch18-route-hotspots\.md$/u,
     /^docs\/agent-truth\/admin-users-latency-repair\.md$/u,
     /^docs\/agent-truth\/debug-cockpit-batch19-product-routes\.md$/u,
+    /^docs\/agent-truth\/debug-cockpit-batch20-stale-route-sweep\.md$/u,
     /^docs\/agent-truth\/stale-route-sample-classification\.md$/u,
     /^docs\/agent-truth\/support-threads-index-repair\.md$/u,
     /^docs\/agent-truth\/tasks-rotate-runtime-repair\.md$/u,
@@ -2795,7 +2797,10 @@ try {
     /^src\/lib\/admin-debug-summary-cards\.ts$/u,
     /^src\/lib\/debug\/.*route.*\.ts$/u,
     /^scripts\/agent\/debug-cockpit-batch20-shared\.ts$/u,
+    /^scripts\/agent\/debug-cockpit-batch21-shared\.ts$/u,
     /^scripts\/agent\/validate-.*batch20.*\.ts$/u,
+    /^scripts\/agent\/validate-.*batch21.*\.ts$/u,
+    /^scripts\/agent\/validate-no-sample-route-cohort-finalization\.ts$/u,
     /^scripts\/agent\/validate-.*route.*cleanup\.ts$/u,
     /^scripts\/agent\/validate-.*route.*classification\.ts$/u,
     /^scripts\/agent\/validate-route-sample-freshness-classifier\.ts$/u,

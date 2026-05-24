@@ -11,6 +11,10 @@ export type RouteSampleFreshnessStatus =
     | "unseen_optional_quiet"
     | "unseen_manual_operator_action"
     | "unseen_legacy_or_deprecated"
+    | "unseen_legacy_compat_quiet"
+    | "source_ready_no_sample_loaded"
+    | "source_missing_actionable"
+    | "deprecated_route_visible"
     | "source_missing"
     | "unknown";
 
@@ -41,6 +45,10 @@ function isStale(input: RouteSampleFreshnessInput) {
 }
 
 function classifyUnseen(input: RouteSampleFreshnessInput): RouteSampleFreshnessStatus {
+    if (input.optionality === "source_ready") return "source_ready_no_sample_loaded";
+    if (input.optionality === "source_missing") return "source_missing_actionable";
+    if (input.optionality === "deprecated") return "deprecated_route_visible";
+    if (input.optionality === "legacy_compat") return "unseen_legacy_compat_quiet";
     if (input.optionality === "manual") return "unseen_manual_operator_action";
     if (input.optionality === "legacy") return "unseen_legacy_or_deprecated";
     if (input.optionality === "optional") return "unseen_optional_quiet";
@@ -65,6 +73,14 @@ function nextActionFor(status: RouteSampleFreshnessStatus, input: RouteSampleFre
             return `${input.routeKey} is manual/operator action only; do not score as live health.`;
         case "unseen_legacy_or_deprecated":
             return `${input.routeKey} is legacy/deprecated visible; keep separate from current health.`;
+        case "unseen_legacy_compat_quiet":
+            return `${input.routeKey} is legacy compatibility traffic; keep visible until the removal policy allows retirement.`;
+        case "source_ready_no_sample_loaded":
+            return `${input.routeKey} has source coverage but no runtime sample; keep metrics unavailable until sampled.`;
+        case "source_missing_actionable":
+            return `${input.routeKey} is missing source classification; add route contract evidence.`;
+        case "deprecated_route_visible":
+            return `${input.routeKey} is deprecated but still visible; do not score as live health.`;
         default:
             return `${input.routeKey} has current route evidence loaded.`;
     }

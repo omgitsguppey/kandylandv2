@@ -15,6 +15,8 @@ import {
     type RouteRuntimeSummaryTruth,
 } from "@/lib/route-runtime-health";
 import { buildRouteRuntimeCohortSummary } from "@/lib/debug/route-runtime-rollup-engine";
+import { classifyNoSampleRouteCohort } from "@/lib/debug/no-sample-route-cohort-classifier";
+import { buildNoSampleRouteDisplay } from "@/lib/debug/no-sample-route-display";
 
 /* ─── Helpers ─── */
 function formatRelative(timestamp?: number) {
@@ -160,6 +162,9 @@ export function DebugMonitoringRoutes({
                             const resultTruthState = sampleIsStale ? "stale" : truthForRouteRuntimeHealthState(truth.lastResult);
                             const loadedTruthState = sampleIsStale ? "stale" : "live";
                             const loadedBadge = sampleIsStale ? "STALE SAMPLE" : "LOADED";
+                            const noSampleDisplay = truth.hasSample ? null : buildNoSampleRouteDisplay(classifyNoSampleRouteCohort(entry.key));
+                            const noSampleTruthState = noSampleDisplay ? noSampleDisplay.truthState : undefined;
+                            const noSampleBadge = noSampleDisplay?.badge;
                             return (
                                 <div
                                     key={entry.key}
@@ -184,12 +189,12 @@ export function DebugMonitoringRoutes({
                                             <p className="text-xs text-gray-400">{entry.routeName} | {entry.method} | {formatRelative(entry.updatedAtMs)}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Status" value={truth.status === "healthy_with_history" && truth.latency.latencyState === "review" ? "healthy with latency review" : truth.status} tone={toneForRouteRuntimeHealthState(truth.status)} truthState={truthForRouteRuntimeHealthState(truth.status)} />
-                                            <Pill label="Coverage" value={coverageState} tone={coverageState === "observed" ? "good" : "warn"} />
-                                            <Pill label="Freshness" value={freshness} tone={freshness === "fresh" ? "good" : freshness === "stale" ? "warn" : "neutral"} truthState={truthForRouteRuntimeHealthState(truth.freshness)} />
-                                            <Pill label="Cluster" value={getRouteRuntimeHealthCluster(entry.key) === "native_chat" ? "native chat" : getRouteRuntimeHealthCluster(entry.key) === "compatibility_chat" ? "compatibility" : "other"} truthState="live" badgeLabel="INFO" />
-                                            <Pill label="Risk" value={truth.routeRiskClass} tone={truth.routeRiskClass === "critical" || truth.routeRiskClass === "high" ? "warn" : "neutral"} truthState={truth.routeRiskClass === "optional" || truth.routeRiskClass === "legacy" ? "live" : "degraded"} badgeLabel={truth.routeRiskClass.toUpperCase()} />
-                                            <Pill label="Last result" value={truth.lastResult === "no_sample" ? "No sample" : truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={resultTruthState} badgeLabel={sampleIsStale ? "STALE SAMPLE" : undefined} />
+                                            <Pill label="Status" value={truth.status === "healthy_with_history" && truth.latency.latencyState === "review" ? "healthy with latency review" : truth.status} tone={toneForRouteRuntimeHealthState(truth.status)} truthState={noSampleTruthState ?? truthForRouteRuntimeHealthState(truth.status)} badgeLabel={noSampleBadge} />
+                                            <Pill label="Coverage" value={coverageState} tone={coverageState === "observed" ? "good" : "warn"} truthState={noSampleTruthState} badgeLabel={noSampleBadge} />
+                                            <Pill label="Freshness" value={freshness} tone={freshness === "fresh" ? "good" : freshness === "stale" ? "warn" : "neutral"} truthState={noSampleTruthState ?? truthForRouteRuntimeHealthState(truth.freshness)} badgeLabel={noSampleBadge} />
+                                            <Pill label="Cluster" value={getRouteRuntimeHealthCluster(entry.key) === "native_chat" ? "native chat" : getRouteRuntimeHealthCluster(entry.key) === "compatibility_chat" ? "compatibility" : "other"} truthState={noSampleTruthState ?? "live"} badgeLabel={noSampleBadge ?? "INFO"} />
+                                            <Pill label="Risk" value={truth.routeRiskClass} tone={truth.routeRiskClass === "critical" || truth.routeRiskClass === "high" ? "warn" : "neutral"} truthState={noSampleTruthState ?? (truth.routeRiskClass === "optional" || truth.routeRiskClass === "legacy" ? "live" : "degraded")} badgeLabel={noSampleBadge ?? truth.routeRiskClass.toUpperCase()} />
+                                            <Pill label="Last result" value={truth.lastResult === "no_sample" ? "No sample" : truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={noSampleTruthState ?? resultTruthState} badgeLabel={noSampleBadge ?? (sampleIsStale ? "STALE SAMPLE" : undefined)} />
                                         </div>
                                     </div>
                                     {truth.hasSample ? (
@@ -224,7 +229,7 @@ export function DebugMonitoringRoutes({
                                     )}
                                     <p className="text-xs text-gray-400">
                                         {coverageState === "unseen"
-                                            ? "No runtime sample has been recorded; metrics are unavailable, not zero."
+                                            ? noSampleDisplay?.copy ?? "No runtime sample has been recorded. Metrics are unavailable, not zero."
                                             : freshness === "stale"
                                                 ? `Last sample ${formatRelative(entry.updatedAtMs)}. This route needs a fresh runtime sample before the lane can be treated as current.`
                                                 : `Slow threshold ${entry.slowThresholdMs ?? 0}ms. Last success ${formatRelative(entry.lastSuccessAtMs)}. Last server error ${formatRelative(entry.lastServerErrorAtMs)}. ${truth.stateReasons.join(" ")}`}

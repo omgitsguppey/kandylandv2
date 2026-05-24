@@ -1,6 +1,6 @@
 {
   "reportKey": "debug-cockpit-batch20-stale-route-sweep",
-  "generatedAtUtc": "2026-05-24T22:10:30.846Z",
+  "generatedAtUtc": "2026-05-24T22:31:12.565Z",
   "staleRoutesBefore": 5,
   "staleRoutesAfter": 5,
   "noSampleRoutesBefore": 1,
