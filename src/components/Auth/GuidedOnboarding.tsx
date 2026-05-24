@@ -108,7 +108,7 @@ export function GuidedOnboarding() {
     }), []);
 
     const sendCanonicalProgressEvent = useCallback(async (
-        eventName: "guided_onboarding_started" | "guided_onboarding_step_started" | "guided_onboarding_step_completed",
+        eventName: "guided_onboarding_started" | "guided_onboarding_step_started" | "guided_onboarding_step_completed" | "onboarding_step_viewed",
         dedupeKey: string,
         payload: Record<string, string | number | boolean>,
     ) => {
@@ -286,7 +286,24 @@ export function GuidedOnboarding() {
             step_title: step.title,
             step_path: step.path,
         });
-    }, [currentStep, isVisible, pathname]);
+
+        const startedAtMs = Date.now();
+        const registrationMethod = user?.providerData[0]?.providerId === "google.com" ? "google" : "email";
+        void sendCanonicalProgressEvent(
+            "onboarding_step_viewed",
+            `step-view:${flowStartedAtRef.current}:${step.id}:${startedAtMs}`,
+            {
+                flowStartedAtMs: flowStartedAtRef.current,
+                stepId: step.id,
+                stepIndex: currentStep + 1,
+                stepTitle: step.title,
+                stepPath: step.path,
+                startedAtMs,
+                registrationMethod,
+                ...buildViewportPayload(),
+            }
+        );
+    }, [buildViewportPayload, currentStep, isVisible, pathname, sendCanonicalProgressEvent, user]);
 
     const isNotificationStepCompleted = useMemo(
         () => profile?.notificationSettings?.browserPushEnabled === true,

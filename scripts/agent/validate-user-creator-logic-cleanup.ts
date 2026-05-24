@@ -184,9 +184,9 @@ export function buildUserCreatorLogicCleanupReport(): UserCreatorLogicCleanupRep
     && splitSources.includes('data-fan-pass-crm="mobile_v1"')
     && read("src/components/Creators/FanPassSubscriberRow.tsx").includes('data-raw-user-id-hidden="true"')
     && !`${splitSources}\n${read("src/components/Creators/CreatorFanPassManager.tsx")}`.includes("subscription.userId || subscription.id");
-  const broadcastAudienceConsolidated = splitSources.includes('data-broadcast-audience="all_fans"')
-    && splitSources.includes("Audience: Fans")
-    && !/all followers|Tell followers|Broadcast sent to followers|for followers/iu.test(splitSources);
+  const broadcastAudienceConsolidated = splitSources.includes('data-broadcast-audience="followers"')
+    && splitSources.includes("Audience: Followers")
+    && !/all fans|Tell fans|Broadcast sent to fans|for fans/iu.test(splitSources);
   const staleLandingLogicRemoved = includesAll(`${oldLandingValidator}\n${oldLandingTest}\n${oldLandingDoc}`, [
     'CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"',
     'CREATOR_DROP_ROUTE_STATE = "creator_submission"',
@@ -213,7 +213,7 @@ export function buildUserCreatorLogicCleanupReport(): UserCreatorLogicCleanupRep
   ];
   const crmFindings = [
     finding("fan-pass-crm-consolidated", "p1", "src/components/Dashboard/creator-workspace/CreatorFanPassCrmPanel.tsx", "Fan Pass CRM uses the shared readable subscriber row.", fanPassCrmConsolidated),
-    finding("broadcast-audience-consolidated", "p1", "src/components/Dashboard/creator-workspace/CreatorBroadcastCard.tsx", "Broadcast audience copy and marker stay explicit as Fans/all_fans.", broadcastAudienceConsolidated),
+    finding("broadcast-audience-consolidated", "p1", "src/components/Dashboard/creator-workspace/CreatorBroadcastCard.tsx", "Broadcast audience copy and marker stay explicit as Followers/followers.", broadcastAudienceConsolidated),
   ];
   const allFindings = [...splitFindings, ...staleLogicRemoved, ...routeFindings, ...crmFindings];
 

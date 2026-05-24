@@ -14,7 +14,7 @@ describe("analytics action taxonomy", () => {
       "daily_checkin_claimed",
       "drop_viewed",
       "drop_preview_opened",
-      "drop_unwrapped",
+      "drop_unlocked",
       "file_viewed",
       "watch_session_completed",
       "gumdrops_purchased",
@@ -40,7 +40,7 @@ describe("analytics action taxonomy", () => {
       timestamp: 1000,
       userId: "user-1",
     })).toMatchObject({
-      actionName: "drop_unwrapped",
+      actionName: "drop_unlocked",
       userId: "user-1",
       sessionId: "session-1",
       sourceComponent: "DropPreviewPage",
