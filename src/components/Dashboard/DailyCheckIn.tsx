@@ -10,7 +10,8 @@ import { useNow } from "@/hooks/useNow";
 import { authFetch } from "@/lib/authFetch";
 import { DAILY_CHECK_IN_REWARD_LADDER, getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { trackEvent } from "@/lib/telemetry";
-import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
+import { getCSTDateKey } from "@/lib/timezone";
+import { resolveTaskResetPolicy, explainTaskReset } from "@/lib/tasks/daily-task-reset";
 import { cn } from "@/lib/utils";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -55,16 +56,21 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
     const effectiveLastCheckInMs = optimisticCheckInMs ?? lastCheckInMs;
     const effectiveCurrentStreak = optimisticStreak ?? currentStreak;
 
-    const { endOfDay } = useMemo(
-        () => (nowMs > 0 ? getCSTDayBoundaries(nowMs) : { endOfDay: 0 }),
-        [nowMs],
-    );
     const checkInProgress = useMemo(
         () => getDailyCheckInProgress(effectiveLastCheckInMs, effectiveCurrentStreak, nowMs),
         [effectiveCurrentStreak, effectiveLastCheckInMs, nowMs],
     );
     const isClaimedToday = checkInProgress.isClaimedToday;
-    const nextCheckInMs = isClaimedToday ? endOfDay : 0;
+    const resetResolution = useMemo(
+        () => resolveTaskResetPolicy({
+            taskId: "check_in_today",
+            completedAt: effectiveLastCheckInMs,
+            nowMs,
+        }),
+        [effectiveLastCheckInMs, nowMs],
+    );
+    const resetExplanation = useMemo(() => explainTaskReset(resetResolution), [resetResolution]);
+    const nextCheckInMs = isClaimedToday ? resetResolution.nextEligibleAt ?? 0 : 0;
 
     useEffect(() => {
         setOptimisticCheckInMs(null);
@@ -104,6 +110,11 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 lastCheckIn?: number;
                 gumDropsBalance?: number | null;
                 dailyTasksState?: DailyTasksState | null;
+                nextEligibleAt?: number | null;
+                resetPolicy?: string;
+                rewardSource?: "reward_gd_only";
+                eligibilityExplanation?: string;
+                failureReason?: string;
             };
 
             if (!response.ok) {
@@ -111,7 +122,9 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                     setOptimisticCheckInMs(Number.isFinite(result.lastCheckIn) ? Math.floor(Number(result.lastCheckIn)) : Date.now());
                     setOptimisticStreak(Number.isFinite(result.streak) ? Math.max(0, Number(result.streak)) : Number(currentStreak || 0));
                     emitGuidedCheckIn("already-claimed");
-                    toast.info("Already claimed today!");
+                    toast.info("Already claimed today", {
+                        description: result.eligibilityExplanation || "Your next Reward GD claim unlocks at the daily reset.",
+                    });
                     return;
                 }
 
@@ -139,7 +152,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
             ));
             dispatchActivitySync();
 
-            toast.success(`Claimed ${reward} Gum Drops!`, {
+            toast.success(`Claimed ${reward} Reward GD!`, {
                 description: "Your balance will update in a moment.",
             });
 
@@ -163,6 +176,8 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 streak_count: streak,
                 reward_gd: reward,
                 gum_drops_awarded: reward,
+                reward_source: "reward_gd_only",
+                reset_policy: result.resetPolicy ?? resetResolution.resetPolicy,
                 day_key: getCSTDateKey(claimedAt),
                 transaction_id: `${user?.uid ?? "user"}:checkin:${claimedAt}`,
                 sourceTruth: "client_supporting",
@@ -246,7 +261,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                     isExperiencesVariant ? "mb-3 p-2.5 sm:px-4 sm:py-2.5" : "mb-5 p-3 sm:mb-6 sm:px-5 sm:py-3",
                 )}>
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Gum Drops</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Reward GD</span>
                         <CompactNumber value={userProfile?.gumDropsBalance || 0} className={cn("font-black text-brand-purple", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")} />
                     </div>
                     <div className="h-8 w-px bg-white/10" />
@@ -265,7 +280,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
 
                 <div className={cn(isExperiencesVariant ? "mb-3" : "mb-5 sm:mb-6")}>
                     <h2 className={cn("font-bold text-white flex items-center gap-2", isExperiencesVariant ? "text-lg sm:text-xl" : "text-xl sm:text-2xl")}>
-                        <Gift className={cn("text-brand-purple", isExperiencesVariant ? "h-5 w-5" : "w-5 h-5 sm:w-6 sm:h-6")} /> Daily Rewards
+                        <Gift className={cn("text-brand-purple", isExperiencesVariant ? "h-5 w-5" : "w-5 h-5 sm:w-6 sm:h-6")} /> Daily Reward GD
                     </h2>
                 </div>
 
@@ -296,7 +311,10 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 </div>
 
                 <p className={cn("text-sm font-medium text-gray-300", isExperiencesVariant ? "mb-3" : "mb-6")}>
-                    {canCheckIn ? "You can check in now." : `Next check-in available in ${formatCountdown(remainingMs)}`}
+                    {canCheckIn
+                        ? "You can check in now for Reward GD."
+                        : `Locked until the Central-time daily reset. Next check-in available in ${formatCountdown(remainingMs)}.`}
+                    <span className="block pt-1 text-xs text-gray-500">{resetExplanation}</span>
                 </p>
 
                 {!canCheckIn ? (
@@ -305,7 +323,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                         isExperiencesVariant ? "min-h-12 px-3 py-3 text-sm" : "py-4",
                     )}>
                         <CheckCircle className="w-5 h-5 text-brand-purple" />
-                        Come back tomorrow for {nextRewardAmount} Drops!
+                        Come back after reset for {nextRewardAmount} Reward GD.
                     </div>
                 ) : (
                     <Button
@@ -322,7 +340,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
-                            <>Claim <span className="text-white mx-1">{rewardAmount}</span> Gum Drops</>
+                            <>Claim <span className="text-white mx-1">{rewardAmount}</span> Reward GD</>
                         )}
                     </Button>
                 )}

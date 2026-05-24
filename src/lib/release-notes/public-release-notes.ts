@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.5",
-  "betaReleaseCounter": 405,
+  "currentVersion": "1.4.6",
+  "betaReleaseCounter": 406,
   "channel": "beta",
-  "generatedAt": "2026-05-23T23:00:00.000Z",
-  "generatedAtUtc": "2026-05-23T23:00:00.000Z",
+  "generatedAt": "2026-05-24T02:35:00.000Z",
+  "generatedAtUtc": "2026-05-24T02:35:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.6",
+      "previousVersion": "1.4.5",
+      "betaReleaseCounter": 406,
+      "previousBetaReleaseCounter": 405,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(tasks): lock daily reset truth",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T02:35:00.000Z",
+      "generatedAt": "2026-05-24T02:35:00.000Z",
+      "committedAtUtc": "2026-05-24T02:35:00.000Z",
+      "generatedAtUtc": "2026-05-24T02:35:00.000Z",
+      "updatedAtUtc": "2026-05-24T02:35:00.000Z",
+      "category": "Improved",
+      "title": "Daily task reset truth",
+      "summary": "Clarified daily task eligibility, Central-time reset timing, duplicate reward protection, reward-GD source truth, and debug visibility without changing paid GumDrop math or payment runtime.",
+      "userFacingTitle": "Daily task reset truth",
+      "surfaceCategory": "Daily tasks",
+      "bullets": [
+        "Clarified daily task eligibility, reset timing, and reward-GD source.",
+        "Prevented duplicate daily reward claims.",
+        "Connected daily task reset health to debug."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added daily task reset contracts, explicit calendar-day reset helpers, check-in route/UI wiring, debug summary coverage, generated validation, and unit tests while keeping reward GumDrops separate from paid GumDrops."
+      ],
+      "affectedSurfaces": [
+        "Daily tasks",
+        "Check-in",
+        "Admin debug",
+        "Telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/daily-task-reset-truth.generated.json",
+        "docs/agent-truth/daily-task-reset-truth.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-daily-task-reset-truth.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/checkin/route.ts",
+        "src/components/Dashboard/DailyCheckIn.tsx",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "src/lib/tasks/daily-task-contract.ts",
+        "src/lib/tasks/daily-task-reset.ts",
+        "tests/unit/daily-task-reset-truth.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.5",
       "previousVersion": "1.4.4",
@@ -1354,72 +1411,13 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/person-metrics-contract.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.3.81",
-      "previousVersion": "1.3.80",
-      "betaReleaseCounter": 381,
-      "previousBetaReleaseCounter": 380,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(admin): simplify tracking debug panel",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-22T22:55:00.000Z",
-      "generatedAt": "2026-05-22T22:55:00.000Z",
-      "committedAtUtc": "2026-05-22T22:55:00.000Z",
-      "generatedAtUtc": "2026-05-22T22:55:00.000Z",
-      "updatedAtUtc": "2026-05-22T22:55:00.000Z",
-      "category": "Improved",
-      "title": "Debug tracking panel simplification",
-      "summary": "Simplified the tracking health view into clear identity, consent, event, behavior, feature coverage, legacy, wallet, runtime, cost, and backlog lanes.",
-      "userFacingTitle": "Debug tracking panel simplification",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Simplified debug tracking panels into clear summary lanes.",
-        "Collapsed duplicate telemetry and identity monitors.",
-        "Kept raw debug details behind drilldowns."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the debug tracking summary model, admin debug panel component, compact API summary field, generated evidence, validator, and unit coverage without touching user, creator, chat, or navigation runtime."
-      ],
-      "affectedSurfaces": [
-        "Admin debug",
-        "Analytics",
-        "Privacy"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-backlog-engine.generated.json",
-        "agent/state/debug-tracking-simplification.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/debug-backlog-engine.md",
-        "docs/agent-truth/debug-tracking-simplification.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-debug-tracking-simplification.ts",
-        "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/app/api/admin/debug/route.ts",
-        "src/lib/debug/debug-backlog-builder.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-debug/summary.ts",
-        "tests/unit/debug-tracking-simplification.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion;
-
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
-  betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,
   appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
+  betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,
   releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
 } as const;

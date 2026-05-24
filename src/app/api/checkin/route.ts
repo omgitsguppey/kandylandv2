@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
+import { getCSTDateKey } from "@/lib/timezone";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
+import { preventDuplicateRewardClaim, resolveTaskResetPolicy, explainTaskReset } from "@/lib/tasks/daily-task-reset";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
@@ -62,20 +63,31 @@ export async function POST(request: NextRequest) {
                     : caller?.email || userId;
             const now = Date.now();
             const lastCheckIn = userData.lastCheckIn || 0;
-            // 2. Check if already claimed today (CST day boundaries)
-            const { endOfDay } = getCSTDayBoundaries(now);
+            const resetResolution = resolveTaskResetPolicy({
+                taskId: "check_in_today",
+                completedAt: lastCheckIn,
+                nowMs: now,
+            });
+            const duplicateGuard = preventDuplicateRewardClaim({
+                taskId: "check_in_today",
+                completedAt: lastCheckIn,
+                nowMs: now,
+            });
             const progress = getDailyCheckInProgress(lastCheckIn, userData.streakCount || 0, now);
             const sourceAwareBalance = readSourceAwareBalance(userData);
             const currentBalance = sourceAwareBalance.total;
 
-            if (progress.isClaimedToday && progress.lastCheckInMs > 0) {
+            if (!duplicateGuard.allowed && progress.lastCheckInMs > 0) {
                 return {
                     alreadyClaimed: true,
                     reward: 0,
                     nextStreak: progress.activeStreak,
                     lastCheckIn: progress.lastCheckInMs,
-                    nextCheckInAt: endOfDay,
+                    nextCheckInAt: duplicateGuard.nextEligibleAt ?? resetResolution.nextEligibleAt,
                     newBalance: currentBalance,
+                    resetPolicy: resetResolution.resetPolicy,
+                    rewardSource: duplicateGuard.rewardSource,
+                    eligibilityExplanation: duplicateGuard.explanation,
                 };
             }
 
@@ -109,9 +121,16 @@ export async function POST(request: NextRequest) {
                     reward,
                     nextStreak,
                     lastCheckIn: now,
-                    nextCheckInAt: endOfDay,
+                    nextCheckInAt: resolveTaskResetPolicy({
+                        taskId: "check_in_today",
+                        completedAt: now,
+                        nowMs: now,
+                    }).nextEligibleAt,
                     newBalance,
                     username,
+                    resetPolicy: resetResolution.resetPolicy,
+                    rewardSource: "reward_gd_only" as const,
+                    eligibilityExplanation: explainTaskReset(resetResolution),
                 };
         });
 
@@ -122,6 +141,11 @@ export async function POST(request: NextRequest) {
                 streak: result.nextStreak,
                 lastCheckIn: result.lastCheckIn,
                 nextCheckInAt: result.nextCheckInAt,
+                nextEligibleAt: result.nextCheckInAt,
+                resetPolicy: result.resetPolicy,
+                rewardSource: result.rewardSource,
+                eligibilityExplanation: result.eligibilityExplanation,
+                failureReason: "duplicate_within_reset_window",
             }, { status: 409 }));
         }
 
@@ -163,6 +187,10 @@ export async function POST(request: NextRequest) {
             streak: result.nextStreak,
             lastCheckIn: result.lastCheckIn,
             nextCheckInAt: result.nextCheckInAt,
+            nextEligibleAt: result.nextCheckInAt,
+            resetPolicy: result.resetPolicy,
+            rewardSource: result.rewardSource,
+            eligibilityExplanation: result.eligibilityExplanation,
             gumDropsBalance: Number.isFinite(updatedUserData.gumDropsBalance)
                 ? Number(updatedUserData.gumDropsBalance)
                 : result.newBalance,

@@ -7,6 +7,7 @@ import {
 } from "@/lib/debug/actionable-signal-filter";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
+import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
@@ -21,6 +22,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "settings_health",
   "legacy_recovery",
   "wallet_funnel",
+  "daily_tasks_reset",
   "chat_gating_moderation",
   "chat_telemetry_admin_truth",
   "runtime_debug_evidence",
@@ -88,6 +90,7 @@ const TRACKING_GROUPS = [
   "settings",
   "legacy_recovery",
   "wallet_funnel",
+  "daily_tasks_reset",
   "chat_gating_moderation",
   "chat_telemetry_admin_truth",
   "runtime_debug",
@@ -199,6 +202,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const behaviorStatus = toStatus(input.behavioralSnapshotStatus?.status);
   const legacyStatus = toStatus(input.legacyRecovery?.status);
   const walletCount = toNumber(input.stats?.receiptsLast7d ?? input.recentTransactions?.length);
+  const dailyTasksReset = input.dailyTasksResetTruth?.debugLane ?? buildDailyTaskDebugLane();
   const chatGating = input.chatGatingModeration?.debugLane ?? buildChatGatingDebugLane();
   const chatGatingBlocked = toNumber(chatGating.blockedAttempts);
   const chatTelemetry = input.chatTelemetryAdminTruth?.summaryLane ?? buildChatAdminTelemetrySummaryLane();
@@ -389,6 +393,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: walletCount > 0 ? 0 : 1,
       drilldownTarget: "/admin/debug?tab=monitoring#wallet-funnel",
+    }),
+    makeLane({
+      id: "daily_tasks_reset",
+      label: "Daily tasks/reset",
+      trackingSystem: "daily_tasks_reset",
+      sourceOwner: "retention",
+      sourceOfTruth: "src/lib/tasks/daily-task-contract.ts",
+      status: dailyTasksReset.duplicateClaimGuard && dailyTasksReset.rewardSourceTruth === "reward_gd_only" ? "live" : "degraded",
+      severity: severityFromCounts(0, dailyTasksReset.duplicateClaimGuard ? 0 : 1, dailyTasksReset.duplicateClaimGuard ? "live" : "degraded"),
+      scoreImpact: "medium",
+      primarySignal: `Reset=${dailyTasksReset.resetPolicy}; anchor=${dailyTasksReset.resetAnchor}; rewardSource=${dailyTasksReset.rewardSourceTruth}; duplicateGuard=${String(dailyTasksReset.duplicateClaimGuard)}; failures=${toNumber(dailyTasksReset.failureCount)}; unknownLegacy=${toNumber(dailyTasksReset.unknownLegacyCount)}.`,
+      criticalCount: 0,
+      warningCount: dailyTasksReset.duplicateClaimGuard ? 0 : 1,
+      drilldownTarget: "/admin/debug?tab=advanced#daily-tasks-reset",
     }),
     makeLane({
       id: "chat_gating_moderation",

@@ -48,6 +48,7 @@ import { buildLegacyRecoveryDebugSummary } from "@/lib/server/admin-debug/legacy
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
+import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
@@ -6615,6 +6616,9 @@ export async function GET(request: NextRequest) {
             chatTelemetryAdminTruth: {
                 summaryLane: buildChatAdminTelemetrySummaryLane(),
             },
+            dailyTasksResetTruth: {
+                debugLane: buildDailyTaskDebugLane(),
+            },
             legacyRecovery: buildLegacyRecoveryDebugSummary(),
             trackingSummary: buildDebugPanelTrackingSummary({
                 ["identity" + "Handoff"]: buildIdentityHandoffDebugSummary(),
@@ -6625,6 +6629,9 @@ export async function GET(request: NextRequest) {
                     personMetricsHydration: buildPersonMetricsHydrationReport(),
                 }),
                 telemetryTriggerTestMatrix: buildTelemetryTriggerTestMatrixReport(),
+                dailyTasksResetTruth: {
+                    debugLane: buildDailyTaskDebugLane(),
+                },
                 chatGatingModeration: {
                     debugLane: buildChatGatingDebugLane(),
                 },
