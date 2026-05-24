@@ -1,8 +1,8 @@
 # Telemetry Trigger Test Matrix
 
-Generated: 2026-05-24T07:39:13.397Z
+Generated: 2026-05-24T10:12:47.685Z
 Status: pass
-Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
+Current head: 31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e
 
 ## Contract
 
@@ -68,7 +68,7 @@ Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
 - creator_drop_manager_action: creator drop manager -> creator_drop_submitted -> creator_drop_manager_actions -> Testing coverage -> sourceHealth; status=covered
 - broadcast_view: creator broadcast detail -> creator_broadcast_detail_viewed -> broadcasts_viewed -> Testing coverage -> evidenceCompleteness; status=covered
 - fan_pass_view: Fan Pass panel -> creator_fan_pass_viewed -> fan_pass_views -> Testing coverage -> runtimeHealth; status=covered
-- runtime_watch_session: viewer runtime -> watch_session_progress -> runtime_watch_sessions -> Testing coverage -> runtimeHealth; status=covered
+- runtime_watch_session: viewer runtime -> drop_watch_progress -> runtime_watch_sessions -> Testing coverage -> runtimeHealth; status=covered
 
 ## Score Impact
 
@@ -86,41 +86,33 @@ Current head: 8feac3472ec6fc81893d449c93af6d1c3316bcbd
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-tracking-simplification.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/drop-watch-time-accuracy.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/notification-permission-lifecycle.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/notification-pwa-score-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/notification-targeting-intent.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/push-token-registration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/pwa-service-worker-safety.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/telemetry-trigger-test-matrix.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/debug-tracking-simplification.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/drop-watch-time-accuracy.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/notification-permission-lifecycle.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/notification-pwa-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/notification-targeting-intent.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/feature-registration-gate.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/push-token-registration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/pwa-service-worker-safety.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/telemetry-trigger-test-matrix.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-notification-permission-lifecycle.ts: validator_artifact_expected
-- scripts/agent/validate-notification-pwa-score-lock.ts: validator_artifact_expected
-- scripts/agent/validate-notification-targeting-intent.ts: validator_artifact_expected
-- scripts/agent/validate-push-token-registration.ts: validator_artifact_expected
-- scripts/agent/validate-pwa-service-worker-safety.ts: validator_artifact_expected
+- scripts/agent/validate-drop-watch-time-accuracy.ts: validator_artifact_expected
+- src/hooks/useViewerWatchSession.ts: real_source_change_needs_review
+- src/lib/analytics/drop-watch-time-contract.ts: real_source_change_needs_review
+- src/lib/analytics/drop-watch-time-engine.ts: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
+- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- src/lib/telemetry-catalog.ts: real_source_change_needs_review
 - src/lib/testing/telemetry-trigger-test-matrix.ts: real_source_change_needs_review
-- tests/unit/notification-pwa-score-lock.spec.ts: test_artifact_expected
+- tests/unit/drop-watch-time-accuracy.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

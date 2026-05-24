@@ -221,7 +221,7 @@ export const TELEMETRY_TRIGGER_TEST_MATRIX: TelemetryTriggerTestMatrixRow[] = [
   row({ triggerId: "creator_drop_manager_action", family: "creator_drop_manager_action", featureId: "creator_drop_manager", sourceSurface: "creator drop manager", eventName: "creator_drop_submitted", consentMode: "minimal_analytics", materializerLane: "creator_drop_manager_materializer", scoreImpact: "sourceHealth.evidenceCompleteness", expectedPersonMetric: { metricId: "creator_drop_manager_actions", confidence: "exact" }, expectedScoreDimension: "sourceHealth" }),
   row({ triggerId: "broadcast_view", family: "broadcasts", featureId: "broadcasts", sourceSurface: "creator broadcast detail", eventName: "creator_broadcast_detail_viewed", consentMode: "minimal_analytics", materializerLane: "broadcast_materializer", scoreImpact: "sourceHealth.evidenceCompleteness", expectedPersonMetric: { metricId: "broadcasts_viewed", confidence: "exact" }, expectedScoreDimension: "evidenceCompleteness" }),
   row({ triggerId: "fan_pass_view", family: "fan_pass", featureId: "fan_pass", sourceSurface: "Fan Pass panel", eventName: "creator_fan_pass_viewed", consentMode: "minimal_analytics", materializerLane: "fan_pass_materializer", scoreImpact: "runtimeHealth.evidenceCompleteness", expectedPersonMetric: { metricId: "fan_pass_views", confidence: "exact" }, expectedScoreDimension: "runtimeHealth" }),
-  row({ triggerId: "runtime_watch_session", family: "runtime_watch", featureId: "behavior_tracking", sourceSurface: "viewer runtime", eventName: "watch_session_progress", consentMode: "full_behavioral", materializerLane: "drop_behavior_materializer", scoreImpact: "evidenceCompleteness.runtimeHealth", expectedPersonMetric: { metricId: "runtime_watch_sessions", confidence: "exact" }, expectedScoreDimension: "runtimeHealth" }),
+  row({ triggerId: "runtime_watch_session", family: "runtime_watch", featureId: "behavior_tracking", sourceSurface: "viewer runtime", eventName: "drop_watch_progress", consentMode: "full_behavioral", materializerLane: "drop_behavior_materializer", scoreImpact: "evidenceCompleteness.runtimeHealth", expectedPersonMetric: { metricId: "runtime_watch_sessions", confidence: "exact" }, expectedScoreDimension: "runtimeHealth" }),
 ];
 
 const SCORE_DIMENSIONS: PublicBetaHealthDimension[] = [
@@ -377,13 +377,16 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "agent/state/telemetry-trigger-test-matrix.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/drop-watch-time-accuracy.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/event-liveness-audit.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/future-activity-signal-reclassification.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/telemetry-trigger-test-matrix.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/drop-watch-time-accuracy.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/event-liveness-audit.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/future-activity-signal-reclassification.md") return "documentation_artifact_expected";
   if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
   if (normalized === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-drop-watch-time-accuracy.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-targeting-intent.ts") return "validator_artifact_expected";
@@ -404,6 +407,7 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "scripts/agent/validate-daily-task-guidance-route-audit.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/telemetry-trigger-test-matrix.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/drop-watch-time-accuracy.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/future-activity-signal-reclassification.spec.ts") return "test_artifact_expected";
@@ -418,6 +422,9 @@ export function classifyTelemetryTriggerTestDirtyFile(path: string): TelemetryTr
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/drop-watch-time-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/drop-watch-time-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/hooks/useViewerWatchSession.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/event-fact-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/event-fact-normalizer.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";

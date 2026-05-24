@@ -1,13 +1,13 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-05-24T09:44:16.917Z",
+  "generatedAtUtc": "2026-05-24T10:12:47.597Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeMetricsUsed": false,
   "debugLane": {
     "label": "Person metrics hydration",
-    "producersRegistered": 177,
+    "producersRegistered": 184,
     "producersConnected": 34,
     "eventEnvelopesHydrated": 47,
     "globalMetricsHydrated": 34,
@@ -642,7 +642,14 @@
         "watch_session_started",
         "watch_session_progress",
         "watch_session_ended",
-        "viewer_watch_checkpoint"
+        "viewer_watch_checkpoint",
+        "drop_watch_started",
+        "drop_watch_progress",
+        "drop_watch_completed",
+        "drop_watch_abandoned",
+        "drop_watch_hidden",
+        "drop_watch_replayed",
+        "drop_watch_duration_unavailable"
       ],
       "hydratedEventIds": [
         "person_metrics_validator:watch_session_started:30"
@@ -1299,13 +1306,20 @@
             "watch_session_started",
             "watch_session_progress",
             "watch_session_ended",
-            "viewer_watch_checkpoint"
+            "viewer_watch_checkpoint",
+            "drop_watch_started",
+            "drop_watch_progress",
+            "drop_watch_completed",
+            "drop_watch_abandoned",
+            "drop_watch_hidden",
+            "drop_watch_replayed",
+            "drop_watch_duration_unavailable"
           ],
           "hydratedEventIds": [
             "person_metrics_validator:watch_session_started:30"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint, drop_watch_started, drop_watch_progress, drop_watch_completed, drop_watch_abandoned, drop_watch_hidden, drop_watch_replayed, drop_watch_duration_unavailable."
         },
         "settings_actions": {
           "metricId": "settings_actions",
@@ -1867,11 +1881,18 @@
             "watch_session_started",
             "watch_session_progress",
             "watch_session_ended",
-            "viewer_watch_checkpoint"
+            "viewer_watch_checkpoint",
+            "drop_watch_started",
+            "drop_watch_progress",
+            "drop_watch_completed",
+            "drop_watch_abandoned",
+            "drop_watch_hidden",
+            "drop_watch_replayed",
+            "drop_watch_duration_unavailable"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint, drop_watch_started, drop_watch_progress, drop_watch_completed, drop_watch_abandoned, drop_watch_hidden, drop_watch_replayed, drop_watch_duration_unavailable."
         },
         "settings_actions": {
           "metricId": "settings_actions",
@@ -2496,13 +2517,20 @@
             "watch_session_started",
             "watch_session_progress",
             "watch_session_ended",
-            "viewer_watch_checkpoint"
+            "viewer_watch_checkpoint",
+            "drop_watch_started",
+            "drop_watch_progress",
+            "drop_watch_completed",
+            "drop_watch_abandoned",
+            "drop_watch_hidden",
+            "drop_watch_replayed",
+            "drop_watch_duration_unavailable"
           ],
           "hydratedEventIds": [
             "person_metrics_validator:watch_session_started:30"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint, drop_watch_started, drop_watch_progress, drop_watch_completed, drop_watch_abandoned, drop_watch_hidden, drop_watch_replayed, drop_watch_duration_unavailable."
         },
         "settings_actions": {
           "metricId": "settings_actions",
@@ -3064,11 +3092,18 @@
             "watch_session_started",
             "watch_session_progress",
             "watch_session_ended",
-            "viewer_watch_checkpoint"
+            "viewer_watch_checkpoint",
+            "drop_watch_started",
+            "drop_watch_progress",
+            "drop_watch_completed",
+            "drop_watch_abandoned",
+            "drop_watch_hidden",
+            "drop_watch_replayed",
+            "drop_watch_duration_unavailable"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint, drop_watch_started, drop_watch_progress, drop_watch_completed, drop_watch_abandoned, drop_watch_hidden, drop_watch_replayed, drop_watch_duration_unavailable."
         },
         "settings_actions": {
           "metricId": "settings_actions",
@@ -3630,11 +3665,18 @@
             "watch_session_started",
             "watch_session_progress",
             "watch_session_ended",
-            "viewer_watch_checkpoint"
+            "viewer_watch_checkpoint",
+            "drop_watch_started",
+            "drop_watch_progress",
+            "drop_watch_completed",
+            "drop_watch_abandoned",
+            "drop_watch_hidden",
+            "drop_watch_replayed",
+            "drop_watch_duration_unavailable"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint."
+          "missingSourceExplanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint, drop_watch_started, drop_watch_progress, drop_watch_completed, drop_watch_abandoned, drop_watch_hidden, drop_watch_replayed, drop_watch_duration_unavailable."
         },
         "settings_actions": {
           "metricId": "settings_actions",
@@ -3798,27 +3840,23 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f",
+  "currentHead": "31e63bcd84b39f29e01b21d3fb2d3770eb1bc60e",
   "dirtyFiles": [
     {
       "path": "CHANGELOG.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/activity-verification-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/drop-watch-time-accuracy.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/global-user-dedupe-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
@@ -3829,19 +3867,27 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -3853,11 +3899,19 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
+      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/analytics-action-taxonomy.ts",
+      "path": "src/hooks/useViewerWatchSession.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/drop-watch-time-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/drop-watch-time-engine.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3865,19 +3919,11 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/global-user-dedupe-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/global-user-dedupe-engine.ts",
+      "path": "src/lib/analytics/person-metrics-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/event-fact-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3897,7 +3943,15 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/global-user-dedupe-normalization.spec.ts",
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/drop-watch-time-accuracy.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

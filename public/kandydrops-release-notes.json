@@ -1,11 +1,79 @@
 {
-  "currentVersion": "1.4.25",
-  "betaReleaseCounter": 425,
+  "currentVersion": "1.4.26",
+  "betaReleaseCounter": 426,
   "channel": "beta",
-  "generatedAt": "2026-05-24T09:41:27.946Z",
-  "generatedAtUtc": "2026-05-24T09:41:27.946Z",
-  "lastCommitSha": "991e1848a9adf87ce6a97f95eb7e5f8bcfbfb49f",
+  "generatedAt": "2026-05-24T10:03:54.639Z",
+  "generatedAtUtc": "2026-05-24T10:03:54.639Z",
+  "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.26",
+      "previousVersion": "1.4.25",
+      "betaReleaseCounter": 426,
+      "previousBetaReleaseCounter": 425,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): improve drop watch time",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-24T10:03:54.639Z",
+      "generatedAt": "2026-05-24T10:03:54.639Z",
+      "committedAtUtc": "2026-05-24T10:03:54.639Z",
+      "generatedAtUtc": "2026-05-24T10:03:54.639Z",
+      "updatedAtUtc": "2026-05-24T10:03:54.639Z",
+      "category": "Improved",
+      "title": "Drop watch time accuracy",
+      "summary": "Improved drop watch time so engagement reflects active playback and visibility instead of passive page time.",
+      "userFacingTitle": "Drop watch time accuracy",
+      "surfaceCategory": "Drops & viewer",
+      "bullets": [
+        "Improved drop watch time accuracy with active playback and visibility rules.",
+        "Separated watch time from passive page time.",
+        "Added normalized watch percent and confidence labels."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "Drops & viewer",
+        "Analytics",
+        "Admin debug"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/drop-watch-time-accuracy.generated.json",
+        "agent/state/event-translation-bridge.generated.json",
+        "agent/state/feature-registration-gate.generated.json",
+        "agent/state/person-metrics-hydration.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/telemetry-trigger-test-matrix.generated.json",
+        "docs/agent-truth/drop-watch-time-accuracy.md",
+        "docs/agent-truth/event-translation-bridge.md",
+        "docs/agent-truth/feature-registration-gate.md",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "docs/agent-truth/telemetry-trigger-test-matrix.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-drop-watch-time-accuracy.ts",
+        "src/hooks/useViewerWatchSession.ts",
+        "src/lib/analytics/drop-watch-time-contract.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/testing/telemetry-trigger-test-matrix.ts",
+        "tests/unit/drop-watch-time-accuracy.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit",
+      "technicalDetails": [
+        "Added source-only drop watch time contracts, engine rules, debug reporting, validator coverage, and unit tests without changing GumDrop unlock math or payment runtime."
+      ]
+    },
     {
       "version": "1.4.25",
       "previousVersion": "1.4.24",
@@ -6182,54 +6250,6 @@
         "src/lib/release-notes/release-version-contract.ts",
         "src/lib/telemetry-catalog.ts",
         "tests/unit/chat-realtime-cost-control.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.1",
-      "previousVersion": "1.4.0",
-      "betaReleaseCounter": 401,
-      "previousBetaReleaseCounter": 400,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(debug): lock signal zero",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-23T21:10:00.000Z",
-      "generatedAt": "2026-05-23T21:10:00.000Z",
-      "committedAtUtc": "2026-05-23T21:10:00.000Z",
-      "generatedAtUtc": "2026-05-23T21:10:00.000Z",
-      "updatedAtUtc": "2026-05-23T21:10:00.000Z",
-      "category": "Improved",
-      "title": "Signal zero lock",
-      "summary": "Improved internal beta reliability by keeping future activity out of actionable debug noise.",
-      "userFacingTitle": "Signal zero lock",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked future activity signals out of actionable debug noise.",
-        "Reduced false waiting-on-activity and non-event score penalties to zero.",
-        "Reported score progress by dimension with exact next actions."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added the source-only final signal zero lock report, validator, and unit coverage without fake activity, production reads, payment changes, chat/nav changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Admin debug",
-        "Beta score",
-        "App reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/final-signal-zero-lock.generated.json",
-        "docs/agent-truth/final-signal-zero-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-signal-zero-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-signal-zero-lock.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

@@ -837,6 +837,17 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 idle_state: (payload.idleDurationSeconds ?? 0) > 0 ? "idle_excluded" : "active",
                 ...activeFileParams,
             });
+            trackEvent(payload.completedAssetCount > 0 ? "drop_watch_completed" : "drop_watch_abandoned", {
+                source_component: "viewer_watch_session",
+                route: payload.pagePath,
+                active_watch_ms: watchScore.validWatchMs,
+                passive_visible_ms: Math.max(0, Math.round((payload.totalVisibleSeconds - (payload.totalActiveSeconds ?? 0)) * 1000)),
+                background_ms: Math.round((payload.hiddenDurationSeconds ?? 0) * 1000),
+                normalized_watch_percent: Math.max(0, Math.min(100, payload.maxProgressPercent ?? 0)),
+                watch_confidence: (payload.totalPlayingSeconds ?? 0) > 0 ? "exact_media_runtime" : "active_visibility_estimated",
+                completion_reason: payload.closeReason ?? "closed",
+                ...activeFileParams,
+            });
             trackEvent("watch_score_computed", {
                 source_component: "viewer_watch_session",
                 route: payload.pagePath,
@@ -1017,6 +1028,39 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                     viewerSessionId: watchSessionIdRef.current ?? "",
                 }),
             });
+            trackEvent("drop_watch_progress", {
+                source_component: "viewer_watch_session",
+                route: pagePathRef.current,
+                active_watch_ms: Math.round((asset.totalWatchSeconds ?? 0) * 1000),
+                passive_visible_ms: Math.max(0, Math.round(((asset.totalVisibleSeconds ?? 0) - (asset.totalWatchSeconds ?? 0)) * 1000)),
+                background_ms: 0,
+                normalized_watch_percent: asset.maxProgressPercent ?? 0,
+                content_duration_ms: asset.durationSeconds ? Math.round(asset.durationSeconds * 1000) : null,
+                watch_confidence: asset.durationSeconds ? "exact_media_runtime" : "weak_visibility_only",
+                ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext() ?? {
+                    dropId: contextRef.current.dropId ?? "",
+                    fileId: `${contextRef.current.dropId ?? "drop"}:file:${contextRef.current.activeAssetIndex + 1}`,
+                    assetKey: `${contextRef.current.dropId ?? "drop"}:${contextRef.current.activeAssetIndex}`,
+                    mediaIndex: contextRef.current.activeAssetIndex + 1,
+                    mediaType: contextRef.current.activeContentKind,
+                    viewerSessionId: watchSessionIdRef.current ?? "",
+                }),
+            });
+            if (!asset.durationSeconds) {
+                trackEvent("drop_watch_duration_unavailable", {
+                    source_component: "viewer_watch_session",
+                    route: pagePathRef.current,
+                    watch_confidence: "weak_visibility_only",
+                    ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext() ?? {
+                        dropId: contextRef.current.dropId ?? "",
+                        fileId: `${contextRef.current.dropId ?? "drop"}:file:${contextRef.current.activeAssetIndex + 1}`,
+                        assetKey: `${contextRef.current.dropId ?? "drop"}:${contextRef.current.activeAssetIndex}`,
+                        mediaIndex: contextRef.current.activeAssetIndex + 1,
+                        mediaType: contextRef.current.activeContentKind,
+                        viewerSessionId: watchSessionIdRef.current ?? "",
+                    }),
+                });
+            }
         }
     }, [ensureAssetState, getCurrentFileTelemetryContext, markUserActivity, updateAssetState]);
 
@@ -1188,6 +1232,20 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                     viewerSessionId: watchSessionIdRef.current ?? "",
                 }),
             });
+            trackEvent("drop_watch_hidden", {
+                source_component: "viewer_watch_session",
+                route: pagePathRef.current,
+                document_visibility_state: "hidden",
+                background_ms: 0,
+                ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext() ?? {
+                    dropId: contextRef.current.dropId ?? "",
+                    fileId: `${contextRef.current.dropId ?? "drop"}:file:${contextRef.current.activeAssetIndex + 1}`,
+                    assetKey: `${contextRef.current.dropId ?? "drop"}:${contextRef.current.activeAssetIndex}`,
+                    mediaIndex: contextRef.current.activeAssetIndex + 1,
+                    mediaType: contextRef.current.activeContentKind,
+                    viewerSessionId: watchSessionIdRef.current ?? "",
+                }),
+            });
             void flushSessionRef.current("visibility_hidden", { keepalive: true });
         } else if (sessionMetadataRef.current.hiddenSinceMs) {
             sessionMetadataRef.current.hiddenDurationMs += Math.max(0, timestamp - sessionMetadataRef.current.hiddenSinceMs);
@@ -1316,6 +1374,23 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 viewerSessionId: nextWatchSessionId,
             }),
         });
+        trackEvent("drop_watch_started", {
+            source_component: "viewer_watch_session",
+            route: pagePathRef.current,
+            visible_started_at_ms: startedAtMs,
+            active_started_at_ms: startedAtMs,
+            active_watch_ms: 0,
+            passive_visible_ms: 0,
+            background_ms: 0,
+            ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext(nextWatchSessionId) ?? {
+                dropId: options.dropId,
+                fileId: `${options.dropId}:file:${options.activeAssetIndex + 1}`,
+                assetKey: `${options.dropId}:${options.activeAssetIndex}`,
+                mediaIndex: options.activeAssetIndex + 1,
+                mediaType: options.activeContentKind,
+                viewerSessionId: nextWatchSessionId,
+            }),
+        });
 
     }, [analyticsAllowed, canStartSession, getCurrentFileTelemetryContext, options.activeAssetIndex, options.activeContentKind, options.dropId, options.enabled, resetSessionState]);
 
@@ -1393,6 +1468,13 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             if (successfulIds.length > 0) {
                 clearPendingWatchSessions(successfulIds);
                 sessionMetadataRef.current.replayRecoveredCount += successfulIds.length;
+                trackEvent("drop_watch_replayed", {
+                    source_component: "viewer_watch_session",
+                    route: pagePathRef.current,
+                    replay_count: successfulIds.length,
+                    drop_id: options.dropId,
+                    watch_session_id: watchSessionIdRef.current ?? "",
+                });
             }
         })();
     }, [options.dropId, options.enabled]);

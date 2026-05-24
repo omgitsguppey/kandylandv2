@@ -382,6 +382,13 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "watch_session_resumed", label: "Watch session resumed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "watch_session_hidden", label: "Watch session hidden", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "watch_session_ended", label: "Watch session ended", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"], aliases: ["watch_session_completed"] },
+  { eventName: "drop_watch_started", label: "Drop watch started", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "drop_watch_progress", label: "Drop watch progress", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "drop_watch_completed", label: "Drop watch completed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "drop_watch_abandoned", label: "Drop watch abandoned", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "drop_watch_hidden", label: "Drop watch hidden", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "drop_watch_replayed", label: "Drop watch replayed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "drop_watch_duration_unavailable", label: "Drop watch duration unavailable", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
   { eventName: "watch_score_computed", label: "Watch score computed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
   { eventName: "file_viewed", label: "File viewed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"], aliases: ["viewer_asset_started", "viewer_asset_changed"] },
   { eventName: "viewer_asset_completed", label: "Viewer asset completed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
@@ -958,6 +965,13 @@ export const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [
   "watch_session_resumed",
   "watch_session_hidden",
   "watch_session_ended",
+  "drop_watch_started",
+  "drop_watch_progress",
+  "drop_watch_completed",
+  "drop_watch_abandoned",
+  "drop_watch_hidden",
+  "drop_watch_replayed",
+  "drop_watch_duration_unavailable",
   "watch_score_computed",
   "file_viewed",
   "viewer_asset_completed",
@@ -1358,7 +1372,7 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     return ["target_user_id|targetUserId", "target_creator_id|targetCreatorId"];
   }
 
-  if (eventName.startsWith("watch_session") || eventName === "watch_score_computed") {
+  if (eventName.startsWith("watch_session") || eventName.startsWith("drop_watch") || eventName === "watch_score_computed") {
     return ["drop_id|dropId", "watch_session_id|watchSessionId"];
   }
 

@@ -20,12 +20,14 @@ import { buildAuthProviderConflictDebugLane } from "@/lib/auth/auth-provider-con
 import { buildAuthPersistenceDebugLane } from "@/lib/auth/auth-persistence-contract";
 import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedupe-engine";
+import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "identity_handoff",
   "consent_tracking_mode",
   "event_envelope",
   "global_user_dedupe",
+  "drop_watch_time",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -106,6 +108,7 @@ const TRACKING_GROUPS = [
   "consent",
   "event_envelope",
   "global_user_dedupe",
+  "drop_watch_time",
   "event_translation_bridge",
   "event_liveness",
   "person_metrics_hydration",
@@ -182,6 +185,9 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const globalUserDedupeWarnings = toNumber(globalUserDedupeLane.globalUserMismatchCount)
     + (globalUserDedupeLane.sqlExportParityStatus === "mapped" ? 0 : 1)
     + (globalUserDedupeLane.linkedGuestUserDedupeHealth === "healthy" ? 0 : 1);
+  const dropWatchTimeLane = input.dropWatchTimeAccuracy?.debugLane ?? buildDropWatchTimeDebugLane();
+  const dropWatchTimeWarnings = toNumber(dropWatchTimeLane.durationMissingCount)
+    + toNumber(dropWatchTimeLane.suspiciousPageTimeFallbackCount);
   const eventBridge = input.eventTranslationBridge?.debugLane ?? {};
   const eventBridgeGaps = toNumber(eventBridge.gaps);
   const eventBridgeTranslated = toNumber(eventBridge.eventEnvelopesTranslated);
@@ -376,6 +382,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: globalUserDedupeWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#global-user-dedupe",
+    }),
+    makeLane({
+      id: "drop_watch_time",
+      label: "Drop watch time",
+      trackingSystem: "drop_watch_time",
+      sourceOwner: "viewer-runtime",
+      sourceOfTruth: "src/lib/analytics/drop-watch-time-engine.ts",
+      status: dropWatchTimeWarnings > 0 ? "degraded" : "live",
+      severity: severityFromCounts(0, dropWatchTimeWarnings, dropWatchTimeWarnings > 0 ? "degraded" : "live"),
+      scoreImpact: dropWatchTimeWarnings > 0 ? "medium" : "none",
+      primarySignal: `Exact media runtime=${toNumber(dropWatchTimeLane.exactMediaRuntimeCount)}; active visibility estimated=${toNumber(dropWatchTimeLane.activeVisibilityEstimatedCount)}; duration missing=${toNumber(dropWatchTimeLane.durationMissingCount)}; background excluded=${toNumber(dropWatchTimeLane.backgroundExcludedCount)}; page-time fallback=${toNumber(dropWatchTimeLane.suspiciousPageTimeFallbackCount)}.`,
+      criticalCount: 0,
+      warningCount: dropWatchTimeWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#drop-watch-time",
     }),
     makeLane({
       id: "event_translation_bridge",

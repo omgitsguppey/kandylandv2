@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.26 - 2026-05-24
+- Drop watch time accuracy
+- Improved drop watch time accuracy with active playback and visibility rules.
+- Separated watch time from passive page time.
+- Added normalized watch percent and confidence labels.
+
 ## 1.4.25 - 2026-05-24
 - Analytics dedupe normalization
 - Normalized global and user-level analytics deduplication.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Hardened chat realtime listener scope and cleanup.
 - Added chat message propagation telemetry.
 - Kept chat UI and payment/GumDrop logic unchanged.
-
-## 1.4.1 - 2026-05-23
-- Signal zero lock
-- Locked future activity signals out of actionable debug noise.
-- Reduced false waiting-on-activity and non-event score penalties to zero.
-- Reported score progress by dimension with exact next actions.
