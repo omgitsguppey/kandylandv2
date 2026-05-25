@@ -442,6 +442,20 @@ export function confidenceFromHydratedCount(count: number, confidence: IdentityC
 export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "agent/state/surface-telemetry-parity.generated.json" || normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/surface-telemetry-parity.md" || normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-surface-telemetry-parity.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/surface-telemetry-parity.spec.ts") return "test_artifact_expected";
+  if (/^src\/lib\/telemetry\/surface-telemetry-(catalog-events|contract|registry)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/lib/telemetry-catalog.ts" || normalized === "src/lib/analytics/event-envelope-builder.ts" || normalized === "src/lib/analytics/event-translation-bridge.ts" || normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (normalized === "agent/state/surface-parity-doctrine.generated.json" || normalized === "docs/agent-truth/surface-parity-doctrine.md") return "stale_generated_artifact_to_regenerate";
+  if (
+    normalized === "CHANGELOG.md"
+    || normalized === "public/kandydrops-release-notes.json"
+    || normalized === "src/lib/release-notes/public-release-notes.ts"
+    || normalized === "src/lib/release-notes/release-version-contract.ts"
+  ) return "release_artifact_expected";
+  if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (/^agent\/state\/(server-unlock-telemetry-emission|unlock-rollup-reconciliation|viewer-start-telemetry-repair|watch-capture-quality-threshold|watch-session-fact-link-repair|unlock-watch-validation-semantics|unlock-watch-journey-normalization|debug-cockpit-batch33-unlock-watch-parity)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^agent\/state\/(module-coverage-source-policy|module-source-mapping-engine|module-specific-mapping-repair|module-coverage-validator-semantics|module-coverage-ui-cleanup|debug-cockpit-batch34-module-coverage)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^docs\/agent-truth\/(module-coverage-source-policy|module-source-mapping-engine|module-specific-mapping-repair|module-coverage-validator-semantics|module-coverage-ui-cleanup|debug-cockpit-batch34-module-coverage)\.md$/u.test(normalized)) return "documentation_artifact_expected";

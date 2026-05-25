@@ -3,6 +3,7 @@ import {
   getTelemetryEventExtensionMetadata,
   normalizeTelemetryEventName,
 } from "@/lib/telemetry-catalog";
+import { getSurfaceTelemetryCatalogEventOverride } from "@/lib/telemetry/surface-telemetry-catalog-events";
 import { normalizeConsentMode } from "@/lib/privacy/consent-tracking-policy";
 import {
   buildEventIdentityEnvelope,
@@ -144,14 +145,15 @@ function buildUnregisteredDefaults(input: EventEnvelopeInput) {
 
 export function buildEventEnvelope(input: EventEnvelopeInput): CanonicalEventEnvelope {
   const metadata = getTelemetryEventExtensionMetadata(input.eventName);
+  const surfaceOverride = getSurfaceTelemetryCatalogEventOverride(normalizeTelemetryEventName(input.eventName));
   const defaults = metadata
     ? {
       eventName: metadata.eventName,
-      featureId: input.featureId ?? metadata.feature,
-      surface: input.surface ?? metadata.surface,
-      materializerLane: input.materializerLane ?? metadata.materializerLane,
-      debugVisibility: input.debugVisibility ?? metadata.debugVisibility,
-      scoreImpact: input.scoreImpact ?? metadata.scoreEvidenceImpact,
+      featureId: input.featureId ?? surfaceOverride?.featureId ?? metadata.feature,
+      surface: input.surface ?? surfaceOverride?.surfaceId ?? metadata.surface,
+      materializerLane: input.materializerLane ?? surfaceOverride?.materializerLane ?? metadata.materializerLane,
+      debugVisibility: input.debugVisibility ?? surfaceOverride?.debugVisibility ?? metadata.debugVisibility,
+      scoreImpact: input.scoreImpact ?? surfaceOverride?.scoreEvidenceImpact ?? metadata.scoreEvidenceImpact,
     }
     : buildUnregisteredDefaults(input);
   const identityEnvelope = buildEventIdentityEnvelope({

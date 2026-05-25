@@ -1,11 +1,68 @@
 {
-  "currentVersion": "1.4.67",
-  "betaReleaseCounter": 467,
+  "currentVersion": "1.4.68",
+  "betaReleaseCounter": 468,
   "channel": "beta",
-  "generatedAt": "2026-05-25T20:47:18.746Z",
-  "generatedAtUtc": "2026-05-25T20:47:18.746Z",
+  "generatedAt": "2026-05-25T21:07:32.979Z",
+  "generatedAtUtc": "2026-05-25T21:07:32.979Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.68",
+      "previousVersion": "1.4.67",
+      "betaReleaseCounter": 468,
+      "previousBetaReleaseCounter": 467,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(telemetry): standardize surface events",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T21:07:32.979Z",
+      "generatedAt": "2026-05-25T21:07:32.979Z",
+      "committedAtUtc": "2026-05-25T21:07:32.979Z",
+      "generatedAtUtc": "2026-05-25T21:07:32.979Z",
+      "category": "Improved",
+      "title": "Surface telemetry parity",
+      "updatedAtUtc": "2026-05-25T21:07:32.979Z",
+      "summary": "Standardized telemetry events across major product surfaces.",
+      "userFacingTitle": "Surface telemetry parity",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Standardized telemetry events across major product surfaces.",
+        "Mapped surface state and action events into the canonical event envelope.",
+        "Grouped missing telemetry parity issues in debug."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical ten-event surface telemetry spine for the 17 registered major surfaces.",
+        "Registered generated surface events in the telemetry catalog and mapped them into canonical envelope, debug, feature activity, and source-ready person-metric classifications.",
+        "Added a deterministic surface telemetry parity validator, report, documentation, and unit coverage."
+      ],
+      "affectedSurfaces": [
+        "Public, user, creator, and admin surface telemetry",
+        "Telemetry catalog and event envelope mapping",
+        "Debug parity evidence and validation artifacts"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/telemetry/surface-telemetry-catalog-events.ts",
+        "src/lib/telemetry/surface-telemetry-contract.ts",
+        "src/lib/telemetry/surface-telemetry-registry.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/analytics/event-envelope-builder.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "scripts/agent/validate-surface-telemetry-parity.ts",
+        "tests/unit/surface-telemetry-parity.spec.ts",
+        "agent/state/surface-telemetry-parity.generated.json",
+        "docs/agent-truth/surface-telemetry-parity.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.67",
       "previousVersion": "1.4.66",
@@ -6666,59 +6723,6 @@
       ],
       "effectiveChangeCount": 12,
       "excludedGeneratedChangeCount": 7,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.43",
-      "previousVersion": "1.4.42",
-      "betaReleaseCounter": 443,
-      "previousBetaReleaseCounter": 442,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): refresh telemetry cost support lanes",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T20:35:00.000Z",
-      "generatedAt": "2026-05-24T20:35:00.000Z",
-      "committedAtUtc": "2026-05-24T20:35:00.000Z",
-      "generatedAtUtc": "2026-05-24T20:35:00.000Z",
-      "updatedAtUtc": "2026-05-24T20:35:00.000Z",
-      "category": "Improved",
-      "title": "Telemetry and support readiness refresh",
-      "summary": "Refreshed cost, telemetry, behavior, support, and creator readiness while keeping watch-time evidence gaps and monolith split plans explicit.",
-      "userFacingTitle": "Telemetry and support readiness refresh",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refreshed cost, telemetry, behavior, support, and creator readiness lanes.",
-        "Added watch-time truth evidence-gap reporting and Data Connect mirror safety classification.",
-        "Documented admin debug and admin analytics monolith split plans without unsafe broad refactors."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "App experience",
-        "Admin diagnostics",
-        "Creator tools",
-        "Support",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-cockpit-batch13-cleanup.generated.json",
-        "agent/state/cost-data-connect-refresh.generated.json",
-        "agent/state/telemetry-behavior-refresh.generated.json",
-        "agent/state/runtime-watch-time-evidence-gap.generated.json",
-        "agent/state/support-creator-refresh.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/debug-cockpit-batch13-shared.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "effectiveChangeCount": 11,
-      "excludedGeneratedChangeCount": 5,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

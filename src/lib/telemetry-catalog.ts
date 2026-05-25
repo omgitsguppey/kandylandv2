@@ -4,6 +4,7 @@ import {
   type BehaviorDebugVisibility,
   type BehaviorFeatureId,
 } from "@/lib/behavioral/behavior-feature-registry";
+import { SURFACE_TELEMETRY_CATALOG_EVENT_OPTIONS_TO_APPEND } from "@/lib/telemetry/surface-telemetry-catalog-events";
 
 export type TelemetryEventCategory =
   | "auth"
@@ -703,6 +704,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "recent_activity_page_changed", label: "Recent activity page changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "recent_activity_searched", label: "Recent activity searched", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "unlock_drop_failed", label: "Unlock drop failed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
+  ...(SURFACE_TELEMETRY_CATALOG_EVENT_OPTIONS_TO_APPEND as TelemetryEventOption[]),
 ];
 
 function buildTelemetryModuleEventNames(moduleKey: TelemetryModuleKey) {

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.68 - 2026-05-25
+- Surface telemetry parity
+- Standardized telemetry events across major product surfaces.
+- Mapped surface state and action events into the canonical event envelope.
+- Grouped missing telemetry parity issues in debug.
+
 ## 1.4.67 - 2026-05-25
 - Surface parity doctrine
 - Added canonical surface parity doctrine.

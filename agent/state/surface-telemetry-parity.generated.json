@@ -1,0 +1,757 @@
+{
+  "reportKey": "surface-telemetry-parity",
+  "generatedAtUtc": "2026-05-25T21:12:39.313Z",
+  "currentHead": "df944f3c195a9de60bc04dd85c694a073ad74e75",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "fakeEventsUsed": false,
+  "highFrequencyEventsAdded": false,
+  "majorSurfacesRegistered": 17,
+  "canonicalEventKinds": [
+    "surface_viewed",
+    "surface_loaded",
+    "surface_empty_viewed",
+    "surface_degraded_viewed",
+    "surface_error_viewed",
+    "surface_action_attempted",
+    "surface_action_succeeded",
+    "surface_action_failed",
+    "surface_permission_denied",
+    "surface_not_configured_viewed"
+  ],
+  "catalogEventsRegistered": 170,
+  "eventEnvelopeMappings": 170,
+  "actionTripletsRegistered": 17,
+  "debugLane": {
+    "label": "Surface telemetry parity",
+    "groupedMissingSurfaceEvents": {},
+    "eventsDebugVisible": 170
+  },
+  "scoreDimensionBeforeAfter": {
+    "before": "Major surfaces had telemetry names, states, and action outcomes registered unevenly across feature-specific validators.",
+    "after": "All major surfaces share one viewed/loaded/state/action/permission/not-configured event spine mapped into the canonical envelope and debug lane.",
+    "dimensions": [
+      "sourceHealth",
+      "runtimeHealth",
+      "evidenceCompleteness",
+      "regressionRisk"
+    ]
+  },
+  "surfaceScoreDimensionBeforeAfter": {
+    "public_homepage": {
+      "before": "Before parity cleanup, public_homepage telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "public_homepage now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "auth": {
+      "before": "Before parity cleanup, auth telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "auth now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "user_dashboard": {
+      "before": "Before parity cleanup, user_dashboard telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "user_dashboard now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "wallet_purchase_modal": {
+      "before": "Before parity cleanup, wallet_purchase_modal telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "wallet_purchase_modal now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "costRisk"
+      ]
+    },
+    "drops_library": {
+      "before": "Before parity cleanup, drops_library telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "drops_library now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "evidenceCompleteness"
+      ]
+    },
+    "creator_dashboard": {
+      "before": "Before parity cleanup, creator_dashboard telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "creator_dashboard now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "creator_settings": {
+      "before": "Before parity cleanup, creator_settings telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "creator_settings now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "creator_drop_manager": {
+      "before": "Before parity cleanup, creator_drop_manager telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "creator_drop_manager now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "creator_profile_timeline": {
+      "before": "Before parity cleanup, creator_profile_timeline telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "creator_profile_timeline now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "chat": {
+      "before": "Before parity cleanup, chat telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "chat now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "costRisk"
+      ]
+    },
+    "daily_tasks_checkin": {
+      "before": "Before parity cleanup, daily_tasks_checkin telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "daily_tasks_checkin now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "evidenceCompleteness"
+      ]
+    },
+    "notifications_pwa_prompt": {
+      "before": "Before parity cleanup, notifications_pwa_prompt telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "notifications_pwa_prompt now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "account_settings": {
+      "before": "Before parity cleanup, account_settings telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "account_settings now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "admin_dashboard": {
+      "before": "Before parity cleanup, admin_dashboard telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "admin_dashboard now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ]
+    },
+    "admin_debug": {
+      "before": "Before parity cleanup, admin_debug telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "admin_debug now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ]
+    },
+    "user_management": {
+      "before": "Before parity cleanup, user_management telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "user_management now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ]
+    },
+    "support_policies": {
+      "before": "Before parity cleanup, support_policies telemetry used surface-specific event names and did not guarantee the full state/action spine.",
+      "after": "support_policies now declares viewed, loaded, state, permission, configuration, and action triplet events through the canonical surface telemetry spine.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    }
+  },
+  "oldEventNameClassification": [
+    {
+      "eventName": "home_page_viewed",
+      "canonicalEventName": "public_homepage_surface_viewed",
+      "surfaceId": "public_homepage",
+      "status": "legacy_alias",
+      "reason": "home_page_viewed remains accepted as a legacy alias for public_homepage_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "hero_cta_clicked",
+      "canonicalEventName": "public_homepage_surface_action_attempted",
+      "surfaceId": "public_homepage",
+      "status": "legacy_alias",
+      "reason": "hero_cta_clicked remains accepted as a legacy alias for public_homepage_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "auth_surface_viewed",
+      "canonicalEventName": "auth_surface_viewed",
+      "surfaceId": "auth",
+      "status": "legacy_alias",
+      "reason": "auth_surface_viewed remains accepted as a legacy alias for auth_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "auth_modal_opened",
+      "canonicalEventName": "auth_surface_viewed",
+      "surfaceId": "auth",
+      "status": "legacy_alias",
+      "reason": "auth_modal_opened remains accepted as a legacy alias for auth_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "auth_attempt_started",
+      "canonicalEventName": "auth_surface_action_attempted",
+      "surfaceId": "auth",
+      "status": "legacy_alias",
+      "reason": "auth_attempt_started remains accepted as a legacy alias for auth_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "auth_attempt_succeeded",
+      "canonicalEventName": "auth_surface_action_succeeded",
+      "surfaceId": "auth",
+      "status": "legacy_alias",
+      "reason": "auth_attempt_succeeded remains accepted as a legacy alias for auth_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "auth_attempt_failed",
+      "canonicalEventName": "auth_surface_action_failed",
+      "surfaceId": "auth",
+      "status": "legacy_alias",
+      "reason": "auth_attempt_failed remains accepted as a legacy alias for auth_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "dashboard_viewed",
+      "canonicalEventName": "user_dashboard_surface_viewed",
+      "surfaceId": "user_dashboard",
+      "status": "legacy_alias",
+      "reason": "dashboard_viewed remains accepted as a legacy alias for user_dashboard_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "page_viewed",
+      "canonicalEventName": "user_dashboard_surface_viewed",
+      "surfaceId": "user_dashboard",
+      "status": "legacy_alias",
+      "reason": "page_viewed remains accepted as a legacy alias for user_dashboard_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "wallet_opened",
+      "canonicalEventName": "wallet_purchase_modal_surface_viewed",
+      "surfaceId": "wallet_purchase_modal",
+      "status": "legacy_alias",
+      "reason": "wallet_opened remains accepted as a legacy alias for wallet_purchase_modal_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "purchase_package_selected",
+      "canonicalEventName": "wallet_purchase_modal_surface_action_attempted",
+      "surfaceId": "wallet_purchase_modal",
+      "status": "legacy_alias",
+      "reason": "purchase_package_selected remains accepted as a legacy alias for wallet_purchase_modal_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "begin_checkout",
+      "canonicalEventName": "wallet_purchase_modal_surface_action_attempted",
+      "surfaceId": "wallet_purchase_modal",
+      "status": "legacy_alias",
+      "reason": "begin_checkout remains accepted as a legacy alias for wallet_purchase_modal_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "gumdrops_purchase_completed",
+      "canonicalEventName": "wallet_purchase_modal_surface_action_succeeded",
+      "surfaceId": "wallet_purchase_modal",
+      "status": "legacy_alias",
+      "reason": "gumdrops_purchase_completed remains accepted as a legacy alias for wallet_purchase_modal_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "purchase",
+      "canonicalEventName": "wallet_purchase_modal_surface_action_succeeded",
+      "surfaceId": "wallet_purchase_modal",
+      "status": "legacy_alias",
+      "reason": "purchase remains accepted as a legacy alias for wallet_purchase_modal_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "gumdrops_purchase_failed",
+      "canonicalEventName": "wallet_purchase_modal_surface_action_failed",
+      "surfaceId": "wallet_purchase_modal",
+      "status": "legacy_alias",
+      "reason": "gumdrops_purchase_failed remains accepted as a legacy alias for wallet_purchase_modal_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "library_viewed",
+      "canonicalEventName": "drops_library_surface_viewed",
+      "surfaceId": "drops_library",
+      "status": "legacy_alias",
+      "reason": "library_viewed remains accepted as a legacy alias for drops_library_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "drop_library_viewed",
+      "canonicalEventName": "drops_library_surface_viewed",
+      "surfaceId": "drops_library",
+      "status": "legacy_alias",
+      "reason": "drop_library_viewed remains accepted as a legacy alias for drops_library_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "drop_clicked",
+      "canonicalEventName": "drops_library_surface_action_attempted",
+      "surfaceId": "drops_library",
+      "status": "legacy_alias",
+      "reason": "drop_clicked remains accepted as a legacy alias for drops_library_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "drop_unlocked",
+      "canonicalEventName": "drops_library_surface_action_succeeded",
+      "surfaceId": "drops_library",
+      "status": "legacy_alias",
+      "reason": "drop_unlocked remains accepted as a legacy alias for drops_library_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "drop_unlock_failed",
+      "canonicalEventName": "drops_library_surface_action_failed",
+      "surfaceId": "drops_library",
+      "status": "legacy_alias",
+      "reason": "drop_unlock_failed remains accepted as a legacy alias for drops_library_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_dashboard_viewed",
+      "canonicalEventName": "creator_dashboard_surface_viewed",
+      "surfaceId": "creator_dashboard",
+      "status": "legacy_alias",
+      "reason": "creator_dashboard_viewed remains accepted as a legacy alias for creator_dashboard_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_settings_viewed",
+      "canonicalEventName": "creator_settings_surface_viewed",
+      "surfaceId": "creator_settings",
+      "status": "legacy_alias",
+      "reason": "creator_settings_viewed remains accepted as a legacy alias for creator_settings_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_settings_saved",
+      "canonicalEventName": "creator_settings_surface_action_succeeded",
+      "surfaceId": "creator_settings",
+      "status": "legacy_alias",
+      "reason": "creator_settings_saved remains accepted as a legacy alias for creator_settings_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_settings_save_failed",
+      "canonicalEventName": "creator_settings_surface_action_failed",
+      "surfaceId": "creator_settings",
+      "status": "legacy_alias",
+      "reason": "creator_settings_save_failed remains accepted as a legacy alias for creator_settings_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_drop_manager_opened",
+      "canonicalEventName": "creator_drop_manager_surface_viewed",
+      "surfaceId": "creator_drop_manager",
+      "status": "legacy_alias",
+      "reason": "creator_drop_manager_opened remains accepted as a legacy alias for creator_drop_manager_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_drop_submission_started",
+      "canonicalEventName": "creator_drop_manager_surface_action_attempted",
+      "surfaceId": "creator_drop_manager",
+      "status": "legacy_alias",
+      "reason": "creator_drop_submission_started remains accepted as a legacy alias for creator_drop_manager_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_drop_submit_failed",
+      "canonicalEventName": "creator_drop_manager_surface_action_failed",
+      "surfaceId": "creator_drop_manager",
+      "status": "legacy_alias",
+      "reason": "creator_drop_submit_failed remains accepted as a legacy alias for creator_drop_manager_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_profile_viewed",
+      "canonicalEventName": "creator_profile_timeline_surface_viewed",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_profile_viewed remains accepted as a legacy alias for creator_profile_timeline_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_timeline_viewed",
+      "canonicalEventName": "creator_profile_timeline_surface_viewed",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_timeline_viewed remains accepted as a legacy alias for creator_profile_timeline_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_follow_attempted",
+      "canonicalEventName": "creator_profile_timeline_surface_action_attempted",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_follow_attempted remains accepted as a legacy alias for creator_profile_timeline_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_followed",
+      "canonicalEventName": "creator_profile_timeline_surface_action_succeeded",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_followed remains accepted as a legacy alias for creator_profile_timeline_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_follow_failed",
+      "canonicalEventName": "creator_profile_timeline_surface_action_failed",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_follow_failed remains accepted as a legacy alias for creator_profile_timeline_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "chat_surface_viewed",
+      "canonicalEventName": "chat_surface_viewed",
+      "surfaceId": "chat",
+      "status": "legacy_alias",
+      "reason": "chat_surface_viewed remains accepted as a legacy alias for chat_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "chat_thread_list_loaded",
+      "canonicalEventName": "chat_surface_loaded",
+      "surfaceId": "chat",
+      "status": "legacy_alias",
+      "reason": "chat_thread_list_loaded remains accepted as a legacy alias for chat_surface_loaded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "chat_message_sent",
+      "canonicalEventName": "chat_surface_action_succeeded",
+      "surfaceId": "chat",
+      "status": "legacy_alias",
+      "reason": "chat_message_sent remains accepted as a legacy alias for chat_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "chat_message_failed",
+      "canonicalEventName": "chat_surface_action_failed",
+      "surfaceId": "chat",
+      "status": "legacy_alias",
+      "reason": "chat_message_failed remains accepted as a legacy alias for chat_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "daily_checkin_viewed",
+      "canonicalEventName": "daily_tasks_checkin_surface_viewed",
+      "surfaceId": "daily_tasks_checkin",
+      "status": "legacy_alias",
+      "reason": "daily_checkin_viewed remains accepted as a legacy alias for daily_tasks_checkin_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "daily_task_panel_viewed",
+      "canonicalEventName": "daily_tasks_checkin_surface_viewed",
+      "surfaceId": "daily_tasks_checkin",
+      "status": "legacy_alias",
+      "reason": "daily_task_panel_viewed remains accepted as a legacy alias for daily_tasks_checkin_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "daily_checkin_claimed",
+      "canonicalEventName": "daily_tasks_checkin_surface_action_succeeded",
+      "surfaceId": "daily_tasks_checkin",
+      "status": "legacy_alias",
+      "reason": "daily_checkin_claimed remains accepted as a legacy alias for daily_tasks_checkin_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "daily_task_completed",
+      "canonicalEventName": "daily_tasks_checkin_surface_action_succeeded",
+      "surfaceId": "daily_tasks_checkin",
+      "status": "legacy_alias",
+      "reason": "daily_task_completed remains accepted as a legacy alias for daily_tasks_checkin_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "daily_checkin_failed",
+      "canonicalEventName": "daily_tasks_checkin_surface_action_failed",
+      "surfaceId": "daily_tasks_checkin",
+      "status": "legacy_alias",
+      "reason": "daily_checkin_failed remains accepted as a legacy alias for daily_tasks_checkin_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "daily_task_failed",
+      "canonicalEventName": "daily_tasks_checkin_surface_action_failed",
+      "surfaceId": "daily_tasks_checkin",
+      "status": "legacy_alias",
+      "reason": "daily_task_failed remains accepted as a legacy alias for daily_tasks_checkin_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "notification_prompt_viewed",
+      "canonicalEventName": "notifications_pwa_prompt_surface_viewed",
+      "surfaceId": "notifications_pwa_prompt",
+      "status": "legacy_alias",
+      "reason": "notification_prompt_viewed remains accepted as a legacy alias for notifications_pwa_prompt_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "notification_permission_requested",
+      "canonicalEventName": "notifications_pwa_prompt_surface_action_attempted",
+      "surfaceId": "notifications_pwa_prompt",
+      "status": "legacy_alias",
+      "reason": "notification_permission_requested remains accepted as a legacy alias for notifications_pwa_prompt_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "notification_permission_granted",
+      "canonicalEventName": "notifications_pwa_prompt_surface_action_succeeded",
+      "surfaceId": "notifications_pwa_prompt",
+      "status": "legacy_alias",
+      "reason": "notification_permission_granted remains accepted as a legacy alias for notifications_pwa_prompt_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "notification_permission_denied",
+      "canonicalEventName": "notifications_pwa_prompt_surface_action_failed",
+      "surfaceId": "notifications_pwa_prompt",
+      "status": "legacy_alias",
+      "reason": "notification_permission_denied remains accepted as a legacy alias for notifications_pwa_prompt_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "notification_permission_denied",
+      "canonicalEventName": "notifications_pwa_prompt_surface_permission_denied",
+      "surfaceId": "notifications_pwa_prompt",
+      "status": "legacy_alias",
+      "reason": "notification_permission_denied remains accepted as a legacy alias for notifications_pwa_prompt_surface_permission_denied; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "user_settings_viewed",
+      "canonicalEventName": "account_settings_surface_viewed",
+      "surfaceId": "account_settings",
+      "status": "legacy_alias",
+      "reason": "user_settings_viewed remains accepted as a legacy alias for account_settings_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "settings_surface_viewed",
+      "canonicalEventName": "account_settings_surface_viewed",
+      "surfaceId": "account_settings",
+      "status": "legacy_alias",
+      "reason": "settings_surface_viewed remains accepted as a legacy alias for account_settings_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "setting_save_succeeded",
+      "canonicalEventName": "account_settings_surface_action_succeeded",
+      "surfaceId": "account_settings",
+      "status": "legacy_alias",
+      "reason": "setting_save_succeeded remains accepted as a legacy alias for account_settings_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "setting_save_failed",
+      "canonicalEventName": "account_settings_surface_action_failed",
+      "surfaceId": "account_settings",
+      "status": "legacy_alias",
+      "reason": "setting_save_failed remains accepted as a legacy alias for account_settings_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_dashboard_viewed",
+      "canonicalEventName": "admin_dashboard_surface_viewed",
+      "surfaceId": "admin_dashboard",
+      "status": "legacy_alias",
+      "reason": "admin_dashboard_viewed remains accepted as a legacy alias for admin_dashboard_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_overview_viewed",
+      "canonicalEventName": "admin_dashboard_surface_viewed",
+      "surfaceId": "admin_dashboard",
+      "status": "legacy_alias",
+      "reason": "admin_overview_viewed remains accepted as a legacy alias for admin_dashboard_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_overview_loaded",
+      "canonicalEventName": "admin_dashboard_surface_loaded",
+      "surfaceId": "admin_dashboard",
+      "status": "legacy_alias",
+      "reason": "admin_overview_loaded remains accepted as a legacy alias for admin_dashboard_surface_loaded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_overview_degraded",
+      "canonicalEventName": "admin_dashboard_surface_degraded_viewed",
+      "surfaceId": "admin_dashboard",
+      "status": "legacy_alias",
+      "reason": "admin_overview_degraded remains accepted as a legacy alias for admin_dashboard_surface_degraded_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_debug_viewed",
+      "canonicalEventName": "admin_debug_surface_viewed",
+      "surfaceId": "admin_debug",
+      "status": "legacy_alias",
+      "reason": "admin_debug_viewed remains accepted as a legacy alias for admin_debug_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_debug_loaded",
+      "canonicalEventName": "admin_debug_surface_loaded",
+      "surfaceId": "admin_debug",
+      "status": "legacy_alias",
+      "reason": "admin_debug_loaded remains accepted as a legacy alias for admin_debug_surface_loaded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_debug_error_viewed",
+      "canonicalEventName": "admin_debug_surface_error_viewed",
+      "surfaceId": "admin_debug",
+      "status": "legacy_alias",
+      "reason": "admin_debug_error_viewed remains accepted as a legacy alias for admin_debug_surface_error_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_user_management_viewed",
+      "canonicalEventName": "user_management_surface_viewed",
+      "surfaceId": "user_management",
+      "status": "legacy_alias",
+      "reason": "admin_user_management_viewed remains accepted as a legacy alias for user_management_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_user_action_started",
+      "canonicalEventName": "user_management_surface_action_attempted",
+      "surfaceId": "user_management",
+      "status": "legacy_alias",
+      "reason": "admin_user_action_started remains accepted as a legacy alias for user_management_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "admin_user_action_failed",
+      "canonicalEventName": "user_management_surface_action_failed",
+      "surfaceId": "user_management",
+      "status": "legacy_alias",
+      "reason": "admin_user_action_failed remains accepted as a legacy alias for user_management_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "support_inbox_viewed",
+      "canonicalEventName": "support_policies_surface_viewed",
+      "surfaceId": "support_policies",
+      "status": "legacy_alias",
+      "reason": "support_inbox_viewed remains accepted as a legacy alias for support_policies_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "support_thread_opened",
+      "canonicalEventName": "support_policies_surface_viewed",
+      "surfaceId": "support_policies",
+      "status": "legacy_alias",
+      "reason": "support_thread_opened remains accepted as a legacy alias for support_policies_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "support_ticket_created",
+      "canonicalEventName": "support_policies_surface_action_succeeded",
+      "surfaceId": "support_policies",
+      "status": "legacy_alias",
+      "reason": "support_ticket_created remains accepted as a legacy alias for support_policies_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "bug_report_submitted",
+      "canonicalEventName": "support_policies_surface_action_succeeded",
+      "surfaceId": "support_policies",
+      "status": "legacy_alias",
+      "reason": "bug_report_submitted remains accepted as a legacy alias for support_policies_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "support_thread_reply_failed",
+      "canonicalEventName": "support_policies_surface_action_failed",
+      "surfaceId": "support_policies",
+      "status": "legacy_alias",
+      "reason": "support_thread_reply_failed remains accepted as a legacy alias for support_policies_surface_action_failed; new parity work should use the canonical surface spine name."
+    }
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/surface-parity-doctrine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/surface-parity-doctrine.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics/event-envelope-builder.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "agent/state/surface-telemetry-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/surface-telemetry-parity.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-surface-telemetry-parity.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry/surface-telemetry-catalog-events.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/telemetry/surface-telemetry-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/telemetry/surface-telemetry-registry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/surface-telemetry-parity.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}
