@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.73 - 2026-05-25
+- Private media access
+- Added private media access reasons and telemetry.
+- Protected chat, drop, and creator media behind explicit access checks.
+- Added debug visibility for blocked and missing media.
+
 ## 1.4.72 - 2026-05-25
 - Media upload lifecycle
 - Hardened media upload prepare, storage, and completion lifecycle tracking.

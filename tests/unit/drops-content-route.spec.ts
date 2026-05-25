@@ -112,7 +112,14 @@ describe("GET /api/drops/content", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(403);
-    expect(payload).toMatchObject({ error: "You do not own this content" });
+    expect(payload).toMatchObject({
+      error: "This media requires an unlock before viewing.",
+      errorCode: "purchase_required",
+      mediaAccessReason: "purchase_required",
+      mediaAccessFailureClass: "purchase_or_unlock",
+      mediaAccessDebugLane: "Private media access",
+      mediaAccessSourceTruth: "server_entitlement",
+    });
     expect(fetch).not.toHaveBeenCalled();
   });
 

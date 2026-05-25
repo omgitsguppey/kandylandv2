@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { isSupportedChatAttachmentMimeType } from "@/lib/chat-attachments";
 import { CHAT_MEDIA_LIMIT_BYTES_FAN_PASS } from "@/lib/chat/chat-media-limits";
+import { buildMediaAccessTelemetry, resolveMediaAccess } from "@/lib/media/media-access-resolver";
 import { fingerprintStoragePath } from "@/lib/media/media-upload-contract";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
 import { resolveServerChatMediaLimitPolicy } from "@/lib/server/chat-media-limit-policy";
@@ -48,11 +49,23 @@ function isSafePendingAttachmentPath(storagePath: string, expectedPrefix: string
         && !UNSAFE_STORAGE_PATH_PATTERN.test(storagePath);
 }
 
-function buildAttachmentCompleteForbiddenResponse() {
+function buildAttachmentCompleteForbiddenResponse(input?: { viewerUserId?: string | null }) {
+    const accessDecision = resolveMediaAccess({
+        surface: "chat_attachment",
+        mediaId: "pending_chat_attachment",
+        viewerUserId: input?.viewerUserId ?? "authenticated_caller",
+        exists: true,
+        isChatThreadParticipant: false,
+        sourceTruth: "chat_thread_membership",
+        route: "/api/chat/attachments/complete",
+    });
     return NextResponse.json({
         ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
         error: "Attachment completion is not allowed for this file.",
         errorCode: "attachment_complete_forbidden",
+        mediaAccessReason: accessDecision.reason,
+        mediaAccessFailureClass: accessDecision.failureClass,
+        mediaAccessDebugLane: "Private media access",
     }, { status: 403 });
 }
 
@@ -150,14 +163,29 @@ export async function POST(request: NextRequest) {
             callerUid: caller.uid,
             threadId: payload.threadId,
         });
+        const accessDecision = resolveMediaAccess({
+            surface: "chat_attachment",
+            mediaId: uploadId,
+            assetId: payload.fileName,
+            viewerUserId: caller.uid,
+            ownerUserId: caller.uid,
+            exists: true,
+            isChatThreadParticipant: ownership.ok,
+            storagePath: payload.storagePath,
+            route: "/api/chat/attachments/complete",
+            sourceTruth: "chat_thread_membership",
+        });
         if (!payload.storagePath.startsWith(ownership.expectedPrefix)) {
-            return finalize(buildAttachmentCompleteForbiddenResponse());
+            return finalize(buildAttachmentCompleteForbiddenResponse({ viewerUserId: caller.uid }));
         }
         if (!ownership.ok) {
             return finalize(NextResponse.json({
                 ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
                 error: "Invalid attachment storage path.",
                 errorCode: "invalid_attachment_path",
+                mediaAccessReason: accessDecision.reason,
+                mediaAccessFailureClass: accessDecision.failureClass,
+                mediaAccessDebugLane: "Private media access",
             }, { status: 400 }));
         }
 
@@ -243,6 +271,7 @@ export async function POST(request: NextRequest) {
             sizeBytes: size,
             storagePath: payload.storagePath,
             storagePathFingerprint: fingerprintStoragePath(payload.storagePath),
+            mediaAccess: buildMediaAccessTelemetry(accessDecision),
         }));
     } catch (error) {
         const chatError = toChatClientError(error);

@@ -107,11 +107,18 @@ const allowedMediaUploadLifecycleFiles = new Set([
   "src/app/api/chat/attachments/prepare/route.ts",
   "src/components/Chat/ChatExperience.tsx",
 ]);
+const privateMediaAccessScoped = changed.includes("src/lib/media/media-access-contract.ts")
+  && changed.includes("src/lib/media/media-access-resolver.ts")
+  && changed.includes("scripts/agent/validate-private-media-access.ts");
+const allowedPrivateMediaAccessFiles = new Set([
+  "src/app/api/chat/attachments/complete/route.ts",
+]);
 const protectedChanges = changed.filter((path) =>
   (
     /(^|\/)(chat|Chat)\//u.test(path)
     && !(chatTelemetryAdminTruthScoped && allowedChatTelemetryAdminTruthFiles.has(path))
     && !(mediaUploadLifecycleScoped && allowedMediaUploadLifecycleFiles.has(path))
+    && !(privateMediaAccessScoped && allowedPrivateMediaAccessFiles.has(path))
   )
   || /(^|\/)(nav|Nav|navbar|Navbar|bottom|Bottom)/u.test(path)
   || /paypal|payment|gumdrop/i.test(path)

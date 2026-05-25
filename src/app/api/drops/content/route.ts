@@ -5,6 +5,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { MEDIA_PROXY, STANDARD } from "@/lib/server/rate-limit";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { isAllowedRemoteMediaUrl } from "@/lib/media-hosts";
+import { buildMediaAccessTelemetry, resolveMediaAccess } from "@/lib/media/media-access-resolver";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
@@ -15,6 +16,17 @@ const userContentSchema = z.object({
   unlockedContentTimestamps: z.record(z.string(), z.unknown()).default({}),
 });
 const MEDIA_PROXY_MAX_BYTES_PER_REQUEST = 250 * 1024 * 1024;
+
+function buildMediaAccessDeniedResponse(input: ReturnType<typeof resolveMediaAccess>) {
+  return NextResponse.json({
+    error: input.humanReason,
+    errorCode: input.reason,
+    mediaAccessReason: input.reason,
+    mediaAccessFailureClass: input.failureClass,
+    mediaAccessDebugLane: "Private media access",
+    mediaAccessSourceTruth: input.sourceTruth,
+  }, { status: input.httpStatus });
+}
 
 /**
  * GET /api/drops/content?id=<dropId>
@@ -80,8 +92,28 @@ export async function GET(request: NextRequest) {
     const ownsDrop = creatorId === caller.uid;
     const hasUnlockedDrop = userData.unlockedContent.includes(dropId)
       || Object.prototype.hasOwnProperty.call(userData.unlockedContentTimestamps, dropId);
-    if (!ownsDrop && !hasUnlockedDrop) {
-      return finalize(NextResponse.json({ error: "You do not own this content" }, { status: 403 }));
+    const nowMs = Date.now();
+    const dropStatus = typeof dropData.status === "string" ? dropData.status : "";
+    const validUntil = typeof dropData.validUntil === "number" && Number.isFinite(dropData.validUntil)
+      ? dropData.validUntil
+      : null;
+    const accessDecision = resolveMediaAccess({
+      surface: "drop_media",
+      mediaId: dropId,
+      viewerUserId: caller.uid,
+      ownerUserId: creatorId,
+      creatorId,
+      exists: true,
+      isLocked: true,
+      isExpired: !ownsDrop && !hasUnlockedDrop && (dropStatus === "expired" || (validUntil !== null && nowMs >= validUntil)),
+      hasUnlockedDrop,
+      hasFanPass: false,
+      route: "/api/drops/content",
+      sourceTruth: "server_entitlement",
+    });
+    const mediaAccessTelemetry = buildMediaAccessTelemetry(accessDecision);
+    if (!accessDecision.allowed) {
+      return finalize(buildMediaAccessDeniedResponse(accessDecision));
     }
 
     let dropRecord;
@@ -121,6 +153,9 @@ export async function GET(request: NextRequest) {
     const headers = new Headers(contentRes.headers);
     headers.set("Content-Disposition", "inline");
     headers.set("Cache-Control", "private, no-store");
+    headers.set("X-KandyDrops-Media-Access-Reason", mediaAccessTelemetry.reason);
+    headers.set("X-KandyDrops-Media-Access-Source", mediaAccessTelemetry.sourceTruth);
+    headers.set("X-KandyDrops-Media-Access-Debug-Lane", mediaAccessTelemetry.debugLane);
     headers.set("X-KandyDrops-Media-Proxy-Max-Bytes", String(MEDIA_PROXY_MAX_BYTES_PER_REQUEST));
     if (Number.isFinite(upstreamContentLength) && upstreamContentLength > 0) {
       headers.set("X-KandyDrops-Media-Proxy-Approx-Bytes", String(upstreamContentLength));

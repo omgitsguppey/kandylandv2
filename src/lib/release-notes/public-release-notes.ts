@@ -1,13 +1,77 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.72",
-  "betaReleaseCounter": 472,
+  "currentVersion": "1.4.73",
+  "betaReleaseCounter": 473,
   "channel": "beta",
-  "generatedAt": "2026-05-25T22:10:00.000Z",
-  "generatedAtUtc": "2026-05-25T22:10:00.000Z",
+  "generatedAt": "2026-05-25T22:28:15.668Z",
+  "generatedAtUtc": "2026-05-25T22:28:15.668Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.73",
+      "previousVersion": "1.4.72",
+      "betaReleaseCounter": 473,
+      "previousBetaReleaseCounter": 472,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(media): enforce private access",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T22:28:15.668Z",
+      "generatedAt": "2026-05-25T22:28:15.668Z",
+      "committedAtUtc": "2026-05-25T22:28:15.668Z",
+      "generatedAtUtc": "2026-05-25T22:28:15.668Z",
+      "category": "Security",
+      "title": "Private media access",
+      "updatedAtUtc": "2026-05-25T22:28:15.668Z",
+      "summary": "Added private media access reasons and telemetry.",
+      "userFacingTitle": "Private media access",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Added private media access reasons and telemetry.",
+        "Protected chat, drop, and creator media behind explicit access checks.",
+        "Added debug visibility for blocked and missing media."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical private media access contract and resolver for public, owner, creator, admin, unlock, Fan Pass, chat participant, expired, locked, moderation, missing, and unknown access states.",
+        "Wired chat attachment completion, Drop content proxy, and creator Drop asset upload responses with explicit access reasons and redacted media access telemetry.",
+        "Added source-only validation and debug evidence without production reads, provider calls, payment changes, or GumDrop unlock math changes."
+      ],
+      "affectedSurfaces": [
+        "Chat attachments",
+        "Drop media proxy",
+        "Creator Drop asset uploads",
+        "Private media access telemetry and debug evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/media/media-access-contract.ts",
+        "src/lib/media/media-access-resolver.ts",
+        "src/app/api/chat/attachments/complete/route.ts",
+        "src/app/api/drops/content/route.ts",
+        "src/app/api/creator/drops/assets/route.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "scripts/agent/validate-private-media-access.ts",
+        "tests/unit/private-media-access.spec.ts",
+        "tests/unit/drops-content-route.spec.ts",
+        "agent/state/private-media-access.generated.json",
+        "docs/agent-truth/private-media-access.md",
+        "scripts/agent/validate-feature-registration-gate.ts",
+        "agent/state/feature-registration-gate.generated.json",
+        "docs/agent-truth/feature-registration-gate.md",
+        "agent/state/public-beta-score.generated.json",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.72",
       "previousVersion": "1.4.71",

@@ -77,6 +77,7 @@
         "check:role-permission-parity": "tsx scripts/agent/validate-role-permission-parity.ts",
         "check:final-parity-telemetry-lock": "tsx scripts/agent/validate-final-parity-telemetry-lock.ts",
         "check:media-upload-lifecycle": "tsx scripts/agent/validate-media-upload-lifecycle.ts",
+        "check:private-media-access": "tsx scripts/agent/validate-private-media-access.ts",
         "check:activity-verification-engine": "tsx scripts/agent/validate-activity-verification-engine.ts",
         "check:new-additions-score-coverage": "tsx scripts/agent/validate-new-additions-score-coverage.ts",
         "check:final-behavioral-privacy-telemetry-lock": "tsx scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",

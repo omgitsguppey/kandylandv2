@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { isCreatorRole } from "@/lib/creator-experiences";
+import { buildMediaAccessTelemetry, resolveMediaAccess } from "@/lib/media/media-access-resolver";
+import { fingerprintStoragePath } from "@/lib/media/media-upload-contract";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { STANDARD } from "@/lib/server/rate-limit";
@@ -82,10 +84,29 @@ async function POST_handler(request: NextRequest) {
 
     const [metadata] = await storageFile.getMetadata();
     const url = await ensureFirebaseDownloadUrl(adminStorage.bucket(), storageFile, metadata);
+    const mediaAccessDecision = resolveMediaAccess({
+      surface: "creator_upload",
+      mediaId: fullPath.split("/").pop() ?? "creator_drop_asset",
+      assetId: sanitizeStorageFileName(file.name),
+      viewerUserId: caller.uid,
+      ownerUserId: caller.uid,
+      creatorId: caller.uid,
+      exists: true,
+      storagePath: fullPath,
+      assetUrl: url,
+      route: "/api/creator/drops/assets",
+      sourceTruth: "creator_ownership",
+    });
+    const mediaAccess = buildMediaAccessTelemetry(mediaAccessDecision);
 
     return NextResponse.json({
       success: true,
-      file: serializeStorageFile(fullPath, metadata, url),
+      file: {
+        ...serializeStorageFile(fullPath, metadata, url),
+        storagePathFingerprint: fingerprintStoragePath(fullPath),
+        assetUrlPolicy: "private_url_not_logged",
+        mediaAccess,
+      },
     }, { status: 201 });
   } catch (error) {
     return handleApiError(error, "Creator.Drops.Assets.POST");
