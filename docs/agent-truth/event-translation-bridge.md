@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-25T21:09:23.648Z
+Generated: 2026-05-25T22:12:20.753Z
 Status: pass
-Current head: df944f3c195a9de60bc04dd85c694a073ad74e75
+Current head: 6204232daa540ffaa3afc97d226eea7b6d6535e2
 
 ## Contract
 
@@ -12,11 +12,11 @@ Current head: df944f3c195a9de60bc04dd85c694a073ad74e75
 
 ## Debug Lane
 
-- Producers registered: 690
-- Producers connected: 690
-- Event envelopes translated: 690
-- Materializers mapped: 690
-- Person metrics mapped: 158
+- Producers registered: 704
+- Producers connected: 704
+- Event envelopes translated: 704
+- Materializers mapped: 704
+- Person metrics mapped: 172
 - Gaps: 0
 
 ## Score Impact
@@ -56,23 +56,30 @@ Current head: df944f3c195a9de60bc04dd85c694a073ad74e75
 - CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/surface-parity-doctrine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/surface-telemetry-parity.generated.json: current_generated_artifact_to_commit
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/media-upload-lifecycle.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/surface-parity-doctrine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/surface-telemetry-parity.md: documentation_artifact_expected
+- docs/agent-truth/feature-registration-gate.md: documentation_artifact_expected
+- docs/agent-truth/media-upload-lifecycle.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-surface-telemetry-parity.ts: validator_artifact_expected
-- src/lib/analytics/event-envelope-builder.ts: real_source_change_needs_review
+- scripts/agent/validate-feature-registration-gate.ts: validator_artifact_expected
+- scripts/agent/validate-media-upload-lifecycle.ts: validator_artifact_expected
+- src/app/api/chat/attachments/complete/route.ts: real_source_change_needs_review
+- src/app/api/chat/attachments/prepare/route.ts: real_source_change_needs_review
+- src/components/Chat/ChatExperience.tsx: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/media/media-upload-contract.ts: real_source_change_needs_review
+- src/lib/media/media-upload-telemetry.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- src/lib/telemetry/surface-telemetry-catalog-events.ts: real_source_change_needs_review
-- src/lib/telemetry/surface-telemetry-contract.ts: real_source_change_needs_review
-- src/lib/telemetry/surface-telemetry-registry.ts: real_source_change_needs_review
-- tests/unit/surface-telemetry-parity.spec.ts: test_artifact_expected
+- tests/unit/media-upload-lifecycle.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

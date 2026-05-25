@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { isSupportedChatAttachmentMimeType } from "@/lib/chat-attachments";
 import { CHAT_MEDIA_LIMIT_BYTES_FAN_PASS } from "@/lib/chat/chat-media-limits";
+import { MEDIA_UPLOAD_ORPHAN_AFTER_MS, fingerprintStoragePath } from "@/lib/media/media-upload-contract";
 import { resolveServerChatMediaLimitPolicy } from "@/lib/server/chat-media-limit-policy";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
 import { handleApiError } from "@/lib/server/auth";
@@ -142,15 +143,22 @@ export async function POST(request: NextRequest) {
             ? hashAttachmentPreparePart(`${caller.uid}:${payload.threadId}:${clientIdempotencyKey}:${safeName}:${payload.mimeType}:${payload.sizeBytes}`)
             : `${Date.now()}_${hashAttachmentPreparePart(`${safeName}:${payload.mimeType}:${payload.sizeBytes}`)}`;
         const storagePath = `creator/messages/${caller.uid}/${payload.threadId}/${pathNonce}_${safeName}`;
+        const uploadId = pathNonce;
+        const correlationId = clientIdempotencyKey ?? uploadId;
 
         return finalize(NextResponse.json({
             success: true,
+            uploadId,
+            correlationId,
             idempotencyKey: clientIdempotencyKey ?? null,
             threadId: payload.threadId,
             storagePath,
+            storagePathFingerprint: fingerprintStoragePath(storagePath),
             fileName: safeName,
             mimeType: payload.mimeType,
             sizeBytes: payload.sizeBytes,
+            orphanDetectionAfterMs: MEDIA_UPLOAD_ORPHAN_AFTER_MS,
+            assetUrlPolicy: "private_url_not_logged",
         }));
     } catch (error) {
         const chatError = toChatClientError(error);

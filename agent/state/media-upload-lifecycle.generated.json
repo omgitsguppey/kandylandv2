@@ -1,0 +1,168 @@
+{
+  "reportKey": "media-upload-lifecycle",
+  "generatedAtUtc": "2026-05-25T22:13:38.191Z",
+  "currentHead": "6204232daa540ffaa3afc97d226eea7b6d6535e2",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "lifecycleEvents": [
+    "media_upload_prepare_started",
+    "media_upload_prepare_completed",
+    "media_upload_prepare_failed",
+    "media_storage_upload_started",
+    "media_storage_upload_completed",
+    "media_storage_upload_failed",
+    "media_upload_complete_started",
+    "media_upload_complete_completed",
+    "media_upload_complete_failed",
+    "media_upload_cancelled",
+    "media_upload_orphaned",
+    "media_upload_recovered",
+    "media_upload_blocked_size",
+    "media_upload_blocked_type"
+  ],
+  "telemetryEventsRegistered": true,
+  "eventEnvelopeMapped": true,
+  "personGlobalMetricMapped": true,
+  "chatPrepareHasCorrelationId": true,
+  "chatCompleteHasCorrelationId": true,
+  "chatCompleteHasOwnershipScopeVerification": true,
+  "explicitSizeTypeBlocks": true,
+  "orphanDetectionAvailable": true,
+  "rawStoragePathProtected": true,
+  "paymentGumDropMathChanged": false,
+  "scoreDimensions": {
+    "before": {
+      "runtimeHealth": 80,
+      "evidenceCompleteness": 80,
+      "regressionRisk": 80,
+      "costRisk": 80
+    },
+    "after": {
+      "runtimeHealth": 84,
+      "evidenceCompleteness": 84,
+      "regressionRisk": 84,
+      "costRisk": 84
+    }
+  },
+  "debugLane": {
+    "label": "Media upload",
+    "status": "degraded",
+    "totalEvents": 14,
+    "prepareFailures": 1,
+    "storageUploadFailures": 1,
+    "completionFailures": 1,
+    "orphanRiskCount": 1,
+    "sizeTypeBlockCount": 2,
+    "averageUploadDurationMs": 17,
+    "sourceTruth": "media_upload_lifecycle_contract",
+    "privacy": "storage_paths_fingerprinted"
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/media-upload-lifecycle.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/media-upload-lifecycle.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-feature-registration-gate.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-media-upload-lifecycle.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/api/chat/attachments/complete/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/chat/attachments/prepare/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/media/media-upload-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/media/media-upload-telemetry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/media-upload-lifecycle.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

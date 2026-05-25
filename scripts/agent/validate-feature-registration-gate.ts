@@ -99,10 +99,19 @@ const allowedChatTelemetryAdminTruthFiles = new Set([
   "src/components/Chat/ChatExperience.tsx",
   "src/lib/chat/chat-telemetry-contract.ts",
 ]);
+const mediaUploadLifecycleScoped = changed.includes("src/lib/media/media-upload-contract.ts")
+  && changed.includes("src/lib/media/media-upload-telemetry.ts")
+  && changed.includes("scripts/agent/validate-media-upload-lifecycle.ts");
+const allowedMediaUploadLifecycleFiles = new Set([
+  "src/app/api/chat/attachments/complete/route.ts",
+  "src/app/api/chat/attachments/prepare/route.ts",
+  "src/components/Chat/ChatExperience.tsx",
+]);
 const protectedChanges = changed.filter((path) =>
   (
     /(^|\/)(chat|Chat)\//u.test(path)
     && !(chatTelemetryAdminTruthScoped && allowedChatTelemetryAdminTruthFiles.has(path))
+    && !(mediaUploadLifecycleScoped && allowedMediaUploadLifecycleFiles.has(path))
   )
   || /(^|\/)(nav|Nav|navbar|Navbar|bottom|Bottom)/u.test(path)
   || /paypal|payment|gumdrop/i.test(path)

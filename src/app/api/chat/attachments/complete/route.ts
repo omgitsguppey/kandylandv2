@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { isSupportedChatAttachmentMimeType } from "@/lib/chat-attachments";
 import { CHAT_MEDIA_LIMIT_BYTES_FAN_PASS } from "@/lib/chat/chat-media-limits";
+import { fingerprintStoragePath } from "@/lib/media/media-upload-contract";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
 import { resolveServerChatMediaLimitPolicy } from "@/lib/server/chat-media-limit-policy";
 import { handleApiError } from "@/lib/server/auth";
@@ -20,6 +21,8 @@ const completeAttachmentSchema = z.object({
     storagePath: z.string().trim().min(1),
     fileName: z.string().trim().min(1).max(260),
     mimeType: z.string().trim().min(1).max(160),
+    uploadId: z.string().trim().min(1).max(180).optional(),
+    correlationId: z.string().trim().min(1).max(180).optional(),
     idempotencyKey: z.string().trim().min(1).max(180).optional(),
 });
 
@@ -51,6 +54,24 @@ function buildAttachmentCompleteForbiddenResponse() {
         error: "Attachment completion is not allowed for this file.",
         errorCode: "attachment_complete_forbidden",
     }, { status: 403 });
+}
+
+function deriveUploadIdFromStoragePath(storagePath: string) {
+    const fileName = storagePath.split("/").pop() ?? "";
+    const [uploadId] = fileName.split("_");
+    return uploadId && uploadId.trim().length > 0 ? uploadId : fingerprintStoragePath(storagePath) ?? "unknown_upload";
+}
+
+function assertChatAttachmentUploadOwnership(input: {
+    storagePath: string;
+    callerUid: string;
+    threadId: string;
+}) {
+    const expectedPrefix = `creator/messages/${input.callerUid}/${input.threadId}/`;
+    return {
+        expectedPrefix,
+        ok: input.storagePath.startsWith(expectedPrefix) && isSafePendingAttachmentPath(input.storagePath, expectedPrefix),
+    };
 }
 
 export async function POST(request: NextRequest) {
@@ -122,11 +143,17 @@ export async function POST(request: NextRequest) {
             return finalize(buildNotFoundResponse("thread", "Chat thread not found.", "thread_not_found"));
         }
 
-        const expectedPrefix = `creator/messages/${caller.uid}/${payload.threadId}/`;
-        if (!payload.storagePath.startsWith(expectedPrefix)) {
+        const uploadId = payload.uploadId ?? deriveUploadIdFromStoragePath(payload.storagePath);
+        const correlationId = payload.correlationId ?? payload.idempotencyKey ?? uploadId;
+        const ownership = assertChatAttachmentUploadOwnership({
+            storagePath: payload.storagePath,
+            callerUid: caller.uid,
+            threadId: payload.threadId,
+        });
+        if (!payload.storagePath.startsWith(ownership.expectedPrefix)) {
             return finalize(buildAttachmentCompleteForbiddenResponse());
         }
-        if (!isSafePendingAttachmentPath(payload.storagePath, expectedPrefix)) {
+        if (!ownership.ok) {
             return finalize(NextResponse.json({
                 ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
                 error: "Invalid attachment storage path.",
@@ -205,13 +232,17 @@ export async function POST(request: NextRequest) {
         return finalize(NextResponse.json({
             ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
             success: true,
+            uploadId,
+            correlationId,
             idempotencyKey: payload.idempotencyKey ?? null,
             status: "finalized",
             assetUrl: buildFirebaseStorageDownloadUrl(bucket.name, payload.storagePath, metadataToken),
+            assetUrlPolicy: "private_url_not_logged",
             assetName: payload.fileName,
             assetMimeType: contentType,
             sizeBytes: size,
             storagePath: payload.storagePath,
+            storagePathFingerprint: fingerprintStoragePath(payload.storagePath),
         }));
     } catch (error) {
         const chatError = toChatClientError(error);

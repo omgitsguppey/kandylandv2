@@ -64,6 +64,8 @@ import {
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
 import { storage, db, rtdb } from "@/lib/firebase-data";
 import { formatCompactGd } from "@/lib/gumdrop-formatting";
+import { fingerprintStoragePath, type MediaUploadLifecycleEventName, type MediaUploadStatus } from "@/lib/media/media-upload-contract";
+import { buildMediaUploadTrackEventPayload } from "@/lib/media/media-upload-telemetry";
 import { trackEvent } from "@/lib/telemetry";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { isAndroidStandalonePwa, isIosStandalonePwa } from "@/lib/device-layout-contract";
@@ -160,19 +162,29 @@ type ChatSendResponse = {
 } & Partial<ChatInsufficientFundsPayload> & Partial<ChatSendRealtimePayload>;
 
 type ChatAttachmentPrepareResponse = {
+    uploadId?: string;
+    correlationId?: string;
     storagePath: string;
+    storagePathFingerprint?: string;
     fileName: string;
     mimeType: string;
+    orphanDetectionAfterMs?: number;
+    assetUrlPolicy?: string;
     errorCode?: string;
     maxBytes?: number;
     actualBytes?: number;
 };
 
 type ChatAttachmentCompleteResponse = {
+    uploadId?: string;
+    correlationId?: string;
     assetUrl: string;
+    assetUrlPolicy?: string;
     assetName: string;
     assetMimeType: string;
     storagePath: string;
+    storagePathFingerprint?: string;
+    sizeBytes?: number;
     errorCode?: string;
     maxBytes?: number;
     actualBytes?: number;
@@ -211,6 +223,10 @@ function buildChatMessageIdempotencyKey(threadId: string) {
     }
 
     return `creator-private-chat:${threadId}:${random}`;
+}
+
+function buildChatAttachmentUploadCorrelationId(threadId: string) {
+    return buildChatMessageIdempotencyKey(threadId).replace("creator-private-chat", "creator-private-chat-upload");
 }
 
 function readChatDisplayMode() {
@@ -361,6 +377,47 @@ function buildChatTelemetryPayload({
         ...(typeof hasAttachment === "boolean" ? { has_attachment: hasAttachment } : {}),
         ...(errorCode ? { error_code: errorCode } : {}),
         ...(errorMessage ? { error_message: errorMessage.slice(0, 160) } : {}),
+    };
+}
+
+function buildChatMediaUploadPayload(input: {
+    eventName: MediaUploadLifecycleEventName;
+    uploadId: string;
+    correlationId?: string | null;
+    userId?: string | null;
+    threadId?: string | null;
+    mediaKind: "image" | "video";
+    mimeType: string;
+    sizeBytes: number;
+    maxBytes: number;
+    storagePath?: string | null;
+    status: MediaUploadStatus;
+    failureReason?: string | null;
+    durationMs?: number | null;
+    retryCount?: number | null;
+}) {
+    return {
+        ...buildMediaUploadTrackEventPayload({
+            eventName: input.eventName,
+            uploadId: input.uploadId,
+            correlationId: input.correlationId ?? input.uploadId,
+            ownerUserId: input.userId ?? null,
+            featureId: "support",
+            surface: "chat",
+            mediaKind: input.mediaKind,
+            mimeType: input.mimeType || "application/octet-stream",
+            sizeBytes: input.sizeBytes,
+            maxBytes: input.maxBytes,
+            storagePath: input.storagePath,
+            status: input.status,
+            failureReason: input.failureReason,
+            durationMs: input.durationMs,
+            retryCount: input.retryCount,
+            privacyClass: "required_integrity",
+        }),
+        source_component: "chat_thread_composer",
+        route: "/dashboard/chat",
+        ...(input.threadId ? { thread_id: input.threadId } : {}),
     };
 }
 
@@ -2399,6 +2456,18 @@ export function ChatExperience() {
             setComposerFile(null);
             setComposerKind("text");
             setSendErrorMessage("Only image and video files can be attached in chat.");
+            trackEvent("media_upload_blocked_type", buildChatMediaUploadPayload({
+                eventName: "media_upload_blocked_type",
+                uploadId: `blocked_type:${Date.now()}`,
+                userId: user?.uid ?? null,
+                threadId: selectedThreadId,
+                mediaKind: "image",
+                mimeType: file.type || "application/octet-stream",
+                sizeBytes: file.size,
+                maxBytes: chatFanPassActive ? CHAT_MEDIA_LIMIT_BYTES_FAN_PASS : CHAT_MEDIA_LIMIT_BYTES_DEFAULT,
+                status: "blocked",
+                failureReason: "unsupported_attachment_type",
+            }));
             trackEvent("chat_media_upload_blocked", {
                 source_component: "chat_thread_composer",
                 route: "/dashboard/chat",
@@ -2418,6 +2487,18 @@ export function ChatExperience() {
                 ? "This file is too large. Fan Pass uploads support up to 500 MB. Please upload a smaller file."
                 : "This file is too large. Chat uploads are limited to 25 MB unless you have a Fan Pass.";
             const errorCode = chatFanPassActive ? "fan_pass_file_limit_exceeded" : "file_too_large_requires_fan_pass";
+            trackEvent("media_upload_blocked_size", buildChatMediaUploadPayload({
+                eventName: "media_upload_blocked_size",
+                uploadId: `blocked_size:${Date.now()}`,
+                userId: user?.uid ?? null,
+                threadId: selectedThreadId,
+                mediaKind: attachmentKind,
+                mimeType: file.type || "application/octet-stream",
+                sizeBytes: file.size,
+                maxBytes,
+                status: "blocked",
+                failureReason: errorCode,
+            }));
             trackEvent("chat_media_file_rejected_size", {
                 source_component: "chat_thread_composer",
                 route: "/dashboard/chat",
@@ -2464,7 +2545,7 @@ export function ChatExperience() {
 
         setComposerFile(file);
         setComposerKind(attachmentKind);
-    }, [chatFanPassActive, isIosPwaChatShell, router, selectedThreadCreatorProfileHref]);
+    }, [chatFanPassActive, isIosPwaChatShell, router, selectedThreadCreatorProfileHref, selectedThreadId, user?.uid]);
 
     const openImagePicker = useCallback(() => {
         setAttachmentMenuOpen(false);
@@ -2503,7 +2584,7 @@ export function ChatExperience() {
             return true;
         } catch (error) {
             reportStorageIssue("chat attachment cleanup", error, {
-                storagePath,
+                storagePathFingerprint: fingerprintStoragePath(storagePath),
                 threadId: selectedThreadId,
             });
             return false;
@@ -2521,6 +2602,12 @@ export function ChatExperience() {
         }
 
         let preparedStoragePath: string | null = null;
+        let uploadId = buildChatAttachmentUploadCorrelationId(selectedThreadId);
+        const correlationId = uploadId;
+        const uploadStartedAt = Date.now();
+        const maxBytes = chatFanPassActive ? CHAT_MEDIA_LIMIT_BYTES_FAN_PASS : CHAT_MEDIA_LIMIT_BYTES_DEFAULT;
+        let uploadPhase: "prepare" | "storage" | "complete" = "prepare";
+        let lifecycleFailureTracked = false;
         try {
             trackEvent("chat_attachment_upload_started", {
                 source_component: "chat_thread_composer",
@@ -2531,6 +2618,19 @@ export function ChatExperience() {
                 file_size_bytes: composerFile.size,
                 mime_type: composerFile.type || "application/octet-stream",
             });
+            trackEvent("media_upload_prepare_started", buildChatMediaUploadPayload({
+                eventName: "media_upload_prepare_started",
+                uploadId,
+                correlationId,
+                userId: user.uid,
+                threadId: selectedThreadId,
+                mediaKind: attachmentKind,
+                mimeType: composerFile.type || "application/octet-stream",
+                sizeBytes: composerFile.size,
+                maxBytes,
+                status: "prepare_started",
+                durationMs: 0,
+            }));
             const prepareResponse = await authFetch("/api/chat/attachments/prepare", {
                 method: "POST",
                 body: JSON.stringify({
@@ -2538,6 +2638,7 @@ export function ChatExperience() {
                     fileName: composerFile.name,
                     mimeType: composerFile.type || "application/octet-stream",
                     sizeBytes: composerFile.size,
+                    idempotencyKey: correlationId,
                 }),
             });
             let prepareBody = {} as { error?: string } & Partial<ChatAttachmentPrepareResponse>;
@@ -2552,15 +2653,89 @@ export function ChatExperience() {
                     error: prepareBody.error,
                     errorCode: prepareBody.errorCode,
                 });
+                trackEvent("media_upload_prepare_failed", buildChatMediaUploadPayload({
+                    eventName: "media_upload_prepare_failed",
+                    uploadId,
+                    correlationId,
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    mediaKind: attachmentKind,
+                    mimeType: composerFile.type || "application/octet-stream",
+                    sizeBytes: composerFile.size,
+                    maxBytes: prepareBody.maxBytes ?? maxBytes,
+                    status: "failed",
+                    failureReason: prepareBody.errorCode ?? "prepare_failed",
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
+                lifecycleFailureTracked = true;
                 throw new Error(typedMessage);
             }
             preparedStoragePath = prepareBody.storagePath;
+            uploadId = prepareBody.uploadId ?? uploadId;
+            trackEvent("media_upload_prepare_completed", buildChatMediaUploadPayload({
+                eventName: "media_upload_prepare_completed",
+                uploadId,
+                correlationId: prepareBody.correlationId ?? correlationId,
+                userId: user.uid,
+                threadId: selectedThreadId,
+                mediaKind: attachmentKind,
+                mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
+                sizeBytes: composerFile.size,
+                maxBytes,
+                storagePath: prepareBody.storagePath,
+                status: "prepared",
+                durationMs: Date.now() - uploadStartedAt,
+            }));
 
             const target = storageRef(storage, prepareBody.storagePath);
+            uploadPhase = "storage";
+            trackEvent("media_storage_upload_started", buildChatMediaUploadPayload({
+                eventName: "media_storage_upload_started",
+                uploadId,
+                correlationId: prepareBody.correlationId ?? correlationId,
+                userId: user.uid,
+                threadId: selectedThreadId,
+                mediaKind: attachmentKind,
+                mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
+                sizeBytes: composerFile.size,
+                maxBytes,
+                storagePath: prepareBody.storagePath,
+                status: "storage_started",
+                durationMs: Date.now() - uploadStartedAt,
+            }));
             await uploadBytes(target, composerFile, {
                 contentType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
             });
+            trackEvent("media_storage_upload_completed", buildChatMediaUploadPayload({
+                eventName: "media_storage_upload_completed",
+                uploadId,
+                correlationId: prepareBody.correlationId ?? correlationId,
+                userId: user.uid,
+                threadId: selectedThreadId,
+                mediaKind: attachmentKind,
+                mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
+                sizeBytes: composerFile.size,
+                maxBytes,
+                storagePath: prepareBody.storagePath,
+                status: "storage_completed",
+                durationMs: Date.now() - uploadStartedAt,
+            }));
 
+            uploadPhase = "complete";
+            trackEvent("media_upload_complete_started", buildChatMediaUploadPayload({
+                eventName: "media_upload_complete_started",
+                uploadId,
+                correlationId: prepareBody.correlationId ?? correlationId,
+                userId: user.uid,
+                threadId: selectedThreadId,
+                mediaKind: attachmentKind,
+                mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
+                sizeBytes: composerFile.size,
+                maxBytes,
+                storagePath: prepareBody.storagePath,
+                status: "complete_started",
+                durationMs: Date.now() - uploadStartedAt,
+            }));
             const completeResponse = await authFetch("/api/chat/attachments/complete", {
                 method: "POST",
                 body: JSON.stringify({
@@ -2568,6 +2743,9 @@ export function ChatExperience() {
                     storagePath: prepareBody.storagePath,
                     fileName: prepareBody.fileName || composerFile.name,
                     mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
+                    uploadId,
+                    correlationId: prepareBody.correlationId ?? correlationId,
+                    idempotencyKey: correlationId,
                 }),
             });
             let completeBody = {} as { error?: string } & Partial<ChatAttachmentCompleteResponse>;
@@ -2582,8 +2760,38 @@ export function ChatExperience() {
                     error: completeBody.error,
                     errorCode: completeBody.errorCode,
                 });
+                trackEvent("media_upload_complete_failed", buildChatMediaUploadPayload({
+                    eventName: "media_upload_complete_failed",
+                    uploadId,
+                    correlationId: completeBody.correlationId ?? prepareBody.correlationId ?? correlationId,
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    mediaKind: attachmentKind,
+                    mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
+                    sizeBytes: composerFile.size,
+                    maxBytes: completeBody.maxBytes ?? maxBytes,
+                    storagePath: prepareBody.storagePath,
+                    status: "failed",
+                    failureReason: completeBody.errorCode ?? "complete_failed",
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
+                lifecycleFailureTracked = true;
                 throw new Error(typedMessage);
             }
+            trackEvent("media_upload_complete_completed", buildChatMediaUploadPayload({
+                eventName: "media_upload_complete_completed",
+                uploadId: completeBody.uploadId ?? uploadId,
+                correlationId: completeBody.correlationId ?? prepareBody.correlationId ?? correlationId,
+                userId: user.uid,
+                threadId: selectedThreadId,
+                mediaKind: attachmentKind,
+                mimeType: completeBody.assetMimeType || prepareBody.mimeType || composerFile.type || "application/octet-stream",
+                sizeBytes: completeBody.sizeBytes ?? composerFile.size,
+                maxBytes,
+                storagePath: completeBody.storagePath || prepareBody.storagePath,
+                status: "completed",
+                durationMs: Date.now() - uploadStartedAt,
+            }));
 
             return {
                 assetUrl: completeBody.assetUrl,
@@ -2592,14 +2800,79 @@ export function ChatExperience() {
                 storagePath: completeBody.storagePath || prepareBody.storagePath,
             };
         } catch (error) {
+            if (!lifecycleFailureTracked && uploadPhase === "prepare" && !preparedStoragePath) {
+                trackEvent("media_upload_prepare_failed", buildChatMediaUploadPayload({
+                    eventName: "media_upload_prepare_failed",
+                    uploadId,
+                    correlationId,
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    mediaKind: attachmentKind,
+                    mimeType: composerFile.type || "application/octet-stream",
+                    sizeBytes: composerFile.size,
+                    maxBytes,
+                    status: "failed",
+                    failureReason: error instanceof Error ? error.message.slice(0, 80) : "prepare_failed",
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
+            }
+            if (!lifecycleFailureTracked && uploadPhase === "storage" && preparedStoragePath) {
+                trackEvent("media_storage_upload_failed", buildChatMediaUploadPayload({
+                    eventName: "media_storage_upload_failed",
+                    uploadId,
+                    correlationId,
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    mediaKind: attachmentKind,
+                    mimeType: composerFile.type || "application/octet-stream",
+                    sizeBytes: composerFile.size,
+                    maxBytes,
+                    storagePath: preparedStoragePath,
+                    status: "failed",
+                    failureReason: error instanceof Error ? error.message.slice(0, 80) : "storage_upload_failed",
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
+            }
+            if (!lifecycleFailureTracked && uploadPhase === "complete" && preparedStoragePath) {
+                trackEvent("media_upload_complete_failed", buildChatMediaUploadPayload({
+                    eventName: "media_upload_complete_failed",
+                    uploadId,
+                    correlationId,
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    mediaKind: attachmentKind,
+                    mimeType: composerFile.type || "application/octet-stream",
+                    sizeBytes: composerFile.size,
+                    maxBytes,
+                    storagePath: preparedStoragePath,
+                    status: "failed",
+                    failureReason: error instanceof Error ? error.message.slice(0, 80) : "complete_failed",
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
+            }
             if (preparedStoragePath) {
                 await discardUploadedAttachment(preparedStoragePath);
+                trackEvent("media_upload_cancelled", buildChatMediaUploadPayload({
+                    eventName: "media_upload_cancelled",
+                    uploadId,
+                    correlationId,
+                    userId: user.uid,
+                    threadId: selectedThreadId,
+                    mediaKind: attachmentKind,
+                    mimeType: composerFile.type || "application/octet-stream",
+                    sizeBytes: composerFile.size,
+                    maxBytes,
+                    storagePath: preparedStoragePath,
+                    status: "cancelled",
+                    failureReason: "cleanup_after_failed_upload",
+                    durationMs: Date.now() - uploadStartedAt,
+                }));
             }
             reportStorageIssue("chat attachment upload", error, {
                 fileName: composerFile.name,
                 mimeType: composerFile.type,
                 threadId: selectedThreadId,
-                storagePath: preparedStoragePath,
+                storagePathFingerprint: fingerprintStoragePath(preparedStoragePath),
             });
             trackEvent("chat_attachment_upload_failed", {
                 source_component: "chat_thread_composer",
@@ -2614,7 +2887,7 @@ export function ChatExperience() {
             });
             throw error;
         }
-    }, [composerFile, discardUploadedAttachment, selectedThreadId, user]);
+    }, [chatFanPassActive, composerFile, discardUploadedAttachment, selectedThreadId, user]);
 
     const handleSendMessage = useCallback(async () => {
         if (!selectedThreadId || !selectedThread) {

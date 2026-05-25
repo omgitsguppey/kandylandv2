@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.72 - 2026-05-25
+- Media upload lifecycle
+- Hardened media upload prepare, storage, and completion lifecycle tracking.
+- Added debug visibility for upload failures and orphan risks.
+- Protected private storage paths from broad telemetry exposure.
+
 ## 1.4.71 - 2026-05-25
 - Final parity telemetry lock
 - Locked surface parity, telemetry parity, state feedback, and role permissions.

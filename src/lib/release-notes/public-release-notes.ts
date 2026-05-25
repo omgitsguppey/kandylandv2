@@ -1,13 +1,81 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.71",
-  "betaReleaseCounter": 471,
+  "currentVersion": "1.4.72",
+  "betaReleaseCounter": 472,
   "channel": "beta",
-  "generatedAt": "2026-05-25T21:50:05.854Z",
-  "generatedAtUtc": "2026-05-25T21:50:05.854Z",
+  "generatedAt": "2026-05-25T22:10:00.000Z",
+  "generatedAtUtc": "2026-05-25T22:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.72",
+      "previousVersion": "1.4.71",
+      "betaReleaseCounter": 472,
+      "previousBetaReleaseCounter": 471,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(media): track upload lifecycle",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T22:10:00.000Z",
+      "generatedAt": "2026-05-25T22:10:00.000Z",
+      "committedAtUtc": "2026-05-25T22:10:00.000Z",
+      "generatedAtUtc": "2026-05-25T22:10:00.000Z",
+      "category": "Improved",
+      "title": "Media upload lifecycle",
+      "updatedAtUtc": "2026-05-25T22:10:00.000Z",
+      "summary": "Hardened media upload prepare, storage, and completion lifecycle tracking.",
+      "userFacingTitle": "Media upload lifecycle",
+      "surfaceCategory": "Chat & support",
+      "bullets": [
+        "Hardened media upload prepare, storage, and completion lifecycle tracking.",
+        "Added debug visibility for upload failures and orphan risks.",
+        "Protected private storage paths from broad telemetry exposure."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical media upload lifecycle contract and telemetry bridge for prepare, storage upload, completion, cancellation, orphan, and block states.",
+        "Wired chat attachment prepare and complete routes with upload correlation ids, storage fingerprints, orphan detection, and ownership verification evidence.",
+        "Added source-only validation and generated debug evidence without production reads or provider calls."
+      ],
+      "affectedSurfaces": [
+        "Chat attachment uploads",
+        "Media upload telemetry and debug evidence",
+        "Feature telemetry and person metrics mapping"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/media/media-upload-telemetry.ts",
+        "src/app/api/chat/attachments/prepare/route.ts",
+        "src/app/api/chat/attachments/complete/route.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "scripts/agent/validate-media-upload-lifecycle.ts",
+        "tests/unit/media-upload-lifecycle.spec.ts",
+        "agent/state/media-upload-lifecycle.generated.json",
+        "docs/agent-truth/media-upload-lifecycle.md",
+        "scripts/agent/validate-feature-registration-gate.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "agent/state/feature-registration-gate.generated.json",
+        "docs/agent-truth/feature-registration-gate.md",
+        "agent/state/event-translation-bridge.generated.json",
+        "docs/agent-truth/event-translation-bridge.md",
+        "agent/state/person-metrics-hydration.generated.json",
+        "docs/agent-truth/person-metrics-hydration.md",
+        "agent/state/public-beta-score.generated.json",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.71",
       "previousVersion": "1.4.70",
