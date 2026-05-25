@@ -815,7 +815,7 @@
         "eslint-plugin-unused-imports": "^4.4.1",
         "firebase-tools": "^15.16.0",
         "happy-dom": "^20.9.0",
-        "knip": "^5.88.1",
+        "knip": "^6.14.2",
         "lighthouse": "^13.1.0",
         "madge": "^8.0.0",
         "msw": "^2.14.2",
