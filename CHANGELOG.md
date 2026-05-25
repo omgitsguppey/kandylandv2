@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.71 - 2026-05-25
+- Final parity telemetry lock
+- Locked surface parity, telemetry parity, state feedback, and role permissions.
+- Simplified debug lanes for product consistency.
+- Reported score impact by dimension.
+
 ## 1.4.70 - 2026-05-25
 - Role permission parity
 - Standardized role and permission rules across user, creator, admin, and guest surfaces.
