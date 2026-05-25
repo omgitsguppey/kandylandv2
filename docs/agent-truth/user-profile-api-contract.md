@@ -1,6 +1,6 @@
 # User Profile API Contract
 
-Generated: 2026-05-24T05:47:43.724Z
+Generated: 2026-05-25T14:59:51.411Z
 
 ## Status
 

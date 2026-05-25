@@ -1,8 +1,8 @@
 # Account Settings Delete Flow
 
-Generated: 2026-05-23T00:11:23.421Z
+Generated: 2026-05-25T15:00:47.814Z
 Status: pass
-Current head: 80ff5ebbd6a11a027951de58f1c8e1e859295785
+Current head: 5cfb3fcdfea33f079e1320203d737e3d1333ba80
 
 ## Contract
 
@@ -38,20 +38,23 @@ Current head: 80ff5ebbd6a11a027951de58f1c8e1e859295785
 
 ## Changed Files
 
-- CHANGELOG.md
-- agent/state/account-settings-delete-flow.generated.json
-- docs/agent-truth/account-settings-delete-flow.md
-- package.json
-- public/kandydrops-release-notes.json
-- scripts/agent/validate-account-settings-delete-flow.ts
-- src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx
-- src/app/dashboard/profile/hooks/useProfileState.tsx
-- src/components/Settings/UserSettingsPage.tsx
-- src/lib/release-notes/public-release-notes.ts
-- src/lib/release-notes/release-version-contract.ts
-- src/lib/telemetry-catalog.ts
-- src/lib/telemetry.ts
-- tests/unit/account-settings-delete-flow.spec.ts
+- agent/state/creator-landing-dashboard-mobile.generated.json
+- agent/state/creator-settings-source-health.generated.json
+- agent/state/creator-surface-routing.generated.json
+- agent/state/notification-permission-lifecycle.generated.json
+- agent/state/settings-debug-validator-authority.generated.json
+- agent/state/settings-route-alias-cleanup.generated.json
+- agent/state/support-policy-surface-cleanup.generated.json
+- agent/state/user-profile-api-contract.generated.json
+- docs/agent-truth/creator-settings-source-health.md
+- docs/agent-truth/notification-permission-lifecycle.md
+- docs/agent-truth/settings-debug-validator-authority.md
+- docs/agent-truth/settings-route-alias-cleanup.md
+- docs/agent-truth/support-policy-surface-cleanup.md
+- docs/agent-truth/user-profile-api-contract.md
+- src/lib/auth-outcome-telemetry.ts
+- src/lib/browser-notification-enrollment.ts
+- src/lib/discovery-telemetry.ts
 
 ## Validation Failures
 

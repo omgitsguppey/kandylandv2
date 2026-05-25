@@ -1,8 +1,8 @@
 # Chat Composer Modal Lift
 
-Generated: 2026-05-22T23:53:34.527Z
+Generated: 2026-05-25T15:01:10.777Z
 Status: pass
-Current head: 58929a769685124b73004b07f1795ec1dd0dd45f
+Current head: 5cfb3fcdfea33f079e1320203d737e3d1333ba80
 
 ## Contract
 
@@ -30,16 +30,29 @@ Current head: 58929a769685124b73004b07f1795ec1dd0dd45f
 
 ## Changed Files
 
-- CHANGELOG.md
-- agent/state/chat-composer-modal-lift.generated.json
-- docs/agent-truth/chat-composer-modal-lift.md
-- package.json
-- public/kandydrops-release-notes.json
-- scripts/agent/validate-chat-composer-modal-lift.ts
-- src/components/Chat/ChatExperience.tsx
-- src/lib/release-notes/public-release-notes.ts
-- src/lib/release-notes/release-version-contract.ts
-- tests/unit/chat-composer-modal-lift.spec.ts
+- agent/state/account-settings-delete-flow.generated.json
+- agent/state/creator-landing-dashboard-mobile.generated.json
+- agent/state/creator-settings-source-health.generated.json
+- agent/state/creator-surface-routing.generated.json
+- agent/state/final-user-tracking-handoff-lock.generated.json
+- agent/state/notification-permission-lifecycle.generated.json
+- agent/state/settings-connection-parity.generated.json
+- agent/state/settings-debug-validator-authority.generated.json
+- agent/state/settings-route-alias-cleanup.generated.json
+- agent/state/support-policy-surface-cleanup.generated.json
+- agent/state/user-profile-api-contract.generated.json
+- docs/agent-truth/account-settings-delete-flow.md
+- docs/agent-truth/creator-settings-source-health.md
+- docs/agent-truth/final-user-tracking-handoff-lock.md
+- docs/agent-truth/notification-permission-lifecycle.md
+- docs/agent-truth/settings-connection-parity.md
+- docs/agent-truth/settings-debug-validator-authority.md
+- docs/agent-truth/settings-route-alias-cleanup.md
+- docs/agent-truth/support-policy-surface-cleanup.md
+- docs/agent-truth/user-profile-api-contract.md
+- src/lib/auth-outcome-telemetry.ts
+- src/lib/browser-notification-enrollment.ts
+- src/lib/discovery-telemetry.ts
 
 ## Validation Failures
 

@@ -57,9 +57,15 @@ export function createAuthAttemptTelemetryContext(input: {
   const identity = getClientAnalyticsIdentitySnapshot();
   const route = input.route || (typeof window !== "undefined" ? window.location.pathname : "/auth");
   return {
-    authAttemptId: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-      ? crypto.randomUUID()
-      : `auth_attempt_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
+    authAttemptId: (() => {
+      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+      }
+      if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+        return Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
+      }
+      throw new Error("Secure random generation is not supported in this environment");
+    })(),
     method: input.method,
     startedAtUtc: nowUtc(),
     route,

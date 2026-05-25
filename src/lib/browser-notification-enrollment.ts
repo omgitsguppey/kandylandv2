@@ -32,7 +32,15 @@ function getBrowserPushDeviceId() {
   try {
     const existing = window.localStorage.getItem(storageKey);
     if (existing) return resolvePushDeviceId(existing);
-    const generated = `${PUSH_TOKEN_DEVICE_ID_PREFIX}:${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(36).slice(2)}`}`;
+    const generated = `${PUSH_TOKEN_DEVICE_ID_PREFIX}:${(() => {
+      if (typeof globalThis.crypto !== "undefined" && typeof globalThis.crypto.randomUUID === "function") {
+        return globalThis.crypto.randomUUID();
+      }
+      if (typeof globalThis.crypto !== "undefined" && typeof globalThis.crypto.getRandomValues === "function") {
+        return Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
+      }
+      throw new Error("Secure random generation is not supported in this environment");
+    })()}`;
     window.localStorage.setItem(storageKey, generated);
     return resolvePushDeviceId(generated);
   } catch {

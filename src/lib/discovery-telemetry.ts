@@ -18,7 +18,7 @@ function createRandomToken() {
     return Array.from(buffer, (value) => value.toString(36).padStart(2, "0")).join("").slice(0, 12);
   }
 
-  return Math.random().toString(36).slice(2, 14);
+  throw new Error("Secure random generation is not supported in this environment");
 }
 
 export function createDiscoveryTrackingSessionId(prefix: string) {

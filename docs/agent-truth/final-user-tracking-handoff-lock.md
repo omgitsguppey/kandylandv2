@@ -1,8 +1,8 @@
 # Final User Tracking Handoff Lock
 
-Generated: 2026-05-22T23:41:10.853Z
+Generated: 2026-05-25T15:01:01.195Z
 Status: pass
-Current head: b5d1e441fc59f0cf01b2fa0b96b88f82242d9100
+Current head: 5cfb3fcdfea33f079e1320203d737e3d1333ba80
 
 ## Lock Status
 
@@ -20,8 +20,8 @@ Current head: b5d1e441fc59f0cf01b2fa0b96b88f82242d9100
 
 - Duplicate debug lanes: 0
 - Ownerless orphan metrics: 0
-- Score before: 55.56
-- Score after: 55.56
+- Score before: 77.83
+- Score after: 77.83
 
 ## Contract
 
@@ -65,22 +65,27 @@ Current head: b5d1e441fc59f0cf01b2fa0b96b88f82242d9100
 
 ## Changed Files
 
-- CHANGELOG.md
-- agent/state/current-beta-exit-status.generated.json
-- agent/state/final-user-tracking-handoff-lock.generated.json
-- agent/state/new-additions-score-coverage.generated.json
-- agent/state/public-beta-score.generated.json
-- docs/agent-truth/current-beta-exit-status.md
-- docs/agent-truth/final-user-tracking-handoff-lock.md
-- docs/agent-truth/new-additions-score-coverage.md
-- package.json
-- public/kandydrops-release-notes.json
-- scripts/agent/validate-final-user-tracking-handoff-lock.ts
-- scripts/agent/validate-new-additions-score-coverage.ts
-- src/app/api/admin/debug/route.ts
-- src/lib/release-notes/public-release-notes.ts
-- src/lib/release-notes/release-version-contract.ts
-- tests/unit/final-user-tracking-handoff-lock.spec.ts
+- agent/state/account-settings-delete-flow.generated.json
+- agent/state/creator-landing-dashboard-mobile.generated.json
+- agent/state/creator-settings-source-health.generated.json
+- agent/state/creator-surface-routing.generated.json
+- agent/state/notification-permission-lifecycle.generated.json
+- agent/state/settings-connection-parity.generated.json
+- agent/state/settings-debug-validator-authority.generated.json
+- agent/state/settings-route-alias-cleanup.generated.json
+- agent/state/support-policy-surface-cleanup.generated.json
+- agent/state/user-profile-api-contract.generated.json
+- docs/agent-truth/account-settings-delete-flow.md
+- docs/agent-truth/creator-settings-source-health.md
+- docs/agent-truth/notification-permission-lifecycle.md
+- docs/agent-truth/settings-connection-parity.md
+- docs/agent-truth/settings-debug-validator-authority.md
+- docs/agent-truth/settings-route-alias-cleanup.md
+- docs/agent-truth/support-policy-surface-cleanup.md
+- docs/agent-truth/user-profile-api-contract.md
+- src/lib/auth-outcome-telemetry.ts
+- src/lib/browser-notification-enrollment.ts
+- src/lib/discovery-telemetry.ts
 
 ## Validation Failures
 
