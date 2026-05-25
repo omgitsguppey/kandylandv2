@@ -29,6 +29,7 @@ const packageJson = JSON.parse(readRequired("package.json") || "{}") as {
   scripts?: Record<string, string>;
 };
 const unlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
+const unlockWatchContract = readRequired("src/lib/commerce/unlock-watch-parity-contract.ts");
 const previewClient = readRequired("src/components/Drops/LockedDropPreviewClient.tsx");
 const dropCard = readRequired("src/components/DropCard.tsx");
 const previewModal = readRequired("src/components/DropPreviewModal.tsx");
@@ -46,14 +47,22 @@ if (packageJson.scripts?.["check:unlock-telemetry-truth"] !== "tsx scripts/agent
 }
 
 requireIncludes(unlockRoute, 'trackServerEvent("drop_unlocked"', "Drop unlock route");
-requireIncludes(unlockRoute, 'trackServerEvent("drop_unwrapped"', "Drop unlock route legacy alias");
+requireIncludes(unlockRoute, "buildServerUnlockTelemetryEvent", "Drop unlock route canonical server unlock helper");
+requireIncludes(unlockRoute, "trackServerEvent(serverUnlockTelemetry.eventName", "Drop unlock route canonical server unlock telemetry");
 requireIncludes(unlockRoute, 'trackServerEvent("entitlement_granted"', "Drop unlock entitlement route");
 requireIncludes(unlockRoute, 'entitlement_id: result.entitlementId', "Drop unlock route entitlement id telemetry");
 requireIncludes(unlockRoute, 'transaction_id: result.transactionId', "Drop unlock route transaction id telemetry");
-requireIncludes(unlockRoute, 'idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`', "Drop unlock route idempotency telemetry");
+requireIncludes(unlockRoute, "idempotency_key: serverUnlockTelemetry.idempotencyKey", "Drop unlock route idempotency telemetry");
 requireIncludes(unlockRoute, 'source_component: "drops_unlock_route"', "Drop unlock route source component telemetry");
 requireIncludes(unlockRoute, 'route: "/api/drops/unlock"', "Drop unlock route route telemetry");
-requireIncludes(unlockRoute, 'sourceTruth: "server"', "Drop unlock route server truth");
+requireIncludes(unlockRoute, 'sourceTruth: "server_unlock_route"', "Drop unlock route server truth");
+requireIncludes(unlockWatchContract, 'CANONICAL_SERVER_UNLOCK_EVENT_NAME = "drop_unwrapped"', "Unlock watch parity contract canonical server unlock event");
+requireIncludes(unlockWatchContract, 'idempotency_key: eventId', "Unlock watch parity contract idempotency key");
+requireIncludes(unlockWatchContract, 'transaction_id: transactionId', "Unlock watch parity contract transaction linkage");
+requireIncludes(unlockWatchContract, 'drop_id: dropId', "Unlock watch parity contract drop linkage");
+requireIncludes(unlockWatchContract, 'purchased_amount_spent: purchasedAmountSpent', "Unlock watch parity contract purchased spend split");
+requireIncludes(unlockWatchContract, 'reward_amount_spent: rewardAmountSpent', "Unlock watch parity contract reward spend split");
+requireIncludes(unlockWatchContract, 'sourceTruth: "server_unlock_route"', "Unlock watch parity contract server source truth");
 
 requireIncludes(previewClient, 'trackEvent("drop_unlock_attempted"', "Locked drop preview client");
 requireIncludes(previewClient, 'trackEvent("drop_preview_unlock_success_state_viewed"', "Locked drop preview client success UI context");
@@ -66,8 +75,9 @@ requireIncludes(telemetryCatalog, '{ eventName: "drop_unwrapped"', "Telemetry ca
 requireIncludes(telemetryCatalog, '{ eventName: "entitlement_granted"', "Telemetry catalog entitlement fact");
 requireIncludes(telemetryCatalog, 'entitlementId: "entitlement_id"', "Telemetry catalog entitlement id alias");
 
-requireIncludes(identifiedIngestRoute, 'canonicalEventName === "drop_unlocked" || canonicalEventName === "drop_unwrapped" || canonicalEventName === "entitlement_granted"', "Identified ingest unlock server truth");
-requireIncludes(identifiedIngestRoute, 'if (canonicalEventName === "unlock_drop_success") {', "Identified ingest legacy client unlock demotion");
+requireIncludes(identifiedIngestRoute, "resolveTrackedTelemetryEvent(rawEvent.eventName)", "Identified ingest unlock canonical resolver");
+requireIncludes(identifiedIngestRoute, "canonicalEventName", "Identified ingest canonical event name");
+requireIncludes(identifiedIngestRoute, "sourceTruth: runtimeFactResult.fact.sourceTruth", "Identified ingest unlock server truth");
 
 requireIncludes(adminHistoricalRoute, 'const telemetryUnlockCount = Math.max(', "Admin historical unlock telemetry aggregation");
 requireIncludes(adminHistoricalRoute, 'canonicalEventCounts.drop_unwrapped || 0', "Admin historical unlock parity must read canonical unlock facts");

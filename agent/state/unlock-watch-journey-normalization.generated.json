@@ -1,0 +1,10 @@
+{
+  "batch": 33,
+  "journeyNormalizationStatus": "fail_with_attribution_gaps",
+  "steps": ["drop_viewed", "unlock_attempted", "unlock_completed", "content_viewer_started", "watch_session_started", "watch_progress", "watch_completed_or_abandoned"],
+  "watchSessionsDroppedWhenViewerStartMissing": false,
+  "missingViewerStartAttributionGap": true,
+  "doubleCountRiskBlocked": true,
+  "rawPrivateContentAllowed": false,
+  "nextAction": "Keep watch sessions counted and surface missing unlock/viewer telemetry as attribution gaps."
+}

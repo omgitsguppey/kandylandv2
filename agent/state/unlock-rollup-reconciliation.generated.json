@@ -1,0 +1,13 @@
+{
+  "batch": 33,
+  "status": "fail",
+  "selectedRange": "30d",
+  "unlockTransactions": 47,
+  "canonicalUnlockRollups": 145,
+  "unlockDelta": 98,
+  "telemetryEventCount": 0,
+  "mismatchReason": "missing_server_unlock_telemetry",
+  "comparableUnitsStatus": "comparable_unlock_count",
+  "dateWindowStatus": "aligned",
+  "nextAction": "Wire canonical server unlock telemetry and inspect rollup source ids before treating access counts as aligned."
+}

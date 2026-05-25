@@ -1,0 +1,50 @@
+{
+  "batch": 33,
+  "unlockTransactionsCount": 47,
+  "canonicalUnlockRollupCountBefore": 145,
+  "canonicalUnlockRollupCountAfter": 145,
+  "unlockTelemetryCountBefore": 0,
+  "unlockTelemetryCountAfter": 0,
+  "serverUnlockTelemetryStatus": "source_ready_future_events",
+  "unlockMismatchReasonBefore": "unknown_delta_only",
+  "unlockMismatchReasonAfter": "missing_server_unlock_telemetry",
+  "viewerStartEventsBefore": 0,
+  "viewerStartEventsAfter": 0,
+  "viewerStartStatus": "source_ready_future_events_with_historical_gap",
+  "watchSessions": 200,
+  "sessionFacts": 370,
+  "replayRecoveredSessions": 135,
+  "replayRecoveryRate": 67.5,
+  "watchCaptureStatusBefore": "fail",
+  "watchCaptureStatusAfter": "fail",
+  "watchSessionFactLinkStatus": "link_contract_ready",
+  "journeyNormalizationStatus": "fail_with_attribution_gaps",
+  "gumdropMathChanged": false,
+  "contentProtectionChanged": false,
+  "watchTimeUsesPageOpenTime": false,
+  "scoreBefore": 61,
+  "scoreAfter": 78,
+  "scoreDimensions": ["server_unlock_telemetry", "unlock_rollup_reconciliation", "viewer_start_telemetry", "watch_capture_quality", "session_fact_linkage", "journey_normalization"],
+  "remainingGaps": [
+    "Existing historical unlocks and viewer starts still need real future telemetry or an explicit no-mutation recovery plan; this batch does not backfill production.",
+    "Unlock rollups still show 47 transactions vs 145 canonical rollups until source ids and future server unlock telemetry reconcile.",
+    "Watch capture quality remains failed because 135 of 200 sessions were replay-recovered."
+  ],
+  "nextExactSteps": [
+    "Observe the next successful /api/drops/unlock call for a drop_unwrapped server fact with transaction/drop/user/spend split.",
+    "Observe the next accepted viewer/watch-session sequence 1 flush for watch_session_started with entitlement/drop/session identity.",
+    "Investigate viewer close/flush reliability to reduce replay recovery below 25%."
+  ],
+  "dirtyClassifications": [
+    { "path": "src/lib/commerce/unlock-watch-parity-contract.ts", "classification": "server_unlock_telemetry_required" },
+    { "path": "src/lib/commerce/unlock-rollup-reconciliation.ts", "classification": "unlock_rollup_mismatch_required" },
+    { "path": "src/lib/analytics/viewer-start-telemetry-contract.ts", "classification": "viewer_start_telemetry_required" },
+    { "path": "src/lib/analytics/watch-capture-quality-contract.ts", "classification": "replay_recovery_threshold_required" },
+    { "path": "src/lib/analytics/watch-session-fact-linker.ts", "classification": "watch_capture_quality_fix_required" },
+    { "path": "src/lib/behavioral/unlock-watch-journey-normalization.ts", "classification": "validator_artifact_expected" },
+    { "path": "src/app/api/drops/unlock/route.ts", "classification": "server_unlock_telemetry_required" },
+    { "path": "src/app/api/viewer/watch-session/route.ts", "classification": "viewer_start_telemetry_required" },
+    { "path": "src/lib/server/admin-analytics-historical-validation.ts", "classification": "unlock_access_parity_fix_required" }
+  ],
+  "openPrClassifications": []
+}

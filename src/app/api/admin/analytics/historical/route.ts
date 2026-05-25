@@ -1328,12 +1328,17 @@ async function GET_handler(request: NextRequest) {
             const completedPurchaseTransactionIds = completedPurchaseTransactions
                 .map((transaction) => toStringValue(transaction.id))
                 .filter(Boolean);
+            const completedUnlockTransactionIds = unlockTransactions
+                .map((transaction) => toStringValue(transaction.id))
+                .filter(Boolean);
             const commerceRollupSourceIds = commerceDailySnapshot.docs.map((doc) => doc.id);
             const commerceRollupDayKeys = collectDocDayKeys(commerceDailySnapshot.docs, {
                 explicitKeys: ["dayKey"],
                 fallbackTimestampKeys: ["updatedAt", "lastTransactionAt"],
                 readFromIdPrefix: true,
             });
+            const unlockRollupSourceIds = commerceRollupSourceIds;
+            const unlockRollupDayKeys = commerceRollupDayKeys;
             const normalizedTaskEvents: TaskLifecycleLog[] = taskEventsSnapshot.docs.flatMap((doc) => {
                 const data = doc.data();
                 const timestamp = toNumber(data.timestamp);
@@ -1968,6 +1973,13 @@ async function GET_handler(request: NextRequest) {
                 commerceRollupStartDayKey: commerceRollupDayKeys[0] ?? null,
                 commerceRollupEndDayKey: commerceRollupDayKeys[commerceRollupDayKeys.length - 1] ?? null,
                 firstPartyUnlockCount,
+                firstPartyUnlockRollupDocumentCount: commerceDailySnapshot.docs.length,
+                completedUnlockTransactionIds,
+                unlockRollupSourceIds,
+                unlockWindowStartDayKey: startDayKey,
+                unlockWindowEndDayKey: endDayKey,
+                unlockRollupStartDayKey: unlockRollupDayKeys[0] ?? null,
+                unlockRollupEndDayKey: unlockRollupDayKeys[unlockRollupDayKeys.length - 1] ?? null,
                 completedPurchaseTransactionsCount: completedPurchaseTransactions.length,
                 unlockTransactionsCount: unlockTransactions.length,
                 guestInteractionCount,

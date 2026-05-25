@@ -1,33 +1,33 @@
 {
-  "generatedAtUtc": "2026-05-24T18:04:02.886Z",
+  "generatedAtUtc": "2026-05-25T07:10:33.785Z",
   "reportKey": "drop-watch-time-accuracy",
-  "currentHead": "6d038e7f7d9b7cef83d276f39bd968df83bb988d",
+  "currentHead": "8f5b66d4c5465ac057ea542614a5b8d01c5d3c43",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeWatchTimeUsed": false,
   "scoreBefore": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "overallHealthScore": 77.83
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "overallHealthScore": 77.83
   },
   "metrics": {
     "sourceHealth": {
-      "before": 92.5,
-      "after": 92.5,
+      "before": 91.7,
+      "after": 91.7,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No drop watch-time score action needed for this dimension."
@@ -47,11 +47,11 @@
       "nextExactAction": "Resolve formal beta score gates outside drop watch-time math; do not fake runtime/provider evidence."
     },
     "freshness": {
-      "before": 83.75,
-      "after": 83.75,
+      "before": 75.63,
+      "after": 75.63,
       "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No drop watch-time score action needed for this dimension."
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside drop watch-time math; do not fake runtime/provider evidence."
     },
     "costRisk": {
       "before": 42,
@@ -68,8 +68,8 @@
       "nextExactAction": "No drop watch-time score action needed for this dimension."
     },
     "overallHealthScore": {
-      "before": 79.25,
-      "after": 79.25,
+      "before": 77.83,
+      "after": 77.83,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Resolve formal beta score gates outside drop watch-time math; do not fake runtime/provider evidence."
@@ -193,119 +193,107 @@
   },
   "dirtyFiles": [
     {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/canonical-business-truth-refresh.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/canonical-business-truth-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
+      "path": "agent/state/debug-cockpit-batch33-unlock-watch-parity.generated.json",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-backlog-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-cockpit-batch8-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/drop-watch-time-accuracy.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
+      "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/recovery-playbook-cta-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/sql-database-parity-cost-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/server-unlock-telemetry-emission.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/canonical-business-truth-refresh.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/unlock-rollup-reconciliation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/canonical-business-truth-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/unlock-watch-journey-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/unlock-watch-validation-semantics.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/viewer-start-telemetry-repair.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch8-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/watch-capture-quality-threshold.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/watch-session-fact-link-repair.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/debug-cockpit-batch33-unlock-watch-parity.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/drop-watch-time-accuracy.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/recovery-playbook-cta-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/server-unlock-telemetry-emission.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/sql-database-parity-cost-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/unlock-rollup-reconciliation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/unlock-watch-journey-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/unlock-watch-validation-semantics.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/viewer-start-telemetry-repair.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/watch-capture-quality-threshold.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/watch-session-fact-link-repair.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "package.json",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/business-truth-recovery-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-canonical-business-truth-refresh.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-canonical-business-truth-status.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-debug-cockpit-batch8-cleanup.ts",
+      "path": "scripts/agent/validate-debug-cockpit-batch33-unlock-watch-parity.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -313,39 +301,123 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-recovery-playbook-cta-cleanup.ts",
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-sql-database-parity-cost-lock.ts",
+      "path": "scripts/agent/validate-person-metrics-hydration.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx",
+      "path": "scripts/agent/validate-server-unlock-telemetry-emission.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-unlock-rollup-reconciliation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-unlock-telemetry-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-unlock-watch-journey-normalization.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-unlock-watch-validation-semantics.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-viewer-start-telemetry-repair.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-watch-capture-quality-threshold.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-watch-session-fact-link-repair.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/api/admin/analytics/historical/route.ts",
+      "classification": "unlock_watch_validation_semantics_required"
+    },
+    {
+      "path": "src/app/api/drops/unlock/route.ts",
+      "classification": "server_unlock_telemetry_required"
+    },
+    {
+      "path": "src/app/api/viewer/watch-session/route.ts",
+      "classification": "viewer_start_telemetry_required"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/canonical-business-truth-status.ts",
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/recovery-playbook-visibility.ts",
+      "path": "src/lib/analytics/viewer-start-telemetry-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/canonical-business-truth-refresh.spec.ts",
+      "path": "src/lib/analytics/watch-capture-quality-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/watch-session-fact-linker.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/unlock-watch-journey-normalization.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/commerce/unlock-rollup-reconciliation.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/commerce/unlock-watch-parity-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "unlock_watch_validation_semantics_required"
+    },
+    {
+      "path": "tests/unit/debug-cockpit-batch33-unlock-watch-parity.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/canonical-business-truth-status.spec.ts",
+      "path": "tests/unit/server-unlock-telemetry-emission.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/debug-cockpit-batch8-cleanup.spec.ts",
+      "path": "tests/unit/unlock-rollup-reconciliation.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/recovery-playbook-cta-cleanup.spec.ts",
+      "path": "tests/unit/unlock-watch-journey-normalization.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/unlock-watch-validation-semantics.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/viewer-start-telemetry-repair.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/watch-capture-quality-threshold.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/watch-session-fact-link-repair.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

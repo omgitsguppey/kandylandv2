@@ -4,8 +4,12 @@ import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
 import { classifyTaskOnboardingParity } from "@/lib/analytics/task-onboarding-parity-semantics";
 import { buildTelemetryParityPassGate } from "@/lib/analytics/telemetry-parity-pass-gate";
+import { classifyViewerStartCoverage } from "@/lib/analytics/viewer-start-telemetry-contract";
+import { classifyWatchCaptureQuality } from "@/lib/analytics/watch-capture-quality-contract";
 import { classifyPurchaseTelemetryCoverage } from "@/lib/commerce/commerce-parity-contract";
 import { reconcileCommerceRollups } from "@/lib/commerce/commerce-rollup-reconciliation";
+import { classifyUnlockTelemetryCoverage } from "@/lib/commerce/unlock-watch-parity-contract";
+import { reconcileUnlockRollups } from "@/lib/commerce/unlock-rollup-reconciliation";
 import {
   TASK_GUIDANCE_EVENT_NAMES,
   TASK_GUIDANCE_IMPLEMENTED,
@@ -231,6 +235,12 @@ export interface UnlockWatchParity {
     unlockTransactions: number;
     canonicalUnlockRollups: number;
     delta: number;
+    mismatchReason: string;
+    comparableUnitsStatus: string;
+    dateWindowStatus: string;
+    confidence: number;
+    technicalEvidence: string;
+    nextAction: string;
     state: "pass" | "review" | "fail";
   };
   unlockFunnelTelemetry: {
@@ -240,7 +250,7 @@ export interface UnlockWatchParity {
     coveragePct: number;
     state: "pass" | "review" | "fail";
     passAllowed: boolean;
-    blockedReason?: "required_sample_missing" | "unlock_telemetry_undercount";
+    blockedReason?: "required_sample_missing" | "unlock_telemetry_undercount" | "missing_server_unlock_telemetry";
   };
   viewerActivityTruth: {
     watchSessions: number;
@@ -248,6 +258,9 @@ export interface UnlockWatchParity {
     sessionFacts: number;
     rawSessionStartEvents: number;
     rawStartRequired: boolean;
+    passAllowed: boolean;
+    blockedReason?: "viewer_start_missing";
+    nextAction: string;
     state: "pass" | "review" | "fail";
   };
   watchCaptureQuality: {
@@ -255,6 +268,13 @@ export interface UnlockWatchParity {
     degradedCaptures: number;
     replayRecoveredSessions: number;
     closeMissingSessions: number;
+    replayRecoveryRate: number;
+    degradedCaptureRate: number;
+    missingCloseoutRate: number;
+    confidence: number;
+    passAllowed: boolean;
+    blockedReason?: "replay_recovery_rate_high" | "closeout_missing" | "degraded_capture_present";
+    nextAction: string;
     state: "pass" | "review" | "fail";
   };
 }
@@ -962,6 +982,15 @@ export function buildHistoricalValidationSummary(input: {
   commerceRollupStartDayKey?: string | null;
   commerceRollupEndDayKey?: string | null;
   firstPartyUnlockCount: number;
+  firstPartyUnlockRollupDocumentCount?: number;
+  completedUnlockTransactionIds?: string[];
+  unlockRollupSourceIds?: string[];
+  duplicateUnlockRollupIds?: string[];
+  legacyUnlockRollupIds?: string[];
+  unlockWindowStartDayKey?: string | null;
+  unlockWindowEndDayKey?: string | null;
+  unlockRollupStartDayKey?: string | null;
+  unlockRollupEndDayKey?: string | null;
   completedPurchaseTransactionsCount: number;
   unlockTransactionsCount: number;
   guestInteractionCount: number;
@@ -1257,59 +1286,62 @@ export function buildHistoricalValidationSummary(input: {
           : "review",
     },
   };
-  const unlockDelta = Math.abs(input.unlockTransactionsCount - input.firstPartyUnlockCount);
-  const unlockAccessState: UnlockWatchParity["unlockAccessTruth"]["state"] =
-    unlockDelta === 0
-      ? "pass"
-      : unlockDelta <= 2
-        ? "review"
-        : "fail";
-  const missingUnlockTelemetryCount = Math.max(input.unlockTransactionsCount - input.telemetryUnlockCount, 0);
-  const unlockTelemetryCoveragePct = input.unlockTransactionsCount > 0
-    ? Number(((input.telemetryUnlockCount / input.unlockTransactionsCount) * 100).toFixed(2))
-    : 100;
-  const unlockFunnelState: UnlockWatchParity["unlockFunnelTelemetry"]["state"] =
-    input.unlockTransactionsCount <= 0
-      ? "review"
-      : input.telemetryUnlockCount <= 0
-        ? "fail"
-        : missingUnlockTelemetryCount > 0
-          ? "review"
-          : "pass";
-  const rawViewerStartRequired = true;
-  const viewerActivityState: UnlockWatchParity["viewerActivityTruth"]["state"] =
-    input.watchSessionCount <= 0 && input.filteredSessionFactsLength <= 0
-      ? "review"
-      : rawViewerStartRequired && input.viewerSessionStartedLogsLength <= 0
-        ? "fail"
-        : "pass";
-  const watchCaptureState: UnlockWatchParity["watchCaptureQuality"]["state"] =
-    input.watchSessionCount <= 0
-      ? "review"
-      : input.watchCaptureCloseMissingCount > 0
-        ? "fail"
-        : input.watchCaptureDegradedCount > 0 || input.watchCaptureReplayRecoveredCount > 0
-          ? "review"
-          : "pass";
+  const unlockRollupReconciliation = reconcileUnlockRollups({
+    selectedRange,
+    transactionCount: input.unlockTransactionsCount,
+    rollupUnlockCount: input.firstPartyUnlockCount,
+    rollupDocumentCount: input.firstPartyUnlockRollupDocumentCount ?? input.firstPartyUnlockCount,
+    telemetryEventCount: input.telemetryUnlockCount,
+    completedTransactionIds: input.completedUnlockTransactionIds ?? [],
+    rollupSourceIds: input.unlockRollupSourceIds ?? [],
+    duplicateRollupIds: input.duplicateUnlockRollupIds ?? [],
+    legacyRollupIds: input.legacyUnlockRollupIds ?? [],
+    startDayKey: input.unlockWindowStartDayKey,
+    endDayKey: input.unlockWindowEndDayKey,
+    rollupStartDayKey: input.unlockRollupStartDayKey,
+    rollupEndDayKey: input.unlockRollupEndDayKey,
+  });
+  const unlockTelemetryCoverage = classifyUnlockTelemetryCoverage({
+    unlockTransactionCount: input.unlockTransactionsCount,
+    telemetryEventCount: input.telemetryUnlockCount,
+  });
+  const viewerStartCoverage = classifyViewerStartCoverage({
+    watchSessionCount: input.watchSessionCount,
+    sessionFactCount: input.filteredSessionFactsLength,
+    viewerStartEventCount: input.viewerSessionStartedLogsLength,
+  });
+  const watchCaptureQuality = classifyWatchCaptureQuality({
+    watchSessions: input.watchSessionCount,
+    fullCaptures: input.watchCaptureFullCount,
+    degradedCaptures: input.watchCaptureDegradedCount,
+    replayRecoveredSessions: input.watchCaptureReplayRecoveredCount,
+    closeMissingSessions: input.watchCaptureCloseMissingCount,
+  });
   const unlockWatchParity: UnlockWatchParity = {
     range: selectedRange,
     generatedAtUtc: toUtcString(input.generatedAtMs ?? lastValidatedAt) ?? new Date(input.generatedAtMs ?? lastValidatedAt).toISOString(),
     unlockAccessTruth: {
       unlockTransactions: input.unlockTransactionsCount,
       canonicalUnlockRollups: input.firstPartyUnlockCount,
-      delta: unlockDelta,
-      state: unlockAccessState,
+      delta: unlockRollupReconciliation.countDelta,
+      mismatchReason: unlockRollupReconciliation.mismatchReason,
+      comparableUnitsStatus: unlockRollupReconciliation.comparableUnitsStatus,
+      dateWindowStatus: unlockRollupReconciliation.dateWindowStatus,
+      confidence: unlockRollupReconciliation.confidence,
+      technicalEvidence: unlockRollupReconciliation.technicalEvidence,
+      nextAction: unlockRollupReconciliation.nextAction,
+      state: unlockRollupReconciliation.state,
     },
     unlockFunnelTelemetry: {
-      unlockTelemetryEvents: input.telemetryUnlockCount,
-      expectedUnlockEvents: input.unlockTransactionsCount,
-      missingUnlockTelemetryCount,
-      coveragePct: unlockTelemetryCoveragePct,
-      state: unlockFunnelState,
-      passAllowed: missingUnlockTelemetryCount === 0 && input.telemetryUnlockCount > 0,
+      unlockTelemetryEvents: unlockTelemetryCoverage.unlockTelemetryEvents,
+      expectedUnlockEvents: unlockTelemetryCoverage.expectedUnlockEvents,
+      missingUnlockTelemetryCount: unlockTelemetryCoverage.missingUnlockTelemetryCount,
+      coveragePct: unlockTelemetryCoverage.coveragePct,
+      state: unlockTelemetryCoverage.state,
+      passAllowed: unlockTelemetryCoverage.passAllowed,
       blockedReason: input.unlockTransactionsCount > 0 && input.telemetryUnlockCount === 0
         ? "required_sample_missing"
-        : missingUnlockTelemetryCount > 0
+        : unlockTelemetryCoverage.missingUnlockTelemetryCount > 0
           ? "unlock_telemetry_undercount"
           : undefined,
     },
@@ -1318,15 +1350,25 @@ export function buildHistoricalValidationSummary(input: {
       watchAssets: input.watchAssetCount,
       sessionFacts: input.filteredSessionFactsLength,
       rawSessionStartEvents: input.viewerSessionStartedLogsLength,
-      rawStartRequired: rawViewerStartRequired,
-      state: viewerActivityState,
+      rawStartRequired: viewerStartCoverage.rawStartRequired,
+      passAllowed: viewerStartCoverage.passAllowed,
+      blockedReason: viewerStartCoverage.attributionGap === "viewer_start_missing" ? "viewer_start_missing" : undefined,
+      nextAction: viewerStartCoverage.nextAction,
+      state: viewerStartCoverage.state,
     },
     watchCaptureQuality: {
-      fullCaptures: input.watchCaptureFullCount,
-      degradedCaptures: input.watchCaptureDegradedCount,
-      replayRecoveredSessions: input.watchCaptureReplayRecoveredCount,
-      closeMissingSessions: input.watchCaptureCloseMissingCount,
-      state: watchCaptureState,
+      fullCaptures: watchCaptureQuality.fullCaptures,
+      degradedCaptures: watchCaptureQuality.degradedCaptures,
+      replayRecoveredSessions: watchCaptureQuality.replayRecoveredSessions,
+      closeMissingSessions: watchCaptureQuality.closeMissingSessions,
+      replayRecoveryRate: watchCaptureQuality.replayRecoveryRate,
+      degradedCaptureRate: watchCaptureQuality.degradedCaptureRate,
+      missingCloseoutRate: watchCaptureQuality.missingCloseoutRate,
+      confidence: watchCaptureQuality.confidence,
+      passAllowed: watchCaptureQuality.passAllowed,
+      blockedReason: watchCaptureQuality.blockedReason ?? undefined,
+      nextAction: watchCaptureQuality.nextAction,
+      state: watchCaptureQuality.state,
     },
   };
   const onboardingParity = buildParityInsight([
@@ -1591,16 +1633,20 @@ export function buildHistoricalValidationSummary(input: {
       selectedRange,
       lastValidatedAt,
       confidence: input.unlockTransactionsCount > 0 || input.firstPartyUnlockCount > 0
-        ? Math.max(0, 100 - (unlockWatchParity.unlockAccessTruth.delta * 10))
+        ? unlockWatchParity.unlockAccessTruth.confidence
         : null,
       sampleRequired: true,
       sampleCount: Math.max(input.unlockTransactionsCount, input.firstPartyUnlockCount),
-      technicalEvidence: unlockWatchParity.unlockAccessTruth.delta > 0
-        ? `${input.unlockTransactionsCount.toLocaleString()} unlock transactions and ${input.firstPartyUnlockCount.toLocaleString()} canonical unlock rollups differ by ${unlockWatchParity.unlockAccessTruth.delta.toLocaleString()}.`
-        : `${input.unlockTransactionsCount.toLocaleString()} unlock transactions matched ${input.firstPartyUnlockCount.toLocaleString()} canonical unlock rollups in range.`,
+      passAllowed: unlockWatchParity.unlockAccessTruth.state === "pass",
+      blockedReason: unlockWatchParity.unlockAccessTruth.state === "pass"
+        ? null
+        : unlockWatchParity.unlockAccessTruth.mismatchReason === "missing_server_unlock_telemetry"
+          ? "missing_server_unlock_telemetry"
+          : unlockWatchParity.unlockAccessTruth.mismatchReason,
+      technicalEvidence: unlockWatchParity.unlockAccessTruth.technicalEvidence,
       action: unlockWatchParity.unlockAccessTruth.state === "pass"
         ? "No action required."
-        : "Review unlock transactions vs canonical unlock rollups before treating access counts as aligned.",
+        : unlockWatchParity.unlockAccessTruth.nextAction,
     }),
     buildValidationCheck({
       checkKey: "unlock_funnel_telemetry",
@@ -1626,7 +1672,7 @@ export function buildHistoricalValidationSummary(input: {
         : `${input.telemetryUnlockCount.toLocaleString()} canonical unlock telemetry event(s) were found for ${input.unlockTransactionsCount.toLocaleString()} successful unlock transactions in range.`,
       action: unlockWatchParity.unlockFunnelTelemetry.passAllowed
         ? "No action required."
-        : "Verify drops/unlock server event emission and canonical unlock normalization before trusting unlock funnel analytics.",
+        : "Wire canonical server unlock telemetry after successful drops/unlock before trusting unlock funnel analytics.",
     }),
     buildValidationCheck({
       checkKey: "onboarding_coverage",
@@ -1889,12 +1935,14 @@ export function buildHistoricalValidationSummary(input: {
       lastValidatedAt,
       sampleRequired: true,
       sampleCount: input.watchSessionCount + input.filteredSessionFactsLength + input.viewerSessionStartedLogsLength,
+      passAllowed: unlockWatchParity.viewerActivityTruth.passAllowed,
+      blockedReason: unlockWatchParity.viewerActivityTruth.blockedReason ?? null,
       technicalEvidence: input.watchSessionCount > 0 && input.viewerSessionStartedLogsLength === 0
         ? `${input.watchSessionCount.toLocaleString()} canonical watch sessions and ${input.filteredSessionFactsLength.toLocaleString()} session facts were present, but raw viewer start events were 0 in range.`
         : `${input.viewerSessionStartedLogsLength.toLocaleString()} raw viewer start event(s) supported ${input.watchSessionCount.toLocaleString()} canonical watch session(s) in range.`,
       action: unlockWatchParity.viewerActivityTruth.state === "pass"
         ? "No action required."
-        : "Restore viewer_session_started/watch_session_started visibility or mark raw starts optional only if canonical watch sessions are the explicit sole source of funnel truth.",
+        : unlockWatchParity.viewerActivityTruth.nextAction,
     }),
     buildValidationCheck({
       checkKey: "watch_capture_quality",
@@ -1910,18 +1958,17 @@ export function buildHistoricalValidationSummary(input: {
       source: "watch capture records",
       selectedRange,
       lastValidatedAt,
+      confidence: input.watchSessionCount > 0 ? unlockWatchParity.watchCaptureQuality.confidence : null,
       sampleRequired: true,
       sampleCount: input.watchSessionCount,
+      passAllowed: unlockWatchParity.watchCaptureQuality.passAllowed,
+      blockedReason: unlockWatchParity.watchCaptureQuality.blockedReason ?? null,
       technicalEvidence: input.watchSessionCount === 0
         ? "No canonical watch sessions matched the selected range."
-        : `${input.watchCaptureReplayRecoveredCount.toLocaleString()} replay-recovered sessions were recorded. Replay recovery can be useful, but a high recovery count means capture is not clean enough to treat as invisible.`,
+        : `${input.watchCaptureReplayRecoveredCount.toLocaleString()} replay-recovered sessions were recorded (${unlockWatchParity.watchCaptureQuality.replayRecoveryRate}%). Replay recovery can be useful, but a high recovery count means capture is not clean enough to treat as invisible.`,
       action: input.watchSessionCount === 0
         ? "Confirm watch session capture is expected for this range."
-        : input.watchCaptureCloseMissingCount > 0
-          ? "Investigate close-missing watch sessions."
-          : input.watchCaptureDegradedCount > 0 || input.watchCaptureReplayRecoveredCount > 0
-            ? "Review degraded and replay-recovered watch capture before trusting viewer funnel detail."
-            : "No action required.",
+        : unlockWatchParity.watchCaptureQuality.nextAction,
     }),
   ];
 

@@ -1,0 +1,17 @@
+{
+  "batch": 33,
+  "state": "fail",
+  "watchSessions": 200,
+  "fullCaptures": 65,
+  "degradedCaptures": 0,
+  "replayRecoveredSessions": 135,
+  "closeMissingSessions": 0,
+  "replayRecoveryRate": 67.5,
+  "thresholds": {
+    "pass": "<=10%",
+    "review": ">10% and <=25%",
+    "fail": ">25%"
+  },
+  "blockedReason": "replay_recovery_rate_high",
+  "nextAction": "Investigate viewer close/flush reliability; replay recovery is above the 25% failure threshold."
+}

@@ -1,0 +1,9 @@
+{
+  "batch": 33,
+  "status": "review",
+  "watchSessionFactLinkStatus": "link_contract_ready",
+  "missingLinkReason": "watch_session_fact_link_missing",
+  "replayRecoveredPromotedToExact": false,
+  "duplicateWatchSessionsAllowed": false,
+  "nextAction": "Link session facts by watchSessionId or viewerSessionId while keeping replay-recovered sessions degraded."
+}

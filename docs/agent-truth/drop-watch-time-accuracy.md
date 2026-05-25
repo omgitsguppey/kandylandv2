@@ -1,8 +1,8 @@
 # Drop Watch Time Accuracy
 
-Generated: 2026-05-24T18:04:02.886Z
+Generated: 2026-05-25T07:10:33.785Z
 Status: pass
-Current head: 6d038e7f7d9b7cef83d276f39bd968df83bb988d
+Current head: 8f5b66d4c5465ac057ea542614a5b8d01c5d3c43
 
 ## Contract
 
@@ -26,55 +26,73 @@ Current head: 6d038e7f7d9b7cef83d276f39bd968df83bb988d
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 92.5 | 92.5 | target_met | No drop watch-time score action needed for this dimension. |
+| sourceHealth | 91.7 | 91.7 | target_met | No drop watch-time score action needed for this dimension. |
 | runtimeHealth | 84.2 | 84.2 | target_met | No drop watch-time score action needed for this dimension. |
 | evidenceCompleteness | 69.6 | 69.6 | below_target | Resolve formal beta score gates outside drop watch-time math; do not fake runtime/provider evidence. |
-| freshness | 83.75 | 83.75 | target_met | No drop watch-time score action needed for this dimension. |
+| freshness | 75.63 | 75.63 | below_target | Resolve formal beta score gates outside drop watch-time math; do not fake runtime/provider evidence. |
 | costRisk | 42 | 42 | below_target | Resolve formal beta score gates outside drop watch-time math; do not fake runtime/provider evidence. |
 | regressionRisk | 86 | 86 | target_met | No drop watch-time score action needed for this dimension. |
-| overallHealthScore | 79.25 | 79.25 | below_target | Resolve formal beta score gates outside drop watch-time math; do not fake runtime/provider evidence. |
+| overallHealthScore | 77.83 | 77.83 | below_target | Resolve formal beta score gates outside drop watch-time math; do not fake runtime/provider evidence. |
 
 ## Dirty Files
 
-- agent/state/admin-truth-source-sample.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/canonical-business-truth-refresh.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/canonical-business-truth-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-backlog-engine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-cockpit-batch8-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/debug-cockpit-batch33-unlock-watch-parity.generated.json: current_generated_artifact_to_commit
 - agent/state/drop-watch-time-accuracy.generated.json: current_generated_artifact_to_commit
-- agent/state/formal-evidence-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/recovery-playbook-cta-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/sql-database-parity-cost-lock.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/admin-truth-source-sample.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/canonical-business-truth-refresh.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/canonical-business-truth-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-backlog-engine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-cockpit-batch8-cleanup.md: stale_generated_artifact_to_regenerate
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/server-unlock-telemetry-emission.generated.json: current_generated_artifact_to_commit
+- agent/state/unlock-rollup-reconciliation.generated.json: current_generated_artifact_to_commit
+- agent/state/unlock-watch-journey-normalization.generated.json: current_generated_artifact_to_commit
+- agent/state/unlock-watch-validation-semantics.generated.json: current_generated_artifact_to_commit
+- agent/state/viewer-start-telemetry-repair.generated.json: current_generated_artifact_to_commit
+- agent/state/watch-capture-quality-threshold.generated.json: current_generated_artifact_to_commit
+- agent/state/watch-session-fact-link-repair.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/debug-cockpit-batch33-unlock-watch-parity.md: documentation_artifact_expected
 - docs/agent-truth/drop-watch-time-accuracy.md: release_artifact_expected
-- docs/agent-truth/formal-evidence-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/recovery-playbook-cta-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/sql-database-parity-cost-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- docs/agent-truth/server-unlock-telemetry-emission.md: documentation_artifact_expected
+- docs/agent-truth/unlock-rollup-reconciliation.md: documentation_artifact_expected
+- docs/agent-truth/unlock-watch-journey-normalization.md: documentation_artifact_expected
+- docs/agent-truth/unlock-watch-validation-semantics.md: documentation_artifact_expected
+- docs/agent-truth/viewer-start-telemetry-repair.md: documentation_artifact_expected
+- docs/agent-truth/watch-capture-quality-threshold.md: documentation_artifact_expected
+- docs/agent-truth/watch-session-fact-link-repair.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
-- scripts/agent/business-truth-recovery-shared.ts: validator_artifact_expected
-- scripts/agent/validate-admin-debug-control-tower.ts: validator_artifact_expected
-- scripts/agent/validate-canonical-business-truth-refresh.ts: validator_artifact_expected
-- scripts/agent/validate-canonical-business-truth-status.ts: validator_artifact_expected
-- scripts/agent/validate-debug-cockpit-batch8-cleanup.ts: validator_artifact_expected
+- scripts/agent/validate-debug-cockpit-batch33-unlock-watch-parity.ts: validator_artifact_expected
 - scripts/agent/validate-drop-watch-time-accuracy.ts: validator_artifact_expected
-- scripts/agent/validate-recovery-playbook-cta-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-sql-database-parity-cost-lock.ts: validator_artifact_expected
-- src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx: real_source_change_needs_review
-- src/lib/debug/canonical-business-truth-status.ts: real_source_change_needs_review
-- src/lib/debug/recovery-playbook-visibility.ts: real_source_change_needs_review
-- tests/unit/canonical-business-truth-refresh.spec.ts: test_artifact_expected
-- tests/unit/canonical-business-truth-status.spec.ts: test_artifact_expected
-- tests/unit/debug-cockpit-batch8-cleanup.spec.ts: test_artifact_expected
-- tests/unit/recovery-playbook-cta-cleanup.spec.ts: test_artifact_expected
+- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
+- scripts/agent/validate-person-metrics-hydration.ts: validator_artifact_expected
+- scripts/agent/validate-server-unlock-telemetry-emission.ts: validator_artifact_expected
+- scripts/agent/validate-unlock-rollup-reconciliation.ts: validator_artifact_expected
+- scripts/agent/validate-unlock-telemetry-truth.ts: validator_artifact_expected
+- scripts/agent/validate-unlock-watch-journey-normalization.ts: validator_artifact_expected
+- scripts/agent/validate-unlock-watch-validation-semantics.ts: validator_artifact_expected
+- scripts/agent/validate-viewer-start-telemetry-repair.ts: validator_artifact_expected
+- scripts/agent/validate-watch-capture-quality-threshold.ts: validator_artifact_expected
+- scripts/agent/validate-watch-session-fact-link-repair.ts: validator_artifact_expected
+- src/app/api/admin/analytics/historical/route.ts: unlock_watch_validation_semantics_required
+- src/app/api/drops/unlock/route.ts: server_unlock_telemetry_required
+- src/app/api/viewer/watch-session/route.ts: viewer_start_telemetry_required
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/analytics/viewer-start-telemetry-contract.ts: real_source_change_needs_review
+- src/lib/analytics/watch-capture-quality-contract.ts: real_source_change_needs_review
+- src/lib/analytics/watch-session-fact-linker.ts: real_source_change_needs_review
+- src/lib/behavioral/unlock-watch-journey-normalization.ts: real_source_change_needs_review
+- src/lib/commerce/unlock-rollup-reconciliation.ts: real_source_change_needs_review
+- src/lib/commerce/unlock-watch-parity-contract.ts: real_source_change_needs_review
+- src/lib/server/admin-analytics-historical-validation.ts: unlock_watch_validation_semantics_required
+- tests/unit/debug-cockpit-batch33-unlock-watch-parity.spec.ts: test_artifact_expected
+- tests/unit/server-unlock-telemetry-emission.spec.ts: test_artifact_expected
+- tests/unit/unlock-rollup-reconciliation.spec.ts: test_artifact_expected
+- tests/unit/unlock-watch-journey-normalization.spec.ts: test_artifact_expected
+- tests/unit/unlock-watch-validation-semantics.spec.ts: test_artifact_expected
+- tests/unit/viewer-start-telemetry-repair.spec.ts: test_artifact_expected
+- tests/unit/watch-capture-quality-threshold.spec.ts: test_artifact_expected
+- tests/unit/watch-session-fact-link-repair.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

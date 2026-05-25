@@ -20,6 +20,8 @@ import {
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { trackServerEvent } from "@/lib/server/analytics";
+import { buildViewerStartTelemetryEvent } from "@/lib/analytics/viewer-start-telemetry-contract";
 import {
     VIEWER_WATCH_CAPTURE_QUALITIES,
     VIEWER_WATCH_CAPTURE_TRANSPORTS,
@@ -605,6 +607,21 @@ export async function POST(request: NextRequest) {
 
             return { accepted: true, stale: false, deduped: false };
         });
+
+        if (transactionResult.accepted && parsedBody.sessionSequence === 1) {
+            const viewerStartTelemetry = buildViewerStartTelemetryEvent({
+                userId: caller.uid,
+                dropId: parsedBody.dropId,
+                watchSessionId: parsedBody.watchSessionId,
+                clientSessionId: parsedBody.clientSessionId,
+                entitlementState: "unlocked",
+                mediaKind: parsedBody.mediaType ?? parsedBody.assets[0]?.contentKind ?? "unknown",
+                route: parsedBody.pagePath || "/dashboard/viewer",
+                sourceComponent: "viewer_watch_session_route",
+                consentState: "granted",
+            });
+            await trackServerEvent(viewerStartTelemetry.eventName, viewerStartTelemetry.params, caller.uid).catch(() => null);
+        }
 
         return finalize(NextResponse.json({
             success: true,

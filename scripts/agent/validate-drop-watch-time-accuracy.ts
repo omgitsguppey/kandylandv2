@@ -95,6 +95,17 @@ function writeText(path: string, value: string) {
 
 function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
+  if (/^agent\/state\/(server-unlock-telemetry-emission|unlock-rollup-reconciliation|viewer-start-telemetry-repair|watch-capture-quality-threshold|watch-session-fact-link-repair|unlock-watch-validation-semantics|unlock-watch-journey-normalization|debug-cockpit-batch33-unlock-watch-parity)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(server-unlock-telemetry-emission|unlock-rollup-reconciliation|viewer-start-telemetry-repair|watch-capture-quality-threshold|watch-session-fact-link-repair|unlock-watch-validation-semantics|unlock-watch-journey-normalization|debug-cockpit-batch33-unlock-watch-parity)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^scripts\/agent\/validate-(server-unlock-telemetry-emission|unlock-rollup-reconciliation|viewer-start-telemetry-repair|watch-capture-quality-threshold|watch-session-fact-link-repair|unlock-watch-validation-semantics|unlock-watch-journey-normalization|debug-cockpit-batch33-unlock-watch-parity)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(server-unlock-telemetry-emission|unlock-rollup-reconciliation|viewer-start-telemetry-repair|watch-capture-quality-threshold|watch-session-fact-link-repair|unlock-watch-validation-semantics|unlock-watch-journey-normalization|debug-cockpit-batch33-unlock-watch-parity)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^src\/lib\/commerce\/(unlock-watch-parity-contract|unlock-rollup-reconciliation)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (/^src\/lib\/analytics\/(viewer-start-telemetry-contract|watch-capture-quality-contract|watch-session-fact-linker)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/unlock-watch-journey-normalization.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/drops/unlock/route.ts") return "server_unlock_telemetry_required";
+  if (normalized === "src/app/api/viewer/watch-session/route.ts") return "viewer_start_telemetry_required";
+  if (normalized === "src/app/api/admin/analytics/historical/route.ts" || normalized === "src/lib/server/admin-analytics-historical-validation.ts") return "unlock_watch_validation_semantics_required";
+  if (normalized === "scripts/agent/validate-unlock-telemetry-truth.ts") return "validator_artifact_expected";
   if (/^agent\/state\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^docs\/agent-truth\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts") return "validator_artifact_expected";

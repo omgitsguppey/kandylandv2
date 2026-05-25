@@ -1,0 +1,15 @@
+{
+  "batch": 33,
+  "status": "source_ready_future_events",
+  "sourcePatchApplied": true,
+  "canonicalEventName": "drop_unwrapped",
+  "aliases": ["drop_unlocked", "unlock_drop_success", "entitlement_granted"],
+  "idempotencyStatus": "idempotent_event_id",
+  "route": "/api/drops/unlock",
+  "transactionType": "unlock_content",
+  "requiredFields": ["userId", "dropId", "transactionId", "entitlementId", "gumdropsSpent", "purchasedAmountSpent", "rewardAmountSpent"],
+  "successTelemetryOnly": true,
+  "gumdropMathChanged": false,
+  "accessRulesChanged": false,
+  "nextAction": "Wait for real successful unlocks to produce canonical server unlock telemetry; do not backfill production in this batch."
+}

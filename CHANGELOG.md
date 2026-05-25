@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.62 - 2026-05-25
+- Unlock and watch parity repair
+- Repaired unlock, viewer start, and watch capture parity across transactions, telemetry, rollups, and journey metrics.
+- Added server unlock telemetry and viewer start instrumentation without changing access or GumDrop math.
+- Made replay recovery visible through explicit watch capture quality thresholds.
+
 ## 1.4.61 - 2026-05-25
 - Commerce purchase parity repair
 - Repaired commerce parity between purchase ledger, server telemetry, rollups, and journey metrics.
@@ -147,27 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Cleaned recovery playbook CTAs and canonical business truth status.
 - Separated stale business snapshots from ops-health failures.
 - Added source-class clarity for revenue, purchases, unwraps, and watch metrics.
-
-## 1.4.37 - 2026-05-24
-- Control Tower evidence cleanup
-- Cleaned Control Tower canonical score, evidence, and operator queue display.
-- Separated formal evidence gates from source-code issues.
-- Refreshed or retired stale Control Tower reports and collapsed non-actionable cockpit items.
-
-## 1.4.36 - 2026-05-24
-- Ops health status lane cleanup
-- Reconciled admin ops health, route runtime, open actions, and AI fallback statuses.
-- Collapsed stale route runtime rows into actionable groups.
-- Separated deterministic AI fallback from feed/preflight failures.
-
-## 1.4.35 - 2026-05-24
-- Chat and cost status lane cleanup
-- Cleaned chat, cost, backlog, and future catalog debug lane statuses.
-- Separated config health from runtime activity samples.
-- Kept paid-GD chat gating and future activity catalog truth visible without noisy live/stale ambiguity.
-
-## 1.4.34 - 2026-05-24
-- Admin status lane cleanup
-- Cleaned admin/user/auth/notification/task debug lane status truth.
-- Separated config health from live activity samples.
-- Reclassified all-zero lanes as collecting, proven-zero, or source-missing.

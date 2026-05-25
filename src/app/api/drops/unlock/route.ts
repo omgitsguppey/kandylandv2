@@ -14,6 +14,7 @@ import { buildSourceAwareBalancePatch, readSourceAwareBalance, spendSourceAwareG
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { buildServerUnlockTelemetryEvent } from "@/lib/commerce/unlock-watch-parity-contract";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -181,6 +182,19 @@ async function POST_handler(request: NextRequest) {
     revalidatePath("/dashboard");
 
     if (!result.alreadyUnlocked) {
+      const serverUnlockTelemetry = buildServerUnlockTelemetryEvent({
+        userId,
+        dropId,
+        transactionId: result.transactionId,
+        entitlementId: result.entitlementId,
+        gumdropsSpent: result.cost ?? 0,
+        purchasedAmountSpent: result.paidGdUsed ?? 0,
+        rewardAmountSpent: result.rewardGdUsed ?? 0,
+        entitlementState: result.usedSubscriptionAccess ? "subscription_included" : "granted",
+        creatorId: result.creatorId ?? "",
+        route: "/api/drops/unlock",
+        sourceComponent: "drops_unlock_route",
+      });
       await recordCanonicalTaskEvent(userId, result.username ?? caller?.email ?? userId, "unlock_drop_success", {
         drop_id: dropId,
         drop_title: result.title ?? "Drop",
@@ -194,8 +208,8 @@ async function POST_handler(request: NextRequest) {
         unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
         transaction_id: result.transactionId,
         entitlement_id: result.entitlementId,
-        idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
-        sourceTruth: "server",
+        idempotency_key: `entitlement_granted:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
+        sourceTruth: "server_unlock_route",
       });
       await trackServerEvent("drop_unlocked", {
         drop_id: dropId,
@@ -212,31 +226,17 @@ async function POST_handler(request: NextRequest) {
         unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
         entitlement_id: result.entitlementId,
         transaction_id: result.transactionId,
-        idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
-        sourceTruth: "server",
+        idempotency_key: `entitlement_granted:${result.transactionId || result.entitlementId}:${dropId}`,
+        sourceTruth: "server_unlock_route",
         source_component: "drops_unlock_route",
         route: "/api/drops/unlock",
         page_path: `/drops/${dropId}/preview`,
         metricEligible: true,
       }, userId).catch(() => null);
-      await trackServerEvent("drop_unwrapped", {
-        drop_id: dropId,
+      await trackServerEvent(serverUnlockTelemetry.eventName, {
+        ...serverUnlockTelemetry.params,
         drop_title: result.title ?? "Drop",
         drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
-        creator_id: result.creatorId ?? "",
-        target_creator_id: result.creatorId ?? "",
-        unlock_cost: result.cost ?? 0,
-        price_gd: result.priceGd ?? result.cost ?? 0,
-        gumdrops_spent: result.cost ?? 0,
-        paid_gd_used: result.paidGdUsed ?? 0,
-        reward_gd_used: result.rewardGdUsed ?? 0,
-        unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
-        entitlement_id: result.entitlementId,
-        transaction_id: result.transactionId,
-        idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
-        sourceTruth: "server",
-        source_component: "drops_unlock_route",
-        route: "/api/drops/unlock",
         page_path: `/drops/${dropId}/preview`,
       }, userId).catch(() => null);
       await trackServerEvent("entitlement_granted", {
@@ -252,8 +252,8 @@ async function POST_handler(request: NextRequest) {
         price_gd: result.priceGd ?? result.cost ?? 0,
         paid_gd_used: result.paidGdUsed ?? 0,
         reward_gd_used: result.rewardGdUsed ?? 0,
-        idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
-        sourceTruth: "server",
+        idempotency_key: serverUnlockTelemetry.idempotencyKey,
+        sourceTruth: "server_unlock_route",
         source_component: "drops_unlock_route",
         route: "/api/drops/unlock",
         page_path: `/drops/${dropId}/preview`,

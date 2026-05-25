@@ -1,0 +1,15 @@
+{
+  "batch": 33,
+  "status": "source_ready_future_events_with_historical_gap",
+  "sourcePatchApplied": true,
+  "canonicalEventName": "watch_session_started",
+  "watchSessions": 200,
+  "sessionFacts": 370,
+  "viewerStartEventsBefore": 0,
+  "viewerStartEventsAfter": 0,
+  "attributionGap": "viewer_start_missing",
+  "emitsOn": "accepted first viewer watch-session flush after entitlement check",
+  "doesNotEmitOn": ["skeleton", "locked_preview", "unauthorized_content"],
+  "telemetryFailureBlocksViewer": false,
+  "nextAction": "Verify future accepted watch-session starts create canonical viewer start facts."
+}

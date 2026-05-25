@@ -1,0 +1,10 @@
+{
+  "batch": 33,
+  "status": "fail",
+  "unlockTelemetryZeroBlocks": true,
+  "viewerStartZeroBlocks": true,
+  "highReplayRecoveryBlocks": true,
+  "unlockMismatchReasonRequired": true,
+  "passAllowedWithBlockers": false,
+  "nextAction": "Use exact blocker rows for unlock telemetry, viewer starts, rollup mismatch, and replay recovery."
+}

@@ -2858,7 +2858,7 @@ try {
     /^src\/app\/api\/admin\/analytics\/historical\/route\.ts$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDataValidation\.tsx$/u,
     /^scripts\/agent\/debug-cockpit-batch30-telemetry-parity-shared\.ts$/u,
-    /^scripts\/agent\/validate-(event-liveness-audit|admin-debug-control-tower)\.ts$/u,
+    /^scripts\/agent\/validate-(event-liveness-audit|event-translation-bridge|person-metrics-hydration|admin-debug-control-tower)\.ts$/u,
     /^src\/lib\/analytics\/(event-translation-bridge|person-metrics-hydration)\.ts$/u,
     /^src\/lib\/analytics\/(person-metrics-contract|task-onboarding-parity-semantics)\.ts$/u,
     /^src\/lib\/privacy\/consent-tracking-policy\.ts$/u,

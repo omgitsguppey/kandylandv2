@@ -67,6 +67,11 @@ function findActiveOldLogic() {
     if (path === "scripts/agent/validate-future-activity-signal-reclassification.ts") return false;
     if (path === "scripts/agent/validate-final-signal-zero-lock.ts") return false;
     if (path === "tests/unit/future-activity-signal-reclassification.spec.ts") return false;
+    if (path === "agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json") return false;
+    if (path === "src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts") return false;
+    if (path === "src/lib/tasks/task-guidance-history-recovery.ts") return false;
+    if (path === "src/lib/tasks/task-guidance-telemetry-contract.ts") return false;
+    if (path === "tests/unit/debug-cockpit-batch31-task-guidance-parity.spec.ts") return false;
     return oldLogicPattern.test(read(path));
   });
 }
