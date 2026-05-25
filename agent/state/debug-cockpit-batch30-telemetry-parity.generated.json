@@ -1,0 +1,325 @@
+{
+  "reportKey": "debug-cockpit-batch30-telemetry-parity",
+  "generatedAtUtc": "2026-05-25T05:53:14.492Z",
+  "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+  "eventSamplesStatusBefore": "pass",
+  "eventSamplesStatusAfter": "fail",
+  "eventSamplesConfidenceBefore": 2,
+  "eventSamplesConfidenceAfter": 2,
+  "eventSamplesPassAllowedBefore": true,
+  "eventSamplesPassAllowedAfter": false,
+  "refreshDiagnosticsStatusBefore": "fail",
+  "refreshDiagnosticsStatusAfter": "fail",
+  "refreshFailureCount": 153,
+  "failureClusters": [
+    {
+      "clusterId": "server_diagnostics:error:route_unknown",
+      "source": "server_diagnostics",
+      "route": null,
+      "errorName": "error",
+      "reasonCode": "error",
+      "count": 107,
+      "firstSeenAtUtc": "2026-05-24T15:46:35.000Z",
+      "lastSeenAtUtc": "2026-05-24T15:57:42.000Z",
+      "severity": "blocking",
+      "current": true,
+      "routeAttribution": "unknown",
+      "likelyOwner": "analytics diagnostics attribution",
+      "nextAction": "Repair analytics diagnostics route attribution so the failing route owner is known before telemetry parity can be promoted.",
+      "suggestedAction": "Repair route attribution.",
+      "blocksTelemetryParity": true
+    },
+    {
+      "clusterId": "server_diagnostics:UnknownError:analytics/ingest-identified",
+      "source": "server_diagnostics",
+      "route": "analytics/ingest-identified",
+      "errorName": "UnknownError",
+      "reasonCode": "UnknownError",
+      "count": 46,
+      "firstSeenAtUtc": "2026-05-24T15:49:14.000Z",
+      "lastSeenAtUtc": "2026-05-24T15:57:42.000Z",
+      "severity": "blocking",
+      "current": true,
+      "routeAttribution": "inferred",
+      "likelyOwner": "analytics ingest identified",
+      "nextAction": "Inspect Analytics.IngestIdentified diagnostics, keep parity blocked while current UnknownError clusters remain, and verify the identified ingest route returns typed non-retryable domain errors for expected failures.",
+      "suggestedAction": "Inspect identified ingest failures.",
+      "affectedRoute": "analytics/ingest-identified",
+      "blocksTelemetryParity": true
+    }
+  ],
+  "routeUnknownClusterStatus": "route_unknown_actionable",
+  "ingestIdentifiedClusterStatus": "active_route_failing",
+  "parityBlockers": [
+    "low_confidence",
+    "refresh_failures_present",
+    "route_unknown_diagnostics",
+    "ingest_identified_failures"
+  ],
+  "uiContradictionsBefore": 3,
+  "uiContradictionsAfter": 0,
+  "telemetryParityScoreBefore": 72,
+  "telemetryParityScoreAfter": 48,
+  "scoreBefore": 58,
+  "scoreAfter": 76,
+  "scoreDimensions": [
+    "telemetryParityPassGate",
+    "refreshDiagnosticsFailureClusters",
+    "ingestIdentifiedParityBlocker",
+    "advancedDebugDisplaySemantics",
+    "debugCockpitBatch30Lock"
+  ],
+  "remainingGaps": [
+    "Refresh diagnostics still block telemetry parity promotion.",
+    "Keep telemetry parity blocked while current Analytics.IngestIdentified UnknownError diagnostics remain; inspect the identified ingest route and verify typed non-retryable handling for expected failures."
+  ],
+  "nextExactSteps": [
+    "Fix analytics refresh failures before promoting event sample parity.",
+    "Repair analytics diagnostics route attribution for route unknown clusters.",
+    "Keep telemetry parity blocked while current Analytics.IngestIdentified UnknownError diagnostics remain; inspect the identified ingest route and verify typed non-retryable handling for expected failures."
+  ],
+  "dirtyClassifications": [
+    {
+      "filePath": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/debug-cockpit-batch18-route-hotspots.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/event-liveness-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/event-translation-bridge.generated.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/telemetry-parity-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-runtime-evidence.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "package.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+      "classification": "advanced_debug_display_fix_required"
+    },
+    {
+      "filePath": "src/app/api/admin/analytics/historical/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/types/admin-analytics.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "tests/unit/admin-data-validation.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/advanced-telemetry-parity-ui-cleanup.generated.json",
+      "classification": "advanced_debug_display_fix_required"
+    },
+    {
+      "filePath": "agent/state/debug-cockpit-batch30-telemetry-parity.generated.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/ingest-identified-parity-blocker.generated.json",
+      "classification": "analytics_ingest_identified_followup_required"
+    },
+    {
+      "filePath": "agent/state/refresh-diagnostics-failure-clusters.generated.json",
+      "classification": "refresh_diagnostics_blocker_required"
+    },
+    {
+      "filePath": "agent/state/telemetry-parity-pass-gate.generated.json",
+      "classification": "telemetry_parity_pass_gate_fix_required"
+    },
+    {
+      "filePath": "docs/agent-truth/advanced-telemetry-parity-ui-cleanup.md",
+      "classification": "advanced_debug_display_fix_required"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-cockpit-batch30-telemetry-parity.md",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/ingest-identified-parity-blocker.md",
+      "classification": "analytics_ingest_identified_followup_required"
+    },
+    {
+      "filePath": "docs/agent-truth/refresh-diagnostics-failure-clusters.md",
+      "classification": "refresh_diagnostics_blocker_required"
+    },
+    {
+      "filePath": "docs/agent-truth/telemetry-parity-pass-gate.md",
+      "classification": "telemetry_parity_pass_gate_fix_required"
+    },
+    {
+      "filePath": "scripts/agent/debug-cockpit-batch30-telemetry-parity-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-advanced-telemetry-parity-ui-cleanup.ts",
+      "classification": "advanced_debug_display_fix_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-debug-cockpit-batch30-telemetry-parity.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-ingest-identified-parity-blocker.ts",
+      "classification": "analytics_ingest_identified_followup_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-refresh-diagnostics-failure-clusters.ts",
+      "classification": "refresh_diagnostics_blocker_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-telemetry-parity-pass-gate.ts",
+      "classification": "telemetry_parity_pass_gate_fix_required"
+    },
+    {
+      "filePath": "src/lib/analytics/advanced-telemetry-parity-ui.ts",
+      "classification": "advanced_debug_display_fix_required"
+    },
+    {
+      "filePath": "src/lib/analytics/ingest-identified-parity-blocker.ts",
+      "classification": "analytics_ingest_identified_followup_required"
+    },
+    {
+      "filePath": "src/lib/analytics/refresh-diagnostics-failure-clusters.ts",
+      "classification": "refresh_diagnostics_blocker_required"
+    },
+    {
+      "filePath": "src/lib/analytics/telemetry-parity-pass-gate.ts",
+      "classification": "telemetry_parity_pass_gate_fix_required"
+    },
+    {
+      "filePath": "src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/advanced-telemetry-parity-ui-cleanup.spec.ts",
+      "classification": "advanced_debug_display_fix_required"
+    },
+    {
+      "filePath": "tests/unit/debug-cockpit-batch30-telemetry-parity.spec.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/ingest-identified-parity-blocker.spec.ts",
+      "classification": "analytics_ingest_identified_followup_required"
+    },
+    {
+      "filePath": "tests/unit/refresh-diagnostics-failure-clusters.spec.ts",
+      "classification": "refresh_diagnostics_blocker_required"
+    },
+    {
+      "filePath": "tests/unit/telemetry-parity-pass-gate.spec.ts",
+      "classification": "telemetry_parity_pass_gate_fix_required"
+    }
+  ],
+  "openPrClassifications": [],
+  "validationFailures": []
+}

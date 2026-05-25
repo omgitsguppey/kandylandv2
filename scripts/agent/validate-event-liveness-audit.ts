@@ -77,6 +77,13 @@ function scoreSnapshot(score: JsonRecord) {
 
 function classifyDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
+  if (/^agent\/state\/(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui-cleanup|debug-cockpit-batch30-telemetry-parity)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui-cleanup|debug-cockpit-batch30-telemetry-parity)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/debug-cockpit-batch30-telemetry-parity-shared.ts" || /^scripts\/agent\/validate-(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui-cleanup|debug-cockpit-batch30-telemetry-parity)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-admin-debug-control-tower.ts") return "validator_artifact_expected";
+  if (/^tests\/unit\/(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui-cleanup|debug-cockpit-batch30-telemetry-parity|admin-data-validation)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^src\/lib\/analytics\/(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts" || normalized === "src/lib/server/admin-analytics-historical-validation.ts" || normalized === "src/app/api/admin/analytics/historical/route.ts" || normalized === "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx" || normalized === "src/types/admin-analytics.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/chat-cost-status-cleanup-shared.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (/^tests\/unit\/(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
@@ -108,6 +115,8 @@ function classifyDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-non-event-score-policy.ts") return "real_source_change_needs_review";
   if (/^docs\/agent-truth\/(debug-signal-grouping|debug-tracking-simplification|event-translation-bridge|person-metrics-hydration)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^docs\/agent-truth\/(debug-runtime-evidence|event-envelope-normalization)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^docs\/agent-truth\/(current-beta-exit-status|overnight-beta-readiness-lock|telemetry-admin-debug-truth|debug-cockpit-batch18-route-hotspots)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "current_generated_artifact_to_commit";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";

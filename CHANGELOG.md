@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.59 - 2026-05-25
+- Telemetry parity gate repair
+- Fixed telemetry parity pass gating for low-confidence samples and refresh diagnostics failures.
+- Separated event sample presence from parity readiness.
+- Mapped Analytics.IngestIdentified and unknown route diagnostics into blocking telemetry parity evidence.
+
 ## 1.4.58 - 2026-05-25
 - Analytics source hierarchy repair
 - Fixed analytics chart readiness hierarchy so source agreement failure blocks ready status.

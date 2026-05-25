@@ -1,0 +1,19 @@
+{
+  "reportKey": "telemetry-parity-pass-gate",
+  "generatedAtUtc": "2026-05-25T05:51:06.644Z",
+  "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+  "gate": {
+    "status": "fail",
+    "passAllowed": false,
+    "confidenceStatus": "low",
+    "blockers": [
+      "low_confidence",
+      "refresh_failures_present",
+      "route_unknown_diagnostics",
+      "ingest_identified_failures"
+    ],
+    "nextAction": "Fix analytics refresh failures before promoting event sample parity.",
+    "displaySummary": "Sample presence confirmed, parity blocked by low confidence or refresh failures."
+  },
+  "validationFailures": []
+}

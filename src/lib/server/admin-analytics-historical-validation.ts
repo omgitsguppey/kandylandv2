@@ -2,6 +2,7 @@ import "server-only";
 
 import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
+import { buildTelemetryParityPassGate } from "@/lib/analytics/telemetry-parity-pass-gate";
 import {
   TASK_GUIDANCE_EVENT_NAMES,
   TASK_GUIDANCE_IMPLEMENTED,
@@ -133,6 +134,10 @@ export interface FailureCluster {
   firstSeenAtUtc: string;
   lastSeenAtUtc: string;
   affectedRoute?: string;
+  severity?: "info" | "warning" | "error" | "blocking";
+  current?: boolean;
+  routeAttribution?: "known" | "unknown" | "inferred" | "missing";
+  likelyOwner?: string;
   suggestedAction: string;
 }
 
@@ -145,7 +150,7 @@ export interface TelemetryParityValidation {
   sampleSource: string;
   eventSource: string;
   status: "pass" | "review" | "fail";
-  blockedReason?: "required_sample_missing" | "materializer_failed" | "range_mismatch" | "source_mismatch" | "unknown";
+  blockedReason?: "required_sample_missing" | "materializer_failed" | "range_mismatch" | "source_mismatch" | "analytics_refresh_failures_present" | "low_confidence" | "route_unknown_diagnostics" | "ingest_identified_failures" | "unknown";
   failureClusters: FailureCluster[];
 }
 
@@ -583,11 +588,11 @@ const VALIDATION_OPERATOR_COPY: Record<string, {
   },
   telemetry_depth: {
     pass: "Event samples are available for this range.",
-    warn: "No event sample is available for this range.",
-    fail: "Event samples are unavailable.",
+    warn: "Event samples need confidence or refresh-diagnostic review.",
+    fail: "Event sample parity is blocked.",
     source: "Event samples",
     whyItMatters: "Samples help prove that tracked activity supports the displayed totals.",
-    action: "Use Debug to check which event source is missing.",
+    action: "Review event sample confidence and refresh diagnostics before promoting telemetry parity.",
   },
   task_lifecycle: {
     pass: "Task activity samples are available.",
@@ -897,8 +902,8 @@ function buildValidationCheck(input: {
     sampleCount,
     passAllowed,
     passBlockedReason,
-    action: input.recommendedNextCheck || operatorCopy.action || input.action,
-    recommendedNextCheck: input.recommendedNextCheck || operatorCopy.action || input.action,
+    action: input.recommendedNextCheck || input.action || operatorCopy.action,
+    recommendedNextCheck: input.recommendedNextCheck || input.action || operatorCopy.action,
     technicalEvidence,
     fullDetails: input.detail,
     eventSource: input.eventSource,
@@ -1349,18 +1354,47 @@ export function buildHistoricalValidationSummary(input: {
   const telemetrySampleCoveragePct = input.firstPartyAuthenticatedEvents > 0
     ? Number(((input.canonicalSampleCount / input.firstPartyAuthenticatedEvents) * 100).toFixed(2))
     : 0;
+  const telemetryConfidence = input.firstPartyAuthenticatedEvents > 0 && input.canonicalSampleCount > 0
+    ? Math.max(1, Math.min(100, Math.round(telemetrySampleCoveragePct)))
+    : input.firstPartyAuthenticatedEvents > 0
+      ? 60
+      : null;
+  const refreshDiagnosticsStatus = input.pipelineFailureCount === 0
+    ? "pass" as const
+    : input.pipelineFailureCount <= 5
+      ? "review" as const
+      : "fail" as const;
+  const telemetryGate = buildTelemetryParityPassGate({
+    eventSampleCount: input.canonicalSampleCount,
+    canonicalSampleCount: input.canonicalSampleCount,
+    confidence: telemetryConfidence,
+    eventSource: input.telemetryParityEventSource,
+    sampleSource: input.telemetryParitySampleSource,
+    refreshDiagnosticsStatus,
+    refreshFailureCount: input.pipelineFailureCount,
+    failureClusters: input.pipelineFailureClusters,
+    blockedReason: input.pipelineFailureCount > 0 ? "analytics_refresh_failures_present" : null,
+    range: selectedRange,
+    generatedAtUtc: toUtcString(input.generatedAtMs ?? lastValidatedAt) ?? new Date(input.generatedAtMs ?? lastValidatedAt).toISOString(),
+  });
   const telemetryParityStatus: TelemetryParityValidation["status"] =
-    input.firstPartyAuthenticatedEvents > 0 && input.canonicalSampleCount === 0
-      ? "fail"
-      : input.firstPartyAuthenticatedEvents > 0 && telemetrySampleCoveragePct < 1
+    telemetryGate.status === "pass"
+      ? "pass"
+      : telemetryGate.status === "review"
         ? "review"
-        : input.firstPartyAuthenticatedEvents > 0
-          ? "pass"
-          : "review";
+        : "fail";
   const telemetryParityBlockedReason: TelemetryParityValidation["blockedReason"] =
     input.firstPartyAuthenticatedEvents > 0 && input.canonicalSampleCount === 0
       ? "required_sample_missing"
-      : undefined;
+      : telemetryGate.blockers.includes("refresh_failures_present")
+        ? "analytics_refresh_failures_present"
+        : telemetryGate.blockers.includes("low_confidence")
+          ? "low_confidence"
+          : telemetryGate.blockers.includes("route_unknown_diagnostics")
+            ? "route_unknown_diagnostics"
+            : telemetryGate.blockers.includes("ingest_identified_failures")
+              ? "ingest_identified_failures"
+              : undefined;
   const telemetryParityValidation: TelemetryParityValidation = {
     range: selectedRange,
     generatedAtUtc: toUtcString(input.generatedAtMs ?? lastValidatedAt) ?? new Date(input.generatedAtMs ?? lastValidatedAt).toISOString(),
@@ -1399,23 +1433,18 @@ export function buildHistoricalValidationSummary(input: {
       lastValidatedAt,
       sampleRequired: true,
       sampleCount: input.canonicalSampleCount,
-      confidence: input.firstPartyAuthenticatedEvents > 0 && input.canonicalSampleCount > 0
-        ? Math.max(1, Math.min(100, Math.round(telemetryParityValidation.sampleCoveragePct)))
-        : input.firstPartyAuthenticatedEvents > 0
-          ? 60
-          : null,
+      confidence: telemetryConfidence,
       requiredSourcesPresent: input.firstPartyAuthenticatedEvents > 0 || input.canonicalSampleCount > 0,
-      passAllowed: telemetryParityValidation.status === "pass",
+      passAllowed: telemetryGate.passAllowed,
       blockedReason: telemetryParityValidation.blockedReason ?? null,
-      action: telemetryParityValidation.status === "pass"
-        ? "No action required."
-        : "Confirm the canonical sample materializer/read path is using analytics_event_facts for the selected range.",
+      action: telemetryGate.nextAction,
       eventSource: telemetryParityValidation.eventSource,
       sampleSource: telemetryParityValidation.sampleSource,
       sourceDetails: `${telemetryParityValidation.eventSource} -> ${telemetryParityValidation.sampleSource}`,
+      operatorSummary: telemetryGate.displaySummary,
       technicalEvidence: telemetryParityValidation.blockedReason === "required_sample_missing"
         ? `${input.firstPartyAuthenticatedEvents.toLocaleString()} canonical authenticated events were counted from ${telemetryParityValidation.eventSource}, but ${telemetryParityValidation.sampleSource} returned 0 representative samples in range.`
-        : `${input.canonicalSampleCount.toLocaleString()} canonical samples were observed from ${telemetryParityValidation.sampleSource}.`,
+        : `${input.canonicalSampleCount.toLocaleString()} canonical samples were observed from ${telemetryParityValidation.sampleSource}; confidence ${telemetryConfidence ?? "n/a"} and ${input.pipelineFailureCount.toLocaleString()} refresh diagnostics failures mean sample presence is not parity proof.`,
     }),
     buildValidationCheck({
       checkKey: "task_lifecycle",

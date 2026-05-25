@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
+import { buildAdvancedTelemetryParityUiState } from "@/lib/analytics/advanced-telemetry-parity-ui";
 import { buildDataValidationUiSemantics, buildValidationReadinessSummary } from "@/lib/analytics/validation-readiness-contract";
 import type { AnalyticsModuleCoverage, AnalyticsSourceHealth, DataValidationPanelState, TelemetryParityValidation, ValidationItem } from "@/types/admin-analytics";
 
@@ -61,6 +62,13 @@ function countDisplay(value: number | null) {
 
 function formatConfidence(value?: number | null) {
     return value === null || value === undefined ? "n/a" : value;
+}
+
+function truthStateForValidationRow(check: ValidationItem) {
+    if (check.passAllowed === false || check.status === "fail" || check.status === "unavailable") return "blocked" as const;
+    if (check.status === "warn" || check.status === "unknown") return "review" as const;
+    if (check.status === "stale" || check.freshnessState === "stale") return "stale" as const;
+    return "live" as const;
 }
 
 function toneForContinuity(status?: AnalyticsSourceHealth["continuity"]["gapSeverity"] | AnalyticsSourceHealth["chartReadiness"]["state"]) {
@@ -414,14 +422,26 @@ export function DebugAdvancedDataValidation() {
                             <summary className="cursor-pointer px-3 py-2 font-semibold text-gray-100">Raw validation rows</summary>
                             <ScrollWrap>
                             <div className="divide-y divide-white/10">
-                                {checks.map((check) => (
+                                {checks.map((check) => {
+                                    const telemetryUiState = buildAdvancedTelemetryParityUiState({
+                                        row: check,
+                                        failureClusters: check.failureClusters,
+                                    });
+                                    const blockingRow = check.passAllowed === false || check.status === "fail" || check.status === "unavailable";
+                                    const statusBadgeLabel = check.checkKey === "pipeline_health" && check.status === "fail"
+                                        ? telemetryUiState.refreshDiagnosticsBadgeLabel
+                                        : blockingRow
+                                            ? telemetryUiState.statusBadgeLabel
+                                            : undefined;
+
+                                    return (
                                     <div key={check.checkKey || check.label} className="space-y-2 px-3 py-2.5">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-semibold text-white">{check.operatorSummary || check.title || check.label}</p>
                                                 <p className="text-xs text-gray-400">{check.source || "source unknown"} | {check.selectedRange || "range unknown"} | {formatTimestamp(check.lastValidatedAt || data?.generatedAtMs)}</p>
                                             </div>
-                                            <Pill label="Status" value={check.status} tone={toneForStatus(check.status)} />
+                                            <Pill label="Status" value={check.status} tone={toneForStatus(check.status)} truthState={truthStateForValidationRow(check)} badgeLabel={statusBadgeLabel} />
                                         </div>
                                         <p className="text-xs leading-5 text-gray-300">{check.detail}</p>
                                         {check.whyItMatters ? <p className="text-xs leading-5 text-gray-400">Why it matters: {check.whyItMatters}</p> : null}
@@ -432,10 +452,10 @@ export function DebugAdvancedDataValidation() {
                                             </div>
                                         ) : null}
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Confidence" value={formatConfidence(check.confidence)} tone={(check.confidence ?? 100) < 70 ? "warn" : "neutral"} truthState={check.confidence === null || check.confidence === undefined ? "unavailable" : "live"} badgeLabel={check.confidence === null || check.confidence === undefined ? "UNAVAILABLE" : "INFO"} />
-                                            <Pill label="Samples" value={check.sampleCount ?? 0} tone={check.sampleRequired && !check.sampleCount ? "warn" : "neutral"} truthState="live" badgeLabel={check.sampleRequired && !check.sampleCount ? "MISSING" : "LOADED"} />
-                                            <Pill label="Pass allowed" value={check.passAllowed === false ? "no" : "yes"} tone={check.passAllowed === false ? "warn" : "good"} />
-                                            {check.passBlockedReason ? <Pill label="Blocked" value={check.passBlockedReason} tone="warn" /> : null}
+                                            <Pill label="Confidence" value={formatConfidence(check.confidence)} tone={(check.confidence ?? 100) < 50 ? "bad" : (check.confidence ?? 100) < 70 ? "warn" : "neutral"} truthState={check.confidence === null || check.confidence === undefined ? "unavailable" : (check.confidence < 50 ? "blocked" : "live")} badgeLabel={telemetryUiState.confidenceBadgeLabel} />
+                                            <Pill label="Samples" value={check.sampleCount ?? 0} tone={check.sampleRequired && !check.sampleCount ? "warn" : "neutral"} truthState={check.passAllowed === false ? "review" : "live"} badgeLabel={check.sampleRequired && !check.sampleCount ? "MISSING" : check.passAllowed === false ? "PRESENT" : "LOADED"} />
+                                            <Pill label="Pass allowed" value={check.passAllowed === false ? "no" : "yes"} tone={check.passAllowed === false ? "warn" : "good"} truthState={check.passAllowed === false ? "blocked" : "live"} badgeLabel={telemetryUiState.passAllowedBadgeLabel} />
+                                            {check.passBlockedReason ? <Pill label="Blocked" value={check.passBlockedReason} tone="warn" truthState="blocked" badgeLabel="BLOCKED" /> : null}
                                         </div>
                                         {check.checkKey === "module_coverage" && check.moduleCoverage ? (
                                             <div className="flex flex-wrap gap-2">
@@ -451,15 +471,15 @@ export function DebugAdvancedDataValidation() {
                                                 {check.eventNames && check.eventNames.length > 0 ? <Pill label="Expected events" value={check.eventNames.join(", ")} truthState="live" badgeLabel="INFO" /> : null}
                                             </div>
                                         ) : null}
-                                        <p className="text-xs text-gray-400">{check.recommendedNextCheck || check.action || "No action needed."}</p>
+                                        <p className="text-xs text-gray-400">{telemetryUiState.nextAction || check.recommendedNextCheck || check.action || "No action needed."}</p>
                                         {check.failureClusters && check.failureClusters.length > 0 ? (
                                             <div className="rounded-lg border border-white/10 bg-black/20 p-2 text-xs text-gray-300">
                                                 <p className="font-semibold text-gray-100">Top failure clusters</p>
                                                 <div className="mt-2 space-y-2">
-                                                    {check.failureClusters.map((cluster) => (
+                                                    {telemetryUiState.failureClusters.map((cluster) => (
                                                         <div key={`${cluster.source}:${cluster.reasonCode}:${cluster.affectedRoute || "unknown"}`} className="rounded-md border border-white/10 px-2 py-1.5">
                                                             <p className="text-gray-100">{cluster.reasonCode} · {cluster.count} · {cluster.affectedRoute || "route unknown"}</p>
-                                                            <p className="text-gray-400">{cluster.source} · first {formatUtcTimestamp(cluster.firstSeenAtUtc)} · last {formatUtcTimestamp(cluster.lastSeenAtUtc)}</p>
+                                                            <p className="text-gray-400">{cluster.source} · {cluster.currentLabel} · owner {cluster.likelyOwner} · first {formatUtcTimestamp(cluster.firstSeenAtUtc)} · last {formatUtcTimestamp(cluster.lastSeenAtUtc)}</p>
                                                             <p className="text-gray-400">{cluster.suggestedAction}</p>
                                                         </div>
                                                     ))}
@@ -474,7 +494,8 @@ export function DebugAdvancedDataValidation() {
                                             </div>
                                         </details>
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                             </ScrollWrap>
                         </details>

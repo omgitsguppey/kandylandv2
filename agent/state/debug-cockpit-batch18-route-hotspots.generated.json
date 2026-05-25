@@ -1,6 +1,6 @@
 {
   "reportKey": "debug-cockpit-batch18-route-hotspots",
-  "generatedAtUtc": "2026-05-24T21:44:41.117Z",
+  "generatedAtUtc": "2026-05-25T05:51:32.041Z",
   "ingestIdentifiedStatusBefore": "current_server_error",
   "ingestIdentifiedStatusAfter": "fixed_current",
   "ingestIdentifiedFailureClass": "deferred_materializer_failure_and_invalid_payload_retry_storm",

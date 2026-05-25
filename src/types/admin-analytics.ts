@@ -752,6 +752,10 @@ export interface ValidationItem {
     firstSeenAtUtc: string;
     lastSeenAtUtc: string;
     affectedRoute?: string;
+    severity?: "info" | "warning" | "error" | "blocking";
+    current?: boolean;
+    routeAttribution?: "known" | "unknown" | "inferred" | "missing";
+    likelyOwner?: string;
     suggestedAction: string;
   }>;
   moduleCoverage?: AnalyticsModuleCoverage;
@@ -857,7 +861,7 @@ export interface TelemetryParityValidation {
   sampleSource: string;
   eventSource: string;
   status: "pass" | "review" | "fail";
-  blockedReason?: "required_sample_missing" | "materializer_failed" | "range_mismatch" | "source_mismatch" | "unknown";
+  blockedReason?: "required_sample_missing" | "materializer_failed" | "range_mismatch" | "source_mismatch" | "analytics_refresh_failures_present" | "low_confidence" | "route_unknown_diagnostics" | "ingest_identified_failures" | "unknown";
   failureClusters: Array<{
     source: string;
     reasonCode: string;
@@ -865,6 +869,10 @@ export interface TelemetryParityValidation {
     firstSeenAtUtc: string;
     lastSeenAtUtc: string;
     affectedRoute?: string;
+    severity?: "info" | "warning" | "error" | "blocking";
+    current?: boolean;
+    routeAttribution?: "known" | "unknown" | "inferred" | "missing";
+    likelyOwner?: string;
     suggestedAction: string;
   }>;
 }

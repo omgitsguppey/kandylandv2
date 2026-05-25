@@ -1,0 +1,38 @@
+{
+  "reportKey": "advanced-telemetry-parity-ui-cleanup",
+  "generatedAtUtc": "2026-05-25T05:51:11.224Z",
+  "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+  "ui": {
+    "statusBadgeLabel": "BLOCKING",
+    "refreshDiagnosticsBadgeLabel": "FAILED CURRENT",
+    "confidenceBadgeLabel": "LOW",
+    "passAllowedBadgeLabel": "BLOCKED",
+    "rawDiagnosticsDefaultOpen": false,
+    "nextAction": "Fix analytics refresh failures before promoting event sample parity.",
+    "failureClusters": [
+      {
+        "source": "server_diagnostics",
+        "reasonCode": "error",
+        "count": 107,
+        "firstSeenAtUtc": "2026-05-24T15:46:35.000Z",
+        "lastSeenAtUtc": "2026-05-24T15:57:42.000Z",
+        "suggestedAction": "Repair route attribution.",
+        "likelyOwner": "analytics diagnostics attribution",
+        "currentLabel": "current"
+      },
+      {
+        "source": "server_diagnostics",
+        "reasonCode": "UnknownError",
+        "count": 46,
+        "firstSeenAtUtc": "2026-05-24T15:49:14.000Z",
+        "lastSeenAtUtc": "2026-05-24T15:57:42.000Z",
+        "affectedRoute": "Analytics.IngestIdentified",
+        "suggestedAction": "Inspect identified ingest failures.",
+        "current": true,
+        "likelyOwner": "analytics pipeline route",
+        "currentLabel": "current"
+      }
+    ]
+  },
+  "validationFailures": []
+}

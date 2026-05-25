@@ -1,8 +1,8 @@
 # Event Liveness Audit
 
-Generated: 2026-05-24T16:46:07.496Z
+Generated: 2026-05-25T05:51:29.487Z
 Status: pass
-Current head: d02b8b2da859d47d880182fe2169db1ad6a40ad6
+Current head: 9dc79a00f40df751841c8d8f10d98de636336397
 
 ## Summary
 
@@ -45,73 +45,77 @@ Current head: d02b8b2da859d47d880182fe2169db1ad6a40ad6
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 92.5 | 92.5 | target_met | No event liveness score action needed for this dimension. |
+| sourceHealth | 91.7 | 91.7 | target_met | No event liveness score action needed for this dimension. |
 | runtimeHealth | 84.2 | 74.2 | below_target | 27 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
 | evidenceCompleteness | 69.6 | 59.6 | below_target | 54 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
-| freshness | 83.75 | 73.75 | below_target | 27 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
+| freshness | 75.63 | 65.63 | below_target | 27 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
 | costRisk | 42 | 42 | below_target | Quiet future-only and rare events do not reduce this dimension. |
 | regressionRisk | 86 | 86 | target_met | No event liveness score action needed for this dimension. |
-| overallHealthScore | 79.25 | 71.34 | below_target | Resolve liveness source gaps and formal beta score blockers before treating overall as ready. |
+| overallHealthScore | 77.83 | 69.86 | below_target | Resolve liveness source gaps and formal beta score blockers before treating overall as ready. |
 
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/chat-functionality-score-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-gating-moderation.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-gating-status-cleanup.generated.json: current_generated_artifact_to_commit
-- agent/state/chat-telemetry-admin-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/chat-telemetry-status-cleanup.generated.json: current_generated_artifact_to_commit
-- agent/state/config-runtime-sample-status-classifier.generated.json: current_generated_artifact_to_commit
-- agent/state/cost-4xx-status-cleanup.generated.json: current_generated_artifact_to_commit
-- agent/state/cost-risk-owner-review-closure.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-backlog-engine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-cockpit-batch5-cleanup.generated.json: current_generated_artifact_to_commit
+- agent/state/advanced-telemetry-parity-ui-cleanup.generated.json: current_generated_artifact_to_commit
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-cockpit-batch18-route-hotspots.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-cockpit-batch30-telemetry-parity.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-panel-output-triage.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-runtime-evidence.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
-- agent/state/final-signal-zero-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/future-activity-catalog-status-cleanup.generated.json: current_generated_artifact_to_commit
-- agent/state/open-backlog-status-cleanup.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/chat-functionality-score-lock.md: documentation_artifact_expected
-- docs/agent-truth/chat-gating-moderation.md: documentation_artifact_expected
-- docs/agent-truth/chat-gating-status-cleanup.md: documentation_artifact_expected
-- docs/agent-truth/chat-telemetry-admin-truth.md: documentation_artifact_expected
-- docs/agent-truth/chat-telemetry-status-cleanup.md: documentation_artifact_expected
-- docs/agent-truth/config-runtime-sample-status-classifier.md: documentation_artifact_expected
-- docs/agent-truth/cost-4xx-status-cleanup.md: documentation_artifact_expected
-- docs/agent-truth/cost-risk-owner-review-closure.md: documentation_artifact_expected
-- docs/agent-truth/debug-backlog-engine.md: documentation_artifact_expected
-- docs/agent-truth/debug-cockpit-batch5-cleanup.md: documentation_artifact_expected
+- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/ingest-identified-parity-blocker.generated.json: current_generated_artifact_to_commit
+- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/refresh-diagnostics-failure-clusters.generated.json: current_generated_artifact_to_commit
+- agent/state/telemetry-admin-debug-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/telemetry-parity-pass-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/telemetry-parity-score.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/advanced-telemetry-parity-ui-cleanup.md: documentation_artifact_expected
+- docs/agent-truth/current-beta-exit-status.md: documentation_artifact_expected
+- docs/agent-truth/debug-cockpit-batch30-telemetry-parity.md: documentation_artifact_expected
+- docs/agent-truth/debug-runtime-evidence.md: documentation_artifact_expected
+- docs/agent-truth/event-envelope-normalization.md: documentation_artifact_expected
 - docs/agent-truth/event-liveness-audit.md: release_artifact_expected
-- docs/agent-truth/final-signal-zero-lock.md: documentation_artifact_expected
-- docs/agent-truth/future-activity-catalog-status-cleanup.md: documentation_artifact_expected
-- docs/agent-truth/open-backlog-status-cleanup.md: documentation_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/ingest-identified-parity-blocker.md: documentation_artifact_expected
+- docs/agent-truth/overnight-beta-readiness-lock.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- docs/agent-truth/refresh-diagnostics-failure-clusters.md: documentation_artifact_expected
+- docs/agent-truth/telemetry-admin-debug-truth.md: documentation_artifact_expected
+- docs/agent-truth/telemetry-parity-pass-gate.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/chat-cost-status-cleanup-shared.ts: validator_artifact_expected
-- scripts/agent/validate-chat-functionality-score-lock.ts: validator_artifact_expected
-- scripts/agent/validate-chat-gating-moderation.ts: validator_artifact_expected
-- scripts/agent/validate-chat-gating-status-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-chat-telemetry-admin-truth.ts: validator_artifact_expected
-- scripts/agent/validate-chat-telemetry-status-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-config-runtime-sample-status-classifier.ts: validator_artifact_expected
-- scripts/agent/validate-cost-4xx-status-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-debug-cockpit-batch5-cleanup.ts: validator_artifact_expected
+- scripts/agent/debug-cockpit-batch30-telemetry-parity-shared.ts: validator_artifact_expected
+- scripts/agent/validate-admin-debug-control-tower.ts: validator_artifact_expected
+- scripts/agent/validate-advanced-telemetry-parity-ui-cleanup.ts: validator_artifact_expected
+- scripts/agent/validate-debug-cockpit-batch30-telemetry-parity.ts: validator_artifact_expected
 - scripts/agent/validate-event-liveness-audit.ts: current_generated_artifact_to_commit
-- scripts/agent/validate-final-signal-zero-lock.ts: validator_artifact_expected
-- scripts/agent/validate-future-activity-catalog-status-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-open-backlog-status-cleanup.ts: validator_artifact_expected
-- src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx: real_source_change_needs_review
-- src/lib/debug/config-runtime-sample-status-classifier.ts: real_source_change_needs_review
-- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
+- scripts/agent/validate-ingest-identified-parity-blocker.ts: validator_artifact_expected
+- scripts/agent/validate-refresh-diagnostics-failure-clusters.ts: validator_artifact_expected
+- scripts/agent/validate-telemetry-parity-pass-gate.ts: validator_artifact_expected
+- src/app/admin/debug/components/DebugAdvancedDataValidation.tsx: real_source_change_needs_review
+- src/app/api/admin/analytics/historical/route.ts: real_source_change_needs_review
+- src/lib/analytics/advanced-telemetry-parity-ui.ts: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/ingest-identified-parity-blocker.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/analytics/refresh-diagnostics-failure-clusters.ts: real_source_change_needs_review
+- src/lib/analytics/telemetry-parity-pass-gate.ts: real_source_change_needs_review
+- src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/chat-gating-status-cleanup.spec.ts: test_artifact_expected
-- tests/unit/chat-telemetry-status-cleanup.spec.ts: test_artifact_expected
-- tests/unit/config-runtime-sample-status-classifier.spec.ts: test_artifact_expected
-- tests/unit/cost-4xx-status-cleanup.spec.ts: test_artifact_expected
-- tests/unit/debug-cockpit-batch5-cleanup.spec.ts: test_artifact_expected
-- tests/unit/future-activity-catalog-status-cleanup.spec.ts: test_artifact_expected
-- tests/unit/open-backlog-status-cleanup.spec.ts: test_artifact_expected
+- src/lib/server/admin-analytics-historical-validation.ts: real_source_change_needs_review
+- src/types/admin-analytics.ts: real_source_change_needs_review
+- tests/unit/admin-data-validation.spec.ts: test_artifact_expected
+- tests/unit/advanced-telemetry-parity-ui-cleanup.spec.ts: test_artifact_expected
+- tests/unit/debug-cockpit-batch30-telemetry-parity.spec.ts: test_artifact_expected
+- tests/unit/ingest-identified-parity-blocker.spec.ts: test_artifact_expected
+- tests/unit/refresh-diagnostics-failure-clusters.spec.ts: test_artifact_expected
+- tests/unit/telemetry-parity-pass-gate.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

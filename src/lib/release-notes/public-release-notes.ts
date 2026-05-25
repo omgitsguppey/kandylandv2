@@ -1,13 +1,68 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.58",
-  "betaReleaseCounter": 458,
+  "currentVersion": "1.4.59",
+  "betaReleaseCounter": 459,
   "channel": "beta",
-  "generatedAt": "2026-05-25T05:14:45.811Z",
-  "generatedAtUtc": "2026-05-25T05:14:45.811Z",
+  "generatedAt": "2026-05-25T05:40:55.201Z",
+  "generatedAtUtc": "2026-05-25T05:40:55.201Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.59",
+      "previousVersion": "1.4.58",
+      "betaReleaseCounter": 459,
+      "previousBetaReleaseCounter": 458,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): repair telemetry parity gate",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T05:40:55.201Z",
+      "generatedAt": "2026-05-25T05:40:55.201Z",
+      "committedAtUtc": "2026-05-25T05:40:55.201Z",
+      "generatedAtUtc": "2026-05-25T05:40:55.201Z",
+      "category": "Fixed",
+      "title": "Telemetry parity gate repair",
+      "updatedAtUtc": "2026-05-25T05:40:55.201Z",
+      "summary": "Repaired Advanced Debug telemetry parity semantics so low-confidence samples and active refresh diagnostics block parity promotion with exact route attribution.",
+      "userFacingTitle": "Telemetry parity gate repair",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Fixed telemetry parity pass gating for low-confidence samples and refresh diagnostics failures.",
+        "Separated event sample presence from parity readiness.",
+        "Mapped Analytics.IngestIdentified and unknown route diagnostics into blocking telemetry parity evidence."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Event sample presence now remains separate from telemetry parity promotion when confidence is low or refresh diagnostics are failing.",
+        "Payment runtime, wallet behavior, PayPal behavior, GumDrop math, external GA4 calls, production reads, and production writes were not changed."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug Data Validation",
+        "Telemetry parity validation",
+        "Analytics refresh diagnostics",
+        "Analytics ingest identified diagnostics",
+        "Debug cockpit validation artifacts"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/analytics/telemetry-parity-pass-gate.ts",
+        "src/lib/analytics/refresh-diagnostics-failure-clusters.ts",
+        "src/lib/analytics/ingest-identified-parity-blocker.ts",
+        "src/lib/analytics/advanced-telemetry-parity-ui.ts",
+        "src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "src/types/admin-analytics.ts"
+      ],
+      "effectiveChangeCount": 9,
+      "excludedGeneratedChangeCount": 10,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.58",
       "previousVersion": "1.4.57",

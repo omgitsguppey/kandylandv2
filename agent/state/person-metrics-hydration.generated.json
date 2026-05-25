@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-05-24T16:01:51.999Z",
+  "generatedAtUtc": "2026-05-25T05:51:22.986Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -3870,7 +3870,7 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "883bdc0e91e5494f3b6b3e6449d5ea722b898077",
+  "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
   "dirtyFiles": [
     {
       "path": "CHANGELOG.md",
@@ -3881,23 +3881,35 @@
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
+      "path": "agent/state/advanced-telemetry-parity-ui-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/current-beta-exit-status.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "path": "agent/state/debug-cockpit-batch18-route-hotspots.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/drop-watch-time-accuracy.generated.json",
+      "path": "agent/state/debug-cockpit-batch30-telemetry-parity.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/empty-live-lane-status-cleanup.generated.json",
+      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -3905,15 +3917,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/identity-handoff-spine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/identity-handoff-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/notification-pwa-score-lock.generated.json",
+      "path": "agent/state/ingest-identified-parity-blocker.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -3929,51 +3933,43 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/pwa-service-worker-safety.generated.json",
+      "path": "agent/state/refresh-diagnostics-failure-clusters.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/pwa-service-worker-status-cleanup.generated.json",
+      "path": "agent/state/telemetry-parity-pass-gate.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/session-bounce-calculation.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/sql-database-parity-cost-lock.generated.json",
+      "path": "agent/state/telemetry-parity-score.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/tracking-lane-freshness-display-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/user-journey-behavioral-intelligence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/wallet-funnel-sample-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/advanced-telemetry-parity-ui-cleanup.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/current-beta-exit-status.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch3-cleanup.md",
+      "path": "docs/agent-truth/debug-cockpit-batch30-telemetry-parity.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "path": "docs/agent-truth/debug-runtime-evidence.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/empty-live-lane-status-cleanup.md",
+      "path": "docs/agent-truth/event-liveness-audit.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -3981,15 +3977,7 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/identity-handoff-spine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/identity-handoff-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/notification-pwa-score-lock.md",
+      "path": "docs/agent-truth/ingest-identified-parity-blocker.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -4001,31 +3989,15 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/pwa-service-worker-safety.md",
+      "path": "docs/agent-truth/refresh-diagnostics-failure-clusters.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/pwa-service-worker-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/session-bounce-calculation.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/sql-database-parity-cost-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/tracking-lane-freshness-display-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-journey-behavioral-intelligence.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/wallet-funnel-sample-cleanup.md",
+      "path": "docs/agent-truth/telemetry-parity-pass-gate.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -4037,59 +4009,55 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts",
+      "path": "scripts/agent/debug-cockpit-batch30-telemetry-parity-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch3-cleanup.ts",
+      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
+      "path": "scripts/agent/validate-advanced-telemetry-parity-ui-cleanup.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-empty-live-lane-status-cleanup.ts",
+      "path": "scripts/agent/validate-debug-cockpit-batch30-telemetry-parity.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-identity-handoff-status-cleanup.ts",
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-notification-pwa-score-lock.ts",
+      "path": "scripts/agent/validate-ingest-identified-parity-blocker.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-pwa-service-worker-safety.ts",
+      "path": "scripts/agent/validate-refresh-diagnostics-failure-clusters.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-pwa-service-worker-status-cleanup.ts",
+      "path": "scripts/agent/validate-telemetry-parity-pass-gate.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-session-bounce-calculation.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-sql-database-parity-cost-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/app/api/admin/analytics/historical/route.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-tracking-lane-freshness-display-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-wallet-funnel-sample-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/analytics/advanced-telemetry-parity-ui.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/ingest-identified-parity-blocker.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -4097,15 +4065,15 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "path": "src/lib/analytics/refresh-diagnostics-failure-clusters.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/empty-live-lane-classifier.ts",
+      "path": "src/lib/analytics/telemetry-parity-pass-gate.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/pwa/pwa-service-worker-contract.ts",
+      "path": "src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -4117,27 +4085,35 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/debug-cockpit-batch3-cleanup.spec.ts",
+      "path": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/types/admin-analytics.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/admin-data-validation.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/empty-live-lane-status-cleanup.spec.ts",
+      "path": "tests/unit/advanced-telemetry-parity-ui-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/identity-handoff-status-cleanup.spec.ts",
+      "path": "tests/unit/debug-cockpit-batch30-telemetry-parity.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/pwa-service-worker-status-cleanup.spec.ts",
+      "path": "tests/unit/ingest-identified-parity-blocker.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/tracking-lane-freshness-display-cleanup.spec.ts",
+      "path": "tests/unit/refresh-diagnostics-failure-clusters.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/wallet-funnel-sample-cleanup.spec.ts",
+      "path": "tests/unit/telemetry-parity-pass-gate.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

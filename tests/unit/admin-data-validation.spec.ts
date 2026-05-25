@@ -135,6 +135,42 @@ describe("buildHistoricalValidationSummary", () => {
     });
   });
 
+  it("blocks telemetry parity when samples exist but confidence is low and refresh diagnostics fail", () => {
+    const summary = build({
+      firstPartyAuthenticatedEvents: 25_000,
+      canonicalSampleCount: 500,
+      pipelineFailureCount: 153,
+      pipelineFailureClusters: [
+        {
+          source: "server_diagnostics",
+          reasonCode: "UnknownError",
+          count: 46,
+          firstSeenAtUtc: "2026-05-24T15:49:14.000Z",
+          lastSeenAtUtc: "2026-05-24T15:57:42.000Z",
+          affectedRoute: "Analytics.IngestIdentified",
+          suggestedAction: "Inspect identified ingest failures.",
+        },
+      ],
+    });
+    const telemetryDepth = summary.validations.find((check) => check.checkKey === "telemetry_depth");
+
+    expect(summary.telemetryParityValidation).toMatchObject({
+      status: "fail",
+      sampleCoveragePct: 2,
+      blockedReason: "analytics_refresh_failures_present",
+    });
+    expect(telemetryDepth).toMatchObject({
+      status: "fail",
+      confidence: 2,
+      sampleCount: 500,
+      passAllowed: false,
+      passBlockedReason: "analytics_refresh_failures_present",
+    });
+    expect(telemetryDepth?.operatorSummary).toContain("Sample presence confirmed");
+    expect(telemetryDepth?.action).toContain("Fix analytics refresh failures");
+    expect(telemetryDepth?.action).not.toMatch(/which event source is missing/iu);
+  });
+
   it("separates purchase revenue truth from funnel telemetry undercount", () => {
     const summary = build();
 

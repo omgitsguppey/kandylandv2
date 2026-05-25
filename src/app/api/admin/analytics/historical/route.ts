@@ -70,6 +70,7 @@ import {
 } from "@/lib/server/ephemeral-route-cache";
 import { ANALYTICS_NON_PRIORITY_TTL_MS } from "@/lib/analytics/analytics-cadence-policy";
 import { buildGa4EvidenceState } from "@/lib/analytics/ga4-truth";
+import { buildRefreshDiagnosticsFailureClusters } from "@/lib/analytics/refresh-diagnostics-failure-clusters";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
 const propertyId = getAdminAnalyticsPropertyId();
@@ -206,6 +207,10 @@ type PipelineFailureCluster = {
     firstSeenAtUtc: string;
     lastSeenAtUtc: string;
     affectedRoute?: string;
+    severity?: "info" | "warning" | "error" | "blocking";
+    current?: boolean;
+    routeAttribution?: "known" | "unknown" | "inferred" | "missing";
+    likelyOwner?: string;
     suggestedAction: string;
 };
 
@@ -310,7 +315,7 @@ function buildPipelineFailureClusters(input: {
         const detail = (data.detail && typeof data.detail === "object")
             ? data.detail as Record<string, unknown>
             : {};
-        const affectedRoute = toStringValue(detail.routeContext) || toStringValue(data.route);
+        const affectedRoute = toStringValue(detail.routeContext) || toStringValue(detail.route) || toStringValue(detail.affectedRoute) || toStringValue(data.route);
         const reasonCode = toStringValue(detail.errorName) || toStringValue(data.severity) || "unknown_error";
         const createdAtMs = toTimestampNumber(data.createdAt);
         upsertCluster({
@@ -326,7 +331,7 @@ function buildPipelineFailureClusters(input: {
         });
     });
 
-    return [...clusters.values()]
+    const rawClusters = [...clusters.values()]
         .sort((left, right) => right.count - left.count || right.lastSeenAtMs - left.lastSeenAtMs)
         .slice(0, 10)
         .map((cluster): PipelineFailureCluster => ({
@@ -338,6 +343,20 @@ function buildPipelineFailureClusters(input: {
             affectedRoute: cluster.affectedRoute,
             suggestedAction: cluster.suggestedAction,
         }));
+
+    return buildRefreshDiagnosticsFailureClusters({ clusters: rawClusters }).map((cluster): PipelineFailureCluster => ({
+        source: cluster.source,
+        reasonCode: cluster.reasonCode,
+        count: cluster.count,
+        firstSeenAtUtc: cluster.firstSeenAtUtc,
+        lastSeenAtUtc: cluster.lastSeenAtUtc,
+        affectedRoute: cluster.affectedRoute,
+        severity: cluster.severity,
+        current: cluster.current,
+        routeAttribution: cluster.routeAttribution,
+        likelyOwner: cluster.likelyOwner,
+        suggestedAction: cluster.nextAction,
+    }));
 }
 
 function buildHistoricalResponseCacheKey(input: {
