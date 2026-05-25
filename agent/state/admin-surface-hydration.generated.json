@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "states": [
+    "snapshot_ready",
+    "snapshot_stale",
+    "snapshot_missing",
+    "refreshing",
+    "failed",
+    "unauthorized",
+    "no_access"
+  ],
+  "ready": {
+    "state": "snapshot_ready",
+    "shouldRenderShell": true,
+    "shouldRenderSnapshotValues": true,
+    "shouldRenderSkeleton": false,
+    "shouldShowManualRefresh": false,
+    "freshnessLabel": "Snapshot ready."
+  },
+  "stale": {
+    "state": "snapshot_stale",
+    "shouldRenderShell": true,
+    "shouldRenderSnapshotValues": true,
+    "shouldRenderSkeleton": false,
+    "shouldShowManualRefresh": true,
+    "freshnessLabel": "Snapshot is stale; values remain visible for review."
+  },
+  "missing": {
+    "state": "snapshot_missing",
+    "shouldRenderShell": true,
+    "shouldRenderSnapshotValues": false,
+    "shouldRenderSkeleton": false,
+    "shouldShowManualRefresh": true,
+    "freshnessLabel": "Source snapshot is missing."
+  }
+}

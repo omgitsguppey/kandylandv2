@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "heartbeatCadenceSeconds": 3600,
+  "sample": {
+    "heartbeatId": "admin_overview_snapshot:2026-05-25T10:00:00.000Z",
+    "domain": "admin_overview",
+    "snapshotId": "admin_overview_snapshot",
+    "startedAtUtc": "2026-05-25T10:00:00.000Z",
+    "completedAtUtc": "2026-05-25T10:00:00.500Z",
+    "durationMs": 500,
+    "status": "completed",
+    "sourceCounts": {
+      "snapshotDocs": 1,
+      "heartbeatDocs": 1
+    },
+    "warningCount": 0,
+    "errorCount": 0,
+    "costEstimate": {
+      "readOperations": 2,
+      "writeOperations": 1,
+      "providerCalls": 0,
+      "notes": []
+    },
+    "nextDueAtUtc": "2026-05-25T11:00:00.000Z"
+  },
+  "missingHeartbeatState": "heartbeat_missing"
+}

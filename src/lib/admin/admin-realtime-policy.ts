@@ -1,4 +1,5 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { ADMIN_HEARTBEAT_INTERVAL_MS } from "@/lib/admin/admin-heartbeat-contract";
 
 export type AdminRealtimeMetricScope = "operational_pulse_only";
 export type AdminRealtimeCostRisk = "low" | "moderate" | "high";
@@ -8,7 +9,7 @@ export type AdminRealtimePolicy = {
   owner: string;
   purpose: "operational_pulse_only";
   metricScope: AdminRealtimeMetricScope;
-  businessTruthSource: "refresh_based_hot_cache";
+  businessTruthSource: "hot_cache" | "refresh_based_hot_cache";
   snapshotRefreshCadenceMs?: number;
   heartbeatIntervalMs?: number;
   reconnectBackoffMaxMs?: number;
@@ -17,7 +18,7 @@ export type AdminRealtimePolicy = {
 };
 
 export const ADMIN_REALTIME_FIRST_CLASS_POLICIES = {
-  businessTruthSource: "refresh_based_hot_cache" as const,
+  businessTruthSource: "hot_cache" as const,
   missingSnapshotFailureState: "failed" as const,
   usableSnapshotFailureState: "degraded" as const,
 };
@@ -27,12 +28,12 @@ export const ADMIN_OVERVIEW_REALTIME_POLICY: AdminRealtimePolicy = {
   owner: "admin_overview",
   purpose: "operational_pulse_only",
   metricScope: "operational_pulse_only",
-  businessTruthSource: "refresh_based_hot_cache",
-  snapshotRefreshCadenceMs: 60_000,
+  businessTruthSource: "hot_cache",
+  snapshotRefreshCadenceMs: ADMIN_HEARTBEAT_INTERVAL_MS,
   reconnectBackoffMaxMs: 10_000,
-  costRisk: "moderate",
+  costRisk: "low",
   explicitCostJustification:
-    "One-minute snapshot refresh keeps canonical admin totals current without letting realtime listeners become business truth.",
+    "Hourly hot-cache refresh keeps canonical admin totals current without page-load raw reads or realtime listeners.",
 };
 
 export const ADMIN_USERS_REALTIME_POLICY: AdminRealtimePolicy = {
@@ -40,13 +41,13 @@ export const ADMIN_USERS_REALTIME_POLICY: AdminRealtimePolicy = {
   owner: "admin_users",
   purpose: "operational_pulse_only",
   metricScope: "operational_pulse_only",
-  businessTruthSource: "refresh_based_hot_cache",
-  snapshotRefreshCadenceMs: 60_000,
-  heartbeatIntervalMs: 25_000,
+  businessTruthSource: "hot_cache",
+  snapshotRefreshCadenceMs: ADMIN_HEARTBEAT_INTERVAL_MS,
+  heartbeatIntervalMs: ADMIN_HEARTBEAT_INTERVAL_MS,
   reconnectBackoffMaxMs: 15_000,
-  costRisk: "moderate",
+  costRisk: "low",
   explicitCostJustification:
-    "One-minute users snapshot refresh keeps business metrics stable while the realtime SSE lane only signals invalidate pulses.",
+    "Hourly users snapshot refresh keeps business metrics stable; raw user lists are explicit bounded drilldowns.",
 };
 
 export const ADMIN_ANALYTICS_REALTIME_POLICY: AdminRealtimePolicy = {
@@ -54,11 +55,11 @@ export const ADMIN_ANALYTICS_REALTIME_POLICY: AdminRealtimePolicy = {
   owner: "admin_analytics",
   purpose: "operational_pulse_only",
   metricScope: "operational_pulse_only",
-  businessTruthSource: "refresh_based_hot_cache",
-  snapshotRefreshCadenceMs: 60_000,
-  costRisk: "moderate",
+  businessTruthSource: "hot_cache",
+  snapshotRefreshCadenceMs: ADMIN_HEARTBEAT_INTERVAL_MS,
+  costRisk: "low",
   explicitCostJustification:
-    "Realtime analytics observers are limited to operational live pulse and never replace canonical admin snapshot totals.",
+    "Hourly analytics snapshot refresh is the default; live observers require explicit operator debug exceptions.",
 };
 
 export function resolveAdminRealtimeFailureState(hasSnapshotValue: boolean): AdminSurfaceState {

@@ -233,7 +233,7 @@ export type AdminOverviewRealtimeDebugMeta = {
     purpose: "operational_pulse_only";
     owner: string;
     costRisk: AdminRealtimeCostRisk;
-    businessTruthSource: "refresh_based_hot_cache";
+    businessTruthSource: "hot_cache" | "refresh_based_hot_cache";
 };
 
 export function calculateOverviewMetricDelta(

@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "entries": [
+    {
+      "surface": "admin_overview",
+      "path": "src/hooks/useAdminOverviewRealtime.ts",
+      "currentRealtimeRefs": 0,
+      "classification": "admin_hot_cache_required",
+      "hotCacheSnapshotId": "admin_overview_snapshot",
+      "nextAction": "Default overview data uses /api/admin/overview snapshot and hourly revalidation only."
+    },
+    {
+      "surface": "admin_analytics",
+      "path": "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+      "currentRealtimeRefs": 4,
+      "classification": "manual_exception_required",
+      "hotCacheSnapshotId": "admin_analytics_snapshot",
+      "nextAction": "Keep this hook out of default state; migrate any remaining live pulse to explicit operator debug with owner/cost exception."
+    },
+    {
+      "surface": "admin_debug",
+      "path": "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+      "currentRealtimeRefs": 4,
+      "classification": "realtime_allowed_operator_live_debug",
+      "hotCacheSnapshotId": "admin_debug_snapshot",
+      "exception": {
+        "owner": "admin_debug",
+        "reason": "Operator live debug drilldown only; not default overview truth.",
+        "maxQuerySize": 25,
+        "detachBehavior": "cleanup_required",
+        "costRisk": "moderate",
+        "fallbackHotCachePath": "admin_debug_snapshot"
+      },
+      "nextAction": "Retain only as an explicit live-debug exception and keep snapshot fallback visible."
+    },
+    {
+      "surface": "admin_recent_transactions_panel",
+      "path": "src/components/Admin/RecentTransactionsPanel.tsx",
+      "currentRealtimeRefs": 1,
+      "classification": "manual_exception_required",
+      "hotCacheSnapshotId": "admin_overview_snapshot",
+      "nextAction": "Move compact overview feed to snapshot; keep any live feed behind explicit drilldown exception."
+    },
+    {
+      "surface": "user_chat",
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "currentRealtimeRefs": 2,
+      "classification": "realtime_allowed_user_chat",
+      "exception": {
+        "owner": "chat",
+        "reason": "User-facing messaging requires live delivery and presence.",
+        "maxQuerySize": 50,
+        "detachBehavior": "cleanup_required",
+        "costRisk": "moderate",
+        "fallbackHotCachePath": "not_applicable_user_chat"
+      },
+      "nextAction": "Preserve user-facing chat realtime; this migration must not remove it."
+    }
+  ]
+}

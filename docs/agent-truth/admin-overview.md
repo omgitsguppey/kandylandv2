@@ -1,135 +1,96 @@
-# Admin Overview — Agent Source-of-Truth
+# Admin Overview - Agent Source-of-Truth
 
-> This document is the canonical agent-readable reference for the Admin Overview top section.
-> All agents working on this module must read this document before modifying any Admin Overview code.
+This document is the canonical agent-readable reference for the Admin Overview top section.
 
-## What the Admin Overview top section does
+## What The Top Section Does
 
-The Admin Overview (`/admin` route, rendered by `src/app/admin/page.tsx`) is the landing page for the admin console. Its top section displays:
+The Admin Overview (`/admin`, rendered by `src/app/admin/page.tsx`) is the landing page for the admin console. Its top section displays:
 
-1. **Title**: "Admin Overview" (no eyebrow label, no "CONTROL ROOM")
-2. **Truth chip**: A concise status badge showing the canonical data source state
-3. **Server update subtitle**: "Last server update X ago" - the most recent server-confirmed timestamp
-4. **Issue chip** (conditional): "N issues active" when listener failures or read fallbacks exist
+1. Title: "Admin Overview"
+2. Truth chip: concise status for the overview source state
+3. Server update subtitle: the most recent server-confirmed snapshot timestamp
+4. Issue chip: visible only when source issues exist
 
-## Canonical data sources
+## Canonical Data Sources
 
-### Primary: Firestore realtime snapshot listeners (client-side)
+### Primary: Hourly Hot-Cache Snapshot
 
-The `useAdminOverviewRealtime` hook (`src/hooks/useAdminOverviewRealtime.ts`) maintains 4 Firestore `onSnapshot` listeners:
+`src/hooks/useAdminOverviewRealtime.ts` is now a legacy-named adapter over `/api/admin/overview`. It does not open Firestore listeners. The route reads:
 
-| Listener | Collection / Document | Purpose |
-|---|---|---|
-| Drops | `drops` (collection) | Live drop counts, top drops, drop status |
-| Commerce summary | `analytics_commerce_rollup/summary` (document) | Lifetime revenue and unwrap totals |
-| Transactions | `transactions` (collection, ordered desc, limit 20) | Recent transaction feed |
-| Admin activity | `transactions` filtered to admin adjustments | Recent admin adjustment feed |
+| Source | Purpose |
+|---|---|
+| `admin_hot_cache_snapshots/admin_overview_snapshot` | Cached overview payload, Platform pulse, chart data, feeds, and freshness |
+| `admin_surface_heartbeats/admin_overview_snapshot` | Hourly heartbeat evidence, source counts, duration, and next-due timestamp |
 
-Each listener reads `snapshot.metadata.fromCache` to distinguish server-confirmed data from cached/offline data.
+Page load must not run broad fallback reads over users, drops, transactions, telemetry logs, or daily rollups. If the snapshot is missing, the route returns a source-missing state and manual refresh guidance.
 
-### Secondary: Server API rollup (polled)
+### Refresh Lifecycle
 
-The hook also polls `/api/admin/overview` via SWR at a **60-second interval** to fetch:
-- Chart data (30-day commerce daily aggregates)
-- Trend summaries and deltas
-- Admin activity log (telemetry events + admin adjustments)
-- User count (aggregation query)
+Snapshot generation is scheduler/job or explicit-operator work. Admin page load reads snapshot evidence only. The default heartbeat cadence is 3600 seconds.
 
-This polling remains because chart/trend/activity data doesn't need sub-minute freshness. The polling is **explicitly labeled** in the truth notes and the `realtimeDebugMeta.pollingActive` flag.
+### Source Hierarchy
 
-### Source hierarchy (canonical to fallback)
+1. Fresh hot-cache snapshot: canonical Admin Overview display truth
+2. Stale hot-cache snapshot: values remain visible with review freshness
+3. Heartbeat evidence: proves refresh lifecycle state, not business metric truth
+4. No snapshot: source-missing state
 
-1. **Server-confirmed Firestore snapshot** (fromCache: false) → canonical truth
-2. **Cached Firestore snapshot** (fromCache: true) - operator label is "Showing last verified data"
-3. **Server API rollup** - 60s refresh cadence, operator label is "Showing last verified data"
-4. **No data** - "Waiting for first overview snapshot"
-
-## What must NEVER be treated as truth
+## What Must Never Be Treated As Truth
 
 - AI/model summaries or generated interpretations
 - Stale materialized snapshots without timestamps
 - `localStorage` or `sessionStorage` cached admin data
-- Component-level state that outlives the Firestore listener lifecycle
-- Any data source that doesn't expose its freshness timestamp
+- Component-level state that outlives the snapshot lifecycle
+- Any data source that does not expose its freshness timestamp
 
-## What each visible status chip means
+## How Cache State Is Detected
 
-| Chip | Meaning | Variant |
-|---|---|---|
-| **Updated** | All overview live upgrade listeners loaded with server-confirmed data | `live` (green) |
-| **Showing last verified data** | A verified server response or cache-backed snapshot is visible | `cached` (amber) |
-| **Refreshing overview** | Some live upgrade listeners have loaded and the rest are still initializing | `cached` (amber) |
-| **Live updates delayed** | At least one live upgrade listener has errored | `fallback` (red) |
-| **Waiting for first overview snapshot** | No verified overview data is available yet | `waiting` (gray) |
-| **N issues active** | N listener failures or server read fallbacks detected | amber badge |
-| **Last server update X ago** | Time since most recent server-confirmed snapshot or transaction | neutral |
+1. `/api/admin/overview` reads the hot-cache snapshot doc and heartbeat doc.
+2. Snapshot age is compared against the 3600-second TTL.
+3. Missing heartbeat evidence is reported as missing, not healthy.
+4. Missing snapshot state does not trigger broad raw fallback reads.
 
-## How realtime vs cache vs fallback is detected
+## Avoid Reintroducing The Bug
 
-1. Each `onSnapshot` callback reads `snapshot.metadata.fromCache`.
-2. The `listenerState` tracks per-listener `fromCache` booleans.
-3. `resolveTruthChipLabel()` (exported from `useAdminOverviewRealtime.ts`) applies a deterministic state machine:
-   - Failed listeners -> "Live updates delayed"
-   - All loaded + none from cache -> "Updated"
-   - All loaded + some from cache -> "Showing last verified data"
-   - Partial -> "Refreshing overview"
-   - No live upgrade + server data -> "Showing last verified data"
-   - Nothing -> "Waiting for first overview snapshot"
+1. Do not add Firestore listeners to the Admin Overview default path.
+2. Do not run broad raw reads from page load when the snapshot is missing.
+3. Use hot-cache freshness and heartbeat evidence for truth chips.
+4. Keep missing, stale, failed, and refreshing states distinct.
+5. Any live admin exception must be drilldown/operator scoped with owner, cost, detach, and fallback evidence.
 
-## What caused this bug
+## Admin Top Spacing Rule
 
-The original implementation used bracket-prefixed developer jargon (`[PARTIAL] FEED`, `[DEGRADED]`, `Last txn`) that:
+- CSS custom properties `--admin-top-spacing` and `--admin-top-spacing-md` are defined in `src/app/globals.css`.
+- The admin layout (`src/app/admin/layout.tsx`) consumes these via the shared admin shell spacing.
+- Do not add ad-hoc `pt-*` values to admin pages.
 
-1. **Didn't check `fromCache`** — all Firestore snapshots were treated as "live" regardless of whether they came from the server or the client cache.
-2. **Used vague labels** — `[PARTIAL]` was ambiguous: was it partial because of failed listeners, because of cache, or because the server rollup hadn't arrived yet?
-3. **`Last txn` lied** — it reported the last transaction timestamp without indicating whether that timestamp was server-confirmed.
-4. **"CONTROL ROOM" eyebrow** — meaningless label that added visual clutter.
+## Hero Truth Display Rule
 
-## How to avoid reintroducing this bug
+- The Admin Overview hero actions slot must contain exactly one chip: the truth chip.
+- Server update freshness info goes in the `subtitle` prop as inline text.
+- Issue counts remain in `AdminStatsBar`, not as standalone hero chips.
+- Do not add additional status chips, server update chips, or issue chips to the hero actions slot.
 
-1. **Always check `snapshot.metadata.fromCache`** on any Firestore client snapshot used for admin truth.
-2. **Never label data as "live" unless it is server-confirmed** (fromCache === false).
-3. **Use `resolveTruthChipLabel()` for all truth chips** — don't construct ad-hoc bracket strings.
-4. **Include `realtimeDebugMeta` in any merged admin response** — debug visibility is required.
-5. **If polling must remain, label the interval explicitly** in both the truth notes and the debug meta.
+## Shared Admin Truth-Badge Doctrine
 
-## Admin top spacing rule
+Admin Overview uses the canonical truth-state doctrine in `src/lib/admin-truth-state.ts`: `live`, `refreshing`, `stale`, `degraded`, `failed`, `unavailable`, `delayed`, and `review`. Valid values stay visible while transport refresh degrades; missing sources must not claim `live`.
 
-- CSS custom properties `--admin-top-spacing` (4px mobile) and `--admin-top-spacing-md` (12px desktop) are defined in `src/app/globals.css`.
-- The admin layout (`src/app/admin/layout.tsx`) consumes these via `pt-[var(--admin-top-spacing)]`.
-- The admin layout also applies `mt-[-2rem] md:mt-[-1.5rem]` to counteract the root layout's `pt-24` (96px), pulling the admin console grid closer to the navbar without touching the root layout.
-- Do NOT add ad-hoc `pt-*` values to admin pages. Use the tokens.
-- Do NOT increase `--admin-top-spacing` without also adjusting the negative margin — they are paired.
-- The sticky admin console nav grid handles its own offset from the top navbar via `top-[calc(3.5rem+env(safe-area-inset-top))]`.
+## Deferred Work
 
-## Hero truth display rule
+- Bottom nav rules for user surfaces are intentionally deferred.
+- Admin Analytics bottom-nav behavior must not be changed by Admin Overview tasks.
 
-- The Admin Overview hero (`AdminPageHeader` actions slot) must contain **exactly one chip**: the truth chip.
-- The truth chip displays the canonical truth label from `resolveTruthChipLabel()`.
-- Server update freshness info goes in the `subtitle` prop as inline text, NOT as a separate chip.
-- Issue counts remain in `AdminStatsBar`, NOT as standalone hero chips.
-- Do NOT add additional status chips, server update chips, or issue chips to the hero actions slot.
-- Rationale: Multiple chips wrap on mobile and create vertical sprawl that pushes the console grid downward.
-
-## Shared admin truth-badge doctrine
-
-Admin Overview is not allowed to invent a separate status language from User Management or admin user detail. Shared admin data-state badges now use the canonical truth-state doctrine in `src/lib/admin-truth-state.ts`: `live`, `refreshing`, `stale`, `degraded`, `failed`, `unavailable`, `delayed`, and `review`. Valid values stay visible while transport refresh degrades; missing sources must not claim `live`.
-
-## Deferred work (do NOT touch in Admin Overview tasks)
-
-- **Bottom nav rules for user surfaces** are intentionally deferred.
-- **Admin Analytics bottom-nav behavior** must NOT be changed by this task or related tasks. That surface currently hides the bottom nav and we are leaving that alone.
-
-## Key files
+## Key Files
 
 | File | Role |
 |---|---|
-| `src/app/admin/page.tsx` | Admin Overview UI (renders title, single truth chip, modules) |
-| `src/app/admin/layout.tsx` | Admin layout (top spacing, negative margin override, nav grid) |
-| `src/hooks/useAdminOverview.ts` | Thin wrapper → delegates to realtime hook |
-| `src/hooks/useAdminOverviewRealtime.ts` | Realtime hook (Firestore listeners + SWR poll + truth state) |
-| `src/lib/admin-overview.ts` | Shared types (AdminOverviewResponse, AdminOverviewRealtimeDebugMeta) |
-| `src/app/api/admin/overview/route.ts` | Server API rollup (charts, deltas, activity, truth notes) |
-| `src/components/Admin/AdminPageHeader.tsx` | Shared admin page header (eyebrow, title, subtitle, actions) |
-| `src/app/globals.css` | Admin spacing CSS tokens |
-| `tests/unit/admin-overview-truth.spec.ts` | Targeted validation for truth chips, copy, and type contracts |
+| `src/app/admin/page.tsx` | Admin Overview UI |
+| `src/app/admin/layout.tsx` | Admin layout |
+| `src/hooks/useAdminOverview.ts` | Thin wrapper |
+| `src/hooks/useAdminOverviewRealtime.ts` | Legacy-named hot-cache adapter |
+| `src/lib/admin-overview.ts` | Shared response and pulse types |
+| `src/app/api/admin/overview/route.ts` | Snapshot-first API |
+| `src/lib/admin/admin-hot-cache-contract.ts` | Snapshot registry |
+| `src/lib/admin/admin-heartbeat-contract.ts` | Heartbeat model |
+| `src/components/Admin/AdminPageHeader.tsx` | Shared admin page header |
+| `tests/unit/admin-overview-hot-cache.spec.ts` | Snapshot-first route validation |

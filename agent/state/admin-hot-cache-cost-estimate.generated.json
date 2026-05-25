@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "estimate": {
+    "oldEstimatedReadsPerLoad": 10336,
+    "newEstimatedReadsPerLoad": 3,
+    "oldReadPaths": [
+      "users query up to 5000 docs",
+      "drops query up to 5000 docs",
+      "recent transactions query",
+      "admin adjustments query",
+      "analytics_commerce_rollup summary doc",
+      "analytics_commerce_daily rolling window query",
+      "analytics_task_daily rolling window query",
+      "analytics_drop_daily rolling window query",
+      "admin user truth snapshot doc",
+      "admin telemetry logs query",
+      "support and bug report bounded count aggregates"
+    ],
+    "newReadPaths": [
+      "admin_overview_snapshot hot-cache doc",
+      "admin_overview_snapshot heartbeat doc",
+      "optional bounded recent feed summary doc"
+    ],
+    "oldListenerReadRisk": "high",
+    "newListenerReadRisk": "low",
+    "oldPollingIntervalMs": 60000,
+    "newHeartbeatIntervalMs": 3600000,
+    "estimatedReadReductionPct": 99.97,
+    "estimatedListenerReductionPct": 100,
+    "estimatedPollingReductionPct": 98.33,
+    "notes": [
+      "Operation estimate only; no billing amount is claimed without billing export evidence.",
+      "New page-load path reads hot-cache/heartbeat summary documents and does not start Firestore listeners."
+    ]
+  }
+}

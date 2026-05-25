@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "pageLoadReadModel": "snapshot_doc_plus_heartbeat_doc",
+  "broadFallbackReadsRun": false,
+  "authGuardPreserved": true
+}

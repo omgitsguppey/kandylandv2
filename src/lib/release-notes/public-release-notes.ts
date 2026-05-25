@@ -1,13 +1,83 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.65",
-  "betaReleaseCounter": 465,
+  "currentVersion": "1.4.66",
+  "betaReleaseCounter": 466,
   "channel": "beta",
-  "generatedAt": "2026-05-25T19:59:22.226Z",
-  "generatedAtUtc": "2026-05-25T19:59:22.226Z",
+  "generatedAt": "2026-05-25T20:28:35.091Z",
+  "generatedAtUtc": "2026-05-25T20:28:35.091Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.66",
+      "previousVersion": "1.4.65",
+      "betaReleaseCounter": 466,
+      "previousBetaReleaseCounter": 465,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(admin): add hot cache heartbeat",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T20:28:35.091Z",
+      "generatedAt": "2026-05-25T20:28:35.091Z",
+      "committedAtUtc": "2026-05-25T20:28:35.091Z",
+      "generatedAtUtc": "2026-05-25T20:28:35.091Z",
+      "category": "Admin",
+      "title": "Admin hot-cache heartbeat",
+      "updatedAtUtc": "2026-05-25T20:28:35.091Z",
+      "summary": "Moved admin surfaces toward hourly hot-cache snapshots and removed default realtime/raw-read behavior.",
+      "userFacingTitle": "Admin hot-cache heartbeat",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Moved admin surfaces toward hourly hot-cache snapshots and removed default realtime/raw-read behavior.",
+        "Added shared admin heartbeat, hydration states, and cost-estimate evidence.",
+        "Preserved user-facing chat realtime while preventing admin pages from polling themselves to death."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Admin Overview now reads the overview hot-cache snapshot and heartbeat status on page load instead of broad users, drops, transaction, and daily-rollup reads.",
+        "Admin heartbeat records use an hourly cadence with duration, source counts, cost estimate, and next-due evidence.",
+        "Admin realtime migration evidence preserves user chat realtime and classifies remaining admin live hooks as explicit exceptions or follow-up migration work."
+      ],
+      "affectedSurfaces": [
+        "Admin Overview",
+        "Admin analytics and debug source doctrine",
+        "Admin hot-cache and heartbeat validators"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/app/api/admin/overview/route.ts",
+        "src/hooks/useAdminOverviewRealtime.ts",
+        "src/lib/admin/admin-hot-cache-contract.ts",
+        "src/lib/admin/admin-heartbeat-contract.ts",
+        "src/lib/server/admin-heartbeat-writer.ts",
+        "src/lib/admin/admin-realtime-to-hot-cache-migration.ts",
+        "src/lib/admin/admin-surface-hydration-contract.ts",
+        "src/lib/admin/admin-hot-cache-cost-estimator.ts",
+        "src/lib/admin/admin-realtime-policy.ts",
+        "scripts/agent/validate-admin-heartbeat-contract.ts",
+        "scripts/agent/validate-admin-realtime-hot-cache-migration.ts",
+        "scripts/agent/validate-admin-overview-hot-cache.ts",
+        "scripts/agent/validate-admin-surface-hydration.ts",
+        "scripts/agent/validate-admin-hot-cache-cost-estimate.ts",
+        "scripts/agent/validate-admin-hot-cache-heartbeat-refactor.ts",
+        "agent/state/admin-hot-cache-heartbeat-refactor.generated.json",
+        "docs/agent-truth/admin-hot-cache-heartbeat-refactor.md",
+        "tests/unit/admin-heartbeat-contract.spec.ts",
+        "tests/unit/admin-realtime-hot-cache-migration.spec.ts",
+        "tests/unit/admin-overview-hot-cache.spec.ts",
+        "tests/unit/admin-surface-hydration.spec.ts",
+        "tests/unit/admin-hot-cache-cost-estimate.spec.ts",
+        "tests/unit/admin-hot-cache-heartbeat-refactor.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.65",
       "previousVersion": "1.4.64",
@@ -6652,64 +6722,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 12,
       "excludedGeneratedChangeCount": 6,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.41",
-      "previousVersion": "1.4.40",
-      "betaReleaseCounter": 441,
-      "previousBetaReleaseCounter": 440,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(device): refresh layout readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T20:05:00.000Z",
-      "generatedAt": "2026-05-24T20:05:00.000Z",
-      "committedAtUtc": "2026-05-24T20:05:00.000Z",
-      "generatedAtUtc": "2026-05-24T20:05:00.000Z",
-      "updatedAtUtc": "2026-05-24T20:05:00.000Z",
-      "category": "Improved",
-      "title": "Device layout readiness refresh",
-      "summary": "Refreshed device, content protection, cost, and telemetry readiness reports while moving compact viewport checks onto the device layout contract.",
-      "userFacingTitle": "Device layout readiness refresh",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refreshed device, content protection, cost, and telemetry parity readiness reports.",
-        "Moved compact viewport detection onto the device layout contract.",
-        "Classified responsive breakpoint and wallet-nav action findings without changing payment or bottom-nav behavior."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "App experience",
-        "Device layout",
-        "Navigation",
-        "Privacy & security",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-cockpit-batch11-cleanup.generated.json",
-        "agent/state/device-breakpoint-contract-cleanup.generated.json",
-        "agent/state/device-layout-score.generated.json",
-        "agent/state/device-ui-dry-audit.generated.json",
-        "agent/state/google-cost-bleed.generated.json",
-        "agent/state/mobile-bottom-nav-wallet-action-review.generated.json",
-        "agent/state/responsive-breakpoint-finding-cleanup.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/debug-cockpit-batch11-shared.ts",
-        "src/components/Navigation/MobileBottomBar.tsx",
-        "src/hooks/useCompactViewport.ts",
-        "src/lib/device-layout-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "effectiveChangeCount": 16,
-      "excludedGeneratedChangeCount": 8,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

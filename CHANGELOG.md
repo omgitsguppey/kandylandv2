@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.66 - 2026-05-25
+- Admin hot-cache heartbeat
+- Moved admin surfaces toward hourly hot-cache snapshots and removed default realtime/raw-read behavior.
+- Added shared admin heartbeat, hydration states, and cost-estimate evidence.
+- Preserved user-facing chat realtime while preventing admin pages from polling themselves to death.
+
 ## 1.4.65 - 2026-05-25
 - Compact Platform pulse
 - Compact Platform pulse into six rolling-30-day stats with clear trend deltas.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Refreshed debug evidence, pre-catcher, device, hydration, content, image, and GumDrop economy readiness.
 - Resolved image-loading unavailable/no timestamp reporting.
 - Kept GumDrop math and content protection behavior unchanged.
-
-## 1.4.41 - 2026-05-24
-- Device layout readiness refresh
-- Refreshed device, content protection, cost, and telemetry parity readiness reports.
-- Moved compact viewport detection onto the device layout contract.
-- Classified responsive breakpoint and wallet-nav action findings without changing payment or bottom-nav behavior.

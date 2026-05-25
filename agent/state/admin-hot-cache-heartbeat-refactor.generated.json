@@ -1,0 +1,111 @@
+{
+  "adminSurfacesScanned": [
+    "admin_overview",
+    "admin_analytics",
+    "admin_debug",
+    "admin_users",
+    "admin_roster",
+    "admin_queue",
+    "admin_settings",
+    "admin_creator",
+    "admin_support_bug",
+    "admin_runtime"
+  ],
+  "openPrClassifications": [
+    {
+      "number": 293,
+      "classification": "security_source_change_outside_admin_hot_cache; do_not_merge_generated_churn_wholesale"
+    },
+    {
+      "number": 292,
+      "classification": "admin_debug_cost_perf_relevant; source_only_manual_port_candidate"
+    },
+    {
+      "number": 291,
+      "classification": "creator_ui_accessibility_outside_admin_hot_cache; do_not_merge_wholesale"
+    }
+  ],
+  "realtimeListenersBefore": 9,
+  "realtimeListenersAfter": 0,
+  "remainingAdminRealtimeReferences": {
+    "analyticsRealtimeHook": 5,
+    "debugRealtimeHook": 5,
+    "classification": "non_default_or_exception_required"
+  },
+  "allowedRealtimeExceptions": [
+    {
+      "surface": "admin_debug",
+      "owner": "admin_debug",
+      "reason": "Operator live debug drilldown only; not default overview truth.",
+      "maxQuerySize": 25,
+      "detachBehavior": "cleanup_required",
+      "fallbackHotCachePath": "admin_debug_snapshot"
+    },
+    {
+      "surface": "user_chat",
+      "owner": "chat",
+      "reason": "User-facing messaging requires live delivery and presence.",
+      "maxQuerySize": 50,
+      "detachBehavior": "cleanup_required",
+      "fallbackHotCachePath": "not_applicable_user_chat"
+    }
+  ],
+  "forceNoStoreRoutesBefore": 1,
+  "forceNoStoreRoutesAfter": 0,
+  "dynamicAdminRoutesBefore": 1,
+  "dynamicAdminRoutesAfter": 1,
+  "hotCacheSnapshotsDefined": [
+    "admin_overview_snapshot",
+    "admin_analytics_snapshot",
+    "admin_debug_snapshot",
+    "admin_users_snapshot",
+    "admin_roster_snapshot",
+    "admin_queue_snapshot",
+    "admin_settings_snapshot",
+    "admin_creator_snapshot",
+    "admin_support_bug_snapshot",
+    "admin_runtime_snapshot"
+  ],
+  "heartbeatCadenceSeconds": 3600,
+  "adminOverviewReadsBefore": [
+    "users query up to 5000 docs",
+    "drops query up to 5000 docs",
+    "recent transactions query",
+    "admin adjustments query",
+    "analytics_commerce_rollup summary doc",
+    "analytics_commerce_daily rolling window query",
+    "analytics_task_daily rolling window query",
+    "analytics_drop_daily rolling window query",
+    "admin user truth snapshot doc",
+    "admin telemetry logs query",
+    "support and bug report bounded count aggregates"
+  ],
+  "adminOverviewReadsAfter": [
+    "admin_overview_snapshot hot-cache doc",
+    "admin_overview_snapshot heartbeat doc",
+    "optional bounded recent feed summary doc"
+  ],
+  "estimatedReadReductionPct": 99.97,
+  "estimatedPollingReductionPct": 98.33,
+  "hydrationStatesDefined": [
+    "snapshot_ready",
+    "snapshot_stale",
+    "snapshot_missing",
+    "refreshing",
+    "failed",
+    "unauthorized",
+    "no_access"
+  ],
+  "staleSnapshotBehavior": "stale snapshot values remain visible with review freshness.",
+  "missingSnapshotBehavior": "missing snapshot returns source-missing state and does not trigger broad fallback reads.",
+  "costEstimateStatus": "operation_estimate_only_no_dollar_claim",
+  "remainingGaps": [
+    "Admin analytics/debug live hooks remain inventoried as explicit migration/exception surfaces, not overview defaults.",
+    "Recent transactions panel still has a separate live-feed listener and needs a follow-up snapshot/drilldown split."
+  ],
+  "nextExactSteps": [
+    "Port PR #292 source-only Map lookup into admin debug route if still applicable.",
+    "Move remaining admin analytics/debug live pulse hooks behind explicit operator drilldown flags.",
+    "Create scheduler/operator refresh route that writes admin_overview_snapshot outside page load."
+  ]
+}
