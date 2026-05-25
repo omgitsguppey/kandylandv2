@@ -13887,3 +13887,10 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2024-05-25 #ux-a11y-loading-states] PRE: Improve accessibility of inline button loading states
+- **Scope:** Review and improve the accessibility of loading states in custom inline buttons, specifically in `src/components/Creators/CreatorExperiencesPanel.tsx`.
+- **Goal:** Ensure `<button>` elements have `aria-busy` and visual `<Loader2 />` icons have `aria-hidden="true"`.
+
+## [2024-05-25 #ux-a11y-loading-states] POST: Improve accessibility of inline button loading states
+- **Findings:** Successfully added `aria-busy={isLoading}` to the button element and `aria-hidden="true"` to visual loading elements within `src/components/Creators/CreatorExperiencesPanel.tsx`. Verified changes via typecheck and vitest runs.

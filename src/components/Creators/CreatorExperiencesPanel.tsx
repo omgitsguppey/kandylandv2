@@ -341,9 +341,10 @@ export function CreatorExperiencesPanel({
                     onClick();
                 }}
                 disabled={isLoading}
+                aria-busy={isLoading}
                 className={cn("mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-transform active:scale-[0.98]", baseColor, isLoading && "opacity-70 pointer-events-none")}
             >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : icon}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : icon}
                 {readyLabel}
             </button>
         );
@@ -543,7 +544,7 @@ export function CreatorExperiencesPanel({
 
                     {!subscriptionHydrated ? (
                         <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
-                            <Loader2 className="h-3 w-3 animate-spin" /> Checking pass status...
+                            <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> Checking pass status...
                         </div>
                     ) : (
                         renderCTA(
