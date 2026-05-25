@@ -1,0 +1,167 @@
+{
+  "reportKey": "media-discovery-score-lock",
+  "generatedAtUtc": "2026-05-25T23:33:39.439Z",
+  "currentHead": "a8be572f69d430fc1ae608f2e13ba108463f33d3",
+  "mediaUploadStatus": "pass",
+  "privateMediaAccessStatus": "pass",
+  "creatorDiscoveryStatus": "pass",
+  "relationshipFunnelStatus": "pass",
+  "searchDiscoveryStatus": "pass",
+  "costControlStatus": "pass",
+  "telemetryStatus": "pass",
+  "debugVisibilityStatus": "pass",
+  "eventSpines": {
+    "mediaUpload": [
+      "media_upload_prepare_started",
+      "media_upload_prepare_completed",
+      "media_upload_prepare_failed",
+      "media_storage_upload_started",
+      "media_storage_upload_completed",
+      "media_storage_upload_failed",
+      "media_upload_complete_started",
+      "media_upload_complete_completed",
+      "media_upload_complete_failed",
+      "media_upload_cancelled",
+      "media_upload_orphaned",
+      "media_upload_recovered",
+      "media_upload_blocked_size",
+      "media_upload_blocked_type"
+    ],
+    "privateMediaAccess": [
+      "media_access_allowed",
+      "media_access_blocked",
+      "media_access_failed",
+      "media_asset_missing",
+      "media_expired_blocked"
+    ],
+    "creatorRelationship": [
+      "creator_discovery_surface_viewed",
+      "creator_card_viewed",
+      "creator_card_clicked",
+      "creator_profile_opened",
+      "creator_follow_attempted",
+      "creator_follow_succeeded",
+      "creator_follow_failed",
+      "creator_unfollow_attempted",
+      "creator_unfollow_succeeded",
+      "creator_recommendation_viewed",
+      "creator_recommendation_clicked",
+      "creator_relationship_list_loaded",
+      "creator_relationship_list_failed"
+    ],
+    "searchDiscovery": [
+      "search_focused",
+      "search_query_changed",
+      "search_submitted",
+      "search_results_loaded",
+      "search_zero_results",
+      "search_result_clicked",
+      "search_failed",
+      "search_cleared"
+    ]
+  },
+  "debugLanes": [
+    "Media upload",
+    "Private media access",
+    "Creator discovery/relationships",
+    "Search/discovery"
+  ],
+  "searchCostPolicy": {
+    "version": 1,
+    "debugLane": "Search/discovery",
+    "clientDebounceMs": 350,
+    "backendMinQueryLength": 3,
+    "backendCallPerKeystrokeAllowed": false,
+    "localFilterMayRunPerKeystroke": true,
+    "cacheReuseRequired": true,
+    "pageSizeMax": 24,
+    "paginationRequired": true,
+    "broadUnboundedReadsAllowed": false,
+    "rawQueryTextInBroadTelemetryAllowed": false,
+    "zeroResultSummaryTracked": true,
+    "clickedResultTracked": true,
+    "queryTextPolicy": "length_hash_category_only"
+  },
+  "rawSensitiveTelemetryProtected": true,
+  "sensitiveRouteAccessStatus": "pass",
+  "artifactStatus": {
+    "agent/state/media-upload-lifecycle.generated.json": "pass",
+    "docs/agent-truth/media-upload-lifecycle.md": "pass",
+    "scripts/agent/validate-media-upload-lifecycle.ts": "pass",
+    "tests/unit/media-upload-lifecycle.spec.ts": "pass",
+    "agent/state/private-media-access.generated.json": "pass",
+    "docs/agent-truth/private-media-access.md": "pass",
+    "scripts/agent/validate-private-media-access.ts": "pass",
+    "tests/unit/private-media-access.spec.ts": "pass",
+    "agent/state/creator-discovery-relationship-funnel.generated.json": "pass",
+    "docs/agent-truth/creator-discovery-relationship-funnel.md": "pass",
+    "scripts/agent/validate-creator-discovery-relationship-funnel.ts": "pass",
+    "tests/unit/creator-discovery-relationship-funnel.spec.ts": "pass",
+    "agent/state/search-discovery-cost.generated.json": "pass",
+    "docs/agent-truth/search-discovery-cost.md": "pass",
+    "scripts/agent/validate-search-discovery-cost.ts": "pass",
+    "tests/unit/search-discovery-cost.spec.ts": "pass"
+  },
+  "scoreBefore": 77.83,
+  "scoreAfter": 77.83,
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk",
+    "regressionRisk"
+  ],
+  "remainingGaps": [
+    "Runtime/provider media access smoke remains outside this source-only lock.",
+    "Public beta score remains owner_review until external/runtime evidence gates are attached."
+  ],
+  "nextExactSteps": [
+    "Keep check:media-upload-lifecycle, check:private-media-access, check:creator-discovery-relationship-funnel, and check:search-discovery-cost green before new media or discovery work.",
+    "Run check:media-discovery-score-lock after any media upload, private access, creator discovery, relationship, search, telemetry, or score wiring change.",
+    "Use runtime smoke only after explicit operator approval; this lock intentionally avoids production reads and provider calls."
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/media-discovery-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/media-discovery-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "tests/unit/media-discovery-score-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

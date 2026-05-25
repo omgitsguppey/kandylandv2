@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.76 - 2026-05-25
+- Media discovery score lock
+- Locked media upload, private access, creator discovery, and search telemetry readiness.
+- Connected discovery and media events to debug, person metrics, and score.
+- Kept private media and search data protected.
+
 ## 1.4.75 - 2026-05-25
 - Search discovery telemetry cost
 - Added search and discovery telemetry with cost-safe query behavior.
