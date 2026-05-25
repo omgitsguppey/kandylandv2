@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.54 - 2026-05-24
+- Queue drop metadata cleanup
+- Resolved queue dispatch drop metadata enrichment and scheduler key timestamp parsing.
+- Separated notification dispatch outcomes from debug metadata enrichment gaps.
+- Replaced generic Unknown drop rows with bounded metadata status and fallback labels.
+
 ## 1.4.53 - 2026-05-24
 - Queue continuity cleanup
 - Separated queue heartbeat evidence from dispatch outcome readability.

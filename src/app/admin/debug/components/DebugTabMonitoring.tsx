@@ -456,11 +456,17 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                         </ScrollWrap>
                         <ScrollWrap>
                             <div className="divide-y divide-white/10">
-                                {notificationDispatchOutcomes.slice(0, 20).map((entry: any) => (
-                                    <div
+                                {notificationDispatchOutcomes.slice(0, 20).map((entry: any) => {
+                                    const dropLabel = entry.dropTitle || (entry.shortDropId && entry.shortDropId !== "unknown" ? `Drop ${entry.shortDropId}` : "Unknown drop");
+                                    const metadataState = entry.dropMetadataState || entry.dropIdentityState || "unknown";
+                                    const metadataResolved = entry.dropMetadataConfidence === "exact" || entry.dropMetadataConfidence === "inferred" || entry.dropIdentityState === "resolved";
+                                    return <div
                                         key={entry.stable_id}
                                         className="space-y-2 px-4 py-3"
                                         data-queue-runtime-drop-identity-state={entry.dropIdentityState || "unknown"}
+                                        data-queue-runtime-drop-metadata-state={metadataState}
+                                        data-queue-runtime-drop-metadata-source={entry.dropMetadataSource || "unknown"}
+                                        data-queue-runtime-scheduler-key-parsed={entry.schedulerKeyParsed === true ? "true" : "false"}
                                         data-queue-runtime-drop-id={entry.dropId || ""}
                                         data-queue-runtime-scheduler-key={entry.schedulerKey || entry.activationKey || ""}
                                         data-queue-runtime-outcome={entry.outcome || entry.status || "unknown"}
@@ -468,7 +474,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                     >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div className="min-w-0">
-                                                <p className="font-semibold text-white">{entry.dropTitle || "Unknown drop"}</p>
+                                                <p className="font-semibold text-white">{dropLabel}</p>
                                                 <p className="text-xs text-gray-400">
                                                     {entry.creatorName ? `Creator: ${entry.creatorName} | ` : ""}
                                                     {entry.queueKind === "drop_activation" ? "Drop activation" : "Notification dispatch"}
@@ -479,7 +485,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                             <div className="flex flex-wrap gap-2"><Pill label="Outcome" value={entry.outcome || entry.status || "unknown"} tone={entry.outcome === "failed" ? "bad" : entry.outcome === "skipped" ? "warn" : "good"} /><Pill label="Error" value={entry.error || entry.errorCode || "none"} tone={entry.error || entry.errorCode ? "warn" : "good"} /></div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Drop metadata" value={entry.dropIdentityState || "unknown"} tone={entry.dropIdentityState === "resolved" ? "good" : "warn"} />
+                                            <Pill label="Drop metadata" value={metadataState} tone={metadataResolved ? "good" : "warn"} truthState={metadataResolved ? "live" : "degraded"} />
                                             <Pill label="Status" value={entry.status || "unknown"} />
                                             {entry.recipientCount !== undefined ? <Pill label="Recipients" value={entry.recipientCount} /> : null}
                                             {entry.notificationCount !== undefined ? <Pill label="Notifications" value={entry.notificationCount} /> : null}
@@ -495,10 +501,11 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                             <p>Scheduled UTC: {entry.scheduledForUtc || "unknown"}</p>
                                             <p>Last outcome UTC: {entry.lastOutcomeAtUtc || formatUtc(entry.updatedAt)}</p>
                                             <p>Raw timestamp: {entry.updatedAt || 0}</p>
-                                            {entry.dropIdentityState !== "resolved" ? <p>drop_metadata_missing</p> : null}
+                                            {entry.dropMetadataWarning ? <p>{entry.dropMetadataWarning || "drop_metadata_missing"}: {entry.dropMetadataMissingReason || "metadata_missing_with_drop_id"}</p> : null}
+                                            {entry.schedulerKeyParseError ? <p>scheduler_key_parse_error: {entry.schedulerKeyParseError}</p> : null}
                                         </details>
                                     </div>
-                                ))}
+                                })}
                                 {notificationDispatchOutcomes.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">No recent notification dispatch outcomes are loaded yet.</div> : null}
                             </div>
                         </ScrollWrap>

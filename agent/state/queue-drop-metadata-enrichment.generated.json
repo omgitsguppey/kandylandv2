@@ -1,0 +1,44 @@
+{
+  "reportKey": "queue-drop-metadata-enrichment",
+  "generatedAtUtc": "2026-05-25T00:12:31.277Z",
+  "missing": {
+    "dropId": "Jgu68C61I1qfOrHmUKP8",
+    "shortDropId": "Jgu68C",
+    "dropTitle": "Drop Jgu68C",
+    "creatorName": null,
+    "creatorId": null,
+    "dropStatus": null,
+    "source": "missing",
+    "confidence": "missing",
+    "missingReason": "bounded_lookup_no_document",
+    "nextAction": "Keep drop metadata gap visible and verify whether the drop was deleted, archived, or outside the bounded lookup sample.",
+    "dispatchOutcomeAffected": false
+  },
+  "resolved": {
+    "dropId": "Jgu68C61I1qfOrHmUKP8",
+    "shortDropId": "Jgu68C",
+    "dropTitle": "Bloomytrip's Peach & Natural",
+    "creatorName": "@creator",
+    "creatorId": "creator-1",
+    "dropStatus": "active",
+    "source": "bounded_drop_lookup",
+    "confidence": "exact",
+    "missingReason": null,
+    "nextAction": "Drop metadata resolved from bounded debug source.",
+    "dispatchOutcomeAffected": false
+  },
+  "tombstone": {
+    "dropId": "Jgu68C61I1qfOrHmUKP8",
+    "shortDropId": "Jgu68C",
+    "dropTitle": "Deleted/archived drop Jgu68C",
+    "creatorName": null,
+    "creatorId": null,
+    "dropStatus": "archived",
+    "source": "tombstone",
+    "confidence": "legacy_missing",
+    "missingReason": "drop_deleted_or_archived",
+    "nextAction": "Keep tombstone status visible; do not mark sent notification outcome failed for metadata enrichment.",
+    "dispatchOutcomeAffected": false
+  },
+  "validationFailures": []
+}

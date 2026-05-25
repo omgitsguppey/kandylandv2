@@ -1,0 +1,17 @@
+{
+  "reportKey": "dispatch-outcome-display-cleanup",
+  "generatedAtUtc": "2026-05-25T00:12:34.449Z",
+  "label": "Drop Jgu68C",
+  "metadataBadge": "missing lookup",
+  "metadataWarning": "drop_metadata_missing",
+  "outcomeBadge": "sent",
+  "outcomeTruthState": "live",
+  "metadataTruthState": "degraded",
+  "scheduledAtUtc": "2026-05-24T11:00:00.000Z",
+  "schedulerKeyParseError": null,
+  "rawDetailsDefaultOpen": false,
+  "defaultDropIdLabel": "Jgu68C",
+  "outcomeAffectedByMetadata": false,
+  "nextAction": "Keep drop metadata gap visible and verify whether the drop was deleted, archived, or outside the bounded lookup sample.",
+  "validationFailures": []
+}

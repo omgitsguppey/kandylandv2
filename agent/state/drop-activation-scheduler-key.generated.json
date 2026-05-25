@@ -1,0 +1,12 @@
+{
+  "reportKey": "drop-activation-scheduler-key",
+  "generatedAtUtc": "2026-05-25T00:12:29.048Z",
+  "ok": true,
+  "kind": "drop_activation",
+  "dropId": "Jgu68C61I1qfOrHmUKP8",
+  "scheduledAtMs": 1779620400000,
+  "scheduledAtUtc": "2026-05-24T11:00:00.000Z",
+  "parseError": null,
+  "rawValue": "drop-activation:Jgu68C61I1qfOrHmUKP8:1779620400000",
+  "validationFailures": []
+}

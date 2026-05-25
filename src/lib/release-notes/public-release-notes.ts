@@ -1,13 +1,63 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.53",
-  "betaReleaseCounter": 453,
+  "currentVersion": "1.4.54",
+  "betaReleaseCounter": 454,
   "channel": "beta",
-  "generatedAt": "2026-05-24T23:40:00.000Z",
-  "generatedAtUtc": "2026-05-24T23:40:00.000Z",
+  "generatedAt": "2026-05-25T00:10:00.000Z",
+  "generatedAtUtc": "2026-05-25T00:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.54",
+      "previousVersion": "1.4.53",
+      "betaReleaseCounter": 454,
+      "previousBetaReleaseCounter": 453,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): enrich queue drop metadata",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T00:10:00.000Z",
+      "generatedAt": "2026-05-25T00:10:00.000Z",
+      "committedAtUtc": "2026-05-25T00:10:00.000Z",
+      "generatedAtUtc": "2026-05-25T00:10:00.000Z",
+      "category": "Fixed",
+      "title": "Queue drop metadata cleanup",
+      "updatedAtUtc": "2026-05-25T00:10:00.000Z",
+      "summary": "Improved queue dispatch monitoring so drop activation scheduler keys resolve scheduled times and valid drop IDs use bounded metadata status instead of generic unknown labels.",
+      "userFacingTitle": "Queue drop metadata cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Resolved queue dispatch drop metadata enrichment and scheduler key timestamp parsing.",
+        "Separated notification dispatch outcomes from debug metadata enrichment gaps.",
+        "Replaced generic Unknown drop rows with bounded metadata status and fallback labels."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Notification dispatch behavior, drop activation scheduling, payment runtime, and GumDrop math were not changed."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug monitoring",
+        "Queue dispatch outcomes",
+        "Drop metadata enrichment",
+        "Scheduler key parsing"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/debug/drop-activation-scheduler-key.ts",
+        "src/lib/debug/queue-drop-metadata-enrichment.ts",
+        "src/lib/debug/dispatch-outcome-display-cleanup.ts",
+        "src/lib/debug/queue-metadata-gap-summary.ts",
+        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "effectiveChangeCount": 6,
+      "excludedGeneratedChangeCount": 10,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.53",
       "previousVersion": "1.4.52",

@@ -56,6 +56,10 @@ import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemet
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildQueueRuntimeContinuity } from "@/lib/debug/queue-runtime-continuity-engine";
+import { parseDropActivationSchedulerKey } from "@/lib/debug/drop-activation-scheduler-key";
+import { buildDispatchOutcomeDisplayModel } from "@/lib/debug/dispatch-outcome-display-cleanup";
+import { enrichQueueDropMetadata } from "@/lib/debug/queue-drop-metadata-enrichment";
+import { buildQueueMetadataGapSummary } from "@/lib/debug/queue-metadata-gap-summary";
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
 import {
@@ -196,6 +200,14 @@ type QueueRuntimeOutcomeRow = {
     dropId?: string;
     dropTitle: string;
     dropIdentityState: "resolved" | "missing" | "unknown";
+    dropMetadataState?: "exact" | "inferred" | "legacy missing" | "missing lookup" | "source unavailable";
+    dropMetadataConfidence?: "exact" | "inferred" | "legacy_missing" | "missing";
+    dropMetadataSource?: string;
+    dropMetadataMissingReason?: string | null;
+    dropMetadataWarning?: string | null;
+    metadataGapAffectsOutcome?: boolean;
+    schedulerKeyParsed?: boolean;
+    schedulerKeyParseError?: string | null;
     creatorId?: string;
     creatorName?: string;
     status?: string;
@@ -1167,21 +1179,24 @@ function getDependencyGroupLabel(category: DependencyCategory) {
     return labels[category];
 }
 
-function parseQueueActivationKey(value: unknown) {
-    const activationKey = toStringValue(value);
-    const match = /^drop-activation:([^:]+):(\d+)$/u.exec(activationKey);
-    if (!match) {
-        return {
-            queueKind: activationKey ? "notification_dispatch" as const : "unknown" as const,
-            dropId: "",
-            scheduledForMs: 0,
-        };
-    }
+function parseQueueActivationKey(value: unknown, fallbackValue?: unknown) {
+    const primary = parseDropActivationSchedulerKey(value);
+    const fallback = primary.ok || primary.dropId ? primary : parseDropActivationSchedulerKey(fallbackValue);
+    const parsed = fallback.ok || fallback.dropId ? fallback : primary;
+    const rawKey = parsed.rawValue || toStringValue(value) || toStringValue(fallbackValue);
 
     return {
-        queueKind: "drop_activation" as const,
-        dropId: match[1] ?? "",
-        scheduledForMs: toNumber(match[2]),
+        queueKind: parsed.kind === "drop_activation"
+            ? "drop_activation" as const
+            : rawKey
+                ? "notification_dispatch" as const
+                : "unknown" as const,
+        dropId: parsed.dropId ?? "",
+        scheduledForMs: parsed.scheduledAtMs ?? 0,
+        scheduledForUtc: parsed.scheduledAtUtc,
+        parseError: parsed.parseError,
+        parsed: parsed.ok,
+        rawKey,
     };
 }
 
@@ -1282,7 +1297,10 @@ async function buildQueueRuntimeOutcomeRows(input: {
     }
 
     const parsedOutcomes = input.outcomes.map((outcome) => {
-        const parsedKey = parseQueueActivationKey(outcome.activationKey);
+        const parsedKey = parseQueueActivationKey(
+            outcome.activationKey || outcome.schedulerKey || outcome.stable_id,
+            outcome.stable_id,
+        );
         const dropId = toOptionalString(outcome.dropId) || parsedKey.dropId;
         return { outcome, parsedKey, dropId };
     });
@@ -1317,6 +1335,7 @@ async function buildQueueRuntimeOutcomeRows(input: {
     });
 
     return parsedOutcomes.map<QueueRuntimeOutcomeRow>(({ outcome, parsedKey, dropId }) => {
+        const detail = outcome.detail as Record<string, unknown> | undefined;
         const drop = dropId ? dropMap.get(dropId) : undefined;
         const creatorId = drop ? toOptionalString(drop.creatorId) || toOptionalString(drop.submittedByCreatorId) : undefined;
         const rawStatus = toStringValue(outcome.status);
@@ -1329,34 +1348,58 @@ async function buildQueueRuntimeOutcomeRows(input: {
                     : rawStatus === "pending"
                         ? "pending"
                         : "unknown";
+        const metadata = enrichQueueDropMetadata({
+            dropId,
+            embeddedOutcomeSnapshot: (detail?.dropSnapshot as Record<string, unknown> | undefined) || null,
+            embeddedQueueSnapshot: (detail?.queueDropSnapshot as Record<string, unknown> | undefined) || null,
+            boundedDropRecord: drop || null,
+            creatorName: creatorId ? creatorMap.get(creatorId) || shortenDebugId(creatorId) : undefined,
+        });
+        const displayModel = buildDispatchOutcomeDisplayModel({
+            schedulerKey: parsedKey.rawKey || toStringValue(outcome.activationKey),
+            activationKey: toStringValue(outcome.activationKey),
+            outcome: normalizedOutcome,
+            status: rawStatus,
+            errorCode: toOptionalString(outcome.errorCode),
+            scheduledAtUtc: parsedKey.scheduledForUtc,
+            metadata,
+        });
         const scheduledForMs = parsedKey.scheduledForMs || toNumber(drop?.validFrom);
         const updatedAt = toNumber(outcome.updatedAt);
 
         return {
             stable_id: toStringValue(outcome.stable_id) || toStringValue(outcome.activationKey) || `${dropId || "unknown"}:${updatedAt}`,
-            schedulerKey: toStringValue(outcome.activationKey),
+            schedulerKey: parsedKey.rawKey || toStringValue(outcome.activationKey),
             activationKey: toStringValue(outcome.activationKey),
             queueKind: parsedKey.queueKind,
             dropId,
-            dropTitle: drop ? toStringValue(drop.title) || "Untitled drop" : "Unknown drop",
-            dropIdentityState: drop ? "resolved" : dropId ? "missing" : "unknown",
-            creatorId,
-            creatorName: creatorId ? creatorMap.get(creatorId) || shortenDebugId(creatorId) : undefined,
-            status: drop ? toStringValue(drop.status) || undefined : undefined,
-            scheduledForUtc: toUtcString(scheduledForMs),
+            dropTitle: displayModel.label,
+            dropIdentityState: metadata.confidence === "exact" || metadata.confidence === "inferred" ? "resolved" : dropId ? "missing" : "unknown",
+            dropMetadataState: displayModel.metadataBadge,
+            dropMetadataConfidence: metadata.confidence,
+            dropMetadataSource: metadata.source,
+            dropMetadataMissingReason: metadata.missingReason,
+            dropMetadataWarning: displayModel.metadataWarning,
+            metadataGapAffectsOutcome: displayModel.outcomeAffectedByMetadata,
+            schedulerKeyParsed: parsedKey.parsed,
+            schedulerKeyParseError: parsedKey.parsed ? null : parsedKey.parseError,
+            creatorId: creatorId || metadata.creatorId || undefined,
+            creatorName: metadata.creatorName || (creatorId ? creatorMap.get(creatorId) || shortenDebugId(creatorId) : undefined),
+            status: metadata.dropStatus || (drop ? toStringValue(drop.status) || undefined : undefined),
+            scheduledForUtc: displayModel.scheduledAtUtc || toUtcString(scheduledForMs),
             lastOutcomeAtUtc: toUtcString(updatedAt),
             validUntilUtc: toUtcString(drop?.validUntil),
             outcome: normalizedOutcome,
             error: toOptionalString(outcome.errorCode) ?? null,
             errorCode: toOptionalString(outcome.errorCode) ?? null,
-            recipientCount: toNumber((outcome.detail as Record<string, unknown> | undefined)?.recipientCount) || undefined,
-            notificationCount: toNumber((outcome.detail as Record<string, unknown> | undefined)?.notificationCount) || undefined,
+            recipientCount: toNumber(detail?.recipientCount) || undefined,
+            notificationCount: toNumber(detail?.notificationCount) || undefined,
             adminDropHref: dropId ? `/admin/drops?dropId=${encodeURIComponent(dropId)}` : undefined,
-            adminCreatorHref: creatorId ? `/admin/user/${encodeURIComponent(creatorId)}` : undefined,
-            rawKeyCollapsed: true,
+            adminCreatorHref: creatorId || metadata.creatorId ? `/admin/user/${encodeURIComponent(creatorId || metadata.creatorId || "")}` : undefined,
+            rawKeyCollapsed: displayModel.rawDetailsDefaultOpen === false,
             updatedAt,
             createdAt: toNumber(outcome.createdAt),
-            shortDropId: dropId ? shortenDebugId(dropId) : "unknown",
+            shortDropId: displayModel.defaultDropIdLabel,
         };
     });
 }
@@ -4032,12 +4075,21 @@ export async function GET(request: NextRequest) {
         const queueRuntimeOutcomeRows = await buildQueueRuntimeOutcomeRows({
             outcomes: notificationDispatchOutcomes as Array<Record<string, unknown>>,
         });
+        const queueMetadataGapSummary = buildQueueMetadataGapSummary(queueRuntimeOutcomeRows.map((entry) => ({
+            outcome: entry.outcome,
+            schedulerKeyParsed: entry.schedulerKeyParsed === true,
+            metadataConfidence: entry.dropMetadataConfidence || "missing",
+            dropId: entry.dropId,
+            deletedOrArchived: entry.dropMetadataSource === "tombstone",
+            sourceUnavailable: entry.dropMetadataMissingReason === "metadata_source_unavailable",
+            payloadCorrectnessGap: entry.metadataGapAffectsOutcome === true,
+        })));
         const queueRuntimeWarningReasons = [
             queueJobHeartbeatSummary.total === 0 && queueRuntimeOutcomeRows.length > 0 ? "heartbeat missing" : null,
             runtimeWarningSummary.legacyAdapterUses > 0 ? "legacy adapter use" : null,
             runtimeWarnings.some((entry) => toStringValue(entry.code) === QUEUE_RUNTIME_WARNING_CODES.activationMissingOutcome) ? "recipient outcome missing" : null,
             runtimeWarnings.some((entry) => toStringValue(entry.code) === QUEUE_RUNTIME_WARNING_CODES.notificationDispatchFailed) ? "dispatch mismatch" : null,
-            queueRuntimeOutcomeRows.some((entry) => entry.dropIdentityState !== "resolved") ? "drop metadata missing" : null,
+            queueMetadataGapSummary.metadataMissing > 0 ? "drop metadata enrichment gap" : null,
             queueJobHeartbeatSummary.stale > 0 ? "stale heartbeat" : null,
         ].filter(Boolean);
         const queueRuntimeContinuity = buildQueueRuntimeContinuity({
@@ -4065,6 +4117,7 @@ export async function GET(request: NextRequest) {
             queueDrift: queueRuntimeContinuity.queueDrift,
             legacyAdapterStatus: queueRuntimeContinuity.legacyAdapterStatus,
             savedDataStatus: queueRuntimeContinuity.dispatchOutcomes.savedDataStatus,
+            metadataGapSummary: queueMetadataGapSummary,
             sourceWindows: queueRuntimeContinuity.sourceWindows,
             missingSources: queueRuntimeContinuity.missingSources,
             nextAction: queueRuntimeContinuity.nextAction,

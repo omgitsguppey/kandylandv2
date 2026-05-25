@@ -1296,13 +1296,15 @@ for (const expected of [
   "Outcome lane",
   "Reason",
   "No heartbeat records, but dispatch outcome records exist.",
-  "entry.dropTitle || \"Unknown drop\"",
   "Scheduled ${entry.scheduledForUtc}",
   "Last outcome ${entry.lastOutcomeAtUtc}",
   "View drop",
   "View creator",
   "Raw queue details",
   "Scheduler key:",
+  "dropMetadataState",
+  "data-queue-runtime-drop-metadata-source",
+  "Drop ${entry.shortDropId}",
   "drop_metadata_missing",
 ]) {
   requireIncludes(debugTabMonitoring, expected, "Queue runtime continuity panel must show loaded state, readable drop context, warning reasons, links, and collapsed raw scheduler keys");

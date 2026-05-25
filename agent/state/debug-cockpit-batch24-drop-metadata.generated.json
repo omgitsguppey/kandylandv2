@@ -1,0 +1,46 @@
+{
+  "reportKey": "debug-cockpit-batch24-drop-metadata",
+  "generatedAtUtc": "2026-05-25T00:12:41.971Z",
+  "unknownDropRowsBefore": 20,
+  "unknownDropRowsAfter": 0,
+  "validDropIdRows": 20,
+  "metadataResolvedCount": 12,
+  "metadataMissingCount": 8,
+  "schedulerKeysParsed": 20,
+  "scheduledUtcUnknownBefore": 20,
+  "scheduledUtcUnknownAfter": 0,
+  "sentOutcomes": 20,
+  "failedOutcomes": 0,
+  "metadataGapSeverity": "p2_debug_enrichment",
+  "debugOnlyEnrichmentGapCount": 8,
+  "payloadCorrectnessGapCount": 0,
+  "boundedLookupUsed": true,
+  "broadDropReadsUsed": false,
+  "scoreBefore": 70,
+  "scoreAfter": 94,
+  "scoreDimensions": {
+    "schedulerKeyParsing": {
+      "before": 40,
+      "after": 100
+    },
+    "fallbackDropLabels": {
+      "before": 30,
+      "after": 100
+    },
+    "metadataGapClassification": {
+      "before": 50,
+      "after": 95
+    },
+    "dispatchOutcomeSeparation": {
+      "before": 80,
+      "after": 100
+    }
+  },
+  "remainingGaps": [
+    "Rows whose bounded lookup finds no drop document remain metadata_missing_with_drop_id until tombstone or restored metadata evidence exists."
+  ],
+  "nextExactSteps": [
+    "Keep queue notification outcomes readable and do not resend notifications for debug-only enrichment gaps."
+  ],
+  "validationFailures": []
+}

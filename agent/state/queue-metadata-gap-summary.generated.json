@@ -1,0 +1,23 @@
+{
+  "reportKey": "queue-metadata-gap-summary",
+  "generatedAtUtc": "2026-05-25T00:12:38.408Z",
+  "totalDispatchOutcomes": 2,
+  "sentOutcomes": 2,
+  "failedOutcomes": 0,
+  "metadataResolved": 1,
+  "metadataMissing": 1,
+  "schedulerKeysParsed": 2,
+  "schedulerKeysUnparsed": 0,
+  "dropsMissingById": 1,
+  "deletedOrArchivedDrops": 0,
+  "sourceUnavailableCount": 0,
+  "topMissingDropIds": [
+    "Jgu68C61I1qfOrHmUKP8"
+  ],
+  "scoreImpact": 1,
+  "debugOnlyEnrichmentGapCount": 1,
+  "payloadCorrectnessGapCount": 0,
+  "dispatchHealthStatus": "sent_outcomes_readable_with_enrichment_caveat",
+  "nextAction": "Fix debug metadata enrichment with bounded explicit-ID lookup or tombstone classification.",
+  "validationFailures": []
+}
