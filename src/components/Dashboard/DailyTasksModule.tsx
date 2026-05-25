@@ -78,6 +78,9 @@ const FEEDBACK_CATEGORY_OPTIONS: Array<{ value: FeedbackCategory; label: string 
 ];
 const TASK_CARD_EXPANDED_EVENT = TASK_GUIDANCE_EVENT_NAMES[4];
 const TASK_HELP_OPENED_EVENT = TASK_GUIDANCE_EVENT_NAMES[5];
+const TASK_GUIDANCE_VIEWED_EVENT = TASK_GUIDANCE_EVENT_NAMES[0];
+const TASK_GUIDANCE_TAPPED_EVENT = TASK_GUIDANCE_EVENT_NAMES[1];
+const TASK_GUIDANCE_VERSION = "task_guidance_v2";
 
 function formatCountdown(targetMs: number, nowMs: number) {
   const remainingMs = Math.max(0, targetMs - nowMs);
@@ -311,12 +314,17 @@ export function DailyTasksModule() {
       const telemetryPayload = {
         task_id: task.id,
         task_title: task.title,
+        task_kind: task.group,
         action_type: task.actionType,
         guidance_type: "explanation",
+        guidance_version: TASK_GUIDANCE_VERSION,
         source_component: "daily_tasks_module",
+        route: pathname,
         daily_task_window_id: taskWindowId,
         assignment_source: task.assignmentSource ?? dailyTaskState?.source,
       } as const;
+      trackEvent(TASK_GUIDANCE_VIEWED_EVENT, telemetryPayload);
+      trackEvent("daily_task_guidance_opened", telemetryPayload);
       trackEvent(TASK_CARD_EXPANDED_EVENT, telemetryPayload);
       trackEvent(TASK_HELP_OPENED_EVENT, telemetryPayload);
     }
@@ -394,6 +402,22 @@ export function DailyTasksModule() {
   }, [dailyTaskState, executeTaskGuidanceAction]);
 
   const handleTaskAction = async (task: DailyTaskAssignment) => {
+    const taskWindowId = task.dailyTaskWindowId ?? dailyTaskState?.dailyTaskWindowId;
+    trackEvent(TASK_GUIDANCE_TAPPED_EVENT, {
+      task_id: task.id,
+      task_title: task.title,
+      task_kind: task.group,
+      reward_gd: task.reward,
+      destination: getTaskDestinationHref(task),
+      action_type: task.actionType,
+      guidance_type: "task_action",
+      guidance_version: TASK_GUIDANCE_VERSION,
+      source_component: "daily_tasks_module",
+      route: pathname,
+      daily_task_window_id: taskWindowId,
+      assignment_source: task.assignmentSource ?? dailyTaskState?.source,
+      sourceTruth: "client_supporting",
+    });
     trackEvent("daily_task_action_clicked", {
       source_component: "daily_tasks_module",
       task_id: task.id,

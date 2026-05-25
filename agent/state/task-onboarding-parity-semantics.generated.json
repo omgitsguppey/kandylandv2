@@ -1,0 +1,30 @@
+{
+  "reportKey": "task-onboarding-parity-semantics",
+  "generatedAtUtc": "2026-05-25T06:15:35.600Z",
+  "currentHead": "ccf36528805f2d72bc84b1b1aeb1e9b6358a6970",
+  "semantics": {
+    "taskActivity": {
+      "state": "pass",
+      "sampleCount": 500,
+      "technicalEvidence": "2,817 canonical task lifecycle event(s) and 500 raw lifecycle sample(s) were observed.",
+      "copy": "Task activity measures task lifecycle logs and canonical task rollups."
+    },
+    "onboardingActivity": {
+      "state": "pass",
+      "sampleCount": 38,
+      "technicalEvidence": "38 onboarding start/completion sample(s) were observed in range.",
+      "copy": "Onboarding activity measures onboarding starts and completions only."
+    },
+    "taskGuidance": {
+      "state": "fail",
+      "sampleCount": 0,
+      "technicalEvidence": "0 task guidance UI events were observed. Expected guidance view/tap/dismiss/complete/card/help events remain required.",
+      "copy": "Lifecycle and onboarding are active, but guidance UI telemetry is missing."
+    },
+    "overall": {
+      "state": "partial",
+      "nextAction": "Keep task activity and onboarding activity separate; fix or wait for required task guidance UI telemetry before promoting onboarding/task parity."
+    }
+  },
+  "validationFailures": []
+}

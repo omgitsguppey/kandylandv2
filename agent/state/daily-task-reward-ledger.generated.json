@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-24T22:49:54.715Z",
-  "currentHead": "650b22a8",
+  "generatedAtUtc": "2026-05-25T06:14:56.725Z",
+  "currentHead": "ccf36528",
   "scoreBefore": {
     "sourceHealth": 0,
     "runtimeHealth": 0,
@@ -64,39 +64,83 @@
   },
   "dirtyFileClassifications": [
     {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/debug-cockpit-batch22-commerce-truth.generated.json",
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/recent-transaction-feed-cleanup.generated.json",
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/transaction-sequence-journey.generated.json",
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/unlock-transaction-source-metadata.generated.json",
+      "path": "agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch22-commerce-truth.md",
+      "path": "agent/state/task-guidance-event-normalization.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/recent-transaction-feed-cleanup.md",
+      "path": "agent/state/task-guidance-history-recovery.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/transaction-sequence-journey.md",
+      "path": "agent/state/task-guidance-telemetry-contract.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/unlock-transaction-source-metadata.md",
+      "path": "agent/state/task-guidance-ui-instrumentation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/task-onboarding-parity-semantics.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-cockpit-batch31-task-guidance-parity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/task-guidance-event-normalization.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/task-guidance-history-recovery.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/task-guidance-telemetry-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/task-guidance-ui-instrumentation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/task-onboarding-parity-semantics.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -104,80 +148,128 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/debug-cockpit-batch22-commerce-shared.ts",
-      "classification": "unsafe_unknown"
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch22-commerce-truth.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/task-guidance-batch31-shared.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-recent-transaction-feed-cleanup.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-transaction-sequence-journey.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-daily-task-guidance-route-audit.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-unlock-transaction-source-metadata.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/admin/debug/components/DebugTabMonitoring.tsx",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-daily-task-reward-ledger.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/api/admin/overview/route.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-debug-cockpit-batch31-task-guidance-parity.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/admin-analytics-recent-commerce-feed.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-task-guidance-event-normalization.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/admin-overview.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-task-guidance-history-recovery.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/behavioral/transaction-sequence-contract.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-task-guidance-telemetry-contract.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/commerce/transaction-source-of-funds-contract.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-task-guidance-ui-instrumentation.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/debug/debug-cockpit-batch22-commerce-truth.ts",
-      "classification": "unsafe_unknown"
+      "path": "scripts/agent/validate-task-onboarding-parity-semantics.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/lib/debug/recent-transaction-feed-contract.ts",
-      "classification": "unsafe_unknown"
+      "path": "src/components/Dashboard/DailyTasksModule.tsx",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/gumdrop-ledger.ts",
-      "classification": "unsafe_unknown"
+      "path": "src/components/Dashboard/TaskGuidanceBanner.tsx",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/types/admin-analytics.ts",
-      "classification": "unsafe_unknown"
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/debug-cockpit-batch22-commerce-truth.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "src/lib/analytics/task-onboarding-parity-semantics.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/recent-transaction-feed-cleanup.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/transaction-sequence-journey.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "src/lib/privacy/consent-tracking-policy.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/unlock-transaction-source-metadata.spec.ts",
-      "classification": "unsafe_unknown"
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/server/admin-analytics-historical-tasks.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/task-guidance.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/tasks/task-guidance-history-recovery.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/tasks/task-guidance-telemetry-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/debug-cockpit-batch31-task-guidance-parity.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/task-guidance-event-normalization.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/task-guidance-history-recovery.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/task-guidance-telemetry-contract.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/task-guidance-ui-instrumentation.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/task-onboarding-parity-semantics.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "scoreImpactByDimension": {
@@ -224,8 +316,6 @@
     "paymentRuntimeTouched": false,
     "chatOrNavTouched": false
   },
-  "validationFailures": [
-    "dirty files unclassified."
-  ],
-  "status": "fail"
+  "validationFailures": [],
+  "status": "pass"
 }

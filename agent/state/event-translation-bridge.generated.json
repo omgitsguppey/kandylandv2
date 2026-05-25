@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-25T05:51:18.891Z",
-  "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+  "generatedAtUtc": "2026-05-25T06:16:53.508Z",
+  "currentHead": "ccf36528805f2d72bc84b1b1aeb1e9b6358a6970",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -49,7 +49,7 @@
     "producersConnected": 522,
     "eventEnvelopesTranslated": 522,
     "materializersMapped": 522,
-    "personMetricsMapped": 178,
+    "personMetricsMapped": 185,
     "gaps": 0
   },
   "waitingOnActivity": [
@@ -3719,35 +3719,23 @@
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/advanced-telemetry-parity-ui-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-cockpit-batch18-route-hotspots.generated.json",
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-cockpit-batch30-telemetry-parity.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-runtime-evidence.generated.json",
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
+      "path": "agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -3755,59 +3743,47 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/ingest-identified-parity-blocker.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/refresh-diagnostics-failure-clusters.generated.json",
+      "path": "agent/state/task-guidance-event-normalization.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-parity-pass-gate.generated.json",
+      "path": "agent/state/task-guidance-history-recovery.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/telemetry-parity-score.generated.json",
+      "path": "agent/state/task-guidance-telemetry-contract.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/task-guidance-ui-instrumentation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/task-onboarding-parity-semantics.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/advanced-telemetry-parity-ui-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch30-telemetry-parity.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-runtime-evidence.md",
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/event-liveness-audit.md",
+      "path": "docs/agent-truth/debug-cockpit-batch31-task-guidance-parity.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -3815,27 +3791,27 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/ingest-identified-parity-blocker.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/refresh-diagnostics-failure-clusters.md",
+      "path": "docs/agent-truth/task-guidance-event-normalization.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/task-guidance-history-recovery.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/telemetry-parity-pass-gate.md",
+      "path": "docs/agent-truth/task-guidance-telemetry-contract.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/task-guidance-ui-instrumentation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/task-onboarding-parity-semantics.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -3847,47 +3823,55 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/debug-cockpit-batch30-telemetry-parity-shared.ts",
+      "path": "scripts/agent/task-guidance-batch31-shared.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-advanced-telemetry-parity-ui-cleanup.ts",
+      "path": "scripts/agent/validate-daily-task-guidance-route-audit.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch30-telemetry-parity.ts",
+      "path": "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "path": "scripts/agent/validate-daily-task-reward-ledger.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-ingest-identified-parity-blocker.ts",
+      "path": "scripts/agent/validate-debug-cockpit-batch31-task-guidance-parity.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-refresh-diagnostics-failure-clusters.ts",
+      "path": "scripts/agent/validate-task-guidance-event-normalization.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-telemetry-parity-pass-gate.ts",
+      "path": "scripts/agent/validate-task-guidance-history-recovery.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+      "path": "scripts/agent/validate-task-guidance-telemetry-contract.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-task-guidance-ui-instrumentation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-task-onboarding-parity-semantics.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/components/Dashboard/DailyTasksModule.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/app/api/admin/analytics/historical/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/advanced-telemetry-parity-ui.ts",
+      "path": "src/components/Dashboard/TaskGuidanceBanner.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3895,7 +3879,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/ingest-identified-parity-blocker.ts",
+      "path": "src/lib/analytics/person-metrics-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3903,15 +3887,15 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/refresh-diagnostics-failure-clusters.ts",
+      "path": "src/lib/analytics/task-onboarding-parity-semantics.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/telemetry-parity-pass-gate.ts",
+      "path": "src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts",
+      "path": "src/lib/privacy/consent-tracking-policy.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3923,35 +3907,47 @@
       "classification": "release_artifact_expected"
     },
     {
+      "path": "src/lib/server/admin-analytics-historical-tasks.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
       "path": "src/lib/server/admin-analytics-historical-validation.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/types/admin-analytics.ts",
+      "path": "src/lib/task-guidance.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/admin-data-validation.spec.ts",
+      "path": "src/lib/tasks/task-guidance-history-recovery.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/tasks/task-guidance-telemetry-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/debug-cockpit-batch31-task-guidance-parity.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/advanced-telemetry-parity-ui-cleanup.spec.ts",
+      "path": "tests/unit/task-guidance-event-normalization.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/debug-cockpit-batch30-telemetry-parity.spec.ts",
+      "path": "tests/unit/task-guidance-history-recovery.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/ingest-identified-parity-blocker.spec.ts",
+      "path": "tests/unit/task-guidance-telemetry-contract.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/refresh-diagnostics-failure-clusters.spec.ts",
+      "path": "tests/unit/task-guidance-ui-instrumentation.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/telemetry-parity-pass-gate.spec.ts",
+      "path": "tests/unit/task-onboarding-parity-semantics.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

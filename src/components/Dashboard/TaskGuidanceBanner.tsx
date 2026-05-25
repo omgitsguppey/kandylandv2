@@ -37,6 +37,7 @@ const TASK_GUIDANCE_VIEWED_EVENT = TASK_GUIDANCE_EVENT_NAMES[0];
 const TASK_GUIDANCE_TAPPED_EVENT = TASK_GUIDANCE_EVENT_NAMES[1];
 const TASK_GUIDANCE_DISMISSED_EVENT = TASK_GUIDANCE_EVENT_NAMES[2];
 const TASK_GUIDANCE_COMPLETED_EVENT = TASK_GUIDANCE_EVENT_NAMES[3];
+const TASK_GUIDANCE_VERSION = "task_guidance_v2";
 
 function readStoredGuidance() {
   if (typeof window === "undefined") {
@@ -72,6 +73,7 @@ function readStoredGuidance() {
     return {
       ...parsed,
       eventName: typeof parsed.eventName === "string" ? parsed.eventName : "",
+      taskKind: typeof parsed.taskKind === "string" ? parsed.taskKind : undefined,
       actionType: typeof parsed.actionType === "string" ? parsed.actionType : "open_experiences",
       assignedAt: typeof parsed.assignedAt === "number" ? parsed.assignedAt : 0,
     } as TaskGuidanceState;
@@ -250,6 +252,7 @@ function useTaskGuidanceBannerController() {
   const [guidance, setGuidance] = useState<TaskGuidanceState | null>(() => readStoredGuidance());
   const [rewardFlashVisible, setRewardFlashVisible] = useState(false);
   const touchStartYRef = useRef<number | null>(null);
+  const viewedGuidanceKeysRef = useRef<Set<string>>(new Set());
   const lastResetMs = userProfile?.dailyTasksState?.lastResetMs ?? 0;
   const dailyTasks = userProfile?.dailyTasksState?.tasks;
   const activeGuidance = guidance && !guidance.dismissedAt ? guidance : null;
@@ -311,12 +314,16 @@ function useTaskGuidanceBannerController() {
     trackEvent(TASK_GUIDANCE_COMPLETED_EVENT, {
       task_id: guidance.taskId,
       task_title: guidance.title,
+      task_kind: guidance.taskKind ?? guidance.actionType,
       reward: guidance.reward,
       destination: guidance.destinationHref,
       source_component: "task_guidance_banner",
+      route: pathname,
+      guidance_version: TASK_GUIDANCE_VERSION,
       guidance_type: "onboarding_handoff",
       daily_task_window_id: guidance.dailyTaskWindowId,
       assignment_source: guidance.assignmentSource,
+      sourceTruth: "client_supporting",
     });
 
     launchRewardConfetti();
@@ -339,17 +346,32 @@ function useTaskGuidanceBannerController() {
       return;
     }
 
+    const guidanceKey = [
+      TASK_GUIDANCE_VERSION,
+      guidance.taskId,
+      guidance.assignedAt,
+      guidance.activatedAt,
+    ].join(":");
+    if (viewedGuidanceKeysRef.current.has(guidanceKey)) {
+      return;
+    }
+    viewedGuidanceKeysRef.current.add(guidanceKey);
+
     trackEvent(TASK_GUIDANCE_VIEWED_EVENT, {
       task_id: guidance.taskId,
       task_title: guidance.title,
+      task_kind: guidance.taskKind ?? guidance.actionType,
       reward: guidance.reward,
       destination: guidance.destinationHref,
       source_component: "task_guidance_banner",
+      route: pathname,
+      guidance_version: TASK_GUIDANCE_VERSION,
       guidance_type: "hint",
       daily_task_window_id: guidance.dailyTaskWindowId,
       assignment_source: guidance.assignmentSource,
+      sourceTruth: "client_supporting",
     });
-  }, [guidance]);
+  }, [guidance, pathname]);
 
   const dismissBanner = () => {
     if (!activeGuidance) {
@@ -359,11 +381,15 @@ function useTaskGuidanceBannerController() {
     trackEvent(TASK_GUIDANCE_DISMISSED_EVENT, {
       task_id: activeGuidance.taskId,
       task_title: activeGuidance.title,
+      task_kind: activeGuidance.taskKind ?? activeGuidance.actionType,
       completed: Boolean(activeGuidance.completedAt),
       source_component: "task_guidance_banner",
+      route: pathname,
+      guidance_version: TASK_GUIDANCE_VERSION,
       guidance_type: activeGuidance.completedAt ? "onboarding_handoff" : "hint",
       daily_task_window_id: activeGuidance.dailyTaskWindowId,
       assignment_source: activeGuidance.assignmentSource,
+      sourceTruth: "client_supporting",
     });
 
     commitStoredGuidance(setGuidance, {
@@ -412,12 +438,16 @@ function useTaskGuidanceBannerController() {
     trackEvent(TASK_GUIDANCE_TAPPED_EVENT, {
       task_id: activeGuidance.taskId,
       task_title: activeGuidance.title,
+      task_kind: activeGuidance.taskKind ?? activeGuidance.actionType,
       completed: Boolean(activeGuidance.completedAt),
       destination: activeGuidance.completedAt ? COMPLETED_GUIDANCE_DESTINATION : activeGuidance.destinationHref,
       source_component: "task_guidance_banner",
+      route: pathname,
+      guidance_version: TASK_GUIDANCE_VERSION,
       guidance_type: activeGuidance.completedAt ? "onboarding_handoff" : "cta",
       daily_task_window_id: activeGuidance.dailyTaskWindowId,
       assignment_source: activeGuidance.assignmentSource,
+      sourceTruth: "client_supporting",
     });
 
     if (activeGuidance.completedAt) {

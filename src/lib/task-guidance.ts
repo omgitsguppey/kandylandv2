@@ -34,6 +34,7 @@ export interface TaskGuidanceState {
   ctaLabel: string;
   destinationHref: string;
   eventName: string;
+  taskKind?: DailyTaskAssignment["group"];
   actionType: DailyTaskAssignment["actionType"];
   assignedAt: number;
   dailyTaskWindowId?: string;
@@ -485,6 +486,7 @@ export function createTaskGuidanceState(task: DailyTaskAssignment): TaskGuidance
     ctaLabel: getTaskActionLabel(task),
     destinationHref: getTaskDestinationHref(task),
     eventName: task.eventName,
+    taskKind: task.group,
     actionType: task.actionType,
     assignedAt: task.assignedAt,
     dailyTaskWindowId: task.dailyTaskWindowId,

@@ -183,7 +183,10 @@ export function classifyDailyTaskDebugScoreLockDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-daily-task-debug-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-auth-readiness-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/task-guidance-batch31-shared.ts") return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(task-guidance-telemetry-contract|task-guidance-ui-instrumentation|task-guidance-event-normalization|task-onboarding-parity-semantics|task-guidance-history-recovery|debug-cockpit-batch31-task-guidance-parity)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "tests/unit/daily-task-debug-score-lock.spec.ts") return "test_artifact_expected";
+  if (/^tests\/unit\/(task-guidance-telemetry-contract|task-guidance-ui-instrumentation|task-guidance-event-normalization|task-onboarding-parity-semantics|task-guidance-history-recovery|debug-cockpit-batch31-task-guidance-parity)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (
     normalized === "CHANGELOG.md"
@@ -204,12 +207,21 @@ export function classifyDailyTaskDebugScoreLockDirtyFile(path: string) {
     || normalized === "scripts/agent/validate-gumdrop-source-of-funds-truth.ts"
   ) return "validator_artifact_expected";
   if (normalized.startsWith("src/lib/tasks/") || normalized === "src/app/api/checkin/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/components/Dashboard/DailyTasksModule.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/components/Dashboard/TaskGuidanceBanner.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/lib/task-guidance.ts") return "real_source_change_needs_review";
   if (
     normalized === "src/lib/analytics/event-translation-bridge.ts"
     || normalized === "src/lib/analytics/person-metrics-hydration.ts"
+    || normalized === "src/lib/analytics/person-metrics-contract.ts"
+    || normalized === "src/lib/analytics/task-onboarding-parity-semantics.ts"
     || normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts"
     || normalized === "src/lib/admin/user-management-contract.ts"
   ) return "real_source_change_needs_review";
+  if (normalized === "src/lib/privacy/consent-tracking-policy.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/server/admin-analytics-historical-tasks.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/server/admin-analytics-historical-validation.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/admin-summary-lane-status-classifier.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx") return "real_source_change_needs_review";

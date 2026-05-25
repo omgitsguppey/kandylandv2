@@ -1,0 +1,31 @@
+{
+  "reportKey": "task-guidance-history-recovery",
+  "generatedAtUtc": "2026-05-25T06:15:35.412Z",
+  "currentHead": "ccf36528805f2d72bc84b1b1aeb1e9b6358a6970",
+  "plan": {
+    "status": "legacy_alias_candidate",
+    "observedEventNames": [
+      "daily_task_guidance_opened",
+      "task_guidance_banner_viewed",
+      "task_guidance_cta_clicked"
+    ],
+    "aliasProposal": [
+      {
+        "legacyEventName": "daily_task_guidance_opened",
+        "canonicalEventName": "task_guidance_viewed"
+      },
+      {
+        "legacyEventName": "task_guidance_banner_viewed",
+        "canonicalEventName": "task_guidance_viewed"
+      },
+      {
+        "legacyEventName": "task_guidance_cta_clicked",
+        "canonicalEventName": "task_guidance_tapped"
+      }
+    ],
+    "productionMutationAllowed": false,
+    "backfillMode": "none_dry_run_only",
+    "nextAction": "Keep the alias map in event normalization and historical rollups; do not backfill production in this batch."
+  },
+  "validationFailures": []
+}

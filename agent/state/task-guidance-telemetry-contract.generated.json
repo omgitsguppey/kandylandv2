@@ -1,0 +1,110 @@
+{
+  "reportKey": "task-guidance-telemetry-contract",
+  "generatedAtUtc": "2026-05-25T06:15:35.577Z",
+  "currentHead": "ccf36528805f2d72bc84b1b1aeb1e9b6358a6970",
+  "contract": {
+    "implemented": true,
+    "requiredInBeta": true,
+    "expectedEvents": [
+      "task_guidance_viewed",
+      "task_guidance_tapped",
+      "task_guidance_dismissed",
+      "task_guidance_completed",
+      "task_card_expanded",
+      "task_help_opened"
+    ],
+    "eventOwner": "retention",
+    "sourceComponent": [
+      "task_guidance_banner",
+      "daily_tasks_module"
+    ],
+    "emitters": [
+      {
+        "eventName": "task_guidance_viewed",
+        "sourceComponent": "task_guidance_banner",
+        "trigger": "banner visible once per active guidance key",
+        "passiveRenderSafe": true
+      },
+      {
+        "eventName": "task_guidance_viewed",
+        "sourceComponent": "daily_tasks_module",
+        "trigger": "task details expanded",
+        "passiveRenderSafe": true
+      },
+      {
+        "eventName": "task_guidance_tapped",
+        "sourceComponent": "task_guidance_banner",
+        "trigger": "banner CTA tapped",
+        "passiveRenderSafe": true
+      },
+      {
+        "eventName": "task_guidance_tapped",
+        "sourceComponent": "daily_tasks_module",
+        "trigger": "task action tapped from guidance details",
+        "passiveRenderSafe": true
+      },
+      {
+        "eventName": "task_guidance_dismissed",
+        "sourceComponent": "task_guidance_banner",
+        "trigger": "banner dismissed by button or swipe",
+        "passiveRenderSafe": true
+      },
+      {
+        "eventName": "task_guidance_completed",
+        "sourceComponent": "task_guidance_banner",
+        "trigger": "existing task completion observed after guidance activation",
+        "passiveRenderSafe": true
+      },
+      {
+        "eventName": "task_card_expanded",
+        "sourceComponent": "daily_tasks_module",
+        "trigger": "task card expanded",
+        "passiveRenderSafe": true
+      },
+      {
+        "eventName": "task_help_opened",
+        "sourceComponent": "daily_tasks_module",
+        "trigger": "task help text revealed",
+        "passiveRenderSafe": true
+      }
+    ],
+    "eventEnvelopeMapping": {
+      "status": "mapped",
+      "source": "src/lib/analytics/event-envelope-builder.ts"
+    },
+    "eventFactMapping": {
+      "status": "mapped",
+      "source": "src/lib/behavioral/normalize-event-fact.ts"
+    },
+    "rollupMapping": {
+      "status": "mapped",
+      "fields": [
+        "guidanceViews",
+        "guidanceTaps",
+        "guidanceDismissals",
+        "guidanceCompletions",
+        "taskCardExpansions",
+        "taskHelpOpens"
+      ]
+    },
+    "adminValidationConsumer": {
+      "status": "mapped",
+      "checkKey": "task_guidance_parity"
+    },
+    "consentPolicy": {
+      "status": "mapped",
+      "minimalAnalyticsAllowed": true
+    },
+    "sampleRequirement": {
+      "required": true,
+      "minimumSamples": 1
+    },
+    "passPolicy": {
+      "sampleCanPassWithZero": false,
+      "reason": "Required task guidance telemetry cannot pass with zero samples unless the beta requirement is changed."
+    },
+    "blockedReason": "lifecycle_active_guidance_missing",
+    "nextAction": "Fix task guidance UI emitters and rollups, then wait for real guidance activity before promoting parity."
+  },
+  "validationFailures": []
+}

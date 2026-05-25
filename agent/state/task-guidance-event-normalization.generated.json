@@ -1,0 +1,18 @@
+{
+  "reportKey": "task-guidance-event-normalization",
+  "generatedAtUtc": "2026-05-25T06:15:35.394Z",
+  "currentHead": "ccf36528805f2d72bc84b1b1aeb1e9b6358a6970",
+  "taskGuidance": {
+    "viewed": 13,
+    "dismissed": 1,
+    "tapped": 1,
+    "completed": 1,
+    "guidanceViews": 5,
+    "guidanceTaps": 1,
+    "guidanceDismissals": 1,
+    "guidanceCompletions": 1,
+    "taskCardExpansions": 4,
+    "taskHelpOpens": 4
+  },
+  "validationFailures": []
+}

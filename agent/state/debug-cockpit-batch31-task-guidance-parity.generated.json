@@ -1,0 +1,340 @@
+{
+  "reportKey": "debug-cockpit-batch31-task-guidance-parity",
+  "generatedAtUtc": "2026-05-25T06:22:11.285Z",
+  "currentHead": "ccf36528805f2d72bc84b1b1aeb1e9b6358a6970",
+  "taskActivityStatus": "pass",
+  "taskActivitySamples": 500,
+  "onboardingStatus": "pass",
+  "onboardingSamples": 38,
+  "guidanceStatusBefore": "fail",
+  "guidanceStatusAfter": "source_ready_waiting_for_activity",
+  "guidanceSamplesBefore": 0,
+  "guidanceSamplesAfter": 0,
+  "expectedGuidanceEvents": [
+    "task_guidance_viewed",
+    "task_guidance_tapped",
+    "task_guidance_dismissed",
+    "task_guidance_completed",
+    "task_card_expanded",
+    "task_help_opened"
+  ],
+  "emittersFound": [
+    "task_guidance_viewed",
+    "task_guidance_tapped",
+    "task_guidance_dismissed",
+    "task_guidance_completed",
+    "task_card_expanded",
+    "task_help_opened"
+  ],
+  "catalogMappings": {
+    "status": "mapped"
+  },
+  "factMappings": {
+    "status": "mapped"
+  },
+  "rollupMappings": {
+    "status": "mapped",
+    "fields": [
+      "guidanceViews",
+      "guidanceTaps",
+      "guidanceDismissals",
+      "guidanceCompletions",
+      "taskCardExpansions",
+      "taskHelpOpens"
+    ]
+  },
+  "adminValidationConsumerStatus": "mapped",
+  "consentPolicyStatus": "mapped",
+  "lifecycleGuidanceSplitStatus": "lifecycle_active_guidance_missing",
+  "historicalRecoveryStatus": "legacy_alias_candidate",
+  "sourcePatchApplied": true,
+  "scoreBefore": 62,
+  "scoreAfter": 78,
+  "scoreDimensions": [
+    "taskGuidanceTelemetryContract",
+    "taskGuidanceUiInstrumentation",
+    "taskGuidanceEventNormalization",
+    "taskOnboardingParitySemantics",
+    "taskGuidanceHistoryRecovery",
+    "debugCockpitBatch31Lock"
+  ],
+  "remainingGaps": [
+    "Guidance has zero live samples; keep parity blocked until real activity arrives."
+  ],
+  "nextExactSteps": [
+    "Exercise task guidance UI in a real session and confirm analytics_event_facts receives guidance events.",
+    "Keep task guidance parity blocked while required guidance samples remain zero."
+  ],
+  "dirtyClassifications": [
+    {
+      "filePath": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/event-translation-bridge.generated.json",
+      "classification": "task_guidance_event_mapping_required"
+    },
+    {
+      "filePath": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "task_guidance_event_mapping_required"
+    },
+    {
+      "filePath": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/daily-task-guidance-route-audit.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/daily-task-reward-ledger.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "task_guidance_event_mapping_required"
+    },
+    {
+      "filePath": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "task_guidance_event_mapping_required"
+    },
+    {
+      "filePath": "package.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-daily-task-debug-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-daily-task-guidance-route-audit.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-daily-task-reward-ledger.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "src/components/Dashboard/DailyTasksModule.tsx",
+      "classification": "task_guidance_ui_instrumentation_required"
+    },
+    {
+      "filePath": "src/components/Dashboard/TaskGuidanceBanner.tsx",
+      "classification": "task_guidance_ui_instrumentation_required"
+    },
+    {
+      "filePath": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "task_guidance_event_mapping_required"
+    },
+    {
+      "filePath": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "task_guidance_event_mapping_required"
+    },
+    {
+      "filePath": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "task_guidance_event_mapping_required"
+    },
+    {
+      "filePath": "src/lib/privacy/consent-tracking-policy.ts",
+      "classification": "consent_policy_review_required"
+    },
+    {
+      "filePath": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/server/admin-analytics-historical-tasks.ts",
+      "classification": "task_guidance_rollup_materializer_required"
+    },
+    {
+      "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "task_guidance_rollup_materializer_required"
+    },
+    {
+      "filePath": "src/lib/task-guidance.ts",
+      "classification": "task_guidance_ui_instrumentation_required"
+    },
+    {
+      "filePath": "tests/unit/user-management-refactor.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/task-guidance-event-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/task-guidance-history-recovery.generated.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/task-guidance-telemetry-contract.generated.json",
+      "classification": "task_guidance_telemetry_fix_required"
+    },
+    {
+      "filePath": "agent/state/task-guidance-ui-instrumentation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/task-onboarding-parity-semantics.generated.json",
+      "classification": "task_lifecycle_guidance_split_required"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-cockpit-batch31-task-guidance-parity.md",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/task-guidance-event-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/task-guidance-history-recovery.md",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/task-guidance-telemetry-contract.md",
+      "classification": "task_guidance_telemetry_fix_required"
+    },
+    {
+      "filePath": "docs/agent-truth/task-guidance-ui-instrumentation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/task-onboarding-parity-semantics.md",
+      "classification": "task_lifecycle_guidance_split_required"
+    },
+    {
+      "filePath": "scripts/agent/task-guidance-batch31-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-debug-cockpit-batch31-task-guidance-parity.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-task-guidance-event-normalization.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-task-guidance-history-recovery.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-task-guidance-telemetry-contract.ts",
+      "classification": "task_guidance_telemetry_fix_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-task-guidance-ui-instrumentation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-task-onboarding-parity-semantics.ts",
+      "classification": "task_lifecycle_guidance_split_required"
+    },
+    {
+      "filePath": "src/lib/analytics/task-onboarding-parity-semantics.ts",
+      "classification": "task_lifecycle_guidance_split_required"
+    },
+    {
+      "filePath": "src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/tasks/task-guidance-history-recovery.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/tasks/task-guidance-telemetry-contract.ts",
+      "classification": "task_guidance_telemetry_fix_required"
+    },
+    {
+      "filePath": "tests/unit/debug-cockpit-batch31-task-guidance-parity.spec.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/task-guidance-event-normalization.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/task-guidance-history-recovery.spec.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/task-guidance-telemetry-contract.spec.ts",
+      "classification": "task_guidance_telemetry_fix_required"
+    },
+    {
+      "filePath": "tests/unit/task-guidance-ui-instrumentation.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/task-onboarding-parity-semantics.spec.ts",
+      "classification": "task_lifecycle_guidance_split_required"
+    }
+  ],
+  "openPrClassifications": [],
+  "validationFailures": []
+}

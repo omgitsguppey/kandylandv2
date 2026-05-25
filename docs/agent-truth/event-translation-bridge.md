@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-25T05:51:18.891Z
+Generated: 2026-05-25T06:16:53.508Z
 Status: pass
-Current head: 9dc79a00f40df751841c8d8f10d98de636336397
+Current head: ccf36528805f2d72bc84b1b1aeb1e9b6358a6970
 
 ## Contract
 
@@ -16,7 +16,7 @@ Current head: 9dc79a00f40df751841c8d8f10d98de636336397
 - Producers connected: 522
 - Event envelopes translated: 522
 - Materializers mapped: 522
-- Person metrics mapped: 178
+- Person metrics mapped: 185
 - Gaps: 0
 
 ## Score Impact
@@ -55,65 +55,64 @@ Current head: 9dc79a00f40df751841c8d8f10d98de636336397
 
 - CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/advanced-telemetry-parity-ui-cleanup.generated.json: current_generated_artifact_to_commit
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-cockpit-batch18-route-hotspots.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-cockpit-batch30-telemetry-parity.generated.json: current_generated_artifact_to_commit
-- agent/state/debug-panel-output-triage.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-runtime-evidence.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-guidance-route-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-lifecycle-telemetry.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-reward-ledger.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/ingest-identified-parity-blocker.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/refresh-diagnostics-failure-clusters.generated.json: current_generated_artifact_to_commit
-- agent/state/telemetry-admin-debug-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-parity-pass-gate.generated.json: current_generated_artifact_to_commit
-- agent/state/telemetry-parity-score.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/advanced-telemetry-parity-ui-cleanup.md: documentation_artifact_expected
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-cockpit-batch30-telemetry-parity.md: documentation_artifact_expected
-- docs/agent-truth/debug-runtime-evidence.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-liveness-audit.md: documentation_artifact_expected
+- agent/state/task-guidance-event-normalization.generated.json: current_generated_artifact_to_commit
+- agent/state/task-guidance-history-recovery.generated.json: current_generated_artifact_to_commit
+- agent/state/task-guidance-telemetry-contract.generated.json: current_generated_artifact_to_commit
+- agent/state/task-guidance-ui-instrumentation.generated.json: current_generated_artifact_to_commit
+- agent/state/task-onboarding-parity-semantics.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-guidance-route-audit.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-reward-ledger.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-cockpit-batch31-task-guidance-parity.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/ingest-identified-parity-blocker.md: documentation_artifact_expected
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/refresh-diagnostics-failure-clusters.md: documentation_artifact_expected
-- docs/agent-truth/telemetry-admin-debug-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/telemetry-parity-pass-gate.md: documentation_artifact_expected
+- docs/agent-truth/task-guidance-event-normalization.md: documentation_artifact_expected
+- docs/agent-truth/task-guidance-history-recovery.md: documentation_artifact_expected
+- docs/agent-truth/task-guidance-telemetry-contract.md: documentation_artifact_expected
+- docs/agent-truth/task-guidance-ui-instrumentation.md: documentation_artifact_expected
+- docs/agent-truth/task-onboarding-parity-semantics.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/debug-cockpit-batch30-telemetry-parity-shared.ts: validator_artifact_expected
-- scripts/agent/validate-admin-debug-control-tower.ts: validator_artifact_expected
-- scripts/agent/validate-advanced-telemetry-parity-ui-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-debug-cockpit-batch30-telemetry-parity.ts: validator_artifact_expected
-- scripts/agent/validate-event-liveness-audit.ts: validator_artifact_expected
-- scripts/agent/validate-ingest-identified-parity-blocker.ts: validator_artifact_expected
-- scripts/agent/validate-refresh-diagnostics-failure-clusters.ts: validator_artifact_expected
-- scripts/agent/validate-telemetry-parity-pass-gate.ts: validator_artifact_expected
-- src/app/admin/debug/components/DebugAdvancedDataValidation.tsx: real_source_change_needs_review
-- src/app/api/admin/analytics/historical/route.ts: real_source_change_needs_review
-- src/lib/analytics/advanced-telemetry-parity-ui.ts: real_source_change_needs_review
+- scripts/agent/task-guidance-batch31-shared.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-debug-score-lock.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-guidance-route-audit.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
+- scripts/agent/validate-daily-task-reward-ledger.ts: validator_artifact_expected
+- scripts/agent/validate-debug-cockpit-batch31-task-guidance-parity.ts: validator_artifact_expected
+- scripts/agent/validate-task-guidance-event-normalization.ts: validator_artifact_expected
+- scripts/agent/validate-task-guidance-history-recovery.ts: validator_artifact_expected
+- scripts/agent/validate-task-guidance-telemetry-contract.ts: validator_artifact_expected
+- scripts/agent/validate-task-guidance-ui-instrumentation.ts: validator_artifact_expected
+- scripts/agent/validate-task-onboarding-parity-semantics.ts: validator_artifact_expected
+- src/components/Dashboard/DailyTasksModule.tsx: real_source_change_needs_review
+- src/components/Dashboard/TaskGuidanceBanner.tsx: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/ingest-identified-parity-blocker.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/analytics/refresh-diagnostics-failure-clusters.ts: real_source_change_needs_review
-- src/lib/analytics/telemetry-parity-pass-gate.ts: real_source_change_needs_review
-- src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts: real_source_change_needs_review
+- src/lib/analytics/task-onboarding-parity-semantics.ts: real_source_change_needs_review
+- src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts: real_source_change_needs_review
+- src/lib/privacy/consent-tracking-policy.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- src/lib/server/admin-analytics-historical-tasks.ts: real_source_change_needs_review
 - src/lib/server/admin-analytics-historical-validation.ts: real_source_change_needs_review
-- src/types/admin-analytics.ts: real_source_change_needs_review
-- tests/unit/admin-data-validation.spec.ts: test_artifact_expected
-- tests/unit/advanced-telemetry-parity-ui-cleanup.spec.ts: test_artifact_expected
-- tests/unit/debug-cockpit-batch30-telemetry-parity.spec.ts: test_artifact_expected
-- tests/unit/ingest-identified-parity-blocker.spec.ts: test_artifact_expected
-- tests/unit/refresh-diagnostics-failure-clusters.spec.ts: test_artifact_expected
-- tests/unit/telemetry-parity-pass-gate.spec.ts: test_artifact_expected
+- src/lib/task-guidance.ts: real_source_change_needs_review
+- src/lib/tasks/task-guidance-history-recovery.ts: real_source_change_needs_review
+- src/lib/tasks/task-guidance-telemetry-contract.ts: real_source_change_needs_review
+- tests/unit/debug-cockpit-batch31-task-guidance-parity.spec.ts: test_artifact_expected
+- tests/unit/task-guidance-event-normalization.spec.ts: test_artifact_expected
+- tests/unit/task-guidance-history-recovery.spec.ts: test_artifact_expected
+- tests/unit/task-guidance-telemetry-contract.spec.ts: test_artifact_expected
+- tests/unit/task-guidance-ui-instrumentation.spec.ts: test_artifact_expected
+- tests/unit/task-onboarding-parity-semantics.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

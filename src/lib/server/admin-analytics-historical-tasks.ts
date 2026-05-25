@@ -12,6 +12,12 @@ export interface HistoricalTaskAnalytics {
     dismissed: number;
     tapped: number;
     completed: number;
+    guidanceViews: number;
+    guidanceTaps: number;
+    guidanceDismissals: number;
+    guidanceCompletions: number;
+    taskCardExpansions: number;
+    taskHelpOpens: number;
   };
   taskPipeline: Array<{ label: string; count: number }>;
   taskLeaderboard: Array<{
@@ -38,11 +44,23 @@ export function buildHistoricalTaskAnalytics(input: {
     eventNames.reduce((total, eventName) => total + (input.eventsData[eventName] || 0), 0)
   );
 
+  const guidanceViews = countTaskGuidanceEvents("task_guidance_viewed", "task_guidance_banner_viewed", "daily_task_guidance_opened");
+  const guidanceTaps = countTaskGuidanceEvents("task_guidance_tapped", "task_guidance_cta_clicked");
+  const guidanceDismissals = countTaskGuidanceEvents("task_guidance_dismissed", "task_guidance_banner_dismissed");
+  const guidanceCompletions = countTaskGuidanceEvents("task_guidance_completed");
+  const taskCardExpansions = countTaskGuidanceEvents("task_card_expanded");
+  const taskHelpOpens = countTaskGuidanceEvents("task_help_opened");
   const taskGuidance = {
-    viewed: countTaskGuidanceEvents("task_guidance_viewed", "task_guidance_banner_viewed", "task_help_opened", "task_card_expanded"),
-    dismissed: countTaskGuidanceEvents("task_guidance_dismissed", "task_guidance_banner_dismissed"),
-    tapped: countTaskGuidanceEvents("task_guidance_tapped", "task_guidance_cta_clicked"),
-    completed: countTaskGuidanceEvents("task_guidance_completed"),
+    viewed: guidanceViews + taskHelpOpens + taskCardExpansions,
+    dismissed: guidanceDismissals,
+    tapped: guidanceTaps,
+    completed: guidanceCompletions,
+    guidanceViews,
+    guidanceTaps,
+    guidanceDismissals,
+    guidanceCompletions,
+    taskCardExpansions,
+    taskHelpOpens,
   };
 
   const taskPipeline = [

@@ -2,6 +2,7 @@ import "server-only";
 
 import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
+import { classifyTaskOnboardingParity } from "@/lib/analytics/task-onboarding-parity-semantics";
 import { buildTelemetryParityPassGate } from "@/lib/analytics/telemetry-parity-pass-gate";
 import {
   TASK_GUIDANCE_EVENT_NAMES,
@@ -17,6 +18,12 @@ export interface HistoricalTaskGuidanceSummary {
   dismissed: number;
   tapped: number;
   completed: number;
+  guidanceViews?: number;
+  guidanceTaps?: number;
+  guidanceDismissals?: number;
+  guidanceCompletions?: number;
+  taskCardExpansions?: number;
+  taskHelpOpens?: number;
 }
 
 export interface HistoricalValidationSummary {
@@ -1304,6 +1311,18 @@ export function buildHistoricalValidationSummary(input: {
     { key: "taps", label: "Guide taps", count: input.taskGuidance.tapped },
     { key: "wins", label: "Guide wins", count: input.taskGuidance.completed },
   ], { tolerance: 2, relativeTolerance: 0.35 });
+  const taskGuidanceSampleCount = input.taskGuidance.viewed
+    + input.taskGuidance.dismissed
+    + input.taskGuidance.tapped
+    + input.taskGuidance.completed;
+  const taskOnboardingSemantics = classifyTaskOnboardingParity({
+    taskActivitySamples: Math.min(input.normalizedTaskEventCount, input.firstPartyTaskLifecycleEvents),
+    taskLifecycleEvents: input.firstPartyTaskLifecycleEvents,
+    onboardingSamples: input.onboardingStartCount,
+    guidanceSamples: taskGuidanceSampleCount,
+    guidanceImplemented: TASK_GUIDANCE_IMPLEMENTED,
+    guidanceRequired: TASK_GUIDANCE_REQUIRED_IN_BETA,
+  });
   const creatorSpendParityScore = input.creatorSpendTransactionCount === 0
     ? 100
     : (input.creatorSpendParityMismatchCount > 0 || input.creatorRestrictedSpendViolationCount > 0)
@@ -1458,6 +1477,7 @@ export function buildHistoricalValidationSummary(input: {
       lastValidatedAt,
       sampleRequired: true,
       sampleCount: Math.min(input.normalizedTaskEventCount, input.firstPartyTaskLifecycleEvents),
+      technicalEvidence: taskOnboardingSemantics.taskActivity.technicalEvidence,
       action: input.normalizedTaskEventCount > 0 && input.firstPartyTaskLifecycleEvents > 0 ? "No action required." : "Check task event ingestion and canonical task rollup freshness.",
     }),
     buildValidationCheck({
@@ -1596,6 +1616,7 @@ export function buildHistoricalValidationSummary(input: {
       confidence: onboardingParity.score,
       sampleRequired: true,
       sampleCount: input.onboardingStartCount,
+      technicalEvidence: taskOnboardingSemantics.onboardingActivity.technicalEvidence,
       action: input.onboardingStartCount > 0 ? "No action required." : "Confirm onboarding start events are landing before using onboarding coverage.",
     }),
     buildValidationCheck({
@@ -1612,33 +1633,35 @@ export function buildHistoricalValidationSummary(input: {
             : "warn"
         : "unavailable",
       detail: TASK_GUIDANCE_IMPLEMENTED
-        ? `${input.taskGuidance.viewed.toLocaleString()} guide views, ${input.taskGuidance.dismissed.toLocaleString()} dismissals, ${input.taskGuidance.tapped.toLocaleString()} guide taps, and ${input.taskGuidance.completed.toLocaleString()} guided completions were collected in range.`
+        ? taskGuidanceSampleCount > 0
+          ? `${input.taskGuidance.viewed.toLocaleString()} guide views, ${input.taskGuidance.dismissed.toLocaleString()} dismissals, ${input.taskGuidance.tapped.toLocaleString()} guide taps, and ${input.taskGuidance.completed.toLocaleString()} guided completions were collected in range.`
+          : taskOnboardingSemantics.taskGuidance.copy
         : "Guidance UI is not implemented for this range, so task guidance parity is unavailable.",
       source: "task guidance telemetry",
       selectedRange,
       lastValidatedAt,
-      confidence: input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed > 0
+      confidence: taskGuidanceSampleCount > 0
         ? taskGuidanceParity.score
         : null,
       sampleRequired: TASK_GUIDANCE_IMPLEMENTED && TASK_GUIDANCE_REQUIRED_IN_BETA,
-      sampleCount: input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed,
-      passAllowed: !TASK_GUIDANCE_REQUIRED_IN_BETA || (input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed > 0),
+      sampleCount: taskGuidanceSampleCount,
+      passAllowed: !TASK_GUIDANCE_REQUIRED_IN_BETA || taskGuidanceSampleCount > 0,
       blockedReason: !TASK_GUIDANCE_IMPLEMENTED
         ? "not_implemented"
-        : input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed <= 0
+        : taskGuidanceSampleCount <= 0
           ? "required_sample_missing"
           : null,
       implemented: TASK_GUIDANCE_IMPLEMENTED,
       required: TASK_GUIDANCE_REQUIRED_IN_BETA,
       eventNames: [...TASK_GUIDANCE_EVENT_NAMES],
       technicalEvidence: TASK_GUIDANCE_IMPLEMENTED
-        ? `${input.taskGuidance.viewed.toLocaleString()} guide views, ${input.taskGuidance.dismissed.toLocaleString()} dismissals, ${input.taskGuidance.tapped.toLocaleString()} guide taps, and ${input.taskGuidance.completed.toLocaleString()} guided completions were collected in range. Expected events: ${TASK_GUIDANCE_EVENT_NAMES.join(", ")}.`
+        ? `${taskOnboardingSemantics.taskGuidance.technicalEvidence} Rollup fields: guidanceViews=${(input.taskGuidance.guidanceViews ?? 0).toLocaleString()}, guidanceTaps=${(input.taskGuidance.guidanceTaps ?? 0).toLocaleString()}, guidanceDismissals=${(input.taskGuidance.guidanceDismissals ?? 0).toLocaleString()}, guidanceCompletions=${(input.taskGuidance.guidanceCompletions ?? 0).toLocaleString()}, taskCardExpansions=${(input.taskGuidance.taskCardExpansions ?? 0).toLocaleString()}, taskHelpOpens=${(input.taskGuidance.taskHelpOpens ?? 0).toLocaleString()}. Expected events: ${TASK_GUIDANCE_EVENT_NAMES.join(", ")}.`
         : `Task guidance UI is not implemented. Expected events are ${TASK_GUIDANCE_EVENT_NAMES.join(", ")} when the feature ships.`,
       action: !TASK_GUIDANCE_IMPLEMENTED
         ? "Guidance UI is not implemented. Mark this lane unavailable until the prompt surface ships."
-        : input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed > 0
+        : taskGuidanceSampleCount > 0
           ? "No action required."
-          : "Emit canonical task guidance events from the task banner/module and confirm they reach analytics_event_facts for this range.",
+          : "Lifecycle and onboarding are active, but guidance UI telemetry is missing. Confirm task guidance emitters are deployed, then wait for real guidance activity in analytics_event_facts before promoting parity.",
     }),
     buildValidationCheck({
       checkKey: "creator_spend_parity",
