@@ -1,11 +1,64 @@
 {
-  "currentVersion": "1.4.68",
-  "betaReleaseCounter": 468,
+  "currentVersion": "1.4.69",
+  "betaReleaseCounter": 469,
   "channel": "beta",
-  "generatedAt": "2026-05-25T21:07:32.979Z",
-  "generatedAtUtc": "2026-05-25T21:07:32.979Z",
+  "generatedAt": "2026-05-25T21:23:58.219Z",
+  "generatedAtUtc": "2026-05-25T21:23:58.219Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.69",
+      "previousVersion": "1.4.68",
+      "betaReleaseCounter": 469,
+      "previousBetaReleaseCounter": 468,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(parity): standardize surface states",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T21:23:58.219Z",
+      "generatedAt": "2026-05-25T21:23:58.219Z",
+      "committedAtUtc": "2026-05-25T21:23:58.219Z",
+      "generatedAtUtc": "2026-05-25T21:23:58.219Z",
+      "category": "Improved",
+      "title": "Surface state parity",
+      "updatedAtUtc": "2026-05-25T21:23:58.219Z",
+      "summary": "Standardized loading, empty, error, degraded, and permission states across surfaces.",
+      "userFacingTitle": "Surface state parity",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Standardized loading, empty, error, degraded, and permission states across surfaces.",
+        "Connected surface states to telemetry and debug.",
+        "Removed raw developer-facing state copy where safe."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical surface state contract and resolver for loading, empty, ready, degraded, error, permission_denied, not_configured, locked, unavailable, and stale states.",
+        "Mapped surface states to the Phase 2 surface telemetry spine and Surface state parity debug lane.",
+        "Added source-only validation for raw developer-facing state copy, endless loading risk, missing CTAs, and state score evidence."
+      ],
+      "affectedSurfaces": [
+        "Public, user, creator, and admin surface states",
+        "Surface telemetry and debug evidence",
+        "State parity validator and generated report"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/parity/surface-state-contract.ts",
+        "src/lib/parity/surface-state-resolver.ts",
+        "scripts/agent/validate-surface-state-parity.ts",
+        "tests/unit/surface-state-parity.spec.ts",
+        "agent/state/surface-state-parity.generated.json",
+        "docs/agent-truth/surface-state-parity.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.68",
       "previousVersion": "1.4.67",
@@ -6670,59 +6723,6 @@
       ],
       "effectiveChangeCount": 11,
       "excludedGeneratedChangeCount": 4,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.44",
-      "previousVersion": "1.4.43",
-      "betaReleaseCounter": 444,
-      "previousBetaReleaseCounter": 443,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): clean orphaned logic actions",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T19:54:06.892Z",
-      "generatedAt": "2026-05-24T19:54:06.892Z",
-      "committedAtUtc": "2026-05-24T19:54:06.892Z",
-      "generatedAtUtc": "2026-05-24T19:54:06.892Z",
-      "updatedAtUtc": "2026-05-24T19:54:06.892Z",
-      "category": "Improved",
-      "title": "Orphaned logic action cleanup",
-      "summary": "Classified admin analytics realtime listeners, drop preview telemetry aliases, and recommended action duplicates without changing runtime history or payment behavior.",
-      "userFacingTitle": "Orphaned logic action cleanup",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Classified admin analytics realtime listeners under hot-cache doctrine.",
-        "Added telemetry intent alias handling for drop preview events.",
-        "Deduped recommended actions and clarified materializer/recovery/creator lane sample states."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Admin diagnostics",
-        "Telemetry",
-        "Creator tools",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-cockpit-batch14-cleanup.generated.json",
-        "agent/state/admin-analytics-realtime-hot-cache.generated.json",
-        "agent/state/telemetry-duplicate-intent-classification.generated.json",
-        "agent/state/recommended-action-dedupe.generated.json",
-        "agent/state/system-health-materializer-cleanup.generated.json",
-        "agent/state/creator-lane-freshness-cleanup.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/debug-cockpit-batch14-shared.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "effectiveChangeCount": 12,
-      "excludedGeneratedChangeCount": 7,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

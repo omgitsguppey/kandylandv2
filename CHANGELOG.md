@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.69 - 2026-05-25
+- Surface state parity
+- Standardized loading, empty, error, degraded, and permission states across surfaces.
+- Connected surface states to telemetry and debug.
+- Removed raw developer-facing state copy where safe.
+
 ## 1.4.68 - 2026-05-25
 - Surface telemetry parity
 - Standardized telemetry events across major product surfaces.
