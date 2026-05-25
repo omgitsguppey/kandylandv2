@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-25T07:10:33.707Z",
-  "currentHead": "8f5b66d4c5465ac057ea542614a5b8d01c5d3c43",
+  "generatedAtUtc": "2026-05-25T08:23:16.841Z",
+  "currentHead": "e53968ae1b6975aa492461625f7fd76133493226",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -3711,163 +3711,199 @@
   "gaps": [],
   "dirtyFiles": [
     {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/debug-cockpit-batch33-unlock-watch-parity.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/behavior-math-verification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/drop-watch-time-accuracy.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/behavior-normalization-internals.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/behavior-task-telemetry-ui-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/behavioral-intelligence-snapshot-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch35-behavior-stack.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/feature-registration-gate.generated.json",
+      "path": "agent/state/experiment-rollout-registry-reconstruction.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/person-metrics-hydration.generated.json",
+      "path": "agent/state/source-window-zero-shell-classifier.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/server-unlock-telemetry-emission.generated.json",
+      "path": "agent/state/task-catalog-runtime-reconstruction.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/task-guidance-telemetry-contract.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/unlock-rollup-reconciliation.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/task-telemetry-mapping-reconstruction.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/unlock-watch-journey-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/telemetry-truth-recovery-formulas.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/unlock-watch-validation-semantics.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/behavior-normalization-internals.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/viewer-start-telemetry-repair.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/behavior-task-telemetry-ui-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/watch-capture-quality-threshold.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/behavioral-intelligence-snapshot-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/watch-session-fact-link-repair.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch33-unlock-watch-parity.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/debug-cockpit-batch35-behavior-stack.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "path": "docs/agent-truth/experiment-rollout-registry-reconstruction.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/server-unlock-telemetry-emission.md",
+      "path": "docs/agent-truth/source-window-zero-shell-classifier.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/task-catalog-runtime-reconstruction.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/task-guidance-telemetry-contract.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/unlock-rollup-reconciliation.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/task-telemetry-mapping-reconstruction.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/unlock-watch-journey-normalization.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/unlock-watch-validation-semantics.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/viewer-start-telemetry-repair.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/watch-capture-quality-threshold.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/watch-session-fact-link-repair.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/telemetry-truth-recovery-formulas.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "package.json",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch33-unlock-watch-parity.ts",
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-behavior-normalization-internals.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
+      "path": "scripts/agent/validate-behavior-task-telemetry-ui-cleanup.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "path": "scripts/agent/validate-behavioral-intelligence-snapshot-truth.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-person-metrics-hydration.ts",
+      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-server-unlock-telemetry-emission.ts",
+      "path": "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-unlock-rollup-reconciliation.ts",
+      "path": "scripts/agent/validate-debug-cockpit-batch35-behavior-stack.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-unlock-telemetry-truth.ts",
+      "path": "scripts/agent/validate-experiment-rollout-registry-reconstruction.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-unlock-watch-journey-normalization.ts",
+      "path": "scripts/agent/validate-source-window-zero-shell-classifier.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-unlock-watch-validation-semantics.ts",
+      "path": "scripts/agent/validate-task-catalog-runtime-reconstruction.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-viewer-start-telemetry-repair.ts",
+      "path": "scripts/agent/validate-task-telemetry-mapping-reconstruction.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-watch-capture-quality-threshold.ts",
+      "path": "scripts/agent/validate-telemetry-truth-recovery-formulas.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-watch-session-fact-link-repair.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/app/api/admin/analytics/historical/route.ts",
+      "path": "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/app/api/drops/unlock/route.ts",
+      "path": "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/app/api/viewer/watch-session/route.ts",
+      "path": "src/app/admin/debug/components/DebugAdvancedExperiments.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugPrimitives.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -3875,67 +3911,103 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "path": "src/lib/analytics/telemetry-truth-recovery-formulas.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/viewer-start-telemetry-contract.ts",
+      "path": "src/lib/analytics/telemetry-truth-recovery-status.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/watch-capture-quality-contract.ts",
+      "path": "src/lib/behavioral/behavior-normalization-internals-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/watch-session-fact-linker.ts",
+      "path": "src/lib/behavioral/behavior-normalization-internals-engine.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/behavioral/unlock-watch-journey-normalization.ts",
+      "path": "src/lib/behavioral/behavioral-intelligence-snapshot-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/commerce/unlock-rollup-reconciliation.ts",
+      "path": "src/lib/behavioral/behavioral-intelligence-snapshot-status.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/commerce/unlock-watch-parity-contract.ts",
+      "path": "src/lib/debug/source-window-zero-shell-classifier.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/server/admin-analytics-historical-validation.ts",
+      "path": "src/lib/experiments/experiment-rollout-registry-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/debug-cockpit-batch33-unlock-watch-parity.spec.ts",
+      "path": "src/lib/experiments/experiment-rollout-registry-status.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/tasks/task-catalog-coverage-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/tasks/task-catalog-coverage-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/tasks/task-runtime-sample-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/tasks/task-telemetry-mapping-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/tasks/task-telemetry-mapping-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/behavior-normalization-internals.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/server-unlock-telemetry-emission.spec.ts",
+      "path": "tests/unit/behavior-task-telemetry-ui-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/unlock-rollup-reconciliation.spec.ts",
+      "path": "tests/unit/behavioral-intelligence-snapshot-truth.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/unlock-watch-journey-normalization.spec.ts",
+      "path": "tests/unit/debug-cockpit-batch35-behavior-stack.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/unlock-watch-validation-semantics.spec.ts",
+      "path": "tests/unit/experiment-rollout-registry-reconstruction.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/viewer-start-telemetry-repair.spec.ts",
+      "path": "tests/unit/source-window-zero-shell-classifier.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/watch-capture-quality-threshold.spec.ts",
+      "path": "tests/unit/task-catalog-runtime-reconstruction.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/watch-session-fact-link-repair.spec.ts",
+      "path": "tests/unit/task-telemetry-mapping-reconstruction.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/telemetry-truth-recovery-formulas.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

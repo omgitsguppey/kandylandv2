@@ -1,0 +1,16 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "status": "fixed_current",
+  "behavioralIntelligenceStatus": "source_classified",
+  "deterministicBaselineStatus": "required_when_ml_missing",
+  "rankingModeUnknown": "actionable",
+  "connectedModulesZeroOfNine": "source_missing_actionable",
+  "sampleSizeZero": "not_live",
+  "remainingGaps": [
+    "behavioral intelligence remains degraded until deterministic baseline and bounded rebuild evidence exist"
+  ],
+  "nextExactSteps": [
+    "Run deterministic baseline rebuild before enabling ML ranking.",
+    "Keep model version unknown as actionable."
+  ]
+}

@@ -1,11 +1,68 @@
 {
-  "currentVersion": "1.4.63",
-  "betaReleaseCounter": 463,
+  "currentVersion": "1.4.64",
+  "betaReleaseCounter": 464,
   "channel": "beta",
-  "generatedAt": "2026-05-25T07:25:00.000Z",
-  "generatedAtUtc": "2026-05-25T07:25:00.000Z",
+  "generatedAt": "2026-05-25T08:17:15.525Z",
+  "generatedAtUtc": "2026-05-25T08:17:15.525Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.64",
+      "previousVersion": "1.4.63",
+      "betaReleaseCounter": 464,
+      "previousBetaReleaseCounter": 463,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): repair behavior stack sources",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T08:17:15.525Z",
+      "generatedAt": "2026-05-25T08:17:15.525Z",
+      "committedAtUtc": "2026-05-25T08:17:15.525Z",
+      "generatedAtUtc": "2026-05-25T08:17:15.525Z",
+      "category": "Fixed",
+      "title": "Behavior stack source reconstruction",
+      "updatedAtUtc": "2026-05-25T08:17:15.525Z",
+      "summary": "Rebuilt behavioral, task, telemetry, recovery, and experiment debug source contracts so loaded zero shells now show exact source, formula, freshness, and registry states.",
+      "userFacingTitle": "Behavior stack source reconstruction",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Rebuilt behavioral, task, telemetry, recovery, and experiment debug source contracts to eliminate loaded zero-shells.",
+        "Added source windows, formula states, rebuild provenance, and deterministic baseline requirements.",
+        "Separated real zero, no sample, missing source, stale rebuild, and formula-missing states across advanced debug panels."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Advanced Debug now uses a shared source-window zero-shell classifier for behavior, task, telemetry, recovery, and experiment panels.",
+        "Missing samples, missing formulas, stale rebuilds, and missing registries now remain actionable instead of rendering as clean loaded zeros."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug Advanced panels",
+        "Behavior normalization source truth",
+        "Task catalog and telemetry mapping",
+        "Telemetry truth recovery",
+        "Experiment registry source status"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/debug/source-window-zero-shell-classifier.ts",
+        "src/lib/behavioral/behavior-normalization-internals-engine.ts",
+        "src/lib/tasks/task-catalog-coverage-engine.ts",
+        "src/lib/tasks/task-telemetry-mapping-engine.ts",
+        "src/lib/behavioral/behavioral-intelligence-snapshot-status.ts",
+        "src/lib/analytics/telemetry-truth-recovery-status.ts",
+        "src/lib/experiments/experiment-rollout-registry-status.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
+        "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
+        "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx"
+      ],
+      "effectiveChangeCount": 11,
+      "excludedGeneratedChangeCount": 18,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.63",
       "previousVersion": "1.4.62",

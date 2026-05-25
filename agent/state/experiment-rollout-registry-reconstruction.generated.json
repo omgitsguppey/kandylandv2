@@ -1,0 +1,15 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "status": "fixed_current",
+  "experimentRegistryStatus": "source_classified",
+  "configuredZeroRequiresRegistrySource": true,
+  "activeRequiresAssignmentAndExposure": true,
+  "registryMissingState": "registry_missing_actionable",
+  "rawRowsDefaultOpen": false,
+  "remainingGaps": [
+    "registry can remain intentionally empty only after source exists and loads"
+  ],
+  "nextExactSteps": [
+    "Wire registry source or keep configured zero actionable."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "status": "fixed_current",
+  "zeroShellPanelsAfter": [
+    "behavior_normalization_internals",
+    "actor_ownership_and_bleed_risk",
+    "task_catalog_coverage",
+    "task_parity_runtime_sample",
+    "task_telemetry_mapping",
+    "telemetry_coverage_sample",
+    "behavioral_intelligence",
+    "telemetry_truth_recovery",
+    "experiment_rollout_registry"
+  ],
+  "sourceWindowsVisible": true,
+  "formulaMissingActionable": true,
+  "generatedUnknownActionable": true,
+  "rawRowsDefaultOpen": false,
+  "remainingGaps": []
+}

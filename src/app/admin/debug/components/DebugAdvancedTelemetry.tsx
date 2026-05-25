@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
+import { Pill, Section, ScrollWrap, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 export interface DebugAdvancedTelemetryProps {
     data: any;
@@ -140,6 +140,7 @@ const UNLOCK_RECEIPT_MEANING = "Receipts here are shared unlock receipts and do 
 
 export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
     const mappingSummary = data?.taskTelemetryMappingSummary;
+    const mappingSourceStatus = mappingSummary?.sourceStatus;
     const mappingRows = mappingSummary?.mappingRows || [];
     const sharedEventGroups = mappingSummary?.sharedEventGroups || [];
     const receiptMappingGroups = mappingSummary?.receiptMappingGroups || [];
@@ -204,6 +205,7 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                 defaultOpen={false}
                 summary={
                     <>
+                        <Pill label="Source state" value={mappingSourceStatus?.status?.status || "unknown"} tone={toneForSourceStatus(mappingSourceStatus?.status?.status)} truthState={truthStateForSourceStatus(mappingSourceStatus?.status?.status)} badgeLabel={badgeForSourceStatus(mappingSourceStatus?.status?.status)} />
                         <Pill label="Task trigger events" value={`${mappingSummary?.taskTriggerReadyCount ?? 0} ready / ${mappingSummary?.taskTriggerPartialCount ?? 0} partial / ${mappingSummary?.taskTriggerMissingCount ?? 0} missing`} tone={(mappingSummary?.taskTriggerMissingCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Lifecycle events" value={mappingSummary?.lifecycleExpectedCount ?? 0} tone="good" truthState="live" badgeLabel="LOADED" />
                         <Pill label="Supporting telemetry" value={mappingSummary?.supportingTelemetryCount ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
@@ -215,15 +217,22 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                 <div className="grid gap-4 lg:grid-cols-1">
                     <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                         <div className="flex flex-wrap gap-2">
-                            <Pill label="Generated" value={mappingSummary?.generatedAtUtc || "unknown"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                            <Pill label="Generated" value={mappingSummary?.generatedAtUtc || "unknown"} tone={toneForSourceStatus(mappingSourceStatus?.status?.status)} truthState={truthStateForSourceStatus(mappingSourceStatus?.status?.status)} badgeLabel={badgeForSourceStatus(mappingSourceStatus?.status?.status)} />
                             <Pill label="Alignment warnings" value={mappingSummary?.alignmentWarningCount ?? 0} tone={(mappingSummary?.alignmentWarningCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                             <Pill label="Shared event groups" value={mappingSummary?.sharedEventCount ?? 0} tone={(mappingSummary?.sharedEventCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                             <Pill label="Unsupported active assignments" value={mappingSummary?.unsupportedActiveAssignments ?? 0} tone={(mappingSummary?.unsupportedActiveAssignments ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                         </div>
-                        <p className="mt-3 text-xs leading-6 text-gray-400">
-                            Shared events are only safe when criteria, distinct keying, and count thresholds keep task attribution scoped. Event stats are raw trigger evidence. They are not task completion proof. Lifecycle events and onboarding telemetry can be healthy even when they do not map to a daily task.
-                        </p>
-                    </div>
+                         <p className="mt-3 text-xs leading-6 text-gray-400">
+                             Shared events are only safe when criteria, distinct keying, and count thresholds keep task attribution scoped. Event stats are raw trigger evidence. They are not task completion proof. Lifecycle events and onboarding telemetry can be healthy even when they do not map to a daily task.
+                             {mappingSourceStatus?.nextAction ? ` ${mappingSourceStatus.nextAction}` : ""}
+                         </p>
+                         <details className="mt-3 rounded-[0.75rem] border border-white/10 bg-black/20 p-3">
+                             <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">Raw trigger details</summary>
+                             <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words text-xs text-gray-300">
+                                 {JSON.stringify({ mappingSourceStatus, alignmentWarnings, telemetryCoverageSummary }, null, 2)}
+                             </pre>
+                         </details>
+                     </div>
 
                     <ScrollWrap>
                         <div className="space-y-4">

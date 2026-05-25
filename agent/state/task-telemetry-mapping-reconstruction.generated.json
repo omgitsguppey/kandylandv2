@@ -1,0 +1,19 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "status": "fixed_current",
+  "taskTelemetryMappingStatus": "source_classified",
+  "telemetryCoverageSampleStatus": "catalog_contradictions_actionable",
+  "contradictionsTracked": [
+    "tracked_events_zero_while_catalog_has_task_events",
+    "lifecycle_events_contradict_task_activity_samples",
+    "aliases_unscanned"
+  ],
+  "sharedEventsRequireCriteria": true,
+  "remainingGaps": [
+    "task telemetry rows may remain source_missing_actionable until bounded mapping evidence exists"
+  ],
+  "nextExactSteps": [
+    "Scan aliases before claiming alias-needed zero.",
+    "Map lifecycle evidence to task activity before treating lifecycle zero as true."
+  ]
+}

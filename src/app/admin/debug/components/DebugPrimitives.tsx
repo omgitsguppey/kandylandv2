@@ -15,6 +15,35 @@ import { cn } from "@/lib/utils";
 /* ─── Shared Tone Type ─── */
 export type PillTone = "neutral" | "good" | "warn" | "bad";
 
+export function toneForSourceStatus(status?: string): PillTone {
+    if (status === "loaded_with_data" || status === "loaded_empty_with_source_window") return "good";
+    if (status === "failed" || status === "source_missing_actionable" || status === "formula_missing_actionable" || status === "registry_missing_actionable") return "bad";
+    if (status === "stale_rebuild_required" || status === "source_ready_no_sample_loaded") return "warn";
+    return "neutral";
+}
+
+export function truthStateForSourceStatus(status?: string): AdminTruthState {
+    if (status === "loaded_with_data" || status === "loaded_empty_with_source_window") return "live";
+    if (status === "failed") return "failed";
+    if (status === "source_missing_actionable" || status === "registry_missing_actionable") return "unavailable";
+    if (status === "formula_missing_actionable") return "failed";
+    if (status === "stale_rebuild_required") return "stale";
+    if (status === "source_ready_no_sample_loaded") return "review";
+    return "unavailable";
+}
+
+export function badgeForSourceStatus(status?: string) {
+    if (status === "loaded_with_data") return "LOADED";
+    if (status === "loaded_empty_with_source_window") return "PROVEN ZERO";
+    if (status === "source_ready_no_sample_loaded") return "NO SAMPLE";
+    if (status === "source_missing_actionable") return "MISSING";
+    if (status === "formula_missing_actionable") return "ACTIONABLE";
+    if (status === "registry_missing_actionable") return "REGISTRY";
+    if (status === "stale_rebuild_required") return "STALE";
+    if (status === "failed") return "FAILED";
+    return "UNKNOWN";
+}
+
 /* ─── Pill ─── */
 export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }: { label: string; value: string | number; tone?: PillTone; truthState?: AdminTruthState | AdminSurfaceState | "loading"; badgeLabel?: string }) {
     const toneClassName = tone === "good"

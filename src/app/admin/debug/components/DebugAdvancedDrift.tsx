@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
+import { Pill, Section, ScrollWrap, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 export interface DebugAdvancedDriftProps {
     data: any;
@@ -33,6 +33,7 @@ function toneForRuntimeDriftSeverity(severity?: string) {
 export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
     const guardrails = data?.taskGumdropGuardrails;
     const runtimeTaskDrift = data?.runtimeTaskDriftSummary;
+    const runtimeSourceStatus = runtimeTaskDrift?.sourceStatus;
     const affectedUsers = data?.assignmentIssues || [];
     const taskReceiptParity = guardrails?.taskReceiptParity || data?.taskParity || [];
     const creatorSpendRows = data?.creatorSpendParity?.byType || [];
@@ -52,6 +53,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                             truthState="live"
                             badgeLabel="LOADED"
                         />
+                        <Pill label="Runtime source" value={runtimeSourceStatus?.status || "unknown"} tone={toneForSourceStatus(runtimeSourceStatus?.status)} truthState={truthStateForSourceStatus(runtimeSourceStatus?.status)} badgeLabel={badgeForSourceStatus(runtimeSourceStatus?.status)} />
                         <Pill
                             label="Reward delta 7d"
                             value={guardrails?.rewardDelta7d ?? data?.stats?.rewardEventDeltaLast7d ?? 0}
@@ -319,12 +321,13 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                 >
                     <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                         <div className="flex flex-wrap gap-2">
-                            <Pill label="Generated" value={runtimeTaskDrift?.generatedAtUtc || "unknown"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Generated" value={runtimeTaskDrift?.generatedAtUtc || "unknown"} tone={toneForSourceStatus(runtimeSourceStatus?.status)} truthState={truthStateForSourceStatus(runtimeSourceStatus?.status)} badgeLabel={badgeForSourceStatus(runtimeSourceStatus?.status)} />
                             <Pill label="State" value={runtimeTaskDrift?.state || "review"} tone={toneForGuardrailState(runtimeTaskDrift?.state)} truthState="live" badgeLabel={(runtimeTaskDrift?.state || "review") === "error" ? "ERROR" : (runtimeTaskDrift?.state || "review") === "review" ? "REVIEW" : "LIVE"} />
                         </div>
                         <p className="mt-3 text-xs leading-6 text-gray-400">
                             Unsupported runtime records are grouped by reason and source so active assignment risk stays separate from historical-only drift.
                             Task rows below separate assignment, completion, reward, receipt, rollup, and trigger evidence lanes instead of treating event stats as completion proof.
+                            {runtimeSourceStatus?.nextAction ? ` ${runtimeSourceStatus.nextAction}` : ""}
                         </p>
                     </div>
                     <ScrollWrap>

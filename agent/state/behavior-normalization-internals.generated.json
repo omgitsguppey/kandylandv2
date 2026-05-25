@@ -1,0 +1,16 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "status": "fixed_current",
+  "behaviorNormalizationStatus": "source_classified",
+  "behaviorHealthFormulaStatus": "documented_or_actionable",
+  "zeroFindingsWithZeroInspected": "source_ready_no_sample_loaded",
+  "coverageByDomainStatus": "requires_source_status_when_empty",
+  "dependencyGapStatus": "requires_inspected_events_or_source_window",
+  "remainingGaps": [
+    "runtime samples may remain absent until bounded rebuild/source load produces rows"
+  ],
+  "nextExactSteps": [
+    "Run the bounded behavior normalizer rebuild when source data is expected.",
+    "Keep health unavailable when denominator is zero."
+  ]
+}

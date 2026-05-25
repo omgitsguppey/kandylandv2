@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, StatCard, Section, ScrollWrap } from "./DebugPrimitives";
+import { Pill, StatCard, Section, ScrollWrap, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 export interface DebugAdvancedBehaviorProps {
     data: any;
@@ -43,6 +43,8 @@ function formatUserWatchQualityReason(reason?: string) {
 export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
     const panel = data?.behavioralIntelligencePanel;
     const recoveryPanel = data?.telemetryTruthRecoveryPanel;
+    const behavioralSourceStatus = panel?.sourceStatus?.status;
+    const recoverySourceStatus = recoveryPanel?.sourceStatus?.status;
     const dropRows = panel?.dropRows || [];
     const rankingModeLabel = panel?.activeRankingMode === "ml_active"
         ? "ML active"
@@ -71,7 +73,8 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                 defaultOpen={false}
                 summary={
                     <>
-                        <Pill label="User profiles" value={panel?.userProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Source state" value={behavioralSourceStatus?.status || "unknown"} tone={toneForSourceStatus(behavioralSourceStatus?.status)} truthState={truthStateForSourceStatus(behavioralSourceStatus?.status)} badgeLabel={badgeForSourceStatus(behavioralSourceStatus?.status)} />
+                        <Pill label="User profiles" value={panel?.userProfiles ?? 0} truthState={truthStateForSourceStatus(behavioralSourceStatus?.status)} badgeLabel={badgeForSourceStatus(behavioralSourceStatus?.status)} />
                         <Pill label="Drop profiles" value={panel?.dropProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Ranking mode" value={rankingModeLabel} tone={panel?.activeRankingMode === "unknown" ? "warn" : "good"} truthState={panel?.activeRankingMode === "unknown" ? "degraded" : "live"} badgeLabel="LOADED" />
                         <Pill label="Freshness" value={panel?.overallFreshnessState || "unknown"} tone={panel?.overallFreshnessState === "live" ? "good" : "warn"} truthState={panel?.overallFreshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
@@ -97,7 +100,7 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                             </p>
                             <p className="mt-2 text-sm text-gray-400">{panel?.overallFreshnessExplanation || "Behavioral freshness is not available."}</p>
                             <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-                                <StatCard label="Sample size" value={panel?.sampleSize ?? 0} meta="ML stays deterministic below 50 samples and experimental below 200." truthState="live" />
+                                <StatCard label="Sample size" value={panel?.sampleSize ?? 0} meta={`${behavioralSourceStatus?.nextAction || "ML stays deterministic below 50 samples and experimental below 200."}`} truthState={truthStateForSourceStatus(behavioralSourceStatus?.status)} />
                                 <StatCard label="Precision@5" value={panel?.validationMetrics?.precisionAt5 ?? 0} meta={`Baseline ${panel?.validationMetrics?.baselineComparison || "not_tested"}`} truthState="live" />
                                 <StatCard label="Calibration error" value={panel?.validationMetrics?.calibrationError ?? 0} meta={`Confidence formula: ${panel?.confidenceFormula || "missing"}`} truthState="live" />
                                 <StatCard label="Deterministic baseline" value={panel?.deterministicBaselineState || "missing"} meta={`Model v${panel?.modelVersion || "unknown"}`} truthState={panel?.deterministicBaselineState === "available" ? "live" : "failed"} />
@@ -156,7 +159,8 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                 defaultOpen={false}
                 summary={
                     <>
-                        <Pill label="Drop metrics" value={recoveryPanel?.dropMetricCount ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Source state" value={recoverySourceStatus?.status || "unknown"} tone={toneForSourceStatus(recoverySourceStatus?.status)} truthState={truthStateForSourceStatus(recoverySourceStatus?.status)} badgeLabel={badgeForSourceStatus(recoverySourceStatus?.status)} />
+                        <Pill label="Drop metrics" value={recoveryPanel?.dropMetricCount ?? 0} truthState={truthStateForSourceStatus(recoverySourceStatus?.status)} badgeLabel={badgeForSourceStatus(recoverySourceStatus?.status)} />
                         <Pill label="User metrics" value={recoveryPanel?.userMetricCount ?? 0} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Repairs" value={recoveryPanel?.openRepairCount ?? 0} tone={(recoveryPanel?.openRepairCount ?? 0) > 0 ? "warn" : "good"} truthState={(recoveryPanel?.openRepairCount ?? 0) > 0 ? "degraded" : "live"} badgeLabel="LOADED" />
                         <Pill label="Quality" value={recoveryPanel?.qualityState || "unknown"} tone={recoveryPanel?.qualityState === "verified" ? "good" : "warn"} truthState={recoveryPanel?.qualityState === "verified" ? "live" : "degraded"} badgeLabel="LOADED" />
@@ -185,10 +189,10 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                 <Pill label="Inspect-only" value={recoveryPanel?.inspectOnlyRepairCount ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
                             </div>
                             <div className="mt-3 grid grid-cols-2 gap-3">
-                                <StatCard label="Observed views" value={recoveryPanel?.observedViews ?? 0} meta={recoveryPanel?.formulas?.observedViews || "Observed formula missing."} truthState={recoveryPanel ? "live" : "unavailable"} />
-                                <StatCard label="Checked views" value={recoveryPanel?.checkedViews ?? 0} meta={recoveryPanel?.formulas?.checkedViews || "Checked formula missing."} truthState={recoveryPanel ? "live" : "unavailable"} />
-                                <StatCard label="Final views" value={recoveryPanel?.finalViews ?? 0} meta={recoveryPanel?.formulas?.finalViews || "Final formula missing."} truthState={recoveryPanel ? "live" : "unavailable"} />
-                                <StatCard label="Estimated ratio" value={`${recoveryPanel?.estimatedRatioPct ?? 0}%`} meta={recoveryPanel?.formulas?.estimatedRatio || "Estimated formula missing."} truthState={recoveryPanel?.qualityState === "estimated" || recoveryPanel?.qualityState === "degraded" ? "fallback" : recoveryPanel ? "live" : "unavailable"} />
+                                <StatCard label="Observed views" value={recoveryPanel?.observedViews ?? 0} meta={recoveryPanel?.formulas?.observedViews || "Observed formula missing. ACTIONABLE: document observed view formula."} truthState={truthStateForSourceStatus(recoverySourceStatus?.status)} />
+                                <StatCard label="Checked views" value={recoveryPanel?.checkedViews ?? 0} meta={recoveryPanel?.formulas?.checkedViews || "Checked formula missing. ACTIONABLE: document checked view formula."} truthState={truthStateForSourceStatus(recoverySourceStatus?.status)} />
+                                <StatCard label="Final views" value={recoveryPanel?.finalViews ?? 0} meta={recoveryPanel?.formulas?.finalViews || "Final formula missing. ACTIONABLE: document final view formula."} truthState={truthStateForSourceStatus(recoverySourceStatus?.status)} />
+                                <StatCard label="Estimated ratio" value={`${recoveryPanel?.estimatedRatioPct ?? 0}%`} meta={recoveryPanel?.formulas?.estimatedRatio || "Estimated formula missing. ACTIONABLE: document estimated ratio formula."} truthState={recoveryPanel?.qualityState === "estimated" || recoveryPanel?.qualityState === "degraded" ? "legacy_fallback" : truthStateForSourceStatus(recoverySourceStatus?.status)} />
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <Pill label="Confidence" value={`${recoveryPanel?.confidencePct ?? 0}%`} tone={(recoveryPanel?.confidencePct ?? 0) >= 85 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />

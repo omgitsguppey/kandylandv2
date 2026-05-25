@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.64 - 2026-05-25
+- Behavior stack source reconstruction
+- Rebuilt behavioral, task, telemetry, recovery, and experiment debug source contracts to eliminate loaded zero-shells.
+- Added source windows, formula states, rebuild provenance, and deterministic baseline requirements.
+- Separated real zero, no sample, missing source, stale rebuild, and formula-missing states across advanced debug panels.
+
 ## 1.4.63 - 2026-05-25
 - Analytics module coverage repair
 - Repaired global analytics module coverage source policies and module-specific evidence mapping.

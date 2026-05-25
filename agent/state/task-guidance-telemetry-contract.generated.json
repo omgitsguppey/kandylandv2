@@ -1,7 +1,7 @@
 {
   "reportKey": "task-guidance-telemetry-contract",
-  "generatedAtUtc": "2026-05-25T06:15:35.577Z",
-  "currentHead": "ccf36528805f2d72bc84b1b1aeb1e9b6358a6970",
+  "generatedAtUtc": "2026-05-25T08:22:16.293Z",
+  "currentHead": "e53968ae1b6975aa492461625f7fd76133493226",
   "contract": {
     "implemented": true,
     "requiredInBeta": true,

@@ -54,6 +54,13 @@ import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
 import { buildDailyTaskGuidanceAuditReport } from "@/lib/tasks/daily-task-guidance-contract";
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
 import { buildDailyTaskRewardDebugLane } from "@/lib/tasks/daily-task-reward-ledger";
+import { buildBehaviorNormalizationInternals } from "@/lib/behavioral/behavior-normalization-internals-engine";
+import { buildBehavioralIntelligenceSnapshotStatus } from "@/lib/behavioral/behavioral-intelligence-snapshot-status";
+import { buildTelemetryTruthRecoveryStatus } from "@/lib/analytics/telemetry-truth-recovery-status";
+import { buildExperimentRolloutRegistryStatus } from "@/lib/experiments/experiment-rollout-registry-status";
+import { classifySourceWindowZeroShell } from "@/lib/debug/source-window-zero-shell-classifier";
+import { buildTaskCatalogRuntimeReconstruction } from "@/lib/tasks/task-catalog-coverage-engine";
+import { buildTaskTelemetryMappingReconstruction } from "@/lib/tasks/task-telemetry-mapping-engine";
 import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildQueueRuntimeContinuity } from "@/lib/debug/queue-runtime-continuity-engine";
 import { parseDropActivationSchedulerKey } from "@/lib/debug/drop-activation-scheduler-key";
@@ -347,6 +354,7 @@ type RuntimeUnsupportedGroup = {
 };
 
 type RuntimeTaskDriftSummary = {
+    sourceStatus: ReturnType<typeof classifySourceWindowZeroShell>;
     generatedAtUtc: string;
     sampledUsers: number;
     assignmentCount: number;
@@ -441,6 +449,7 @@ type TaskTelemetryAlignmentWarning = {
 };
 
 type TaskTelemetryMappingSummary = {
+    sourceStatus: ReturnType<typeof buildTaskTelemetryMappingReconstruction>;
     generatedAtUtc: string;
     alignmentWarningCount: number;
     sharedEventCount: number;
@@ -616,6 +625,7 @@ type BehavioralDropPanelRow = {
 };
 
 type BehavioralIntelligencePanelState = {
+    sourceStatus: ReturnType<typeof buildBehavioralIntelligenceSnapshotStatus>;
     generatedAtUtc: string;
     latestRebuildAtUtc: string | null;
     sourceWindowStartUtc: string;
@@ -762,6 +772,7 @@ type UserWatchRecoveryRow = {
 };
 
 type TelemetryTruthRecoveryState = {
+    sourceStatus: ReturnType<typeof buildTelemetryTruthRecoveryStatus>;
     generatedAtUtc: string;
     lastRebuildAtUtc: string | null;
     rebuildAgeHours: number | null;
@@ -799,6 +810,7 @@ type TelemetryTruthRecoveryState = {
 };
 
 type RolloutRegistryPanelState = {
+    registryStatus: ReturnType<typeof buildExperimentRolloutRegistryStatus>;
     generatedAtUtc: string;
     currentTrain: {
         label: string;
@@ -2579,7 +2591,23 @@ function buildRolloutRegistryPanelState(input: {
         explanation: "These are fixture contexts used to verify registry rules. They are not live user assignments.",
     };
 
+    const registryStatus = buildExperimentRolloutRegistryStatus({
+        configuredCount: rolloutItems.length,
+        activeCount: rolloutItems.filter((item) => item.effectiveState === "active_experiment").length,
+        completedCount: rolloutItems.filter((item) => item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline").length,
+        betaRelatedCount: rolloutItems.filter((item) => item.stage === "beta").length,
+        actorResolutionStatus: actorRows.length > 0 ? "live" : "missing",
+        assignmentSource: "src/lib/rollouts.ts representative evaluation",
+        exposureEventSource: rolloutItems.some((item) => item.effectiveState === "active_experiment") ? "analytics exposure events required for active experiments" : "not_required_without_active_experiment",
+        sourceWindowStartUtc: declaredAtUtc === "unknown" ? null : declaredAtUtc,
+        sourceWindowEndUtc: new Date(input.nowMs).toISOString(),
+        generatedAtUtc: new Date(input.nowMs).toISOString(),
+        sourcePath: "src/lib/rollouts.ts",
+        registryExists: true,
+    });
+
     return {
+        registryStatus,
         generatedAtUtc: new Date(input.nowMs).toISOString(),
         currentTrain: {
             label: toOptionalString(input.release?.label) || "Unknown train",
@@ -3000,8 +3028,22 @@ function buildTelemetryTruthRecoveryState(input: {
             : qualityState === "estimated" || qualityState === "degraded" || input.analyticsTruthRepairs.length > 0 || freshnessState === "stale" || formulaState === "unknown"
                 ? "review"
                 : "live";
+    const sourceStatus = buildTelemetryTruthRecoveryStatus({
+        observedViews,
+        checkedViews,
+        finalViews,
+        estimatedViews,
+        dropMetricCount: input.analyticsTruthDrops.length,
+        userMetricCount: input.analyticsTruthUsers.length,
+        lastRebuildAtUtc: lastRebuildAtMs > 0 ? new Date(lastRebuildAtMs).toISOString() : null,
+        sourceWindowStartUtc: lastRebuildAtMs > 0 ? new Date(Math.max(0, lastRebuildAtMs - ONE_WEEK_MS)).toISOString() : null,
+        sourceWindowEndUtc: lastRebuildAtMs > 0 ? new Date(lastRebuildAtMs).toISOString() : null,
+        qualityState,
+        sourcePath: "analytics truth recovery materialized rows",
+    });
 
     return {
+        sourceStatus,
         generatedAtUtc: new Date(input.nowMs).toISOString(),
         lastRebuildAtUtc: lastRebuildAtMs > 0 ? new Date(lastRebuildAtMs).toISOString() : null,
         rebuildAgeHours,
@@ -3223,8 +3265,39 @@ function buildBehavioralIntelligencePanelState(input: {
             : rebuildFreshnessState === "stale"
                 ? "Behavioral snapshot rebuild itself is stale."
                 : "Behavioral freshness could not be proven from the current debug sample.";
+    const deterministicBaselineState: BehavioralIntelligencePanelState["deterministicBaselineState"] = deterministicRankerSource.includes("computeDropRecommendationScore") || mlRankerSource.includes("deterministicPrecisionAt5")
+        ? "available"
+        : "missing";
+    const modelVersion = toOptionalString(
+        modelValidationReport?.models
+        && typeof modelValidationReport.models === "object"
+        && (modelValidationReport.models as Record<string, unknown>).recommendationRanker
+        && typeof (modelValidationReport.models as Record<string, unknown>).recommendationRanker === "object"
+            ? ((modelValidationReport.models as Record<string, unknown>).recommendationRanker as Record<string, unknown>).modelVersion
+            : recommendationArtifact?.version,
+    );
+    const sourceStatus = buildBehavioralIntelligenceSnapshotStatus({
+        userProfiles: toNumber(input.behavioralSnapshotStatus?.userProfileCount),
+        guestProfiles: toNumber(input.behavioralSnapshotStatus?.guestProfileCount),
+        dropProfiles: toNumber(input.behavioralSnapshotStatus?.dropProfileCount),
+        connectedModules: connectedModuleCount,
+        totalModules: Object.values(connectedModules).length,
+        rankingMode: activeRankingMode,
+        deterministicBaselineStatus: deterministicBaselineState,
+        mlValidationStatus: mlValidationState,
+        precisionAt5: toNumber(validationMetricsRecord.precisionAt5),
+        calibrationError: toNumber(validationMetricsRecord.calibrationError),
+        sampleSize,
+        modelVersion,
+        latestRebuildAtUtc: latestRebuildAtMs > 0 ? new Date(latestRebuildAtMs).toISOString() : null,
+        sourceWindowStartUtc: sourceWindowStartMs > 0 ? new Date(sourceWindowStartMs).toISOString() : null,
+        sourceWindowEndUtc: latestRebuildAtMs > 0 ? new Date(latestRebuildAtMs).toISOString() : null,
+        freshness: overallFreshnessState,
+        sourcePath: "behavioral intelligence snapshot status",
+    });
 
     return {
+        sourceStatus,
         generatedAtUtc: new Date(input.nowMs).toISOString(),
         latestRebuildAtUtc: latestRebuildAtMs > 0 ? new Date(latestRebuildAtMs).toISOString() : null,
         sourceWindowStartUtc: sourceWindowStartMs > 0 ? new Date(sourceWindowStartMs).toISOString() : "unknown",
@@ -3240,17 +3313,8 @@ function buildBehavioralIntelligencePanelState(input: {
         freshDropProfiles,
         activeRankingMode,
         mlValidationState,
-        deterministicBaselineState: deterministicRankerSource.includes("computeDropRecommendationScore") || mlRankerSource.includes("deterministicPrecisionAt5")
-            ? "available"
-            : "missing",
-        modelVersion: toOptionalString(
-            modelValidationReport?.models
-            && typeof modelValidationReport.models === "object"
-            && (modelValidationReport.models as Record<string, unknown>).recommendationRanker
-            && typeof (modelValidationReport.models as Record<string, unknown>).recommendationRanker === "object"
-                ? ((modelValidationReport.models as Record<string, unknown>).recommendationRanker as Record<string, unknown>).modelVersion
-                : recommendationArtifact?.version,
-        ),
+        deterministicBaselineState,
+        modelVersion,
         sampleSize,
         validationMetrics: {
             precisionAt5: toNumber(validationMetricsRecord.precisionAt5),
@@ -4556,6 +4620,25 @@ export async function GET(request: NextRequest) {
         runtimeTaskAudit.summary.unsupportedRuntimeRecords = runtimeTaskAudit.unsupportedRuntimeRecords.length;
         const coverage = buildTaskCatalogCoverage(BUILT_IN_DAILY_TASKS, runtimeTaskAudit);
         const taskCoverageSummary = summarizeTaskCatalogCoverage(coverage);
+        const taskCatalogRuntimeStatus = buildTaskCatalogRuntimeReconstruction({
+            builtInCount: taskCoverageSummary.builtIn,
+            readyCount: taskCoverageSummary.ready,
+            partialCount: taskCoverageSummary.partial,
+            unsupportedCount: taskCoverageSummary.unsupported,
+            rewardRiskCount: taskCoverageSummary.rewardRisk,
+            trackingGapCount: taskCoverageSummary.trackingGap,
+            completionGapCount: taskCoverageSummary.completionGap,
+            sourceMix: taskCoverageSummary.sourceMix,
+            rewardVersion: DAILY_TASK_REWARD_VERSION,
+            multiplierPct: Math.round(DAILY_TASK_REWARD_MULTIPLIER * 100),
+            builtInAvgGd: BUILT_IN_DAILY_TASKS.length > 0
+                ? Math.round(BUILT_IN_DAILY_TASKS.reduce((sum, task) => sum + task.reward, 0) / BUILT_IN_DAILY_TASKS.length)
+                : null,
+            sourceWindowStartUtc: new Date(weekAgoMs).toISOString(),
+            sourceWindowEndUtc: new Date(nowMs).toISOString(),
+            generatedAtUtc: new Date(nowMs).toISOString(),
+            sourcePath: "src/lib/tasks/task-catalog.ts",
+        });
         const unsupportedTasks = coverage.filter((task) => task.coverageState === "unsupported");
         const canonicalTasks = coverage.filter((task) => task.sourceType === "canonical");
         const telemetryOnlyTasks = coverage.filter((task) => task.sourceType === "telemetry");
@@ -5579,6 +5662,21 @@ export async function GET(request: NextRequest) {
                 || left.eventName.localeCompare(right.eventName);
         });
         const runtimeTaskDriftSummary: RuntimeTaskDriftSummary = {
+            sourceStatus: classifySourceWindowZeroShell({
+                rowsLoaded: runtimeTaskSourceParityRows.length,
+                sampleCount: runtimeTaskAudit.summary.sampledUsers + runtimeTaskAudit.summary.totalAssignments,
+                sourceWindowStartUtc: new Date(weekAgoMs).toISOString(),
+                sourceWindowEndUtc: new Date(nowMs).toISOString(),
+                generatedAtUtc: new Date(nowMs).toISOString(),
+                sourcePath: "daily task runtime audit sample",
+                sourceExists: true,
+                sourceReady: true,
+                formulaState: "documented",
+                freshnessState: "fresh",
+                nextAction: runtimeTaskAudit.summary.sampledUsers === 0
+                    ? "Load a bounded runtime user/task sample before treating assignment and drift zeros as clean."
+                    : "Inspect mismatch, partial, and unsupported runtime rows before promoting task parity.",
+            }),
             generatedAtUtc: new Date(nowMs).toISOString(),
             sampledUsers: runtimeTaskAudit.summary.sampledUsers,
             assignmentCount: runtimeTaskAudit.summary.totalAssignments,
@@ -5599,6 +5697,23 @@ export async function GET(request: NextRequest) {
                     : "live",
         };
         const taskTelemetryMappingSummary: TaskTelemetryMappingSummary = {
+            sourceStatus: buildTaskTelemetryMappingReconstruction({
+                catalogEventCount: new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName)).size,
+                mappingRowCount: taskTelemetryMappingRows.length,
+                taskTriggerReadyCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "ready").length,
+                taskTriggerPartialCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts")).length,
+                taskTriggerMissingCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "needs_task_mapping").length,
+                lifecycleEventCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_lifecycle").length,
+                supportingTelemetryCount: taskTelemetryMappingRows.filter((row) => row.mappingState === "supporting_not_task").length,
+                sharedEventsNeedingCriteria: sharedEventGroups.filter((group) => group.ambiguityState !== "safe_with_criteria").length,
+                unsupportedRuntimeCount: unsupportedRuntimeGroups.reduce((sum, group) => sum + group.count, 0),
+                taskActivityLifecycleSamples: completedEvents7d.length + recentTaskEvents.length,
+                aliasScanned: true,
+                sourceWindowStartUtc: new Date(weekAgoMs).toISOString(),
+                sourceWindowEndUtc: new Date(nowMs).toISOString(),
+                generatedAtUtc: new Date(nowMs).toISOString(),
+                sourcePath: "task telemetry mapping rows",
+            }),
             generatedAtUtc: new Date(nowMs).toISOString(),
             alignmentWarningCount: dedupedAlignmentWarnings.length,
             sharedEventCount: sharedEventGroups.length,
@@ -5724,6 +5839,28 @@ export async function GET(request: NextRequest) {
             actorSummaryDocs: orchestrationActorSummariesSnapshot.docs,
             repairActionDocs: orchestrationRepairActionsSnapshot.docs,
         });
+        const behaviorNormalizationInternals = buildBehaviorNormalizationInternals({
+            normalizedEventCount: orchestration.summary.eventCount,
+            evalEligibleCount: orchestration.summary.trainingEligible,
+            evalEligibleDenominator: orchestration.summary.evalEligibleDenominator,
+            lowConfidenceRequiredEvents: orchestration.summary.lowConfidenceRequiredEvents,
+            dependencyGaps: {
+                actor: orchestration.dependencyReadiness.actorMissing,
+                session: orchestration.dependencyReadiness.sessionMissing,
+                route: orchestration.dependencyReadiness.routeMissing,
+                creator: orchestration.dependencyReadiness.creatorContextMissing,
+            },
+            coverageByDomain: orchestration.domainSummary.map((entry) => ({
+                domain: entry.domain,
+                eventCount: entry.eventCount,
+                state: entry.state,
+                explanation: entry.explanation,
+            })),
+            sourceWindowStartUtc: new Date(weekAgoMs).toISOString(),
+            sourceWindowEndUtc: new Date(nowMs).toISOString(),
+            generatedAtUtc: new Date(nowMs).toISOString(),
+            sourcePath: "orchestration evidence collections",
+        });
         const adminUserTruthSnapshot = await readAdminUserTruthSnapshot({
             db: adminDb,
             generatedAt: nowMs,
@@ -5823,6 +5960,7 @@ export async function GET(request: NextRequest) {
                 analyticsTruthRepairs: analyticsTruthRepairs.length,
             },
             taskCoverageSummary,
+            taskCatalogRuntimeStatus,
             coverage,
             taskInventorySummary,
             unsupportedTasks,
@@ -5869,6 +6007,7 @@ export async function GET(request: NextRequest) {
             telemetryHealth,
             adminUserTruthSnapshot,
             orchestration,
+            behaviorNormalizationInternals,
             panelSystemLogs,
             routeRuntimeHealth,
             runtimeWarnings,

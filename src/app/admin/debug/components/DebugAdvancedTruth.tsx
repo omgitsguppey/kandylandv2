@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, StatCard, Section, ScrollWrap } from "./DebugPrimitives";
+import { Pill, StatCard, Section, ScrollWrap, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 /* ─── Props ─── */
 export interface DebugAdvancedTruthProps {
@@ -51,6 +51,8 @@ const DUPLICATE_INSPECT_EXPLANATION = "Most findings are duplicate inspect-only 
 export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
     const behaviorSummary = data?.orchestration?.summary;
     const dependencyReadiness = data?.orchestration?.dependencyReadiness;
+    const behaviorSourceStatus = data?.behaviorNormalizationInternals?.status;
+    const taskCatalogSourceStatus = data?.taskCatalogRuntimeStatus?.status;
     return (
         <>
             {/* ── Behavior normalization internals ── */}
@@ -59,7 +61,8 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 subtitle="Derived coordination state covering events, open findings, and domain coverage."
                 defaultOpen={false}
                 summary={<>
-                    <Pill label="Health" value={`${behaviorSummary?.score ?? 0}%`} tone={toneForHealth(behaviorSummary?.score)} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Source state" value={behaviorSourceStatus?.status || "unknown"} tone={toneForSourceStatus(behaviorSourceStatus?.status)} truthState={truthStateForSourceStatus(behaviorSourceStatus?.status)} badgeLabel={badgeForSourceStatus(behaviorSourceStatus?.status)} />
+                    <Pill label="Health" value={`${behaviorSummary?.score ?? 0}%`} tone={toneForHealth(behaviorSummary?.score)} truthState={truthStateForSourceStatus(behaviorSourceStatus?.status)} badgeLabel={badgeForSourceStatus(behaviorSourceStatus?.status)} />
                     <Pill label="Unique open findings" value={behaviorSummary?.uniqueOpenFindings ?? 0} tone={(behaviorSummary?.uniqueOpenFindings ?? 0) ? "warn" : "good"} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
                     <Pill label="Duplicate findings" value={behaviorSummary?.duplicateFindings ?? 0} tone={(behaviorSummary?.duplicateFindings ?? 0) ? "warn" : "neutral"} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
                     <Pill label="Inspect-only findings" value={behaviorSummary?.inspectOnlyFindings ?? 0} tone={(behaviorSummary?.inspectOnlyFindings ?? 0) ? "warn" : "neutral"} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
@@ -79,8 +82,8 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 >
                     <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
-                            <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta="Recent derived event sample" truthState={data?.orchestration ? "live" : "unavailable"} />
-                            <StatCard label="Eval eligible" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.trainingEligible ?? 0} / ${data?.orchestration?.summary?.evalEligibleDenominator ?? 0} recent sample · ${(data?.orchestration?.summary?.lowConfidenceRequiredEvents ?? 0)} low-confidence required events`} truthState={(data?.orchestration?.summary?.lowConfidenceRequiredEvents ?? 0) > 0 ? "degraded" : data?.orchestration ? "live" : "unavailable"} />
+                            <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta={behaviorSourceStatus?.explanation || "Recent derived event sample"} truthState={truthStateForSourceStatus(behaviorSourceStatus?.status)} />
+                            <StatCard label="Eval eligible" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.trainingEligible ?? 0} / ${data?.orchestration?.summary?.evalEligibleDenominator ?? 0} recent sample. ${(data?.orchestration?.summary?.lowConfidenceRequiredEvents ?? 0)} low-confidence required events. ${behaviorSourceStatus?.nextAction || ""}`} truthState={(data?.orchestration?.summary?.lowConfidenceRequiredEvents ?? 0) > 0 ? "degraded" : truthStateForSourceStatus(behaviorSourceStatus?.status)} />
                         </div>
                         <p className="text-xs text-gray-400">{data?.orchestration?.summary?.evalEligibleExplanation || "Eval eligibility excludes background, system, and identity-linkage events."}</p>
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
@@ -234,6 +237,7 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 subtitle="Built-in task definitions scored for end-to-end readiness, not just trigger-source existence."
                 defaultOpen={false}
                 summary={<>
+                    <Pill label="Source state" value={taskCatalogSourceStatus?.status || "unknown"} tone={toneForSourceStatus(taskCatalogSourceStatus?.status)} truthState={truthStateForSourceStatus(taskCatalogSourceStatus?.status)} badgeLabel={badgeForSourceStatus(taskCatalogSourceStatus?.status)} />
                     <Pill label="Built-in" value={data?.taskCoverageSummary?.builtIn ?? data?.stats?.builtInTasks ?? 0} tone="neutral" truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
                     <Pill label="Ready" value={data?.taskCoverageSummary?.ready ?? data?.stats?.readyTasks ?? 0} tone={(data?.taskCoverageSummary?.ready ?? data?.stats?.readyTasks ?? 0) > 0 ? "good" : "neutral"} truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
                     <Pill label="Partial" value={data?.taskCoverageSummary?.partial ?? data?.stats?.partialTasks ?? 0} tone={(data?.taskCoverageSummary?.partial ?? data?.stats?.partialTasks ?? 0) > 0 ? "warn" : "good"} truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
@@ -247,6 +251,7 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                     <div className="divide-y divide-white/10">
                         <div className="px-4 py-3 text-xs text-gray-400">
                             Source mix: {data?.taskCoverageSummary?.sourceMix?.canonical ?? data?.stats?.canonicalTasks ?? 0} canonical / {data?.taskCoverageSummary?.sourceMix?.telemetry ?? data?.stats?.telemetryValidatedTasks ?? 0} telemetry / {data?.taskCoverageSummary?.sourceMix?.legacy ?? data?.stats?.legacyTasks ?? 0} legacy
+                            <span className="block pt-1 text-amber-100">{taskCatalogSourceStatus?.nextAction || "Task catalog source state not attached."}</span>
                         </div>
                         {(data?.coverage || []).map((task: any) => (
                             <div key={task.taskId} className="space-y-2 px-4 py-3">

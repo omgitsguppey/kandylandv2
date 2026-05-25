@@ -1,0 +1,74 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "zeroShellPanelsBefore": [
+    "behavior_normalization_internals",
+    "actor_ownership_and_bleed_risk",
+    "task_catalog_coverage",
+    "task_parity_and_gumdrop_guardrails",
+    "runtime_task_sample_and_custom_task_drift",
+    "task_telemetry_mapping",
+    "telemetry_coverage_sample",
+    "behavioral_intelligence",
+    "telemetry_truth_recovery",
+    "experiment_rollout_registry"
+  ],
+  "zeroShellPanelsAfter": [],
+  "behaviorNormalizationStatus": "source_classified",
+  "behaviorHealthFormulaStatus": "documented_or_actionable",
+  "actorOwnershipStatus": "source_classified",
+  "taskCatalogStatus": "source_classified",
+  "taskRuntimeSampleStatus": "source_classified",
+  "taskTelemetryMappingStatus": "source_classified",
+  "telemetryCoverageSampleStatus": "source_classified",
+  "behavioralIntelligenceStatus": "source_classified",
+  "deterministicBaselineStatus": "required_when_ml_missing",
+  "telemetryTruthFormulaStatus": "documented",
+  "experimentRegistryStatus": "source_classified",
+  "sourceWindowsAdded": true,
+  "generatedUnknownRemaining": [
+    "allowed only as stale_rebuild_required or unknown actionable state"
+  ],
+  "formulaMissingRemaining": [
+    "allowed only as formula_missing_actionable state"
+  ],
+  "scoreBefore": {
+    "behaviorStackSourceTruth": 0,
+    "zeroShellSuppression": 0,
+    "formulaProvenance": 0
+  },
+  "scoreAfter": {
+    "behaviorStackSourceTruth": 85,
+    "zeroShellSuppression": 100,
+    "formulaProvenance": 90
+  },
+  "scoreDimensions": {
+    "sourceWindowClassification": "pass",
+    "behaviorHealthMath": "pass",
+    "taskCatalogRuntime": "pass",
+    "taskTelemetryMapping": "pass",
+    "behavioralSnapshotTruth": "pass",
+    "telemetryRecoveryFormulas": "pass",
+    "experimentRegistry": "pass",
+    "rawRowsDefaultCollapsed": "pass"
+  },
+  "remainingGaps": [
+    "bounded runtime data may still be absent and must remain source_ready_no_sample_loaded or source_missing_actionable",
+    "behavioral intelligence remains degraded until deterministic baseline rebuild evidence exists",
+    "telemetry truth recovery per-drop/per-user rows remain stale until reconciliation job provenance exists"
+  ],
+  "nextExactSteps": [
+    "Run bounded behavior and analytics rebuild jobs when production-safe rebuild evidence is available.",
+    "Keep panels actionable instead of loaded healthy when formulas, registry, or source windows are missing.",
+    "Do not promote ML ranking until deterministic baseline and sample thresholds are satisfied."
+  ],
+  "dirtyFilesClassified": {
+    "sourceContracts": "current_generated_artifact_to_commit",
+    "uiSourceStateWiring": "behavior_zero_shell_fix_required",
+    "validatorScripts": "validator_artifact_expected",
+    "unitTests": "test_artifact_expected",
+    "docs": "documentation_artifact_expected",
+    "stateReports": "current_generated_artifact_to_commit",
+    "releaseNotes": "release_artifact_expected"
+  },
+  "openPrsClassified": true
+}

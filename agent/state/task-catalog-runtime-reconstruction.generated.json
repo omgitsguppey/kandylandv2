@@ -1,0 +1,17 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "status": "fixed_current",
+  "taskCatalogStatus": "source_classified",
+  "taskRuntimeSampleStatus": "source_classified",
+  "rewardVersionStatus": "must_be_loaded_or_actionable",
+  "multiplierStatus": "must_be_loaded_or_actionable",
+  "creatorSpendGuardrails": "preserved",
+  "gumdropMathChanged": false,
+  "remainingGaps": [
+    "zero built-in/runtime samples remain blockers unless source window proves zero"
+  ],
+  "nextExactSteps": [
+    "Wire bounded catalog/reward source evidence where task catalog source is missing.",
+    "Do not promote runtime sample clean when sampled users are zero."
+  ]
+}

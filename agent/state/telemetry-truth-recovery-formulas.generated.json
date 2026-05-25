@@ -1,0 +1,20 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "status": "fixed_current",
+  "telemetryTruthFormulaStatus": "documented",
+  "formulas": {
+    "observedViews": "direct observed view events",
+    "checkedViews": "observed views after dedupe and validity checks",
+    "finalViews": "checked views plus approved estimated recovery when quality allows",
+    "estimatedRatio": "estimatedViews / max(finalViews, 1)",
+    "duplicateRate": "duplicateViews / max(observedViews, 1)",
+    "confidence": "weighted freshness, duplicate, recovery, and source completeness quality score"
+  },
+  "estimatedRecoveryRequiresQualityLabel": true,
+  "remainingGaps": [
+    "per-drop/per-user rows remain stale_rebuild_required when rebuild provenance is absent"
+  ],
+  "nextExactSteps": [
+    "Run or wait for analytics truth reconciliation before claiming per-drop/per-user zero."
+  ]
+}

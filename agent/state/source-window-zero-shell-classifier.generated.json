@@ -1,0 +1,20 @@
+{
+  "generatedAtUtc": "2026-05-25T08:17:15.5253513Z",
+  "status": "fixed_current",
+  "classifierStatuses": [
+    "loaded_with_data",
+    "loaded_empty_with_source_window",
+    "source_ready_no_sample_loaded",
+    "source_missing_actionable",
+    "stale_rebuild_required",
+    "formula_missing_actionable",
+    "registry_missing_actionable",
+    "unavailable",
+    "failed",
+    "unknown"
+  ],
+  "sourceWindowsAdded": true,
+  "nextActionsRequired": true,
+  "rawRowsDefaultOpen": false,
+  "remainingGaps": []
+}

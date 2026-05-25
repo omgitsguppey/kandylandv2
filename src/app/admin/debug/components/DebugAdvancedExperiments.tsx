@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, Section } from "./DebugPrimitives";
+import { Pill, Section, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 
 export interface DebugAdvancedExperimentsProps {
     data: any;
@@ -22,6 +22,7 @@ function formatRelativeUtc(timestamp?: string | null) {
 export function DebugAdvancedExperiments({ data }: DebugAdvancedExperimentsProps) {
     const panel = data?.rolloutRegistryPanel;
     const actorPanel = panel?.actorEvaluation;
+    const registryStatus = panel?.registryStatus?.status;
 
     return (
         <Section
@@ -30,7 +31,8 @@ export function DebugAdvancedExperiments({ data }: DebugAdvancedExperimentsProps
             defaultOpen={false}
             summary={
                 <>
-                    <Pill label="Configured" value={panel?.summary?.configuredRollouts ?? (data?.rollouts || []).length} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Source state" value={registryStatus?.status || "unknown"} tone={toneForSourceStatus(registryStatus?.status)} truthState={truthStateForSourceStatus(registryStatus?.status)} badgeLabel={badgeForSourceStatus(registryStatus?.status)} />
+                    <Pill label="Configured" value={panel?.summary?.configuredRollouts ?? (data?.rollouts || []).length} truthState={truthStateForSourceStatus(registryStatus?.status)} badgeLabel={badgeForSourceStatus(registryStatus?.status)} />
                     <Pill label="Active experiments" value={panel?.summary?.activeExperiments ?? 0} tone={(panel?.summary?.activeExperiments ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                     <Pill label="Fully rolled out" value={panel?.summary?.fullyRolledOutFeatures ?? 0} truthState="live" badgeLabel="LOADED" />
                     <Pill label="Sample actors" value={panel?.summary?.sampleActors ?? data?.stats?.rolloutSamples ?? 0} truthState="live" badgeLabel="LOADED" />
@@ -73,6 +75,7 @@ export function DebugAdvancedExperiments({ data }: DebugAdvancedExperimentsProps
                                 ))}
                             </ul>
                         ) : null}
+                        <p className="mt-3 text-xs text-amber-100">{registryStatus?.nextAction || "Rollout registry source status not attached."}</p>
                     </div>
                 ) : null}
 
