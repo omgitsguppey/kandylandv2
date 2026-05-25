@@ -1,0 +1,1242 @@
+{
+  "reportKey": "surface-parity-doctrine",
+  "doctrineVersion": "2026.05.surface-parity.1",
+  "generatedAtUtc": "2026-05-25T20:53:00.385Z",
+  "currentHead": "5482caa9bc232cfe8344932355dfaac552ff671a",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "majorSurfacesRegistered": 17,
+  "majorSurfaceIds": [
+    "public_homepage",
+    "auth",
+    "user_dashboard",
+    "wallet_purchase_modal",
+    "drops_library",
+    "creator_dashboard",
+    "creator_settings",
+    "creator_drop_manager",
+    "creator_profile_timeline",
+    "chat",
+    "daily_tasks_checkin",
+    "notifications_pwa_prompt",
+    "account_settings",
+    "admin_dashboard",
+    "admin_debug",
+    "user_management",
+    "support_policies"
+  ],
+  "surfaces": [
+    {
+      "surfaceId": "public_homepage",
+      "surfaceOwner": "user-ui",
+      "roleVisibility": {
+        "guest": "visible",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/",
+      "routeAliases": [
+        "/drops",
+        "/experiences"
+      ],
+      "featureId": "drops",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "drop catalog metadata",
+        "featured drop summaries",
+        "public creator profile summaries"
+      ],
+      "backendRoutesOrActions": [
+        "/api/drops",
+        "/api/creators/[username]",
+        "client navigation telemetry"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "home_page_viewed",
+        "hero_cta_clicked",
+        "drop_card_impression"
+      ],
+      "debugLane": "feature registration gate / drops behavior",
+      "scoreDimensionImpact": {
+        "before": "Homepage parity was split across public UI and drop discovery checks.",
+        "after": "Public entry surface is mapped to drop discovery states, telemetry, and debug evidence.",
+        "dimensions": [
+          "sourceHealth",
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "guest_allowed",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Public entry keeps guest access and must not inherit admin diagnostic density."
+      ]
+    },
+    {
+      "surfaceId": "auth",
+      "surfaceOwner": "identity",
+      "roleVisibility": {
+        "guest": "visible",
+        "user": "redirect",
+        "creator": "redirect",
+        "admin": "redirect"
+      },
+      "canonicalRoute": "/__auth",
+      "routeAliases": [
+        "/login",
+        "/signup"
+      ],
+      "featureId": "auth_identity",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "Firebase auth state",
+        "user profile bootstrap",
+        "consent handoff"
+      ],
+      "backendRoutesOrActions": [
+        "/api/auth",
+        "/api/user/register",
+        "/api/user/complete-onboarding"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "auth_modal_opened",
+        "auth_surface_viewed",
+        "auth_modal_closed_incomplete",
+        "auth_mode_switched"
+      ],
+      "debugLane": "identity analytics / auth runtime telemetry",
+      "scoreDimensionImpact": {
+        "before": "Auth parity lived in separate runtime and telemetry validators.",
+        "after": "Auth surface now declares route, state, telemetry, debug, and permission ownership in one registry.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "guest_allowed",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Existing auth runtime phases may remain in flight; this phase only classifies the surface contract."
+      ]
+    },
+    {
+      "surfaceId": "user_dashboard",
+      "surfaceOwner": "user-dashboard",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/dashboard",
+      "routeAliases": [
+        "/account"
+      ],
+      "featureId": "user_dashboard",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "user profile",
+        "wallet balance summary",
+        "recent activity",
+        "daily check-in state"
+      ],
+      "backendRoutesOrActions": [
+        "/api/user/profile",
+        "/api/user/activity",
+        "/api/checkin"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "page_viewed",
+        "home_page_viewed",
+        "hero_cta_clicked",
+        "creator_apply_viewed"
+      ],
+      "debugLane": "user dashboard analytics / feature registration gate",
+      "scoreDimensionImpact": {
+        "before": "Dashboard loading and state parity were validated in narrow mobile/user lanes.",
+        "after": "Dashboard role, loading, empty, error, telemetry, and debug state are registered as a major surface.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "auth_required",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Creator and admin visibility here means authenticated shell access, not creator/admin diagnostics."
+      ]
+    },
+    {
+      "surfaceId": "wallet_purchase_modal",
+      "surfaceOwner": "wallet",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/dashboard?wallet=1",
+      "routeAliases": [
+        "/api/wallet",
+        "/api/paypal",
+        "/api/checkout"
+      ],
+      "featureId": "wallet",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "wallet balance summary",
+        "server payment truth",
+        "commerce ledger projection"
+      ],
+      "backendRoutesOrActions": [
+        "/api/wallet",
+        "/api/paypal",
+        "/api/checkout"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "wallet_opened",
+        "wallet_closed_incomplete",
+        "purchase_package_selected",
+        "begin_checkout"
+      ],
+      "debugLane": "commerce parity / wallet analytics",
+      "scoreDimensionImpact": {
+        "before": "Wallet parity remains protected by payment-specific validators.",
+        "after": "Surface registry references wallet state and telemetry without changing payment runtime or GumDrop math.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "costRisk"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "auth_required",
+      "oldLogicStatus": "still_required",
+      "parityNotes": [
+        "Payment, PayPal, and GumDrop source-of-funds logic remain owned by wallet and commerce validators."
+      ]
+    },
+    {
+      "surfaceId": "drops_library",
+      "surfaceOwner": "drops-library",
+      "roleVisibility": {
+        "guest": "readonly",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/drops",
+      "routeAliases": [
+        "/experiences",
+        "/dashboard/library"
+      ],
+      "featureId": "library",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "drop metadata",
+        "unlock ledger projection",
+        "library activity summaries"
+      ],
+      "backendRoutesOrActions": [
+        "/api/drops",
+        "/api/user/activity"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "library_viewed",
+        "drop_preview_open_library_clicked",
+        "recent_activity_viewed",
+        "recent_activity_toggled"
+      ],
+      "debugLane": "drops and library behavior evidence",
+      "scoreDimensionImpact": {
+        "before": "Drop and library parity were split between discovery, unlock, and library validators.",
+        "after": "Combined library surface now declares safe states without changing unlock or entitlement truth.",
+        "dimensions": [
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "mixed_role_clear",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Readonly guest visibility must not expose locked internal content."
+      ]
+    },
+    {
+      "surfaceId": "creator_dashboard",
+      "surfaceOwner": "creator-dashboard",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "redirect",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/creator",
+      "routeAliases": [
+        "/dashboard/creator",
+        "/creators/dashboard"
+      ],
+      "featureId": "creator_dashboard",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "creator profile projection",
+        "creator stats",
+        "creator onboarding state"
+      ],
+      "backendRoutesOrActions": [
+        "/api/creator/payouts",
+        "/api/creator/onboarding"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "user_settings_viewed",
+        "user_settings_creator_tools_cta_clicked",
+        "profile_settings_viewed",
+        "settings_surface_viewed"
+      ],
+      "debugLane": "creator lane debug parity",
+      "scoreDimensionImpact": {
+        "before": "Creator dashboard parity existed in creator-specific checks.",
+        "after": "Creator dashboard is now part of cross-role surface parity while preserving creator/admin separation.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "creator_only",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Admin visibility is operational review access, not user-facing creator state."
+      ]
+    },
+    {
+      "surfaceId": "creator_settings",
+      "surfaceOwner": "creator-settings",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "redirect",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/dashboard/creator/settings",
+      "routeAliases": [
+        "/creator/settings"
+      ],
+      "featureId": "creator_settings",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "creator settings document",
+        "pricing settings",
+        "landing settings"
+      ],
+      "backendRoutesOrActions": [
+        "/api/creator/settings",
+        "/api/settings/landing"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "user_settings_viewed",
+        "user_settings_creator_tools_cta_clicked",
+        "profile_settings_viewed",
+        "settings_surface_viewed"
+      ],
+      "debugLane": "settings connection parity",
+      "scoreDimensionImpact": {
+        "before": "Settings parity was split between route alias and settings connection validators.",
+        "after": "Creator settings now declares role, state, save/error telemetry, and debug ownership in one surface contract.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "creator_only",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Settings validators remain active as surface-specific evidence."
+      ]
+    },
+    {
+      "surfaceId": "creator_drop_manager",
+      "surfaceOwner": "creator-drops",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "redirect",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/dashboard/creator/drops",
+      "routeAliases": [
+        "/api/creator/drops",
+        "/api/admin/drops"
+      ],
+      "featureId": "creator_drop_manager",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "creator drop drafts",
+        "drop approval state",
+        "drop metrics projection"
+      ],
+      "backendRoutesOrActions": [
+        "/api/creator/drops",
+        "/api/admin/drops"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "creator_drop_submitted",
+        "creator_drop_updated",
+        "admin_creator_drop_reviewed",
+        "creator_drop_unwrapped"
+      ],
+      "debugLane": "creator drop status metrics",
+      "scoreDimensionImpact": {
+        "before": "Drop manager proof was source-specific.",
+        "after": "Drop manager is registered with approval, error, empty, and telemetry parity expectations.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "creator_only",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Admin drop review remains admin truth; creator state must not grant approval authority."
+      ]
+    },
+    {
+      "surfaceId": "creator_profile_timeline",
+      "surfaceOwner": "creator-profile",
+      "roleVisibility": {
+        "guest": "readonly",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/creators/[username]",
+      "routeAliases": [
+        "/dashboard/profile/creator"
+      ],
+      "featureId": "creator_profile",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "public creator profile",
+        "timeline posts",
+        "follow relationship",
+        "fan pass state"
+      ],
+      "backendRoutesOrActions": [
+        "/api/creators/[username]",
+        "/api/creator/discovery",
+        "/api/user/follow"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "creator_search_selected",
+        "creator_followed",
+        "creator_profile_viewed",
+        "creator_profile_link_clicked"
+      ],
+      "debugLane": "creator profile mobile timeline",
+      "scoreDimensionImpact": {
+        "before": "Creator profile and timeline parity lived in mobile/profile validators.",
+        "after": "Profile/timeline visibility, empty state, telemetry, and debug lanes are registered together.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "mixed_role_clear",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Guest readonly access must keep paid/internal content protected."
+      ]
+    },
+    {
+      "surfaceId": "chat",
+      "surfaceOwner": "chat",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "hidden"
+      },
+      "canonicalRoute": "/dashboard/chat",
+      "routeAliases": [
+        "/api/chat",
+        "/api/creator/messages"
+      ],
+      "featureId": "chat_system_internal",
+      "featureRegistrationStatus": "classified_system_internal",
+      "dataSources": [
+        "chat threads",
+        "messages",
+        "presence",
+        "gating state"
+      ],
+      "backendRoutesOrActions": [
+        "/api/chat",
+        "/api/creator/messages",
+        "Firestore realtime listener with detach policy"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "chat_surface_viewed",
+        "chat_thread_list_loaded",
+        "chat_message_sent",
+        "chat_message_failed"
+      ],
+      "debugLane": "chat telemetry admin truth / chat realtime cost control",
+      "scoreDimensionImpact": {
+        "before": "Chat parity phases are allowed to remain in flight.",
+        "after": "Chat is classified as an exception surface without modifying chat internals.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "costRisk"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "auth_required",
+      "oldLogicStatus": "in_flight_leave_alone",
+      "parityNotes": [
+        "This doctrine only classifies chat parity status; it does not remove legitimate chat realtime behavior."
+      ]
+    },
+    {
+      "surfaceId": "daily_tasks_checkin",
+      "surfaceOwner": "retention",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/experiences",
+      "routeAliases": [
+        "/api/checkin",
+        "/api/tasks"
+      ],
+      "featureId": "daily_checkin",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "daily task state",
+        "check-in state",
+        "reward ledger projection"
+      ],
+      "backendRoutesOrActions": [
+        "/api/checkin",
+        "/api/tasks"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "experience_hub_viewed",
+        "daily_checkin_claimed",
+        "daily_task_window_assigned",
+        "daily_task_window_repaired"
+      ],
+      "debugLane": "daily task lifecycle telemetry",
+      "scoreDimensionImpact": {
+        "before": "Task/check-in parity was handled by task-specific phases.",
+        "after": "Task/check-in surface state is mapped while reward ledger truth remains unchanged.",
+        "dimensions": [
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "auth_required",
+      "oldLogicStatus": "in_flight_leave_alone",
+      "parityNotes": [
+        "Reward telemetry must not override canonical task or GumDrop ledger truth."
+      ]
+    },
+    {
+      "surfaceId": "notifications_pwa_prompt",
+      "surfaceOwner": "notifications",
+      "roleVisibility": {
+        "guest": "readonly",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "native:notification-prompt",
+      "routeAliases": [
+        "/api/notifications"
+      ],
+      "featureId": "notifications",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "notification permission state",
+        "push token registration",
+        "notification queue"
+      ],
+      "backendRoutesOrActions": [
+        "/api/notifications",
+        "service worker registration"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "creator_notifications_enabled",
+        "creator_notifications_disabled",
+        "chat_low_paid_gd_reminder_sent",
+        "chat_low_paid_gd_reminder_reset"
+      ],
+      "debugLane": "notification PWA score lock",
+      "scoreDimensionImpact": {
+        "before": "Notification and PWA parity phases may be running independently.",
+        "after": "Prompt surface now has explicit visibility, empty/error, telemetry, and debug classification.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "external_native",
+      "rolePermissionStatus": "mixed_role_clear",
+      "oldLogicStatus": "in_flight_leave_alone",
+      "parityNotes": [
+        "Browser/native permission behavior is external; UI must still show permission state honestly."
+      ]
+    },
+    {
+      "surfaceId": "account_settings",
+      "surfaceOwner": "settings",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/settings",
+      "routeAliases": [
+        "/profile/settings",
+        "/dashboard/settings",
+        "/dashboard/profile"
+      ],
+      "featureId": "user_dashboard",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "user profile",
+        "privacy consent settings",
+        "account preferences"
+      ],
+      "backendRoutesOrActions": [
+        "/api/user/profile",
+        "/api/privacy",
+        "/api/user/data"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "settings_surface_viewed",
+        "setting_save_succeeded",
+        "setting_save_failed"
+      ],
+      "debugLane": "settings connection parity / privacy behavior",
+      "scoreDimensionImpact": {
+        "before": "Account settings parity was split from creator settings parity.",
+        "after": "Account settings is explicitly mapped to user roles, save/error telemetry, and debug visibility.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "auth_required",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Account settings stays user-oriented and must not inherit creator control-plane permissions."
+      ]
+    },
+    {
+      "surfaceId": "admin_dashboard",
+      "surfaceOwner": "admin",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "redirect",
+        "creator": "redirect",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/admin",
+      "routeAliases": [
+        "/api/admin/overview"
+      ],
+      "featureId": "admin_debug",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "admin overview hot-cache snapshot",
+        "admin heartbeat",
+        "admin support summaries"
+      ],
+      "backendRoutesOrActions": [
+        "/api/admin/overview"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "creator_agreement_signed",
+        "creator_onboarding_submitted",
+        "creator_intro_acknowledged",
+        "creator_legally_cleared_override"
+      ],
+      "debugLane": "admin hot-cache heartbeat / admin debug",
+      "scoreDimensionImpact": {
+        "before": "Admin overview parity recently moved to hot-cache and compact platform pulse evidence.",
+        "after": "Admin dashboard states are registered as snapshot-first with visible stale/missing/error states.",
+        "dimensions": [
+          "sourceHealth",
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "freshness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "admin_only",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Admin UI must show stale/missing as stale/missing and keep raw diagnostics in Debug."
+      ]
+    },
+    {
+      "surfaceId": "admin_debug",
+      "surfaceOwner": "admin-debug",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "redirect",
+        "creator": "redirect",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/admin/debug",
+      "routeAliases": [
+        "/api/admin/debug"
+      ],
+      "featureId": "admin_debug",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "debug backlog",
+        "generated reports",
+        "route runtime health",
+        "cost/security/device evidence"
+      ],
+      "backendRoutesOrActions": [
+        "/api/admin/debug",
+        "agent generated report readers"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "creator_agreement_signed",
+        "creator_onboarding_submitted",
+        "creator_intro_acknowledged",
+        "creator_legally_cleared_override"
+      ],
+      "debugLane": "admin debug control tower",
+      "scoreDimensionImpact": {
+        "before": "Debug evidence lanes already existed but did not define all product surface contracts.",
+        "after": "Admin Debug remains the visibility lane for source, telemetry, stale, and missing parity evidence.",
+        "dimensions": [
+          "sourceHealth",
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "freshness"
+        ]
+      },
+      "mobileDensityStatus": "desktop_operational",
+      "rolePermissionStatus": "admin_only",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Debug may show technical proof; primary product surfaces should stay summary-first."
+      ]
+    },
+    {
+      "surfaceId": "user_management",
+      "surfaceOwner": "admin-users",
+      "roleVisibility": {
+        "guest": "redirect",
+        "user": "redirect",
+        "creator": "redirect",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/admin/users",
+      "routeAliases": [
+        "/api/admin/users",
+        "/api/admin/user/[userId]"
+      ],
+      "featureId": "admin_debug",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "admin users snapshot",
+        "user truth snapshot",
+        "role/audit records"
+      ],
+      "backendRoutesOrActions": [
+        "/api/admin/users",
+        "/api/admin/user/[userId]"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "admin_user_management_viewed",
+        "admin_user_action_started",
+        "admin_user_action_failed"
+      ],
+      "debugLane": "user management status truth",
+      "scoreDimensionImpact": {
+        "before": "User management parity was admin-specific.",
+        "after": "User management role, permission denied, empty, degraded, and audit state contracts are registered.",
+        "dimensions": [
+          "sourceHealth",
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "freshness"
+        ]
+      },
+      "mobileDensityStatus": "desktop_operational",
+      "rolePermissionStatus": "admin_only",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Role-specific permissions must remain admin-only and audited."
+      ]
+    },
+    {
+      "surfaceId": "support_policies",
+      "surfaceOwner": "support-policy",
+      "roleVisibility": {
+        "guest": "readonly",
+        "user": "visible",
+        "creator": "visible",
+        "admin": "visible"
+      },
+      "canonicalRoute": "/dashboard/support",
+      "routeAliases": [
+        "/faq",
+        "/privacy",
+        "/terms",
+        "/api/support",
+        "/api/bug-reports"
+      ],
+      "featureId": "support",
+      "featureRegistrationStatus": "registered",
+      "dataSources": [
+        "support threads",
+        "bug reports",
+        "policy documents",
+        "data export status"
+      ],
+      "backendRoutesOrActions": [
+        "/api/support",
+        "/api/bug-reports",
+        "/api/user/data"
+      ],
+      "requiredStates": [
+        "loading",
+        "empty",
+        "ready",
+        "degraded",
+        "error",
+        "permission_denied",
+        "not_configured"
+      ],
+      "telemetryEvents": [
+        "support_inbox_viewed",
+        "support_ticket_created",
+        "support_thread_opened",
+        "support_reply_viewed"
+      ],
+      "debugLane": "support route recovery / support policy cleanup",
+      "scoreDimensionImpact": {
+        "before": "Support, bug, FAQ, policy, and privacy surfaces were mapped across several trust validators.",
+        "after": "Support/policy surface states are registered together while preserving user-owned support truth.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "mobileDensityStatus": "mobile_ready",
+      "rolePermissionStatus": "mixed_role_clear",
+      "oldLogicStatus": "active_canonical",
+      "parityNotes": [
+        "Admin support visibility must not convert admin/debug diagnostics into user-reported support counts."
+      ]
+    }
+  ],
+  "duplicateParityValidatorsRetired": [
+    "check:user-creator-ui-parity",
+    "check:user-creator-feature-parity",
+    "legacy:admin-parity"
+  ],
+  "activeSupportingParityValidators": [
+    "check:feature-registration-gate",
+    "check:targeted-behavior-evidence",
+    "check:user-creator-ui-parity",
+    "check:settings-connection-parity",
+    "check:creator-lane-debug-parity",
+    "check:telemetry-parity-score"
+  ],
+  "supersededParityValidators": [
+    {
+      "id": "user-creator-ui-parity",
+      "packageScript": "check:user-creator-ui-parity",
+      "status": "supporting_evidence",
+      "authority": "surface_parity_doctrine",
+      "reason": "User/creator parity remains useful source evidence, but cross-role surface parity authority now lives in the canonical surface registry."
+    },
+    {
+      "id": "user-creator-feature-parity",
+      "packageScript": "check:user-creator-feature-parity",
+      "status": "supporting_evidence",
+      "authority": "surface_parity_doctrine",
+      "reason": "Feature parity stays scoped to user and creator feature coverage; it no longer defines the full public/user/creator/admin surface state contract."
+    },
+    {
+      "id": "legacy-admin-parity",
+      "packageScript": "legacy:admin-parity",
+      "status": "superseded_removed",
+      "authority": "surface_parity_doctrine",
+      "reason": "The legacy admin parity script is compatibility-only and cannot outrank the surface parity doctrine registry."
+    }
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "in_flight_artifact_to_leave_alone"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/surface-parity-doctrine.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/surface-parity-doctrine.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-surface-parity-doctrine.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/parity/surface-parity-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/parity/surface-parity-registry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/surface-parity-doctrine.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "scoreDimensionBeforeAfter": {
+    "public_homepage": {
+      "before": "Homepage parity was split across public UI and drop discovery checks.",
+      "after": "Public entry surface is mapped to drop discovery states, telemetry, and debug evidence.",
+      "dimensions": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "auth": {
+      "before": "Auth parity lived in separate runtime and telemetry validators.",
+      "after": "Auth surface now declares route, state, telemetry, debug, and permission ownership in one registry.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "user_dashboard": {
+      "before": "Dashboard loading and state parity were validated in narrow mobile/user lanes.",
+      "after": "Dashboard role, loading, empty, error, telemetry, and debug state are registered as a major surface.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "wallet_purchase_modal": {
+      "before": "Wallet parity remains protected by payment-specific validators.",
+      "after": "Surface registry references wallet state and telemetry without changing payment runtime or GumDrop math.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "costRisk"
+      ]
+    },
+    "drops_library": {
+      "before": "Drop and library parity were split between discovery, unlock, and library validators.",
+      "after": "Combined library surface now declares safe states without changing unlock or entitlement truth.",
+      "dimensions": [
+        "evidenceCompleteness"
+      ]
+    },
+    "creator_dashboard": {
+      "before": "Creator dashboard parity existed in creator-specific checks.",
+      "after": "Creator dashboard is now part of cross-role surface parity while preserving creator/admin separation.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "creator_settings": {
+      "before": "Settings parity was split between route alias and settings connection validators.",
+      "after": "Creator settings now declares role, state, save/error telemetry, and debug ownership in one surface contract.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "creator_drop_manager": {
+      "before": "Drop manager proof was source-specific.",
+      "after": "Drop manager is registered with approval, error, empty, and telemetry parity expectations.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "creator_profile_timeline": {
+      "before": "Creator profile and timeline parity lived in mobile/profile validators.",
+      "after": "Profile/timeline visibility, empty state, telemetry, and debug lanes are registered together.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "chat": {
+      "before": "Chat parity phases are allowed to remain in flight.",
+      "after": "Chat is classified as an exception surface without modifying chat internals.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "costRisk"
+      ]
+    },
+    "daily_tasks_checkin": {
+      "before": "Task/check-in parity was handled by task-specific phases.",
+      "after": "Task/check-in surface state is mapped while reward ledger truth remains unchanged.",
+      "dimensions": [
+        "evidenceCompleteness"
+      ]
+    },
+    "notifications_pwa_prompt": {
+      "before": "Notification and PWA parity phases may be running independently.",
+      "after": "Prompt surface now has explicit visibility, empty/error, telemetry, and debug classification.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "account_settings": {
+      "before": "Account settings parity was split from creator settings parity.",
+      "after": "Account settings is explicitly mapped to user roles, save/error telemetry, and debug visibility.",
+      "dimensions": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    "admin_dashboard": {
+      "before": "Admin overview parity recently moved to hot-cache and compact platform pulse evidence.",
+      "after": "Admin dashboard states are registered as snapshot-first with visible stale/missing/error states.",
+      "dimensions": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ]
+    },
+    "admin_debug": {
+      "before": "Debug evidence lanes already existed but did not define all product surface contracts.",
+      "after": "Admin Debug remains the visibility lane for source, telemetry, stale, and missing parity evidence.",
+      "dimensions": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ]
+    },
+    "user_management": {
+      "before": "User management parity was admin-specific.",
+      "after": "User management role, permission denied, empty, degraded, and audit state contracts are registered.",
+      "dimensions": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ]
+    },
+    "support_policies": {
+      "before": "Support, bug, FAQ, policy, and privacy surfaces were mapped across several trust validators.",
+      "after": "Support/policy surface states are registered together while preserving user-owned support truth.",
+      "dimensions": [
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    }
+  },
+  "validationFailures": []
+}

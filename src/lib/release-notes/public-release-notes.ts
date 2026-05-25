@@ -1,13 +1,66 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.66",
-  "betaReleaseCounter": 466,
+  "currentVersion": "1.4.67",
+  "betaReleaseCounter": 467,
   "channel": "beta",
-  "generatedAt": "2026-05-25T20:28:35.091Z",
-  "generatedAtUtc": "2026-05-25T20:28:35.091Z",
+  "generatedAt": "2026-05-25T20:47:18.746Z",
+  "generatedAtUtc": "2026-05-25T20:47:18.746Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.67",
+      "previousVersion": "1.4.66",
+      "betaReleaseCounter": 467,
+      "previousBetaReleaseCounter": 466,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(parity): define surface doctrine",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T20:47:18.746Z",
+      "generatedAt": "2026-05-25T20:47:18.746Z",
+      "committedAtUtc": "2026-05-25T20:47:18.746Z",
+      "generatedAtUtc": "2026-05-25T20:47:18.746Z",
+      "category": "Improved",
+      "title": "Surface parity doctrine",
+      "updatedAtUtc": "2026-05-25T20:47:18.746Z",
+      "summary": "Added canonical surface parity doctrine.",
+      "userFacingTitle": "Surface parity doctrine",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added canonical surface parity doctrine.",
+        "Mapped major user, creator, admin, and public surfaces to roles, states, telemetry, and debug lanes.",
+        "Retired stale parity logic where superseded."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a source-only surface parity contract and registry for 17 major public, user, creator, and admin surfaces.",
+        "Mapped each surface to role visibility, required loading/empty/ready/degraded/error/permission/not-configured states, data sources, backend routes/actions, telemetry events, debug lanes, score impact, and old-logic status.",
+        "Classified user/creator-only parity validators as supporting evidence under the new cross-role surface parity authority."
+      ],
+      "affectedSurfaces": [
+        "Public, user, creator, and admin surface doctrine",
+        "Feature registration and telemetry parity evidence",
+        "Surface parity validator and generated report"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/parity/surface-parity-contract.ts",
+        "src/lib/parity/surface-parity-registry.ts",
+        "scripts/agent/validate-surface-parity-doctrine.ts",
+        "tests/unit/surface-parity-doctrine.spec.ts",
+        "agent/state/surface-parity-doctrine.generated.json",
+        "docs/agent-truth/surface-parity-doctrine.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.66",
       "previousVersion": "1.4.65",
@@ -6668,60 +6721,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 11,
       "excludedGeneratedChangeCount": 5,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.42",
-      "previousVersion": "1.4.41",
-      "betaReleaseCounter": 442,
-      "previousBetaReleaseCounter": 441,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): refresh live issue readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T20:20:00.000Z",
-      "generatedAt": "2026-05-24T20:20:00.000Z",
-      "committedAtUtc": "2026-05-24T20:20:00.000Z",
-      "generatedAtUtc": "2026-05-24T20:20:00.000Z",
-      "updatedAtUtc": "2026-05-24T20:20:00.000Z",
-      "category": "Improved",
-      "title": "Live issue readiness refresh",
-      "summary": "Refreshed live issue, device, hydration, content, image, and GumDrop economy readiness reports while keeping protected behavior unchanged.",
-      "userFacingTitle": "Live issue readiness refresh",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refreshed debug evidence, pre-catcher, device, hydration, content, image, and GumDrop economy readiness.",
-        "Resolved image-loading unavailable/no timestamp reporting.",
-        "Kept GumDrop math and content protection behavior unchanged."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "App experience",
-        "Device layout",
-        "Drops & viewer",
-        "Wallet",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-cockpit-batch12-cleanup.generated.json",
-        "agent/state/debug-evidence-precacher-refresh.generated.json",
-        "agent/state/sitewide-image-optimization.generated.json",
-        "agent/state/sitewide-image-optimization-cleanup.generated.json",
-        "agent/state/gumdrop-economy-score.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/debug-cockpit-batch12-shared.ts",
-        "scripts/agent/validate-sitewide-image-optimization.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "effectiveChangeCount": 12,
-      "excludedGeneratedChangeCount": 6,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

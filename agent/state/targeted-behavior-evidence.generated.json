@@ -1,501 +1,405 @@
 {
-  "generatedAtUtc": "2026-05-24T05:47:55.213Z",
+  "generatedAtUtc": "2026-05-25T20:51:50.043Z",
   "reportKey": "targeted-behavior-evidence",
-  "status": "passed",
-  "overallStatus": "passed",
-  "passed": true,
-  "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-  "latestCodeVersion": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+  "status": "failed",
+  "overallStatus": "failed",
+  "passed": false,
+  "sourceCommit": "5482caa9bc232cfe8344932355dfaac552ff671a",
+  "latestCodeVersion": "5482caa9bc232cfe8344932355dfaac552ff671a",
+  "currentHead": "5482caa9bc232cfe8344932355dfaac552ff671a",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
   "visualQaPerformed": false,
   "realDeviceSmokePerformed": false,
-  "detail": "Targeted behavior evidence was rebuilt from current high-blast validators. It is source behavior evidence only and does not clear formal runtime, provider, visual, or admin truth gates.",
-  "summary": "High-blast analytics, debug, chat, task, settings, wallet, admin, score, and cost validators were refreshed or explicitly classified.",
+  "detail": "Current implemented source behavior validators are incomplete. This remains targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
+  "summary": "Targeted behavior evidence was rebuilt with blocked or unavailable validator lanes recorded.",
   "validatorResults": [
     {
-      "id": "event-translation-bridge",
-      "command": "npm run check:event-translation-bridge",
-      "status": "pass",
-      "artifactPath": "agent/state/event-translation-bridge.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "creator-settings-control-plane",
+      "command": "npm run check:creator-settings-control-plane",
+      "status": "fail",
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "creator_settings",
+        "creator_profile",
+        "fan_pass"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Creator Settings controls, setup checklist, creator-safe validation, and user-facing settings impact are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:event-translation-bridge warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/creator-settings-control-plane.generated.json was not generated from the latest code version."
     },
     {
-      "id": "person-metrics-hydration",
-      "command": "npm run check:person-metrics-hydration",
-      "status": "pass",
-      "artifactPath": "agent/state/person-metrics-hydration.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "creator-pricing-wiring",
+      "command": "npm run check:creator-pricing-wiring",
+      "status": "fail",
+      "artifactPath": "agent/state/creator-pricing-wiring.generated.json",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "creator_pricing",
+        "fan_pass",
+        "creator_experiences"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Creator Fan Pass and experience pricing wiring is source-validated without changing GumDrop math.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:person-metrics-hydration warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/creator-pricing-wiring.generated.json was not generated from the latest code version."
     },
     {
-      "id": "debug-signal-grouping",
-      "command": "npm run check:debug-signal-grouping",
-      "status": "pass",
-      "artifactPath": "agent/state/debug-signal-grouping.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "creator-broadcast-timeline-prep",
+      "command": "npm run check:creator-broadcast-timeline-prep",
+      "status": "fail",
+      "artifactPath": "agent/state/creator-broadcast-timeline-prep.generated.json",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
-        "evidenceCompleteness",
-        "regressionRisk"
+        "creator_broadcasts",
+        "notifications",
+        "creator_timeline"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "id": "chat-functionality-score-lock",
-      "command": "npm run check:chat-functionality-score-lock",
-      "status": "pass",
-      "artifactPath": "agent/state/chat-functionality-score-lock.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "surfaces": [
-        "runtimeHealth",
-        "costRisk",
-        "regressionRisk"
-      ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Creator broadcast notification and timeline contracts are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-functionality-score-lock warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/creator-broadcast-timeline-prep.generated.json was not generated from the latest code version."
     },
     {
-      "id": "daily-task-debug-score-lock",
-      "command": "npm run check:daily-task-debug-score-lock",
-      "status": "pass",
-      "artifactPath": "agent/state/daily-task-debug-score-lock.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "creator-profile-mobile-timeline",
+      "command": "npm run check:creator-profile-mobile-timeline",
+      "status": "fail",
+      "artifactPath": "agent/state/creator-profile-mobile-timeline.generated.json",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "creator_profile",
+        "mobile_ui",
+        "timeline"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Creator profile mobile header and timeline source constraints are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-debug-score-lock warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/creator-profile-mobile-timeline.generated.json was not generated from the latest code version."
     },
     {
-      "id": "settings-connection-parity",
-      "command": "npm run check:settings-connection-parity",
-      "status": "pass",
-      "artifactPath": "agent/state/settings-connection-parity.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "global-marquee-truncated-titles",
+      "command": "npm run check:global-marquee-truncated-titles",
+      "status": "fail",
+      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "sourceHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "ui_titles",
+        "creator_ui",
+        "admin_ui",
+        "user_library"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "id": "wallet-modal-telemetry-cleanup",
-      "command": "npm run check:wallet-modal-telemetry-cleanup",
-      "status": "pass",
-      "artifactPath": "agent/state/wallet-modal-telemetry-cleanup.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "surfaces": [
-        "runtimeHealth",
-        "costRisk",
-        "regressionRisk"
-      ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Shared marquee behavior for truncated titles is source-validated with reduced-motion separation.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "missing package script; lane unchanged since available evidence or not landed"
+      "blocker": "agent/state/global-marquee-truncated-titles.generated.json was not generated from the latest code version."
     },
     {
-      "id": "user-management-refactor",
-      "command": "npm run check:user-management-refactor",
-      "status": "pass",
-      "artifactPath": "agent/state/user-management-refactor.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "creator-drop-status-metrics",
+      "command": "npm run check:creator-drop-status-metrics",
+      "status": "fail",
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "creator_drop_manager",
+        "drop_metrics",
+        "drop_status"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Creator drop status and metrics display contracts are source-validated without fake metrics.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:user-management-refactor warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/creator-drop-status-metrics.generated.json was not generated from the latest code version."
     },
     {
-      "id": "formal-evidence-bridge",
-      "command": "npm run check:formal-evidence-bridge",
-      "status": "pass",
-      "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "user-loading-wallet-mobile-refinement",
+      "command": "npm run check:user-loading-wallet-mobile-refinement",
+      "status": "fail",
+      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "user_dashboard",
+        "wallet_ui",
+        "mobile_loading"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "id": "cost-risk-owner-review-closure",
-      "command": "npm run check:cost-risk-owner-review-closure",
-      "status": "pass",
-      "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "surfaces": [
-        "costRisk",
-        "regressionRisk"
-      ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "id": "event-liveness-audit",
-      "command": "npm run check:event-liveness-audit",
-      "status": "pass",
-      "artifactPath": "agent/state/event-liveness-audit.generated.json",
-      "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "freshness",
-        "regressionRisk"
-      ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "User dashboard loading and wallet mobile density are source-validated without payment runtime changes.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "event-liveness dirty files are intentionally unstaged"
+      "blocker": "agent/state/user-loading-wallet-mobile-refinement.generated.json was not generated from the latest code version."
     },
     {
-      "id": "event-envelope-normalization",
-      "command": "npm run check:event-envelope-normalization",
-      "status": "pass",
-      "artifactPath": "agent/state/event-envelope-normalization.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "existing-algorithm-refinement",
+      "command": "npm run check:existing-algorithm-refinement",
+      "status": "fail",
+      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "beta_scoring",
+        "telemetry",
+        "creator_pricing",
+        "drop_status",
+        "mobile_density"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "id": "telemetry-trigger-test-matrix",
-      "command": "npm run check:telemetry-trigger-test-matrix",
-      "status": "pass",
-      "artifactPath": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
-      ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "id": "chat-realtime-cost-control",
-      "command": "npm run check:chat-realtime-cost-control",
-      "status": "pass",
-      "artifactPath": "agent/state/chat-realtime-cost-control.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "surfaces": [
-        "runtimeHealth",
-        "costRisk",
-        "regressionRisk"
-      ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Existing scoring, telemetry, pricing, drop, marquee, and loading algorithms are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-realtime-cost-control warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/existing-algorithm-refinement.generated.json was not generated from the latest code version."
     },
     {
-      "id": "chat-gating-moderation",
-      "command": "npm run check:chat-gating-moderation",
-      "status": "pass",
-      "artifactPath": "agent/state/chat-gating-moderation.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "overnight-wiring-integrity",
+      "command": "npm run check:overnight-wiring-integrity",
+      "status": "fail",
+      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "creator_settings",
+        "telemetry",
+        "parity",
+        "routes"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Recent creator, UI, telemetry, and parity wiring is source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-gating-moderation warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/overnight-wiring-integrity.generated.json was not generated from the latest code version."
     },
     {
-      "id": "chat-telemetry-admin-truth",
-      "command": "npm run check:chat-telemetry-admin-truth",
-      "status": "pass",
-      "artifactPath": "agent/state/chat-telemetry-admin-truth.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "final-telemetry-closure-lock",
+      "command": "npm run check:final-telemetry-closure-lock",
+      "status": "fail",
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "telemetry",
+        "firestore",
+        "bigquery",
+        "ga4",
+        "admin_evidence"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Telemetry dependency closure status is source-validated without runtime provider calls.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-telemetry-admin-truth warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/final-telemetry-closure-lock.generated.json was not generated from the latest code version."
     },
     {
-      "id": "daily-task-reset-truth",
-      "command": "npm run check:daily-task-reset-truth",
-      "status": "pass",
-      "artifactPath": "agent/state/daily-task-reset-truth.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "mobile-ui-final-lock",
+      "command": "npm run check:mobile-ui-final-lock",
+      "status": "fail",
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "mobile_ui",
+        "admin_ui",
+        "creator_ui",
+        "user_ui"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Mobile UI doctrine, scale, skeleton, and self-check guards are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reset-truth warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/mobile-ui-final-lock.generated.json was not generated from the latest code version."
     },
     {
-      "id": "daily-task-lifecycle-telemetry",
-      "command": "npm run check:daily-task-lifecycle-telemetry",
-      "status": "pass",
-      "artifactPath": "agent/state/daily-task-lifecycle-telemetry.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "user-creator-ui-parity",
+      "command": "npm run check:user-creator-ui-parity",
+      "status": "fail",
+      "artifactPath": "agent/state/user-creator-ui-parity.generated.json",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "user_ui",
+        "creator_ui",
+        "route_parity"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "User and creator surface parity is source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-lifecycle-telemetry warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/user-creator-ui-parity.generated.json was not generated from the latest code version."
     },
     {
-      "id": "daily-task-reward-ledger",
-      "command": "npm run check:daily-task-reward-ledger",
-      "status": "pass",
-      "artifactPath": "agent/state/daily-task-reward-ledger.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "source-truth-authority-map",
+      "command": "npm run check:source-truth-authority-map",
+      "status": "fail",
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "source_truth",
+        "admin_truth",
+        "beta_evidence"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "Source truth authority map is source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reward-ledger warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it"
+      "blocker": "agent/state/source-truth-authority-map.generated.json was not generated from the latest code version."
     },
     {
-      "id": "daily-task-guidance-route-audit",
-      "command": "npm run check:daily-task-guidance-route-audit",
-      "status": "pass",
-      "artifactPath": "agent/state/daily-task-guidance-route-audit.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "gumdrop-economy-accuracy",
+      "command": "npm run check:gumdrop-economy-accuracy",
+      "status": "fail",
+      "artifactPath": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "currentHead": "8d9a67128fe4e6ce502fc4a0bcae366a4e56a349",
       "surfaces": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "gumdrop_economy",
+        "source_of_funds",
+        "creator_monetization"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "proves": "GumDrop source-of-funds and creator monetization source contracts are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-guidance-route-audit Daily task guidance route audit validation failed:"
+      "blocker": "agent/state/gumdrop-economy-accuracy.generated.json was not generated from the latest code version."
     },
     {
-      "id": "user-profile-api-contract",
-      "command": "npm run check:user-profile-api-contract",
-      "status": "pass",
-      "artifactPath": "agent/state/user-profile-api-contract.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "creator-drop-management-approval",
+      "command": "npm run check:creator-drop-management-approval",
+      "status": "fail",
+      "artifactPath": "agent/state/creator-drop-management-approval.generated.json",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
-        "sourceHealth",
-        "runtimeHealth",
-        "regressionRisk"
+        "creator_drop_manager",
+        "admin_approval",
+        "drop_lifecycle"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Creator drop submission and admin approval boundaries are source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
+      "blocker": "agent/state/creator-drop-management-approval.generated.json was not generated from the latest code version."
     },
     {
-      "id": "feature-registration-gate",
-      "command": "npm run check:feature-registration-gate",
-      "status": "pass",
-      "artifactPath": "agent/state/feature-registration-gate.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "id": "creator-drop-manager-mobile-refinement",
+      "command": "npm run check:creator-drop-manager-mobile-refinement",
+      "status": "fail",
+      "artifactPath": "agent/state/creator-drop-manager-mobile-refinement.generated.json",
+      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
       "surfaces": [
-        "sourceHealth",
-        "evidenceCompleteness",
-        "regressionRisk"
+        "creator_drop_manager",
+        "mobile_ui"
       ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "id": "debug-signal-actionability",
-      "command": "npm run check:debug-signal-actionability",
-      "status": "pass",
-      "artifactPath": "agent/state/debug-signal-actionability.generated.json",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "surfaces": [
-        "evidenceCompleteness",
-        "regressionRisk"
-      ],
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+      "proves": "Creator drop manager mobile refinement is source-validated.",
+      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
+      "blocker": "agent/state/creator-drop-manager-mobile-refinement.generated.json was not generated from the latest code version."
     }
   ],
   "commands": [
     {
-      "command": "npm run check:event-translation-bridge",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:creator-settings-control-plane",
+      "status": "fail",
+      "proves": "Creator Settings controls, setup checklist, creator-safe validation, and user-facing settings impact are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:person-metrics-hydration",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:creator-pricing-wiring",
+      "status": "fail",
+      "proves": "Creator Fan Pass and experience pricing wiring is source-validated without changing GumDrop math.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:debug-signal-grouping",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:creator-broadcast-timeline-prep",
+      "status": "fail",
+      "proves": "Creator broadcast notification and timeline contracts are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:chat-functionality-score-lock",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:creator-profile-mobile-timeline",
+      "status": "fail",
+      "proves": "Creator profile mobile header and timeline source constraints are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:daily-task-debug-score-lock",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:global-marquee-truncated-titles",
+      "status": "fail",
+      "proves": "Shared marquee behavior for truncated titles is source-validated with reduced-motion separation.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:settings-connection-parity",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:creator-drop-status-metrics",
+      "status": "fail",
+      "proves": "Creator drop status and metrics display contracts are source-validated without fake metrics.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:wallet-modal-telemetry-cleanup",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:user-loading-wallet-mobile-refinement",
+      "status": "fail",
+      "proves": "User dashboard loading and wallet mobile density are source-validated without payment runtime changes.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:user-management-refactor",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:existing-algorithm-refinement",
+      "status": "fail",
+      "proves": "Existing scoring, telemetry, pricing, drop, marquee, and loading algorithms are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:formal-evidence-bridge",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:overnight-wiring-integrity",
+      "status": "fail",
+      "proves": "Recent creator, UI, telemetry, and parity wiring is source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:cost-risk-owner-review-closure",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:final-telemetry-closure-lock",
+      "status": "fail",
+      "proves": "Telemetry dependency closure status is source-validated without runtime provider calls.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:event-liveness-audit",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:mobile-ui-final-lock",
+      "status": "fail",
+      "proves": "Mobile UI doctrine, scale, skeleton, and self-check guards are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:event-envelope-normalization",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:user-creator-ui-parity",
+      "status": "fail",
+      "proves": "User and creator surface parity is source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:telemetry-trigger-test-matrix",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:source-truth-authority-map",
+      "status": "fail",
+      "proves": "Source truth authority map is source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:chat-realtime-cost-control",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:gumdrop-economy-accuracy",
+      "status": "fail",
+      "proves": "GumDrop source-of-funds and creator monetization source contracts are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:chat-gating-moderation",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:creator-drop-management-approval",
+      "status": "fail",
+      "proves": "Creator drop submission and admin approval boundaries are source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     },
     {
-      "command": "npm run check:chat-telemetry-admin-truth",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "command": "npm run check:daily-task-reset-truth",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "command": "npm run check:daily-task-lifecycle-telemetry",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "command": "npm run check:daily-task-reward-ledger",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "command": "npm run check:daily-task-guidance-route-audit",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "command": "npm run check:user-profile-api-contract",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "command": "npm run check:feature-registration-gate",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
-      "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
-    },
-    {
-      "command": "npm run check:debug-signal-actionability",
-      "status": "pass",
-      "proves": "Current high-blast source validator coverage for regression risk scoring.",
+      "command": "npm run check:creator-drop-manager-mobile-refinement",
+      "status": "fail",
+      "proves": "Creator drop manager mobile refinement is source-validated.",
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
     }
   ],
   "surfacesCovered": [
-    "costRisk",
-    "evidenceCompleteness",
-    "freshness",
-    "regressionRisk",
-    "runtimeHealth",
-    "sourceHealth"
+    "admin_approval",
+    "admin_evidence",
+    "admin_truth",
+    "admin_ui",
+    "beta_evidence",
+    "beta_scoring",
+    "bigquery",
+    "creator_broadcasts",
+    "creator_drop_manager",
+    "creator_experiences",
+    "creator_monetization",
+    "creator_pricing",
+    "creator_profile",
+    "creator_settings",
+    "creator_timeline",
+    "creator_ui",
+    "drop_lifecycle",
+    "drop_metrics",
+    "drop_status",
+    "fan_pass",
+    "firestore",
+    "ga4",
+    "gumdrop_economy",
+    "mobile_density",
+    "mobile_loading",
+    "mobile_ui",
+    "notifications",
+    "parity",
+    "route_parity",
+    "routes",
+    "source_of_funds",
+    "source_truth",
+    "telemetry",
+    "timeline",
+    "ui_titles",
+    "user_dashboard",
+    "user_library",
+    "user_ui",
+    "wallet_ui"
   ],
   "notCovered": [
     "manual screenshot QA",
@@ -513,18 +417,18 @@
     "admin_truth_sample"
   ],
   "evidence": [
-    "validatorCount=23",
-    "coveredValidators=23",
-    "failedValidators=0",
-    "inFlightValidators=1",
-    "staleValidators=0",
+    "validatorCount=16",
+    "passedValidators=0",
+    "failedValidators=16",
+    "unavailableValidators=0",
+    "surfacesCovered=admin_approval,admin_evidence,admin_truth,admin_ui,beta_evidence,beta_scoring,bigquery,creator_broadcasts,creator_drop_manager,creator_experiences,creator_monetization,creator_pricing,creator_profile,creator_settings,creator_timeline,creator_ui,drop_lifecycle,drop_metrics,drop_status,fan_pass,firestore,ga4,gumdrop_economy,mobile_density,mobile_loading,mobile_ui,notifications,parity,route_parity,routes,source_of_funds,source_truth,telemetry,timeline,ui_titles,user_dashboard,user_library,user_ui,wallet_ui",
     "formalEvidenceImpact=source_behavior_only"
   ],
   "readinessImpact": {
-    "targetedBehaviorGatePassed": true,
+    "targetedBehaviorGatePassed": false,
     "notes": [
       "This artifact is source-backed targeted behavior evidence only.",
-      "In-flight lanes are classified and do not clear runtime proof.",
+      "It cannot replace manual screenshot evidence, provider smoke, runtime smoke, or production admin truth samples.",
       "Beta exit readiness must stay false until formal evidence lanes are attached."
     ]
   }

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.67 - 2026-05-25
+- Surface parity doctrine
+- Added canonical surface parity doctrine.
+- Mapped major user, creator, admin, and public surfaces to roles, states, telemetry, and debug lanes.
+- Retired stale parity logic where superseded.
+
 ## 1.4.66 - 2026-05-25
 - Admin hot-cache heartbeat
 - Moved admin surfaces toward hourly hot-cache snapshots and removed default realtime/raw-read behavior.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Refreshed cost, telemetry, behavior, support, and creator readiness lanes.
 - Added watch-time truth evidence-gap reporting and Data Connect mirror safety classification.
 - Documented admin debug and admin analytics monolith split plans without unsafe broad refactors.
-
-## 1.4.42 - 2026-05-24
-- Live issue readiness refresh
-- Refreshed debug evidence, pre-catcher, device, hydration, content, image, and GumDrop economy readiness.
-- Resolved image-loading unavailable/no timestamp reporting.
-- Kept GumDrop math and content protection behavior unchanged.
