@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.65 - 2026-05-25
+- Compact Platform pulse
+- Compact Platform pulse into six rolling-30-day stats with clear trend deltas.
+- Removed success badges and debug subtext from pulse cards while preserving issue badges.
+- Added GumDrops circulation and Support/Bugs metrics using summary-first source truth.
+
 ## 1.4.64 - 2026-05-25
 - Behavior stack source reconstruction
 - Rebuilt behavioral, task, telemetry, recovery, and experiment debug source contracts to eliminate loaded zero-shells.
@@ -147,21 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Refreshed device, content protection, cost, and telemetry parity readiness reports.
 - Moved compact viewport detection onto the device layout contract.
 - Classified responsive breakpoint and wallet-nav action findings without changing payment or bottom-nav behavior.
-
-## 1.4.40 - 2026-05-24
-- Beta readiness route hardening
-- Hardened admin request body caps and typed admin route errors.
-- Added viewer entitlement evidence and AI debug budget guard validation.
-- Refreshed beta, self-healing, speed/security, and hardening artifacts.
-
-## 1.4.39 - 2026-05-24
-- Admin balance body cap hardening
-- Added a bounded JSON body cap to the admin balance route.
-- Refreshed beta score, self-healing refresh queue, and speed/security artifacts.
-- Kept admin authorization, GumDrop ledger math, and source-of-funds behavior unchanged.
-
-## 1.4.38 - 2026-05-24
-- Business truth recovery cleanup
-- Cleaned recovery playbook CTAs and canonical business truth status.
-- Separated stale business snapshots from ops-health failures.
-- Added source-class clarity for revenue, purchases, unwraps, and watch metrics.

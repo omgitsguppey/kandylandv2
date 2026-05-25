@@ -44,6 +44,7 @@
         "check:event-timeline-management": "tsx scripts/agent/validate-event-timeline-management.ts",
         "check:google-cloud-cost-data-handoff": "tsx scripts/agent/validate-google-cloud-cost-data-handoff.ts",
         "check:phase-one-final-cleanup": "tsx scripts/agent/validate-phase-one-final-cleanup.ts",
+        "check:platform-pulse-compact": "tsx scripts/agent/validate-platform-pulse-compact.ts",
         "check:agent-context": "npm run build:agent-context && tsx scripts/agent/check-agent-context.ts && tsx scripts/agent/validate-compact-agent-context.ts",
         "eval:agent-context": "tsx scripts/agent/run-evals.ts",
         "behavioral:rebuild": "tsx scripts/rebuild-behavioral-intelligence.ts",

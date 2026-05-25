@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-05-25T20:03:14.912Z",
+  "check": "platform-pulse-compact",
+  "passed": true,
+  "failures": [],
+  "evidence": {
+    "sixMetricBuilder": true,
+    "compactGrid": true,
+    "okLiveBadgesRemoved": true,
+    "sourceTruthDisplayRemoved": true,
+    "gumdropSplitPreserved": true,
+    "supportBugsUserReportedOnly": true,
+    "boundedReadsOnlyForNewStats": true
+  }
+}

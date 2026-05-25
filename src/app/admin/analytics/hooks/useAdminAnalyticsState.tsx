@@ -612,7 +612,7 @@ function toOverviewGeneratedAtUtc(response: AdminOverviewResponse | undefined) {
 }
 
 function mapOverviewFreshnessState(
-  freshnessState: "live" | "review" | "stale" | "unknown" | undefined,
+  freshnessState: "live" | "review" | "stale" | "unknown" | "blocked" | "unavailable" | undefined,
 ): AnalyticsOverviewCard["freshnessState"] {
   switch (freshnessState) {
     case "live":

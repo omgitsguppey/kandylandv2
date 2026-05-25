@@ -4,10 +4,12 @@ export const revalidate = 0;
 
 import { NextRequest, NextResponse } from "next/server";
 
-import type { AdminOverviewActivityItem, AdminOverviewDayPoint, AdminOverviewIssueDetail, PlatformPulseMetric, RecentTransactionAdminRow } from "@/lib/admin-overview";
-import { buildRolling30dWindow, calculateOverviewMetricDelta } from "@/lib/admin-overview";
-import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
+import type { AdminOverviewActivityItem, AdminOverviewDayPoint, AdminOverviewIssueDetail, RecentTransactionAdminRow } from "@/lib/admin-overview";
+import { buildAdminOverviewPlatformPulse, calculateOverviewMetricDelta } from "@/lib/admin-overview";
+import { buildPlatformPulseWindow } from "@/lib/admin/platform-pulse-window";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
+import { BUG_REPORT_COLLECTION } from "@/lib/errors/bug-report-contract";
+import { SUPPORT_COLLECTIONS } from "@/lib/support-readiness";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
 import { getTransactionBadgeLabel, getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
@@ -23,6 +25,7 @@ import { readAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapsh
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import {
     safeDocumentWithDiagnostics,
+    safeCountWithDiagnostics,
     safeQueryWithDiagnostics,
 } from "@/lib/server/diagnostic-read-fallbacks";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -45,6 +48,7 @@ const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
 const ADMIN_ACTIVITY_TELEMETRY_EVENT_NAMES = (
     TELEMETRY_MODULE_INDEXES.find((moduleIndex) => moduleIndex.key === "admin")?.eventNames ?? []
 ).filter((eventName) => eventName.startsWith("admin_") || eventName.startsWith("creator_") || eventName.startsWith("owner_"));
+const SUPPORT_BUG_USER_CHANNELS = ["in_app", "email", "feedback"] as const;
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -115,84 +119,9 @@ function buildIssueDetail(input: {
   return input;
 }
 
-function buildPlatformPulseFromTruthSnapshot(snapshot: AdminUserTruthSnapshot): PlatformPulseMetric[] {
-    const confidence = snapshot.confidenceScore;
-    const freshnessState: PlatformPulseMetric["freshnessState"] = snapshot.sourceFreshness === "live"
-        ? "live"
-        : snapshot.sourceFreshness === "refreshing"
-            ? "live"
-            : snapshot.sourceFreshness === "stale" || snapshot.sourceFreshness === "legacy_fallback"
-                ? "stale"
-                : snapshot.sourceFreshness === "degraded" || snapshot.sourceFreshness === "delayed" || snapshot.sourceFreshness === "privacy_limited" || snapshot.sourceFreshness === "review"
-                    ? "review"
-                    : "unknown";
-    const warnings = snapshot.issues.map((issue) => issue.message);
-
-    return [
-        {
-            id: "accounts",
-            label: "Users",
-            primaryValue: snapshot.totalUsers,
-            primaryScope: "lifetime",
-            current30dValue: snapshot.activeUsers,
-            lifetimeValue: snapshot.totalUsers,
-            lifetimeLabel: `${snapshot.activeUsers.toLocaleString()} active accounts`,
-            deltaPct: null,
-            deltaLabel: `${snapshot.returnedLast7Days.toLocaleString()} returned in last 7d`,
-            subtext: `${snapshot.verifiedUsers.toLocaleString()} verified · ${snapshot.onboardedUsers.toLocaleString()} onboarded`,
-            sourceTruth: "materialized_snapshot",
-            freshnessState,
-            confidence,
-            warnings,
-        },
-        {
-            id: "purchases30d",
-            label: "Purchases",
-            primaryValue: snapshot.verifiedPurchases,
-            primaryScope: "lifetime",
-            current30dValue: snapshot.returnedLast7Days,
-            lifetimeValue: snapshot.verifiedPurchases,
-            lifetimeLabel: `${snapshot.pushEnabledUsers.toLocaleString()} push enabled`,
-            deltaPct: null,
-            deltaLabel: `${snapshot.trackedUnwraps.toLocaleString()} verified unwraps`,
-            subtext: "Server purchase and entitlement truth only.",
-            sourceTruth: "materialized_snapshot",
-            freshnessState,
-            confidence,
-            warnings,
-        },
-        {
-            id: "revenue",
-            label: "Revenue",
-            primaryValue: `$${snapshot.totalRevenueUsd.toFixed(2)}`,
-            primaryScope: "lifetime",
-            lifetimeValue: Math.round(snapshot.totalRevenueUsd * 100),
-            lifetimeLabel: `${Math.round(snapshot.validWatchTimeMs / 60_000).toLocaleString()} verified watch minutes`,
-            deltaPct: null,
-            deltaLabel: `${snapshot.verifiedPurchases.toLocaleString()} verified purchases`,
-            subtext: "Server transaction truth only.",
-            sourceTruth: "materialized_snapshot",
-            freshnessState,
-            confidence,
-            warnings,
-        },
-        {
-            id: "unwraps",
-            label: "Unwraps",
-            primaryValue: snapshot.trackedUnwraps,
-            primaryScope: "lifetime",
-            current30dValue: snapshot.returnedLast7Days,
-            lifetimeValue: snapshot.trackedUnwraps,
-            lifetimeLabel: `${Math.round(snapshot.validWatchTimeMs / 3_600_000 * 10) / 10} verified watch hours`,
-            deltaPct: null,
-            deltaLabel: `${snapshot.activeUsers.toLocaleString()} active users`,
-            subtext: "Unlock truth and watch truth stay separate.",
-            sourceTruth: "materialized_snapshot",
-            freshnessState,
-            confidence,
-            warnings,
-        },
-    ];
+function readCountSnapshot(snapshot: FirebaseFirestore.AggregateQuerySnapshot<{ count: FirebaseFirestore.AggregateField<number> }>) {
+    const value = snapshot.data().count;
+    return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
 }
 
 function buildWindowChart(endDayKey: string) {
@@ -409,7 +338,7 @@ async function GET_handler(request: NextRequest) {
         }
 
         const now = Date.now();
-        const rollingWindow = buildRolling30dWindow(now);
+        const rollingWindow = buildPlatformPulseWindow(now);
         const currentRollingStartMs = Date.parse(rollingWindow.currentStartUtc);
         const priorRollingStartMs = Date.parse(rollingWindow.priorStartUtc);
         const priorRollingEndMs = Date.parse(rollingWindow.priorEndUtc);
@@ -427,6 +356,7 @@ async function GET_handler(request: NextRequest) {
             adminAdjustmentsSnapshot,
             commerceSummarySnapshot,
             commerceDailySnapshot,
+            taskDailySnapshot,
             currentDropDailySnapshot,
             userMetricsSnapshotMeta,
         ] = await Promise.all([
@@ -488,6 +418,16 @@ async function GET_handler(request: NextRequest) {
             }),
             safeQueryWithDiagnostics({
                 routeName: "admin/overview",
+                channel: "admin",
+                label: "task reward daily",
+                issues,
+                reader: () => adminDb.collection("analytics_task_daily")
+                    .where("dayKey", ">=", previousStartDayKey)
+                    .limit(ADMIN_OVERVIEW_DAILY_ROLLUP_LIMIT)
+                    .get(),
+            }),
+            safeQueryWithDiagnostics({
+                routeName: "admin/overview",
                 channel: "commerce",
                 label: "drop daily",
                 issues,
@@ -502,6 +442,61 @@ async function GET_handler(request: NextRequest) {
             }),
         ]);
         const userTruthSnapshot = userMetricsSnapshotMeta;
+        const countUserBugReports = async (startMs: number, endMs: number, label: string) => {
+            const snapshot = await safeCountWithDiagnostics({
+                routeName: "admin/overview",
+                channel: "admin",
+                label,
+                issues,
+                detail: {
+                    collection: BUG_REPORT_COLLECTION,
+                    sourceTruth: "human_error_bug_report",
+                    boundedBy: "createdAt",
+                },
+                reader: () => adminDb.collection(BUG_REPORT_COLLECTION)
+                    .where("sourceTruth", "==", "human_error_bug_report")
+                    .where("createdAt", ">=", startMs)
+                    .where("createdAt", "<", endMs)
+                    .count()
+                    .get(),
+            });
+
+            return readCountSnapshot(snapshot);
+        };
+        const countUserSupportRequests = async (startMs: number, endMs: number, label: string) => {
+            const snapshots = await Promise.all(SUPPORT_BUG_USER_CHANNELS.map((channel) =>
+                safeCountWithDiagnostics({
+                    routeName: "admin/overview",
+                    channel: "admin",
+                    label: `${label} ${channel}`,
+                    issues,
+                    detail: {
+                        collection: SUPPORT_COLLECTIONS.threads,
+                        channel,
+                        boundedBy: "createdAt",
+                    },
+                    reader: () => adminDb.collection(SUPPORT_COLLECTIONS.threads)
+                        .where("channel", "==", channel)
+                        .where("createdAt", ">=", startMs)
+                        .where("createdAt", "<", endMs)
+                        .count()
+                        .get(),
+                }),
+            ));
+
+            return snapshots.reduce((total, snapshot) => total + readCountSnapshot(snapshot), 0);
+        };
+        const [
+            currentUserBugReports,
+            previousUserBugReports,
+            currentUserSupportRequests,
+            previousUserSupportRequests,
+        ] = await Promise.all([
+            countUserBugReports(currentRollingStartMs, now, "current user bug reports"),
+            countUserBugReports(priorRollingStartMs, priorRollingEndMs, "prior user bug reports"),
+            countUserSupportRequests(currentRollingStartMs, now, "current user support requests"),
+            countUserSupportRequests(priorRollingStartMs, priorRollingEndMs, "prior user support requests"),
+        ]);
 
         if (allUsersSnapshot.size >= ADMIN_OVERVIEW_USER_LIMIT) {
             issues.push("Overview user sample reached the read cap; snapshot-backed totals should be treated as authoritative.");
@@ -642,6 +637,12 @@ async function GET_handler(request: NextRequest) {
         let previousUnwraps = 0;
         let currentPurchases = 0;
         let previousPurchases = 0;
+        let currentPaidGd = 0;
+        let previousPaidGd = 0;
+        let currentPaidBonusGd = 0;
+        let previousPaidBonusGd = 0;
+        let currentRewardGd = 0;
+        let previousRewardGd = 0;
 
         commerceDailySnapshot.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
@@ -653,15 +654,21 @@ async function GET_handler(request: NextRequest) {
             const revenueCents = Math.round(readMetric(raw, "revenueCentsTotal", "grossRevenueCents"));
             const unwraps = Math.round(readMetric(raw, "unlockCount", "unlocks"));
             const purchases = Math.round(readMetric(raw, "purchaseCount", "purchaseTransactionCount"));
+            const paidGd = Math.round(readMetric(raw, "paidGumDropsTotal", "paidGumDrops"));
+            const paidBonusGd = Math.round(readMetric(raw, "bonusGumDropsTotal", "bonusGumDrops", "paidBonusGumDropsTotal"));
 
             if (dayKey >= currentStartDayKey && dayKey <= currentEndDayKey) {
                 currentRevenueCents += revenueCents;
                 currentUnwraps += unwraps;
                 currentPurchases += purchases;
+                currentPaidGd += paidGd;
+                currentPaidBonusGd += paidBonusGd;
             } else if (dayKey >= previousStartDayKey && dayKey <= previousEndDayKey) {
                 previousRevenueCents += revenueCents;
                 previousUnwraps += unwraps;
                 previousPurchases += purchases;
+                previousPaidGd += paidGd;
+                previousPaidBonusGd += paidBonusGd;
             }
 
             const chartDay = chartMap.get(dayKey);
@@ -669,6 +676,21 @@ async function GET_handler(request: NextRequest) {
                 chartDay.revenue += revenueCents / 100;
                 chartDay.unwraps += unwraps;
                 chartDay.purchases += purchases;
+            }
+        });
+
+        taskDailySnapshot.docs.forEach((doc) => {
+            const raw = doc.data() as Record<string, unknown>;
+            const dayKey = typeof raw.dayKey === "string" ? raw.dayKey : "";
+            if (!dayKey) {
+                return;
+            }
+
+            const rewardGd = Math.round(readMetric(raw, "paidRewardTotalGd", "rewardTotal"));
+            if (dayKey >= currentStartDayKey && dayKey <= currentEndDayKey) {
+                currentRewardGd += rewardGd;
+            } else if (dayKey >= previousStartDayKey && dayKey <= previousEndDayKey) {
+                previousRewardGd += rewardGd;
             }
         });
 
@@ -764,7 +786,67 @@ async function GET_handler(request: NextRequest) {
             }));
         }
 
-        const platformPulse = buildPlatformPulseFromTruthSnapshot(userTruthSnapshot);
+        const warningsForIssue = (patterns: string[]) => issues.filter((issue) => {
+            const normalized = issue.toLowerCase();
+            return patterns.some((pattern) => normalized.includes(pattern));
+        });
+        const userCreatedAtWarnings = usersMissingCreatedAtCount > 0
+            ? [`${usersMissingCreatedAtCount.toLocaleString()} user docs are missing createdAt.`]
+            : [];
+        const commerceDailyWarnings = warningsForIssue(["commerce daily"]);
+        const taskRewardWarnings = warningsForIssue(["task reward daily"]);
+        const supportBugWarnings = warningsForIssue(["bug report", "support request"]);
+        const platformPulse = buildAdminOverviewPlatformPulse({
+            freshnessState: "live",
+            warnings: {
+                accounts: userCreatedAtWarnings,
+                purchases30d: commerceDailyWarnings,
+                revenue: commerceDailyWarnings,
+                unwraps: commerceDailyWarnings,
+                gumdropsCirculation30d: [...commerceDailyWarnings, ...taskRewardWarnings],
+                supportBugs30d: supportBugWarnings,
+            },
+            accounts: {
+                current: currentNewUsers,
+                prior: previousNewUsers,
+            },
+            purchases: {
+                current: currentPurchases,
+                prior: previousPurchases,
+            },
+            revenueCents: {
+                current: currentRevenueCents,
+                prior: previousRevenueCents,
+            },
+            unwraps: {
+                current: currentUnwraps,
+                prior: previousUnwraps,
+            },
+            gumdrops: {
+                current: {
+                    rewardGd30d: currentRewardGd,
+                    paidGd30d: currentPaidGd,
+                    paidBonusGd30d: currentPaidBonusGd,
+                },
+                prior: {
+                    rewardGd30d: previousRewardGd,
+                    paidGd30d: previousPaidGd,
+                    paidBonusGd30d: previousPaidBonusGd,
+                },
+                sourceMode: "materialized_summary",
+            },
+            supportBugs: {
+                current: {
+                    userBugReports30d: currentUserBugReports,
+                    userSupportRequests30d: currentUserSupportRequests,
+                },
+                prior: {
+                    userBugReports30d: previousUserBugReports,
+                    userSupportRequests30d: previousUserSupportRequests,
+                },
+                sourceMode: "bounded_aggregate",
+            },
+        });
 
         const lastTransactionAt = recentTransactions.reduce(
             (latest, transaction) => Math.max(latest, typeof transaction.timestamp === "number" ? transaction.timestamp : 0),
@@ -778,7 +860,7 @@ async function GET_handler(request: NextRequest) {
                 : "Server snapshot via API poll (60s interval) — all reads successful",
             platformPulse: usersMissingCreatedAtCount > 0
                 ? "Platform Pulse uses one rolling 30-day window, but account growth is under review because some user docs are missing createdAt."
-                : "Platform Pulse uses one rolling 30-day window. Purchases and revenue come from completed transactions, while lifetime totals remain secondary context.",
+                : "Platform Pulse uses one rolling 30-day window across six stats. GumDrops keep paid/reward split metadata while Support/Bugs counts user-reported sources only.",
             drops: "Firestore drop collection with current lifecycle status applied.",
             revenue: "30-day chart built from analytics_commerce_daily, compared against prior 30-day window. Polled via server API, not realtime.",
             topDrops: "Ranked from current drop records by total unwrap count.",
@@ -811,6 +893,8 @@ async function GET_handler(request: NextRequest) {
                 purchases: calculateOverviewMetricDelta(currentPurchases, previousPurchases),
                 revenue: calculateOverviewMetricDelta(currentRevenueCents, previousRevenueCents),
                 unwraps: calculateOverviewMetricDelta(currentUnwraps, previousUnwraps),
+                gumdropsCirculation30d: calculateOverviewMetricDelta(currentRewardGd + currentPaidGd + currentPaidBonusGd, previousRewardGd + previousPaidGd + previousPaidBonusGd),
+                supportBugs30d: calculateOverviewMetricDelta(currentUserBugReports + currentUserSupportRequests, previousUserBugReports + previousUserSupportRequests),
             },
             recentTransactions,
             adminActivity,

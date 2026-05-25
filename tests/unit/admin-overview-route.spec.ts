@@ -72,6 +72,12 @@ const mockState = vi.hoisted(() => {
                         return actualValue >= clauseValue;
                     }
 
+                    if (clause.operator === "<") {
+                        const actualValue = toSortableValue(actual);
+                        const clauseValue = toSortableValue(clause.value);
+                        return actualValue < clauseValue;
+                    }
+
                     if (clause.operator === "in" && Array.isArray(clause.value)) {
                         return clause.value.includes(actual);
                     }
@@ -113,7 +119,7 @@ const mockState = vi.hoisted(() => {
             count() {
                 return {
                     get: async () => ({
-                        data: () => ({ count: (collections.get(name) ?? []).length }),
+                        data: () => ({ count: applyClauses(collections.get(name) ?? []).length }),
                     }),
                 };
             },
@@ -350,6 +356,8 @@ describe("GET /api/admin/overview", () => {
                     revenueCentsTotal: 1200,
                     unlockCount: 9,
                     purchaseCount: 5,
+                    paidGumDropsTotal: 500,
+                    bonusGumDropsTotal: 50,
                 }),
             },
             {
@@ -359,6 +367,70 @@ describe("GET /api/admin/overview", () => {
                     revenueCentsTotal: 600,
                     unlockCount: 4,
                     purchaseCount: 2,
+                    paidGumDropsTotal: 200,
+                    bonusGumDropsTotal: 20,
+                }),
+            },
+        ]);
+        mockState.collections.set("analytics_task_daily", [
+            {
+                id: `${currentDayKey}_tasks`,
+                data: () => ({
+                    dayKey: currentDayKey,
+                    rewardTotal: 25,
+                }),
+            },
+            {
+                id: `${previousDayKey}_tasks`,
+                data: () => ({
+                    dayKey: previousDayKey,
+                    rewardTotal: 10,
+                }),
+            },
+        ]);
+        mockState.collections.set("bug_reports", [
+            {
+                id: "bug_current_1",
+                data: () => ({
+                    sourceTruth: "human_error_bug_report",
+                    createdAt: nowMs - 1_000,
+                }),
+            },
+            {
+                id: "bug_prior_1",
+                data: () => ({
+                    sourceTruth: "human_error_bug_report",
+                    createdAt: nowMs - 35 * 24 * 60 * 60 * 1000,
+                }),
+            },
+            {
+                id: "debug_internal",
+                data: () => ({
+                    sourceTruth: "internal_debug_diagnostic",
+                    createdAt: nowMs - 1_000,
+                }),
+            },
+        ]);
+        mockState.collections.set("support_threads", [
+            {
+                id: "support_current_1",
+                data: () => ({
+                    channel: "in_app",
+                    createdAt: nowMs - 2_000,
+                }),
+            },
+            {
+                id: "support_prior_1",
+                data: () => ({
+                    channel: "email",
+                    createdAt: nowMs - 35 * 24 * 60 * 60 * 1000,
+                }),
+            },
+            {
+                id: "system_internal",
+                data: () => ({
+                    channel: "system",
+                    createdAt: nowMs - 2_000,
                 }),
             },
         ]);
@@ -411,6 +483,34 @@ describe("GET /api/admin/overview", () => {
         expect(payload.stats.currentWindowPurchases).toBe(5);
         expect(payload.deltas.purchases.current).toBe(5);
         expect(payload.deltas.purchases.previous).toBe(2);
+        expect(payload.platformPulse.map((metric: { id: string }) => metric.id)).toEqual([
+            "accounts",
+            "purchases30d",
+            "revenue",
+            "unwraps",
+            "gumdropsCirculation30d",
+            "supportBugs30d",
+        ]);
+        expect(payload.platformPulse.find((metric: { id: string }) => metric.id === "gumdropsCirculation30d")).toMatchObject({
+            primaryValue: 575,
+            primaryScope: "rolling_30d",
+            metadata: {
+                rewardGd30d: 25,
+                paidGd30d: 500,
+                paidBonusGd30d: 50,
+                totalCirculationGd30d: 575,
+                displayCombinesPaidAndRewardOnly: true,
+            },
+        });
+        expect(payload.platformPulse.find((metric: { id: string }) => metric.id === "supportBugs30d")).toMatchObject({
+            primaryValue: 2,
+            primaryScope: "rolling_30d",
+            metadata: {
+                userBugReports30d: 1,
+                userSupportRequests30d: 1,
+                excludesAiDebugCodeInternalDiagnostics: true,
+            },
+        });
         expect(payload.recentTransactions).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
