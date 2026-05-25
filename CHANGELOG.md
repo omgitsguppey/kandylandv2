@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.74 - 2026-05-25
+- Creator discovery relationship funnel
+- Mapped creator discovery, recommendations, profile clicks, and follow actions into telemetry.
+- Added person/global metrics for creator relationship funnels.
+- Added debug visibility for creator relationship failures.
+
 ## 1.4.73 - 2026-05-25
 - Private media access
 - Added private media access reasons and telemetry.
@@ -147,45 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Classified stale and no-sample route runtime states without treating them as live health.
 - Fixed AI description feedback Firestore undefined-write evidence.
 - Grouped stale route samples and preserved critical payment/support evidence requirements.
-
-## 1.4.49 - 2026-05-24
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.4.48 - 2026-05-24
-- Route hotspot repair
-- Repaired active analytics ingest identified route failure and classified wallet package client errors.
-- Separated current route failures from historical error counters.
-- Prioritized route latency hotspots with summary-first and cache-safe policies.
-
-## 1.4.47 - 2026-05-24
-- Route runtime rollup cleanup
-- Cleaned route runtime rollups and separated current failures, stale routes, unseen routes, warnings, and slow samples.
-- Added native and compatibility chat route cohort status.
-- Fixed route runtime display contradictions without hiding real failures.
-
-## 1.4.46 - 2026-05-24
-- AI debug repair orchestration
-- Refactored AI debug into bounded async work items, planner, critic, and repair proposal contracts.
-- Separated task/bug/repair zero-sample states from healthy live status.
-- Kept manual utilities out of live health while preserving admin audit and GumDrop safeguards.
-
-## 1.4.45 - 2026-05-24
-- No-sample debug status cleanup
-- Fixed false-positive LIVE states for empty diagnostics and panel-log lanes.
-- Separated no-sample, proven-zero, and unavailable debug states.
-- Kept raw diagnostics and panel logs collapsed behind drilldowns.
-
-## 1.4.44 - 2026-05-24
-- Orphaned logic action cleanup
-- Classified admin analytics realtime listeners under hot-cache doctrine.
-- Added telemetry intent alias handling for drop preview events.
-- Deduped recommended actions and clarified materializer/recovery/creator lane sample states.
-
-## 1.4.43 - 2026-05-24
-- Telemetry and support readiness refresh
-- Refreshed cost, telemetry, behavior, support, and creator readiness lanes.
-- Added watch-time truth evidence-gap reporting and Data Connect mirror safety classification.
-- Documented admin debug and admin analytics monolith split plans without unsafe broad refactors.

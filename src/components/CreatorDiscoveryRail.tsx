@@ -30,6 +30,10 @@ import {
     createDiscoveryTrackingSessionId,
     DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD,
 } from "@/lib/discovery-telemetry";
+import {
+    buildCreatorRelationshipTelemetryPayload,
+    classifyCreatorRelationshipState,
+} from "@/lib/discovery/creator-relationship-contract";
 
 type CreatorCard = CreatorDiscoveryProfile & {
     bio?: string;
@@ -218,6 +222,12 @@ function CreatorDiscoveryRailView({
                 }
 
                 trackedCreatorImpressionKeysRef.current.add(impressionKey);
+                const creator = creators.find((entry) => entry.uid === creatorId);
+                const relationshipState = classifyCreatorRelationshipState({
+                    viewerUserId: userId,
+                    creatorId,
+                    following: creator?.following === true,
+                });
                 trackEvent("creator_rail_impression", {
                     source_component: "creator_discovery_rail",
                     surface,
@@ -231,6 +241,32 @@ function CreatorDiscoveryRailView({
                     impression_session_id: trackingSessionId,
                     viewport_threshold: DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD,
                 });
+                trackEvent("creator_card_viewed", buildCreatorRelationshipTelemetryPayload({
+                    eventName: "creator_card_viewed",
+                    viewerUserId: userId,
+                    creatorId,
+                    surface,
+                    sourceComponent: "creator_discovery_rail",
+                    relationshipState,
+                    recommendationSource: creator?.following ? "relationship_route" : "deterministic_recommendation",
+                    route: currentRoute,
+                    position,
+                    impressionSessionId: trackingSessionId,
+                }));
+                if (!creator?.following) {
+                    trackEvent("creator_recommendation_viewed", buildCreatorRelationshipTelemetryPayload({
+                        eventName: "creator_recommendation_viewed",
+                        viewerUserId: userId,
+                        creatorId,
+                        surface,
+                        sourceComponent: "creator_discovery_rail",
+                        relationshipState,
+                        recommendationSource: "deterministic_recommendation",
+                        route: currentRoute,
+                        position,
+                        impressionSessionId: trackingSessionId,
+                    }));
+                }
             });
         }, { threshold: [DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD] });
 
@@ -353,6 +389,21 @@ function CreatorDiscoveryRailView({
                                     <Link
                                         href={creatorProfileHref}
                                         onClick={() => {
+                                            const relationshipPayload = buildCreatorRelationshipTelemetryPayload({
+                                                eventName: "creator_card_clicked",
+                                                viewerUserId: userId,
+                                                creatorId: creator.uid,
+                                                surface,
+                                                sourceComponent: "creator_discovery_rail",
+                                                relationshipState: classifyCreatorRelationshipState({
+                                                    viewerUserId: userId,
+                                                    creatorId: creator.uid,
+                                                    following: creator.following === true,
+                                                }),
+                                                recommendationSource: creator.following ? "relationship_route" : "deterministic_recommendation",
+                                                route: currentRoute,
+                                                position: index + 1,
+                                            });
                                             trackEvent("creator_profile_link_clicked", buildCreatorProfileLinkTelemetryPayload({
                                                 actor,
                                                 creator: creatorRouteInput,
@@ -360,6 +411,14 @@ function CreatorDiscoveryRailView({
                                                 routeSource: "creator_discovery",
                                                 currentRoute,
                                             }));
+                                            trackEvent("creator_card_clicked", relationshipPayload);
+                                            if (!creator.following) {
+                                                trackEvent("creator_recommendation_clicked", {
+                                                    ...relationshipPayload,
+                                                    event_name: "creator_recommendation_clicked",
+                                                    recommendation_source: "deterministic_recommendation",
+                                                });
+                                            }
                                             trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
                                                 creatorId: creator.uid,
                                                 creatorUsername: creator.username,
@@ -422,6 +481,7 @@ export function CreatorDiscoveryRail({
     const [pendingCreatorId, setPendingCreatorId] = useState<string | null>(null);
     const [, startCreatorsTransition] = useTransition();
     const missingProfileRouteTelemetryKeyRef = useRef("");
+    const railSurfaceViewedTelemetryKeyRef = useRef("");
     const authSettled = !authLoading;
     const [railTrackingSessionId] = useState(() => createDiscoveryTrackingSessionId("creator_rail"));
     const initialCreatorKey = useMemo(
@@ -621,6 +681,30 @@ export function CreatorDiscoveryRail({
     }, [followedCreators, recommendedCreators, user?.uid]);
 
     useEffect(() => {
+        if (railLoading) {
+            return;
+        }
+
+        const telemetryKey = `${surface}:${user?.uid ?? "guest"}:${primaryCreators.length}`;
+        if (railSurfaceViewedTelemetryKeyRef.current === telemetryKey) {
+            return;
+        }
+        railSurfaceViewedTelemetryKeyRef.current = telemetryKey;
+        trackEvent("creator_discovery_surface_viewed", buildCreatorRelationshipTelemetryPayload({
+            eventName: "creator_discovery_surface_viewed",
+            viewerUserId: user?.uid,
+            surface,
+            sourceComponent: "creator_discovery_rail",
+            relationshipState: user ? "unknown" : "not_following",
+            recommendationSource: initialCreators.length > 0 ? "seeded_surface" : "relationship_route",
+            route: surface === "home" ? "/" : `/${surface}`,
+            listCount: primaryCreators.length,
+            recommendationCount: recommendedCreators.length,
+            action: "view",
+        }));
+    }, [initialCreators.length, primaryCreators.length, railLoading, recommendedCreators.length, surface, user]);
+
+    useEffect(() => {
         const missingCreators = primaryCreators
             .map((creator) => {
                 const routeInput = {
@@ -673,6 +757,20 @@ export function CreatorDiscoveryRail({
 
         const action = creator.following ? "unfollow" : "follow";
         setPendingCreatorId(creator.uid);
+        trackEvent(action === "follow" ? "creator_follow_attempted" : "creator_unfollow_attempted", buildCreatorRelationshipTelemetryPayload({
+            eventName: action === "follow" ? "creator_follow_attempted" : "creator_unfollow_attempted",
+            viewerUserId: user.uid,
+            creatorId: creator.uid,
+            surface,
+            sourceComponent: "creator_discovery_rail",
+            relationshipState: classifyCreatorRelationshipState({
+                viewerUserId: user.uid,
+                creatorId: creator.uid,
+                following: creator.following === true,
+            }),
+            recommendationSource: creator.following ? "relationship_route" : "deterministic_recommendation",
+            action,
+        }));
 
         try {
             const response = await authFetch("/api/creator/relationships", {
@@ -719,7 +817,33 @@ export function CreatorDiscoveryRail({
                 }
                 return current.filter((entry) => entry.uid !== creator.uid);
             });
+            trackEvent(action === "follow" ? "creator_follow_succeeded" : "creator_unfollow_succeeded", buildCreatorRelationshipTelemetryPayload({
+                eventName: action === "follow" ? "creator_follow_succeeded" : "creator_unfollow_succeeded",
+                viewerUserId: user.uid,
+                creatorId: creator.uid,
+                surface,
+                sourceComponent: "creator_discovery_rail",
+                relationshipState: nextFollowing ? "following" : "not_following",
+                recommendationSource: creator.following ? "relationship_route" : "deterministic_recommendation",
+                followerCount: nextFollowerCount ?? null,
+                action,
+            }));
         } catch (error) {
+            trackEvent("creator_follow_failed", buildCreatorRelationshipTelemetryPayload({
+                eventName: "creator_follow_failed",
+                viewerUserId: user.uid,
+                creatorId: creator.uid,
+                surface,
+                sourceComponent: "creator_discovery_rail",
+                relationshipState: classifyCreatorRelationshipState({
+                    viewerUserId: user.uid,
+                    creatorId: creator.uid,
+                    following: creator.following === true,
+                }),
+                recommendationSource: creator.following ? "relationship_route" : "deterministic_recommendation",
+                failureReason: "creator_relationship_update_failed",
+                action,
+            }));
             reportClientIssue({
                 channel: "ui",
                 severity: "warn",

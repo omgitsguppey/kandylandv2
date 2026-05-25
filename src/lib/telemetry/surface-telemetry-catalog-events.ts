@@ -143,10 +143,12 @@ const SURFACE_TELEMETRY_CATALOG_SURFACES: SurfaceTelemetryCatalogSurface[] = [
     category: "engagement",
     modules: ["creator", "engagement", "content"],
     aliasesByKind: {
-      surface_viewed: ["creator_profile_viewed", "creator_timeline_viewed"],
-      surface_action_attempted: ["creator_follow_attempted"],
-      surface_action_succeeded: ["creator_followed"],
-      surface_action_failed: ["creator_follow_failed"],
+      surface_viewed: ["creator_profile_viewed", "creator_timeline_viewed", "creator_discovery_surface_viewed", "creator_profile_opened"],
+      surface_loaded: ["creator_relationship_list_loaded"],
+      surface_empty_viewed: ["creator_recommendation_viewed"],
+      surface_action_attempted: ["creator_follow_attempted", "creator_unfollow_attempted", "creator_card_clicked", "creator_recommendation_clicked"],
+      surface_action_succeeded: ["creator_followed", "creator_follow_succeeded", "creator_unfollowed", "creator_unfollow_succeeded"],
+      surface_action_failed: ["creator_follow_failed", "creator_relationship_list_failed"],
     },
   },
   {

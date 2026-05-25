@@ -17,6 +17,12 @@ import { buildDeterministicCreatorRecommendations } from "@/lib/server/behaviora
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+import {
+    CREATOR_RELATIONSHIP_DEBUG_LANE,
+    buildCreatorRelationshipTelemetryPayload,
+    classifyCreatorRelationshipState,
+    type CreatorRelationshipEventName,
+} from "@/lib/discovery/creator-relationship-contract";
 
 const CREATOR_RELATIONSHIPS_READ_LIMIT = 500;
 const CREATOR_RELATIONSHIP_DISCOVERY_USER_LIMIT = 1_000;
@@ -112,8 +118,45 @@ async function countActiveCreatorFollowers(creatorId: string) {
     return snapshot.size || snapshot.docs.length || 0;
 }
 
+function buildRelationshipDebug(status: "loaded" | "failed", detail: Record<string, unknown> = {}) {
+    return {
+        lane: CREATOR_RELATIONSHIP_DEBUG_LANE,
+        sourceTruth: "creator_relationships",
+        status,
+        ...detail,
+    };
+}
+
+async function trackCreatorRelationshipRouteEvent(input: {
+    eventName: CreatorRelationshipEventName;
+    callerUid?: string | null;
+    creatorId?: string | null;
+    relationshipState?: ReturnType<typeof classifyCreatorRelationshipState>;
+    recommendationCount?: number | null;
+    listCount?: number | null;
+    followerCount?: number | null;
+    action?: "follow" | "unfollow" | "load" | "view" | "click" | null;
+    failureReason?: string | null;
+}) {
+    await trackServerEvent(input.eventName, buildCreatorRelationshipTelemetryPayload({
+        eventName: input.eventName,
+        viewerUserId: input.callerUid,
+        creatorId: input.creatorId,
+        surface: "creator_relationships",
+        sourceComponent: "creator_relationships_route",
+        relationshipState: input.relationshipState,
+        recommendationSource: "relationship_route",
+        failureReason: input.failureReason,
+        listCount: input.listCount,
+        recommendationCount: input.recommendationCount,
+        followerCount: input.followerCount,
+        action: input.action,
+    }), input.callerUid ?? undefined).catch(() => null);
+}
+
 export async function GET(request: NextRequest) {
     const startedAt = Date.now();
+    let callerUid = "";
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
             key: "creator/relationships:GET",
@@ -135,6 +178,7 @@ export async function GET(request: NextRequest) {
         if (!caller || !adminDb) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
+        callerUid = caller.uid;
 
         const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || "";
         const relationshipsSnap = await adminDb
@@ -232,6 +276,22 @@ export async function GET(request: NextRequest) {
             const relationship = relationships.find((entry) => entry.creatorId === creatorId) || null;
             // bounded document read: one caller/creator subscription pair.
             const subscriptionSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(buildSubscriptionId(caller.uid, creatorId)).get();
+            const relationshipState = classifyCreatorRelationshipState({
+                viewerUserId: caller.uid,
+                creatorId,
+                following: relationship?.following === true,
+                unavailable: !validCreatorIds.has(creatorId),
+            });
+            await trackCreatorRelationshipRouteEvent({
+                eventName: "creator_relationship_list_loaded",
+                callerUid: caller.uid,
+                creatorId,
+                relationshipState,
+                listCount: relationship ? 1 : 0,
+                recommendationCount: recommendedCreatorIds.length,
+                followerCount: realtimeFollowerCounts.get(creatorId) ?? 0,
+                action: "load",
+            });
 
             return finalize(NextResponse.json({
                 success: true,
@@ -239,9 +299,14 @@ export async function GET(request: NextRequest) {
                     ? {
                         ...relationship,
                         followerCount: realtimeFollowerCounts.get(creatorId) ?? 0,
+                        relationshipState,
                     }
                     : null,
                 subscription: subscriptionSnap.exists ? { id: subscriptionSnap.id, ...(subscriptionSnap.data() as Record<string, unknown>) } : null,
+                relationshipDebug: buildRelationshipDebug("loaded", {
+                    relationshipState,
+                    debugReason: "bounded caller/creator relationship lookup",
+                }),
             }));
         }
 
@@ -271,19 +336,43 @@ export async function GET(request: NextRequest) {
                 followerCount: realtimeFollowerCounts.get(entry.uid) ?? 0,
             }));
 
+        await trackCreatorRelationshipRouteEvent({
+            eventName: "creator_relationship_list_loaded",
+            callerUid: caller.uid,
+            relationshipState: "unknown",
+            listCount: relationships.length,
+            recommendationCount: recommendedCreators.length,
+            action: "load",
+        });
+
         return finalize(NextResponse.json({
             success: true,
             relationships,
             followedCreators,
             recommendedCreators,
+            relationshipDebug: buildRelationshipDebug("loaded", {
+                followedCreatorCount: followedCreators.length,
+                recommendedCreatorCount: recommendedCreators.length,
+                debugReason: "bounded relationship and creator discovery query",
+            }),
         }));
     } catch (error) {
+        void trackCreatorRelationshipRouteEvent({
+            eventName: "creator_relationship_list_failed",
+            callerUid,
+            relationshipState: "unknown",
+            action: "load",
+            failureReason: getErrorMessage(error) || "creator_relationship_list_failed",
+        });
         return finalize(handleApiError(error, "Creator.Relationships.GET"), error);
     }
 }
 
 export async function POST(request: NextRequest) {
     const startedAt = Date.now();
+    let callerUid = "";
+    let parsedCreatorId = "";
+    let parsedAction: z.infer<typeof relationshipActionSchema>["action"] | "" = "";
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
             key: "creator/relationships:POST",
@@ -305,6 +394,7 @@ export async function POST(request: NextRequest) {
         if (!caller || !adminDb) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
+        callerUid = caller.uid;
 
         const body = await readBoundedJsonBody<z.infer<typeof relationshipActionSchema>>(request, {
             maxBytes: CREATOR_RELATIONSHIP_BODY_LIMIT_BYTES,
@@ -312,6 +402,8 @@ export async function POST(request: NextRequest) {
             allowEmpty: false,
         });
         const { creatorId, action } = relationshipActionSchema.parse(body);
+        parsedCreatorId = creatorId;
+        parsedAction = action;
         if (creatorId === caller.uid) {
             return finalize(NextResponse.json({ error: "You cannot follow yourself." }, { status: 400 }));
         }
@@ -319,6 +411,15 @@ export async function POST(request: NextRequest) {
         const creator = await getCreatorRecord(creatorId);
         if (!creator) {
             return finalize(buildNotFoundResponse("creator", "Creator not found"));
+        }
+        if (action === "follow" || action === "unfollow") {
+            await trackCreatorRelationshipRouteEvent({
+                eventName: action === "follow" ? "creator_follow_attempted" : "creator_unfollow_attempted",
+                callerUid: caller.uid,
+                creatorId,
+                relationshipState: action === "follow" ? "not_following" : "following",
+                action,
+            });
         }
 
         const relationshipRef = adminDb.collection(CREATOR_COLLECTIONS.relationships).doc(buildCreatorRelationshipId(caller.uid, creatorId));
@@ -423,6 +524,16 @@ export async function POST(request: NextRequest) {
         }, caller.uid).catch(() => null);
 
         const followerCount = await countActiveCreatorFollowers(creatorId).catch(() => null);
+        if (action === "follow" || action === "unfollow") {
+            await trackCreatorRelationshipRouteEvent({
+                eventName: action === "follow" ? "creator_follow_succeeded" : "creator_unfollow_succeeded",
+                callerUid: caller.uid,
+                creatorId,
+                relationshipState: result.following ? "following" : "not_following",
+                followerCount,
+                action,
+            });
+        }
 
         return finalize(NextResponse.json({
             success: true,
@@ -430,9 +541,22 @@ export async function POST(request: NextRequest) {
                 creatorId,
                 ...result,
                 followerCount,
+                relationshipState: result.following ? "following" : "not_following",
+                debugLane: CREATOR_RELATIONSHIP_DEBUG_LANE,
+                debugReason: "relationship mutation completed through creator relationship route",
             },
         }));
     } catch (error) {
+        if ((parsedAction === "follow" || parsedAction === "unfollow") && parsedCreatorId) {
+            void trackCreatorRelationshipRouteEvent({
+                eventName: "creator_follow_failed",
+                callerUid,
+                creatorId: parsedCreatorId,
+                relationshipState: "unknown",
+                action: parsedAction,
+                failureReason: isBoundedJsonBodyError(error) ? error.code : "creator_relationship_mutation_failed",
+            });
+        }
         if (isBoundedJsonBodyError(error)) {
             return finalize(NextResponse.json({
                 success: false,

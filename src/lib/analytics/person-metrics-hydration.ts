@@ -450,6 +450,15 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "src/lib/telemetry-catalog.ts" || normalized === "src/lib/analytics/event-envelope-builder.ts" || normalized === "src/lib/analytics/event-translation-bridge.ts" || normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/media/media-upload-contract.ts" || normalized === "src/lib/media/media-upload-telemetry.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/discovery/creator-relationship-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/creator/relationships/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/components/CreatorDiscoveryRail.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/app/creators/[username]/CreatorProfileClient.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/behavior-feature-registry.ts" || normalized === "src/lib/behavioral/event-fact-contract.ts" || normalized === "src/lib/behavioral/normalize-event-fact.ts" || normalized === "src/lib/behavioral/tracking-surface-map.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-creator-discovery-relationship-funnel.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-discovery-relationship-funnel.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/creator-discovery-relationship-funnel.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-discovery-relationship-funnel.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-media-upload-lifecycle.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/media-upload-lifecycle.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/media-upload-lifecycle.generated.json" || normalized === "agent/state/feature-registration-gate.generated.json") return "current_generated_artifact_to_commit";

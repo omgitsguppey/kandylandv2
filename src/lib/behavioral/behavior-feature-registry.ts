@@ -293,7 +293,17 @@ export function resolveBehaviorFeatureForTelemetryEvent(input: {
   if (eventName.includes("creator_drop") || eventName.includes("drop_manager")) return FEATURE_BY_ID.creator_drop_manager;
   if (eventName.includes("creator_settings") || eventName.includes("settings")) return FEATURE_BY_ID.creator_settings;
   if (eventName.includes("timeline")) return FEATURE_BY_ID.creator_timeline;
-  if (eventName.includes("creator_profile") || eventName.includes("creator_rail") || eventName.includes("creator_search") || eventName.includes("creator_follow")) return FEATURE_BY_ID.creator_profile;
+  if (
+    eventName.includes("creator_profile")
+    || eventName.includes("creator_rail")
+    || eventName.includes("creator_search")
+    || eventName.includes("creator_follow")
+    || eventName.includes("creator_unfollow")
+    || eventName.includes("creator_relationship")
+    || eventName.includes("creator_card")
+    || eventName.includes("creator_recommendation")
+    || eventName.includes("creator_discovery")
+  ) return FEATURE_BY_ID.creator_profile;
   if (eventName.includes("daily_checkin") || eventName.includes("daily_task") || eventName.includes("check_in") || input.family === "task") return FEATURE_BY_ID.daily_checkin;
   if (eventName.includes("library") || eventName.includes("recent_activity")) return FEATURE_BY_ID.library;
   if (eventName.includes("search") || eventName.includes("filter") || eventName.includes("sort") || eventName.includes("category")) return FEATURE_BY_ID.search_discovery;

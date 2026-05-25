@@ -1,0 +1,184 @@
+{
+  "reportKey": "creator-discovery-relationship-funnel",
+  "generatedAtUtc": "2026-05-25T22:54:24.177Z",
+  "currentHead": "e0c0b9d5d6e30325fe638cff479d766a263ef585",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "events": [
+    "creator_discovery_surface_viewed",
+    "creator_card_viewed",
+    "creator_card_clicked",
+    "creator_profile_opened",
+    "creator_follow_attempted",
+    "creator_follow_succeeded",
+    "creator_follow_failed",
+    "creator_unfollow_attempted",
+    "creator_unfollow_succeeded",
+    "creator_recommendation_viewed",
+    "creator_recommendation_clicked",
+    "creator_relationship_list_loaded",
+    "creator_relationship_list_failed"
+  ],
+  "states": [
+    "not_following",
+    "following",
+    "blocked",
+    "unavailable",
+    "self",
+    "creator_hidden",
+    "unknown"
+  ],
+  "creatorCardProfileFunnelTracked": true,
+  "followUnfollowTelemetryTriplet": true,
+  "recommendationTelemetryTracked": true,
+  "relationshipRouteDebugVisible": true,
+  "personGlobalMetricMapped": true,
+  "eventEnvelopeMapped": true,
+  "relationshipStateAmbiguous": false,
+  "paymentGumDropMathChanged": false,
+  "scoreDimensions": {
+    "before": {
+      "sourceHealth": 84,
+      "evidenceCompleteness": 84,
+      "regressionRisk": 84
+    },
+    "after": {
+      "sourceHealth": 87,
+      "evidenceCompleteness": 88,
+      "regressionRisk": 87
+    }
+  },
+  "debugLane": {
+    "label": "Creator discovery/relationships",
+    "lane": "Creator discovery/relationships",
+    "followFailures": 1,
+    "relationshipListFailures": 1,
+    "emptyRecommendationState": 1,
+    "profileRouteMissing": 1,
+    "recommendationSourceHealth": "review"
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/creator-discovery-relationship-funnel.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/creator-discovery-relationship-funnel.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-discovery-relationship-funnel.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/api/creator/relationships/route.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/components/CreatorDiscoveryRail.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/behavior-feature-registry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/event-fact-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/behavioral/tracking-surface-map.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/discovery/creator-relationship-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/telemetry/surface-telemetry-catalog-events.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/creator-discovery-relationship-funnel.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

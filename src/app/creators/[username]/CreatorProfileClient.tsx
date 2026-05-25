@@ -24,6 +24,10 @@ import {
 } from "@/lib/creator-experiences";
 import { getCreatorBookingProblemCopy, getCreatorRequestProblemCopy, getCreatorSubscriptionProblemCopy } from "@/lib/problem-state-copy";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
+import {
+    buildCreatorRelationshipTelemetryPayload,
+    classifyCreatorRelationshipState,
+} from "@/lib/discovery/creator-relationship-contract";
 import type { CreatorProfileTimelineItem } from "@/lib/creator-profile/timeline-contract";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
@@ -104,6 +108,7 @@ export default function CreatorProfileClient() {
     const [monetizationGuidance, setMonetizationGuidance] = useState<MonetizationGuidanceState | null>(null);
     const creatorFirstName = useMemo(() => readFirstName(creator?.displayName), [creator?.displayName]);
     const lastTrackedBroadcastKeyRef = useRef<string>("");
+    const profileOpenTelemetryKeyRef = useRef<string>("");
     const handleCreatorDropPreview = useCallback((drop: Drop) => {
         router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=creator_profile_drop_grid`);
     }, [router]);
@@ -163,6 +168,11 @@ export default function CreatorProfileClient() {
         if (!creator) {
             return;
         }
+        const telemetryKey = `${currentUser?.uid ?? "guest"}:${creator.uid}:${profileRoute}`;
+        if (profileOpenTelemetryKeyRef.current === telemetryKey) {
+            return;
+        }
+        profileOpenTelemetryKeyRef.current = telemetryKey;
 
         trackEvent("creator_profile_viewed", {
             viewer_actor_type: currentUser ? "user" : "guest",
@@ -174,7 +184,22 @@ export default function CreatorProfileClient() {
             page_path: profileRoute,
             source_component: "creator_profile_page",
         });
-    }, [creator, currentUser, profileRoute, username]);
+        trackEvent("creator_profile_opened", buildCreatorRelationshipTelemetryPayload({
+            eventName: "creator_profile_opened",
+            viewerUserId: currentUser?.uid,
+            creatorId: creator.uid,
+            surface: "creator_profile",
+            sourceComponent: "creator_profile_page",
+            relationshipState: classifyCreatorRelationshipState({
+                viewerUserId: currentUser?.uid,
+                creatorId: creator.uid,
+                following,
+            }),
+            recommendationSource: "creator_profile",
+            route: profileRoute,
+            action: "view",
+        }));
+    }, [creator, currentUser, following, profileRoute, username]);
 
     useEffect(() => {
         if (!currentUser || !creator) {
@@ -467,10 +492,25 @@ export default function CreatorProfileClient() {
             return;
         }
 
+        const action = following ? "unfollow" : "follow";
         setFollowLoading(true);
+        trackEvent(action === "follow" ? "creator_follow_attempted" : "creator_unfollow_attempted", buildCreatorRelationshipTelemetryPayload({
+            eventName: action === "follow" ? "creator_follow_attempted" : "creator_unfollow_attempted",
+            viewerUserId: currentUser.uid,
+            creatorId: creator.uid,
+            surface: "creator_profile",
+            sourceComponent: "creator_profile_page",
+            relationshipState: classifyCreatorRelationshipState({
+                viewerUserId: currentUser.uid,
+                creatorId: creator.uid,
+                following,
+            }),
+            recommendationSource: "creator_profile",
+            route: profileRoute,
+            action,
+        }));
 
         try {
-            const action = following ? "unfollow" : "follow";
             const response = await authFetch("/api/creator/relationships", {
                 method: "POST",
                 body: JSON.stringify({
@@ -530,6 +570,18 @@ export default function CreatorProfileClient() {
                     route: profileRoute,
                     source_component: "creator_profile_page",
                 });
+                trackEvent("creator_follow_succeeded", buildCreatorRelationshipTelemetryPayload({
+                    eventName: "creator_follow_succeeded",
+                    viewerUserId: currentUser.uid,
+                    creatorId: creator.uid,
+                    surface: "creator_profile",
+                    sourceComponent: "creator_profile_page",
+                    relationshipState: "following",
+                    recommendationSource: "creator_profile",
+                    route: profileRoute,
+                    followerCount: result.relationship?.followerCount ?? null,
+                    action,
+                }));
             } else if (!subscriptionActive) {
                 setBroadcasts([]);
                 trackEvent("creator_unfollowed", {
@@ -540,9 +592,51 @@ export default function CreatorProfileClient() {
                     route: profileRoute,
                     source_component: "creator_profile_page",
                 });
+                trackEvent("creator_unfollow_succeeded", buildCreatorRelationshipTelemetryPayload({
+                    eventName: "creator_unfollow_succeeded",
+                    viewerUserId: currentUser.uid,
+                    creatorId: creator.uid,
+                    surface: "creator_profile",
+                    sourceComponent: "creator_profile_page",
+                    relationshipState: "not_following",
+                    recommendationSource: "creator_profile",
+                    route: profileRoute,
+                    followerCount: result.relationship?.followerCount ?? null,
+                    action,
+                }));
+            }
+            if (!nextFollowing && subscriptionActive) {
+                trackEvent("creator_unfollow_succeeded", buildCreatorRelationshipTelemetryPayload({
+                    eventName: "creator_unfollow_succeeded",
+                    viewerUserId: currentUser.uid,
+                    creatorId: creator.uid,
+                    surface: "creator_profile",
+                    sourceComponent: "creator_profile_page",
+                    relationshipState: "not_following",
+                    recommendationSource: "creator_profile",
+                    route: profileRoute,
+                    followerCount: result.relationship?.followerCount ?? null,
+                    action,
+                }));
             }
             toast.success(nextFollowing ? `Following ${creator.displayName}!` : `Unfollowed ${creator.displayName}`);
         } catch (error: any) {
+            trackEvent("creator_follow_failed", buildCreatorRelationshipTelemetryPayload({
+                eventName: "creator_follow_failed",
+                viewerUserId: currentUser.uid,
+                creatorId: creator.uid,
+                surface: "creator_profile",
+                sourceComponent: "creator_profile_page",
+                relationshipState: classifyCreatorRelationshipState({
+                    viewerUserId: currentUser.uid,
+                    creatorId: creator.uid,
+                    following,
+                }),
+                recommendationSource: "creator_profile",
+                failureReason: "creator_profile_follow_failed",
+                route: profileRoute,
+                action,
+            }));
             reportClientIssue({
                 channel: "ui",
                 message: "Creator follow action failed",

@@ -402,6 +402,19 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "viewer_backgrounded", label: "Viewer moved to background", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "creator_followed", label: "Creator followed", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_unfollowed", label: "Creator unfollowed", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "creator_discovery_surface_viewed", label: "Creator discovery surface viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
+  { eventName: "creator_card_viewed", label: "Creator card viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
+  { eventName: "creator_card_clicked", label: "Creator card clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
+  { eventName: "creator_profile_opened", label: "Creator profile opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
+  { eventName: "creator_follow_attempted", label: "Creator follow attempted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "creator_follow_succeeded", label: "Creator follow succeeded", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "creator_follow_failed", label: "Creator follow failed", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement", "runtime"] },
+  { eventName: "creator_unfollow_attempted", label: "Creator unfollow attempted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "creator_unfollow_succeeded", label: "Creator unfollow succeeded", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "creator_recommendation_viewed", label: "Creator recommendation viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
+  { eventName: "creator_recommendation_clicked", label: "Creator recommendation clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
+  { eventName: "creator_relationship_list_loaded", label: "Creator relationship list loaded", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement", "runtime"] },
+  { eventName: "creator_relationship_list_failed", label: "Creator relationship list failed", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement", "runtime"] },
   { eventName: "creator_not_interested", label: "Creator not interested", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_muted", label: "Creator muted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_notifications_enabled", label: "Creator notifications enabled", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "notifications"] },
@@ -1329,6 +1342,28 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     ];
   }
 
+  if (
+    eventName === "creator_card_viewed"
+    || eventName === "creator_card_clicked"
+    || eventName === "creator_profile_opened"
+    || eventName === "creator_follow_attempted"
+    || eventName === "creator_follow_succeeded"
+    || eventName === "creator_follow_failed"
+    || eventName === "creator_unfollow_attempted"
+    || eventName === "creator_unfollow_succeeded"
+    || eventName === "creator_recommendation_viewed"
+    || eventName === "creator_recommendation_clicked"
+  ) {
+    return [
+      "creator_id|creatorId|target_creator_id|targetCreatorId",
+      "relationship_state|relationshipState|source_component|sourceComponent",
+    ];
+  }
+
+  if (eventName === "creator_relationship_list_loaded" || eventName === "creator_relationship_list_failed") {
+    return ["relationship_state|relationshipState|list_count|listCount|recommendation_count|recommendationCount"];
+  }
+
   if (eventName === "drops_searched" || eventName === "drops_category_selected") {
     return [
       "query",
@@ -1609,6 +1644,19 @@ function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFam
     || eventName === "featured_slide_viewed"
     || eventName === "featured_slide_clicked"
     || eventName === "creator_rail_impression"
+    || eventName === "creator_discovery_surface_viewed"
+    || eventName === "creator_card_viewed"
+    || eventName === "creator_card_clicked"
+    || eventName === "creator_profile_opened"
+    || eventName === "creator_follow_attempted"
+    || eventName === "creator_follow_succeeded"
+    || eventName === "creator_follow_failed"
+    || eventName === "creator_unfollow_attempted"
+    || eventName === "creator_unfollow_succeeded"
+    || eventName === "creator_recommendation_viewed"
+    || eventName === "creator_recommendation_clicked"
+    || eventName === "creator_relationship_list_loaded"
+    || eventName === "creator_relationship_list_failed"
     || eventName === "drops_searched"
     || eventName === "drops_category_selected"
     || eventName === "search_query_submitted"
@@ -1676,6 +1724,8 @@ export function buildTelemetryEventPayloadContract(eventName: string): Telemetry
     || canonicalEventName === "drop_card_impression"
     || canonicalEventName === "featured_slide_viewed"
     || canonicalEventName === "creator_rail_impression"
+    || canonicalEventName === "creator_card_viewed"
+    || canonicalEventName === "creator_recommendation_viewed"
     || canonicalEventName === "server_purchase_verified"
     || canonicalEventName.startsWith("gumdrops_purchase_");
   const highRiskFamilies: TelemetryEventFamily[] = ["unlock", "purchase", "notification", "admin"];
