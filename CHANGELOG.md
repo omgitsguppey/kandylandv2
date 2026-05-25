@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.63 - 2026-05-25
+- Analytics module coverage repair
+- Repaired global analytics module coverage source policies and module-specific evidence mapping.
+- Separated required and optional module gaps, accepted substitute sources, and GA4 external evidence.
+- Stopped Admin/Runtime/Notification/Task modules from being marked empty when canonical internal evidence exists.
+
 ## 1.4.62 - 2026-05-25
 - Unlock and watch parity repair
 - Repaired unlock, viewer start, and watch capture parity across transactions, telemetry, rollups, and journey metrics.

@@ -1,0 +1,20 @@
+{
+  "generatedAtUtc": "2026-05-25T00:00:00.000Z",
+  "status": "pass",
+  "mappingStatus": "accepted_substitute_source",
+  "engineExports": [
+    "buildModuleSourceMap",
+    "classifyModuleSourcePresence",
+    "resolveModuleAcceptedSources",
+    "calculateModuleCoverage",
+    "explainModuleCoverage",
+    "reconcileModuleCoverageCounts"
+  ],
+  "scoreFormula": "Required verified=1.0, required partial=0.5 unless critical required source missing then 0.35, required empty=0; optional modules are scored separately.",
+  "guarantees": [
+    "Event facts are module-specific.",
+    "Accepted substitutes prevent false empty states.",
+    "Optional gaps are counted separately from required gaps.",
+    "Blocked reasons name required modules."
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "generatedAtUtc": "2026-05-25T00:00:00.000Z",
+  "totalModules": 14,
+  "requiredModules": 9,
+  "optionalModules": 5,
+  "verifiedBefore": 4,
+  "verifiedAfter": 6,
+  "partialBefore": 4,
+  "partialAfter": 5,
+  "emptyBefore": 6,
+  "emptyAfter": 3,
+  "requiredGapsBefore": 7,
+  "requiredGapsAfter": 5,
+  "optionalGapsBefore": 3,
+  "optionalGapsAfter": 3,
+  "parityScoreBefore": 58,
+  "parityScoreAfter": 67,
+  "modulesChanged": [
+    "daily_tasks",
+    "task_guidance",
+    "commerce",
+    "unlock_watch",
+    "engagement",
+    "admin",
+    "runtime"
+  ],
+  "modulesStillBlocked": [
+    "auth",
+    "navigation",
+    "notifications",
+    "commerce",
+    "unlock_watch"
+  ],
+  "ga4RequirementPolicyStatus": "ga4_optional_or_external_for_internal_modules",
+  "acceptedSubstituteStatus": "accepted_substitute_sources_counted",
+  "adminRuntimeInternalSourceStatus": "admin_runtime_internal_sources_mapped",
+  "optionalBlockingStatus": "optional_gaps_nonblocking",
+  "scoreBefore": 58,
+  "scoreAfter": 67,
+  "scoreDimensions": [
+    "required verified modules",
+    "required partial modules",
+    "required empty modules",
+    "optional nonblocking modules",
+    "accepted substitute source evidence"
+  ],
+  "remainingGaps": [
+    "Navigation remains blocked until page view, route runtime, or page rollup evidence lands for the selected range.",
+    "Auth remains blocked until auth outcomes or identity handoff evidence is materialized.",
+    "Notifications remain blocked until notification outcomes, push token lifecycle, or user-action facts are mapped.",
+    "Commerce and unlock/watch can remain partial while server telemetry lanes still report missing historical samples."
+  ],
+  "nextExactSteps": [
+    "Run the module coverage policy validators after analytics source changes.",
+    "Use the module source map output to wire any future auth, notification, or navigation producers.",
+    "Do not promote optional creator/support/AI Debug gaps into required blockers without a product decision."
+  ],
+  "dirtyClassifications": [
+    {
+      "path": "src/lib/analytics/module-coverage-source-policy.ts",
+      "classification": "module_required_source_policy_required"
+    },
+    {
+      "path": "src/lib/analytics/module-source-mapping-engine.ts",
+      "classification": "event_fact_module_mapping_required"
+    },
+    {
+      "path": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "module_coverage_source_fix_required"
+    },
+    {
+      "path": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+      "classification": "module_coverage_ui_semantics_required"
+    }
+  ],
+  "openPrClassifications": []
+}

@@ -1,0 +1,10 @@
+{
+  "generatedAtUtc": "2026-05-25T00:00:00.000Z",
+  "status": "pass",
+  "semanticsStatus": "optional_gap_nonblocking",
+  "requiredOptionalSplit": true,
+  "ambiguousSamplesFixed": true,
+  "blockedReasonNamesModules": true,
+  "parityScoreFormula": "Required verified = 1.0; required partial = 0.5 unless a critical required source is missing, then 0.35; required empty = 0; optional modules are scored separately.",
+  "passPolicy": "passAllowed=false when any required module is empty or partial; optional gaps do not block required parity."
+}

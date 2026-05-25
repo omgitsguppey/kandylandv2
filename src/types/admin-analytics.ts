@@ -769,25 +769,57 @@ export interface AnalyticsModuleCoverageItem {
   requiredForBeta: boolean;
   sourceCount: number;
   expectedSources: string[];
+  requiredSources: string[];
+  acceptedSubstituteSources: string[];
+  optionalSources: string[];
+  externalEvidenceOnlySources: string[];
+  internalCanonicalSources: string[];
   presentSources: string[];
+  presentAcceptedSources: string[];
   missingSources: string[];
+  missingRequiredSources: string[];
+  missingOptionalSources: string[];
+  missingExternalOnlySources: string[];
   sampleCount: number;
+  evidenceSamples: number;
   lastSeenAtUtc: string | null;
   dependentPanels: string[];
+  validators: string[];
   nextValidator: string;
   nextAction: string;
+  blockedReason?: string;
+  coverageWeight?: number;
+  scoreContribution?: number;
+  passPolicy?: string;
+  blockPolicy?: string;
 }
 
 export interface AnalyticsModuleCoverage {
   range: string;
   generatedAtUtc: string;
   totalModules: number;
+  requiredModules: number;
+  optionalModules: number;
   verifiedModules: number;
   partialModules: number;
   emptyModules: number;
+  verifiedRequired: number;
+  partialRequired: number;
+  emptyRequired: number;
+  verifiedOptional: number;
+  partialOptional: number;
+  emptyOptional: number;
+  requiredGaps: number;
+  optionalGaps: number;
+  requiredGapModules: string[];
+  optionalGapModules: string[];
+  sampledModules: number;
+  evidenceSamples: number;
   parityScore: number;
+  optionalParityScore: number;
+  parityScoreFormula: string;
   passAllowed: boolean;
-  blockedReason?: "required_source_missing" | "module_empty" | "module_partial" | "unknown";
+  blockedReason?: "required_source_missing" | "module_empty" | "module_partial" | "unknown" | string;
   modules: AnalyticsModuleCoverageItem[];
 }
 

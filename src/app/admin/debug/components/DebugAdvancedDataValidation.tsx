@@ -385,36 +385,48 @@ export function DebugAdvancedDataValidation() {
                         {group === "Module coverage" && analyticsModuleCoverage ? (
                             <div className="mb-3 space-y-2 rounded-[0.9rem] border border-white/10 bg-black/20 p-3">
                                 <div className="flex flex-wrap gap-2">
-                                    <Pill label="Verified" value={`${analyticsModuleCoverage.verifiedModules}/${analyticsModuleCoverage.totalModules}`} tone={analyticsModuleCoverage.passAllowed ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Partial" value={analyticsModuleCoverage.partialModules} tone={analyticsModuleCoverage.partialModules > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Empty" value={analyticsModuleCoverage.emptyModules} tone={analyticsModuleCoverage.emptyModules > 0 ? "bad" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Required gaps" value={analyticsModuleCoverage.modules.filter((module) => module.requiredForBeta && module.status !== "verified").length} tone={analyticsModuleCoverage.modules.some((module) => module.requiredForBeta && module.status === "empty") ? "bad" : analyticsModuleCoverage.modules.some((module) => module.requiredForBeta && module.status !== "verified") ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Optional gaps" value={analyticsModuleCoverage.modules.filter((module) => !module.requiredForBeta && module.status !== "verified").length} tone={analyticsModuleCoverage.modules.some((module) => !module.requiredForBeta && module.status !== "verified") ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Parity score" value={`${analyticsModuleCoverage.parityScore}%`} tone={analyticsModuleCoverage.parityScore < 80 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Required verified" value={`${analyticsModuleCoverage.verifiedRequired}/${analyticsModuleCoverage.requiredModules}`} tone={analyticsModuleCoverage.passAllowed ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Required partial" value={analyticsModuleCoverage.partialRequired} tone={analyticsModuleCoverage.partialRequired > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Required empty" value={analyticsModuleCoverage.emptyRequired} tone={analyticsModuleCoverage.emptyRequired > 0 ? "bad" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Optional gaps" value={analyticsModuleCoverage.optionalGaps} tone={analyticsModuleCoverage.optionalGaps > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="NONBLOCKING" />
+                                    <Pill label="Required parity" value={`${analyticsModuleCoverage.parityScore}%`} tone={analyticsModuleCoverage.parityScore < 80 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
                                     {analyticsModuleCoverage.blockedReason ? <Pill label="Blocked" value={analyticsModuleCoverage.blockedReason} tone="warn" truthState="live" badgeLabel="REVIEW" /> : null}
                                 </div>
                                 <div className="space-y-2">
-                                    {analyticsModuleCoverage?.modules.filter((module) => module.status !== "verified").map((module) => (
-                                        <div
-                                            key={module.moduleId}
-                                            className="rounded-md border border-white/10 px-3 py-2 text-xs text-gray-300"
-                                            data-module-coverage-id={module.moduleId}
-                                            data-module-coverage-status={module.status}
-                                        >
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <Pill label="Module" value={module.moduleLabel} truthState="live" badgeLabel="INFO" />
-                                                <Pill label="Status" value={module.status} tone={module.severity === "error" ? "bad" : module.severity === "review" ? "warn" : "neutral"} truthState="live" badgeLabel={module.severity === "error" ? "ERROR" : module.severity === "review" ? "REVIEW" : "INFO"} />
-                                                <Pill label="Required" value={module.requiredForBeta ? "yes" : "no"} tone={module.requiredForBeta ? "warn" : "neutral"} truthState="live" badgeLabel="INFO" />
-                                                <Pill label="Samples" value={module.sampleCount} tone={module.sampleCount === 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="Last seen" value={formatUtcTimestamp(module.lastSeenAtUtc)} tone={module.lastSeenAtUtc ? "neutral" : "warn"} truthState={module.lastSeenAtUtc ? "live" : "unavailable"} badgeLabel={module.lastSeenAtUtc ? "INFO" : "UNKNOWN"} />
+                                    {(["Required modules", "Optional modules"] as const).map((tier) => {
+                                        const requiredTier = tier === "Required modules";
+                                        const modules = analyticsModuleCoverage.modules.filter((module) => module.requiredForBeta === requiredTier && module.status !== "verified");
+                                        return (
+                                            <div key={tier} className="space-y-2" data-module-coverage-tier={requiredTier ? "required" : "optional"}>
+                                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">{tier}</p>
+                                                {modules.length === 0 ? (
+                                                    <p className="rounded-md border border-white/10 px-3 py-2 text-xs text-gray-400">{requiredTier ? "No required module gaps." : "No optional module gaps."}</p>
+                                                ) : modules.map((module) => (
+                                                    <div
+                                                        key={module.moduleId}
+                                                        className="rounded-md border border-white/10 px-3 py-2 text-xs text-gray-300"
+                                                        data-module-coverage-id={module.moduleId}
+                                                        data-module-coverage-status={module.status}
+                                                    >
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <Pill label="Module" value={module.moduleLabel} truthState="live" badgeLabel="INFO" />
+                                                            <Pill label="Status" value={module.status} tone={module.severity === "error" ? "bad" : module.severity === "review" ? "warn" : "neutral"} truthState="live" badgeLabel={module.severity === "error" ? "ERROR" : module.severity === "review" ? "REVIEW" : "INFO"} />
+                                                            <Pill label="Tier" value={module.requiredForBeta ? "required" : "optional"} tone={module.requiredForBeta ? "warn" : "neutral"} truthState="live" badgeLabel={module.requiredForBeta ? "BLOCKING" : "NONBLOCKING"} />
+                                                            <Pill label="Evidence samples" value={module.evidenceSamples ?? module.sampleCount} tone={(module.evidenceSamples ?? module.sampleCount) === 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                            <Pill label="Last seen" value={formatUtcTimestamp(module.lastSeenAtUtc)} tone={module.lastSeenAtUtc ? "neutral" : "warn"} truthState={module.lastSeenAtUtc ? "live" : "unavailable"} badgeLabel={module.lastSeenAtUtc ? "INFO" : "UNKNOWN"} />
+                                                        </div>
+                                                        <p className="mt-2"><span className="font-semibold text-white">Accepted sources:</span> {module.presentAcceptedSources.join(", ") || "None recorded"}</p>
+                                                        <p><span className="font-semibold text-white">Canonical gaps:</span> {module.missingRequiredSources.join(", ") || "None"}</p>
+                                                        <p><span className="font-semibold text-white">External optional gaps:</span> {module.missingExternalOnlySources.join(", ") || "None"}</p>
+                                                        <p><span className="font-semibold text-white">Substitute policy:</span> {module.acceptedSubstituteSources.join(", ") || "No substitute sources configured"}</p>
+                                                        <p><span className="font-semibold text-white">Dependent panels:</span> {module.dependentPanels.join(", ")}</p>
+                                                        <p><span className="font-semibold text-white">Next action:</span> {module.nextAction}</p>
+                                                        <p><span className="font-semibold text-white">Validator:</span> {module.nextValidator}</p>
+                                                    </div>
+                                                ))}
                                             </div>
-                                            <p className="mt-2"><span className="font-semibold text-white">Missing sources:</span> {module.missingSources.join(", ") || "None recorded"}</p>
-                                            <p><span className="font-semibold text-white">Present sources:</span> {module.presentSources.join(", ") || "None recorded"}</p>
-                                            <p><span className="font-semibold text-white">Dependent panels:</span> {module.dependentPanels.join(", ")}</p>
-                                            <p><span className="font-semibold text-white">Next action:</span> {module.nextAction}</p>
-                                            <p><span className="font-semibold text-white">Validator:</span> {module.nextValidator}</p>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         ) : null}
@@ -459,9 +471,10 @@ export function DebugAdvancedDataValidation() {
                                         </div>
                                         {check.checkKey === "module_coverage" && check.moduleCoverage ? (
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Verified modules" value={`${check.moduleCoverage.verifiedModules}/${check.moduleCoverage.totalModules}`} truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="Partial modules" value={check.moduleCoverage.partialModules} tone={check.moduleCoverage.partialModules > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="Empty modules" value={check.moduleCoverage.emptyModules} tone={check.moduleCoverage.emptyModules > 0 ? "bad" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Verified required" value={`${check.moduleCoverage.verifiedRequired}/${check.moduleCoverage.requiredModules}`} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Partial required" value={check.moduleCoverage.partialRequired} tone={check.moduleCoverage.partialRequired > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Empty required" value={check.moduleCoverage.emptyRequired} tone={check.moduleCoverage.emptyRequired > 0 ? "bad" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Optional gaps" value={check.moduleCoverage.optionalGaps} tone={check.moduleCoverage.optionalGaps > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="NONBLOCKING" />
                                             </div>
                                         ) : null}
                                         {check.checkKey === "task_guidance_parity" ? (

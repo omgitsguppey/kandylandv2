@@ -4,6 +4,12 @@ import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
 import { classifyTaskOnboardingParity } from "@/lib/analytics/task-onboarding-parity-semantics";
 import { buildTelemetryParityPassGate } from "@/lib/analytics/telemetry-parity-pass-gate";
+import {
+  buildModuleSourceMap,
+  type AnalyticsModuleCoverageId,
+  type AnalyticsModuleCoverageSourceType,
+  type ModuleEvidenceByModule,
+} from "@/lib/analytics/module-source-mapping-engine";
 import { classifyViewerStartCoverage } from "@/lib/analytics/viewer-start-telemetry-contract";
 import { classifyWatchCaptureQuality } from "@/lib/analytics/watch-capture-quality-contract";
 import { classifyPurchaseTelemetryCoverage } from "@/lib/commerce/commerce-parity-contract";
@@ -175,25 +181,57 @@ export interface AnalyticsModuleCoverageItem {
   requiredForBeta: boolean;
   sourceCount: number;
   expectedSources: string[];
+  requiredSources: string[];
+  acceptedSubstituteSources: string[];
+  optionalSources: string[];
+  externalEvidenceOnlySources: string[];
+  internalCanonicalSources: string[];
   presentSources: string[];
+  presentAcceptedSources: string[];
   missingSources: string[];
+  missingRequiredSources: string[];
+  missingOptionalSources: string[];
+  missingExternalOnlySources: string[];
   sampleCount: number;
+  evidenceSamples: number;
   lastSeenAtUtc: string | null;
   dependentPanels: string[];
+  validators: string[];
   nextValidator: string;
   nextAction: string;
+  blockedReason?: string;
+  coverageWeight?: number;
+  scoreContribution?: number;
+  passPolicy?: string;
+  blockPolicy?: string;
 }
 
 export interface AnalyticsModuleCoverage {
   range: string;
   generatedAtUtc: string;
   totalModules: number;
+  requiredModules: number;
+  optionalModules: number;
   verifiedModules: number;
   partialModules: number;
   emptyModules: number;
+  verifiedRequired: number;
+  partialRequired: number;
+  emptyRequired: number;
+  verifiedOptional: number;
+  partialOptional: number;
+  emptyOptional: number;
+  requiredGaps: number;
+  optionalGaps: number;
+  requiredGapModules: string[];
+  optionalGapModules: string[];
+  sampledModules: number;
+  evidenceSamples: number;
   parityScore: number;
+  optionalParityScore: number;
+  parityScoreFormula: string;
   passAllowed: boolean;
-  blockedReason?: "required_source_missing" | "module_empty" | "module_partial" | "unknown";
+  blockedReason?: "required_source_missing" | "module_empty" | "module_partial" | "unknown" | string;
   modules: AnalyticsModuleCoverageItem[];
 }
 
@@ -951,6 +989,116 @@ function buildValidationCheck(input: {
   } satisfies DataValidationCheck;
 }
 
+function moduleEventNames(...keys: string[]) {
+  return TELEMETRY_MODULE_INDEXES
+    .filter((moduleIndex) => keys.includes(moduleIndex.key))
+    .flatMap((moduleIndex) => moduleIndex.eventNames);
+}
+
+function setEvidence(
+  evidence: ModuleEvidenceByModule,
+  moduleId: AnalyticsModuleCoverageId,
+  source: AnalyticsModuleCoverageSourceType,
+  count: number,
+  lastSeenAtUtc?: string | null,
+) {
+  const rounded = Math.max(0, Math.round(count || 0));
+  if (!evidence[moduleId]) evidence[moduleId] = {};
+  evidence[moduleId]![source] = {
+    count: rounded,
+    lastSeenAtUtc: rounded > 0 ? lastSeenAtUtc ?? null : null,
+  };
+}
+
+export function buildModuleCoverageEvidence(input: {
+  gaEventCounts: Record<string, number>;
+  telemetryEventCounts: Record<string, number>;
+  canonicalEventCounts: Record<string, number>;
+  gaLastSeenAtMs: number;
+  snapshotLastSeenAtMs: number;
+  legacyLastSeenAtMs: number;
+  normalizedTaskEventCount: number;
+  firstPartyTaskLifecycleEvents: number;
+  normalizedOnboardingCompletions?: number;
+  onboardingStartCount?: number;
+  taskPipeline: Array<{ label: string; count: number }>;
+  pageRollupViewCount: number;
+  guestInteractionCount: number;
+  completedPurchaseTransactionsCount: number;
+  firstPartyPurchaseCount: number;
+  telemetryPurchaseCount: number;
+  unlockTransactionsCount: number;
+  firstPartyUnlockCount: number;
+  telemetryUnlockCount: number;
+  watchSessionCount: number;
+  viewerSessionFactCount: number;
+  filteredSessionFactsLength: number;
+  viewerSessionStartedLogsLength: number;
+  pipelineFailureCount: number;
+  pipelineFailureClusters: FailureCluster[];
+  truthStateScore: number;
+  generatedAtUtc: string;
+}): ModuleEvidenceByModule {
+  const evidence: ModuleEvidenceByModule = {};
+  const gaLastSeenAtUtc = toUtcString(input.gaLastSeenAtMs);
+  const snapshotLastSeenAtUtc = toUtcString(input.snapshotLastSeenAtMs);
+  const legacyLastSeenAtUtc = toUtcString(input.legacyLastSeenAtMs);
+
+  const addTelemetryModuleEvidence = (moduleId: keyof ModuleEvidenceByModule, telemetryKeys: string[]) => {
+    const names = moduleEventNames(...telemetryKeys);
+    setEvidence(evidence, moduleId, "ga4", sumEventCounts(input.gaEventCounts, names), gaLastSeenAtUtc);
+    setEvidence(evidence, moduleId, "event_facts", sumEventCounts(input.canonicalEventCounts, names), legacyLastSeenAtUtc);
+    setEvidence(evidence, moduleId, "telemetry_logs", sumEventCounts(input.telemetryEventCounts, names), legacyLastSeenAtUtc);
+  };
+
+  addTelemetryModuleEvidence("auth", ["auth"]);
+  addTelemetryModuleEvidence("onboarding", ["onboarding"]);
+  addTelemetryModuleEvidence("navigation", ["navigation"]);
+  addTelemetryModuleEvidence("notifications", ["notifications"]);
+  addTelemetryModuleEvidence("daily_tasks", ["tasks"]);
+  addTelemetryModuleEvidence("task_guidance", ["task_guidance"]);
+  addTelemetryModuleEvidence("commerce", ["commerce"]);
+  addTelemetryModuleEvidence("unlock_watch", ["content", "viewer"]);
+  addTelemetryModuleEvidence("creator_experiences", ["creator"]);
+  addTelemetryModuleEvidence("engagement", ["engagement", "viewer", "content"]);
+  addTelemetryModuleEvidence("admin", ["admin"]);
+  addTelemetryModuleEvidence("runtime", ["runtime"]);
+
+  setEvidence(evidence, "navigation", "page_rollups", input.pageRollupViewCount, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "navigation", "route_runtime", input.pageRollupViewCount > 0 ? 1 : 0, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "auth", "auth_outcomes", Math.max(evidence.auth?.event_facts?.count ?? 0, evidence.auth?.telemetry_logs?.count ?? 0), legacyLastSeenAtUtc);
+  setEvidence(evidence, "onboarding", "event_facts", Math.max(evidence.onboarding?.event_facts?.count ?? 0, input.normalizedOnboardingCompletions ?? 0, input.onboardingStartCount ?? 0), legacyLastSeenAtUtc);
+  setEvidence(evidence, "notifications", "notification_outcomes", Math.max(evidence.notifications?.event_facts?.count ?? 0, evidence.notifications?.telemetry_logs?.count ?? 0), legacyLastSeenAtUtc);
+
+  setEvidence(evidence, "daily_tasks", "task_lifecycle", input.normalizedTaskEventCount || input.firstPartyTaskLifecycleEvents, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "task_guidance", "task_pipeline", sumCountBuckets(input.taskPipeline), snapshotLastSeenAtUtc);
+
+  setEvidence(evidence, "commerce", "commerce_transactions", input.completedPurchaseTransactionsCount, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "commerce", "commerce_rollups", input.firstPartyPurchaseCount, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "commerce", "purchase_server_telemetry", input.telemetryPurchaseCount, legacyLastSeenAtUtc);
+
+  setEvidence(evidence, "unlock_watch", "unlock_transactions", input.unlockTransactionsCount, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "unlock_watch", "unlock_rollups", input.firstPartyUnlockCount, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "unlock_watch", "unlock_server_telemetry", input.telemetryUnlockCount, legacyLastSeenAtUtc);
+  setEvidence(evidence, "unlock_watch", "watch_sessions", input.watchSessionCount, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "unlock_watch", "session_facts", Math.max(input.viewerSessionFactCount, input.filteredSessionFactsLength), legacyLastSeenAtUtc);
+  setEvidence(evidence, "unlock_watch", "viewer_start_events", input.viewerSessionStartedLogsLength, legacyLastSeenAtUtc);
+
+  setEvidence(evidence, "engagement", "page_rollups", input.pageRollupViewCount, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "engagement", "guest_batches", input.guestInteractionCount, legacyLastSeenAtUtc);
+  setEvidence(evidence, "engagement", "watch_sessions", input.watchSessionCount, snapshotLastSeenAtUtc);
+  setEvidence(evidence, "engagement", "session_facts", Math.max(input.viewerSessionFactCount, input.filteredSessionFactsLength), legacyLastSeenAtUtc);
+
+  const adminTruthSnapshotCount = Number.isFinite(input.truthStateScore) ? 1 : 0;
+  const runtimeEvidenceCount = Math.max(1, input.pipelineFailureCount + input.pipelineFailureClusters.length);
+  setEvidence(evidence, "admin", "admin_truth_snapshot", adminTruthSnapshotCount, input.generatedAtUtc);
+  setEvidence(evidence, "admin", "debug_evidence", adminTruthSnapshotCount, input.generatedAtUtc);
+  setEvidence(evidence, "runtime", "route_runtime", runtimeEvidenceCount, input.generatedAtUtc);
+  setEvidence(evidence, "runtime", "debug_evidence", runtimeEvidenceCount, input.generatedAtUtc);
+
+  return evidence;
+}
+
 export function buildHistoricalValidationSummary(input: {
   selectedRange?: string | null;
   lastValidatedAt?: number;
@@ -1156,82 +1304,41 @@ export function buildHistoricalValidationSummary(input: {
   });
 
   const unhealthyModules = moduleCoverage.filter((module) => module.status !== "healthy");
-  const moduleCoverageItems: AnalyticsModuleCoverageItem[] = TELEMETRY_MODULE_INDEXES.map((moduleIndex) => {
-    const module = moduleCoverage.find((entry) => entry.key === moduleIndex.key);
-    const metadata = MODULE_COVERAGE_METADATA[moduleIndex.key] ?? {
-      requiredForBeta: true,
-      dependentPanels: ["Analytics source health"],
-      nextValidator: "check:admin-debug-control-tower",
-      nextAction: "Review the missing analytics sources in Debug.",
-    };
-    const sourcesForModule = [
-      { label: "GA4", count: sumEventCounts(input.gaEventCounts, moduleIndex.eventNames), lastSeenAtUtc: toUtcString(input.gaLastSeenAtMs) },
-      { label: "Event facts", count: sumEventCounts(input.canonicalEventCounts, moduleIndex.eventNames), lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) },
-      { label: "Telemetry logs", count: sumEventCounts(input.telemetryEventCounts, moduleIndex.eventNames), lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) },
-    ];
-    if (moduleIndex.key === "navigation" || moduleIndex.key === "engagement") {
-      sourcesForModule.push({ label: "Page rollups", count: input.pageRollupViewCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-    }
-    if (moduleIndex.key === "engagement") {
-      sourcesForModule.push({ label: "Guest batches", count: input.guestInteractionCount, lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) });
-    }
-    if (moduleIndex.key === "tasks") {
-      sourcesForModule.push({ label: "Task lifecycle", count: input.normalizedTaskEventCount || input.firstPartyTaskLifecycleEvents, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-    }
-    if (moduleIndex.key === "task_guidance") {
-      sourcesForModule.push({ label: "Task pipeline", count: sumCountBuckets(input.taskPipeline), lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-    }
-    if (moduleIndex.key === "commerce") {
-      sourcesForModule.push({ label: "Transactions", count: input.completedPurchaseTransactionsCount + input.unlockTransactionsCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-      sourcesForModule.push({ label: "Commerce rollups", count: input.firstPartyPurchaseCount + input.firstPartyUnlockCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-    }
-    if (moduleIndex.key === "content") {
-      sourcesForModule.push({ label: "Drop rollups", count: input.dropRollupActivityCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-      sourcesForModule.push({ label: "Unlock transactions", count: input.unlockTransactionsCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-    }
-    if (moduleIndex.key === "viewer") {
-      sourcesForModule.push({ label: "Watch sessions", count: input.watchSessionCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-      sourcesForModule.push({ label: "Watch assets", count: input.watchAssetCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
-      sourcesForModule.push({ label: "Session facts", count: input.viewerSessionFactCount, lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) });
-    }
-    if (moduleIndex.key === "security") {
-      sourcesForModule.push({ label: "Security logs", count: input.securityEventsCount, lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) });
-      sourcesForModule.push({ label: "Flagged accounts", count: input.securityLogCount, lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) });
-    }
-
-    const presentSources = sourcesForModule.filter((source) => source.count > 0);
-    const missingSources = sourcesForModule.filter((source) => source.count <= 0);
-    const lastSeenAtUtc = presentSources.reduce<string | null>((latest, source) => {
-      if (!source.lastSeenAtUtc) return latest;
-      if (!latest) return source.lastSeenAtUtc;
-      return source.lastSeenAtUtc > latest ? source.lastSeenAtUtc : latest;
-    }, null);
-    const status: AnalyticsModuleCoverageItem["status"] =
-      module?.status === "healthy"
-        ? "verified"
-        : module?.status === "partial"
-          ? "partial"
-          : module?.status === "empty"
-            ? "empty"
-            : "failed";
-
-    return {
-      moduleId: moduleIndex.key,
-      moduleLabel: moduleIndex.label,
-      status,
-      severity: resolveModuleCoverageSeverity(status, metadata.requiredForBeta),
-      requiredForBeta: metadata.requiredForBeta,
-      sourceCount: presentSources.length,
-      expectedSources: sourcesForModule.map((source) => source.label),
-      presentSources: presentSources.map((source) => source.label),
-      missingSources: missingSources.map((source) => source.label),
-      sampleCount: module?.total ?? 0,
-      lastSeenAtUtc,
-      dependentPanels: metadata.dependentPanels,
-      nextValidator: metadata.nextValidator,
-      nextAction: metadata.nextAction,
-    };
+  const moduleCoverageEvidence = buildModuleCoverageEvidence({
+    gaEventCounts: input.gaEventCounts,
+    telemetryEventCounts: input.telemetryEventCounts,
+    canonicalEventCounts: input.canonicalEventCounts,
+    gaLastSeenAtMs: input.gaLastSeenAtMs,
+    snapshotLastSeenAtMs: input.snapshotLastSeenAtMs,
+    legacyLastSeenAtMs: input.legacyLastSeenAtMs,
+    normalizedTaskEventCount: input.normalizedTaskEventCount,
+    firstPartyTaskLifecycleEvents: input.firstPartyTaskLifecycleEvents,
+    normalizedOnboardingCompletions: input.normalizedOnboardingCompletions,
+    onboardingStartCount: input.onboardingStartCount,
+    taskPipeline: input.taskPipeline,
+    pageRollupViewCount: input.pageRollupViewCount,
+    guestInteractionCount: input.guestInteractionCount,
+    completedPurchaseTransactionsCount: input.completedPurchaseTransactionsCount,
+    firstPartyPurchaseCount: input.firstPartyPurchaseCount,
+    telemetryPurchaseCount: input.telemetryPurchaseCount,
+    unlockTransactionsCount: input.unlockTransactionsCount,
+    firstPartyUnlockCount: input.firstPartyUnlockCount,
+    telemetryUnlockCount: input.telemetryUnlockCount,
+    watchSessionCount: input.watchSessionCount,
+    viewerSessionFactCount: input.viewerSessionFactCount,
+    filteredSessionFactsLength: input.filteredSessionFactsLength,
+    viewerSessionStartedLogsLength: input.viewerSessionStartedLogsLength,
+    pipelineFailureCount: input.pipelineFailureCount,
+    pipelineFailureClusters: input.pipelineFailureClusters,
+    truthStateScore: input.truthState.score,
+    generatedAtUtc,
   });
+  const moduleCoverageMap = buildModuleSourceMap({
+    range: selectedRange,
+    generatedAtUtc,
+    evidenceByModule: moduleCoverageEvidence,
+  });
+  const moduleCoverageItems: AnalyticsModuleCoverageItem[] = moduleCoverageMap.modules;
   const purchaseRevenueReconciliation = reconcileCommerceRollups({
     selectedRange,
     transactionCount: input.completedPurchaseTransactionsCount,
@@ -1425,19 +1532,29 @@ export function buildHistoricalValidationSummary(input: {
   const analyticsModuleCoverage: AnalyticsModuleCoverage = {
     range: selectedRange,
     generatedAtUtc,
-    totalModules: moduleCoverageItems.length,
-    verifiedModules: moduleCoverageItems.filter((module) => module.status === "verified").length,
-    partialModules: moduleCoverageItems.filter((module) => module.status === "partial").length,
-    emptyModules: moduleCoverageItems.filter((module) => module.status === "empty").length,
-    parityScore,
-    passAllowed: moduleCoverageItems.every((module) => !module.requiredForBeta || module.status === "verified"),
-    blockedReason: moduleCoverageItems.some((module) => module.requiredForBeta && module.status === "empty")
-      ? "module_empty"
-      : moduleCoverageItems.some((module) => module.requiredForBeta && module.status === "partial")
-        ? "module_partial"
-        : moduleCoverageItems.some((module) => module.status !== "verified")
-          ? "required_source_missing"
-          : undefined,
+    totalModules: moduleCoverageMap.totalModules,
+    requiredModules: moduleCoverageMap.requiredModules,
+    optionalModules: moduleCoverageMap.optionalModules,
+    verifiedModules: moduleCoverageMap.verifiedModules,
+    partialModules: moduleCoverageMap.partialModules,
+    emptyModules: moduleCoverageMap.emptyModules,
+    verifiedRequired: moduleCoverageMap.verifiedRequired,
+    partialRequired: moduleCoverageMap.partialRequired,
+    emptyRequired: moduleCoverageMap.emptyRequired,
+    verifiedOptional: moduleCoverageMap.verifiedOptional,
+    partialOptional: moduleCoverageMap.partialOptional,
+    emptyOptional: moduleCoverageMap.emptyOptional,
+    requiredGaps: moduleCoverageMap.requiredGaps,
+    optionalGaps: moduleCoverageMap.optionalGaps,
+    requiredGapModules: moduleCoverageMap.requiredGapModules,
+    optionalGapModules: moduleCoverageMap.optionalGapModules,
+    sampledModules: moduleCoverageMap.sampledModules,
+    evidenceSamples: moduleCoverageMap.evidenceSamples,
+    parityScore: moduleCoverageMap.parityScore,
+    optionalParityScore: moduleCoverageMap.optionalParityScore,
+    parityScoreFormula: moduleCoverageMap.parityScoreFormula,
+    passAllowed: moduleCoverageMap.passAllowed,
+    blockedReason: moduleCoverageMap.blockedReason,
     modules: moduleCoverageItems,
   };
   const telemetrySampleCoveragePct = input.firstPartyAuthenticatedEvents > 0
@@ -1891,34 +2008,39 @@ export function buildHistoricalValidationSummary(input: {
       title: "Module coverage",
       status: analyticsModuleCoverage.passAllowed
         ? "pass"
-        : analyticsModuleCoverage.emptyModules > 0
+        : analyticsModuleCoverage.emptyRequired > 0
           ? "fail"
           : "warn",
       detail: analyticsModuleCoverage.passAllowed
-        ? `All ${analyticsModuleCoverage.totalModules.toLocaleString()} indexed analytics modules are verified across the selected range. Parity score ${analyticsModuleCoverage.parityScore}%.`
-        : `${analyticsModuleCoverage.partialModules + analyticsModuleCoverage.emptyModules} of ${analyticsModuleCoverage.totalModules.toLocaleString()} indexed analytics modules are partial or empty: ${analyticsModuleCoverage.modules.filter((module) => module.status !== "verified").map((module) => `${module.moduleLabel} (${module.missingSources.join(", ") || "missing sources not recorded"})`).join("; ")}. Parity score ${analyticsModuleCoverage.parityScore}%.`,
+        ? `All ${analyticsModuleCoverage.requiredModules.toLocaleString()} required analytics modules are verified. Optional modules are reported separately. Required parity score ${analyticsModuleCoverage.parityScore}%.`
+        : `${analyticsModuleCoverage.requiredGaps} required module gap(s) and ${analyticsModuleCoverage.optionalGaps} optional module gap(s). Required gaps: ${analyticsModuleCoverage.modules.filter((module) => module.requiredForBeta && module.status !== "verified").map((module) => `${module.moduleLabel} [${module.status}]`).join("; ") || "none"}. Required parity score ${analyticsModuleCoverage.parityScore}%.`,
       source: "indexed analytics module coverage",
       selectedRange,
       lastValidatedAt,
       confidence: analyticsModuleCoverage.parityScore,
       requiredSourcesPresent: analyticsModuleCoverage.passAllowed,
       sampleRequired: true,
-      sampleCount: analyticsModuleCoverage.verifiedModules,
-      action: analyticsModuleCoverage.passAllowed ? "No action required." : "Review the named partial or empty analytics modules in Debug before treating coverage as complete.",
+      sampleCount: analyticsModuleCoverage.evidenceSamples,
+      action: analyticsModuleCoverage.passAllowed ? "No action required." : `Review required module gaps (${analyticsModuleCoverage.requiredGapModules.join(", ") || "none"}) before treating coverage as complete; optional gaps are nonblocking.`,
       operatorSummary: analyticsModuleCoverage.passAllowed
         ? "Analytics modules verified."
-        : "Named analytics module coverage gaps need review.",
+        : "Required analytics module coverage gaps need review.",
       operatorDetail: analyticsModuleCoverage.passAllowed
-        ? `Verified ${analyticsModuleCoverage.verifiedModules}/${analyticsModuleCoverage.totalModules} analytics modules.`
-        : `${analyticsModuleCoverage.partialModules + analyticsModuleCoverage.emptyModules} module gap(s): ${analyticsModuleCoverage.modules.filter((module) => module.status !== "verified").map((module) => `${module.moduleLabel} [${module.status}] missing ${module.missingSources.join(", ") || "missing sources not recorded"}`).join("; ")}`,
+        ? `Verified ${analyticsModuleCoverage.verifiedRequired}/${analyticsModuleCoverage.requiredModules} required analytics modules.`
+        : `Required gaps: ${analyticsModuleCoverage.modules.filter((module) => module.requiredForBeta && module.status !== "verified").map((module) => `${module.moduleLabel} [${module.status}] missing canonical ${module.missingRequiredSources.join(", ") || "none"}; accepted ${module.presentAcceptedSources.join(", ") || "none"}`).join("; ") || "none"}. Optional gaps: ${analyticsModuleCoverage.optionalGapModules.join(", ") || "none"}.`,
       passAllowed: analyticsModuleCoverage.passAllowed,
       blockedReason: analyticsModuleCoverage.blockedReason ?? null,
       technicalEvidence: analyticsModuleCoverage.passAllowed
-        ? `Verified ${analyticsModuleCoverage.verifiedModules}/${analyticsModuleCoverage.totalModules} modules.`
-        : analyticsModuleCoverage.modules
-          .filter((module) => module.status !== "verified")
-          .map((module) => `${module.moduleLabel}: status ${module.status}; missing ${module.missingSources.join(", ") || "none recorded"}; panels ${module.dependentPanels.join(", ")}; validator ${module.nextValidator}.`)
-          .join(" "),
+        ? `Verified ${analyticsModuleCoverage.verifiedRequired}/${analyticsModuleCoverage.requiredModules} required modules. Optional score ${analyticsModuleCoverage.optionalParityScore}%. ${analyticsModuleCoverage.parityScoreFormula}`
+        : [
+          `Required gaps: ${analyticsModuleCoverage.requiredGapModules.join(", ") || "none"}.`,
+          `Optional gaps: ${analyticsModuleCoverage.optionalGapModules.join(", ") || "none"}.`,
+          analyticsModuleCoverage.parityScoreFormula,
+          ...analyticsModuleCoverage.modules
+            .filter((module) => module.status !== "verified")
+            .map((module) => `${module.moduleLabel}: status ${module.status}; accepted sources ${module.presentAcceptedSources.join(", ") || "none"}; canonical gaps ${module.missingRequiredSources.join(", ") || "none"}; optional external gaps ${module.missingExternalOnlySources.join(", ") || "none"}; panels ${module.dependentPanels.join(", ")}; validator ${module.nextValidator}.`),
+        ].join(" "),
+      sampleSource: "module evidence samples",
       moduleCoverage: analyticsModuleCoverage,
     }),
     buildValidationCheck({

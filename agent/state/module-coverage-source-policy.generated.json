@@ -1,0 +1,30 @@
+{
+  "generatedAtUtc": "2026-05-25T00:00:00.000Z",
+  "status": "pass",
+  "moduleCount": 14,
+  "policyStatus": "ga4_optional_policy",
+  "requiredModules": [
+    "auth",
+    "onboarding",
+    "navigation",
+    "notifications",
+    "daily_tasks",
+    "task_guidance",
+    "commerce",
+    "unlock_watch",
+    "engagement"
+  ],
+  "optionalModules": [
+    "creator_experiences",
+    "admin",
+    "runtime",
+    "support",
+    "ai_debug"
+  ],
+  "rules": [
+    "GA4 is optional or external evidence for internal modules.",
+    "Admin and Runtime use internal debug, route runtime, and admin truth snapshots.",
+    "Accepted substitutes are explicit per module and do not fake samples.",
+    "Optional modules are reported separately and do not block required parity."
+  ]
+}

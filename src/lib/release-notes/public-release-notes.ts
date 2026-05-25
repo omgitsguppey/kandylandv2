@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.62",
-  "betaReleaseCounter": 462,
+  "currentVersion": "1.4.63",
+  "betaReleaseCounter": 463,
   "channel": "beta",
-  "generatedAt": "2026-05-25T07:12:37.000Z",
-  "generatedAtUtc": "2026-05-25T07:12:37.000Z",
+  "generatedAt": "2026-05-25T07:25:00.000Z",
+  "generatedAtUtc": "2026-05-25T07:25:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.63",
+      "previousVersion": "1.4.62",
+      "betaReleaseCounter": 463,
+      "previousBetaReleaseCounter": 462,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): repair module coverage",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T07:25:00.000Z",
+      "generatedAt": "2026-05-25T07:25:00.000Z",
+      "committedAtUtc": "2026-05-25T07:25:00.000Z",
+      "generatedAtUtc": "2026-05-25T07:25:00.000Z",
+      "category": "Fixed",
+      "title": "Analytics module coverage repair",
+      "updatedAtUtc": "2026-05-25T07:25:00.000Z",
+      "summary": "Repaired global analytics module coverage so required and optional module gaps, accepted substitute sources, and GA4 external evidence are separated at the source-of-truth layer.",
+      "userFacingTitle": "Analytics module coverage repair",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Repaired global analytics module coverage source policies and module-specific evidence mapping.",
+        "Separated required and optional module gaps, accepted substitute sources, and GA4 external evidence.",
+        "Stopped Admin/Runtime/Notification/Task modules from being marked empty when canonical internal evidence exists."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Module coverage now uses explicit source policies and module-specific evidence instead of a flat GA4/Event facts/Telemetry logs checklist.",
+        "Required parity now excludes optional module gaps and names the exact required modules still blocked."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug Data Validation",
+        "Analytics module coverage source policy",
+        "Module source mapping engine",
+        "Public beta score evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/analytics/module-coverage-source-policy.ts",
+        "src/lib/analytics/module-source-mapping-engine.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx"
+      ],
+      "effectiveChangeCount": 4,
+      "excludedGeneratedChangeCount": 12,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.62",
       "previousVersion": "1.4.61",
@@ -6691,75 +6740,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 20,
       "excludedGeneratedChangeCount": 8,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.38",
-      "previousVersion": "1.4.37",
-      "betaReleaseCounter": 438,
-      "previousBetaReleaseCounter": 437,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): clean business truth recovery",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T18:05:35.641Z",
-      "generatedAt": "2026-05-24T18:05:35.641Z",
-      "committedAtUtc": "2026-05-24T18:05:35.641Z",
-      "generatedAtUtc": "2026-05-24T18:05:35.641Z",
-      "updatedAtUtc": "2026-05-24T18:05:35.641Z",
-      "category": "Improved",
-      "title": "Business truth recovery cleanup",
-      "summary": "Cleaned recovery playbook CTAs and canonical business truth status so stale business snapshots stay actionable without making ops health look broken.",
-      "userFacingTitle": "Business truth recovery cleanup",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Cleaned recovery playbook CTAs and canonical business truth status.",
-        "Separated stale business snapshots from ops-health failures.",
-        "Added source-class clarity for revenue, purchases, unwraps, and watch metrics."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Admin debug",
-        "Control Tower",
-        "Business truth",
-        "Recovery playbooks",
-        "Beta score"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/canonical-business-truth-status.generated.json",
-        "agent/state/canonical-business-truth-refresh.generated.json",
-        "agent/state/recovery-playbook-cta-cleanup.generated.json",
-        "agent/state/debug-cockpit-batch8-cleanup.generated.json",
-        "docs/agent-truth/canonical-business-truth-status.md",
-        "docs/agent-truth/canonical-business-truth-refresh.md",
-        "docs/agent-truth/recovery-playbook-cta-cleanup.md",
-        "docs/agent-truth/debug-cockpit-batch8-cleanup.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/business-truth-recovery-shared.ts",
-        "scripts/agent/validate-canonical-business-truth-status.ts",
-        "scripts/agent/validate-canonical-business-truth-refresh.ts",
-        "scripts/agent/validate-recovery-playbook-cta-cleanup.ts",
-        "scripts/agent/validate-debug-cockpit-batch8-cleanup.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-drop-watch-time-accuracy.ts",
-        "scripts/agent/validate-sql-database-parity-cost-lock.ts",
-        "src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx",
-        "src/lib/debug/canonical-business-truth-status.ts",
-        "src/lib/debug/recovery-playbook-visibility.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/canonical-business-truth-status.spec.ts",
-        "tests/unit/canonical-business-truth-refresh.spec.ts",
-        "tests/unit/recovery-playbook-cta-cleanup.spec.ts",
-        "tests/unit/debug-cockpit-batch8-cleanup.spec.ts"
-      ],
-      "effectiveChangeCount": 27,
-      "excludedGeneratedChangeCount": 12,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

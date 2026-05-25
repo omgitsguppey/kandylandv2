@@ -1,0 +1,25 @@
+{
+  "generatedAtUtc": "2026-05-25T00:00:00.000Z",
+  "status": "pass",
+  "modulesRepaired": [
+    "daily_tasks",
+    "task_guidance",
+    "commerce",
+    "unlock_watch",
+    "engagement",
+    "admin",
+    "runtime"
+  ],
+  "modulesStillBlocked": [
+    "auth",
+    "navigation",
+    "notifications"
+  ],
+  "sourceMappingStatus": {
+    "daily_tasks": "task_lifecycle_counted",
+    "task_guidance": "task_pipeline_counted",
+    "engagement": "event_watch_session_fact_sources_counted",
+    "admin": "admin_truth_snapshot_counted",
+    "runtime": "route_runtime_debug_evidence_counted"
+  }
+}
