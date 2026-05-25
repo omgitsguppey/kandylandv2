@@ -1,0 +1,99 @@
+{
+  "reportKey": "admin-analytics-source-hierarchy",
+  "generatedAtUtc": "2026-05-25T05:24:32.507Z",
+  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "hierarchy": {
+    "status": "consumer_source_mismatch",
+    "sourceOrder": [
+      "Admin Analytics canonical snapshot / source truth",
+      "Historical snapshot",
+      "GA4 external evidence",
+      "Legacy support rollups",
+      "Live/realtime pulse",
+      "Local fallback/empty states"
+    ],
+    "consumers": [
+      {
+        "consumerId": "debug_data_validation",
+        "sourceUsed": "historical_snapshot",
+        "sourceHealthRequired": true,
+        "chartReadinessRequired": false,
+        "sourceAgreementRequired": true,
+        "fallbackAllowed": false,
+        "emptyStateAllowed": false,
+        "blockerReason": "source_agreement_failed",
+        "nextAction": "Inspect source agreement failure details in Debug."
+      },
+      {
+        "consumerId": "admin_analytics_overview",
+        "sourceUsed": "local_fallback_empty_state",
+        "sourceHealthRequired": true,
+        "chartReadinessRequired": true,
+        "sourceAgreementRequired": true,
+        "fallbackAllowed": true,
+        "emptyStateAllowed": true,
+        "blockerReason": "source_agreement_failed",
+        "nextAction": "Show the Analytics tab source blocker instead of generic empty charts."
+      },
+      {
+        "consumerId": "admin_analytics_charts",
+        "sourceUsed": "local_fallback_empty_state",
+        "sourceHealthRequired": true,
+        "chartReadinessRequired": true,
+        "sourceAgreementRequired": true,
+        "fallbackAllowed": true,
+        "emptyStateAllowed": true,
+        "blockerReason": "source_agreement_failed",
+        "nextAction": "Surface source agreement failed or chart readiness blocked on the chart surface."
+      },
+      {
+        "consumerId": "admin_analytics_insight_cards",
+        "sourceUsed": "local_fallback_empty_state",
+        "sourceHealthRequired": true,
+        "chartReadinessRequired": false,
+        "sourceAgreementRequired": true,
+        "fallbackAllowed": true,
+        "emptyStateAllowed": true,
+        "blockerReason": "source_agreement_failed",
+        "nextAction": "Label insight cards as source agreement failed instead of clean."
+      },
+      {
+        "consumerId": "admin_analytics_source_health",
+        "sourceUsed": "historical_snapshot",
+        "sourceHealthRequired": true,
+        "chartReadinessRequired": true,
+        "sourceAgreementRequired": true,
+        "fallbackAllowed": false,
+        "emptyStateAllowed": false,
+        "blockerReason": "source_agreement_failed",
+        "nextAction": "Keep chart readiness and source agreement as separate health dimensions."
+      },
+      {
+        "consumerId": "public_beta_score_evidence",
+        "sourceUsed": "historical_snapshot",
+        "sourceHealthRequired": true,
+        "chartReadinessRequired": false,
+        "sourceAgreementRequired": true,
+        "fallbackAllowed": false,
+        "emptyStateAllowed": false,
+        "blockerReason": "source_agreement_failed",
+        "nextAction": "Score source agreement as blocked until mismatched evidence is repaired."
+      }
+    ],
+    "consumerSourceMismatches": [
+      "admin_analytics_overview",
+      "admin_analytics_charts",
+      "admin_analytics_insight_cards"
+    ],
+    "blockedAnalyticsConsumers": [
+      "debug_data_validation",
+      "admin_analytics_overview",
+      "admin_analytics_charts",
+      "admin_analytics_insight_cards",
+      "admin_analytics_source_health",
+      "public_beta_score_evidence"
+    ],
+    "nextAction": "Show source agreement failed in Debug and Analytics tab, then repair the mismatched source lane before canonical chart promotion."
+  },
+  "validationFailures": []
+}

@@ -1,0 +1,69 @@
+{
+  "reportKey": "source-agreement-failure-detail",
+  "generatedAtUtc": "2026-05-25T05:21:10.189Z",
+  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "detail": {
+    "comparedSources": [
+      "ga4",
+      "historical_snapshot",
+      "legacy_support"
+    ],
+    "disagreementCount": 3,
+    "maxDeltaPct": 67,
+    "perSourceCoverage": [
+      {
+        "source": "ga4",
+        "dayCount": 3,
+        "days": [
+          "2026-05-01",
+          "2026-05-02",
+          "2026-05-03"
+        ]
+      },
+      {
+        "source": "historical_snapshot",
+        "dayCount": 1,
+        "days": [
+          "2026-05-01"
+        ]
+      },
+      {
+        "source": "legacy_support",
+        "dayCount": 1,
+        "days": [
+          "2026-05-03"
+        ]
+      }
+    ],
+    "missingDaysBySource": {
+      "ga4": [],
+      "historical_snapshot": [
+        "2026-05-02",
+        "2026-05-03"
+      ],
+      "legacy_support": [
+        "2026-05-01",
+        "2026-05-02"
+      ]
+    },
+    "extraDaysBySource": {
+      "ga4": [],
+      "historical_snapshot": [],
+      "legacy_support": []
+    },
+    "comparedMetrics": [
+      "day_bucket_presence",
+      "coverage_delta_pct"
+    ],
+    "toleranceThresholds": {
+      "reviewDeltaPct": 10,
+      "failDeltaPct": 25
+    },
+    "blockedConsumers": [
+      "admin_analytics_charts",
+      "debug_data_validation"
+    ],
+    "nextAction": "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
+  },
+  "validationFailures": []
+}

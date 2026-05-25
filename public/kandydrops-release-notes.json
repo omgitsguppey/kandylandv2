@@ -1,11 +1,66 @@
 {
-  "currentVersion": "1.4.57",
-  "betaReleaseCounter": 457,
+  "currentVersion": "1.4.58",
+  "betaReleaseCounter": 458,
   "channel": "beta",
-  "generatedAt": "2026-05-25T04:50:20.303Z",
-  "generatedAtUtc": "2026-05-25T04:50:20.303Z",
+  "generatedAt": "2026-05-25T05:14:45.811Z",
+  "generatedAtUtc": "2026-05-25T05:14:45.811Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.58",
+      "previousVersion": "1.4.57",
+      "betaReleaseCounter": 458,
+      "previousBetaReleaseCounter": 457,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): repair source hierarchy",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T05:14:45.811Z",
+      "generatedAt": "2026-05-25T05:14:45.811Z",
+      "committedAtUtc": "2026-05-25T05:14:45.811Z",
+      "generatedAtUtc": "2026-05-25T05:14:45.811Z",
+      "category": "Fixed",
+      "title": "Analytics source hierarchy repair",
+      "updatedAtUtc": "2026-05-25T05:14:45.811Z",
+      "summary": "Repaired analytics source-of-truth hierarchy so GA4 availability, chart readiness, source agreement, validation parity, and Analytics tab empty states report separate causes.",
+      "userFacingTitle": "Analytics source hierarchy repair",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Fixed analytics chart readiness hierarchy so source agreement failure blocks ready status.",
+        "Separated GA4 report availability from usable chart data.",
+        "Aligned Debug validation and Analytics tab source-of-truth states."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "GA4 setup/report availability now remains separate from loaded chart sample evidence and source agreement parity.",
+        "Payment runtime, wallet behavior, PayPal behavior, GumDrop math, external GA4 calls, production reads, and production writes were not changed."
+      ],
+      "affectedSurfaces": [
+        "Admin Analytics overview",
+        "Admin Analytics charts",
+        "Admin Debug Data Validation",
+        "Analytics source health",
+        "Debug cockpit validation artifacts"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/lib/analytics/ga4-availability-semantics.ts",
+        "src/lib/analytics/admin-analytics-source-hierarchy.ts",
+        "src/lib/analytics/source-agreement-detail.ts",
+        "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "src/types/admin-analytics.ts"
+      ],
+      "effectiveChangeCount": 9,
+      "excludedGeneratedChangeCount": 18,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.57",
       "previousVersion": "1.4.56",
@@ -6793,80 +6848,6 @@
       "technicalDetails": [
         "All-zero admin summary lanes now require a bounded source window before displaying as live.",
         "Config-truth lanes can remain healthy-current without pretending runtime samples exist."
-      ]
-    },
-    {
-      "version": "1.4.33",
-      "previousVersion": "1.4.32",
-      "betaReleaseCounter": 433,
-      "previousBetaReleaseCounter": 432,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): clean runtime surface statuses",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T15:59:22.516Z",
-      "generatedAt": "2026-05-24T15:59:22.516Z",
-      "committedAtUtc": "2026-05-24T15:59:22.516Z",
-      "generatedAtUtc": "2026-05-24T15:59:22.516Z",
-      "updatedAtUtc": "2026-05-24T15:59:22.516Z",
-      "category": "Improved",
-      "title": "Runtime surface status cleanup",
-      "summary": "Cleaned up debug cockpit runtime surface statuses so empty samples, optional PWA registration, and stale badges are classified without faking live activity.",
-      "userFacingTitle": "Runtime surface status cleanup",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reclassified empty live tracking lanes as collecting, source-missing, or proven-zero.",
-        "Clarified PWA registration status without conflating optional registration with failure.",
-        "Cleaned stale badge display across tracking summary lanes."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Admin debug",
-        "Tracking summary",
-        "Beta readiness",
-        "PWA readiness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/debug-cockpit-batch3-cleanup.generated.json",
-        "agent/state/empty-live-lane-status-cleanup.generated.json",
-        "agent/state/identity-handoff-status-cleanup.generated.json",
-        "agent/state/pwa-service-worker-status-cleanup.generated.json",
-        "agent/state/tracking-lane-freshness-display-cleanup.generated.json",
-        "agent/state/wallet-funnel-sample-cleanup.generated.json",
-        "docs/agent-truth/debug-cockpit-batch3-cleanup.md",
-        "docs/agent-truth/empty-live-lane-status-cleanup.md",
-        "docs/agent-truth/identity-handoff-status-cleanup.md",
-        "docs/agent-truth/pwa-service-worker-status-cleanup.md",
-        "docs/agent-truth/tracking-lane-freshness-display-cleanup.md",
-        "docs/agent-truth/wallet-funnel-sample-cleanup.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/tracking-runtime-surface-status-cleanup-shared.ts",
-        "scripts/agent/validate-debug-cockpit-batch3-cleanup.ts",
-        "scripts/agent/validate-empty-live-lane-status-cleanup.ts",
-        "scripts/agent/validate-identity-handoff-status-cleanup.ts",
-        "scripts/agent/validate-pwa-service-worker-status-cleanup.ts",
-        "scripts/agent/validate-tracking-lane-freshness-display-cleanup.ts",
-        "scripts/agent/validate-wallet-funnel-sample-cleanup.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/debug/empty-live-lane-classifier.ts",
-        "src/lib/pwa/pwa-service-worker-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/debug-cockpit-batch3-cleanup.spec.ts",
-        "tests/unit/empty-live-lane-status-cleanup.spec.ts",
-        "tests/unit/identity-handoff-status-cleanup.spec.ts",
-        "tests/unit/pwa-service-worker-status-cleanup.spec.ts",
-        "tests/unit/tracking-lane-freshness-display-cleanup.spec.ts",
-        "tests/unit/wallet-funnel-sample-cleanup.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "All-zero lanes without a proven source window now classify as source_ready_collecting or source_missing instead of live.",
-        "PWA registration status now carries expected/observed/source reason fields separate from notification compatibility."
       ]
     }
   ]

@@ -64,14 +64,14 @@ function formatConfidence(value?: number | null) {
 }
 
 function toneForContinuity(status?: AnalyticsSourceHealth["continuity"]["gapSeverity"] | AnalyticsSourceHealth["chartReadiness"]["state"]) {
-    if (status === "error" || status === "gap_detected") return "bad" as const;
+    if (status === "error" || status === "gap_detected" || status === "source_disagreement") return "bad" as const;
     if (status === "review" || status === "info" || status === "partial") return "warn" as const;
     return "neutral" as const;
 }
 
 function toneForReadinessState(status?: string): PillTone {
     if (status === "ready" || status === "pass") return "good";
-    if (status === "fail" || status === "failed" || status === "blocked" || status === "unavailable") return "bad";
+    if (status === "fail" || status === "failed" || status === "blocked" || status === "source_disagreement" || status === "unavailable") return "bad";
     if (status === "partial" || status === "review" || status === "stale" || status === "not_validated") return "warn";
     return "neutral";
 }

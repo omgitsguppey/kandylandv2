@@ -1,6 +1,6 @@
 export type ValidationReadinessState = {
   chartReadiness: {
-    state: "ready" | "partial" | "blocked" | "unavailable";
+    state: "ready" | "partial" | "blocked" | "source_disagreement" | "unavailable";
     missingDays: string[];
     recentGaps: string[];
   };
@@ -59,16 +59,17 @@ export function buildValidationReadinessSummary(input: {
         : "Collect the missing evidence before allowing this row to pass.",
     }));
   const failedSources = input.sourceAgreement.failedSources ?? [];
-  const chartState =
-    input.chartReadiness.availability === "unavailable" ? "unavailable"
-      : input.chartReadiness.continuity === "error" || input.chartReadiness.recentGaps.length > 0 ? "blocked"
-        : input.chartReadiness.availability === "pass" && input.chartReadiness.continuity === "none" ? "ready"
-          : "partial";
   const sourceAgreementState =
     failedSources.length > 0 ? "fail"
       : input.sourceAgreement.sources.length < 2 ? "unavailable"
         : input.sourceAgreement.reason ? "review"
           : "pass";
+  const chartState =
+    input.chartReadiness.availability === "unavailable" ? "unavailable"
+      : input.chartReadiness.continuity === "error" || input.chartReadiness.recentGaps.length > 0 ? "blocked"
+        : sourceAgreementState === "fail" ? "source_disagreement"
+        : input.chartReadiness.availability === "pass" && input.chartReadiness.continuity === "none" ? "ready"
+          : "partial";
   const validationParityState =
     input.validations.length === 0 ? "not_validated"
       : failCount > 0 ? "fail"
@@ -108,7 +109,7 @@ export function buildValidationReadinessSummary(input: {
 }
 
 export function buildDataValidationUiSemantics(input: {
-  chartReadinessState: "ready" | "partial" | "blocked" | "unavailable";
+  chartReadinessState: "ready" | "partial" | "blocked" | "source_disagreement" | "unavailable";
   sourceAgreementState: "pass" | "fail" | "review" | "unavailable";
   validationParityState: "pass" | "fail" | "stale" | "not_validated" | "loading";
   blockedPassCount: number;

@@ -72,7 +72,7 @@ export interface AnalyticsSourceHealth {
     nextAction: string;
   };
   chartReadiness: {
-    state: "ready" | "partial" | "gap_detected" | "unavailable";
+    state: "ready" | "partial" | "source_disagreement" | "gap_detected" | "unavailable";
     reason: string;
   };
 }
@@ -365,17 +365,23 @@ function buildAnalyticsSourceHealth(input: {
       ? "unavailable"
       : recentGapDays.length > 0
         ? "gap_detected"
-        : missingDays.length > 0 || sourceAgreementState === "review" || sourceAgreementState === "not_enough_sources"
+        : sourceAgreementState === "failed"
+          ? "source_disagreement"
+          : missingDays.length > 0 || sourceAgreementState === "review" || sourceAgreementState === "not_enough_sources"
           ? "partial"
           : "ready";
   const chartReadinessReason =
     chartReadinessState === "gap_detected"
       ? gapReason
+      : chartReadinessState === "source_disagreement"
+        ? "Chart buckets are available, but source agreement failed across GA4, historical snapshot, and legacy support. Do not treat this chart as canonical until source agreement is resolved."
       : chartReadinessState === "partial"
-        ? "Historical snapshot is fresh enough to load, but chart continuity or source agreement still needs review."
+        ? sourceAgreementState === "review" || sourceAgreementState === "not_enough_sources"
+          ? "Historical snapshot is fresh enough to load, but source agreement needs review before the chart is canonical."
+          : "Historical snapshot is fresh enough to load, but chart continuity still needs review."
         : chartReadinessState === "unavailable"
           ? "No day-bucket evidence was available for the selected range."
-          : "Availability and continuity checks both passed for the selected chart range.";
+          : "Availability, continuity, and source agreement checks passed for the selected chart range.";
 
   const ga4: SourceCheck = {
     status: input.gaAvailable ? "pass" : "fail",
@@ -455,7 +461,7 @@ function buildAnalyticsSourceHealth(input: {
     sourceAgreement: {
       comparedSources,
       failedSources: sourceAgreementState === "failed"
-        ? comparedSources.filter((source) => coverageBySource.find((entry) => entry.key === source)?.days !== maxCoverage)
+        ? comparedSources
         : [],
       comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
       tolerance: "10% day coverage delta triggers review; 25% day coverage delta or repeated disagreement fails.",
@@ -568,7 +574,7 @@ const VALIDATION_OPERATOR_COPY: Record<string, {
   action: string;
 }> = {
   ga_property: {
-    pass: "Google Analytics reports are available.",
+    pass: "Google Analytics setup reports are reachable; chart data still requires loaded samples.",
     warn: "Google Analytics setup needs review.",
     fail: "Google Analytics setup is missing.",
     source: "Google Analytics setup",
@@ -1373,7 +1379,7 @@ export function buildHistoricalValidationSummary(input: {
       checkKey: "ga_property",
       title: "Google Analytics setup",
       status: input.propertyId ? "pass" : "fail",
-      detail: input.propertyId ? "Google Analytics 4 reports loaded." : "GA property is missing.",
+      detail: input.propertyId ? "Google Analytics 4 report configuration loaded; this setup check does not prove usable chart samples." : "GA property is missing.",
       source: "GA4 configuration",
       selectedRange,
       lastValidatedAt,
@@ -1720,18 +1726,38 @@ export function buildHistoricalValidationSummary(input: {
       selectedRange,
       lastValidatedAt,
       confidence: analyticsSourceHealth.sourceAgreement.maxDeltaPct === null ? null : Math.max(0, 100 - analyticsSourceHealth.sourceAgreement.maxDeltaPct),
-      requiredSourcesPresent: analyticsSourceHealth.chartReadiness.state === "ready",
       sampleRequired: true,
       sampleCount: analyticsSourceHealth.continuity.presentDays,
-      action: analyticsSourceHealth.chartReadiness.state === "ready"
+      requiredSourcesPresent: analyticsSourceHealth.chartReadiness.state === "ready" && analyticsSourceHealth.sourceAgreement.state === "pass",
+      passAllowed: analyticsSourceHealth.chartReadiness.state === "ready" && analyticsSourceHealth.sourceAgreement.state === "pass",
+      blockedReason: analyticsSourceHealth.sourceAgreement.state === "failed"
+        ? "source_agreement_failed"
+        : analyticsSourceHealth.chartReadiness.state === "gap_detected"
+          ? "chart_continuity_gap"
+          : analyticsSourceHealth.chartReadiness.state === "unavailable"
+            ? "chart_day_bucket_missing"
+            : analyticsSourceHealth.chartReadiness.state === "partial"
+              ? "chart_readiness_partial"
+              : null,
+      action: analyticsSourceHealth.chartReadiness.state === "ready" && analyticsSourceHealth.sourceAgreement.state === "pass"
         ? "No action required."
-        : "Review source agreement and missing buckets before trusting the chart as ready.",
-      operatorSummary: analyticsSourceHealth.chartReadiness.state === "ready"
+        : analyticsSourceHealth.sourceAgreement.state === "failed"
+          ? "Inspect source agreement failure details, repair the mismatched source lane, and do not promote the chart to canonical until agreement passes."
+          : "Review source agreement and missing buckets before trusting the chart as ready.",
+      operatorSummary: analyticsSourceHealth.chartReadiness.state === "ready" && analyticsSourceHealth.sourceAgreement.state === "pass"
         ? "Chart readiness passed."
         : analyticsSourceHealth.chartReadiness.state === "gap_detected"
           ? "Chart readiness blocked by continuity gaps."
+          : analyticsSourceHealth.chartReadiness.state === "source_disagreement"
+            ? "Chart readiness blocked by source agreement failure."
           : "Chart readiness needs review.",
-      technicalEvidence: analyticsSourceHealth.chartReadiness.reason,
+      technicalEvidence: [
+        `Availability ${analyticsSourceHealth.availability.ga4.status === "pass" || analyticsSourceHealth.availability.historicalSnapshot.status === "pass" || analyticsSourceHealth.availability.legacySupport.status === "pass" ? "passed" : "failed"}.`,
+        `Continuity ${analyticsSourceHealth.continuity.gapSeverity === "none" ? "passed" : "needs review"}.`,
+        `Source agreement ${analyticsSourceHealth.sourceAgreement.state === "failed" ? "failed" : analyticsSourceHealth.sourceAgreement.state}.`,
+        `Chart readiness ${analyticsSourceHealth.chartReadiness.state === "ready" ? "ready" : "blocked"}.`,
+        analyticsSourceHealth.chartReadiness.reason,
+      ].join(" "),
     }),
     buildValidationCheck({
       checkKey: "module_coverage",

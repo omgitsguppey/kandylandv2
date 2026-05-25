@@ -1,0 +1,19 @@
+{
+  "reportKey": "chart-readiness-hierarchy-repair",
+  "generatedAtUtc": "2026-05-25T05:23:08.962Z",
+  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "chartReadiness": {
+    "state": "source_disagreement",
+    "reason": "Chart buckets are available, but source agreement failed across GA4, historical snapshot, and legacy support."
+  },
+  "row": {
+    "checkKey": "source_agreement_chart_readiness",
+    "status": "fail",
+    "passAllowed": false,
+    "passBlockedReason": "source_agreement_failed",
+    "operatorSummary": "Chart readiness blocked by source agreement failure.",
+    "detail": "Chart readiness blocked by source agreement failure.",
+    "technicalEvidence": "Availability passed. Continuity passed. Source agreement failed. Chart readiness blocked."
+  },
+  "validationFailures": []
+}

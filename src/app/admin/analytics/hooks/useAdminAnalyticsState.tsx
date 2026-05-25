@@ -49,6 +49,7 @@ import {
   normalizeAdminAnalyticsReturnCadenceSegments,
 } from "@/lib/admin-analytics-return-cadence";
 import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-audience-snapshot";
+import { buildAdminAnalyticsSourceHierarchy } from "@/lib/analytics/admin-analytics-source-hierarchy";
 import { buildAdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-commerce-snapshot";
 import { buildAdminAnalyticsContentConversionModel } from "@/lib/admin-analytics-content-conversion";
 import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
@@ -2944,6 +2945,13 @@ const { user } = useAuth();
     !historicalLoading &&
     !blockingAnalyticsError &&
     !historicalHasSignals;
+  const adminAnalyticsSourceHierarchy = buildAdminAnalyticsSourceHierarchy({
+    sourceAgreementState: historicalOverviewResponse?.analyticsSourceHealth?.sourceAgreement.state ?? (showHistoricalEmptyState ? "not_enough_sources" : "pass"),
+    chartReadinessState: historicalOverviewResponse?.analyticsSourceHealth?.chartReadiness.state ?? (showHistoricalEmptyState ? "unavailable" : "ready"),
+    analyticsTabHasData: historicalHasSignals,
+    debugHasData: Boolean(historicalOverviewResponse?.analyticsSourceHealth) || showHistoricalEmptyState,
+    sourceUsedByAnalyticsTab: historicalOverviewResponse ? "admin_analytics_canonical_snapshot" : "local_fallback_empty_state",
+  });
   const liveBlockingIssues =
     !effectiveLiveResponse && liveError
       ? [liveError.message || "Realtime analytics request failed."]
@@ -3174,6 +3182,7 @@ const { user } = useAuth();
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
     clearAllFilters, clearViewerFilter,
     showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, visibleDegradedCopy,
+    adminAnalyticsSourceHierarchy,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals, authOutcomeModel,
     authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,

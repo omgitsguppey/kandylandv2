@@ -843,7 +843,7 @@ export interface AnalyticsSourceHealth {
     nextAction?: string;
   };
   chartReadiness: {
-    state: "ready" | "partial" | "gap_detected" | "unavailable";
+    state: "ready" | "partial" | "source_disagreement" | "gap_detected" | "unavailable";
     reason: string;
   };
 }

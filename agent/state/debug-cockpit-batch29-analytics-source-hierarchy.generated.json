@@ -1,0 +1,296 @@
+{
+  "reportKey": "debug-cockpit-batch29-analytics-source-hierarchy",
+  "generatedAtUtc": "2026-05-25T05:24:33.635Z",
+  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "ga4AvailabilityStatusBefore": "reports_available",
+  "ga4AvailabilityStatusAfter": "reports_loaded_empty",
+  "chartReadinessStatusBefore": "ready",
+  "chartReadinessStatusAfter": "source_disagreement",
+  "sourceAgreementStatus": "failed",
+  "validationCopyContradictionsBefore": 1,
+  "validationCopyContradictionsAfter": 0,
+  "passAllowedContradictionsBefore": 1,
+  "passAllowedContradictionsAfter": 0,
+  "analyticsTabSourceStatus": "consumer_source_mismatch",
+  "consumerSourceMismatches": [
+    "admin_analytics_overview",
+    "admin_analytics_charts",
+    "admin_analytics_insight_cards"
+  ],
+  "blockedAnalyticsConsumers": [
+    "debug_data_validation",
+    "admin_analytics_overview",
+    "admin_analytics_charts",
+    "admin_analytics_insight_cards",
+    "admin_analytics_source_health",
+    "public_beta_score_evidence"
+  ],
+  "sourceAgreementDetails": {
+    "comparedSources": [
+      "ga4",
+      "historical_snapshot",
+      "legacy_support"
+    ],
+    "disagreementCount": 3,
+    "maxDeltaPct": 67,
+    "perSourceCoverage": [
+      {
+        "source": "ga4",
+        "dayCount": 3,
+        "days": [
+          "2026-05-01",
+          "2026-05-02",
+          "2026-05-03"
+        ]
+      },
+      {
+        "source": "historical_snapshot",
+        "dayCount": 1,
+        "days": [
+          "2026-05-01"
+        ]
+      },
+      {
+        "source": "legacy_support",
+        "dayCount": 1,
+        "days": [
+          "2026-05-03"
+        ]
+      }
+    ],
+    "missingDaysBySource": {
+      "ga4": [],
+      "historical_snapshot": [
+        "2026-05-02",
+        "2026-05-03"
+      ],
+      "legacy_support": [
+        "2026-05-01",
+        "2026-05-02"
+      ]
+    },
+    "extraDaysBySource": {
+      "ga4": [],
+      "historical_snapshot": [],
+      "legacy_support": []
+    },
+    "comparedMetrics": [
+      "day_bucket_presence",
+      "coverage_delta_pct"
+    ],
+    "toleranceThresholds": {
+      "reviewDeltaPct": 10,
+      "failDeltaPct": 25
+    },
+    "blockedConsumers": [
+      "debug_data_validation",
+      "admin_analytics_overview",
+      "admin_analytics_charts",
+      "admin_analytics_insight_cards",
+      "admin_analytics_source_health",
+      "public_beta_score_evidence"
+    ],
+    "nextAction": "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
+  },
+  "scoreBefore": 42,
+  "scoreAfter": 85,
+  "scoreDimensions": [
+    "chartReadinessHierarchy",
+    "ga4AvailabilitySemantics",
+    "adminAnalyticsSourceAlignment",
+    "dataValidationCopyConsistency",
+    "sourceAgreementFailureDetail"
+  ],
+  "remainingGaps": [
+    "Repair source agreement before promoting canonical Analytics tab charts."
+  ],
+  "nextExactSteps": [
+    "GA4 reports loaded from admin analytics historical validation route, but no sample rows or day buckets were present. Keep this as setup availability only until data samples load.",
+    "Show source agreement failed in Debug and Analytics tab, then repair the mismatched source lane before canonical chart promotion.",
+    "Refresh or repair the mismatched source lane, inspect source mismatch evidence, classify GA4 external evidence as archive-only until it agrees, repair the historical snapshot, and verify the GA4 property before promoting analytics parity."
+  ],
+  "dirtyFileClassifications": [
+    {
+      "filePath": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "package.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/app/admin/analytics/page.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/lib/analytics/validation-readiness-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "src/types/admin-analytics.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "filePath": "agent/state/admin-analytics-source-hierarchy.generated.json",
+      "classification": "analytics_tab_source_truth_mismatch_required"
+    },
+    {
+      "filePath": "agent/state/chart-readiness-hierarchy-repair.generated.json",
+      "classification": "analytics_source_hierarchy_fix_required"
+    },
+    {
+      "filePath": "agent/state/data-validation-copy-consistency.generated.json",
+      "classification": "validation_copy_contradiction_required"
+    },
+    {
+      "filePath": "agent/state/debug-cockpit-batch29-analytics-source-hierarchy.generated.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/ga4-availability-semantics.generated.json",
+      "classification": "ga4_availability_semantics_required"
+    },
+    {
+      "filePath": "agent/state/source-agreement-failure-detail.generated.json",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "docs/agent-truth/admin-analytics-source-hierarchy.md",
+      "classification": "analytics_tab_source_truth_mismatch_required"
+    },
+    {
+      "filePath": "docs/agent-truth/chart-readiness-hierarchy-repair.md",
+      "classification": "analytics_source_hierarchy_fix_required"
+    },
+    {
+      "filePath": "docs/agent-truth/data-validation-copy-consistency.md",
+      "classification": "validation_copy_contradiction_required"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-cockpit-batch29-analytics-source-hierarchy.md",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/ga4-availability-semantics.md",
+      "classification": "ga4_availability_semantics_required"
+    },
+    {
+      "filePath": "docs/agent-truth/source-agreement-failure-detail.md",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "scripts/agent/debug-cockpit-batch29-analytics-source-hierarchy-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-admin-analytics-source-hierarchy.ts",
+      "classification": "analytics_tab_source_truth_mismatch_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-chart-readiness-hierarchy-repair.ts",
+      "classification": "analytics_source_hierarchy_fix_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-data-validation-copy-consistency.ts",
+      "classification": "validation_copy_contradiction_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-debug-cockpit-batch29-analytics-source-hierarchy.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-ga4-availability-semantics.ts",
+      "classification": "ga4_availability_semantics_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-source-agreement-failure-detail.ts",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "src/lib/analytics/admin-analytics-source-hierarchy.ts",
+      "classification": "analytics_tab_source_truth_mismatch_required"
+    },
+    {
+      "filePath": "src/lib/analytics/ga4-availability-semantics.ts",
+      "classification": "ga4_availability_semantics_required"
+    },
+    {
+      "filePath": "src/lib/analytics/source-agreement-detail.ts",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/admin-analytics-source-hierarchy.spec.ts",
+      "classification": "analytics_tab_source_truth_mismatch_required"
+    },
+    {
+      "filePath": "tests/unit/chart-readiness-hierarchy-repair.spec.ts",
+      "classification": "analytics_source_hierarchy_fix_required"
+    },
+    {
+      "filePath": "tests/unit/data-validation-copy-consistency.spec.ts",
+      "classification": "validation_copy_contradiction_required"
+    },
+    {
+      "filePath": "tests/unit/debug-cockpit-batch29-analytics-source-hierarchy.spec.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/ga4-availability-semantics.spec.ts",
+      "classification": "ga4_availability_semantics_required"
+    },
+    {
+      "filePath": "tests/unit/source-agreement-failure-detail.spec.ts",
+      "classification": "source_agreement_failure_classification_required"
+    }
+  ],
+  "openPrClassifications": [],
+  "validationFailures": []
+}

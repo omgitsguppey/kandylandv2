@@ -1,0 +1,16 @@
+{
+  "reportKey": "ga4-availability-semantics",
+  "generatedAtUtc": "2026-05-25T05:23:08.875Z",
+  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "semantics": {
+    "status": "reports_loaded_empty",
+    "setupPassAllowed": true,
+    "provesUsableChartData": false,
+    "provesSourceAgreement": false,
+    "displayConfidence": "n/a",
+    "sampleCount": 0,
+    "dayBucketCount": 0,
+    "nextAction": "GA4 reports loaded from the configured route, but no sample rows or day buckets were present. Keep this as setup availability only until data samples load."
+  },
+  "validationFailures": []
+}

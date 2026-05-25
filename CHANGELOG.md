@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.58 - 2026-05-25
+- Analytics source hierarchy repair
+- Fixed analytics chart readiness hierarchy so source agreement failure blocks ready status.
+- Separated GA4 report availability from usable chart data.
+- Aligned Debug validation and Analytics tab source-of-truth states.
+
 ## 1.4.57 - 2026-05-25
 - Bug validation truth cleanup
 - Fixed Bug Report Truth terminal loading states and redacted source handling.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Cleaned admin/user/auth/notification/task debug lane status truth.
 - Separated config health from live activity samples.
 - Reclassified all-zero lanes as collecting, proven-zero, or source-missing.
-
-## 1.4.33 - 2026-05-24
-- Runtime surface status cleanup
-- Reclassified empty live tracking lanes as collecting, source-missing, or proven-zero.
-- Clarified PWA registration status without conflating optional registration with failure.
-- Cleaned stale badge display across tracking summary lanes.

@@ -1,0 +1,15 @@
+{
+  "reportKey": "data-validation-copy-consistency",
+  "generatedAtUtc": "2026-05-25T05:23:08.893Z",
+  "currentHead": "572bc5ae6a3cf81f4064c47ce36eff0f8b52b136",
+  "row": {
+    "checkKey": "source_agreement_chart_readiness",
+    "status": "fail",
+    "passAllowed": false,
+    "passBlockedReason": "source_agreement_failed",
+    "operatorSummary": "Chart readiness blocked by source agreement failure.",
+    "detail": "Chart readiness blocked by source agreement failure.",
+    "technicalEvidence": "Availability passed. Continuity passed. Source agreement failed. Chart readiness blocked."
+  },
+  "validationFailures": []
+}
