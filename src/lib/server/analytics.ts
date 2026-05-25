@@ -9,6 +9,7 @@ import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
 import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract";
 import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
 import { normalizeBehavioralEventFact } from "@/lib/behavioral/normalize-event-fact";
+import { canTrackEvent, resolveConsentMode } from "@/lib/privacy/consent-tracking-policy";
 import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { profileAllowsIdentifiedAnalytics } from "@/lib/server/privacy-consent";
 import type { UserProfile } from "@/types/db";
@@ -85,21 +86,29 @@ function buildActiveUserPatch(input: {
   };
 }
 
-async function userAllowsServerAnalytics(userId?: string) {
+async function resolveServerAnalyticsPermission(userId: string | undefined, canonicalEventName: string) {
   if (!userId || !adminDb) {
-    return true;
+    return { localAllowed: true, externalAllowed: true };
   }
 
   try {
     const snapshot = await adminDb.collection("users").doc(userId).get();
     const profile = snapshot.exists ? snapshot.data() as UserProfile : null;
-    return profileAllowsIdentifiedAnalytics(profile);
+    const externalAllowed = profileAllowsIdentifiedAnalytics(profile);
+    const consentMode = resolveConsentMode(profile?.privacySettings ?? null);
+    return {
+      localAllowed: externalAllowed || canTrackEvent(canonicalEventName, consentMode),
+      externalAllowed,
+    };
   } catch (error) {
     recordRouteWarning("server/analytics", "Failed to resolve privacy settings for server event", error, {
       channel: "analytics",
       detail: { userId },
     });
-    return false;
+    return {
+      localAllowed: canTrackEvent(canonicalEventName, "necessary_only"),
+      externalAllowed: false,
+    };
   }
 }
 
@@ -116,7 +125,8 @@ export async function trackServerEvent(
     console.warn(`[Analytics] Ignored unsupported server event: ${rawEventName}`);
     return;
   }
-  if (!(await userAllowsServerAnalytics(userId))) {
+  const analyticsPermission = await resolveServerAnalyticsPermission(userId, canonicalEventName);
+  if (!analyticsPermission.localAllowed) {
     return;
   }
   const sanitizedParams = sanitizeServerParams(params);
@@ -170,7 +180,8 @@ export async function trackServerEvent(
   const actorUserId = actorClassification.actorType === "user" ? (readStringParam(enrichedParams, "actor_user_id", "actorUserId") || explicitActorUid || userId || "") : "";
   const normalizedEventFact = inclusion.includeInUserBehavior
     ? normalizeBehavioralEventFact({
-      eventId: buildServerEventId(userId, canonicalEventName),
+      eventId: readStringParam(enrichedParams, "event_id", "eventId", "idempotency_key", "idempotencyKey")
+        || buildServerEventId(userId, canonicalEventName),
       eventName: canonicalEventName,
       params: enrichedParams,
       timestamp: nowMs,
@@ -193,7 +204,9 @@ export async function trackServerEvent(
 
   try {
     const timeKeys = buildAnalyticsTimeKeys(nowMs);
-    const eventId = normalizedEventFact?.eventId || buildServerEventId(userId, canonicalEventName);
+      const eventId = readStringParam(enrichedParams, "event_id", "eventId", "idempotency_key", "idempotencyKey")
+        || normalizedEventFact?.eventId
+        || buildServerEventId(userId, canonicalEventName);
     const writes: Array<Promise<unknown>> = [
       adminDb.collection("analytics_event_facts").doc(eventId).set({
         eventId,
@@ -323,7 +336,7 @@ export async function trackServerEvent(
     });
   }
 
-  if (!measurementId || !apiSecret) {
+  if (!measurementId || !apiSecret || !analyticsPermission.externalAllowed) {
     return;
   }
 

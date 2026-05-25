@@ -237,7 +237,12 @@ describe("POST /api/paypal/capture", () => {
             transaction_id: expect.any(String),
             paypal_capture_id: "capture_1",
             sourceTruth: "canonical",
-            purchase_source: "paypal_capture",
+            purchase_source: "server_paypal_capture",
+            idempotency_key: expect.stringContaining("server_purchase_verified:"),
+            gross_revenue_cents: 500,
+            delivered_gumdrops: 550,
+            paid_gumdrops: 500,
+            bonus_gumdrops: 50,
         }), "fan_1");
     });
 

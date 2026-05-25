@@ -14,6 +14,7 @@ import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { resolveExpectedGumdropPrice } from "@/lib/gumdrops-packages";
 import { buildPurchaseSourceOfFundsBreakdown } from "@/lib/platform-economy";
+import { buildServerPurchaseTelemetryEvent } from "@/lib/commerce/commerce-parity-contract";
 import type { UserProfile } from "@/types/db";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { capturePayPalOrder } from "@/lib/server/paypal";
@@ -330,29 +331,28 @@ async function POST_handler(request: NextRequest) {
       return NextResponse.json({ success: true, drops: dropsToCredit, duplicate: true }, { status: 200 });
     }
 
+    const purchaseTelemetryEvent = buildServerPurchaseTelemetryEvent({
+      userId,
+      transactionId: result.transactionId ?? orderId,
+      orderId,
+      captureId: capture.id,
+      grossRevenueCents: economics.grossRevenueCents,
+      grossRevenueUsd: economics.grossRevenueUsd,
+      deliveredGumDrops: economics.deliveredGumDrops,
+      paidGumDrops: economics.paidGumDrops,
+      bonusGumDrops: economics.bonusGumDrops,
+      bundleKey: bundlePresentation.bundleKey,
+      route: "/api/paypal/capture",
+      sourceComponent: "paypal_capture_route",
+    });
     const [analyticsResult, taskEventResult, chatReminderResetResult] = await Promise.allSettled([
-      trackServerEvent("server_purchase_verified", {
-        order_id: orderId,
-        transaction_id: result.transactionId ?? orderId,
-        purchase_id: result.transactionId ?? orderId,
+      trackServerEvent(purchaseTelemetryEvent.eventName, {
+        ...purchaseTelemetryEvent.params,
         paypal_capture_id: capture.id,
-        value: paidUsd,
-        value_usd: paidUsd,
-        amount_usd: paidUsd,
-        currency: "USD",
-        purchase_source: "paypal_capture",
-        sourceTruth: "canonical",
-        route: "/api/paypal/capture",
-        source_component: "paypal_capture_route",
-        items_count: dropsToCredit,
         paypal_fee_usd: economics.paypalFeeUsd,
         net_revenue_usd: economics.netRevenueUsd,
-        paid_gumdrops: economics.paidGumDrops,
-        delivered_gumdrops: economics.deliveredGumDrops,
-        bonus_gumdrops: economics.bonusGumDrops,
         adjusted_profit_usd: economics.adjustedProfitUsd,
-        bundle_key: bundlePresentation.bundleKey,
-        package_id: bundlePresentation.bundleKey,
+        items_count: dropsToCredit,
       }, userId),
       recordCanonicalTaskEvent(userId, result.username ?? caller?.email ?? userId, "gumdrops_purchase_completed", {
         package_drops: dropsToCredit,

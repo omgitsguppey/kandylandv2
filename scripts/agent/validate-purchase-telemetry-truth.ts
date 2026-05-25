@@ -24,6 +24,7 @@ const packageJson = JSON.parse(readRequired("package.json") || "{}") as {
 };
 const paypalCreateRoute = readRequired("src/app/api/paypal/create/route.ts");
 const paypalCaptureRoute = readRequired("src/app/api/paypal/capture/route.ts");
+const commerceParityContract = readRequired("src/lib/commerce/commerce-parity-contract.ts");
 const purchaseModal = readRequired("src/components/PurchaseModal.tsx");
 const gumdropLedger = readRequired("src/lib/gumdrop-ledger.ts");
 const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
@@ -38,15 +39,27 @@ if (packageJson.scripts?.["check:purchase-telemetry-truth"] !== "tsx scripts/age
 }
 
 requireIncludes(paypalCreateRoute, "transactionId", "PayPal create route");
-requireIncludes(paypalCaptureRoute, 'trackServerEvent("server_purchase_verified"', "PayPal capture route");
-requireIncludes(paypalCaptureRoute, 'sourceTruth: "canonical"', "PayPal capture canonical purchase telemetry");
-requireIncludes(paypalCaptureRoute, 'transaction_id: result.transactionId ?? orderId', "PayPal capture transaction id telemetry");
+requireIncludes(paypalCaptureRoute, "buildServerPurchaseTelemetryEvent", "PayPal capture route");
+requireIncludes(paypalCaptureRoute, "trackServerEvent(purchaseTelemetryEvent.eventName", "PayPal capture route");
+requireIncludes(paypalCaptureRoute, "transactionId: result.transactionId ?? orderId", "PayPal capture transaction id telemetry");
 requireIncludes(paypalCaptureRoute, 'paypal_capture_id: capture.id', "PayPal capture PayPal capture id telemetry");
-requireIncludes(paypalCaptureRoute, 'value_usd: paidUsd', "PayPal capture USD telemetry");
-requireIncludes(paypalCaptureRoute, 'paid_gumdrops: economics.paidGumDrops', "PayPal capture paid GumDrops telemetry");
-requireIncludes(paypalCaptureRoute, 'bonus_gumdrops: economics.bonusGumDrops', "PayPal capture bonus GumDrops telemetry");
+requireIncludes(paypalCaptureRoute, "grossRevenueCents: economics.grossRevenueCents", "PayPal capture gross revenue cents telemetry");
+requireIncludes(paypalCaptureRoute, "grossRevenueUsd: economics.grossRevenueUsd", "PayPal capture USD telemetry");
+requireIncludes(paypalCaptureRoute, "deliveredGumDrops: economics.deliveredGumDrops", "PayPal capture delivered GumDrops telemetry");
+requireIncludes(paypalCaptureRoute, "paidGumDrops: economics.paidGumDrops", "PayPal capture paid GumDrops telemetry");
+requireIncludes(paypalCaptureRoute, "bonusGumDrops: economics.bonusGumDrops", "PayPal capture bonus GumDrops telemetry");
 requireIncludes(paypalCaptureRoute, 'sourceTruth: "server_purchase_transaction"', "PayPal capture ledger source truth");
 requireIncludes(paypalCaptureRoute, "transactionId: result.transactionId ?? orderId", "PayPal capture response transaction id");
+requireIncludes(commerceParityContract, 'CANONICAL_SERVER_PURCHASE_EVENT_NAME = "server_purchase_verified"', "Commerce parity canonical purchase event");
+requireIncludes(commerceParityContract, "idempotency_key: eventId", "Commerce parity purchase telemetry idempotency key");
+requireIncludes(commerceParityContract, 'sourceTruth: "canonical"', "Commerce parity canonical purchase telemetry");
+requireIncludes(commerceParityContract, 'source_truth: "canonical"', "Commerce parity canonical purchase telemetry");
+requireIncludes(commerceParityContract, 'purchase_source: "server_paypal_capture"', "Commerce parity server capture source");
+requireIncludes(commerceParityContract, "gross_revenue_cents", "Commerce parity gross revenue cents telemetry");
+requireIncludes(commerceParityContract, "value_usd", "Commerce parity USD telemetry");
+requireIncludes(commerceParityContract, "delivered_gumdrops", "Commerce parity delivered GumDrops telemetry");
+requireIncludes(commerceParityContract, "paid_gumdrops", "Commerce parity paid GumDrops telemetry");
+requireIncludes(commerceParityContract, "bonus_gumdrops", "Commerce parity bonus GumDrops telemetry");
 
 requireIncludes(purchaseModal, 'sourceTruth: "client_funnel"', "Purchase modal begin checkout telemetry");
 requireIncludes(purchaseModal, 'sourceTruth: "client_supporting"', "Purchase modal supporting purchase telemetry");
@@ -57,9 +70,9 @@ requireIncludes(gumdropLedger, "isCanonicalPurchaseTransaction", "Gumdrop ledger
 requireIncludes(gumdropLedger, 'input.sourceTruth.startsWith("client")', "Gumdrop ledger client revenue exclusion");
 requireIncludes(gumdropLedger, "verifiedServerSide === false", "Gumdrop ledger server verification gate");
 
-requireIncludes(identifiedIngestRoute, 'canonicalEventName === "server_purchase_verified"', "Identified ingest canonical purchase truth");
-requireIncludes(identifiedIngestRoute, 'canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase"', "Identified ingest client purchase support truth");
-requireIncludes(identifiedIngestRoute, 'explicitSourceTruth === "client_supporting"', "Identified ingest explicit client-supporting truth");
+requireIncludes(identifiedIngestRoute, "resolveTrackedTelemetryEvent(rawEvent.eventName)", "Identified ingest canonical purchase truth");
+requireIncludes(identifiedIngestRoute, "normalizeIdentifiedRuntimeFact", "Identified ingest client purchase support truth");
+requireIncludes(identifiedIngestRoute, "sourceTruth: runtimeFactResult.fact.sourceTruth", "Identified ingest explicit source truth");
 
 requireIncludes(serverAnalytics, 'canonicalEventName === "server_purchase_verified" ? "canonical"', "Server analytics canonical purchase truth");
 requireIncludes(serverAnalytics, 'readStringParam(enrichedParams, "transaction_id", "transactionId"', "Server analytics transaction id persistence");

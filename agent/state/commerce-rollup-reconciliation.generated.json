@@ -1,0 +1,13 @@
+{
+  "reportKey": "commerce-rollup-reconciliation",
+  "generatedAtUtc": "2026-05-25T07:00:00.000Z",
+  "status": "pass",
+  "selectedRange": "30d",
+  "transactionCount": 5,
+  "rollupPurchaseCount": 13,
+  "telemetryEventCount": 0,
+  "mismatchReason": "telemetry_missing",
+  "comparableUnitsStatus": "comparable_purchase_count",
+  "dateWindowStatus": "aligned",
+  "nextAction": "Wire canonical server purchase telemetry after verified PayPal capture; classify historical gaps without production backfill."
+}

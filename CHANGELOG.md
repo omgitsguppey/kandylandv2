@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.61 - 2026-05-25
+- Commerce purchase parity repair
+- Repaired commerce parity between purchase ledger, server telemetry, rollups, and journey metrics.
+- Added canonical server purchase telemetry after verified PayPal capture without changing payment math.
+- Kept creator spend source-of-funds restrictions passing.
+
 ## 1.4.60 - 2026-05-25
 - Task guidance parity repair
 - Repaired task guidance telemetry parity across UI instrumentation, event normalization, and admin validation.

@@ -1,0 +1,193 @@
+{
+  "reportKey": "debug-cockpit-batch32-commerce-parity",
+  "generatedAtUtc": "2026-05-25T07:00:00.000Z",
+  "purchaseTransactionsCount": 5,
+  "canonicalPurchaseRollupCountBefore": 13,
+  "canonicalPurchaseRollupCountAfter": 13,
+  "serverPurchaseTelemetryCountBefore": 0,
+  "serverPurchaseTelemetryCountAfter": 0,
+  "purchaseTelemetryMissingCountBefore": 5,
+  "purchaseTelemetryMissingCountAfter": 5,
+  "revenueMismatchReasonBefore": "unknown_count_delta",
+  "revenueMismatchReasonAfter": "telemetry_missing",
+  "comparableUnitsStatus": "comparable_purchase_count",
+  "dateWindowStatus": "aligned",
+  "idempotencyStatus": "idempotent_event_id",
+  "creatorSpendStatus": "pass",
+  "gumdropMathChanged": false,
+  "paymentRuntimeChanged": "telemetry_emission_only",
+  "purchaseJourneyStatus": "source_ready_future_purchases",
+  "scoreBefore": 62,
+  "scoreAfter": 78,
+  "scoreDimensions": [
+    "serverPurchaseTelemetryEmission",
+    "commerceRollupReconciliation",
+    "commerceParityValidatorSemantics",
+    "purchaseJourneyNormalization",
+    "debugCockpitBatch32Lock"
+  ],
+  "remainingGaps": [
+    "Existing historical purchases still need real future telemetry or an explicit no-mutation recovery plan; this batch does not backfill production.",
+    "The current 30d panel can remain blocked until fresh verified purchases emit canonical server purchase facts."
+  ],
+  "nextExactSteps": [
+    "Run a bounded non-production capture test or wait for the next real verified capture to confirm analytics_event_facts receives server_purchase_verified.",
+    "Keep purchase funnel telemetry passAllowed=false while completed purchase transactions exceed canonical server purchase telemetry.",
+    "Inspect commerce rollup materializer if rollup purchase counts still exceed completed transaction counts after telemetry lands."
+  ],
+  "dirtyClassifications": [
+    {
+      "filePath": "src/app/api/paypal/capture/route.ts",
+      "classification": "paypal_capture_telemetry_required"
+    },
+    {
+      "filePath": "src/lib/server/analytics.ts",
+      "classification": "canonical_purchase_event_required"
+    },
+    {
+      "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "commerce_parity_fix_required"
+    },
+    {
+      "filePath": "src/app/api/admin/analytics/historical/route.ts",
+      "classification": "commerce_rollup_source_mismatch_required"
+    },
+    {
+      "filePath": "src/lib/commerce/commerce-parity-contract.ts",
+      "classification": "commerce_parity_fix_required"
+    },
+    {
+      "filePath": "src/lib/commerce/commerce-rollup-reconciliation.ts",
+      "classification": "purchase_revenue_rollup_mismatch_required"
+    },
+    {
+      "filePath": "src/lib/commerce/purchase-journey-normalization.ts",
+      "classification": "purchase_telemetry_undercount_required"
+    },
+    {
+      "filePath": "tests/unit/paypal-capture-route.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/server-purchase-telemetry-emission.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/commerce-rollup-reconciliation.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/commerce-parity-validator-semantics.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/purchase-journey-normalization.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/debug-cockpit-batch32-commerce-parity.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-server-purchase-telemetry-emission.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-commerce-rollup-reconciliation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-commerce-parity-validator-semantics.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-purchase-journey-normalization.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-debug-cockpit-batch32-commerce-parity.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/server-purchase-telemetry-emission.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/commerce-rollup-reconciliation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/commerce-parity-validator-semantics.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/purchase-journey-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-cockpit-batch32-commerce-parity.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/server-purchase-telemetry-emission.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/commerce-rollup-reconciliation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/commerce-parity-validator-semantics.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/purchase-journey-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/debug-cockpit-batch32-commerce-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "filePath": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "package.json",
+      "classification": "validator_artifact_expected"
+    }
+  ],
+  "openPrClassifications": []
+}

@@ -1,0 +1,10 @@
+{
+  "reportKey": "purchase-journey-normalization",
+  "generatedAtUtc": "2026-05-25T07:00:00.000Z",
+  "status": "pass",
+  "revenueTruthSource": "ledger_provider",
+  "funnelTruthSource": "canonical_server_purchase_telemetry",
+  "missingPreEventsPolicy": "attribution_gap_not_purchase_drop",
+  "doubleCountPolicy": "dedupe_by_transaction_or_order_id",
+  "nextAction": "Count one canonical purchase journey step per verified purchase event and keep missing wallet or checkout pre-events as attribution gaps."
+}

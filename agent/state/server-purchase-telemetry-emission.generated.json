@@ -1,0 +1,13 @@
+{
+  "reportKey": "server-purchase-telemetry-emission",
+  "generatedAtUtc": "2026-05-25T07:00:00.000Z",
+  "status": "pass",
+  "canonicalEventName": "server_purchase_verified",
+  "sourceRoute": "/api/paypal/capture",
+  "emissionPoint": "after verified server-side PayPal capture and completed purchase transaction creation",
+  "idempotencyStatus": "idempotent_event_id",
+  "providerCallsInTests": false,
+  "paymentRuntimeChanged": "telemetry_emission_only",
+  "gumdropMathChanged": false,
+  "nextAction": "Allow future verified captures to write canonical server purchase facts; do not backfill historical production transactions in this batch."
+}

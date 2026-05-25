@@ -1325,6 +1325,15 @@ async function GET_handler(request: NextRequest) {
             const firstPartyUnlockCount = period === "all"
                 ? Math.max(toNumber(commerceSummaryData.unlockCount), unlockTransactions.length)
                 : Math.max(sumSnapshotField(commerceDailySnapshot, "unlockCount"), unlockTransactions.length);
+            const completedPurchaseTransactionIds = completedPurchaseTransactions
+                .map((transaction) => toStringValue(transaction.id))
+                .filter(Boolean);
+            const commerceRollupSourceIds = commerceDailySnapshot.docs.map((doc) => doc.id);
+            const commerceRollupDayKeys = collectDocDayKeys(commerceDailySnapshot.docs, {
+                explicitKeys: ["dayKey"],
+                fallbackTimestampKeys: ["updatedAt", "lastTransactionAt"],
+                readFromIdPrefix: true,
+            });
             const normalizedTaskEvents: TaskLifecycleLog[] = taskEventsSnapshot.docs.flatMap((doc) => {
                 const data = doc.data();
                 const timestamp = toNumber(data.timestamp);
@@ -1951,6 +1960,13 @@ async function GET_handler(request: NextRequest) {
                 normalizedTaskEventCount: normalizedTaskEvents.length,
                 firstPartyTaskLifecycleEvents,
                 firstPartyPurchaseCount,
+                firstPartyPurchaseRollupDocumentCount: commerceDailySnapshot.docs.length,
+                completedPurchaseTransactionIds,
+                commerceRollupSourceIds,
+                commerceWindowStartDayKey: startDayKey,
+                commerceWindowEndDayKey: endDayKey,
+                commerceRollupStartDayKey: commerceRollupDayKeys[0] ?? null,
+                commerceRollupEndDayKey: commerceRollupDayKeys[commerceRollupDayKeys.length - 1] ?? null,
                 firstPartyUnlockCount,
                 completedPurchaseTransactionsCount: completedPurchaseTransactions.length,
                 unlockTransactionsCount: unlockTransactions.length,

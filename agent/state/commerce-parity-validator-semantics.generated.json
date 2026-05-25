@@ -1,0 +1,10 @@
+{
+  "reportKey": "commerce-parity-validator-semantics",
+  "generatedAtUtc": "2026-05-25T07:00:00.000Z",
+  "status": "pass",
+  "purchaseRevenueTruth": "fail_with_mismatch_reason",
+  "purchaseFunnelTelemetry": "fail_when_completed_transactions_have_zero_server_purchase_events",
+  "creatorSpend": "pass_preserved",
+  "cacheMissIsFailure": false,
+  "nextAction": "Keep commerce parity blocked until server purchase telemetry and rollup reconciliation agree."
+}

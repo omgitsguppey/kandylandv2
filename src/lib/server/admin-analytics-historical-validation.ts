@@ -4,6 +4,8 @@ import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
 import { classifyTaskOnboardingParity } from "@/lib/analytics/task-onboarding-parity-semantics";
 import { buildTelemetryParityPassGate } from "@/lib/analytics/telemetry-parity-pass-gate";
+import { classifyPurchaseTelemetryCoverage } from "@/lib/commerce/commerce-parity-contract";
+import { reconcileCommerceRollups } from "@/lib/commerce/commerce-rollup-reconciliation";
 import {
   TASK_GUIDANCE_EVENT_NAMES,
   TASK_GUIDANCE_IMPLEMENTED,
@@ -197,8 +199,13 @@ export interface CommerceParityCheck {
   revenueTruth: {
     completedTransactions: number;
     canonicalPurchaseRollups: number;
+    mismatchReason: string;
+    comparableUnitsStatus: string;
+    dateWindowStatus: string;
     state: "pass" | "review" | "fail";
     confidence: number;
+    technicalEvidence: string;
+    nextAction: string;
   };
   funnelTelemetryTruth: {
     purchaseTelemetryEvents: number;
@@ -944,6 +951,16 @@ export function buildHistoricalValidationSummary(input: {
   normalizedTaskEventCount: number;
   firstPartyTaskLifecycleEvents: number;
   firstPartyPurchaseCount: number;
+  firstPartyPurchaseRollupDocumentCount?: number;
+  completedPurchaseTransactionIds?: string[];
+  commerceRollupSourceIds?: string[];
+  duplicateCommerceRollupIds?: string[];
+  legacyCommerceRollupIds?: string[];
+  operatorConfirmedCommerceRollupIds?: string[];
+  commerceWindowStartDayKey?: string | null;
+  commerceWindowEndDayKey?: string | null;
+  commerceRollupStartDayKey?: string | null;
+  commerceRollupEndDayKey?: string | null;
   firstPartyUnlockCount: number;
   completedPurchaseTransactionsCount: number;
   unlockTransactionsCount: number;
@@ -1186,37 +1203,48 @@ export function buildHistoricalValidationSummary(input: {
       nextAction: metadata.nextAction,
     };
   });
-  const purchaseRevenueParity = buildParityInsight([
-    { key: "transactions", label: "Transactions", count: input.completedPurchaseTransactionsCount },
-    { key: "rollups", label: "Canonical rollups", count: input.firstPartyPurchaseCount },
-  ]);
-  const purchaseTelemetryMissingCount = Math.max(input.completedPurchaseTransactionsCount - input.telemetryPurchaseCount, 0);
-  const purchaseTelemetryCoveragePct = input.completedPurchaseTransactionsCount > 0
-    ? Number(((input.telemetryPurchaseCount / input.completedPurchaseTransactionsCount) * 100).toFixed(2))
-    : 100;
-  const purchaseFunnelState: CommerceParityCheck["funnelTelemetryTruth"]["state"] =
-    input.completedPurchaseTransactionsCount <= 0
-      ? "review"
-      : purchaseTelemetryMissingCount > 0
-        ? "fail"
-        : "pass";
+  const purchaseRevenueReconciliation = reconcileCommerceRollups({
+    selectedRange,
+    transactionCount: input.completedPurchaseTransactionsCount,
+    rollupPurchaseCount: input.firstPartyPurchaseCount,
+    rollupDocumentCount: input.firstPartyPurchaseRollupDocumentCount ?? input.firstPartyPurchaseCount,
+    telemetryEventCount: input.telemetryPurchaseCount,
+    completedTransactionIds: input.completedPurchaseTransactionIds ?? [],
+    rollupSourceIds: input.commerceRollupSourceIds ?? [],
+    duplicateRollupIds: input.duplicateCommerceRollupIds ?? [],
+    legacyRollupIds: input.legacyCommerceRollupIds ?? [],
+    operatorConfirmedOnlyIds: input.operatorConfirmedCommerceRollupIds ?? [],
+    startDayKey: input.commerceWindowStartDayKey,
+    endDayKey: input.commerceWindowEndDayKey,
+    rollupStartDayKey: input.commerceRollupStartDayKey,
+    rollupEndDayKey: input.commerceRollupEndDayKey,
+  });
+  const purchaseTelemetryCoverage = classifyPurchaseTelemetryCoverage({
+    completedTransactionCount: input.completedPurchaseTransactionsCount,
+    telemetryEventCount: input.telemetryPurchaseCount,
+  });
   const commerceParityCheck: CommerceParityCheck = {
     range: selectedRange,
     generatedAtUtc: toUtcString(input.generatedAtMs ?? lastValidatedAt) ?? new Date(input.generatedAtMs ?? lastValidatedAt).toISOString(),
     revenueTruth: {
       completedTransactions: input.completedPurchaseTransactionsCount,
       canonicalPurchaseRollups: input.firstPartyPurchaseCount,
-      state: purchaseRevenueParity.status === "pass" ? "pass" : purchaseRevenueParity.status === "warn" ? "review" : "fail",
-      confidence: purchaseRevenueParity.score,
+      mismatchReason: purchaseRevenueReconciliation.mismatchReason,
+      comparableUnitsStatus: purchaseRevenueReconciliation.comparableUnitsStatus,
+      dateWindowStatus: purchaseRevenueReconciliation.dateWindowStatus,
+      state: purchaseRevenueReconciliation.state,
+      confidence: purchaseRevenueReconciliation.confidence,
+      technicalEvidence: purchaseRevenueReconciliation.technicalEvidence,
+      nextAction: purchaseRevenueReconciliation.nextAction,
     },
     funnelTelemetryTruth: {
-      purchaseTelemetryEvents: input.telemetryPurchaseCount,
-      expectedPurchaseEvents: input.completedPurchaseTransactionsCount,
-      missingPurchaseTelemetryCount: purchaseTelemetryMissingCount,
-      coveragePct: purchaseTelemetryCoveragePct,
-      state: purchaseFunnelState,
-      passAllowed: purchaseTelemetryMissingCount === 0,
-      blockedReason: purchaseTelemetryMissingCount > 0 ? "purchase_telemetry_undercount" : undefined,
+      purchaseTelemetryEvents: purchaseTelemetryCoverage.purchaseTelemetryEvents,
+      expectedPurchaseEvents: purchaseTelemetryCoverage.expectedPurchaseEvents,
+      missingPurchaseTelemetryCount: purchaseTelemetryCoverage.missingPurchaseTelemetryCount,
+      coveragePct: purchaseTelemetryCoverage.coveragePct,
+      state: purchaseTelemetryCoverage.state,
+      passAllowed: purchaseTelemetryCoverage.passAllowed,
+      blockedReason: purchaseTelemetryCoverage.missingPurchaseTelemetryCount > 0 ? "purchase_telemetry_undercount" : undefined,
     },
     creatorSpendTruth: {
       sampledTransactions: input.creatorSpendTransactionCount,
@@ -1344,7 +1372,7 @@ export function buildHistoricalValidationSummary(input: {
     truthState: input.truthState,
   });
   const parityScore = Math.round((
-    purchaseRevenueParity.score
+    commerceParityCheck.revenueTruth.confidence
     + Math.max(0, Math.min(100, Math.round(commerceParityCheck.funnelTelemetryTruth.coveragePct)))
     + Math.round((Math.max(0, 100 - (unlockWatchParity.unlockAccessTruth.delta * 10)) + unlockWatchParity.unlockFunnelTelemetry.coveragePct) / 2)
     + onboardingParity.score
@@ -1510,18 +1538,19 @@ export function buildHistoricalValidationSummary(input: {
         : commerceParityCheck.revenueTruth.state === "review"
           ? "warn"
           : "fail",
-      detail: `${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions vs ${input.firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups.`,
+      detail: `${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions vs ${input.firstPartyPurchaseCount.toLocaleString()} canonical purchase rollup purchase(s). Mismatch reason: ${commerceParityCheck.revenueTruth.mismatchReason}.`,
       source: "transactions + commerce rollups",
+      sourceDetails: `${commerceParityCheck.revenueTruth.comparableUnitsStatus}; date window ${commerceParityCheck.revenueTruth.dateWindowStatus}`,
       selectedRange,
       lastValidatedAt,
       confidence: commerceParityCheck.revenueTruth.confidence,
       sampleRequired: true,
       sampleCount: Math.min(input.completedPurchaseTransactionsCount, input.firstPartyPurchaseCount),
       passAllowed: commerceParityCheck.revenueTruth.state === "pass",
-      technicalEvidence: `${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions vs ${input.firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups.`,
+      technicalEvidence: commerceParityCheck.revenueTruth.technicalEvidence,
       action: commerceParityCheck.revenueTruth.state === "pass"
         ? "No action required."
-        : "Compare completed purchase transactions against canonical commerce rollups before trusting revenue totals.",
+        : commerceParityCheck.revenueTruth.nextAction,
     }),
     buildValidationCheck({
       checkKey: "purchase_funnel_telemetry",
@@ -1547,7 +1576,7 @@ export function buildHistoricalValidationSummary(input: {
         : `${input.telemetryPurchaseCount.toLocaleString()} canonical server purchase telemetry event(s) matched ${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions in range.`,
       action: commerceParityCheck.funnelTelemetryTruth.passAllowed
         ? "No action required."
-        : "Check PayPal capture telemetry emission and canonical purchase fact normalization before trusting funnel analytics.",
+        : "Wire canonical server purchase telemetry after verified PayPal capture before trusting funnel analytics.",
     }),
     buildValidationCheck({
       checkKey: "unlock_access_truth",
