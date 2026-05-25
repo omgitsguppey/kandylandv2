@@ -61,9 +61,15 @@ export interface AnalyticsSourceHealth {
   };
   sourceAgreement: {
     comparedSources: string[];
+    failedSources: string[];
+    comparedMetrics: string[];
+    tolerance: string;
+    confidence: number | null;
     disagreementCount: number;
     maxDeltaPct: number | null;
     state: "pass" | "review" | "failed" | "not_enough_sources";
+    reason: string;
+    nextAction: string;
   };
   chartReadiness: {
     state: "ready" | "partial" | "gap_detected" | "unavailable";
@@ -448,9 +454,27 @@ function buildAnalyticsSourceHealth(input: {
     },
     sourceAgreement: {
       comparedSources,
+      failedSources: sourceAgreementState === "failed"
+        ? comparedSources.filter((source) => coverageBySource.find((entry) => entry.key === source)?.days !== maxCoverage)
+        : [],
+      comparedMetrics: ["day_bucket_presence", "coverage_delta_pct"],
+      tolerance: "10% day coverage delta triggers review; 25% day coverage delta or repeated disagreement fails.",
+      confidence: maxDeltaPct === null ? null : Math.max(0, 100 - maxDeltaPct),
       disagreementCount,
       maxDeltaPct,
       state: sourceAgreementState,
+      reason: sourceAgreementState === "failed"
+        ? "GA4, historical snapshot, and legacy support do not agree for the selected range."
+        : sourceAgreementState === "review"
+          ? "Compared sources have limited disagreement and need review before parity promotion."
+          : sourceAgreementState === "not_enough_sources"
+            ? "Not enough source lanes are present to prove source agreement."
+            : "Compared sources agree inside tolerance.",
+      nextAction: sourceAgreementState === "failed"
+        ? "Inspect source agreement rows and repair the stale or missing source lane before promoting analytics parity."
+        : sourceAgreementState === "review" || sourceAgreementState === "not_enough_sources"
+          ? "Collect matching source evidence before marking source agreement clean."
+          : "No action required.",
     },
     chartReadiness: {
       state: chartReadinessState,

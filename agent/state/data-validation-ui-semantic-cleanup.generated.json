@@ -1,0 +1,29 @@
+{
+  "reportKey": "data-validation-ui-semantic-cleanup",
+  "generatedAtUtc": "2026-05-25T04:50:57.733Z",
+  "currentHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
+  "ui": {
+    "summaryPills": [
+      {
+        "label": "Chart readiness",
+        "state": "ready"
+      },
+      {
+        "label": "Source agreement",
+        "state": "fail"
+      },
+      {
+        "label": "Validation parity",
+        "state": "fail"
+      },
+      {
+        "label": "Blocked pass",
+        "state": 10
+      }
+    ],
+    "rawRowsDefaultOpen": false,
+    "cacheMissIsFailure": false,
+    "nextAction": "Source agreement failed in source_agreement_chart_readiness; inspect source agreement failures and blocked passes before trusting parity."
+  },
+  "validationFailures": []
+}

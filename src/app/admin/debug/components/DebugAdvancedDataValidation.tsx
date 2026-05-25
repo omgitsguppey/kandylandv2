@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
+import { buildDataValidationUiSemantics, buildValidationReadinessSummary } from "@/lib/analytics/validation-readiness-contract";
 import type { AnalyticsModuleCoverage, AnalyticsSourceHealth, DataValidationPanelState, TelemetryParityValidation, ValidationItem } from "@/types/admin-analytics";
 
 import { Pill, ScrollWrap, Section, type PillTone } from "./DebugPrimitives";
@@ -66,6 +67,13 @@ function toneForContinuity(status?: AnalyticsSourceHealth["continuity"]["gapSeve
     if (status === "error" || status === "gap_detected") return "bad" as const;
     if (status === "review" || status === "info" || status === "partial") return "warn" as const;
     return "neutral" as const;
+}
+
+function toneForReadinessState(status?: string): PillTone {
+    if (status === "ready" || status === "pass") return "good";
+    if (status === "fail" || status === "failed" || status === "blocked" || status === "unavailable") return "bad";
+    if (status === "partial" || status === "review" || status === "stale" || status === "not_validated") return "warn";
+    return "neutral";
 }
 
 function formatDayList(days: string[]) {
@@ -184,6 +192,46 @@ export function DebugAdvancedDataValidation() {
         };
     }, [panelState.failCount, panelState.warnCount, panelState.staleCount, validations]);
 
+    const semanticSummary = useMemo(() => {
+        const sourceAgreementFailed = analyticsSourceHealth?.sourceAgreement.state === "failed";
+        return buildValidationReadinessSummary({
+            chartReadiness: {
+                availability: analyticsSourceHealth
+                    ? [analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("fail")
+                        ? "fail"
+                        : [analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("review")
+                            ? "review"
+                            : "pass"
+                    : "unavailable",
+                continuity: analyticsSourceHealth?.continuity.gapSeverity ?? "error",
+                missingDays: analyticsSourceHealth?.continuity.missingDays ?? [],
+                recentGaps: analyticsSourceHealth?.continuity.recentGapDays ?? [],
+            },
+            sourceAgreement: {
+                sources: analyticsSourceHealth?.sourceAgreement.comparedSources ?? [],
+                failedSources: sourceAgreementFailed ? analyticsSourceHealth?.sourceAgreement.failedSources ?? analyticsSourceHealth?.sourceAgreement.comparedSources ?? [] : [],
+                reason: sourceAgreementFailed ? analyticsSourceHealth?.sourceAgreement.reason ?? "Compared analytics sources disagree for the selected range." : undefined,
+            },
+            validations,
+        });
+    }, [analyticsSourceHealth, validations]);
+
+    const sourceAgreementFailureRows = useMemo(() => validations.filter((check) => (
+        (check.checkKey || "").includes("source_agreement")
+        || (check.source || "").toLowerCase().includes("source agreement")
+    ) && (check.status === "fail" || check.passAllowed === false)), [validations]);
+
+    const uiSemantics = useMemo(() => buildDataValidationUiSemantics({
+        chartReadinessState: semanticSummary.chartReadiness.state,
+        sourceAgreementState: semanticSummary.sourceAgreement.state,
+        validationParityState: semanticSummary.validationParity.state,
+        blockedPassCount: semanticSummary.validationParity.blockedPassCount,
+        routeLoadedSuccessfully: Boolean(data && !error),
+        failedRows: sourceAgreementFailureRows.map((row) => row.checkKey || row.label),
+        cacheState: panelState.cacheState,
+    }), [data, error, panelState.cacheState, semanticSummary, sourceAgreementFailureRows]);
+
+    const effectiveNextAction = uiSemantics.nextAction || panelState.nextAction;
     const defaultOpen = summary.issueCount > 0 || panelState.status !== "loaded";
 
     return (
@@ -208,6 +256,9 @@ export function DebugAdvancedDataValidation() {
                     <Pill label="Warn" value={countDisplay(panelState.warnCount)} tone={panelState.warnCount && panelState.warnCount > 0 ? "warn" : "neutral"} />
                     <Pill label="Stale" value={countDisplay(panelState.staleCount)} tone={panelState.staleCount && panelState.staleCount > 0 ? "warn" : "neutral"} />
                     <Pill label="Blocked pass" value={countDisplay(panelState.blockedPassCount)} tone={panelState.blockedPassCount && panelState.blockedPassCount > 0 ? "warn" : "neutral"} />
+                    <Pill label="Chart readiness" value={semanticSummary.chartReadiness.state} tone={toneForReadinessState(semanticSummary.chartReadiness.state)} />
+                    <Pill label="Source agreement" value={semanticSummary.sourceAgreement.state} tone={toneForReadinessState(semanticSummary.sourceAgreement.state)} />
+                    <Pill label="Validation parity" value={semanticSummary.validationParity.state} tone={toneForReadinessState(semanticSummary.validationParity.state)} />
                 </>
             )}
         >
@@ -224,9 +275,17 @@ export function DebugAdvancedDataValidation() {
                 ) : null}
                 {panelState.status === "failed" ? (
                     <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">
-                        Validation failed. Retry the validation route or inspect admin analytics historical route errors.
+                        Validation failed. {effectiveNextAction}
                     </div>
                 ) : null}
+                <div className="grid gap-2 md:grid-cols-4">
+                    {uiSemantics.summaryPills.map((pill) => (
+                        <div key={pill.label} className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">{pill.label}</p>
+                            <p className="mt-1 text-sm font-semibold text-white">{String(pill.state)}</p>
+                        </div>
+                    ))}
+                </div>
                 <div className="flex flex-wrap gap-2">
                     <Pill label="Path" value={panelState.sourcePath} truthState="live" badgeLabel="INFO" />
                     <Pill label="Range" value={panelState.range} truthState="live" badgeLabel="INFO" />
@@ -245,7 +304,20 @@ export function DebugAdvancedDataValidation() {
                         badgeLabel={panelState.lastValidatedAtUtc ? "INFO" : "NOT VALIDATED"}
                     />
                 </div>
-                <p className="text-xs text-gray-400">{panelState.nextAction}</p>
+                <p className="text-xs text-gray-400">{effectiveNextAction}</p>
+                {sourceAgreementFailureRows.length > 0 ? (
+                    <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-xs text-red-100" data-source-agreement-failures="visible">
+                        <p className="font-semibold text-white">Source agreement failures</p>
+                        <p className="mt-1">Failed sources: {semanticSummary.sourceAgreement.failedSources.join(", ") || "source comparison rows"}</p>
+                        <div className="mt-2 space-y-1">
+                            {sourceAgreementFailureRows.map((row) => (
+                                <p key={row.checkKey || row.label}>
+                                    {row.title || row.label}: {row.passBlockedReason || row.action || row.recommendedNextCheck || "Review the source agreement row before trusting analytics parity."}
+                                </p>
+                            ))}
+                        </div>
+                    </div>
+                ) : null}
                 {panelState.checkCount !== null ? Object.entries(summary.grouped).map(([group, checks]) => (
                     <div
                         key={group}
@@ -296,6 +368,8 @@ export function DebugAdvancedDataValidation() {
                                     <p><span className="font-semibold text-white">Missing days:</span> {formatDayList(analyticsSourceHealth.continuity.missingDays)}</p>
                                     <p><span className="font-semibold text-white">Recent gaps:</span> {formatDayList(analyticsSourceHealth.continuity.recentGapDays)}</p>
                                     <p><span className="font-semibold text-white">Source agreement:</span> {analyticsSourceHealth.sourceAgreement.state} across {analyticsSourceHealth.sourceAgreement.comparedSources.join(", ")}</p>
+                                    <p><span className="font-semibold text-white">Agreement tolerance:</span> {analyticsSourceHealth.sourceAgreement.tolerance || "10% review / 25% fail"}</p>
+                                    <p><span className="font-semibold text-white">Agreement action:</span> {analyticsSourceHealth.sourceAgreement.nextAction || "Review source agreement before parity promotion."}</p>
                                     <p><span className="font-semibold text-white">Chart readiness:</span> {analyticsSourceHealth.chartReadiness.reason}</p>
                                 </div>
                             </div>
@@ -336,7 +410,9 @@ export function DebugAdvancedDataValidation() {
                                 </div>
                             </div>
                         ) : null}
-                        <ScrollWrap>
+                        <details className="rounded-lg border border-white/10 bg-black/20 text-xs text-gray-300" data-raw-validation-rows-default-open="false">
+                            <summary className="cursor-pointer px-3 py-2 font-semibold text-gray-100">Raw validation rows</summary>
+                            <ScrollWrap>
                             <div className="divide-y divide-white/10">
                                 {checks.map((check) => (
                                     <div key={check.checkKey || check.label} className="space-y-2 px-3 py-2.5">
@@ -400,7 +476,8 @@ export function DebugAdvancedDataValidation() {
                                     </div>
                                 ))}
                             </div>
-                        </ScrollWrap>
+                            </ScrollWrap>
+                        </details>
                     </div>
                 )) : null}
             </div>

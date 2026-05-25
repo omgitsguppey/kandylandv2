@@ -832,9 +832,15 @@ export interface AnalyticsSourceHealth {
   };
   sourceAgreement: {
     comparedSources: string[];
+    failedSources?: string[];
+    comparedMetrics?: string[];
+    tolerance?: string;
+    confidence?: number | null;
     disagreementCount: number;
     maxDeltaPct: number | null;
     state: "pass" | "review" | "failed" | "not_enough_sources";
+    reason?: string;
+    nextAction?: string;
   };
   chartReadiness: {
     state: "ready" | "partial" | "gap_detected" | "unavailable";

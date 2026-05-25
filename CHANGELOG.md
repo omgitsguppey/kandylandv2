@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.57 - 2026-05-25
+- Bug validation truth cleanup
+- Fixed Bug Report Truth terminal loading states and redacted source handling.
+- Separated analytics chart readiness from source agreement and validation parity.
+- Made blocked validation passes actionable without implying chart data is unavailable.
+
 ## 1.4.56 - 2026-05-25
 - AI repair workbench
 - Refactored AI Debug Assistant into an async repair workbench with bounded context, deterministic triage, critic review, and approval gates.
@@ -147,21 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Reclassified empty live tracking lanes as collecting, source-missing, or proven-zero.
 - Clarified PWA registration status without conflating optional registration with failure.
 - Cleaned stale badge display across tracking summary lanes.
-
-## 1.4.32 - 2026-05-24
-- Tracking summary lane cleanup
-- Cleaned tracking summary lanes and fixed expected-live event source classification.
-- Grouped runtime/debug warnings and reclassified behavior math and legacy recovery statuses.
-- Kept raw tracking details behind drilldowns while surfacing real source gaps.
-
-## 1.4.31 - 2026-05-24
-- Debug cockpit evidence gate cleanup
-- Reclassified formal evidence gates outside the source-fix queue.
-- Refreshed or retired stale cockpit artifacts.
-- Reduced operator cockpit noise around telemetry, cost, AI critic, and recovery playbooks.
-
-## 1.4.30 - 2026-05-24
-- Debug cockpit PR readiness
-- Finalized open PRs before debug cockpit cleanup.
-- Merged, cherry-picked, manually implemented, or closed every PR with classification.
-- Prepared main for accurate cockpit/evidence refresh.

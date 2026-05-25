@@ -1,0 +1,95 @@
+{
+  "reportKey": "bug-report-truth-source-cleanup",
+  "generatedAtUtc": "2026-05-25T04:50:55.148Z",
+  "currentHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
+  "source": {
+    "success": true,
+    "generatedAtMs": 1800000001000,
+    "source": "bug_reports",
+    "sourcePath": "/api/admin/debug/bug-reports",
+    "sourceWindow": {
+      "fromUtc": "2027-01-15T08:00:00.000Z",
+      "toUtc": "2027-01-15T08:00:00.000Z",
+      "label": "latest_50"
+    },
+    "readOnly": true,
+    "limit": 50,
+    "redactionStatus": "summary_only_raw_bodies_redacted",
+    "reports": [
+      {
+        "id": "bug_1",
+        "createdAt": 1800000000000
+      }
+    ],
+    "counts": {
+      "reportCount": 1,
+      "recentCount": 1,
+      "olderBacklogCount": 0,
+      "needsTriageCount": 1,
+      "rewardStateCount": 0,
+      "operatorMessageCount": 0,
+      "translatedErrorCount": 0
+    },
+    "issues": [],
+    "truth": {
+      "status": "loaded_with_reports",
+      "reportCount": 1,
+      "recentCount": 1,
+      "olderBacklogCount": 0,
+      "needsTriageCount": 1,
+      "rewardStateCount": 0,
+      "operatorMessageCount": 0,
+      "translatedErrorCount": 0,
+      "sourceWindow": {
+        "fromUtc": "2027-01-15T08:00:00.000Z",
+        "toUtc": "2027-01-15T08:00:00.000Z",
+        "label": "latest_50"
+      },
+      "generatedAtMs": 1800000001000,
+      "loadError": null,
+      "sourcePath": "/api/admin/debug/bug-reports",
+      "redactionStatus": "summary_only_raw_bodies_redacted",
+      "nextAction": "Review bug report summary counts and triage current report clusters from the drilldown."
+    },
+    "summary": {
+      "generatedAtUtc": "2027-01-15T08:00:01.000Z",
+      "source": "bug_reports",
+      "readLimit": 50,
+      "totalReports": 1,
+      "rewardedCount": 0,
+      "duplicateCount": 0,
+      "capReachedCount": 0,
+      "topErrorKeys": [
+        {
+          "key": "unknown_error",
+          "count": 1
+        }
+      ],
+      "topSurfaces": [
+        {
+          "key": "unknown",
+          "count": 1
+        }
+      ],
+      "latestReports": [
+        {
+          "id": "bug_1",
+          "userId": "unknown_user",
+          "errorKey": "unknown_error",
+          "surface": "unknown",
+          "route": "/",
+          "previousRoute": "/",
+          "status": "received",
+          "rewardGd": 0,
+          "userTitle": "This could not finish",
+          "userMessage": "Something blocked this action and we need a bug report to trace it. Try once more or send the bug.",
+          "operatorMessage": "Unknown failure reached product UI without a typed problem code. Check the caller surface and add a mapped error key.",
+          "debugId": null,
+          "sanitizedContext": {},
+          "createdAtUtc": "2027-01-15T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  "validationFailures": []
+}

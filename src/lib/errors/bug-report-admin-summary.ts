@@ -128,7 +128,7 @@ export function summarizeBugReportsForAdmin(
         status,
         rewardGd: typeof record.rewardGd === "number" ? record.rewardGd : 0,
         userTitle: typeof record.userTitle === "string" && record.userTitle ? record.userTitle : descriptor.userTitle,
-        userMessage: typeof record.userMessage === "string" && record.userMessage ? record.userMessage : descriptor.userMessage,
+        userMessage: descriptor.userMessage,
         operatorMessage: descriptor.operatorMessage,
         debugId: typeof record.debugId === "string" && record.debugId ? record.debugId : null,
         sanitizedContext: redactBugReportAdminContext(record.sanitizedContext),

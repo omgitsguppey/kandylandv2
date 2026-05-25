@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { BUG_REPORT_COLLECTION } from "@/lib/errors/bug-report-contract";
-import { summarizeBugReportsForAdmin } from "@/lib/errors/bug-report-admin-summary";
+import { buildBugReportTruthSource } from "@/lib/debug/bug-report-truth-source";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
@@ -34,16 +34,17 @@ export async function GET(request: NextRequest) {
       id: doc.id,
       ...(doc.data() ?? {}),
     }));
-    const summary = summarizeBugReportsForAdmin(reports, {
+    const generatedAtMs = Date.now();
+    const source = buildBugReportTruthSource({
+      reports,
       readLimit: BUG_REPORT_ADMIN_READ_LIMIT,
+      generatedAtMs,
+      sourcePath: "/api/admin/debug/bug-reports",
     });
 
     return NextResponse.json({
-      success: true,
+      ...source,
       source: BUG_REPORT_COLLECTION,
-      readOnly: true,
-      limit: BUG_REPORT_ADMIN_READ_LIMIT,
-      summary,
     }, {
       headers: {
         "Cache-Control": "private, max-age=30, stale-while-revalidate=120",

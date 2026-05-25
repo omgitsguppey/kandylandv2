@@ -1,11 +1,65 @@
 {
-  "currentVersion": "1.4.56",
-  "betaReleaseCounter": 456,
+  "currentVersion": "1.4.57",
+  "betaReleaseCounter": 457,
   "channel": "beta",
-  "generatedAt": "2026-05-25T04:20:00.000Z",
-  "generatedAtUtc": "2026-05-25T04:20:00.000Z",
+  "generatedAt": "2026-05-25T04:50:20.303Z",
+  "generatedAtUtc": "2026-05-25T04:50:20.303Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.57",
+      "previousVersion": "1.4.56",
+      "betaReleaseCounter": 457,
+      "previousBetaReleaseCounter": 456,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): clean bug validation truth",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T04:50:20.303Z",
+      "generatedAt": "2026-05-25T04:50:20.303Z",
+      "committedAtUtc": "2026-05-25T04:50:20.303Z",
+      "generatedAtUtc": "2026-05-25T04:50:20.303Z",
+      "category": "Fixed",
+      "title": "Bug validation truth cleanup",
+      "updatedAtUtc": "2026-05-25T04:50:20.303Z",
+      "summary": "Fixed debug cockpit bug-report truth loading and analytics validation semantics so source readiness, agreement, parity, and blocked passes stay separate and actionable.",
+      "userFacingTitle": "Bug validation truth cleanup",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Fixed Bug Report Truth terminal loading states and redacted source handling.",
+        "Separated analytics chart readiness from source agreement and validation parity.",
+        "Made blocked validation passes actionable without implying chart data is unavailable."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Bug report summaries stay bounded and redacted by default; raw support, report, user, reward, and operator payloads are not exposed.",
+        "Payment runtime, wallet behavior, PayPal behavior, GumDrop math, and production data were not changed."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug Bug Report Truth",
+        "Admin Analytics Data Validation",
+        "Analytics source agreement",
+        "Debug cockpit validation artifacts"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/app/admin/debug/components/DebugBugReportSummary.tsx",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "src/app/api/admin/debug/bug-reports/route.ts",
+        "src/lib/debug/bug-report-truth-contract.ts",
+        "src/lib/debug/bug-report-truth-source.ts",
+        "src/lib/analytics/validation-readiness-contract.ts",
+        "src/lib/analytics/analytics-source-agreement-status.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/types/admin-analytics.ts"
+      ],
+      "effectiveChangeCount": 9,
+      "excludedGeneratedChangeCount": 18,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.56",
       "previousVersion": "1.4.55",
@@ -6813,83 +6867,6 @@
       "technicalDetails": [
         "All-zero lanes without a proven source window now classify as source_ready_collecting or source_missing instead of live.",
         "PWA registration status now carries expected/observed/source reason fields separate from notification compatibility."
-      ]
-    },
-    {
-      "version": "1.4.32",
-      "previousVersion": "1.4.31",
-      "betaReleaseCounter": 432,
-      "previousBetaReleaseCounter": 431,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): clean tracking summary lanes",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T15:27:57.579Z",
-      "generatedAt": "2026-05-24T15:27:57.579Z",
-      "committedAtUtc": "2026-05-24T15:27:57.579Z",
-      "generatedAtUtc": "2026-05-24T15:27:57.579Z",
-      "updatedAtUtc": "2026-05-24T15:27:57.579Z",
-      "category": "Improved",
-      "title": "Tracking summary lane cleanup",
-      "summary": "Cleaned up debug tracking summary lanes so real source gaps stay visible while stale or raw details stay grouped behind drilldowns.",
-      "userFacingTitle": "Tracking summary lane cleanup",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Cleaned tracking summary lanes and fixed expected-live event source classification.",
-        "Grouped runtime/debug warnings and reclassified behavior math and legacy recovery statuses.",
-        "Kept raw tracking details behind drilldowns while surfacing real source gaps."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Admin debug",
-        "Tracking summary",
-        "Beta readiness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/behavior-math-status-cleanup.generated.json",
-        "agent/state/consent-tracking-mode-cleanup.generated.json",
-        "agent/state/event-liveness-source-repair.generated.json",
-        "agent/state/feature-telemetry-coverage-cleanup.generated.json",
-        "agent/state/legacy-recovery-status-cleanup.generated.json",
-        "agent/state/runtime-debug-signal-cleanup.generated.json",
-        "agent/state/tracking-summary-lane-cleanup.generated.json",
-        "docs/agent-truth/behavior-math-status-cleanup.md",
-        "docs/agent-truth/consent-tracking-mode-cleanup.md",
-        "docs/agent-truth/event-liveness-source-repair.md",
-        "docs/agent-truth/feature-telemetry-coverage-cleanup.md",
-        "docs/agent-truth/legacy-recovery-status-cleanup.md",
-        "docs/agent-truth/runtime-debug-signal-cleanup.md",
-        "docs/agent-truth/tracking-summary-lane-cleanup.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/tracking-summary-lane-cleanup-shared.ts",
-        "scripts/agent/validate-behavior-math-status-cleanup.ts",
-        "scripts/agent/validate-consent-tracking-mode-cleanup.ts",
-        "scripts/agent/validate-event-liveness-audit.ts",
-        "scripts/agent/validate-event-liveness-source-repair.ts",
-        "scripts/agent/validate-feature-telemetry-coverage-cleanup.ts",
-        "scripts/agent/validate-legacy-recovery-status-cleanup.ts",
-        "scripts/agent/validate-runtime-debug-signal-cleanup.ts",
-        "scripts/agent/validate-tracking-summary-lane-cleanup.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/privacy/consent-tracking-policy.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/behavior-math-status-cleanup.spec.ts",
-        "tests/unit/consent-tracking-mode-cleanup.spec.ts",
-        "tests/unit/event-liveness-source-repair.spec.ts",
-        "tests/unit/feature-telemetry-coverage-cleanup.spec.ts",
-        "tests/unit/legacy-recovery-status-cleanup.spec.ts",
-        "tests/unit/runtime-debug-signal-cleanup.spec.ts",
-        "tests/unit/tracking-summary-lane-cleanup.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "Expected-live events with missing lastSeen sources are now classified as source_missing_actionable, not quiet future activity."
       ]
     }
   ]

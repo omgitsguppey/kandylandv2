@@ -1,0 +1,45 @@
+{
+  "reportKey": "analytics-validation-semantics",
+  "generatedAtUtc": "2026-05-25T04:50:56.388Z",
+  "currentHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
+  "summary": {
+    "chartReadiness": {
+      "state": "ready",
+      "missingDays": [],
+      "recentGaps": []
+    },
+    "sourceAgreement": {
+      "state": "fail",
+      "sources": [
+        "ga4",
+        "historical_snapshot",
+        "legacy_support"
+      ],
+      "failedSources": [
+        "ga4",
+        "historical_snapshot",
+        "legacy_support"
+      ],
+      "reason": "Source agreement failed."
+    },
+    "validationParity": {
+      "state": "fail",
+      "checkCount": 1,
+      "failCount": 1,
+      "warnCount": 0,
+      "staleCount": 0,
+      "blockedPassCount": 1
+    },
+    "blockedPass": {
+      "rows": [
+        {
+          "checkKey": "source_agreement_chart_readiness",
+          "whyBlocked": "Required evidence is missing or failed.",
+          "nextAction": "Inspect failed source agreement rows before promoting analytics parity."
+        }
+      ]
+    },
+    "nextAction": "Review source agreement failures across ga4, historical_snapshot, legacy_support before trusting analytics parity."
+  },
+  "validationFailures": []
+}

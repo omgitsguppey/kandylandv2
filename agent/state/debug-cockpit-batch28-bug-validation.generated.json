@@ -1,0 +1,260 @@
+{
+  "reportKey": "debug-cockpit-batch28-bug-validation",
+  "generatedAtUtc": "2026-05-25T04:56:34.694Z",
+  "currentHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
+  "bugReportTruthStatusBefore": "loading",
+  "bugReportTruthStatusAfter": "loaded_empty",
+  "bugReportTerminalState": "loaded_empty",
+  "bugReportSourceWindow": "bounded_debug_route",
+  "bugReportRedactionStatus": "summary_only_raw_bodies_redacted",
+  "dataValidationStatusBefore": "failed",
+  "dataValidationStatusAfter": "failed_semantic_split",
+  "chartReadinessStatus": "ready",
+  "sourceAgreementStatus": "fail",
+  "validationParityStatus": "fail",
+  "blockedPassCount": 10,
+  "failedValidationRows": [
+    "source_agreement_chart_readiness"
+  ],
+  "failedSourceAgreementSources": [
+    "ga4",
+    "historical_snapshot",
+    "legacy_support"
+  ],
+  "cacheState": "miss",
+  "lastValidatedAtUtc": "2026-05-24T15:21:00.000Z",
+  "rawRowsDefaultOpen": false,
+  "scoreBefore": 40,
+  "scoreAfter": 100,
+  "scoreDimensions": [
+    "bugReportTerminalState",
+    "bugReportRedaction",
+    "chartReadinessSourceAgreementSplit",
+    "validationParity",
+    "blockedPassActionability",
+    "rawRowsCollapsed"
+  ],
+  "remainingGaps": [
+    "Source agreement remains failed until GA4, historical snapshot, and legacy support agree inside tolerance."
+  ],
+  "nextExactSteps": [
+    "Review blocked pass validation rows and collect the missing evidence before promoting any row to pass.",
+    "Inspect source agreement failure sources: ga4, historical_snapshot, legacy_support."
+  ],
+  "dirtyFileClassifications": [
+    {
+      "filePath": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/public-beta-score.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/telemetry-parity-score.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-runtime-evidence.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "package.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+      "classification": "analytics_validation_semantics_fix_required"
+    },
+    {
+      "filePath": "src/app/admin/debug/components/DebugBugReportSummary.tsx",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "src/app/api/admin/debug/bug-reports/route.ts",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "src/lib/errors/bug-report-admin-summary.ts",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "src/types/admin-analytics.ts",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/analytics-source-agreement-cleanup.generated.json",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "agent/state/analytics-validation-semantics.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/bug-report-truth-source-cleanup.generated.json",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "agent/state/bug-report-truth-terminal-state.generated.json",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "agent/state/data-validation-ui-semantic-cleanup.generated.json",
+      "classification": "fixed_current"
+    },
+    {
+      "filePath": "agent/state/debug-cockpit-batch28-bug-validation.generated.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/analytics-source-agreement-cleanup.md",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "docs/agent-truth/analytics-validation-semantics.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/bug-report-truth-source-cleanup.md",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "docs/agent-truth/bug-report-truth-terminal-state.md",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "docs/agent-truth/data-validation-ui-semantic-cleanup.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "filePath": "docs/agent-truth/debug-cockpit-batch28-bug-validation.md",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-source-agreement-cleanup.ts",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-analytics-validation-semantics.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-bug-report-truth-source-cleanup.ts",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-bug-report-truth-terminal-state.ts",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "scripts/agent/validate-data-validation-ui-semantic-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "scripts/agent/validate-debug-cockpit-batch28-bug-validation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "src/lib/analytics/analytics-source-agreement-status.ts",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "src/lib/analytics/validation-readiness-contract.ts",
+      "classification": "analytics_validation_semantics_fix_required"
+    },
+    {
+      "filePath": "src/lib/debug/bug-report-truth-contract.ts",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "src/lib/debug/bug-report-truth-source.ts",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "src/lib/debug/debug-cockpit-batch28-bug-validation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/analytics-source-agreement-cleanup.spec.ts",
+      "classification": "source_agreement_failure_classification_required"
+    },
+    {
+      "filePath": "tests/unit/analytics-validation-semantics.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/bug-report-truth-source-cleanup.spec.ts",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "tests/unit/bug-report-truth-terminal-state.spec.ts",
+      "classification": "bug_report_truth_terminal_state_required"
+    },
+    {
+      "filePath": "tests/unit/data-validation-ui-semantic-cleanup.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "filePath": "tests/unit/debug-cockpit-batch28-bug-validation.spec.ts",
+      "classification": "validator_artifact_expected"
+    }
+  ],
+  "openPrClassifications": [],
+  "validationFailures": []
+}

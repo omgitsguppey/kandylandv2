@@ -1,0 +1,42 @@
+{
+  "reportKey": "bug-report-truth-terminal-state",
+  "generatedAtUtc": "2026-05-25T04:50:53.655Z",
+  "currentHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
+  "loadedEmpty": {
+    "status": "loaded_empty",
+    "reportCount": 0,
+    "recentCount": 0,
+    "olderBacklogCount": 0,
+    "needsTriageCount": 0,
+    "rewardStateCount": 0,
+    "operatorMessageCount": 0,
+    "translatedErrorCount": 0,
+    "sourceWindow": {
+      "fromUtc": "2026-05-01T00:00:00.000Z",
+      "toUtc": "2026-05-24T00:00:00.000Z",
+      "label": "30d"
+    },
+    "generatedAtMs": null,
+    "loadError": null,
+    "sourcePath": "/api/admin/debug/bug-reports",
+    "redactionStatus": "summary_only_raw_bodies_redacted",
+    "nextAction": "No bug reports were found in the loaded source window."
+  },
+  "failed": {
+    "status": "failed",
+    "reportCount": 0,
+    "recentCount": 0,
+    "olderBacklogCount": 0,
+    "needsTriageCount": 0,
+    "rewardStateCount": 0,
+    "operatorMessageCount": 0,
+    "translatedErrorCount": 0,
+    "sourceWindow": null,
+    "generatedAtMs": null,
+    "loadError": "Bug report truth route failed. Inspect admin/debug/bug-reports route diagnostics.",
+    "sourcePath": "/api/admin/debug/bug-reports",
+    "redactionStatus": "not_loaded",
+    "nextAction": "Inspect admin/debug/bug-reports route diagnostics; the UI has resolved to a safe failed state."
+  },
+  "validationFailures": []
+}
