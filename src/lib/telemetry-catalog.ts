@@ -733,6 +733,14 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "library_search", label: "Library searched", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
   { eventName: "drops_category_selected", label: "Drops category selected", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
   { eventName: "drops_searched", label: "Drops searched", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
+  { eventName: "search_focused", label: "Search focused", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
+  { eventName: "search_query_changed", label: "Search query changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
+  { eventName: "search_submitted", label: "Search submitted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
+  { eventName: "search_results_loaded", label: "Search results loaded", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
+  { eventName: "search_zero_results", label: "Search zero results", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
+  { eventName: "search_result_clicked", label: "Search result clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
+  { eventName: "search_failed", label: "Search failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement", "runtime"] },
+  { eventName: "search_cleared", label: "Search cleared", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "engagement"] },
   { eventName: "recent_activity_page_changed", label: "Recent activity page changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "recent_activity_searched", label: "Recent activity searched", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "unlock_drop_failed", label: "Unlock drop failed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
@@ -1364,11 +1372,30 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     return ["relationship_state|relationshipState|list_count|listCount|recommendation_count|recommendationCount"];
   }
 
-  if (eventName === "drops_searched" || eventName === "drops_category_selected") {
+  if (eventName === "drops_searched") {
     return [
       "query",
       "category",
       "sort",
+    ];
+  }
+
+  if (eventName === "drops_category_selected") {
+    return [
+      "category",
+      "sort",
+      "query_length|queryLength",
+      "query_hash|queryHash",
+      "raw_query_stored|rawQueryStored",
+    ];
+  }
+
+  if (eventName.startsWith("search_") && eventName !== "search_query_submitted") {
+    return [
+      "query_length|queryLength",
+      "query_hash|queryHash",
+      "query_category|queryCategory|intent_class|intentClass",
+      "raw_query_stored|rawQueryStored",
     ];
   }
 
@@ -1659,6 +1686,7 @@ function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFam
     || eventName === "creator_relationship_list_failed"
     || eventName === "drops_searched"
     || eventName === "drops_category_selected"
+    || eventName.startsWith("search_")
     || eventName === "search_query_submitted"
     || eventName === "filter_selected"
     || eventName === "sort_changed"

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.75 - 2026-05-25
+- Search discovery telemetry cost
+- Added search and discovery telemetry with cost-safe query behavior.
+- Tracked zero-result searches, result clicks, and search failures.
+- Protected raw search text from broad telemetry exposure.
+
 ## 1.4.74 - 2026-05-25
 - Creator discovery relationship funnel
 - Mapped creator discovery, recommendations, profile clicks, and follow actions into telemetry.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Finalized no-sample route cohort classification.
 - Removed false LIVE states from unseen route runtime cards.
 - Added high-risk smoke plans and optional/manual/legacy route policies.
-
-## 1.4.50 - 2026-05-24
-- Runtime evidence cleanup
-- Classified stale and no-sample route runtime states without treating them as live health.
-- Fixed AI description feedback Firestore undefined-write evidence.
-- Grouped stale route samples and preserved critical payment/support evidence requirements.

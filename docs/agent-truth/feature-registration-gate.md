@@ -11,7 +11,7 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 - Mapped routes: 163
 - System/internal routes: 11
 - Unmapped routes: 0
-- Telemetry events: 722
+- Telemetry events: 730
 - Unmapped telemetry events: 0
 - UI metrics: 14
 - Orphan metrics: 0
@@ -20,7 +20,7 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 
 - wallet: owner=wallet-analytics; routes=3; events=19; materializers=1; score=runtimeHealth,evidenceCompleteness,costRisk
 - user_dashboard: owner=user-dashboard-analytics; routes=12; events=137; materializers=3; score=sourceHealth,evidenceCompleteness
-- drops: owner=drops-analytics; routes=3; events=110; materializers=2; score=sourceHealth,runtimeHealth,evidenceCompleteness
+- drops: owner=drops-analytics; routes=3; events=118; materializers=2; score=sourceHealth,runtimeHealth,evidenceCompleteness
 - library: owner=library-analytics; routes=1; events=17; materializers=1; score=evidenceCompleteness
 - creator_dashboard: owner=creator-dashboard-analytics; routes=4; events=59; materializers=4; score=sourceHealth,evidenceCompleteness
 - creator_settings: owner=creator-settings-analytics; routes=3; events=31; materializers=1; score=sourceHealth,evidenceCompleteness
@@ -38,7 +38,7 @@ New feature work must register routes, UI surfaces, telemetry events, consent re
 - auth_identity: owner=identity-analytics; routes=7; events=88; materializers=1; score=runtimeHealth,evidenceCompleteness
 - support: owner=support-analytics; routes=6; events=52; materializers=1; score=runtimeHealth,evidenceCompleteness
 - security: owner=security-analytics; routes=2; events=21; materializers=1; score=regressionRisk,runtimeHealth
-- search_discovery: owner=search-discovery-analytics; routes=2; events=13; materializers=1; score=evidenceCompleteness
+- search_discovery: owner=search-discovery-analytics; routes=2; events=21; materializers=1; score=evidenceCompleteness
 
 ## System/Internal Routes
 

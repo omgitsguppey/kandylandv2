@@ -18,9 +18,8 @@ import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
 import { buildAccountOverviewViewModel } from "@/lib/drops-account-overview-view-model";
 import {
     createDiscoveryTrackingSessionId,
-    resolveDropsDiscoverySort,
-    sanitizeDiscoveryQuery,
 } from "@/lib/discovery-telemetry";
+import { useDropsSearchTelemetry } from "@/hooks/useDropsSearchTelemetry";
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
@@ -43,7 +42,6 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
 
     const observerRef = useRef<HTMLDivElement>(null);
     const pageViewTrackedRef = useRef(false);
-    const lastTrackedSearchRef = useRef("");
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -129,45 +127,27 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
         return result;
     }, [sourceDrops, deferredSearchQuery, selectedCategory]);
 
-    useEffect(() => {
-        const normalizedQuery = deferredSearchQuery.trim();
-        const sanitizedQuery = sanitizeDiscoveryQuery(normalizedQuery);
-        const discoverySort = resolveDropsDiscoverySort(selectedCategory);
-        const searchKey = `${sanitizedQuery}:${selectedCategory}:${discoverySort}`;
-        if (sanitizedQuery.length <= 2 || searchKey === lastTrackedSearchRef.current) {
-            return;
-        }
-
-        lastTrackedSearchRef.current = searchKey;
-        trackEvent("drops_searched", {
-            query: sanitizedQuery,
-            category: selectedCategory,
-            sort: discoverySort,
-            query_length: normalizedQuery.length,
-            query_sanitized: sanitizedQuery !== normalizedQuery,
-            source_component: "compact_drops_filter_bar",
-            ui_density: DROPS_MOBILE_UI_DENSITY,
-            result_count: filteredDrops.length,
-        });
-    }, [deferredSearchQuery, filteredDrops.length, selectedCategory]);
+    const {
+        trackCategorySelected,
+        trackSearchFocus,
+        trackSearchResultClicked,
+    } = useDropsSearchTelemetry({
+        deferredSearchQuery,
+        filteredDrops,
+        selectedCategory,
+    });
 
     const handleSelectDrop = useCallback((drop: Drop, sourceComponent = "drops_page") => {
+        trackSearchResultClicked(drop.id, sourceComponent);
         router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=${encodeURIComponent(sourceComponent)}`);
-    }, [router]);
+    }, [router, trackSearchResultClicked]);
 
     const handleSelectCategory = useCallback((category: string) => {
         setSelectedCategory(category);
         if (category !== selectedCategory) {
-            trackEvent("drops_category_selected", {
-                category,
-                query: sanitizeDiscoveryQuery(deferredSearchQuery),
-                sort: resolveDropsDiscoverySort(category),
-                source_component: "compact_drops_filter_bar",
-                ui_density: DROPS_MOBILE_UI_DENSITY,
-                visible_drop_count: filteredDrops.length,
-            });
+            trackCategorySelected(category);
         }
-    }, [deferredSearchQuery, filteredDrops.length, selectedCategory]);
+    }, [selectedCategory, trackCategorySelected]);
 
     return (
         <div
@@ -228,6 +208,7 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
                         onSelectCategory={handleSelectCategory}
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
+                        onSearchFocus={trackSearchFocus}
                     />
                 </div>
 

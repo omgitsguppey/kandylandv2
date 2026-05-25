@@ -3,6 +3,7 @@
 import { ChevronDown, ChevronUp, Clock, Flame, LayoutGrid, Search, Sparkles, Tag } from "lucide-react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 
+import { SEARCH_COST_POLICY } from "@/lib/discovery/search-cost-contract";
 import { cn } from "@/lib/utils";
 
 interface FilterBarProps {
@@ -11,6 +12,7 @@ interface FilterBarProps {
     onSelectCategory: (category: string) => void;
     searchQuery: string;
     onSearchChange: (query: string) => void;
+    onSearchFocus?: () => void;
 }
 
 const COLLAPSED_CATEGORY_COUNT = 4;
@@ -21,6 +23,7 @@ export default function StickyFilterBar({
     onSelectCategory,
     searchQuery,
     onSearchChange,
+    onSearchFocus,
 }: FilterBarProps) {
     const [localSearch, setLocalSearch] = useState(searchQuery);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -39,7 +42,7 @@ export default function StickyFilterBar({
             if (localSearch !== searchQuery) {
                 onSearchChange(localSearch);
             }
-        }, 260);
+        }, SEARCH_COST_POLICY.clientDebounceMs);
 
         return () => {
             if (debounceRef.current) {
@@ -85,6 +88,7 @@ export default function StickyFilterBar({
                         placeholder="Search Drops"
                         value={localSearch}
                         onChange={handleSearchChange}
+                        onFocus={onSearchFocus}
                         className="h-10 w-full rounded-[1rem] border border-white/10 bg-white/[0.055] pl-9 pr-3 text-[13px] font-medium text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/55 focus:bg-white/[0.08]"
                     />
                 </label>

@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-25T22:51:43.861Z",
-  "currentHead": "e0c0b9d5d6e30325fe638cff479d766a263ef585",
+  "generatedAtUtc": "2026-05-25T23:18:52.516Z",
+  "currentHead": "34ae5354ee4da70af0bf16e911e75cd7fee5dece",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -45,14 +45,70 @@
   },
   "debugLane": {
     "label": "Event translation bridge",
-    "producersRegistered": 722,
-    "producersConnected": 722,
-    "eventEnvelopesTranslated": 722,
-    "materializersMapped": 722,
-    "personMetricsMapped": 177,
+    "producersRegistered": 730,
+    "producersConnected": 730,
+    "eventEnvelopesTranslated": 730,
+    "materializersMapped": 730,
+    "personMetricsMapped": 192,
     "gaps": 0
   },
   "waitingOnActivity": [
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
     {
       "reason": "future_real_activity_pending",
       "scoreDrag": false,
@@ -5115,11 +5171,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/state/creator-discovery-relationship-funnel.generated.json",
+      "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -5127,11 +5179,31 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/creator-discovery-relationship-funnel.md",
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/search-discovery-cost.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/search-discovery-cost.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5143,19 +5215,19 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-creator-discovery-relationship-funnel.ts",
+      "path": "scripts/agent/validate-search-discovery-cost.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/api/creator/relationships/route.ts",
+      "path": "src/app/drops/DropsClient.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "path": "src/components/StickyFilterBar.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/components/CreatorDiscoveryRail.tsx",
+      "path": "src/hooks/useDropsSearchTelemetry.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -5171,10 +5243,6 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/behavioral/behavior-feature-registry.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/behavioral/event-fact-contract.ts",
       "classification": "real_source_change_needs_review"
     },
@@ -5183,11 +5251,19 @@
       "classification": "real_source_change_needs_review"
     },
     {
+      "path": "src/lib/behavioral/search-intent-profile.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
       "path": "src/lib/behavioral/tracking-surface-map.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/discovery/creator-relationship-contract.ts",
+      "path": "src/lib/discovery/search-cost-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/discovery/search-telemetry-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -5203,11 +5279,11 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/telemetry/surface-telemetry-catalog-events.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "tests/unit/search-discovery-cost.spec.ts",
+      "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/creator-discovery-relationship-funnel.spec.ts",
+      "path": "tests/unit/user-management-refactor.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

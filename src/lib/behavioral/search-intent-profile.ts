@@ -1,6 +1,14 @@
 import { clamp01, roundScore } from "@/lib/behavioral/behavioral-math-calibration";
 
 export const SEARCH_INTENT_EVENT_NAMES = [
+  "search_focused",
+  "search_query_changed",
+  "search_submitted",
+  "search_results_loaded",
+  "search_zero_results",
+  "search_result_clicked",
+  "search_failed",
+  "search_cleared",
   "search_query_submitted",
   "filter_selected",
   "sort_changed",
