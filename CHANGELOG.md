@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.56 - 2026-05-25
+- AI repair workbench
+- Refactored AI Debug Assistant into an async repair workbench with bounded context, deterministic triage, critic review, and approval gates.
+- Separated deterministic fallback summaries from repair proposals.
+- Prevented live AI calls, raw sensitive context, and silent auto-apply without explicit approval.
+
 ## 1.4.55 - 2026-05-25
 - Infrastructure dependency inventory
 - Expanded infrastructure dependency inventory to include every root/functions dependency, override, external service, and expected-absent dependency.

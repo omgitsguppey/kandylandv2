@@ -1,0 +1,40 @@
+{
+  "reportKey": "ai-repair-critic-approval",
+  "generatedAtUtc": "2026-05-25T02:50:07.040Z",
+  "review": {
+    "criticId": "critic-proposal-wi-critic-source-patch-candidate",
+    "proposalId": "proposal-wi-critic-source-patch-candidate",
+    "result": "pass_to_human_review",
+    "issues": [],
+    "securityRisk": "low",
+    "privacyRisk": "low",
+    "costRisk": "low",
+    "dataIntegrityRisk": "medium",
+    "paymentGumdropRisk": "low",
+    "testCoverageRisk": "low"
+  },
+  "approval": {
+    "status": "critic_passed_human_required",
+    "humanApprovalRequired": true,
+    "applyAllowed": false,
+    "approvedBy": null,
+    "approvedAt": null,
+    "reason": "Critic passed; human approval is still required before manual implementation."
+  },
+  "protectedReview": {
+    "criticId": "critic-proposal-protected",
+    "proposalId": "proposal-protected",
+    "result": "reject_unsafe",
+    "issues": [
+      "source patch cannot auto-apply from AI workbench",
+      "payment/GumDrop protected surface requires explicit human implementation review"
+    ],
+    "securityRisk": "high",
+    "privacyRisk": "low",
+    "costRisk": "low",
+    "dataIntegrityRisk": "medium",
+    "paymentGumdropRisk": "high",
+    "testCoverageRisk": "low"
+  },
+  "validationFailures": []
+}

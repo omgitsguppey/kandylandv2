@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { getAdminAiModelAliasForRole } from "@/lib/admin-ai-models";
+import type { AiRepairWorkbench } from "@/lib/debug/ai-repair-workbench-contract";
 
 export const AI_DEBUG_ASSISTANT_MODEL = getAdminAiModelAliasForRole("admin_debug_assistant");
 export const AI_DEBUG_FIX_PLANNER_MODEL = getAdminAiModelAliasForRole("admin_debug_fix_planner");
@@ -79,6 +80,9 @@ export const adminAiDebugSummarySchema = adminAiDebugModelOutputSchema.extend({
     availability_note: z.string().trim().min(1).max(400).optional(),
     fallback_reason: z.string().trim().min(1).max(240).optional(),
     last_live_call_at: z.string().trim().min(1).optional(),
+    workbench: z.custom<AiRepairWorkbench>((value) => {
+        return Boolean(value && typeof value === "object" && (value as { status?: unknown }).status === "async_repair_workbench_ready");
+    }, "AI repair workbench state is required."),
 });
 
 export type AdminAiDebugSummary = z.infer<typeof adminAiDebugSummarySchema>;

@@ -118,7 +118,9 @@ for (const expected of [
   "\"inspect_diagnostic\"",
   "\"dismiss_diagnostic\"",
   "unsupported_fix_type",
-  "fix_requires_manual_review",
+  "manual_patch_required",
+  "sourceMutationAllowed",
+  "productionMutationAllowed",
   "fix_dismissed",
 ]) {
   requireIncludes(debugFixRoute, expected, "Admin AI debug fix route");
@@ -205,9 +207,8 @@ for (const expected of [
 }
 
 for (const expected of [
-  "This model uses up to",
+  "Reference pool trimmed to model limit.",
   "referenceLimitApplied",
-  "We'll use the first",
 ]) {
   requireIncludes(coverGeneratorPanel, expected, "Cover generator panel reference limit copy");
 }

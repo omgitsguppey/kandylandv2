@@ -1,11 +1,66 @@
 {
-  "currentVersion": "1.4.55",
-  "betaReleaseCounter": 455,
+  "currentVersion": "1.4.56",
+  "betaReleaseCounter": 456,
   "channel": "beta",
-  "generatedAt": "2026-05-25T02:10:00.000Z",
-  "generatedAtUtc": "2026-05-25T02:10:00.000Z",
+  "generatedAt": "2026-05-25T04:20:00.000Z",
+  "generatedAtUtc": "2026-05-25T04:20:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.56",
+      "previousVersion": "1.4.55",
+      "betaReleaseCounter": 456,
+      "previousBetaReleaseCounter": 455,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "feat(debug): add ai repair workbench",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T04:20:00.000Z",
+      "generatedAt": "2026-05-25T04:20:00.000Z",
+      "committedAtUtc": "2026-05-25T04:20:00.000Z",
+      "generatedAtUtc": "2026-05-25T04:20:00.000Z",
+      "category": "New",
+      "title": "AI repair workbench",
+      "updatedAtUtc": "2026-05-25T04:20:00.000Z",
+      "summary": "Refactored the Admin Debug AI assistant into a bounded repair workbench so debug evidence becomes structured work items, proposal queues, critic gates, and approval-safe manual implementation packets.",
+      "userFacingTitle": "AI repair workbench",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refactored AI Debug Assistant into an async repair workbench with bounded context, deterministic triage, critic review, and approval gates.",
+        "Separated deterministic fallback summaries from repair proposals.",
+        "Prevented live AI calls, raw sensitive context, and silent auto-apply without explicit approval."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Gemini planning remains optional and admin-triggered only; tests and validators do not call providers.",
+        "Payment runtime, wallet behavior, PayPal behavior, and GumDrop math were not changed."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug AI assistant",
+        "AI repair workbench",
+        "Repair proposal workflow",
+        "Runtime evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/debug/ai-repair-workbench-contract.ts",
+        "src/lib/debug/ai-repair-context-packet.ts",
+        "src/lib/debug/ai-repair-triage-engine.ts",
+        "src/lib/server/ai-repair-planner.ts",
+        "src/lib/debug/ai-repair-critic.ts",
+        "src/lib/debug/ai-repair-approval-gate.ts",
+        "src/lib/debug/ai-repair-proposal-store.ts",
+        "src/lib/debug/ai-repair-apply-contract.ts",
+        "src/app/admin/debug/components/DebugTabAi.tsx",
+        "src/app/api/admin/debug/assistant/fix/route.ts"
+      ],
+      "effectiveChangeCount": 10,
+      "excludedGeneratedChangeCount": 14,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.55",
       "previousVersion": "1.4.54",
@@ -6835,234 +6890,6 @@
       "sourceCommit": "pending-same-commit",
       "technicalDetails": [
         "Expected-live events with missing lastSeen sources are now classified as source_missing_actionable, not quiet future activity."
-      ]
-    },
-    {
-      "version": "1.4.31",
-      "previousVersion": "1.4.30",
-      "betaReleaseCounter": 431,
-      "previousBetaReleaseCounter": 430,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): clean cockpit evidence gates",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T14:55:00.000Z",
-      "generatedAt": "2026-05-24T14:55:00.000Z",
-      "committedAtUtc": "2026-05-24T14:55:00.000Z",
-      "generatedAtUtc": "2026-05-24T14:55:00.000Z",
-      "updatedAtUtc": "2026-05-24T14:55:00.000Z",
-      "category": "Improved",
-      "title": "Debug cockpit evidence gate cleanup",
-      "summary": "Cleaned up the operator cockpit so source fixes, stale refreshes, formal evidence gates, and external owner reviews are classified separately.",
-      "userFacingTitle": "Debug cockpit evidence gate cleanup",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reclassified formal evidence gates outside the source-fix queue.",
-        "Refreshed or retired stale cockpit artifacts.",
-        "Reduced operator cockpit noise around telemetry, cost, AI critic, and recovery playbooks."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Admin debug",
-        "Beta readiness",
-        "Evidence gates"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-truth-source-sample.generated.json",
-        "agent/state/debug-cockpit-batch1-cleanup.generated.json",
-        "agent/state/debug-operator-cockpit.generated.json",
-        "agent/state/debug-runtime-evidence.generated.json",
-        "agent/state/telemetry-parity-score.generated.json",
-        "docs/agent-truth/admin-truth-source-sample.md",
-        "docs/agent-truth/debug-cockpit-batch1-cleanup.md",
-        "docs/agent-truth/debug-operator-cockpit.md",
-        "docs/agent-truth/debug-runtime-evidence.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-debug-cockpit-batch1-cleanup.ts",
-        "scripts/agent/validate-debug-operator-cockpit.ts",
-        "src/lib/agent-score/formal-gate-classifier.ts",
-        "src/lib/debug/debug-operator-cockpit.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/debug-cockpit-batch1-cleanup.spec.ts",
-        "tests/unit/debug-operator-cockpit.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "Formal provider, deployed runtime, and admin sample evidence remain required; this release only reclassifies them away from source-fix queues and retires obsolete cockpit inputs."
-      ]
-    },
-    {
-      "version": "1.4.30",
-      "previousVersion": "1.4.29",
-      "betaReleaseCounter": 430,
-      "previousBetaReleaseCounter": 429,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "chore(repo): finalize cockpit prerequisite prs",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T14:32:27.000Z",
-      "generatedAt": "2026-05-24T14:32:27.000Z",
-      "committedAtUtc": "2026-05-24T14:32:27.000Z",
-      "generatedAtUtc": "2026-05-24T14:32:27.000Z",
-      "updatedAtUtc": "2026-05-24T14:32:27.000Z",
-      "category": "Improved",
-      "title": "Debug cockpit PR readiness",
-      "summary": "Finalized the open PR queue so the debug cockpit and beta evidence refresh can start from a classified source state.",
-      "userFacingTitle": "Debug cockpit PR readiness",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Finalized open PRs before debug cockpit cleanup.",
-        "Merged, cherry-picked, manually implemented, or closed every PR with classification.",
-        "Prepared main for accurate cockpit/evidence refresh."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Admin debug",
-        "Beta readiness",
-        "Repo hygiene"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-cockpit-pr-finalization.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/debug-cockpit-pr-finalization.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-debug-cockpit-pr-finalization.ts",
-        "scripts/agent/validate-user-creator-logic-cleanup.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/user/onboarding-progress/route.ts",
-        "src/components/Auth/GuidedOnboarding.tsx",
-        "src/components/Creators/CreatorProfileHeader.tsx",
-        "src/components/PromoCard.tsx",
-        "src/lib/admin-drop-form.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry.ts",
-        "tests/unit/debug-cockpit-pr-finalization.spec.ts",
-        "tests/unit/user-action-taxonomy.spec.ts",
-        "tests/unit/user-creator-logic-cleanup.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "Classified every open PR, manually ported source-only security, accessibility, debug cost, and onboarding telemetry fixes, excluded Jules scratch files, and closed the remaining superseded PR."
-      ]
-    },
-    {
-      "version": "1.4.29",
-      "previousVersion": "1.4.28",
-      "betaReleaseCounter": 429,
-      "previousBetaReleaseCounter": 428,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(analytics): lock sql parity cost",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T11:05:00.000Z",
-      "generatedAt": "2026-05-24T11:05:00.000Z",
-      "committedAtUtc": "2026-05-24T11:05:00.000Z",
-      "generatedAtUtc": "2026-05-24T11:05:00.000Z",
-      "updatedAtUtc": "2026-05-24T11:05:00.000Z",
-      "category": "Improved",
-      "title": "SQL/database parity and cost accuracy",
-      "summary": "Locked SQL/database parity across raw events, summaries, user metrics, journey exports, and cost guard evidence.",
-      "userFacingTitle": "SQL/database parity and cost accuracy",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked SQL/database parity between raw events, global summaries, user metrics, and journey exports.",
-        "Preserved cost guards with batched exports and summary-first reads.",
-        "Added debug visibility for parity mismatches and export freshness."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Analytics",
-        "Admin debug",
-        "Analytics reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/sql-database-parity-cost-lock.generated.json",
-        "docs/agent-truth/sql-database-parity-cost-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-sql-database-parity-cost-lock.ts",
-        "src/lib/analytics/sql-database-parity-contract.ts",
-        "src/lib/analytics/sql-database-parity-engine.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/sql-database-parity-cost-lock.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "Added source-only SQL/database parity contracts, cost lane classification, debug lane coverage, validator reporting, and unit tests without running exports or changing runtime payment, GumDrop, chat, auth, task, or notification behavior."
-      ]
-    },
-    {
-      "version": "1.4.28",
-      "previousVersion": "1.4.27",
-      "betaReleaseCounter": 428,
-      "previousBetaReleaseCounter": 427,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(behavioral): add user journey intelligence",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T10:50:00.000Z",
-      "generatedAt": "2026-05-24T10:50:00.000Z",
-      "committedAtUtc": "2026-05-24T10:50:00.000Z",
-      "generatedAtUtc": "2026-05-24T10:50:00.000Z",
-      "updatedAtUtc": "2026-05-24T10:50:00.000Z",
-      "category": "Improved",
-      "title": "User journey intelligence",
-      "summary": "Added normalized user journey logs for behavioral intelligence with compact summaries and private payload protections.",
-      "userFacingTitle": "User journey intelligence",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added normalized user journey logs for behavioral intelligence.",
-        "Mapped sessions, drops, wallet, tasks, chat, and signup into compact journey summaries.",
-        "Protected private/payment/chat payloads from behavioral storage."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Analytics",
-        "Admin debug",
-        "Behavior tracking"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/user-journey-behavioral-intelligence.generated.json",
-        "docs/agent-truth/user-journey-behavioral-intelligence.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/behavioral/user-journey-builder.ts",
-        "src/lib/behavioral/user-journey-contract.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/user-journey-behavioral-intelligence.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit",
-      "technicalDetails": [
-        "Added source-only journey contracts, compact behavioral intelligence summaries, debug lane coverage, validator reporting, and unit tests without changing payment, GumDrop, chat, auth, task, or notification runtime behavior."
       ]
     }
   ]

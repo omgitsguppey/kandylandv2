@@ -1,0 +1,52 @@
+{
+  "reportKey": "ai-repair-context-packet",
+  "generatedAtUtc": "2026-05-25T02:50:01.087Z",
+  "blocked": {
+    "packetId": "packet-wi-private",
+    "workItemId": "wi-private",
+    "boundedEvidence": [
+      "raw support body from [redacted_email] token=[redacted_secret]"
+    ],
+    "safeSourceSnippets": [],
+    "artifactRefs": [],
+    "validatorRefs": [],
+    "routeRefs": [],
+    "redactedUserFacts": [],
+    "forbiddenPayloadsDetected": [
+      "raw_support_body",
+      "secret_or_token"
+    ],
+    "tokenEstimate": 11,
+    "maxInputTokens": 9000,
+    "modelRole": "admin_debug_fix_planner",
+    "privacyDecision": "blocked_for_manual_review",
+    "costDecision": "within_budget",
+    "sourceCompletenessScore": 90,
+    "missingContextReasons": [],
+    "providerCallRequired": false,
+    "selectedModeAfterSafety": "inspect_only"
+  },
+  "oversized": {
+    "packetId": "packet-wi-large",
+    "workItemId": "wi-large",
+    "boundedEvidence": [
+      "bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence bounded evidence"
+    ],
+    "safeSourceSnippets": [],
+    "artifactRefs": [],
+    "validatorRefs": [],
+    "routeRefs": [],
+    "redactedUserFacts": [],
+    "forbiddenPayloadsDetected": [],
+    "tokenEstimate": 1134,
+    "maxInputTokens": 20,
+    "modelRole": "admin_debug_assistant",
+    "privacyDecision": "safe",
+    "costDecision": "blocked_token_budget",
+    "sourceCompletenessScore": 90,
+    "missingContextReasons": [],
+    "providerCallRequired": false,
+    "selectedModeAfterSafety": "inspect_only"
+  },
+  "validationFailures": []
+}

@@ -1,0 +1,42 @@
+{
+  "reportKey": "ai-repair-planner",
+  "generatedAtUtc": "2026-05-25T02:50:05.002Z",
+  "providerCallsInTests": false,
+  "deterministicProposal": {
+    "proposalId": "proposal-wi-route-context-source-patch-candidate",
+    "workItemId": "wi-route-context",
+    "mode": "source_patch_candidate",
+    "status": "critic_required",
+    "createdAt": "1970-01-01T00:00:00.000Z",
+    "createdBy": "deterministic",
+    "source": "deterministic",
+    "filesToChange": [
+      "src/lib/debug/debug-backlog-builder.ts"
+    ],
+    "patchSummary": "Prepare bounded route-context source patch candidate.",
+    "validators": [
+      "npm run check:debug-backlog-engine",
+      "npm run check:admin-ai-control-tower"
+    ],
+    "criticReview": null,
+    "approval": {
+      "status": "critic_required",
+      "humanApprovalRequired": true,
+      "applyAllowed": false,
+      "approvedBy": null,
+      "approvedAt": null,
+      "reason": "Source patch candidates require critic review and human approval."
+    },
+    "applyResult": null,
+    "rollbackPlan": "Revert the scoped telemetry/context patch.",
+    "auditTrail": [
+      "proposal_created",
+      "deterministic_plan",
+      "silent_apply_blocked"
+    ],
+    "autoApplyAllowed": false,
+    "criticRequired": true,
+    "humanApprovalRequired": true
+  },
+  "validationFailures": []
+}

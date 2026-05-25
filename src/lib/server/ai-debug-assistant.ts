@@ -28,6 +28,7 @@ import {
     getAiDebugBudgetLimits,
     type AiDebugBudgetDecision,
 } from "@/lib/server/ai-debug-budget-guard";
+import { buildAiRepairWorkbenchFromSignal } from "@/lib/debug/ai-repair-triage-engine";
 import type { CreatorOnboardingDiagnosticIssue, CreatorOnboardingDiagnosticSummary } from "@/lib/server/creator-onboarding-diagnostics";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
@@ -609,6 +610,12 @@ export function buildAdminAiDebugFallback(input: {
         availability_note: input.availabilityNote,
         fallback_reason: input.fallbackReason || "live_ai_unavailable",
         last_live_call_at: input.settings.lastLiveCallAtMs ? new Date(input.settings.lastLiveCallAtMs).toISOString() : undefined,
+        workbench: buildAiRepairWorkbenchFromSignal({
+            signal,
+            fallbackStatus: "deterministic_fallback_summary",
+            livePlannerStatus: "not_requested",
+            routePreflightStatus: "no_sample",
+        }),
     });
 }
 
@@ -660,6 +667,12 @@ export function buildAdminAiDebugSavedSummary(input: {
         last_fallback_generated_at: input.savedSummary.last_fallback_generated_at,
         last_fallback_latency_ms: input.savedSummary.last_fallback_latency_ms ?? null,
         last_live_call_at: input.settings.lastLiveCallAtMs ? new Date(input.settings.lastLiveCallAtMs).toISOString() : input.savedSummary.last_live_call_at,
+        workbench: buildAiRepairWorkbenchFromSignal({
+            signal: input.signal,
+            fallbackStatus: "saved_guidance",
+            livePlannerStatus: "not_requested",
+            routePreflightStatus: "no_sample",
+        }),
     });
 }
 
@@ -921,6 +934,12 @@ export async function generateAdminAiDebugSummary(
             max_output_tokens: budgetDecision.debugEvidence.maxOutputTokens,
             prompt_char_count: budgetDecision.debugEvidence.promptCharLength,
             last_live_call_at: new Date().toISOString(),
+            workbench: buildAiRepairWorkbenchFromSignal({
+                signal,
+                fallbackStatus: "live_model_summary",
+                livePlannerStatus: "not_requested",
+                routePreflightStatus: "no_sample",
+            }),
         });
     } catch (error) {
         const latencyMs = Date.now() - startedAt;

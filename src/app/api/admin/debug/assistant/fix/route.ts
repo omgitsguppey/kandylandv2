@@ -5,9 +5,12 @@ import { ADMIN_DEBUG_ASSISTANT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
-import { getAdminAiDebugAssistantSettings } from "@/lib/server/admin-debug-settings";
-import { planAdminAiDebugFix, type AdminAiDebugFixPlannerAction } from "@/lib/server/ai-debug-assistant";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { buildAiRepairApplyContract } from "@/lib/debug/ai-repair-apply-contract";
+import { evaluateAiRepairApprovalGate } from "@/lib/debug/ai-repair-approval-gate";
+import { reviewAiRepairProposal } from "@/lib/debug/ai-repair-critic";
+import { createAiRepairProposalRecord, sanitizeAiRepairProposalForStore } from "@/lib/debug/ai-repair-proposal-store";
+import type { AiRepairWorkItem } from "@/lib/debug/ai-repair-workbench-contract";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +18,40 @@ const SUPPORTED_FIX_TYPES = new Set([
     "inspect_diagnostic",
     "dismiss_diagnostic",
 ]);
+const MANUAL_PATCH_REQUIRED_STATUS = "manual_patch_required";
+
+type AdminAiDebugFixPlannerAction = "inspect" | "apply" | "dismiss";
+
+function buildDiagnosticWorkItem(input: {
+    diagnosticMessage: string;
+    diagnosticDetail: string;
+    fixType: string;
+}): AiRepairWorkItem {
+    const sourcePatchCandidate = /route context|orchestration|projection|materializer|pipeline|source/i.test(`${input.diagnosticMessage} ${input.diagnosticDetail}`);
+    return {
+        workItemId: `assistant-fix-${input.fixType.toLowerCase().replace(/[^a-z0-9]+/gu, "-")}`,
+        title: input.diagnosticMessage.slice(0, 120) || "Assistant repair proposal",
+        sourceKind: sourcePatchCandidate ? "orchestration_finding" : "manual_operator_note",
+        sourceRef: `assistant/fix:${input.fixType}`,
+        owner: "admin_debug",
+        severity: sourcePatchCandidate ? "medium" : "low",
+        scoreImpact: sourcePatchCandidate ? 4 : 1,
+        risk: ["ops"],
+        status: sourcePatchCandidate ? "critic_required" : "deterministic_plan_ready",
+        sourceEvidence: [input.diagnosticMessage, input.diagnosticDetail].filter(Boolean),
+        redactionClass: "internal",
+        allowedModes: sourcePatchCandidate ? ["inspect_only", "source_patch_candidate"] : ["inspect_only", "manual_operator_action"],
+        selectedMode: sourcePatchCandidate ? "source_patch_candidate" : "inspect_only",
+        applyEligibility: sourcePatchCandidate ? "critic_required" : "inspect_only",
+        validators: ["npm run check:admin-ai-control-tower", "npm run check:admin-debug-control-tower"],
+        filesToInspect: ["src/lib/server/ai-debug-assistant.ts", "src/app/api/admin/debug/assistant/fix/route.ts"],
+        filesPotentiallyTouched: sourcePatchCandidate ? ["src/lib/server/ai-debug-assistant.ts"] : [],
+        rollbackPlan: "No source or production state mutation occurs through assistant/fix; discard the manual patch packet if rejected.",
+        nextAction: sourcePatchCandidate
+            ? "Prepare a reviewable source patch packet with critic and human approval gates."
+            : "Inspect the diagnostic and decide whether a manual operator action is needed.",
+    };
+}
 
 async function POST_handler(request: NextRequest) {
     const startedAt = Date.now();
@@ -93,46 +130,73 @@ async function POST_handler(request: NextRequest) {
             }, { status: 200 }));
         }
 
-        const settings = await getAdminAiDebugAssistantSettings();
-        const result = await planAdminAiDebugFix({
-            action,
+        const workItem = buildDiagnosticWorkItem({
             diagnosticMessage,
             diagnosticDetail,
             fixType: fixType || "inspect_diagnostic",
-            settings,
         });
+        const proposal = createAiRepairProposalRecord({
+            workItemId: workItem.workItemId,
+            mode: action === "apply" ? "source_patch_candidate" : workItem.selectedMode,
+            filesToChange: action === "apply" || workItem.selectedMode === "source_patch_candidate" ? workItem.filesPotentiallyTouched : [],
+            validators: workItem.validators,
+            patchSummary: workItem.nextAction,
+            rollbackPlan: workItem.rollbackPlan,
+            createdBy: caller.uid,
+        });
+        const criticReview = reviewAiRepairProposal(proposal);
+        const approval = evaluateAiRepairApprovalGate({ proposal, criticReview });
+        const reviewedProposal = sanitizeAiRepairProposalForStore({
+            ...proposal,
+            criticReview,
+            approval,
+            status: approval.status,
+            autoApplyAllowed: false,
+            humanApprovalRequired: approval.humanApprovalRequired,
+            criticRequired: proposal.mode === "source_patch_candidate",
+        });
+        const applyContract = buildAiRepairApplyContract(reviewedProposal);
 
         await recordServerDiagnostic({
             channel: "admin",
-            severity: result.status === "fix_dismissed" ? "info" : "warn",
-            message: "Admin AI debug assistant fix planner invoked",
+            severity: "warn",
+            message: "Admin AI debug assistant repair proposal created",
             detail: {
                 actorAdminId: caller.uid,
                 actorAdminEmail: caller.email || "",
                 action,
                 fixType: fixType || "inspect_diagnostic",
-                status: result.status,
-                actionability: result.actionability,
+                proposalId: reviewedProposal.proposalId,
+                status: reviewedProposal.status,
+                actionability: applyContract.status,
+                sourceMutationAllowed: applyContract.sourceMutationAllowed,
+                productionMutationAllowed: applyContract.productionMutationAllowed,
             },
         });
 
-        if (result.status === "fix_requires_manual_review") {
-            return finalize(NextResponse.json({
-                success: true,
-                status: "fix_requires_manual_review",
-                actionability: result.actionability,
-                reason: result.reason,
-                plan: result.plan || null,
-                errorCode: "fix_requires_manual_review",
-            }, { status: 200 }));
-        }
-
         return finalize(NextResponse.json({
             success: true,
-            status: result.status,
-            actionability: result.actionability,
-            reason: result.reason,
-            plan: result.plan || null,
+            status: applyContract.status,
+            actionability: applyContract.status,
+            reason: `assistant/fix now returns a reviewable proposal packet only. Expected source patch status is ${MANUAL_PATCH_REQUIRED_STATUS}; no silent source or production mutation is allowed.`,
+            proposal: reviewedProposal,
+            applyContract,
+            plan: {
+                issue_summary: workItem.title,
+                source_evidence: workItem.sourceEvidence,
+                likely_cause: "Diagnostic requires bounded inspection before implementation.",
+                safe_fix_plan: applyContract.instructions,
+                files_to_inspect: workItem.filesToInspect,
+                validators_to_run: applyContract.validators,
+                apply_eligibility: {
+                    state: reviewedProposal.mode,
+                    reason: reviewedProposal.approval.reason,
+                    allowed_fix_types: ["inspect", "manual_patch_packet"],
+                },
+                rollback_note: applyContract.rollbackPlan,
+                criticReview,
+                approval,
+            },
         }, { status: 200 }));
     } catch (error) {
         return finalize(handleApiError(error, "admin/debug/assistant/fix"), error);

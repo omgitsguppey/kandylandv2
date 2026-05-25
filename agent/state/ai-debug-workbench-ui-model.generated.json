@@ -1,0 +1,123 @@
+{
+  "reportKey": "ai-debug-workbench-ui-model",
+  "generatedAtUtc": "2026-05-25T02:50:10.665Z",
+  "model": {
+    "summaryLabel": "Deterministic fallback summary",
+    "proposalQueueLabel": "Proposal queue",
+    "rawEvidenceDefaultOpen": false,
+    "routePreflightStatus": "no_sample",
+    "workItemRows": [
+      {
+        "workItemId": "ai-repair-pipeline-failures",
+        "title": "709 pipeline failures",
+        "sourceKind": "pipeline_failure",
+        "priority": 72.2,
+        "mode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "criticStatus": "critic_required",
+        "approvalStatus": "not_applicable",
+        "nextAction": "Group pipeline failures by root cause and inspect source route context before proposing any patch."
+      },
+      {
+        "workItemId": "ai-repair-orchestration-missing-route-context",
+        "title": "Missing route context",
+        "sourceKind": "telemetry_gap",
+        "priority": 58.8,
+        "mode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "criticStatus": "critic_required",
+        "approvalStatus": "not_applicable",
+        "nextAction": "Map missing route context to canonical telemetry/debug source files."
+      },
+      {
+        "workItemId": "ai-repair-creator-onboarding-issues",
+        "title": "8 creator onboarding issues",
+        "sourceKind": "creator_onboarding_issue",
+        "priority": 72.2,
+        "mode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "criticStatus": "critic_required",
+        "approvalStatus": "not_applicable",
+        "nextAction": "Inspect creator onboarding projection/materializer parity before any patch."
+      },
+      {
+        "workItemId": "ai-repair-materializer-gaps",
+        "title": "Materializer gaps",
+        "sourceKind": "materializer_gap",
+        "priority": 45,
+        "mode": "artifact_refresh",
+        "applyEligibility": "inspect_only",
+        "criticStatus": "not_applicable",
+        "approvalStatus": "not_applicable",
+        "nextAction": "Refresh or inspect degraded materializer evidence without calling providers."
+      }
+    ],
+    "proposalRows": [
+      {
+        "proposalId": "proposal-ai-repair-pipeline-failures-source-patch-candidate",
+        "workItemId": "ai-repair-pipeline-failures",
+        "mode": "source_patch_candidate",
+        "status": "critic_required",
+        "approvalStatus": "critic_required",
+        "validators": [
+          "npm run check:admin-debug-control-tower",
+          "npm run check:admin-ai-control-tower"
+        ],
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "autoApplyAllowed": false
+      },
+      {
+        "proposalId": "proposal-ai-repair-orchestration-missing-route-context-source-patch-candidate",
+        "workItemId": "ai-repair-orchestration-missing-route-context",
+        "mode": "source_patch_candidate",
+        "status": "critic_required",
+        "approvalStatus": "critic_required",
+        "validators": [
+          "npm run check:debug-backlog-engine",
+          "npm run check:admin-ai-control-tower"
+        ],
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "autoApplyAllowed": false
+      },
+      {
+        "proposalId": "proposal-ai-repair-creator-onboarding-issues-source-patch-candidate",
+        "workItemId": "ai-repair-creator-onboarding-issues",
+        "mode": "source_patch_candidate",
+        "status": "critic_required",
+        "approvalStatus": "critic_required",
+        "validators": [
+          "npm run check:creator-lane-debug-parity",
+          "npm run check:admin-ai-control-tower"
+        ],
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "autoApplyAllowed": false
+      },
+      {
+        "proposalId": "proposal-ai-repair-materializer-gaps-artifact-refresh",
+        "workItemId": "ai-repair-materializer-gaps",
+        "mode": "artifact_refresh",
+        "status": "not_applicable",
+        "approvalStatus": "not_applicable",
+        "validators": [
+          "npm run check:debug-runtime-evidence",
+          "npm run check:admin-ai-control-tower"
+        ],
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "autoApplyAllowed": false
+      }
+    ],
+    "counts": {
+      "workItems": 4,
+      "inspectOnly": 0,
+      "sourcePatchCandidates": 3,
+      "formalEvidenceRequests": 0,
+      "manualOperatorActions": 0,
+      "criticRequired": 3,
+      "criticPassed": 0,
+      "humanApprovalRequired": 3,
+      "applyReady": 0,
+      "autoApplyAllowed": 0
+    }
+  },
+  "validationFailures": []
+}

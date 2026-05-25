@@ -83,7 +83,7 @@ export function DebugTabAi({
         ? aiDebugData.live_summary_status.replace(/_/g, " ")
         : "unknown";
     const lastLiveRunLabel = aiDebugData?.last_model_call_at ? formatRelative(Date.parse(aiDebugData.last_model_call_at)) : "Not available";
-    const fallbackGeneratedLabel = aiDebugData?.last_fallback_generated_at ? formatRelative(Date.parse(aiDebugData.last_fallback_generated_at)) : "Not recorded";
+    const workbench = aiDebugData?.workbench;
 
     return (
         <div className="space-y-4">
@@ -171,10 +171,13 @@ export function DebugTabAi({
                     <div className="space-y-4">
                         <div className="grid gap-4 lg:grid-cols-1">
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">What it found</p>
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Workbench summary</p>
                                 <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <Pill label="Displayed source" value={displayedSourceLabel} tone={aiDebugData.response_state === "live" ? "good" : "warn"} />
+                                    <Pill label="Fallback" value={workbench?.fallbackStatus?.replace(/_/g, " ") || "unknown"} tone={workbench?.fallbackStatus === "deterministic_fallback_summary" ? "warn" : "neutral"} />
+                                    <Pill label="Planner" value={workbench?.livePlannerStatus?.replace(/_/g, " ") || "unknown"} tone={workbench?.livePlannerStatus === "ai_plan_ready" ? "good" : "neutral"} />
+                                    <Pill label="Route preflight" value={workbench?.routePreflightStatus?.replace(/_/g, " ") || "unknown"} tone={workbench?.routePreflightStatus === "no_sample" ? "warn" : "neutral"} />
                                     <Pill label="Provider" value={aiDebugData.provider} />
                                     <Pill label="Role" value={aiDebugData.model_role} />
                                     <Pill label="Prompt" value={aiDebugData.prompt_version} />
@@ -191,9 +194,39 @@ export function DebugTabAi({
                                 {aiDebugData.availability_note ? (<p className="mt-3 text-xs leading-6 text-gray-400">{aiDebugData.availability_note}</p>) : null}
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">What to do next</p>
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Work item groups</p>
+                                <div className="mt-3 grid gap-2">
+                                    {(workbench?.workItemGroups || []).slice(0, 5).map((group) => (
+                                        <div key={group.groupId} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <Pill label="Items" value={String(group.count)} />
+                                                <Pill label="Priority" value={String(group.priorityScore)} tone={group.priorityScore >= 70 ? "warn" : "neutral"} />
+                                                <Pill label="Mode" value={group.selectedMode.replace(/_/g, " ")} tone={group.selectedMode === "source_patch_candidate" ? "warn" : "neutral"} />
+                                                <Pill label="Eligibility" value={group.applyEligibility.replace(/_/g, " ")} tone={group.applyEligibility === "critic_required" || group.applyEligibility === "human_approval_required" ? "warn" : "neutral"} />
+                                            </div>
+                                            <p className="mt-2 text-sm font-semibold text-white">{group.title}</p>
+                                            <p className="mt-1 text-xs leading-5 text-gray-400">{group.nextAction}</p>
+                                        </div>
+                                    ))}
+                                    {(workbench?.workItemGroups || []).length === 0 ? (
+                                        <p className="text-sm text-gray-400">No structured repair work items loaded.</p>
+                                    ) : null}
+                                </div>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Proposal queue</p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    <Pill label="Inspect only" value={String(workbench?.counts.inspectOnly ?? 0)} />
+                                    <Pill label="Patch candidates" value={String(workbench?.counts.sourcePatchCandidates ?? 0)} tone={(workbench?.counts.sourcePatchCandidates ?? 0) > 0 ? "warn" : "neutral"} />
+                                    <Pill label="Critic required" value={String(workbench?.counts.criticRequired ?? 0)} tone={(workbench?.counts.criticRequired ?? 0) > 0 ? "warn" : "neutral"} />
+                                    <Pill label="Human approval" value={String(workbench?.counts.humanApprovalRequired ?? 0)} tone={(workbench?.counts.humanApprovalRequired ?? 0) > 0 ? "warn" : "neutral"} />
+                                    <Pill label="Auto apply" value={String(workbench?.counts.autoApplyAllowed ?? 0)} tone={(workbench?.counts.autoApplyAllowed ?? 0) > 0 ? "bad" : "good"} />
+                                </div>
                                 <ul className="mt-3 space-y-2 text-sm text-gray-200">
-                                    {(aiDebugData.suggested_next_checks || []).map((entry) => <li key={entry}>- {entry}</li>)}
+                                    {(workbench?.proposalQueue || []).slice(0, 4).map((proposal) => (
+                                        <li key={proposal.proposalId}>- {proposal.mode.replace(/_/g, " ")}: {proposal.status.replace(/_/g, " ")}; validators {proposal.validators.length}</li>
+                                    ))}
+                                    {(workbench?.proposalQueue || []).length === 0 ? <li>- No apply-ready proposals. Inspect-only work remains reviewable.</li> : null}
                                 </ul>
                             </div>
                         </div>

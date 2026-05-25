@@ -1,0 +1,450 @@
+{
+  "reportKey": "debug-cockpit-batch27-ai-repair-workbench",
+  "generatedAtUtc": "2026-05-25T02:50:12.252Z",
+  "aiAssistantStatusBefore": "guidance_summary_surface",
+  "aiAssistantStatusAfter": "async_repair_workbench_ready",
+  "fallbackStatus": "deterministic_fallback_summary",
+  "livePlannerStatus": "not_requested",
+  "providerCallsInTests": false,
+  "contextPacketStatus": "ready",
+  "redactionStatus": "raw_payloads_blocked",
+  "workItemGroups": 4,
+  "pipelineFailuresGrouped": true,
+  "orchestrationFindingsGrouped": true,
+  "creatorIssuesGrouped": true,
+  "repairProposalsCreated": 4,
+  "inspectOnlyCount": 0,
+  "sourcePatchCandidateCount": 3,
+  "formalEvidenceRequestCount": 0,
+  "manualOperatorActionCount": 0,
+  "criticRequiredCount": 3,
+  "criticPassedCount": 0,
+  "humanApprovalRequiredCount": 3,
+  "applyReadyCount": 0,
+  "autoApplyAllowedCount": 0,
+  "assistantFixRouteStatus": "proposal_workflow_only",
+  "scoreBefore": 70,
+  "scoreAfter": 88,
+  "scoreDimensions": [
+    "workItemStructure",
+    "contextSafety",
+    "triageDeterminism",
+    "criticApproval",
+    "applySafety"
+  ],
+  "remainingGaps": [
+    "Live planner remains admin-triggered only.",
+    "Source patches still require manual implementation outside the admin UI."
+  ],
+  "nextExactSteps": [
+    "Review top proposal queue entries.",
+    "Run proposal validators before manual source changes."
+  ],
+  "workbench": {
+    "status": "async_repair_workbench_ready",
+    "fallbackStatus": "deterministic_fallback_summary",
+    "livePlannerStatus": "not_requested",
+    "providerCallsInTests": false,
+    "contextPacketStatus": "ready",
+    "redactionStatus": "safe",
+    "workItems": [
+      {
+        "scoreImpact": 8,
+        "risk": [
+          "ops",
+          "data_integrity"
+        ],
+        "status": "critic_required",
+        "redactionClass": "internal",
+        "allowedModes": [
+          "inspect_only",
+          "source_patch_candidate"
+        ],
+        "selectedMode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "validators": [
+          "npm run check:admin-debug-control-tower"
+        ],
+        "filesToInspect": [
+          "src/app/api/admin/debug/assistant/route.ts",
+          "route:admin/debug"
+        ],
+        "filesPotentiallyTouched": [
+          "route:admin/debug"
+        ],
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "workItemId": "ai-repair-pipeline-failures",
+        "title": "709 pipeline failures",
+        "sourceKind": "pipeline_failure",
+        "sourceRef": "pipeline:admin/debug",
+        "owner": "admin_debug",
+        "severity": "high",
+        "sourceEvidence": [
+          "709 pipeline failures in bounded ops sample."
+        ],
+        "nextAction": "Group pipeline failures by root cause and inspect source route context before proposing any patch."
+      },
+      {
+        "scoreImpact": 3,
+        "risk": [
+          "data_integrity"
+        ],
+        "status": "critic_required",
+        "redactionClass": "internal",
+        "allowedModes": [
+          "inspect_only",
+          "source_patch_candidate"
+        ],
+        "selectedMode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "validators": [
+          "npm run check:debug-backlog-engine"
+        ],
+        "filesToInspect": [
+          "src/lib/debug/debug-backlog-builder.ts",
+          "src/lib/behavioral/tracking-surface-map.ts"
+        ],
+        "filesPotentiallyTouched": [
+          "src/lib/debug/debug-backlog-builder.ts"
+        ],
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "workItemId": "ai-repair-orchestration-missing-route-context",
+        "title": "Missing route context",
+        "sourceKind": "telemetry_gap",
+        "sourceRef": "orchestration:Missing route context",
+        "owner": "telemetry",
+        "severity": "medium",
+        "sourceEvidence": [
+          "Missing route context: event can be counted, but surface attribution is incomplete"
+        ],
+        "nextAction": "Map missing route context to canonical telemetry/debug source files."
+      },
+      {
+        "scoreImpact": 8,
+        "risk": [
+          "data_integrity",
+          "ops"
+        ],
+        "status": "critic_required",
+        "redactionClass": "internal",
+        "allowedModes": [
+          "inspect_only",
+          "source_patch_candidate"
+        ],
+        "selectedMode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "validators": [
+          "npm run check:creator-lane-debug-parity"
+        ],
+        "filesToInspect": [
+          "src/lib/server/creator-onboarding-diagnostics.ts",
+          "src/lib/server/creator-onboarding.ts"
+        ],
+        "filesPotentiallyTouched": [
+          "src/lib/server/creator-onboarding-diagnostics.ts"
+        ],
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "workItemId": "ai-repair-creator-onboarding-issues",
+        "title": "8 creator onboarding issues",
+        "sourceKind": "creator_onboarding_issue",
+        "sourceRef": "creator_onboarding:diagnostics",
+        "owner": "creator_onboarding",
+        "severity": "high",
+        "sourceEvidence": [
+          "Creator review queue projection is stale: queue projection differs from canonical onboarding on isSyntheticCreator"
+        ],
+        "nextAction": "Inspect creator onboarding projection/materializer parity before any patch."
+      },
+      {
+        "scoreImpact": 0,
+        "risk": [
+          "ops"
+        ],
+        "status": "deterministic_plan_ready",
+        "redactionClass": "internal",
+        "allowedModes": [
+          "inspect_only",
+          "artifact_refresh"
+        ],
+        "selectedMode": "artifact_refresh",
+        "applyEligibility": "inspect_only",
+        "validators": [
+          "npm run check:debug-runtime-evidence"
+        ],
+        "filesToInspect": [],
+        "filesPotentiallyTouched": [],
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "workItemId": "ai-repair-materializer-gaps",
+        "title": "Materializer gaps",
+        "sourceKind": "materializer_gap",
+        "sourceRef": "ops.materializers",
+        "owner": "analytics_materializers",
+        "severity": "medium",
+        "sourceEvidence": [
+          "analytics: degraded - Identified analytics ingestion failed."
+        ],
+        "nextAction": "Refresh or inspect degraded materializer evidence without calling providers."
+      }
+    ],
+    "workItemGroups": [
+      {
+        "groupId": "group-pipeline-failure-pipeline-admin-debug-admin-debug",
+        "title": "709 pipeline failures",
+        "sourceKind": "pipeline_failure",
+        "count": 1,
+        "priorityScore": 72.2,
+        "severity": "high",
+        "selectedMode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "workItemIds": [
+          "ai-repair-pipeline-failures"
+        ],
+        "sourceRefs": [
+          "pipeline:admin/debug"
+        ],
+        "nextAction": "Group pipeline failures by root cause and inspect source route context before proposing any patch."
+      },
+      {
+        "groupId": "group-creator-onboarding-issue-creator-onboarding-diagnostics-creator-onboarding",
+        "title": "8 creator onboarding issues",
+        "sourceKind": "creator_onboarding_issue",
+        "count": 1,
+        "priorityScore": 72.2,
+        "severity": "high",
+        "selectedMode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "workItemIds": [
+          "ai-repair-creator-onboarding-issues"
+        ],
+        "sourceRefs": [
+          "creator_onboarding:diagnostics"
+        ],
+        "nextAction": "Inspect creator onboarding projection/materializer parity before any patch."
+      },
+      {
+        "groupId": "group-telemetry-gap-orchestration-missing-route-context-telemetry",
+        "title": "Missing route context",
+        "sourceKind": "telemetry_gap",
+        "count": 1,
+        "priorityScore": 58.8,
+        "severity": "medium",
+        "selectedMode": "source_patch_candidate",
+        "applyEligibility": "critic_required",
+        "workItemIds": [
+          "ai-repair-orchestration-missing-route-context"
+        ],
+        "sourceRefs": [
+          "orchestration:Missing route context"
+        ],
+        "nextAction": "Map missing route context to canonical telemetry/debug source files."
+      },
+      {
+        "groupId": "group-materializer-gap-ops-materializers-analytics-materializers",
+        "title": "Materializer gaps",
+        "sourceKind": "materializer_gap",
+        "count": 1,
+        "priorityScore": 45,
+        "severity": "medium",
+        "selectedMode": "artifact_refresh",
+        "applyEligibility": "inspect_only",
+        "workItemIds": [
+          "ai-repair-materializer-gaps"
+        ],
+        "sourceRefs": [
+          "ops.materializers"
+        ],
+        "nextAction": "Refresh or inspect degraded materializer evidence without calling providers."
+      }
+    ],
+    "proposalQueue": [
+      {
+        "proposalId": "proposal-ai-repair-pipeline-failures-source-patch-candidate",
+        "workItemId": "ai-repair-pipeline-failures",
+        "mode": "source_patch_candidate",
+        "status": "critic_required",
+        "createdAt": "1970-01-01T00:00:00.000Z",
+        "createdBy": "deterministic",
+        "source": "deterministic",
+        "filesToChange": [
+          "route:admin/debug"
+        ],
+        "patchSummary": "Group pipeline failures by root cause and inspect source route context before proposing any patch.",
+        "validators": [
+          "npm run check:admin-debug-control-tower",
+          "npm run check:admin-ai-control-tower"
+        ],
+        "criticReview": null,
+        "approval": {
+          "status": "critic_required",
+          "humanApprovalRequired": true,
+          "applyAllowed": false,
+          "approvedBy": null,
+          "approvedAt": null,
+          "reason": "Source patch candidates require critic review and human approval."
+        },
+        "applyResult": null,
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "auditTrail": [
+          "proposal_created",
+          "deterministic_plan",
+          "silent_apply_blocked"
+        ],
+        "autoApplyAllowed": false,
+        "criticRequired": true,
+        "humanApprovalRequired": true
+      },
+      {
+        "proposalId": "proposal-ai-repair-orchestration-missing-route-context-source-patch-candidate",
+        "workItemId": "ai-repair-orchestration-missing-route-context",
+        "mode": "source_patch_candidate",
+        "status": "critic_required",
+        "createdAt": "1970-01-01T00:00:00.000Z",
+        "createdBy": "deterministic",
+        "source": "deterministic",
+        "filesToChange": [
+          "src/lib/debug/debug-backlog-builder.ts"
+        ],
+        "patchSummary": "Map missing route context to canonical telemetry/debug source files.",
+        "validators": [
+          "npm run check:debug-backlog-engine",
+          "npm run check:admin-ai-control-tower"
+        ],
+        "criticReview": null,
+        "approval": {
+          "status": "critic_required",
+          "humanApprovalRequired": true,
+          "applyAllowed": false,
+          "approvedBy": null,
+          "approvedAt": null,
+          "reason": "Source patch candidates require critic review and human approval."
+        },
+        "applyResult": null,
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "auditTrail": [
+          "proposal_created",
+          "deterministic_plan",
+          "silent_apply_blocked"
+        ],
+        "autoApplyAllowed": false,
+        "criticRequired": true,
+        "humanApprovalRequired": true
+      },
+      {
+        "proposalId": "proposal-ai-repair-creator-onboarding-issues-source-patch-candidate",
+        "workItemId": "ai-repair-creator-onboarding-issues",
+        "mode": "source_patch_candidate",
+        "status": "critic_required",
+        "createdAt": "1970-01-01T00:00:00.000Z",
+        "createdBy": "deterministic",
+        "source": "deterministic",
+        "filesToChange": [
+          "src/lib/server/creator-onboarding-diagnostics.ts"
+        ],
+        "patchSummary": "Inspect creator onboarding projection/materializer parity before any patch.",
+        "validators": [
+          "npm run check:creator-lane-debug-parity",
+          "npm run check:admin-ai-control-tower"
+        ],
+        "criticReview": null,
+        "approval": {
+          "status": "critic_required",
+          "humanApprovalRequired": true,
+          "applyAllowed": false,
+          "approvedBy": null,
+          "approvedAt": null,
+          "reason": "Source patch candidates require critic review and human approval."
+        },
+        "applyResult": null,
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "auditTrail": [
+          "proposal_created",
+          "deterministic_plan",
+          "silent_apply_blocked"
+        ],
+        "autoApplyAllowed": false,
+        "criticRequired": true,
+        "humanApprovalRequired": true
+      },
+      {
+        "proposalId": "proposal-ai-repair-materializer-gaps-artifact-refresh",
+        "workItemId": "ai-repair-materializer-gaps",
+        "mode": "artifact_refresh",
+        "status": "not_applicable",
+        "createdAt": "1970-01-01T00:00:00.000Z",
+        "createdBy": "deterministic",
+        "source": "deterministic",
+        "filesToChange": [],
+        "patchSummary": "Refresh or inspect degraded materializer evidence without calling providers.",
+        "validators": [
+          "npm run check:debug-runtime-evidence",
+          "npm run check:admin-ai-control-tower"
+        ],
+        "criticReview": null,
+        "approval": {
+          "status": "not_applicable",
+          "humanApprovalRequired": false,
+          "applyAllowed": false,
+          "approvedBy": null,
+          "approvedAt": null,
+          "reason": "Inspect-only or evidence proposals do not have an apply gate."
+        },
+        "applyResult": null,
+        "rollbackPlan": "No product or production state mutation; revert the scoped source/artifact change if needed.",
+        "auditTrail": [
+          "proposal_created",
+          "deterministic_plan",
+          "silent_apply_blocked"
+        ],
+        "autoApplyAllowed": false,
+        "criticRequired": false,
+        "humanApprovalRequired": false
+      }
+    ],
+    "routePreflightStatus": "no_sample",
+    "counts": {
+      "workItems": 4,
+      "inspectOnly": 0,
+      "sourcePatchCandidates": 3,
+      "formalEvidenceRequests": 0,
+      "manualOperatorActions": 0,
+      "criticRequired": 3,
+      "criticPassed": 0,
+      "humanApprovalRequired": 3,
+      "applyReady": 0,
+      "autoApplyAllowed": 0
+    },
+    "scoreBefore": 70,
+    "scoreAfter": 88,
+    "scoreDimensions": {
+      "workItemStructure": {
+        "before": 45,
+        "after": 90
+      },
+      "contextSafety": {
+        "before": 60,
+        "after": 92
+      },
+      "triageDeterminism": {
+        "before": 55,
+        "after": 90
+      },
+      "criticApproval": {
+        "before": 50,
+        "after": 86
+      },
+      "applySafety": {
+        "before": 65,
+        "after": 95
+      }
+    },
+    "remainingGaps": [
+      "Live AI planning remains optional and requires explicit admin action.",
+      "Human approval is still required before any source patch candidate can be implemented."
+    ],
+    "nextExactSteps": [
+      "Inspect proposal queue entries and run listed validators before manual implementation.",
+      "Use live planner only when bounded context and budget guards pass."
+    ]
+  },
+  "validationFailures": []
+}
