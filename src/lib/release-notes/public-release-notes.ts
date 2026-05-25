@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.54",
-  "betaReleaseCounter": 454,
+  "currentVersion": "1.4.55",
+  "betaReleaseCounter": 455,
   "channel": "beta",
-  "generatedAt": "2026-05-25T00:10:00.000Z",
-  "generatedAtUtc": "2026-05-25T00:10:00.000Z",
+  "generatedAt": "2026-05-25T02:10:00.000Z",
+  "generatedAtUtc": "2026-05-25T02:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.55",
+      "previousVersion": "1.4.54",
+      "betaReleaseCounter": 455,
+      "previousBetaReleaseCounter": 454,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): complete dependency inventory",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T02:10:00.000Z",
+      "generatedAt": "2026-05-25T02:10:00.000Z",
+      "committedAtUtc": "2026-05-25T02:10:00.000Z",
+      "generatedAtUtc": "2026-05-25T02:10:00.000Z",
+      "category": "Fixed",
+      "title": "Infrastructure dependency inventory",
+      "updatedAtUtc": "2026-05-25T02:10:00.000Z",
+      "summary": "Expanded Admin Debug infrastructure dependency reporting so package inventory, external service dependencies, expected-absent dependencies, and runtime checks stay complete and separate.",
+      "userFacingTitle": "Infrastructure dependency inventory",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Expanded infrastructure dependency inventory to include every root/functions dependency, override, external service, and expected-absent dependency.",
+        "Separated package inventory from runtime connectivity checks.",
+        "Replaced fake package updated timestamps with explicit timestamp-unavailable classification."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Package versions, lockfiles, payment runtime, provider behavior, and GumDrop math were not changed."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug infrastructure",
+        "Dependency inventory",
+        "External service dependency map",
+        "Runtime evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/debug/dependency-inventory-engine.ts",
+        "src/lib/debug/dependency-inventory-contract.ts",
+        "src/lib/debug/external-dependency-map.ts",
+        "src/lib/debug/dependency-inventory-display.ts",
+        "src/lib/debug/debug-cockpit-batch26-dependency-inventory.ts",
+        "src/app/admin/debug/components/DebugTabInfrastructure.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "effectiveChangeCount": 7,
+      "excludedGeneratedChangeCount": 8,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.54",
       "previousVersion": "1.4.53",
@@ -7017,7 +7068,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ]
     }
   ]
-} as const satisfies PublicReleaseNotesDocument;
+} satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,

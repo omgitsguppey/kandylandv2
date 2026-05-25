@@ -1,0 +1,51 @@
+{
+  "reportKey": "debug-cockpit-batch26-dependency-inventory",
+  "generatedAtUtc": "2026-05-25T02:01:42.470Z",
+  "rootRuntimeDeps": 34,
+  "rootDevDeps": 53,
+  "rootOptionalDeps": 0,
+  "rootPeerDeps": 0,
+  "functionsRuntimeDeps": 4,
+  "functionsDevDeps": 7,
+  "functionsOptionalDeps": 0,
+  "functionsPeerDeps": 0,
+  "rootOverrides": 27,
+  "functionsOverrides": 11,
+  "externalServices": 19,
+  "expectedAbsentDependencies": 5,
+  "unknownDirectDeps": 9,
+  "omittedDependenciesBefore": 86,
+  "omittedDependenciesAfter": 0,
+  "countReconciliationStatus": "pass",
+  "fakeTimestampDetected": true,
+  "fakeTimestampFixed": true,
+  "runtimeChecksSeparated": true,
+  "providerCallsRun": false,
+  "scoreBefore": 62,
+  "scoreAfter": 96,
+  "scoreDimensions": {
+    "packageInventoryCompleteness": {
+      "before": 55,
+      "after": 100
+    },
+    "externalServiceMapping": {
+      "before": 45,
+      "after": 96
+    },
+    "timestampTruth": {
+      "before": 10,
+      "after": 100
+    },
+    "runtimeBoundary": {
+      "before": 70,
+      "after": 100
+    }
+  },
+  "remainingGaps": [
+    "Runtime connectivity checks still require their own provider/runtime evidence and are not cleared by package inventory."
+  ],
+  "nextExactSteps": [
+    "Keep dependency inventory source-only; run provider/runtime smoke only through explicit evidence lanes."
+  ],
+  "validationFailures": []
+}

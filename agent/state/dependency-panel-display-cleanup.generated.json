@@ -1,0 +1,1893 @@
+{
+  "reportKey": "dependency-panel-display-cleanup",
+  "generatedAtUtc": "2026-05-25T02:01:35.090Z",
+  "compactSummary": {
+    "rootRuntimeDeps": 34,
+    "rootDevDeps": 53,
+    "rootOptionalDeps": 0,
+    "rootPeerDeps": 0,
+    "functionsRuntimeDeps": 4,
+    "functionsDevDeps": 7,
+    "functionsOptionalDeps": 0,
+    "functionsPeerDeps": 0,
+    "rootOverrides": 27,
+    "functionsOverrides": 11,
+    "externalServices": 19,
+    "expectedAbsentDependencies": 5,
+    "unknownDirectDeps": 9
+  },
+  "drilldowns": {
+    "everyDependency": [
+      {
+        "name": "@axe-core/react",
+        "declaredVersion": "^4.11.2",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "4.11.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@google-analytics/data",
+        "declaredVersion": "^5.2.1",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "5.2.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "analytics_telemetry"
+      },
+      {
+        "name": "@google-cloud/vertexai",
+        "declaredVersion": "^1.12.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "1.12.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "ai_model_providers"
+      },
+      {
+        "name": "@hookform/resolvers",
+        "declaredVersion": "^5.2.2",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "5.2.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "forms_validation"
+      },
+      {
+        "name": "@next/third-parties",
+        "declaredVersion": "^16.2.4",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "16.2.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "framework"
+      },
+      {
+        "name": "@paypal/react-paypal-js",
+        "declaredVersion": "^9.1.1",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "9.1.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "payments"
+      },
+      {
+        "name": "@radix-ui/react-dialog",
+        "declaredVersion": "^1.1.15",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "1.1.15",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "@tailwindcss/typography",
+        "declaredVersion": "^0.5.19",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "0.5.19",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "@types/canvas-confetti",
+        "declaredVersion": "^1.9.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "1.9.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "canvas-confetti",
+        "declaredVersion": "^1.9.4",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "1.9.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "clsx",
+        "declaredVersion": "^2.1.1",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "2.1.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "utilities"
+      },
+      {
+        "name": "date-fns",
+        "declaredVersion": "^4.1.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "4.1.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "utilities"
+      },
+      {
+        "name": "destr",
+        "declaredVersion": "^2.0.5",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "2.0.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "utilities"
+      },
+      {
+        "name": "dotenv",
+        "declaredVersion": "^17.4.2",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "17.4.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "embla-carousel-react",
+        "declaredVersion": "^8.6.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "8.6.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "es-toolkit",
+        "declaredVersion": "^1.46.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "1.46.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "utilities"
+      },
+      {
+        "name": "firebase",
+        "declaredVersion": "^12.12.1",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "12.12.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "firebase_google"
+      },
+      {
+        "name": "firebase-admin",
+        "declaredVersion": "^13.8.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "13.8.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "firebase_google"
+      },
+      {
+        "name": "framer-motion",
+        "declaredVersion": "^12.38.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "12.38.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "google-auth-library",
+        "declaredVersion": "^10.6.2",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "10.6.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "firebase_google"
+      },
+      {
+        "name": "lucide-react",
+        "declaredVersion": "^0.563.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "0.563.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "next",
+        "declaredVersion": "^16.2.4",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "16.2.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "framework"
+      },
+      {
+        "name": "posthog-js",
+        "declaredVersion": "^1.367.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "1.367.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "analytics_telemetry"
+      },
+      {
+        "name": "react",
+        "declaredVersion": "^19.2.5",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "19.2.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "framework"
+      },
+      {
+        "name": "react-dom",
+        "declaredVersion": "^19.2.5",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "19.2.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "framework"
+      },
+      {
+        "name": "react-easy-crop",
+        "declaredVersion": "^5.5.7",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "5.5.7",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "react-hook-form",
+        "declaredVersion": "^7.72.1",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "7.72.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "react-loading-skeleton",
+        "declaredVersion": "^3.5.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "3.5.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "recharts",
+        "declaredVersion": "^3.8.1",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "3.8.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "server-only",
+        "declaredVersion": "^0.0.1",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "0.0.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "framework"
+      },
+      {
+        "name": "sonner",
+        "declaredVersion": "^2.0.7",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "2.0.7",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "swr",
+        "declaredVersion": "^2.4.1",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "2.4.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "tailwind-merge",
+        "declaredVersion": "^3.5.0",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "3.5.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "zod",
+        "declaredVersion": "^4.3.6",
+        "sourcePackage": "root",
+        "dependencyType": "runtime",
+        "installedVersion": "4.3.6",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "forms_validation"
+      },
+      {
+        "name": "@ast-grep/cli",
+        "declaredVersion": "^0.42.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "0.42.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "agent_repo_tooling"
+      },
+      {
+        "name": "@ast-grep/napi",
+        "declaredVersion": "^0.42.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "0.42.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "agent_repo_tooling"
+      },
+      {
+        "name": "@axe-core/playwright",
+        "declaredVersion": "^4.11.2",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.11.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@chromatic-com/storybook",
+        "declaredVersion": "^5.1.2",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "5.1.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@firebase/rules-unit-testing",
+        "declaredVersion": "^5.0.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "5.0.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "firebase_google"
+      },
+      {
+        "name": "@next/bundle-analyzer",
+        "declaredVersion": "^16.2.4",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "16.2.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "@playwright/test",
+        "declaredVersion": "^1.59.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "1.59.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@storybook/addon-a11y",
+        "declaredVersion": "^10.3.5",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.3.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@storybook/addon-docs",
+        "declaredVersion": "^10.3.5",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.3.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@storybook/addon-onboarding",
+        "declaredVersion": "^10.3.5",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.3.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@storybook/addon-vitest",
+        "declaredVersion": "^10.3.5",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.3.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@storybook/core",
+        "declaredVersion": "^8.6.14",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "8.6.14",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@storybook/nextjs-vite",
+        "declaredVersion": "^10.3.5",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.3.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@tailwindcss/postcss",
+        "declaredVersion": "^4.2.2",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.2.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "@testing-library/dom",
+        "declaredVersion": "^10.4.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.4.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@testing-library/jest-dom",
+        "declaredVersion": "^6.9.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "6.9.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@testing-library/react",
+        "declaredVersion": "^16.3.2",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "16.3.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@testing-library/user-event",
+        "declaredVersion": "^14.6.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "14.6.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@types/node",
+        "declaredVersion": "^25.6.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "25.6.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "@types/react",
+        "declaredVersion": "^19",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "19.2.14",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "@types/react-dom",
+        "declaredVersion": "^19",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "19.2.3",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "@vitest/browser-playwright",
+        "declaredVersion": "^4.1.4",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.1.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@vitest/coverage-v8",
+        "declaredVersion": "^4.1.4",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.1.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "chrome-launcher",
+        "declaredVersion": "^1.2.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "1.2.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "cross-env",
+        "declaredVersion": "^10.1.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.1.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "cypress",
+        "declaredVersion": "^15.13.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "15.13.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "dependency-cruiser",
+        "declaredVersion": "^17.3.10",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "17.3.10",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "agent_repo_tooling"
+      },
+      {
+        "name": "esbuild",
+        "declaredVersion": "^0.27.7",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "0.27.7",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "eslint",
+        "declaredVersion": "^9.21.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "9.39.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "eslint-config-next",
+        "declaredVersion": "^16.2.4",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "16.2.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "eslint-import-resolver-typescript",
+        "declaredVersion": "^4.4.4",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.4.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "eslint-plugin-jsx-a11y",
+        "declaredVersion": "^6.10.2",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "6.10.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "eslint-plugin-playwright",
+        "declaredVersion": "^2.10.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "2.10.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "eslint-plugin-storybook",
+        "declaredVersion": "^10.3.5",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.3.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "eslint-plugin-unused-imports",
+        "declaredVersion": "^4.4.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.4.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "firebase-tools",
+        "declaredVersion": "^15.16.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "15.16.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "firebase_google"
+      },
+      {
+        "name": "happy-dom",
+        "declaredVersion": "^20.9.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "20.9.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "knip",
+        "declaredVersion": "^5.88.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "5.88.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "agent_repo_tooling"
+      },
+      {
+        "name": "lighthouse",
+        "declaredVersion": "^13.1.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "13.1.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "unknown_other"
+      },
+      {
+        "name": "madge",
+        "declaredVersion": "^8.0.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "8.0.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "agent_repo_tooling"
+      },
+      {
+        "name": "msw",
+        "declaredVersion": "^2.14.2",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "2.14.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "npm-check-updates",
+        "declaredVersion": "^19.6.6",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "19.6.6",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "agent_repo_tooling"
+      },
+      {
+        "name": "playwright",
+        "declaredVersion": "^1.59.1",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "1.59.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "postcss",
+        "declaredVersion": "^8.5.10",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "8.5.10",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "puppeteer",
+        "declaredVersion": "^24.40.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "24.40.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "storybook",
+        "declaredVersion": "^10.3.5",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "10.3.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "syncpack",
+        "declaredVersion": "^14.3.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "14.3.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "agent_repo_tooling"
+      },
+      {
+        "name": "tailwindcss",
+        "declaredVersion": "^4.2.2",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.2.2",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "react_ui_design"
+      },
+      {
+        "name": "ts-morph",
+        "declaredVersion": "^28.0.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "28.0.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "agent_repo_tooling"
+      },
+      {
+        "name": "tsx",
+        "declaredVersion": "^4.21.0",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.21.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "typescript",
+        "declaredVersion": "^6",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "6.0.3",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "vite",
+        "declaredVersion": "^8.0.8",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "8.0.8",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "vitest",
+        "declaredVersion": "^4.1.4",
+        "sourcePackage": "root",
+        "dependencyType": "dev",
+        "installedVersion": "4.1.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "testing_qa"
+      },
+      {
+        "name": "@google-cloud/bigquery",
+        "declaredVersion": "^8.1.1",
+        "sourcePackage": "functions",
+        "dependencyType": "runtime",
+        "installedVersion": "8.1.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "data_sql_warehouse"
+      },
+      {
+        "name": "@google-cloud/functions-framework",
+        "declaredVersion": "^5.0.2",
+        "sourcePackage": "functions",
+        "dependencyType": "runtime",
+        "installedVersionState": "not_installed",
+        "direct": true,
+        "category": "functions_cloud"
+      },
+      {
+        "name": "firebase-admin",
+        "declaredVersion": "^13.8.0",
+        "sourcePackage": "functions",
+        "dependencyType": "runtime",
+        "installedVersion": "13.8.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "firebase_google"
+      },
+      {
+        "name": "firebase-functions",
+        "declaredVersion": "^7.2.5",
+        "sourcePackage": "functions",
+        "dependencyType": "runtime",
+        "installedVersion": "7.2.5",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "firebase_google"
+      },
+      {
+        "name": "@typescript-eslint/eslint-plugin",
+        "declaredVersion": "^8.58.1",
+        "sourcePackage": "functions",
+        "dependencyType": "dev",
+        "installedVersion": "8.58.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "@typescript-eslint/parser",
+        "declaredVersion": "^8.58.1",
+        "sourcePackage": "functions",
+        "dependencyType": "dev",
+        "installedVersion": "8.58.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "eslint",
+        "declaredVersion": "^9.39.4",
+        "sourcePackage": "functions",
+        "dependencyType": "dev",
+        "installedVersion": "9.39.4",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "eslint-config-google",
+        "declaredVersion": "^0.14.0",
+        "sourcePackage": "functions",
+        "dependencyType": "dev",
+        "installedVersion": "0.14.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "eslint-plugin-import",
+        "declaredVersion": "^2.32.0",
+        "sourcePackage": "functions",
+        "dependencyType": "dev",
+        "installedVersion": "2.32.0",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      },
+      {
+        "name": "firebase-functions-test",
+        "declaredVersion": "^3.4.1",
+        "sourcePackage": "functions",
+        "dependencyType": "dev",
+        "installedVersion": "3.4.1",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "firebase_google"
+      },
+      {
+        "name": "typescript",
+        "declaredVersion": "^5.9.3",
+        "sourcePackage": "functions",
+        "dependencyType": "dev",
+        "installedVersion": "5.9.3",
+        "installedVersionState": "from_lockfile",
+        "direct": true,
+        "category": "build_dev"
+      }
+    ],
+    "everyOverride": [
+      {
+        "name": "@google-cloud/firestore",
+        "overrideVersion": "^8.5.0",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "firebase_google_pin"
+      },
+      {
+        "name": "@hono/node-server",
+        "overrideVersion": "^1.19.13",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "compatibility_pin"
+      },
+      {
+        "name": "@tootallnate/once",
+        "overrideVersion": "^3.0.1",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "transitive_pin"
+      },
+      {
+        "name": "ajv",
+        "overrideVersion": "^6.14.0",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "ajv",
+        "overrideVersion": "^6.14.0",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "basic-ftp",
+        "overrideVersion": "^5.3.0",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "transitive_pin"
+      },
+      {
+        "name": "brace-expansion@1",
+        "overrideVersion": "^1.1.13",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "brace-expansion@2",
+        "overrideVersion": "^2.0.3",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "brace-expansion@5",
+        "overrideVersion": "^5.0.5",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "dompurify",
+        "overrideVersion": "^3.4.0",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "fast-xml-parser",
+        "overrideVersion": "^5.5.9",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "transitive_pin"
+      },
+      {
+        "name": "flatted",
+        "overrideVersion": "^3.4.2",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "google-gax",
+        "overrideVersion": "^5.0.6",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "firebase_google_pin"
+      },
+      {
+        "name": "hono",
+        "overrideVersion": "^4.12.14",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "compatibility_pin"
+      },
+      {
+        "name": "minimatch",
+        "overrideVersion": "^3.1.5",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "minimatch",
+        "overrideVersion": "^3.1.5",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "minimatch",
+        "overrideVersion": "^3.1.5",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "minimatch",
+        "overrideVersion": "^3.1.5",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "minimatch",
+        "overrideVersion": "^3.1.5",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "minimatch",
+        "overrideVersion": "^3.1.5",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "minimatch",
+        "overrideVersion": "^9.0.9",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "path-to-regexp",
+        "overrideVersion": "0.1.13",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "path-to-regexp",
+        "overrideVersion": "^8.4.2",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "picomatch@2",
+        "overrideVersion": "^2.3.2",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "picomatch@4",
+        "overrideVersion": "^4.0.4",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "protobufjs",
+        "overrideVersion": "^7.5.5",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "smol-toml",
+        "overrideVersion": "^1.6.1",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "transitive_pin"
+      },
+      {
+        "name": "vite",
+        "overrideVersion": "^8.0.8",
+        "sourcePackage": "root",
+        "directDependency": true,
+        "reason": "compatibility_pin"
+      },
+      {
+        "name": "yaml",
+        "overrideVersion": "^2.8.3",
+        "sourcePackage": "root",
+        "directDependency": false,
+        "reason": "transitive_pin"
+      },
+      {
+        "name": "@google-cloud/firestore",
+        "overrideVersion": "^8.5.0",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "firebase_google_pin"
+      },
+      {
+        "name": "@tootallnate/once",
+        "overrideVersion": "^3.0.1",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "transitive_pin"
+      },
+      {
+        "name": "brace-expansion@1",
+        "overrideVersion": "^1.1.13",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "brace-expansion@2",
+        "overrideVersion": "^2.0.3",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "fast-xml-parser",
+        "overrideVersion": "^5.5.9",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "transitive_pin"
+      },
+      {
+        "name": "google-gax",
+        "overrideVersion": "^5.0.6",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "firebase_google_pin"
+      },
+      {
+        "name": "lodash",
+        "overrideVersion": "^4.18.1",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "transitive_pin"
+      },
+      {
+        "name": "path-to-regexp",
+        "overrideVersion": "0.1.13",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "picomatch@2",
+        "overrideVersion": "^2.3.2",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "picomatch@4",
+        "overrideVersion": "^4.0.4",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "security_pin"
+      },
+      {
+        "name": "protobufjs",
+        "overrideVersion": "^7.5.5",
+        "sourcePackage": "functions",
+        "directDependency": false,
+        "reason": "security_pin"
+      }
+    ],
+    "everyExternalService": [
+      {
+        "serviceName": "Firebase Auth",
+        "packageDependency": "firebase",
+        "envKeysRequired": [
+          "NEXT_PUBLIC_FIREBASE_API_KEY",
+          "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+          "NEXT_PUBLIC_FIREBASE_PROJECT_ID"
+        ],
+        "envKeysOptional": [],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "auth/firebase",
+        "scoreImpact": 0,
+        "nextAction": "Keep Firebase public config declared; runtime auth verification remains separate."
+      },
+      {
+        "serviceName": "Firestore",
+        "packageDependency": "firebase",
+        "envKeysRequired": [
+          "NEXT_PUBLIC_FIREBASE_PROJECT_ID"
+        ],
+        "envKeysOptional": [
+          "FIREBASE_PROJECT_ID"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "server truth/firebase",
+        "scoreImpact": 0,
+        "nextAction": "Use runtime diagnostics for Firestore connectivity; package presence is inventory only."
+      },
+      {
+        "serviceName": "Firebase Admin SDK",
+        "packageDependency": "firebase-admin",
+        "envKeysRequired": [
+          "FIREBASE_PROJECT_ID"
+        ],
+        "envKeysOptional": [
+          "FIREBASE_CLIENT_EMAIL",
+          "FIREBASE_PRIVATE_KEY",
+          "GOOGLE_APPLICATION_CREDENTIALS"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "server truth/firebase-admin",
+        "scoreImpact": 0,
+        "nextAction": "Keep admin credentials secret and classify runtime separately."
+      },
+      {
+        "serviceName": "Firebase Storage",
+        "packageDependency": "firebase",
+        "envKeysRequired": [
+          "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"
+        ],
+        "envKeysOptional": [
+          "FIREBASE_STORAGE_BUCKET"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "media/storage",
+        "scoreImpact": 0,
+        "nextAction": "Keep storage config separate from entitlement and egress runtime checks."
+      },
+      {
+        "serviceName": "Firebase Functions",
+        "packageDependency": "firebase-functions",
+        "envKeysRequired": [
+          "FIREBASE_PROJECT_ID"
+        ],
+        "envKeysOptional": [],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "functions",
+        "scoreImpact": 0,
+        "nextAction": "Functions package declares runtime; deployed functions health requires separate evidence."
+      },
+      {
+        "serviceName": "Firebase Hosting/App Hosting",
+        "packageDependency": "firebase-tools",
+        "envKeysRequired": [
+          "NEXT_PUBLIC_APP_URL"
+        ],
+        "envKeysOptional": [
+          "NEXT_PUBLIC_SITE_URL"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "app hosting",
+        "scoreImpact": 0,
+        "nextAction": "Hosting config exists in firebase.json; deployment status remains external evidence."
+      },
+      {
+        "serviceName": "Firebase Realtime Database",
+        "packageDependency": "firebase",
+        "envKeysRequired": [
+          "FIREBASE_DATABASE_URL"
+        ],
+        "envKeysOptional": [],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "firebase database",
+        "scoreImpact": 0,
+        "nextAction": "Database rules/config are inventoried; runtime use must be proven separately."
+      },
+      {
+        "serviceName": "FCM/push/VAPID",
+        "packageDependency": "firebase",
+        "envKeysRequired": [
+          "NEXT_PUBLIC_FIREBASE_VAPID_KEY"
+        ],
+        "envKeysOptional": [
+          "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"
+        ],
+        "configPresenceStatus": "partially_declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "notifications/push",
+        "scoreImpact": 0,
+        "nextAction": "Push config missing is actionable only for push surfaces; do not infer notification delivery health."
+      },
+      {
+        "serviceName": "Google Analytics Data API",
+        "packageDependency": "@google-analytics/data",
+        "envKeysRequired": [
+          "GA_PROPERTY_ID"
+        ],
+        "envKeysOptional": [
+          "GOOGLE_ANALYTICS_DATA_API_CLIENT_EMAIL",
+          "GOOGLE_ANALYTICS_DATA_API_PRIVATE_KEY"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "analytics/external evidence",
+        "scoreImpact": 0,
+        "nextAction": "GA Data API stays explicit refresh evidence and must not run in validators."
+      },
+      {
+        "serviceName": "GA4 / Measurement ID",
+        "packageDependency": null,
+        "envKeysRequired": [
+          "NEXT_PUBLIC_GA_MEASUREMENT_ID"
+        ],
+        "envKeysOptional": [
+          "GA_MEASUREMENT_ID"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "analytics/client evidence",
+        "scoreImpact": 0,
+        "nextAction": "GA4 config is external evidence only and does not replace first-party telemetry."
+      },
+      {
+        "serviceName": "BigQuery",
+        "packageDependency": "@google-cloud/bigquery",
+        "envKeysRequired": [
+          "BIGQUERY_DATASET"
+        ],
+        "envKeysOptional": [
+          "BIGQUERY_LOCATION",
+          "BQ_ANALYTICS_DATASET_ID"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "analytics/warehouse",
+        "scoreImpact": 0,
+        "nextAction": "BigQuery export is evidence/export only and requires bounded jobs."
+      },
+      {
+        "serviceName": "Cloud SQL/Data Connect",
+        "packageDependency": null,
+        "envKeysRequired": [
+          "DATACONNECT_SERVICE_ID",
+          "DATACONNECT_DATABASE",
+          "DATACONNECT_LOCATION"
+        ],
+        "envKeysOptional": [
+          "CLOUD_SQL_INSTANCE"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "agent context mirror",
+        "scoreImpact": 0,
+        "nextAction": "Data Connect remains an agent/retrieval mirror unless explicitly promoted."
+      },
+      {
+        "serviceName": "Cloud Run/App Hosting",
+        "packageDependency": null,
+        "envKeysRequired": [
+          "GOOGLE_CLOUD_PROJECT"
+        ],
+        "envKeysOptional": [
+          "NEXT_PUBLIC_APP_URL"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "cloud hosting",
+        "scoreImpact": 0,
+        "nextAction": "Cloud hosting runtime is external infrastructure evidence, not package health."
+      },
+      {
+        "serviceName": "Vertex AI/Gemini",
+        "packageDependency": "@google-cloud/vertexai",
+        "envKeysRequired": [
+          "VERTEX_AI_LOCATION"
+        ],
+        "envKeysOptional": [
+          "ADMIN_AI_ENABLED",
+          "ADMIN_AI_MODEL_ALIAS",
+          "ADMIN_AI_DAILY_BUDGET_USD"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "admin ai",
+        "scoreImpact": 0,
+        "nextAction": "AI provider calls must remain budgeted and disabled in validators."
+      },
+      {
+        "serviceName": "PayPal",
+        "packageDependency": "@paypal/react-paypal-js",
+        "envKeysRequired": [
+          "NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE",
+          "PAYPAL_CLIENT_ID",
+          "PAYPAL_CLIENT_SECRET"
+        ],
+        "envKeysOptional": [
+          "PAYPAL_WEBHOOK_ID",
+          "PAYPAL_ENV"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "payments/wallet",
+        "scoreImpact": 0,
+        "nextAction": "PayPal config presence does not prove payment runtime; payment runtime is protected."
+      },
+      {
+        "serviceName": "PostHog",
+        "packageDependency": "posthog-js",
+        "envKeysRequired": [
+          "NEXT_PUBLIC_POSTHOG_KEY"
+        ],
+        "envKeysOptional": [
+          "NEXT_PUBLIC_POSTHOG_HOST",
+          "NEXT_PUBLIC_ENABLE_POSTHOG"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "analytics/vendor",
+        "scoreImpact": 0,
+        "nextAction": "PostHog remains consent/config gated and external evidence only."
+      },
+      {
+        "serviceName": "Service Worker/PWA",
+        "packageDependency": null,
+        "envKeysRequired": [],
+        "envKeysOptional": [
+          "NEXT_PUBLIC_APP_URL"
+        ],
+        "configPresenceStatus": "declared",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "pwa",
+        "scoreImpact": 0,
+        "nextAction": "PWA/service worker source checks are separate from package inventory."
+      },
+      {
+        "serviceName": "Scheduler/Cron",
+        "packageDependency": null,
+        "envKeysRequired": [],
+        "envKeysOptional": [
+          "CRON_SECRET",
+          "TASK_MATERIALIZER_ENDPOINT",
+          "TASK_MATERIALIZER_TOKEN"
+        ],
+        "configPresenceStatus": "not_required",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "scheduler/queue",
+        "scoreImpact": 0,
+        "nextAction": "Scheduler runtime requires heartbeat/dispatch evidence, not package presence."
+      },
+      {
+        "serviceName": "External email/SMS",
+        "packageDependency": null,
+        "envKeysRequired": [],
+        "envKeysOptional": [
+          "RESEND_API_KEY",
+          "SMTP_HOST",
+          "SMTP_USER",
+          "SMTP_PASSWORD"
+        ],
+        "configPresenceStatus": "not_required",
+        "runtimeVerificationStatus": "not_verified_here",
+        "runtimeEvidenceSource": "inventory_only_no_provider_call",
+        "owner": "support/notifications future",
+        "scoreImpact": 0,
+        "nextAction": "No active email/SMS provider is required unless a future provider is explicitly enabled."
+      }
+    ],
+    "everyEnvConfigDependency": [
+      {
+        "serviceName": "Firebase Auth",
+        "key": "NEXT_PUBLIC_FIREBASE_API_KEY",
+        "required": true
+      },
+      {
+        "serviceName": "Firebase Auth",
+        "key": "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+        "required": true
+      },
+      {
+        "serviceName": "Firebase Auth",
+        "key": "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+        "required": true
+      },
+      {
+        "serviceName": "Firestore",
+        "key": "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+        "required": true
+      },
+      {
+        "serviceName": "Firestore",
+        "key": "FIREBASE_PROJECT_ID",
+        "required": false
+      },
+      {
+        "serviceName": "Firebase Admin SDK",
+        "key": "FIREBASE_PROJECT_ID",
+        "required": true
+      },
+      {
+        "serviceName": "Firebase Admin SDK",
+        "key": "FIREBASE_CLIENT_EMAIL",
+        "required": false
+      },
+      {
+        "serviceName": "Firebase Admin SDK",
+        "key": "FIREBASE_PRIVATE_KEY",
+        "required": false
+      },
+      {
+        "serviceName": "Firebase Admin SDK",
+        "key": "GOOGLE_APPLICATION_CREDENTIALS",
+        "required": false
+      },
+      {
+        "serviceName": "Firebase Storage",
+        "key": "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+        "required": true
+      },
+      {
+        "serviceName": "Firebase Storage",
+        "key": "FIREBASE_STORAGE_BUCKET",
+        "required": false
+      },
+      {
+        "serviceName": "Firebase Functions",
+        "key": "FIREBASE_PROJECT_ID",
+        "required": true
+      },
+      {
+        "serviceName": "Firebase Hosting/App Hosting",
+        "key": "NEXT_PUBLIC_APP_URL",
+        "required": true
+      },
+      {
+        "serviceName": "Firebase Hosting/App Hosting",
+        "key": "NEXT_PUBLIC_SITE_URL",
+        "required": false
+      },
+      {
+        "serviceName": "Firebase Realtime Database",
+        "key": "FIREBASE_DATABASE_URL",
+        "required": true
+      },
+      {
+        "serviceName": "FCM/push/VAPID",
+        "key": "NEXT_PUBLIC_FIREBASE_VAPID_KEY",
+        "required": true
+      },
+      {
+        "serviceName": "FCM/push/VAPID",
+        "key": "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+        "required": false
+      },
+      {
+        "serviceName": "Google Analytics Data API",
+        "key": "GA_PROPERTY_ID",
+        "required": true
+      },
+      {
+        "serviceName": "Google Analytics Data API",
+        "key": "GOOGLE_ANALYTICS_DATA_API_CLIENT_EMAIL",
+        "required": false
+      },
+      {
+        "serviceName": "Google Analytics Data API",
+        "key": "GOOGLE_ANALYTICS_DATA_API_PRIVATE_KEY",
+        "required": false
+      },
+      {
+        "serviceName": "GA4 / Measurement ID",
+        "key": "NEXT_PUBLIC_GA_MEASUREMENT_ID",
+        "required": true
+      },
+      {
+        "serviceName": "GA4 / Measurement ID",
+        "key": "GA_MEASUREMENT_ID",
+        "required": false
+      },
+      {
+        "serviceName": "BigQuery",
+        "key": "BIGQUERY_DATASET",
+        "required": true
+      },
+      {
+        "serviceName": "BigQuery",
+        "key": "BIGQUERY_LOCATION",
+        "required": false
+      },
+      {
+        "serviceName": "BigQuery",
+        "key": "BQ_ANALYTICS_DATASET_ID",
+        "required": false
+      },
+      {
+        "serviceName": "Cloud SQL/Data Connect",
+        "key": "DATACONNECT_SERVICE_ID",
+        "required": true
+      },
+      {
+        "serviceName": "Cloud SQL/Data Connect",
+        "key": "DATACONNECT_DATABASE",
+        "required": true
+      },
+      {
+        "serviceName": "Cloud SQL/Data Connect",
+        "key": "DATACONNECT_LOCATION",
+        "required": true
+      },
+      {
+        "serviceName": "Cloud SQL/Data Connect",
+        "key": "CLOUD_SQL_INSTANCE",
+        "required": false
+      },
+      {
+        "serviceName": "Cloud Run/App Hosting",
+        "key": "GOOGLE_CLOUD_PROJECT",
+        "required": true
+      },
+      {
+        "serviceName": "Cloud Run/App Hosting",
+        "key": "NEXT_PUBLIC_APP_URL",
+        "required": false
+      },
+      {
+        "serviceName": "Vertex AI/Gemini",
+        "key": "VERTEX_AI_LOCATION",
+        "required": true
+      },
+      {
+        "serviceName": "Vertex AI/Gemini",
+        "key": "ADMIN_AI_ENABLED",
+        "required": false
+      },
+      {
+        "serviceName": "Vertex AI/Gemini",
+        "key": "ADMIN_AI_MODEL_ALIAS",
+        "required": false
+      },
+      {
+        "serviceName": "Vertex AI/Gemini",
+        "key": "ADMIN_AI_DAILY_BUDGET_USD",
+        "required": false
+      },
+      {
+        "serviceName": "PayPal",
+        "key": "NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE",
+        "required": true
+      },
+      {
+        "serviceName": "PayPal",
+        "key": "PAYPAL_CLIENT_ID",
+        "required": true
+      },
+      {
+        "serviceName": "PayPal",
+        "key": "PAYPAL_CLIENT_SECRET",
+        "required": true
+      },
+      {
+        "serviceName": "PayPal",
+        "key": "PAYPAL_WEBHOOK_ID",
+        "required": false
+      },
+      {
+        "serviceName": "PayPal",
+        "key": "PAYPAL_ENV",
+        "required": false
+      },
+      {
+        "serviceName": "PostHog",
+        "key": "NEXT_PUBLIC_POSTHOG_KEY",
+        "required": true
+      },
+      {
+        "serviceName": "PostHog",
+        "key": "NEXT_PUBLIC_POSTHOG_HOST",
+        "required": false
+      },
+      {
+        "serviceName": "PostHog",
+        "key": "NEXT_PUBLIC_ENABLE_POSTHOG",
+        "required": false
+      },
+      {
+        "serviceName": "Service Worker/PWA",
+        "key": "NEXT_PUBLIC_APP_URL",
+        "required": false
+      },
+      {
+        "serviceName": "Scheduler/Cron",
+        "key": "CRON_SECRET",
+        "required": false
+      },
+      {
+        "serviceName": "Scheduler/Cron",
+        "key": "TASK_MATERIALIZER_ENDPOINT",
+        "required": false
+      },
+      {
+        "serviceName": "Scheduler/Cron",
+        "key": "TASK_MATERIALIZER_TOKEN",
+        "required": false
+      },
+      {
+        "serviceName": "External email/SMS",
+        "key": "RESEND_API_KEY",
+        "required": false
+      },
+      {
+        "serviceName": "External email/SMS",
+        "key": "SMTP_HOST",
+        "required": false
+      },
+      {
+        "serviceName": "External email/SMS",
+        "key": "SMTP_USER",
+        "required": false
+      },
+      {
+        "serviceName": "External email/SMS",
+        "key": "SMTP_PASSWORD",
+        "required": false
+      }
+    ],
+    "expectedAbsentDependencies": [
+      {
+        "name": "@google-cloud/pubsub",
+        "expectedBy": "queue/future cloud messaging docs",
+        "reason": "Queue runtime uses Firestore-backed dispatch outcomes; Pub/Sub is not a direct dependency.",
+        "status": "transitive_only"
+      },
+      {
+        "name": "@google-cloud/storage",
+        "expectedBy": "Firebase Storage transitive SDK",
+        "reason": "Storage is provided through Firebase SDK/Admin transitive dependency unless promoted directly.",
+        "status": "transitive_only"
+      },
+      {
+        "name": "stripe",
+        "expectedBy": "payment provider guardrails",
+        "reason": "PayPal is the active payment provider; Stripe must remain absent unless a dedicated payment migration exists.",
+        "status": "intentionally_absent"
+      },
+      {
+        "name": "resend",
+        "expectedBy": "external email/SMS future provider",
+        "reason": "No active external email provider is required by the current runtime.",
+        "status": "optional_provider_absent"
+      },
+      {
+        "name": "smtp",
+        "expectedBy": "external email/SMS future provider",
+        "reason": "SMTP config is optional/future and no package is expected.",
+        "status": "optional_provider_absent"
+      }
+    ]
+  },
+  "timestampLabels": {
+    "rootPackage": "timestamp unavailable",
+    "functionsPackage": "timestamp unavailable"
+  },
+  "runtimeCopy": "Package presence does not prove runtime use. Firestore connectivity and telemetry ping are separate runtime checks.",
+  "runtimeChecksSeparated": true,
+  "validationFailures": []
+}

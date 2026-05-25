@@ -4,7 +4,13 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
-## 1.4.54 - 2026-05-24
+## 1.4.55 - 2026-05-25
+- Infrastructure dependency inventory
+- Expanded infrastructure dependency inventory to include every root/functions dependency, override, external service, and expected-absent dependency.
+- Separated package inventory from runtime connectivity checks.
+- Replaced fake package updated timestamps with explicit timestamp-unavailable classification.
+
+## 1.4.54 - 2026-05-25
 - Queue drop metadata cleanup
 - Resolved queue dispatch drop metadata enrichment and scheduler key timestamp parsing.
 - Separated notification dispatch outcomes from debug metadata enrichment gaps.
@@ -153,33 +159,3 @@ Showing the last 25 public updates in pages of 5.
 - Finalized open PRs before debug cockpit cleanup.
 - Merged, cherry-picked, manually implemented, or closed every PR with classification.
 - Prepared main for accurate cockpit/evidence refresh.
-
-## 1.4.29 - 2026-05-24
-- SQL/database parity and cost accuracy
-- Locked SQL/database parity between raw events, global summaries, user metrics, and journey exports.
-- Preserved cost guards with batched exports and summary-first reads.
-- Added debug visibility for parity mismatches and export freshness.
-
-## 1.4.28 - 2026-05-24
-- User journey intelligence
-- Added normalized user journey logs for behavioral intelligence.
-- Mapped sessions, drops, wallet, tasks, chat, and signup into compact journey summaries.
-- Protected private/payment/chat payloads from behavioral storage.
-
-## 1.4.27 - 2026-05-24
-- Session and bounce accuracy
-- Improved session time and bounce calculations.
-- Separated active, idle, and hidden session time.
-- Linked guest and user sessions without double-counting.
-
-## 1.4.26 - 2026-05-24
-- Drop watch time accuracy
-- Improved drop watch time accuracy with active playback and visibility rules.
-- Separated watch time from passive page time.
-- Added normalized watch percent and confidence labels.
-
-## 1.4.25 - 2026-05-24
-- Analytics dedupe normalization
-- Normalized global and user-level analytics deduplication.
-- Prevented guest-to-user handoff from double-counting actions.
-- Added SQL/export parity fields for normalized event facts.

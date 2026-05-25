@@ -60,6 +60,7 @@ import { parseDropActivationSchedulerKey } from "@/lib/debug/drop-activation-sch
 import { buildDispatchOutcomeDisplayModel } from "@/lib/debug/dispatch-outcome-display-cleanup";
 import { enrichQueueDropMetadata } from "@/lib/debug/queue-drop-metadata-enrichment";
 import { buildQueueMetadataGapSummary } from "@/lib/debug/queue-metadata-gap-summary";
+import { buildCompleteDependencyInventory } from "@/lib/debug/dependency-inventory-engine";
 import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
 import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
 import {
@@ -3701,91 +3702,37 @@ async function readInfrastructureDependencies() {
             firestorePing = "failed";
         }
 
-        const rootDependencies = buildDependencyEntries("root", "runtime", rootPkg.dependencies ?? {}, rootLockfile);
-        const rootDevDependencies = buildDependencyEntries("root", "dev", rootPkg.devDependencies ?? {}, rootLockfile);
-        const rootOptionalDependencies = buildDependencyEntries("root", "optional", rootPkg.optionalDependencies ?? {}, rootLockfile);
-
-        const functionsDependencies = buildDependencyEntries("functions", "runtime", functionsPkg.dependencies ?? {}, functionsLockfile);
-        const functionsDevDependencies = buildDependencyEntries("functions", "dev", functionsPkg.devDependencies ?? {}, functionsLockfile);
-        const functionsOptionalDependencies = buildDependencyEntries("functions", "optional", functionsPkg.optionalDependencies ?? {}, functionsLockfile);
-
-        const packageSources: DependencyPackageSource[] = [
-            {
-                name: "root",
-                path: rootPackageRelativePath,
-                dependencies: rootDependencies,
-                devDependencies: rootDevDependencies,
-                optionalDependencies: rootOptionalDependencies,
-            },
-            {
-                name: "functions",
-                path: functionsPackageRelativePath,
-                dependencies: functionsDependencies,
-                devDependencies: functionsDevDependencies,
-                optionalDependencies: functionsOptionalDependencies,
-            },
-        ];
-
-        const allEntries = packageSources.flatMap((source) => [
-            ...source.dependencies,
-            ...source.devDependencies,
-            ...source.optionalDependencies,
-        ]);
-
-        const groups = Array.from(allEntries.reduce((map, entry) => {
-            const current = map.get(entry.category) || {
-                key: entry.category,
-                label: getDependencyGroupLabel(entry.category),
-                count: 0,
-                entries: [] as DependencyEntry[],
-                topEntries: [] as string[],
-            };
-            current.count += 1;
-            current.entries.push(entry);
-            current.topEntries = current.entries.slice(0, 4).map((currentEntry) => currentEntry.name);
-            map.set(entry.category, current);
-            return map;
-        }, new Map<DependencyCategory, DependencyGroup>()).values()).sort((left, right) => right.count - left.count);
-
-        const rootOverrides = Object.keys(rootPkg.overrides ?? {}).sort();
-        const functionsOverrides = Object.keys(functionsPkg.overrides ?? {}).sort();
-        const notDirectDependencies = ["@google-cloud/pubsub", "@google-cloud/storage"].map((name) => {
-            const installedVersion = getLockfileInstalledVersion(rootLockfile, name) || getLockfileInstalledVersion(functionsLockfile, name);
-            const isDirect = allEntries.some((entry) => entry.name === name);
-            return {
-                name,
-                state: isDirect ? "transitive/not direct" as const : (installedVersion ? "transitive/not direct" as const : "absent" as const),
-                installedVersion,
-            };
-        }).filter((entry) => !allEntries.some((dependency) => dependency.name === entry.name));
-
         const rootPackageUpdatedAtUtc = fs.existsSync(rootPackagePath) ? fs.statSync(rootPackagePath).mtime.toISOString() : null;
         const functionsPackageUpdatedAtUtc = fs.existsSync(functionsPackagePath) ? fs.statSync(functionsPackagePath).mtime.toISOString() : null;
-
+        const envExamplePath = path.join(rootDir, ".env.example");
+        const envExampleText = fs.existsSync(envExamplePath) ? fs.readFileSync(envExamplePath, "utf8") : "";
         return {
-            generatedAtUtc: new Date().toISOString(),
+            ...buildCompleteDependencyInventory({
+                rootPackage: rootPkg,
+                rootLockfile,
+                functionsPackage: functionsPkg,
+                functionsLockfile,
+                sourceFiles: {
+                    [rootPackageRelativePath]: fs.existsSync(rootPackagePath),
+                    [rootLockfileRelativePath]: fs.existsSync(rootLockfilePath),
+                    [functionsPackageRelativePath]: fs.existsSync(functionsPackagePath),
+                    [functionsLockfileRelativePath]: fs.existsSync(functionsLockfilePath),
+                    "firebase.json": fs.existsSync(path.join(rootDir, "firebase.json")),
+                    "next.config.ts": fs.existsSync(path.join(rootDir, "next.config.ts")),
+                    ".env.example": fs.existsSync(envExamplePath),
+                },
+                envExampleText,
+                runtimeChecks: {
+                    firestoreConnectivity: firestorePing,
+                    lastTelemetryPingAtUtc,
+                },
+                packageFreshness: {
+                    rootPackageUpdatedAtUtc,
+                    functionsPackageUpdatedAtUtc,
+                },
+                nodeVersion: process.version,
+            }),
             timestamp: Date.now(),
-            nodeVersion: process.version,
-            firestoreConnectivity: firestorePing,
-            lastTelemetryPingAtUtc,
-            packageSources,
-            totals: {
-                runtimeDependencies: packageSources.reduce((sum, source) => sum + source.dependencies.length, 0),
-                devDependencies: packageSources.reduce((sum, source) => sum + source.devDependencies.length, 0),
-                optionalDependencies: packageSources.reduce((sum, source) => sum + source.optionalDependencies.length, 0),
-                functionsDependencies: functionsDependencies.length,
-                overrideCount: rootOverrides.length + functionsOverrides.length,
-                unknownDisplayed: 0,
-            },
-            groups,
-            overrides: [
-                { sourcePackage: "root", count: rootOverrides.length, names: rootOverrides },
-                { sourcePackage: "functions", count: functionsOverrides.length, names: functionsOverrides },
-            ],
-            notDirectDependencies,
-            freshnessState: "fresh",
-            rootPackageUpdatedAtUtc,
-            functionsPackageUpdatedAtUtc,
         };
     } catch (e) {
         console.error("Failed to read package.json for infrastructure dependencies", e);

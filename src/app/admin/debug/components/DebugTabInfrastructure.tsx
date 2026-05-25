@@ -33,8 +33,8 @@ function installedVersionLabel(entry: any) {
 }
 
 function categoryTone(category?: string) {
-    if (category === "firebase_google" || category === "framework" || category === "payments") return "good" as const;
-    if (category === "testing" || category === "agent_tooling" || category === "unknown") return "warn" as const;
+    if (category === "firebase_google" || category === "framework" || category === "payments" || category === "functions_cloud") return "good" as const;
+    if (category === "testing_qa" || category === "agent_repo_tooling" || category === "unknown_other" || category === "security_overrides") return "warn" as const;
     return "neutral" as const;
 }
 
@@ -53,6 +53,8 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                         <Pill label="Dev deps" value={inventory.totals?.devDependencies ?? 0} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Functions deps" value={inventory.totals?.functionsDependencies ?? 0} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Overrides" value={inventory.totals?.overrideCount ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="External services" value={inventory.totals?.externalServices ?? 0} truthState="live" badgeLabel="MAPPED" />
+                        <Pill label="Expected absent" value={inventory.totals?.expectedAbsentDependencies ?? 0} truthState="live" badgeLabel="CLASSIFIED" />
                     </>
                 ) : undefined}
             >
@@ -97,12 +99,16 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                         <Pill label="Runtime deps" value={inventory.totals?.runtimeDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
                                         <Pill label="Dev deps" value={inventory.totals?.devDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
                                         <Pill label="Optional deps" value={inventory.totals?.optionalDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
+                                        <Pill label="Peer deps" value={inventory.totals?.peerDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
                                         <Pill label="Functions deps" value={inventory.totals?.functionsDependencies ?? 0} truthState="live" badgeLabel="COUNT" />
+                                        <Pill label="External services" value={inventory.totals?.externalServices ?? 0} truthState="live" badgeLabel="MAPPED" />
+                                        <Pill label="Expected absent" value={inventory.totals?.expectedAbsentDependencies ?? 0} truthState="live" badgeLabel="CLASSIFIED" />
                                         <Pill label="Unknown direct deps" value={inventory.totals?.unknownDisplayed ?? 0} truthState="live" badgeLabel="COUNT" />
                                     </div>
                                     <div className="mt-4 space-y-2 text-xs text-gray-300">
-                                        <p>Root package updated: {inventory.rootPackageUpdatedAtUtc || "unavailable"}</p>
-                                        <p>Functions package updated: {inventory.functionsPackageUpdatedAtUtc || "unavailable"}</p>
+                                        <p>Root package updated: {inventory.rootPackageTimestampLabel || inventory.rootPackageUpdatedAtUtc || "timestamp unavailable"}</p>
+                                        <p>Functions package updated: {inventory.functionsPackageTimestampLabel || inventory.functionsPackageUpdatedAtUtc || "timestamp unavailable"}</p>
+                                        <p>Package presence does not prove runtime use.</p>
                                     </div>
                                 </div>
                             </div>
@@ -157,6 +163,7 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                                             <Pill label="Runtime" value={(source.dependencies || []).length} truthState="live" badgeLabel="COUNT" />
                                                             <Pill label="Dev" value={(source.devDependencies || []).length} truthState="live" badgeLabel="COUNT" />
                                                             <Pill label="Optional" value={(source.optionalDependencies || []).length} truthState="live" badgeLabel="COUNT" />
+                                                            <Pill label="Peer" value={(source.peerDependencies || []).length} truthState="live" badgeLabel="COUNT" />
                                                         </div>
                                                     </div>
                                                 </summary>
@@ -191,6 +198,36 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                             <summary className="cursor-pointer list-none">
                                                 <div className="flex flex-wrap items-center justify-between gap-2">
                                                     <div>
+                                                        <p className="font-semibold text-white">External services and config dependencies</p>
+                                                        <p className="text-xs text-gray-400">Runtime verification stays separate from config and package inventory.</p>
+                                                    </div>
+                                                    <Pill label="Count" value={(inventory.externalServiceDependencies || []).length} truthState="live" badgeLabel="MAPPED" />
+                                                </div>
+                                            </summary>
+                                            <div className="mt-3 space-y-2">
+                                                {(inventory.externalServiceDependencies || []).map((service: any) => (
+                                                    <div key={service.serviceName} className="rounded border border-white/10 bg-black/25 px-3 py-2 text-xs text-gray-300">
+                                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                                            <div>
+                                                                <p className="font-semibold text-white">{service.serviceName}</p>
+                                                                <p>Owner: {service.owner}</p>
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                <Pill label="Config" value={service.configPresenceStatus} truthState={service.configPresenceStatus === "declared" ? "live" : "unavailable"} badgeLabel="CONFIG" />
+                                                                <Pill label="Runtime" value={service.runtimeVerificationStatus} truthState="unavailable" badgeLabel="SEPARATE" />
+                                                            </div>
+                                                        </div>
+                                                        <p className="mt-2">Env keys: {[...(service.envKeysRequired || []), ...(service.envKeysOptional || [])].join(", ") || "none required"}</p>
+                                                        <p className="mt-1 text-gray-400">{service.nextAction}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </details>
+
+                                        <details className="rounded border border-white/10 bg-black/20 px-3 py-2">
+                                            <summary className="cursor-pointer list-none">
+                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                    <div>
                                                         <p className="font-semibold text-white">Not directly installed / transitive or expected but absent</p>
                                                         <p className="text-xs text-gray-400">These are not shown as core direct dependencies.</p>
                                                     </div>
@@ -198,13 +235,14 @@ export function DebugTabInfrastructure({ data }: DebugTabInfrastructureProps) {
                                                 </div>
                                             </summary>
                                             <div className="mt-3 space-y-2">
-                                                {(inventory.notDirectDependencies || []).map((entry: any) => (
+                                                {(inventory.expectedButAbsentDependencies || inventory.notDirectDependencies || []).map((entry: any) => (
                                                     <div key={entry.name} className="flex flex-wrap items-center justify-between gap-2 rounded border border-white/10 bg-black/25 px-3 py-2 text-xs text-gray-300">
                                                         <div>
                                                             <p className="font-semibold text-white">{entry.name}</p>
-                                                            <p>{entry.state}</p>
+                                                            <p>{entry.status || entry.state}</p>
+                                                            {entry.reason ? <p className="text-gray-400">{entry.reason}</p> : null}
                                                         </div>
-                                                        <Pill label="Lockfile" value={entry.installedVersion || "absent"} tone={entry.installedVersion ? "warn" : "neutral"} truthState={entry.installedVersion ? "cached" : "unavailable"} badgeLabel={entry.installedVersion ? "TRANSITIVE" : "ABSENT"} />
+                                                        <Pill label="Classification" value={entry.status || entry.expectedStatus || entry.state || "unknown"} tone={entry.installedVersion || entry.status === "transitive_only" ? "warn" : "neutral"} truthState={entry.installedVersion || entry.status === "transitive_only" ? "cached" : "unavailable"} badgeLabel={entry.installedVersion || entry.status === "transitive_only" ? "TRANSITIVE" : "ABSENT"} />
                                                     </div>
                                                 ))}
                                             </div>

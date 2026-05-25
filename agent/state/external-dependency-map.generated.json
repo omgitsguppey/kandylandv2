@@ -1,0 +1,319 @@
+{
+  "reportKey": "external-dependency-map",
+  "generatedAtUtc": "2026-05-25T02:01:28.140Z",
+  "services": [
+    {
+      "serviceName": "Firebase Auth",
+      "packageDependency": "firebase",
+      "envKeysRequired": [
+        "NEXT_PUBLIC_FIREBASE_API_KEY",
+        "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+        "NEXT_PUBLIC_FIREBASE_PROJECT_ID"
+      ],
+      "envKeysOptional": [],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "auth/firebase",
+      "scoreImpact": 0,
+      "nextAction": "Keep Firebase public config declared; runtime auth verification remains separate."
+    },
+    {
+      "serviceName": "Firestore",
+      "packageDependency": "firebase",
+      "envKeysRequired": [
+        "NEXT_PUBLIC_FIREBASE_PROJECT_ID"
+      ],
+      "envKeysOptional": [
+        "FIREBASE_PROJECT_ID"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "server truth/firebase",
+      "scoreImpact": 0,
+      "nextAction": "Use runtime diagnostics for Firestore connectivity; package presence is inventory only."
+    },
+    {
+      "serviceName": "Firebase Admin SDK",
+      "packageDependency": "firebase-admin",
+      "envKeysRequired": [
+        "FIREBASE_PROJECT_ID"
+      ],
+      "envKeysOptional": [
+        "FIREBASE_CLIENT_EMAIL",
+        "FIREBASE_PRIVATE_KEY",
+        "GOOGLE_APPLICATION_CREDENTIALS"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "server truth/firebase-admin",
+      "scoreImpact": 0,
+      "nextAction": "Keep admin credentials secret and classify runtime separately."
+    },
+    {
+      "serviceName": "Firebase Storage",
+      "packageDependency": "firebase",
+      "envKeysRequired": [
+        "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"
+      ],
+      "envKeysOptional": [
+        "FIREBASE_STORAGE_BUCKET"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "media/storage",
+      "scoreImpact": 0,
+      "nextAction": "Keep storage config separate from entitlement and egress runtime checks."
+    },
+    {
+      "serviceName": "Firebase Functions",
+      "packageDependency": "firebase-functions",
+      "envKeysRequired": [
+        "FIREBASE_PROJECT_ID"
+      ],
+      "envKeysOptional": [],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "functions",
+      "scoreImpact": 0,
+      "nextAction": "Functions package declares runtime; deployed functions health requires separate evidence."
+    },
+    {
+      "serviceName": "Firebase Hosting/App Hosting",
+      "packageDependency": "firebase-tools",
+      "envKeysRequired": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "envKeysOptional": [
+        "NEXT_PUBLIC_SITE_URL"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "app hosting",
+      "scoreImpact": 0,
+      "nextAction": "Hosting config exists in firebase.json; deployment status remains external evidence."
+    },
+    {
+      "serviceName": "Firebase Realtime Database",
+      "packageDependency": "firebase",
+      "envKeysRequired": [
+        "FIREBASE_DATABASE_URL"
+      ],
+      "envKeysOptional": [],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "firebase database",
+      "scoreImpact": 0,
+      "nextAction": "Database rules/config are inventoried; runtime use must be proven separately."
+    },
+    {
+      "serviceName": "FCM/push/VAPID",
+      "packageDependency": "firebase",
+      "envKeysRequired": [
+        "NEXT_PUBLIC_FIREBASE_VAPID_KEY"
+      ],
+      "envKeysOptional": [
+        "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"
+      ],
+      "configPresenceStatus": "partially_declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "notifications/push",
+      "scoreImpact": 0,
+      "nextAction": "Push config missing is actionable only for push surfaces; do not infer notification delivery health."
+    },
+    {
+      "serviceName": "Google Analytics Data API",
+      "packageDependency": "@google-analytics/data",
+      "envKeysRequired": [
+        "GA_PROPERTY_ID"
+      ],
+      "envKeysOptional": [
+        "GOOGLE_ANALYTICS_DATA_API_CLIENT_EMAIL",
+        "GOOGLE_ANALYTICS_DATA_API_PRIVATE_KEY"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "analytics/external evidence",
+      "scoreImpact": 0,
+      "nextAction": "GA Data API stays explicit refresh evidence and must not run in validators."
+    },
+    {
+      "serviceName": "GA4 / Measurement ID",
+      "packageDependency": null,
+      "envKeysRequired": [
+        "NEXT_PUBLIC_GA_MEASUREMENT_ID"
+      ],
+      "envKeysOptional": [
+        "GA_MEASUREMENT_ID"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "analytics/client evidence",
+      "scoreImpact": 0,
+      "nextAction": "GA4 config is external evidence only and does not replace first-party telemetry."
+    },
+    {
+      "serviceName": "BigQuery",
+      "packageDependency": "@google-cloud/bigquery",
+      "envKeysRequired": [
+        "BIGQUERY_DATASET"
+      ],
+      "envKeysOptional": [
+        "BIGQUERY_LOCATION",
+        "BQ_ANALYTICS_DATASET_ID"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "analytics/warehouse",
+      "scoreImpact": 0,
+      "nextAction": "BigQuery export is evidence/export only and requires bounded jobs."
+    },
+    {
+      "serviceName": "Cloud SQL/Data Connect",
+      "packageDependency": null,
+      "envKeysRequired": [
+        "DATACONNECT_SERVICE_ID",
+        "DATACONNECT_DATABASE",
+        "DATACONNECT_LOCATION"
+      ],
+      "envKeysOptional": [
+        "CLOUD_SQL_INSTANCE"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "agent context mirror",
+      "scoreImpact": 0,
+      "nextAction": "Data Connect remains an agent/retrieval mirror unless explicitly promoted."
+    },
+    {
+      "serviceName": "Cloud Run/App Hosting",
+      "packageDependency": null,
+      "envKeysRequired": [
+        "GOOGLE_CLOUD_PROJECT"
+      ],
+      "envKeysOptional": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "cloud hosting",
+      "scoreImpact": 0,
+      "nextAction": "Cloud hosting runtime is external infrastructure evidence, not package health."
+    },
+    {
+      "serviceName": "Vertex AI/Gemini",
+      "packageDependency": "@google-cloud/vertexai",
+      "envKeysRequired": [
+        "VERTEX_AI_LOCATION"
+      ],
+      "envKeysOptional": [
+        "ADMIN_AI_ENABLED",
+        "ADMIN_AI_MODEL_ALIAS",
+        "ADMIN_AI_DAILY_BUDGET_USD"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "admin ai",
+      "scoreImpact": 0,
+      "nextAction": "AI provider calls must remain budgeted and disabled in validators."
+    },
+    {
+      "serviceName": "PayPal",
+      "packageDependency": "@paypal/react-paypal-js",
+      "envKeysRequired": [
+        "NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE",
+        "PAYPAL_CLIENT_ID",
+        "PAYPAL_CLIENT_SECRET"
+      ],
+      "envKeysOptional": [
+        "PAYPAL_WEBHOOK_ID",
+        "PAYPAL_ENV"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "payments/wallet",
+      "scoreImpact": 0,
+      "nextAction": "PayPal config presence does not prove payment runtime; payment runtime is protected."
+    },
+    {
+      "serviceName": "PostHog",
+      "packageDependency": "posthog-js",
+      "envKeysRequired": [
+        "NEXT_PUBLIC_POSTHOG_KEY"
+      ],
+      "envKeysOptional": [
+        "NEXT_PUBLIC_POSTHOG_HOST",
+        "NEXT_PUBLIC_ENABLE_POSTHOG"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "analytics/vendor",
+      "scoreImpact": 0,
+      "nextAction": "PostHog remains consent/config gated and external evidence only."
+    },
+    {
+      "serviceName": "Service Worker/PWA",
+      "packageDependency": null,
+      "envKeysRequired": [],
+      "envKeysOptional": [
+        "NEXT_PUBLIC_APP_URL"
+      ],
+      "configPresenceStatus": "declared",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "pwa",
+      "scoreImpact": 0,
+      "nextAction": "PWA/service worker source checks are separate from package inventory."
+    },
+    {
+      "serviceName": "Scheduler/Cron",
+      "packageDependency": null,
+      "envKeysRequired": [],
+      "envKeysOptional": [
+        "CRON_SECRET",
+        "TASK_MATERIALIZER_ENDPOINT",
+        "TASK_MATERIALIZER_TOKEN"
+      ],
+      "configPresenceStatus": "not_required",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "scheduler/queue",
+      "scoreImpact": 0,
+      "nextAction": "Scheduler runtime requires heartbeat/dispatch evidence, not package presence."
+    },
+    {
+      "serviceName": "External email/SMS",
+      "packageDependency": null,
+      "envKeysRequired": [],
+      "envKeysOptional": [
+        "RESEND_API_KEY",
+        "SMTP_HOST",
+        "SMTP_USER",
+        "SMTP_PASSWORD"
+      ],
+      "configPresenceStatus": "not_required",
+      "runtimeVerificationStatus": "not_verified_here",
+      "runtimeEvidenceSource": "inventory_only_no_provider_call",
+      "owner": "support/notifications future",
+      "scoreImpact": 0,
+      "nextAction": "No active email/SMS provider is required unless a future provider is explicitly enabled."
+    }
+  ],
+  "providerCallsRun": false,
+  "validationFailures": []
+}
