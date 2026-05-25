@@ -1,0 +1,2812 @@
+{
+  "reportKey": "role-permission-parity",
+  "version": "2026.05.role-permission.1",
+  "generatedAtUtc": "2026-05-25T21:39:18.512Z",
+  "currentHead": "d11f133f925ed09141b89633d5ebaff72e38eb55",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "authProviderLogicChanged": false,
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "navChanged": false,
+  "majorSurfacesRegistered": 17,
+  "roles": [
+    "guest",
+    "user",
+    "creator",
+    "admin",
+    "system"
+  ],
+  "permissions": [
+    "view_surface",
+    "use_action",
+    "mutate_settings",
+    "submit_drop",
+    "approve_drop",
+    "view_admin_truth",
+    "view_creator_metrics",
+    "view_user_wallet",
+    "send_chat",
+    "manage_support",
+    "receive_notification"
+  ],
+  "surfaces": [
+    {
+      "surfaceId": "public_homepage",
+      "surfaceOwner": "user-ui",
+      "featureId": "drops",
+      "canonicalRoute": "/",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "guest may access public_homepage through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access public_homepage through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access public_homepage through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access public_homepage through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires guest, user, creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires guest, user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "public_homepage_permission_granted",
+        "permissionDenied": "public_homepage_permission_denied",
+        "roleSurfaceMismatch": "public_homepage_role_surface_mismatch",
+        "staleRoleRouteRedirected": "public_homepage_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "public_homepage role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "public_homepage role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "auth",
+      "surfaceOwner": "identity",
+      "featureId": "auth_identity",
+      "canonicalRoute": "/__auth",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "guest may access auth through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "user is denied or redirected away from auth.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "creator is denied or redirected away from auth.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "admin is denied or redirected away from auth.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "guest"
+          ],
+          "deniedStateReason": "view_surface requires guest.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "guest"
+          ],
+          "deniedStateReason": "use_action requires guest.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "auth_permission_granted",
+        "permissionDenied": "auth_permission_denied",
+        "roleSurfaceMismatch": "auth_role_surface_mismatch",
+        "staleRoleRouteRedirected": "auth_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "auth role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "auth role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "user_dashboard",
+      "surfaceOwner": "user-dashboard",
+      "featureId": "user_dashboard",
+      "canonicalRoute": "/dashboard",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from user_dashboard.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access user_dashboard through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access user_dashboard through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access user_dashboard through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires user, creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_user_wallet requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "user_dashboard_permission_granted",
+        "permissionDenied": "user_dashboard_permission_denied",
+        "roleSurfaceMismatch": "user_dashboard_role_surface_mismatch",
+        "staleRoleRouteRedirected": "user_dashboard_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "user_dashboard role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "user_dashboard role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "wallet_purchase_modal",
+      "surfaceOwner": "wallet",
+      "featureId": "wallet",
+      "canonicalRoute": "/dashboard?wallet=1",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from wallet_purchase_modal.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access wallet_purchase_modal through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access wallet_purchase_modal through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access wallet_purchase_modal through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires user, creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_user_wallet requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Sign in first",
+          "body": "Please sign in before you refill GumDrops or review wallet details."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "wallet_purchase_modal_permission_granted",
+        "permissionDenied": "wallet_purchase_modal_permission_denied",
+        "roleSurfaceMismatch": "wallet_purchase_modal_role_surface_mismatch",
+        "staleRoleRouteRedirected": "wallet_purchase_modal_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "wallet_purchase_modal role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "wallet_purchase_modal role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "costRisk"
+        ]
+      },
+      "oldLogicStatus": "protected_runtime"
+    },
+    {
+      "surfaceId": "drops_library",
+      "surfaceOwner": "drops-library",
+      "featureId": "library",
+      "canonicalRoute": "/drops",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "readonly",
+          "canView": true,
+          "reason": "guest may access drops_library through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access drops_library through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access drops_library through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access drops_library through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires guest, user, creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires guest, user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "drops_library_permission_granted",
+        "permissionDenied": "drops_library_permission_denied",
+        "roleSurfaceMismatch": "drops_library_role_surface_mismatch",
+        "staleRoleRouteRedirected": "drops_library_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "drops_library role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "drops_library role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "creator_dashboard",
+      "surfaceOwner": "creator-dashboard",
+      "featureId": "creator_dashboard",
+      "canonicalRoute": "/creator",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from creator_dashboard.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "user is denied or redirected away from creator_dashboard.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access creator_dashboard through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access creator_dashboard through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [
+            "creator",
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_creator_metrics requires creator, admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Creator access required",
+          "body": "Open the Creator Dashboard with a creator account to use this surface."
+        },
+        "cta": {
+          "label": "Open dashboard",
+          "action": "open_dashboard"
+        },
+        "debugSeverity": "blocking",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "creator_dashboard_permission_granted",
+        "permissionDenied": "creator_dashboard_permission_denied",
+        "roleSurfaceMismatch": "creator_dashboard_role_surface_mismatch",
+        "staleRoleRouteRedirected": "creator_dashboard_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "creator_dashboard role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "creator_dashboard role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "creator_settings",
+      "surfaceOwner": "creator-settings",
+      "featureId": "creator_settings",
+      "canonicalRoute": "/dashboard/creator/settings",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from creator_settings.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "user is denied or redirected away from creator_settings.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access creator_settings through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access creator_settings through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "mutate_settings requires creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [
+            "creator",
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_creator_metrics requires creator, admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Creator access required",
+          "body": "Open the Creator Dashboard with a creator account to use this surface."
+        },
+        "cta": {
+          "label": "Open dashboard",
+          "action": "open_dashboard"
+        },
+        "debugSeverity": "blocking",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "creator_settings_permission_granted",
+        "permissionDenied": "creator_settings_permission_denied",
+        "roleSurfaceMismatch": "creator_settings_role_surface_mismatch",
+        "staleRoleRouteRedirected": "creator_settings_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "creator_settings role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "creator_settings role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "creator_drop_manager",
+      "surfaceOwner": "creator-drops",
+      "featureId": "creator_drop_manager",
+      "canonicalRoute": "/dashboard/creator/drops",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from creator_drop_manager.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "user is denied or redirected away from creator_drop_manager.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access creator_drop_manager through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access creator_drop_manager through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "submit_drop requires creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "approve_drop requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [
+            "creator",
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_creator_metrics requires creator, admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Creator access required",
+          "body": "Open the Creator Dashboard with a creator account to use this surface."
+        },
+        "cta": {
+          "label": "Open dashboard",
+          "action": "open_dashboard"
+        },
+        "debugSeverity": "blocking",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "creator_drop_manager_permission_granted",
+        "permissionDenied": "creator_drop_manager_permission_denied",
+        "roleSurfaceMismatch": "creator_drop_manager_role_surface_mismatch",
+        "staleRoleRouteRedirected": "creator_drop_manager_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "creator_drop_manager role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "creator_drop_manager role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "creator_profile_timeline",
+      "surfaceOwner": "creator-profile",
+      "featureId": "creator_profile",
+      "canonicalRoute": "/creators/[username]",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "readonly",
+          "canView": true,
+          "reason": "guest may access creator_profile_timeline through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access creator_profile_timeline through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access creator_profile_timeline through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access creator_profile_timeline through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires guest, user, creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires guest, user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [
+            "creator",
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_creator_metrics requires creator, admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Creator access required",
+          "body": "Open the Creator Dashboard with a creator account to use this surface."
+        },
+        "cta": {
+          "label": "Open dashboard",
+          "action": "open_dashboard"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "creator_profile_timeline_permission_granted",
+        "permissionDenied": "creator_profile_timeline_permission_denied",
+        "roleSurfaceMismatch": "creator_profile_timeline_role_surface_mismatch",
+        "staleRoleRouteRedirected": "creator_profile_timeline_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "creator_profile_timeline role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "creator_profile_timeline role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "chat",
+      "surfaceOwner": "chat",
+      "featureId": "chat_system_internal",
+      "canonicalRoute": "/dashboard/chat",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from chat.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access chat through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access chat through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "admin is denied or redirected away from chat.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "user",
+            "creator"
+          ],
+          "deniedStateReason": "view_surface requires user, creator.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "user",
+            "creator"
+          ],
+          "deniedStateReason": "use_action requires user, creator.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [
+            "user",
+            "creator"
+          ],
+          "deniedStateReason": "send_chat requires user, creator.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "chat_permission_granted",
+        "permissionDenied": "chat_permission_denied",
+        "roleSurfaceMismatch": "chat_role_surface_mismatch",
+        "staleRoleRouteRedirected": "chat_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "chat role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "chat role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "costRisk"
+        ]
+      },
+      "oldLogicStatus": "classified_only"
+    },
+    {
+      "surfaceId": "daily_tasks_checkin",
+      "surfaceOwner": "retention",
+      "featureId": "daily_checkin",
+      "canonicalRoute": "/experiences",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from daily_tasks_checkin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access daily_tasks_checkin through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access daily_tasks_checkin through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access daily_tasks_checkin through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires user, creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "daily_tasks_checkin_permission_granted",
+        "permissionDenied": "daily_tasks_checkin_permission_denied",
+        "roleSurfaceMismatch": "daily_tasks_checkin_role_surface_mismatch",
+        "staleRoleRouteRedirected": "daily_tasks_checkin_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "daily_tasks_checkin role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "daily_tasks_checkin role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "notifications_pwa_prompt",
+      "surfaceOwner": "notifications",
+      "featureId": "notifications",
+      "canonicalRoute": "native:notification-prompt",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "readonly",
+          "canView": true,
+          "reason": "guest may access notifications_pwa_prompt through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access notifications_pwa_prompt through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access notifications_pwa_prompt through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access notifications_pwa_prompt through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires guest, user, creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires guest, user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "receive_notification requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "notifications_pwa_prompt_permission_granted",
+        "permissionDenied": "notifications_pwa_prompt_permission_denied",
+        "roleSurfaceMismatch": "notifications_pwa_prompt_role_surface_mismatch",
+        "staleRoleRouteRedirected": "notifications_pwa_prompt_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "notifications_pwa_prompt role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "notifications_pwa_prompt role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "account_settings",
+      "surfaceOwner": "settings",
+      "featureId": "user_dashboard",
+      "canonicalRoute": "/settings",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from account_settings.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access account_settings through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access account_settings through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access account_settings through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "denied",
+          "canView": false,
+          "reason": "System role has no UI surface access.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_surface requires user, creator, admin.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "mutate_settings requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "view_user_wallet requires user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [],
+          "deniedStateReason": "manage_support requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "account_settings_permission_granted",
+        "permissionDenied": "account_settings_permission_denied",
+        "roleSurfaceMismatch": "account_settings_role_surface_mismatch",
+        "staleRoleRouteRedirected": "account_settings_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "account_settings role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "account_settings role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "admin_dashboard",
+      "surfaceOwner": "admin",
+      "featureId": "admin_debug",
+      "canonicalRoute": "/admin",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from admin_dashboard.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "user is denied or redirected away from admin_dashboard.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "creator is denied or redirected away from admin_dashboard.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access admin_dashboard through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "service_only",
+          "canView": true,
+          "reason": "System jobs may read this surface contract for scheduled audit or materialized evidence only.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_surface requires admin, system.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "mutate_settings requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "approve_drop requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_admin_truth requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "manage_support requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Admin access required",
+          "body": "This surface is limited to admins. Use an admin account or return to your dashboard."
+        },
+        "cta": {
+          "label": "Go back",
+          "action": "go_back"
+        },
+        "debugSeverity": "blocking",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "admin_dashboard_permission_granted",
+        "permissionDenied": "admin_dashboard_permission_denied",
+        "roleSurfaceMismatch": "admin_dashboard_role_surface_mismatch",
+        "staleRoleRouteRedirected": "admin_dashboard_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "admin_dashboard role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "admin_dashboard role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "freshness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "admin_debug",
+      "surfaceOwner": "admin-debug",
+      "featureId": "admin_debug",
+      "canonicalRoute": "/admin/debug",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from admin_debug.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "user is denied or redirected away from admin_debug.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "creator is denied or redirected away from admin_debug.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access admin_debug through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "service_only",
+          "canView": true,
+          "reason": "System jobs may read this surface contract for scheduled audit or materialized evidence only.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_surface requires admin, system.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "mutate_settings requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "approve_drop requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_admin_truth requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "manage_support requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Admin access required",
+          "body": "This surface is limited to admins. Use an admin account or return to your dashboard."
+        },
+        "cta": {
+          "label": "Go back",
+          "action": "go_back"
+        },
+        "debugSeverity": "blocking",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "admin_debug_permission_granted",
+        "permissionDenied": "admin_debug_permission_denied",
+        "roleSurfaceMismatch": "admin_debug_role_surface_mismatch",
+        "staleRoleRouteRedirected": "admin_debug_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "admin_debug role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "admin_debug role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "freshness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "user_management",
+      "surfaceOwner": "admin-users",
+      "featureId": "admin_debug",
+      "canonicalRoute": "/admin/users",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "guest is denied or redirected away from user_management.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "user is denied or redirected away from user_management.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "redirect",
+          "canView": false,
+          "reason": "creator is denied or redirected away from user_management.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access user_management through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "service_only",
+          "canView": true,
+          "reason": "System jobs may read this surface contract for scheduled audit or materialized evidence only.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_surface requires admin, system.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "mutate_settings requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_admin_truth requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "manage_support requires admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Admin access required",
+          "body": "This surface is limited to admins. Use an admin account or return to your dashboard."
+        },
+        "cta": {
+          "label": "Go back",
+          "action": "go_back"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "user_management_permission_granted",
+        "permissionDenied": "user_management_permission_denied",
+        "roleSurfaceMismatch": "user_management_role_surface_mismatch",
+        "staleRoleRouteRedirected": "user_management_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "user_management role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "user_management role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "sourceHealth",
+          "runtimeHealth",
+          "evidenceCompleteness",
+          "freshness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    },
+    {
+      "surfaceId": "support_policies",
+      "surfaceOwner": "support-policy",
+      "featureId": "support",
+      "canonicalRoute": "/dashboard/support",
+      "roles": {
+        "guest": {
+          "role": "guest",
+          "visibility": "readonly",
+          "canView": true,
+          "reason": "guest may access support_policies through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "user": {
+          "role": "user",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "user may access support_policies through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "creator": {
+          "role": "creator",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "creator may access support_policies through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "admin": {
+          "role": "admin",
+          "visibility": "allowed",
+          "canView": true,
+          "reason": "admin may access support_policies through the surface parity registry.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "system": {
+          "role": "system",
+          "visibility": "service_only",
+          "canView": true,
+          "reason": "System jobs may read this surface contract for scheduled audit or materialized evidence only.",
+          "sourceTruth": "service_job"
+        }
+      },
+      "permissions": {
+        "view_surface": {
+          "permission": "view_surface",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "view_surface requires guest, user, creator, admin, system.",
+          "sourceTruth": "surface_parity_registry"
+        },
+        "use_action": {
+          "permission": "use_action",
+          "allowedRoles": [
+            "guest",
+            "user",
+            "creator",
+            "admin"
+          ],
+          "deniedStateReason": "use_action requires guest, user, creator, admin.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "mutate_settings": {
+          "permission": "mutate_settings",
+          "allowedRoles": [],
+          "deniedStateReason": "mutate_settings requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "submit_drop": {
+          "permission": "submit_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "submit_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "approve_drop": {
+          "permission": "approve_drop",
+          "allowedRoles": [],
+          "deniedStateReason": "approve_drop requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_admin_truth": {
+          "permission": "view_admin_truth",
+          "allowedRoles": [],
+          "deniedStateReason": "view_admin_truth requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_creator_metrics": {
+          "permission": "view_creator_metrics",
+          "allowedRoles": [],
+          "deniedStateReason": "view_creator_metrics requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "view_user_wallet": {
+          "permission": "view_user_wallet",
+          "allowedRoles": [],
+          "deniedStateReason": "view_user_wallet requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "send_chat": {
+          "permission": "send_chat",
+          "allowedRoles": [],
+          "deniedStateReason": "send_chat requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        },
+        "manage_support": {
+          "permission": "manage_support",
+          "allowedRoles": [
+            "user",
+            "creator",
+            "admin",
+            "system"
+          ],
+          "deniedStateReason": "manage_support requires user, creator, admin, system.",
+          "sourceTruth": "server_auth_guard"
+        },
+        "receive_notification": {
+          "permission": "receive_notification",
+          "allowedRoles": [],
+          "deniedStateReason": "receive_notification requires no role on this surface.",
+          "sourceTruth": "auth_profile_role"
+        }
+      },
+      "deniedState": {
+        "copy": {
+          "title": "Access is required",
+          "body": "Use the right account for this surface before continuing."
+        },
+        "cta": {
+          "label": "Sign in",
+          "action": "sign_in"
+        },
+        "debugSeverity": "review",
+        "sourceTruth": "auth_profile_role"
+      },
+      "telemetry": {
+        "permissionGranted": "support_policies_permission_granted",
+        "permissionDenied": "support_policies_permission_denied",
+        "roleSurfaceMismatch": "support_policies_role_surface_mismatch",
+        "staleRoleRouteRedirected": "support_policies_stale_role_route_redirected"
+      },
+      "debugLane": "Role parity",
+      "scoreDimensionImpact": {
+        "before": "support_policies role checks were distributed across route guards, client branches, and feature-specific validators.",
+        "after": "support_policies role visibility, permissions, denied copy, telemetry, and debug ownership are declared in one role parity contract.",
+        "dimensions": [
+          "runtimeHealth",
+          "evidenceCompleteness"
+        ]
+      },
+      "oldLogicStatus": "active_canonical"
+    }
+  ],
+  "debugLane": {
+    "label": "Role parity",
+    "routeMismatchFindings": [],
+    "deniedStateCoverageFindings": [],
+    "leakedControlFindings": [],
+    "missingRoleMappingFindings": []
+  },
+  "accountCreatorSettingsSplit": {
+    "accountSettingsUserVisible": true,
+    "creatorSettingsPlainUserDenied": true,
+    "creatorSettingsCreatorVisible": true
+  },
+  "telemetryEvents": [
+    {
+      "permissionGranted": "public_homepage_permission_granted",
+      "permissionDenied": "public_homepage_permission_denied",
+      "roleSurfaceMismatch": "public_homepage_role_surface_mismatch",
+      "staleRoleRouteRedirected": "public_homepage_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "auth_permission_granted",
+      "permissionDenied": "auth_permission_denied",
+      "roleSurfaceMismatch": "auth_role_surface_mismatch",
+      "staleRoleRouteRedirected": "auth_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "user_dashboard_permission_granted",
+      "permissionDenied": "user_dashboard_permission_denied",
+      "roleSurfaceMismatch": "user_dashboard_role_surface_mismatch",
+      "staleRoleRouteRedirected": "user_dashboard_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "wallet_purchase_modal_permission_granted",
+      "permissionDenied": "wallet_purchase_modal_permission_denied",
+      "roleSurfaceMismatch": "wallet_purchase_modal_role_surface_mismatch",
+      "staleRoleRouteRedirected": "wallet_purchase_modal_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "drops_library_permission_granted",
+      "permissionDenied": "drops_library_permission_denied",
+      "roleSurfaceMismatch": "drops_library_role_surface_mismatch",
+      "staleRoleRouteRedirected": "drops_library_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "creator_dashboard_permission_granted",
+      "permissionDenied": "creator_dashboard_permission_denied",
+      "roleSurfaceMismatch": "creator_dashboard_role_surface_mismatch",
+      "staleRoleRouteRedirected": "creator_dashboard_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "creator_settings_permission_granted",
+      "permissionDenied": "creator_settings_permission_denied",
+      "roleSurfaceMismatch": "creator_settings_role_surface_mismatch",
+      "staleRoleRouteRedirected": "creator_settings_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "creator_drop_manager_permission_granted",
+      "permissionDenied": "creator_drop_manager_permission_denied",
+      "roleSurfaceMismatch": "creator_drop_manager_role_surface_mismatch",
+      "staleRoleRouteRedirected": "creator_drop_manager_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "creator_profile_timeline_permission_granted",
+      "permissionDenied": "creator_profile_timeline_permission_denied",
+      "roleSurfaceMismatch": "creator_profile_timeline_role_surface_mismatch",
+      "staleRoleRouteRedirected": "creator_profile_timeline_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "chat_permission_granted",
+      "permissionDenied": "chat_permission_denied",
+      "roleSurfaceMismatch": "chat_role_surface_mismatch",
+      "staleRoleRouteRedirected": "chat_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "daily_tasks_checkin_permission_granted",
+      "permissionDenied": "daily_tasks_checkin_permission_denied",
+      "roleSurfaceMismatch": "daily_tasks_checkin_role_surface_mismatch",
+      "staleRoleRouteRedirected": "daily_tasks_checkin_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "notifications_pwa_prompt_permission_granted",
+      "permissionDenied": "notifications_pwa_prompt_permission_denied",
+      "roleSurfaceMismatch": "notifications_pwa_prompt_role_surface_mismatch",
+      "staleRoleRouteRedirected": "notifications_pwa_prompt_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "account_settings_permission_granted",
+      "permissionDenied": "account_settings_permission_denied",
+      "roleSurfaceMismatch": "account_settings_role_surface_mismatch",
+      "staleRoleRouteRedirected": "account_settings_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "admin_dashboard_permission_granted",
+      "permissionDenied": "admin_dashboard_permission_denied",
+      "roleSurfaceMismatch": "admin_dashboard_role_surface_mismatch",
+      "staleRoleRouteRedirected": "admin_dashboard_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "admin_debug_permission_granted",
+      "permissionDenied": "admin_debug_permission_denied",
+      "roleSurfaceMismatch": "admin_debug_role_surface_mismatch",
+      "staleRoleRouteRedirected": "admin_debug_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "user_management_permission_granted",
+      "permissionDenied": "user_management_permission_denied",
+      "roleSurfaceMismatch": "user_management_role_surface_mismatch",
+      "staleRoleRouteRedirected": "user_management_stale_role_route_redirected"
+    },
+    {
+      "permissionGranted": "support_policies_permission_granted",
+      "permissionDenied": "support_policies_permission_denied",
+      "roleSurfaceMismatch": "support_policies_role_surface_mismatch",
+      "staleRoleRouteRedirected": "support_policies_stale_role_route_redirected"
+    }
+  ],
+  "scoreDimensionBeforeAfter": {
+    "before": "Role permissions were enforced through route-local checks, feature branches, and scattered settings/admin assumptions.",
+    "after": "User, creator, admin, guest, and system roles now share one permission map with denied states, telemetry, and debug evidence.",
+    "dimensions": [
+      "sourceHealth",
+      "runtimeHealth",
+      "evidenceCompleteness",
+      "regressionRisk"
+    ]
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/role-permission-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/role-permission-parity.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-role-permission-parity.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/parity/role-permission-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/parity/role-permission-resolver.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/role-permission-parity.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "staleRolePermissionLogicClassification": [
+    {
+      "path": "src/context/AuthContext.tsx",
+      "classification": "active_canonical",
+      "reason": "Auth provider owns Firebase identity and profile hydration; Phase 4 reads role only and does not change provider logic."
+    },
+    {
+      "path": "src/lib/user-utils.ts",
+      "classification": "active_canonical",
+      "reason": "User profile normalization remains the canonical role source for user, creator, and admin profile roles."
+    },
+    {
+      "path": "src/lib/chat.ts",
+      "classification": "in_flight_classified_only",
+      "reason": "Chat role internals remain untouched; parity only classifies chat as user/creator visible and admin hidden."
+    }
+  ],
+  "validationFailures": []
+}

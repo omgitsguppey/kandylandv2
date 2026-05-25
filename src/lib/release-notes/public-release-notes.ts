@@ -1,13 +1,66 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.69",
-  "betaReleaseCounter": 469,
+  "currentVersion": "1.4.70",
+  "betaReleaseCounter": 470,
   "channel": "beta",
-  "generatedAt": "2026-05-25T21:23:58.219Z",
-  "generatedAtUtc": "2026-05-25T21:23:58.219Z",
+  "generatedAt": "2026-05-25T21:36:26.165Z",
+  "generatedAtUtc": "2026-05-25T21:36:26.165Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.70",
+      "previousVersion": "1.4.69",
+      "betaReleaseCounter": 470,
+      "previousBetaReleaseCounter": 469,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(parity): enforce role permissions",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-25T21:36:26.165Z",
+      "generatedAt": "2026-05-25T21:36:26.165Z",
+      "committedAtUtc": "2026-05-25T21:36:26.165Z",
+      "generatedAtUtc": "2026-05-25T21:36:26.165Z",
+      "category": "Improved",
+      "title": "Role permission parity",
+      "updatedAtUtc": "2026-05-25T21:36:26.165Z",
+      "summary": "Standardized role and permission rules across user, creator, admin, and guest surfaces.",
+      "userFacingTitle": "Role permission parity",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Standardized role and permission rules across user, creator, admin, and guest surfaces.",
+        "Added telemetry for permission denials and route mismatches.",
+        "Protected admin and creator controls from leaking into the wrong surfaces."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical role permission contract and resolver for guest, user, creator, admin, and system roles.",
+        "Mapped surface permissions to granted, denied, role mismatch, and stale-route redirect telemetry events.",
+        "Added source-only validation for creator-only actions, admin-only controls, Account Settings vs Creator Settings split, and role parity debug evidence."
+      ],
+      "affectedSurfaces": [
+        "Public, user, creator, admin, and system role permissions",
+        "Role parity telemetry and debug evidence",
+        "Role permission validator and generated report"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/parity/role-permission-contract.ts",
+        "src/lib/parity/role-permission-resolver.ts",
+        "scripts/agent/validate-role-permission-parity.ts",
+        "tests/unit/role-permission-parity.spec.ts",
+        "agent/state/role-permission-parity.generated.json",
+        "docs/agent-truth/role-permission-parity.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.69",
       "previousVersion": "1.4.68",
@@ -6675,56 +6728,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 39,
       "excludedGeneratedChangeCount": 8,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.45",
-      "previousVersion": "1.4.44",
-      "betaReleaseCounter": 445,
-      "previousBetaReleaseCounter": 444,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): clean no-sample false positives",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T20:11:26.286Z",
-      "generatedAt": "2026-05-24T20:11:26.286Z",
-      "committedAtUtc": "2026-05-24T20:11:26.286Z",
-      "generatedAtUtc": "2026-05-24T20:11:26.286Z",
-      "updatedAtUtc": "2026-05-24T20:11:26.286Z",
-      "category": "Fixed",
-      "title": "No-sample debug status cleanup",
-      "summary": "Fixed empty diagnostics and panel-log lanes so missing samples no longer appear as live health.",
-      "userFacingTitle": "No-sample debug status cleanup",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed false-positive LIVE states for empty diagnostics and panel-log lanes.",
-        "Separated no-sample, proven-zero, and unavailable debug states.",
-        "Kept raw diagnostics and panel logs collapsed behind drilldowns."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "Admin diagnostics",
-        "Internal reliability"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/debug-cockpit-batch15-false-positive-cleanup.generated.json",
-        "agent/state/no-sample-status-classifier.generated.json",
-        "agent/state/diagnostics-writer-status-cleanup.generated.json",
-        "agent/state/panel-log-status-cleanup.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/debug-cockpit-batch15-shared.ts",
-        "src/lib/debug/no-sample-status-classifier.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "effectiveChangeCount": 11,
-      "excludedGeneratedChangeCount": 4,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

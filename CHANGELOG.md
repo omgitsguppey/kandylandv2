@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.70 - 2026-05-25
+- Role permission parity
+- Standardized role and permission rules across user, creator, admin, and guest surfaces.
+- Added telemetry for permission denials and route mismatches.
+- Protected admin and creator controls from leaking into the wrong surfaces.
+
 ## 1.4.69 - 2026-05-25
 - Surface state parity
 - Standardized loading, empty, error, degraded, and permission states across surfaces.
