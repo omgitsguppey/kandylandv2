@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.82 - 2026-05-26
+- Targeted behavior evidence repair
+- Repaired targeted behavior evidence using current validators.
+- Replaced superseded source behavior checks with current lock artifacts.
+- Kept formal runtime, provider, admin, and visual gates separate.
+
 ## 1.4.81 - 2026-05-26
 - Creator monetization readiness lock
 - Locked creator monetization readiness across Fan Pass, settings, entitlements, and admin debug.

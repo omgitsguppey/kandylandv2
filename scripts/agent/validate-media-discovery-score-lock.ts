@@ -187,6 +187,17 @@ export function classifyMediaDiscoveryScoreLockDirtyFile(pathValue: string): Med
   if (
     /^docs\/agent-truth\/(media-upload-lifecycle|private-media-access|creator-discovery-relationship-funnel|search-discovery-cost|feature-registration-gate|event-translation-bridge|person-metrics-hydration|global-user-dedupe-normalization|user-journey-behavioral-intelligence)\.md$/u.test(normalized)
   ) return "stale_generated_artifact_to_regenerate";
+  if (
+    /^agent\/state\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|activity-verification-engine|creator-monetization-readiness-lock|final-parity-telemetry-lock)\.generated\.json$/u.test(normalized)
+    || /^docs\/agent-truth\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|creator-monetization-readiness-lock|final-parity-telemetry-lock)\.md$/u.test(normalized)
+  ) return "stale_generated_artifact_to_regenerate";
+  if (
+    normalized === "scripts/agent/validate-targeted-behavior-evidence.ts"
+    || normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts"
+    || normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
+    || normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts"
+  ) return "validator_artifact_expected";
+  if (normalized === "tests/unit/targeted-behavior-evidence-repair.spec.ts") return "test_artifact_expected";
   if (/payment|paypal|wallet|gumdrop|gum-drop|gumdrop-ledger|source-of-funds/iu.test(normalized)) return "unsafe_unknown";
   if (/chat/iu.test(normalized)) return "unsafe_unknown";
   return "unsafe_unknown";

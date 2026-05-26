@@ -114,6 +114,17 @@ export function classifyCreatorMonetizationReadinessLockDirtyFile(filePath: stri
   if (normalized === "tests/unit/creator-monetization-readiness-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "current_source_change";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "current_source_change";
+  if (normalized === "scripts/agent/validate-targeted-behavior-evidence.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-media-discovery-score-lock.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/targeted-behavior-evidence-repair.spec.ts") return "test_artifact_expected";
+  if (
+    /^agent\/state\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|feature-registration-gate|activity-verification-engine|event-translation-bridge|person-metrics-hydration|final-parity-telemetry-lock|media-discovery-score-lock)\.generated\.json$/u.test(normalized)
+  ) return "current_generated_artifact_to_commit";
+  if (
+    /^docs\/agent-truth\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|feature-registration-gate|event-translation-bridge|person-metrics-hydration|final-parity-telemetry-lock|media-discovery-score-lock)\.md$/u.test(normalized)
+  ) return "documentation_artifact_expected";
   if (normalized === "package.json") return "validator_artifact_expected";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (

@@ -253,6 +253,7 @@
         "check:score-impact-stale-artifact-sweep": "tsx scripts/agent/validate-score-impact-stale-artifact-sweep.ts",
         "check:phase-one-score-ui-triage": "tsx scripts/agent/validate-phase-one-score-ui-triage.ts",
         "check:targeted-behavior-evidence": "tsx scripts/agent/validate-targeted-behavior-evidence.ts",
+        "check:targeted-behavior-evidence-repair": "tsx scripts/agent/validate-targeted-behavior-evidence-repair.ts",
         "score:hardening": "tsx scripts/agent/score-codebase-hardening.ts",
         "check:hardening": "tsx scripts/agent/validate-codebase-hardening.ts",
         "repair:hardening": "tsx scripts/agent/repair-codebase-hardening-safe.ts",

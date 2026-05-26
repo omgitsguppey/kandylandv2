@@ -154,6 +154,17 @@ export function classifyFinalParityTelemetryLockDirtyFile(pathValue: string): Fi
     /^agent\/state\/(surface-parity-doctrine|surface-telemetry-parity|surface-state-parity|role-permission-parity)\.generated\.json$/u.test(normalized)
     || /^docs\/agent-truth\/(surface-parity-doctrine|surface-telemetry-parity|surface-state-parity|role-permission-parity)\.md$/u.test(normalized)
   ) return "stale_generated_artifact_to_regenerate";
+  if (
+    /^agent\/state\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|feature-registration-gate|activity-verification-engine|event-translation-bridge|person-metrics-hydration|creator-monetization-readiness-lock|media-discovery-score-lock)\.generated\.json$/u.test(normalized)
+    || /^docs\/agent-truth\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|feature-registration-gate|event-translation-bridge|person-metrics-hydration|creator-monetization-readiness-lock|media-discovery-score-lock)\.md$/u.test(normalized)
+  ) return "stale_generated_artifact_to_regenerate";
+  if (
+    normalized === "scripts/agent/validate-targeted-behavior-evidence.ts"
+    || normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts"
+    || normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
+    || normalized === "scripts/agent/validate-media-discovery-score-lock.ts"
+  ) return "validator_artifact_expected";
+  if (normalized === "tests/unit/targeted-behavior-evidence-repair.spec.ts") return "test_artifact_expected";
   return "unsafe_unknown";
 }
 

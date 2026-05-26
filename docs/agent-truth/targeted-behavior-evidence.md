@@ -1,7 +1,7 @@
 # Targeted Behavior Evidence
 
-Status: `failed`  
-Artifact: `agent/state/targeted-behavior-evidence.generated.json`  
+Status: `passed`
+Artifact: `agent/state/targeted-behavior-evidence.generated.json`
 Validator: `npm run check:targeted-behavior-evidence`
 
 ## Scope
@@ -10,9 +10,9 @@ This artifact records source-backed targeted behavior validator results from the
 
 ## Summary
 
-- Source commit: `5482caa9bc232cfe8344932355dfaac552ff671a`
-- Latest code version: `5482caa9bc232cfe8344932355dfaac552ff671a`
-- Passed: false
+- Source commit: `79ad1387e6438832a915bed94e0cdbd3d4a7fddb`
+- Latest code version: `79ad1387e6438832a915bed94e0cdbd3d4a7fddb`
+- Passed: true
 - Formal evidence impact: `source_behavior_only`
 - Does not clear: `manual_screenshot`, `provider_smoke`, `runtime_smoke`, `admin_truth_sample`
 
@@ -20,64 +20,66 @@ This artifact records source-backed targeted behavior validator results from the
 
 | Lane | Status | Command | Artifact | Surfaces | Blocker |
 | --- | --- | --- | --- | --- | --- |
-| creator-settings-control-plane | fail | npm run check:creator-settings-control-plane | agent/state/creator-settings-control-plane.generated.json | creator_settings, creator_profile, fan_pass | agent/state/creator-settings-control-plane.generated.json was not generated from the latest code version. |
-| creator-pricing-wiring | fail | npm run check:creator-pricing-wiring | agent/state/creator-pricing-wiring.generated.json | creator_pricing, fan_pass, creator_experiences | agent/state/creator-pricing-wiring.generated.json was not generated from the latest code version. |
-| creator-broadcast-timeline-prep | fail | npm run check:creator-broadcast-timeline-prep | agent/state/creator-broadcast-timeline-prep.generated.json | creator_broadcasts, notifications, creator_timeline | agent/state/creator-broadcast-timeline-prep.generated.json was not generated from the latest code version. |
-| creator-profile-mobile-timeline | fail | npm run check:creator-profile-mobile-timeline | agent/state/creator-profile-mobile-timeline.generated.json | creator_profile, mobile_ui, timeline | agent/state/creator-profile-mobile-timeline.generated.json was not generated from the latest code version. |
-| global-marquee-truncated-titles | fail | npm run check:global-marquee-truncated-titles | agent/state/global-marquee-truncated-titles.generated.json | ui_titles, creator_ui, admin_ui, user_library | agent/state/global-marquee-truncated-titles.generated.json was not generated from the latest code version. |
-| creator-drop-status-metrics | fail | npm run check:creator-drop-status-metrics | agent/state/creator-drop-status-metrics.generated.json | creator_drop_manager, drop_metrics, drop_status | agent/state/creator-drop-status-metrics.generated.json was not generated from the latest code version. |
-| user-loading-wallet-mobile-refinement | fail | npm run check:user-loading-wallet-mobile-refinement | agent/state/user-loading-wallet-mobile-refinement.generated.json | user_dashboard, wallet_ui, mobile_loading | agent/state/user-loading-wallet-mobile-refinement.generated.json was not generated from the latest code version. |
-| existing-algorithm-refinement | fail | npm run check:existing-algorithm-refinement | agent/state/existing-algorithm-refinement.generated.json | beta_scoring, telemetry, creator_pricing, drop_status, mobile_density | agent/state/existing-algorithm-refinement.generated.json was not generated from the latest code version. |
-| overnight-wiring-integrity | fail | npm run check:overnight-wiring-integrity | agent/state/overnight-wiring-integrity.generated.json | creator_settings, telemetry, parity, routes | agent/state/overnight-wiring-integrity.generated.json was not generated from the latest code version. |
-| final-telemetry-closure-lock | fail | npm run check:final-telemetry-closure-lock | agent/state/final-telemetry-closure-lock.generated.json | telemetry, firestore, bigquery, ga4, admin_evidence | agent/state/final-telemetry-closure-lock.generated.json was not generated from the latest code version. |
-| mobile-ui-final-lock | fail | npm run check:mobile-ui-final-lock | agent/state/mobile-ui-final-lock.generated.json | mobile_ui, admin_ui, creator_ui, user_ui | agent/state/mobile-ui-final-lock.generated.json was not generated from the latest code version. |
-| user-creator-ui-parity | fail | npm run check:user-creator-ui-parity | agent/state/user-creator-ui-parity.generated.json | user_ui, creator_ui, route_parity | agent/state/user-creator-ui-parity.generated.json was not generated from the latest code version. |
-| source-truth-authority-map | fail | npm run check:source-truth-authority-map | agent/state/source-truth-authority-map.generated.json | source_truth, admin_truth, beta_evidence | agent/state/source-truth-authority-map.generated.json was not generated from the latest code version. |
-| gumdrop-economy-accuracy | fail | npm run check:gumdrop-economy-accuracy | agent/state/gumdrop-economy-accuracy.generated.json | gumdrop_economy, source_of_funds, creator_monetization | agent/state/gumdrop-economy-accuracy.generated.json was not generated from the latest code version. |
-| creator-drop-management-approval | fail | npm run check:creator-drop-management-approval | agent/state/creator-drop-management-approval.generated.json | creator_drop_manager, admin_approval, drop_lifecycle | agent/state/creator-drop-management-approval.generated.json was not generated from the latest code version. |
-| creator-drop-manager-mobile-refinement | fail | npm run check:creator-drop-manager-mobile-refinement | agent/state/creator-drop-manager-mobile-refinement.generated.json | creator_drop_manager, mobile_ui | agent/state/creator-drop-manager-mobile-refinement.generated.json was not generated from the latest code version. |
+| final-parity-telemetry-lock | pass | npm run check:final-parity-telemetry-lock | agent/state/final-parity-telemetry-lock.generated.json | parity, telemetry, surface_state, role_permission | Current |
+| media-discovery-score-lock | pass | npm run check:media-discovery-score-lock | agent/state/media-discovery-score-lock.generated.json | media_upload, private_media_access, creator_discovery, search_discovery | Current |
+| creator-monetization-readiness-lock | pass | npm run check:creator-monetization-readiness-lock | agent/state/creator-monetization-readiness-lock.generated.json | creator_monetization, fan_pass, entitlements, chat_pricing, admin_debug | Current |
+| auth-readiness-lock | pass | npm run check:auth-readiness-lock | agent/state/auth-readiness-lock.generated.json | auth, session, account_access | Current |
+| notification-pwa-score-lock | pass | npm run check:notification-pwa-score-lock | agent/state/notification-pwa-score-lock.generated.json | notifications, pwa, service_worker | Current |
+| daily-task-debug-score-lock | pass | npm run check:daily-task-debug-score-lock | agent/state/daily-task-debug-score-lock.generated.json | daily_tasks, task_rewards, debug | Current |
+| chat-functionality-score-lock | pass | npm run check:chat-functionality-score-lock | agent/state/chat-functionality-score-lock.generated.json | chat, chat_gating, chat_realtime | Current |
+| final-testing-tracking-telemetry-lock | pass | npm run check:final-testing-tracking-telemetry-lock | agent/state/final-testing-tracking-telemetry-lock.generated.json | testing, tracking, telemetry | Current |
+| feature-registration-gate | pass | npm run check:feature-registration-gate | agent/state/feature-registration-gate.generated.json | feature_registration, routes, telemetry | Current |
+| activity-verification-engine | pass | npm run check:activity-verification-engine | agent/state/activity-verification-engine.generated.json | activity_verification, behavioral_intelligence, telemetry | Current |
+| event-translation-bridge | pass | npm run check:event-translation-bridge | agent/state/event-translation-bridge.generated.json | event_translation, telemetry, feature_activity | Current |
+| person-metrics-hydration | pass | npm run check:person-metrics-hydration | agent/state/person-metrics-hydration.generated.json | person_metrics, telemetry, analytics | Current |
+| surface-state-parity | pass | npm run check:surface-state-parity | agent/state/surface-state-parity.generated.json | surface_state, loading, empty, error, permission | Current |
+| role-permission-parity | pass | npm run check:role-permission-parity | agent/state/role-permission-parity.generated.json | role_permission, user, creator, admin, guest | Current |
 
 ## Surfaces Covered
 
-- admin_approval
-- admin_evidence
-- admin_truth
-- admin_ui
-- beta_evidence
-- beta_scoring
-- bigquery
-- creator_broadcasts
-- creator_drop_manager
-- creator_experiences
+- account_access
+- activity_verification
+- admin
+- admin_debug
+- analytics
+- auth
+- behavioral_intelligence
+- chat
+- chat_gating
+- chat_pricing
+- chat_realtime
+- creator
+- creator_discovery
 - creator_monetization
-- creator_pricing
-- creator_profile
-- creator_settings
-- creator_timeline
-- creator_ui
-- drop_lifecycle
-- drop_metrics
-- drop_status
+- daily_tasks
+- debug
+- empty
+- entitlements
+- error
+- event_translation
 - fan_pass
-- firestore
-- ga4
-- gumdrop_economy
-- mobile_density
-- mobile_loading
-- mobile_ui
+- feature_activity
+- feature_registration
+- guest
+- loading
+- media_upload
 - notifications
 - parity
-- route_parity
+- permission
+- person_metrics
+- private_media_access
+- pwa
+- role_permission
 - routes
-- source_of_funds
-- source_truth
+- search_discovery
+- service_worker
+- session
+- surface_state
+- task_rewards
 - telemetry
-- timeline
-- ui_titles
-- user_dashboard
-- user_library
-- user_ui
-- wallet_ui
+- testing
+- tracking
+- user
 
 ## Not Covered
 

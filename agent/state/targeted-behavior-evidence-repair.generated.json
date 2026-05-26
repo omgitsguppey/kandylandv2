@@ -1,0 +1,415 @@
+{
+  "reportKey": "targeted-behavior-evidence-repair",
+  "generatedAtUtc": "2026-05-26T03:48:26.706Z",
+  "currentHead": "79ad1387",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "bigQueryCallsPerformed": false,
+  "visualQaPerformed": false,
+  "realDeviceSmokePerformed": false,
+  "sourceEvidenceOnly": true,
+  "formalEvidenceImpact": "source_behavior_only",
+  "doesNotClear": [
+    "manual_screenshot",
+    "provider_smoke",
+    "runtime_smoke",
+    "admin_truth_sample"
+  ],
+  "targetedBehaviorScoreBefore": 0,
+  "targetedBehaviorScoreAfter": 20,
+  "scoreBefore": 77.83,
+  "scoreAfter": 77.83,
+  "scoreDimensions": [
+    "sourceHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "regressionRisk"
+  ],
+  "currentValidatorInventoryCount": 14,
+  "currentValidators": [
+    {
+      "id": "final-parity-telemetry-lock",
+      "command": "npm run check:final-parity-telemetry-lock",
+      "artifactPath": "agent/state/final-parity-telemetry-lock.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "parity",
+        "telemetry",
+        "surface_state",
+        "role_permission"
+      ],
+      "replacementFor": [
+        "user-creator-ui-parity",
+        "overnight-wiring-integrity",
+        "mobile-ui-final-lock"
+      ],
+      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+    },
+    {
+      "id": "media-discovery-score-lock",
+      "command": "npm run check:media-discovery-score-lock",
+      "artifactPath": "agent/state/media-discovery-score-lock.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "media_upload",
+        "private_media_access",
+        "creator_discovery",
+        "search_discovery"
+      ],
+      "replacementFor": [
+        "creator-profile-mobile-timeline",
+        "creator-broadcast-timeline-prep"
+      ],
+      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+    },
+    {
+      "id": "creator-monetization-readiness-lock",
+      "command": "npm run check:creator-monetization-readiness-lock",
+      "artifactPath": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "creator_monetization",
+        "fan_pass",
+        "entitlements",
+        "chat_pricing",
+        "admin_debug"
+      ],
+      "replacementFor": [
+        "creator-settings-control-plane",
+        "creator-pricing-wiring",
+        "gumdrop-economy-accuracy"
+      ],
+      "artifactHead": "79ad1387"
+    },
+    {
+      "id": "auth-readiness-lock",
+      "command": "npm run check:auth-readiness-lock",
+      "artifactPath": "agent/state/auth-readiness-lock.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "auth",
+        "session",
+        "account_access"
+      ],
+      "replacementFor": [],
+      "artifactHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0"
+    },
+    {
+      "id": "notification-pwa-score-lock",
+      "command": "npm run check:notification-pwa-score-lock",
+      "artifactPath": "agent/state/notification-pwa-score-lock.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "notifications",
+        "pwa",
+        "service_worker"
+      ],
+      "replacementFor": [
+        "creator-broadcast-timeline-prep"
+      ],
+      "artifactHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0"
+    },
+    {
+      "id": "daily-task-debug-score-lock",
+      "command": "npm run check:daily-task-debug-score-lock",
+      "artifactPath": "agent/state/daily-task-debug-score-lock.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "daily_tasks",
+        "task_rewards",
+        "debug"
+      ],
+      "replacementFor": [],
+      "artifactHead": "e53968ae"
+    },
+    {
+      "id": "chat-functionality-score-lock",
+      "command": "npm run check:chat-functionality-score-lock",
+      "artifactPath": "agent/state/chat-functionality-score-lock.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "chat",
+        "chat_gating",
+        "chat_realtime"
+      ],
+      "replacementFor": [],
+      "artifactHead": "d02b8b2da859d47d880182fe2169db1ad6a40ad6"
+    },
+    {
+      "id": "final-testing-tracking-telemetry-lock",
+      "command": "npm run check:final-testing-tracking-telemetry-lock",
+      "artifactPath": "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "testing",
+        "tracking",
+        "telemetry"
+      ],
+      "replacementFor": [
+        "final-telemetry-closure-lock"
+      ],
+      "artifactHead": "7436c77c58d8873952a130244cf8117ee99660db"
+    },
+    {
+      "id": "feature-registration-gate",
+      "command": "npm run check:feature-registration-gate",
+      "artifactPath": "agent/state/feature-registration-gate.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "feature_registration",
+        "routes",
+        "telemetry"
+      ],
+      "replacementFor": [],
+      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+    },
+    {
+      "id": "activity-verification-engine",
+      "command": "npm run check:activity-verification-engine",
+      "artifactPath": "agent/state/activity-verification-engine.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "activity_verification",
+        "behavioral_intelligence",
+        "telemetry"
+      ],
+      "replacementFor": [],
+      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+    },
+    {
+      "id": "event-translation-bridge",
+      "command": "npm run check:event-translation-bridge",
+      "artifactPath": "agent/state/event-translation-bridge.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "event_translation",
+        "telemetry",
+        "feature_activity"
+      ],
+      "replacementFor": [],
+      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+    },
+    {
+      "id": "person-metrics-hydration",
+      "command": "npm run check:person-metrics-hydration",
+      "artifactPath": "agent/state/person-metrics-hydration.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "person_metrics",
+        "telemetry",
+        "analytics"
+      ],
+      "replacementFor": [],
+      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+    },
+    {
+      "id": "surface-state-parity",
+      "command": "npm run check:surface-state-parity",
+      "artifactPath": "agent/state/surface-state-parity.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "surface_state",
+        "loading",
+        "empty",
+        "error",
+        "permission"
+      ],
+      "replacementFor": [
+        "user-loading-wallet-mobile-refinement",
+        "mobile-ui-final-lock"
+      ],
+      "artifactHead": "5e5f33ff72d513742ccfce8c32a5a1c416afd5f9"
+    },
+    {
+      "id": "role-permission-parity",
+      "command": "npm run check:role-permission-parity",
+      "artifactPath": "agent/state/role-permission-parity.generated.json",
+      "status": "pass",
+      "classification": "current_lock_validator",
+      "surfaces": [
+        "role_permission",
+        "user",
+        "creator",
+        "admin",
+        "guest"
+      ],
+      "replacementFor": [],
+      "artifactHead": "d11f133f925ed09141b89633d5ebaff72e38eb55"
+    }
+  ],
+  "failedValidators": [],
+  "inFlightValidators": [],
+  "supersededValidators": [],
+  "obsoleteValidatorInputsReplaced": [
+    "creator-broadcast-timeline-prep",
+    "creator-pricing-wiring",
+    "creator-profile-mobile-timeline",
+    "creator-settings-control-plane",
+    "final-telemetry-closure-lock",
+    "gumdrop-economy-accuracy",
+    "mobile-ui-final-lock",
+    "overnight-wiring-integrity",
+    "user-creator-ui-parity",
+    "user-loading-wallet-mobile-refinement"
+  ],
+  "missingValidators": [],
+  "limitations": [
+    "source behavior only",
+    "does not clear manual screenshot evidence",
+    "does not clear provider smoke",
+    "does not clear deployed runtime smoke",
+    "does not clear production admin truth sample evidence"
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/final-parity-telemetry-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/media-discovery-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/media-discovery-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "package.json",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-targeted-behavior-evidence-repair.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-targeted-behavior-evidence.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/targeted-behavior-evidence-repair.spec.ts",
+      "classification": "failed_validator_to_repair"
+    }
+  ],
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "Keep formal runtime, provider, admin truth, and manual visual gates separate from targeted source behavior evidence."
+  ],
+  "evidence": [
+    "currentValidatorInventoryCount=14",
+    "passedCurrentValidators=14",
+    "inFlightValidators=0",
+    "failedValidators=0",
+    "supersededValidators=creator-broadcast-timeline-prep,creator-pricing-wiring,creator-profile-mobile-timeline,creator-settings-control-plane,final-telemetry-closure-lock,gumdrop-economy-accuracy,mobile-ui-final-lock,overnight-wiring-integrity,user-creator-ui-parity,user-loading-wallet-mobile-refinement",
+    "formalEvidenceImpact=source_behavior_only"
+  ]
+}

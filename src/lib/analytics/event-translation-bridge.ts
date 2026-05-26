@@ -512,6 +512,11 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "tests/unit/creator-monetization-readiness-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/creator-monetization-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/creator-monetization-readiness-lock.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-targeted-behavior-evidence.ts" || normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts" || normalized === "scripts/agent/validate-media-discovery-score-lock.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/targeted-behavior-evidence-repair.spec.ts") return "test_artifact_expected";
+  if (/^agent\/state\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|activity-verification-engine|final-parity-telemetry-lock|media-discovery-score-lock)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|final-parity-telemetry-lock|media-discovery-score-lock)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "agent/state/surface-parity-doctrine.generated.json" || normalized === "docs/agent-truth/surface-parity-doctrine.md") return "stale_generated_artifact_to_regenerate";
   if (
     normalized === "CHANGELOG.md"

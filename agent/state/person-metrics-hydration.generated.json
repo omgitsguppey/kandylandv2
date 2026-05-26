@@ -1,13 +1,13 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-05-26T01:34:35.239Z",
+  "generatedAtUtc": "2026-05-26T03:45:37.850Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeMetricsUsed": false,
   "debugLane": {
     "label": "Person metrics hydration",
-    "producersRegistered": 252,
+    "producersRegistered": 258,
     "producersConnected": 36,
     "eventEnvelopesHydrated": 49,
     "globalMetricsHydrated": 36,
@@ -782,6 +782,12 @@
         "creator_settings_updated",
         "creator_settings_control_plane_saved",
         "creator_settings_migrated_redirect_viewed",
+        "creator_monetization_settings_viewed",
+        "creator_monetization_setting_changed",
+        "creator_monetization_save_succeeded",
+        "creator_monetization_save_failed",
+        "creator_monetization_user_surface_applied",
+        "creator_monetization_mismatch_detected",
         "cookie_consent_updated"
       ],
       "hydratedEventIds": [
@@ -1536,13 +1542,19 @@
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
             "creator_settings_migrated_redirect_viewed",
+            "creator_monetization_settings_viewed",
+            "creator_monetization_setting_changed",
+            "creator_monetization_save_succeeded",
+            "creator_monetization_save_failed",
+            "creator_monetization_user_surface_applied",
+            "creator_monetization_mismatch_detected",
             "cookie_consent_updated"
           ],
           "hydratedEventIds": [
             "person_metrics_validator:user_settings_viewed:33"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, creator_monetization_settings_viewed, creator_monetization_setting_changed, creator_monetization_save_succeeded, creator_monetization_save_failed, creator_monetization_user_surface_applied, creator_monetization_mismatch_detected, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -2199,11 +2211,17 @@
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
             "creator_settings_migrated_redirect_viewed",
+            "creator_monetization_settings_viewed",
+            "creator_monetization_setting_changed",
+            "creator_monetization_save_succeeded",
+            "creator_monetization_save_failed",
+            "creator_monetization_user_surface_applied",
+            "creator_monetization_mismatch_detected",
             "cookie_consent_updated"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, creator_monetization_settings_viewed, creator_monetization_setting_changed, creator_monetization_save_succeeded, creator_monetization_save_failed, creator_monetization_user_surface_applied, creator_monetization_mismatch_detected, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -2931,13 +2949,19 @@
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
             "creator_settings_migrated_redirect_viewed",
+            "creator_monetization_settings_viewed",
+            "creator_monetization_setting_changed",
+            "creator_monetization_save_succeeded",
+            "creator_monetization_save_failed",
+            "creator_monetization_user_surface_applied",
+            "creator_monetization_mismatch_detected",
             "cookie_consent_updated"
           ],
           "hydratedEventIds": [
             "person_metrics_validator:user_settings_viewed:33"
           ],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, creator_monetization_settings_viewed, creator_monetization_setting_changed, creator_monetization_save_succeeded, creator_monetization_save_failed, creator_monetization_user_surface_applied, creator_monetization_mismatch_detected, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -3594,11 +3618,17 @@
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
             "creator_settings_migrated_redirect_viewed",
+            "creator_monetization_settings_viewed",
+            "creator_monetization_setting_changed",
+            "creator_monetization_save_succeeded",
+            "creator_monetization_save_failed",
+            "creator_monetization_user_surface_applied",
+            "creator_monetization_mismatch_detected",
             "cookie_consent_updated"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, creator_monetization_settings_viewed, creator_monetization_setting_changed, creator_monetization_save_succeeded, creator_monetization_save_failed, creator_monetization_user_surface_applied, creator_monetization_mismatch_detected, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -4259,11 +4289,17 @@
             "creator_settings_updated",
             "creator_settings_control_plane_saved",
             "creator_settings_migrated_redirect_viewed",
+            "creator_monetization_settings_viewed",
+            "creator_monetization_setting_changed",
+            "creator_monetization_save_succeeded",
+            "creator_monetization_save_failed",
+            "creator_monetization_user_surface_applied",
+            "creator_monetization_mismatch_detected",
             "cookie_consent_updated"
           ],
           "hydratedEventIds": [],
           "suppressedDuplicateCount": 0,
-          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
+          "missingSourceExplanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, creator_monetization_settings_viewed, creator_monetization_setting_changed, creator_monetization_save_succeeded, creator_monetization_save_failed, creator_monetization_user_surface_applied, creator_monetization_mismatch_detected, cookie_consent_updated."
         },
         "support_account_actions": {
           "metricId": "support_account_actions",
@@ -4404,26 +4440,18 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "42bdd44bf02066df05ab2b18dc351681fc93d1cf",
+  "currentHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb",
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/creator-pricing-wiring.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/creator-settings-control-plane.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
+      "path": "agent/state/activity-verification-engine.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/fan-pass-lifecycle.generated.json",
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -4431,27 +4459,31 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/final-parity-telemetry-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/media-discovery-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/creator-pricing-wiring.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/creator-settings-control-plane.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/fan-pass-lifecycle.md",
+      "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -4459,7 +4491,23 @@
       "classification": "documentation_artifact_expected"
     },
     {
+      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/media-discovery-score-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -4467,23 +4515,27 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-fan-pass-lifecycle.ts",
+      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "src/app/api/creator/subscriptions/route.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-targeted-behavior-evidence-repair.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-targeted-behavior-evidence.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -4491,31 +4543,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/fan-pass/fan-pass-access-resolver.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/fan-pass/fan-pass-lifecycle-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/server/chat.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/telemetry-catalog.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/fan-pass-lifecycle.spec.ts",
+      "path": "tests/unit/targeted-behavior-evidence-repair.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

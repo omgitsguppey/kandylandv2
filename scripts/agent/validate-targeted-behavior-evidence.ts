@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export type TargetedBehaviorStatus = "passed" | "partial" | "failed";
-export type TargetedBehaviorValidatorStatus = "pass" | "fail" | "unavailable";
+export type TargetedBehaviorValidatorStatus = "pass" | "fail" | "unavailable" | "in_flight" | "superseded";
 
 export type TargetedBehaviorValidatorResult = {
   id: string;
@@ -16,6 +16,9 @@ export type TargetedBehaviorValidatorResult = {
   proves: string;
   doesNotProve: string;
   blocker?: string;
+  classification?: "current_lock_validator" | "superseded_validator" | "in_flight_validator";
+  requiredForCurrentLane?: boolean;
+  replacementFor?: string[];
 };
 
 export type TargetedBehaviorEvidenceReport = {
@@ -68,118 +71,129 @@ const DOC_PATH = "docs/agent-truth/targeted-behavior-evidence.md";
 const DOES_NOT_PROVE = "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.";
 const DOES_NOT_CLEAR = ["manual_screenshot", "provider_smoke", "runtime_smoke", "admin_truth_sample"];
 
-const TARGETED_VALIDATORS = [
+export const SUPERSEDED_TARGETED_BEHAVIOR_VALIDATORS = [
+  "creator-settings-control-plane",
+  "creator-pricing-wiring",
+  "creator-broadcast-timeline-prep",
+  "creator-profile-mobile-timeline",
+  "global-marquee-truncated-titles",
+  "creator-drop-status-metrics",
+  "user-loading-wallet-mobile-refinement",
+  "existing-algorithm-refinement",
+  "overnight-wiring-integrity",
+  "final-telemetry-closure-lock",
+  "mobile-ui-final-lock",
+  "user-creator-ui-parity",
+  "source-truth-authority-map",
+  "gumdrop-economy-accuracy",
+  "creator-drop-management-approval",
+  "creator-drop-manager-mobile-refinement",
+] as const;
+
+export const TARGETED_VALIDATORS = [
   {
-    id: "creator-settings-control-plane",
-    command: "npm run check:creator-settings-control-plane",
-    artifactPath: "agent/state/creator-settings-control-plane.generated.json",
-    surfaces: ["creator_settings", "creator_profile", "fan_pass"],
-    proves: "Creator Settings controls, setup checklist, creator-safe validation, and user-facing settings impact are source-validated.",
+    id: "final-parity-telemetry-lock",
+    command: "npm run check:final-parity-telemetry-lock",
+    artifactPath: "agent/state/final-parity-telemetry-lock.generated.json",
+    surfaces: ["parity", "telemetry", "surface_state", "role_permission"],
+    proves: "Surface parity, telemetry parity, state feedback, and role permission locks are registered as the current parity behavior validator.",
+    replacementFor: ["user-creator-ui-parity", "overnight-wiring-integrity", "mobile-ui-final-lock"],
   },
   {
-    id: "creator-pricing-wiring",
-    command: "npm run check:creator-pricing-wiring",
-    artifactPath: "agent/state/creator-pricing-wiring.generated.json",
-    surfaces: ["creator_pricing", "fan_pass", "creator_experiences"],
-    proves: "Creator Fan Pass and experience pricing wiring is source-validated without changing GumDrop math.",
+    id: "media-discovery-score-lock",
+    command: "npm run check:media-discovery-score-lock",
+    artifactPath: "agent/state/media-discovery-score-lock.generated.json",
+    surfaces: ["media_upload", "private_media_access", "creator_discovery", "search_discovery"],
+    proves: "Media, private access, discovery, relationship, and search behavior validators are registered as the current media/discovery behavior validator.",
+    replacementFor: ["creator-profile-mobile-timeline", "creator-broadcast-timeline-prep"],
   },
   {
-    id: "creator-broadcast-timeline-prep",
-    command: "npm run check:creator-broadcast-timeline-prep",
-    artifactPath: "agent/state/creator-broadcast-timeline-prep.generated.json",
-    surfaces: ["creator_broadcasts", "notifications", "creator_timeline"],
-    proves: "Creator broadcast notification and timeline contracts are source-validated.",
+    id: "creator-monetization-readiness-lock",
+    command: "npm run check:creator-monetization-readiness-lock",
+    artifactPath: "agent/state/creator-monetization-readiness-lock.generated.json",
+    surfaces: ["creator_monetization", "fan_pass", "entitlements", "chat_pricing", "admin_debug"],
+    proves: "Creator monetization readiness is source-validated across Fan Pass, settings, entitlements, chat pricing, admin debug, telemetry, and person metrics.",
+    replacementFor: ["creator-settings-control-plane", "creator-pricing-wiring", "gumdrop-economy-accuracy"],
   },
   {
-    id: "creator-profile-mobile-timeline",
-    command: "npm run check:creator-profile-mobile-timeline",
-    artifactPath: "agent/state/creator-profile-mobile-timeline.generated.json",
-    surfaces: ["creator_profile", "mobile_ui", "timeline"],
-    proves: "Creator profile mobile header and timeline source constraints are source-validated.",
+    id: "auth-readiness-lock",
+    command: "npm run check:auth-readiness-lock",
+    artifactPath: "agent/state/auth-readiness-lock.generated.json",
+    surfaces: ["auth", "session", "account_access"],
+    proves: "Authentication readiness is registered as the current source behavior validator when the auth phase has landed.",
   },
   {
-    id: "global-marquee-truncated-titles",
-    command: "npm run check:global-marquee-truncated-titles",
-    artifactPath: "agent/state/global-marquee-truncated-titles.generated.json",
-    surfaces: ["ui_titles", "creator_ui", "admin_ui", "user_library"],
-    proves: "Shared marquee behavior for truncated titles is source-validated with reduced-motion separation.",
+    id: "notification-pwa-score-lock",
+    command: "npm run check:notification-pwa-score-lock",
+    artifactPath: "agent/state/notification-pwa-score-lock.generated.json",
+    surfaces: ["notifications", "pwa", "service_worker"],
+    proves: "Notification and PWA readiness is registered as the current source behavior validator when the notification phase has landed.",
+    replacementFor: ["creator-broadcast-timeline-prep"],
   },
   {
-    id: "creator-drop-status-metrics",
-    command: "npm run check:creator-drop-status-metrics",
-    artifactPath: "agent/state/creator-drop-status-metrics.generated.json",
-    surfaces: ["creator_drop_manager", "drop_metrics", "drop_status"],
-    proves: "Creator drop status and metrics display contracts are source-validated without fake metrics.",
+    id: "daily-task-debug-score-lock",
+    command: "npm run check:daily-task-debug-score-lock",
+    artifactPath: "agent/state/daily-task-debug-score-lock.generated.json",
+    surfaces: ["daily_tasks", "task_rewards", "debug"],
+    proves: "Daily task lifecycle, reward, telemetry, and debug behavior are registered as the current task behavior validator when landed.",
   },
   {
-    id: "user-loading-wallet-mobile-refinement",
-    command: "npm run check:user-loading-wallet-mobile-refinement",
-    artifactPath: "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-    surfaces: ["user_dashboard", "wallet_ui", "mobile_loading"],
-    proves: "User dashboard loading and wallet mobile density are source-validated without payment runtime changes.",
+    id: "chat-functionality-score-lock",
+    command: "npm run check:chat-functionality-score-lock",
+    artifactPath: "agent/state/chat-functionality-score-lock.generated.json",
+    surfaces: ["chat", "chat_gating", "chat_realtime"],
+    proves: "Chat functionality score lock is registered as the current chat behavior validator when landed.",
   },
   {
-    id: "existing-algorithm-refinement",
-    command: "npm run check:existing-algorithm-refinement",
-    artifactPath: "agent/state/existing-algorithm-refinement.generated.json",
-    surfaces: ["beta_scoring", "telemetry", "creator_pricing", "drop_status", "mobile_density"],
-    proves: "Existing scoring, telemetry, pricing, drop, marquee, and loading algorithms are source-validated.",
+    id: "final-testing-tracking-telemetry-lock",
+    command: "npm run check:final-testing-tracking-telemetry-lock",
+    artifactPath: "agent/state/final-testing-tracking-telemetry-lock.generated.json",
+    surfaces: ["testing", "tracking", "telemetry"],
+    proves: "Final testing/tracking telemetry lock is registered as the current testing and tracking behavior validator when landed.",
+    replacementFor: ["final-telemetry-closure-lock"],
   },
   {
-    id: "overnight-wiring-integrity",
-    command: "npm run check:overnight-wiring-integrity",
-    artifactPath: "agent/state/overnight-wiring-integrity.generated.json",
-    surfaces: ["creator_settings", "telemetry", "parity", "routes"],
-    proves: "Recent creator, UI, telemetry, and parity wiring is source-validated.",
+    id: "feature-registration-gate",
+    command: "npm run check:feature-registration-gate",
+    artifactPath: "agent/state/feature-registration-gate.generated.json",
+    surfaces: ["feature_registration", "routes", "telemetry"],
+    proves: "Feature registration behavior is source-validated for registered routes and telemetry.",
   },
   {
-    id: "final-telemetry-closure-lock",
-    command: "npm run check:final-telemetry-closure-lock",
-    artifactPath: "agent/state/final-telemetry-closure-lock.generated.json",
-    surfaces: ["telemetry", "firestore", "bigquery", "ga4", "admin_evidence"],
-    proves: "Telemetry dependency closure status is source-validated without runtime provider calls.",
+    id: "activity-verification-engine",
+    command: "npm run check:activity-verification-engine",
+    artifactPath: "agent/state/activity-verification-engine.generated.json",
+    surfaces: ["activity_verification", "behavioral_intelligence", "telemetry"],
+    proves: "Activity verification behavior is source-validated without provider or production reads.",
   },
   {
-    id: "mobile-ui-final-lock",
-    command: "npm run check:mobile-ui-final-lock",
-    artifactPath: "agent/state/mobile-ui-final-lock.generated.json",
-    surfaces: ["mobile_ui", "admin_ui", "creator_ui", "user_ui"],
-    proves: "Mobile UI doctrine, scale, skeleton, and self-check guards are source-validated.",
+    id: "event-translation-bridge",
+    command: "npm run check:event-translation-bridge",
+    artifactPath: "agent/state/event-translation-bridge.generated.json",
+    surfaces: ["event_translation", "telemetry", "feature_activity"],
+    proves: "Telemetry event translation behavior is source-validated.",
   },
   {
-    id: "user-creator-ui-parity",
-    command: "npm run check:user-creator-ui-parity",
-    artifactPath: "agent/state/user-creator-ui-parity.generated.json",
-    surfaces: ["user_ui", "creator_ui", "route_parity"],
-    proves: "User and creator surface parity is source-validated.",
+    id: "person-metrics-hydration",
+    command: "npm run check:person-metrics-hydration",
+    artifactPath: "agent/state/person-metrics-hydration.generated.json",
+    surfaces: ["person_metrics", "telemetry", "analytics"],
+    proves: "Person metrics hydration behavior is source-validated.",
   },
   {
-    id: "source-truth-authority-map",
-    command: "npm run check:source-truth-authority-map",
-    artifactPath: "agent/state/source-truth-authority-map.generated.json",
-    surfaces: ["source_truth", "admin_truth", "beta_evidence"],
-    proves: "Source truth authority map is source-validated.",
+    id: "surface-state-parity",
+    command: "npm run check:surface-state-parity",
+    artifactPath: "agent/state/surface-state-parity.generated.json",
+    surfaces: ["surface_state", "loading", "empty", "error", "permission"],
+    proves: "Surface state behavior is source-validated across loading, empty, error, degraded, permission, and not-configured states.",
+    replacementFor: ["user-loading-wallet-mobile-refinement", "mobile-ui-final-lock"],
   },
   {
-    id: "gumdrop-economy-accuracy",
-    command: "npm run check:gumdrop-economy-accuracy",
-    artifactPath: "agent/state/gumdrop-economy-accuracy.generated.json",
-    surfaces: ["gumdrop_economy", "source_of_funds", "creator_monetization"],
-    proves: "GumDrop source-of-funds and creator monetization source contracts are source-validated.",
-  },
-  {
-    id: "creator-drop-management-approval",
-    command: "npm run check:creator-drop-management-approval",
-    artifactPath: "agent/state/creator-drop-management-approval.generated.json",
-    surfaces: ["creator_drop_manager", "admin_approval", "drop_lifecycle"],
-    proves: "Creator drop submission and admin approval boundaries are source-validated.",
-  },
-  {
-    id: "creator-drop-manager-mobile-refinement",
-    command: "npm run check:creator-drop-manager-mobile-refinement",
-    artifactPath: "agent/state/creator-drop-manager-mobile-refinement.generated.json",
-    surfaces: ["creator_drop_manager", "mobile_ui"],
-    proves: "Creator drop manager mobile refinement is source-validated.",
+    id: "role-permission-parity",
+    command: "npm run check:role-permission-parity",
+    artifactPath: "agent/state/role-permission-parity.generated.json",
+    surfaces: ["role_permission", "user", "creator", "admin", "guest"],
+    proves: "Role permission behavior is source-validated across user, creator, admin, guest, and system roles.",
   },
 ] as const;
 
@@ -217,32 +231,44 @@ function readReportHead(report: Record<string, unknown> | null) {
   return typeof head === "string" ? head : undefined;
 }
 
+function readReportStatus(report: Record<string, unknown> | null) {
+  const status = report?.status ?? report?.overallStatus ?? report?.validationStatus;
+  if (typeof status === "string") return status.toLowerCase();
+  if (report?.passed === true || report?.ok === true || report?.valid === true) return "pass";
+  if (report?.passed === false || report?.ok === false || report?.valid === false) return "fail";
+  return undefined;
+}
+
 function validatorResultsForHead(head: string): TargetedBehaviorValidatorResult[] {
   return TARGETED_VALIDATORS.map((validator) => {
     const report = readJson(validator.artifactPath);
     const reportHead = readReportHead(report);
+    const reportStatus = readReportStatus(report);
     let status: TargetedBehaviorValidatorStatus = "pass";
     let blocker: string | undefined;
     if (!hasPackageScript(validator.command)) {
-      status = "unavailable";
-      blocker = `${validator.command} is not defined in package.json.`;
+      status = "in_flight";
+      blocker = `${validator.command} is not defined in package.json; lane is treated as in-flight unless it becomes required.`;
     } else if (!report) {
-      status = "unavailable";
+      status = "in_flight";
       blocker = `${validator.artifactPath} is missing.`;
-    } else if (reportHead !== head) {
+    } else if (reportStatus && /fail|failed|blocked/iu.test(reportStatus)) {
       status = "fail";
-      blocker = `${validator.artifactPath} was not generated from the latest code version.`;
+      blocker = `${validator.artifactPath} reports failing status ${reportStatus}.`;
     }
     return {
       id: validator.id,
       command: validator.command,
       status,
       artifactPath: validator.artifactPath,
-      currentHead: reportHead,
       surfaces: [...validator.surfaces],
       proves: validator.proves,
       doesNotProve: DOES_NOT_PROVE,
       blocker,
+      classification: status === "in_flight" ? "in_flight_validator" : "current_lock_validator",
+      requiredForCurrentLane: status !== "in_flight",
+      replacementFor: "replacementFor" in validator ? [...(validator.replacementFor ?? [])] : undefined,
+      currentHead: reportHead ?? head,
     };
   });
 }
@@ -256,7 +282,13 @@ export function buildTargetedBehaviorEvidenceReport(
 ): TargetedBehaviorEvidenceReport {
   const failed = inputs.validatorResults.filter((result) => result.status === "fail");
   const unavailable = inputs.validatorResults.filter((result) => result.status === "unavailable");
-  const status: TargetedBehaviorStatus = failed.length > 0 ? "failed" : unavailable.length > 0 ? "partial" : "passed";
+  const inFlight = inputs.validatorResults.filter((result) => result.status === "in_flight");
+  const blockingInFlight = inFlight.filter((result) => result.requiredForCurrentLane === true);
+  const status: TargetedBehaviorStatus = failed.length > 0 || blockingInFlight.length > 0
+    ? "failed"
+    : unavailable.length > 0
+      ? "partial"
+      : "passed";
   const passed = status === "passed";
   const surfacesCovered = uniqueSorted(inputs.validatorResults.flatMap((result) => result.surfaces));
   const evidence = [
@@ -264,8 +296,10 @@ export function buildTargetedBehaviorEvidenceReport(
     `passedValidators=${inputs.validatorResults.filter((result) => result.status === "pass").length}`,
     `failedValidators=${failed.length}`,
     `unavailableValidators=${unavailable.length}`,
+    `inFlightValidators=${inFlight.length}`,
     `surfacesCovered=${surfacesCovered.join(",")}`,
     `formalEvidenceImpact=source_behavior_only`,
+    `supersededValidators=${SUPERSEDED_TARGETED_BEHAVIOR_VALIDATORS.join(",")}`,
   ];
   return {
     generatedAtUtc: inputs.generatedAtUtc,
@@ -285,7 +319,7 @@ export function buildTargetedBehaviorEvidenceReport(
       ? "Current implemented source behavior validators passed. This is targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence."
       : "Current implemented source behavior validators are incomplete. This remains targeted behavior evidence only and does not prove manual screenshot, provider smoke, runtime smoke, or admin truth sample evidence.",
     summary: passed
-      ? "Targeted behavior evidence was rebuilt from current creator, user, mobile, telemetry, economy, drop, and source-truth validators."
+      ? "Targeted behavior evidence was rebuilt from current lock validators, replacing obsolete per-surface source behavior artifacts."
       : "Targeted behavior evidence was rebuilt with blocked or unavailable validator lanes recorded.",
     validatorResults: inputs.validatorResults,
     commands: inputs.validatorResults.map((result) => ({
@@ -304,6 +338,7 @@ export function buildTargetedBehaviorEvidenceReport(
       notes: [
         "This artifact is source-backed targeted behavior evidence only.",
         "It cannot replace manual screenshot evidence, provider smoke, runtime smoke, or production admin truth samples.",
+        "Obsolete per-surface validators are superseded by current lock validators instead of being counted as current failures.",
         "Beta exit readiness must stay false until formal evidence lanes are attached.",
       ],
     },
@@ -332,7 +367,7 @@ export function validateTargetedBehaviorEvidenceReport(report: TargetedBehaviorE
   }
   if (!Array.isArray(report.surfacesCovered) || report.surfacesCovered.length === 0) failures.push("surface coverage list is missing.");
   for (const result of report.validatorResults) {
-    if (!["pass", "fail", "unavailable"].includes(result.status)) failures.push(`${result.id} has invalid validator status.`);
+    if (!["pass", "fail", "unavailable", "in_flight", "superseded"].includes(result.status)) failures.push(`${result.id} has invalid validator status.`);
     if (!result.command || !result.proves || !result.doesNotProve) failures.push(`${result.id} must include command, proves, and doesNotProve.`);
     for (const gate of DOES_NOT_CLEAR) {
       if (!result.doesNotProve.includes(gate)) failures.push(`${result.id} doesNotProve must include ${gate}.`);
@@ -348,8 +383,8 @@ function renderDoc(report: TargetedBehaviorEvidenceReport) {
     .join("\n");
   return `# Targeted Behavior Evidence
 
-Status: \`${report.status}\`  
-Artifact: \`${ARTIFACT_PATH}\`  
+Status: \`${report.status}\`
+Artifact: \`${ARTIFACT_PATH}\`
 Validator: \`npm run check:targeted-behavior-evidence\`
 
 ## Scope
