@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.78 - 2026-05-26
+- Creator revenue entitlement ledger
+- Added creator entitlement ledger for Fan Pass, chat, drops, and experiences.
+- Mapped entitlements to creator metrics and source-of-funds truth.
+- Kept payment and GumDrop math unchanged.
+
 ## 1.4.77 - 2026-05-26
 - Fan Pass lifecycle
 - Added Fan Pass lifecycle and access contracts.

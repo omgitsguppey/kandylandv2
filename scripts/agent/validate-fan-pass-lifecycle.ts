@@ -90,6 +90,12 @@ export function classifyFanPassLifecycleDirtyFile(filePath: string): FanPassDirt
   if (normalized === "tests/unit/fan-pass-lifecycle.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/fan-pass/fan-pass-lifecycle-contract.ts") return "current_source_change";
   if (normalized === "src/lib/fan-pass/fan-pass-access-resolver.ts") return "current_source_change";
+  if (normalized === "src/lib/creator-monetization/creator-entitlement-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/creator-monetization/creator-entitlement-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-revenue-entitlement-ledger.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/creator-revenue-entitlement-ledger.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-revenue-entitlement-ledger.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";

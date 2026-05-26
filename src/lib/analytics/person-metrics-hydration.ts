@@ -451,6 +451,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/media/media-upload-contract.ts" || normalized === "src/lib/media/media-upload-telemetry.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/fan-pass/fan-pass-lifecycle-contract.ts" || normalized === "src/lib/fan-pass/fan-pass-access-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/creator-monetization/creator-entitlement-contract.ts" || normalized === "src/lib/creator-monetization/creator-entitlement-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/creator/subscriptions/route.ts" || normalized === "src/lib/server/chat.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/creator-relationship-contract.ts") return "real_source_change_needs_review";
@@ -477,6 +478,10 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "tests/unit/fan-pass-lifecycle.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/fan-pass-lifecycle.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/fan-pass-lifecycle.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-revenue-entitlement-ledger.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/creator-revenue-entitlement-ledger.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-revenue-entitlement-ledger.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/surface-parity-doctrine.generated.json" || normalized === "docs/agent-truth/surface-parity-doctrine.md") return "stale_generated_artifact_to_regenerate";
   if (
     normalized === "CHANGELOG.md"

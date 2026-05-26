@@ -1,13 +1,74 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.77",
-  "betaReleaseCounter": 477,
+  "currentVersion": "1.4.78",
+  "betaReleaseCounter": 478,
   "channel": "beta",
-  "generatedAt": "2026-05-26T01:30:05.827Z",
-  "generatedAtUtc": "2026-05-26T01:30:05.827Z",
+  "generatedAt": "2026-05-26T02:10:45.000Z",
+  "generatedAtUtc": "2026-05-26T02:10:45.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.78",
+      "previousVersion": "1.4.77",
+      "betaReleaseCounter": 478,
+      "previousBetaReleaseCounter": 477,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(creator): track entitlements",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T02:10:45.000Z",
+      "generatedAt": "2026-05-26T02:10:45.000Z",
+      "committedAtUtc": "2026-05-26T02:10:45.000Z",
+      "generatedAtUtc": "2026-05-26T02:10:45.000Z",
+      "category": "Improved",
+      "title": "Creator revenue entitlement ledger",
+      "updatedAtUtc": "2026-05-26T02:10:45.000Z",
+      "summary": "Added creator entitlement ledger for Fan Pass, chat, drops, and experiences.",
+      "userFacingTitle": "Creator revenue entitlement ledger",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Added creator entitlement ledger for Fan Pass, chat, drops, and experiences.",
+        "Mapped entitlements to creator metrics and source-of-funds truth.",
+        "Kept payment and GumDrop math unchanged."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Added a source-only creator entitlement contract and resolver for Fan Pass, paid chat, drop unlock, creator experience, broadcast, system grant, and legacy states.",
+        "Mapped creator entitlement evidence to creator settings metrics, person metrics, source-of-funds truth, and debug lane validation.",
+        "Kept payment runtime, payout math, and GumDrop ledger math unchanged."
+      ],
+      "affectedSurfaces": [
+        "Creator entitlement ledger",
+        "Fan Pass access",
+        "Creator chat monetization",
+        "Drop unlock access",
+        "Creator metrics and debug evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-revenue-entitlement-ledger.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/creator-revenue-entitlement-ledger.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
+        "scripts/agent/validate-fan-pass-lifecycle.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/creator-monetization/creator-entitlement-contract.ts",
+        "src/lib/creator-monetization/creator-entitlement-resolver.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-revenue-entitlement-ledger.spec.ts"
+      ],
+      "effectiveChangeCount": 14,
+      "excludedGeneratedChangeCount": 3,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.77",
       "previousVersion": "1.4.76",
@@ -1399,55 +1460,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/app/api/admin/debug/route.ts"
       ],
       "effectiveChangeCount": 6,
-      "excludedGeneratedChangeCount": 10,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.53",
-      "previousVersion": "1.4.52",
-      "betaReleaseCounter": 453,
-      "previousBetaReleaseCounter": 452,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): clean queue continuity",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-24T23:40:00.000Z",
-      "generatedAt": "2026-05-24T23:40:00.000Z",
-      "committedAtUtc": "2026-05-24T23:40:00.000Z",
-      "generatedAtUtc": "2026-05-24T23:40:00.000Z",
-      "category": "Fixed",
-      "title": "Queue continuity cleanup",
-      "updatedAtUtc": "2026-05-24T23:40:00.000Z",
-      "summary": "Improved queue runtime reporting so dispatch outcomes stay readable while missing scheduler heartbeat evidence remains visible and actionable.",
-      "userFacingTitle": "Queue continuity cleanup",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Separated queue heartbeat evidence from dispatch outcome readability.",
-        "Classified missing queue heartbeats, dispatch outcomes, and legacy adapter drift.",
-        "Prevented queue continuity from showing live when scheduler heartbeat evidence is missing."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Queue jobs, notification delivery, payment runtime, and GumDrop math were not changed."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug monitoring",
-        "Queue runtime continuity",
-        "Notification dispatch outcomes",
-        "Runtime warning drift policy"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/debug/queue-runtime-continuity-engine.ts",
-        "src/lib/debug/dispatch-outcome-lane-status.ts",
-        "src/lib/debug/legacy-queue-adapter-policy.ts",
-        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
-        "src/app/api/admin/debug/route.ts"
-      ],
-      "effectiveChangeCount": 5,
       "excludedGeneratedChangeCount": 10,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
