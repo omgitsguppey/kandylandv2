@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.80 - 2026-05-26
+- Creator monetization admin debug
+- Connected creator monetization and entitlement health to admin debug.
+- Added summary-first Fan Pass, chat pricing, and access mismatch visibility.
+- Protected private payment and user data from admin summaries.
+
 ## 1.4.79 - 2026-05-26
 - Creator monetization settings truth
 - Centralized creator monetization settings truth.

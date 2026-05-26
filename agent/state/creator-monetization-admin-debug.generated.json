@@ -1,0 +1,201 @@
+{
+  "reportKey": "creator-monetization-admin-debug",
+  "generatedAtUtc": "2026-05-26T03:03:52.227Z",
+  "currentHead": "1e7a3bc6",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "adminSummaryStatus": "pass",
+  "debugRouteStatus": "pass",
+  "privacyStatus": "pass",
+  "telemetryStatus": "pass",
+  "featureRegistrationStatus": "pass",
+  "costReadStatus": "pass",
+  "paymentRuntimeStatus": "unchanged",
+  "gumdropMathStatus": "unchanged",
+  "debugLane": {
+    "laneId": "creator_monetization_admin_debug",
+    "label": "Creator monetization admin debug",
+    "defaultReadPolicy": "summary_first_no_broad_default_reads",
+    "rawDetailsDefault": "drilldown_only",
+    "telemetryEvents": [
+      "admin_creator_monetization_summary_viewed",
+      "admin_creator_monetization_issue_opened",
+      "creator_monetization_mismatch_reviewed"
+    ],
+    "scoreDimensions": [
+      "sourceHealth",
+      "evidenceCompleteness",
+      "runtimeHealth"
+    ],
+    "privacy": {
+      "rawPaymentProviderPayloadVisible": false,
+      "privateUserPiiVisible": false,
+      "rawUserIdsDefaultVisible": false
+    }
+  },
+  "summaryPreview": {
+    "laneId": "creator_monetization_admin_debug",
+    "label": "Creator monetization admin debug",
+    "defaultReadPolicy": "summary_first_no_broad_default_reads",
+    "rawDetailsDefault": "drilldown_only",
+    "generatedAtUtc": "2026-05-26T03:03:51.750Z",
+    "freshnessState": "fresh",
+    "configuredCreators": 1,
+    "fanPass": {
+      "enabled": 1,
+      "disabled": 0,
+      "notConfigured": 0
+    },
+    "activeUsersOrEntitlements": 1,
+    "chatPricingHealth": {
+      "state": "ok",
+      "checkedCreators": 1,
+      "invalidPricingCount": 0,
+      "staleConfigurationCount": 0
+    },
+    "paidChat": {
+      "attempted": 1,
+      "succeeded": 1,
+      "failed": 0
+    },
+    "accessDenied": {
+      "total": 1,
+      "byReason": [
+        {
+          "reason": "fan_pass_inactive",
+          "count": 1
+        }
+      ]
+    },
+    "sourceOfFundsMismatch": {
+      "count": 0,
+      "reasons": []
+    },
+    "userFacingConsumerStatus": [
+      {
+        "consumer": "public_creator_profile",
+        "configuredCreators": 1,
+        "issueCount": 0
+      },
+      {
+        "consumer": "creator_profile_timeline",
+        "configuredCreators": 1,
+        "issueCount": 0
+      },
+      {
+        "consumer": "creator_experiences_panel",
+        "configuredCreators": 1,
+        "issueCount": 0
+      },
+      {
+        "consumer": "chat_pricing",
+        "configuredCreators": 1,
+        "issueCount": 0
+      },
+      {
+        "consumer": "fan_pass_access",
+        "configuredCreators": 1,
+        "issueCount": 0
+      },
+      {
+        "consumer": "broadcasts",
+        "configuredCreators": 1,
+        "issueCount": 0
+      },
+      {
+        "consumer": "drop_manager",
+        "configuredCreators": 1,
+        "issueCount": 0
+      }
+    ],
+    "issues": [
+      {
+        "id": "creator_monetization_access_denied",
+        "severity": "review",
+        "reason": "1 access denial(s) need review by reason.",
+        "nextAction": "Open the drilldown lane and inspect the safe reason summary before looking at raw records."
+      }
+    ],
+    "privacy": {
+      "rawPaymentProviderPayloadVisible": false,
+      "privateUserPiiVisible": false,
+      "rawUserIdsDefaultVisible": false,
+      "summaryOnly": true,
+      "privateContentPayloadVisible": false
+    },
+    "drilldown": {
+      "route": "/admin/debug",
+      "rawDetailsDefault": "collapsed",
+      "containsRawPaymentProviderPayload": false,
+      "containsPrivateUserPii": false
+    },
+    "sourceTruth": "creator_settings+creator_entitlements+creator_transactions_summary"
+  },
+  "scoreBefore": 77.83,
+  "scoreAfter": 77.83,
+  "scoreDimensions": [
+    "sourceHealth",
+    "evidenceCompleteness",
+    "runtimeHealth"
+  ],
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "Keep raw creator monetization/payment details behind explicit admin drilldown."
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/creator-monetization-admin-debug.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-admin-debug.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-admin-debug.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/app/api/admin/debug/route.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/admin/creator-monetization-debug-contract.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "tests/unit/creator-monetization-admin-debug.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

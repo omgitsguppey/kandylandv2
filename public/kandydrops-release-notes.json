@@ -1,11 +1,70 @@
 {
-  "currentVersion": "1.4.79",
-  "betaReleaseCounter": 479,
+  "currentVersion": "1.4.80",
+  "betaReleaseCounter": 480,
   "channel": "beta",
-  "generatedAt": "2026-05-26T02:35:00.000Z",
-  "generatedAtUtc": "2026-05-26T02:35:00.000Z",
+  "generatedAt": "2026-05-26T03:05:00.000Z",
+  "generatedAtUtc": "2026-05-26T03:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.80",
+      "previousVersion": "1.4.79",
+      "betaReleaseCounter": 480,
+      "previousBetaReleaseCounter": 479,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(admin): add creator monetization debug",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T03:05:00.000Z",
+      "generatedAt": "2026-05-26T03:05:00.000Z",
+      "committedAtUtc": "2026-05-26T03:05:00.000Z",
+      "generatedAtUtc": "2026-05-26T03:05:00.000Z",
+      "category": "Improved",
+      "title": "Creator monetization diagnostics",
+      "updatedAtUtc": "2026-05-26T03:05:00.000Z",
+      "summary": "Connected creator monetization and entitlement health to admin debug.",
+      "userFacingTitle": "Creator monetization diagnostics",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Connected creator monetization and entitlement health to admin debug.",
+        "Added summary-first Fan Pass, chat pricing, and access mismatch visibility.",
+        "Protected private payment and user data from admin summaries."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Added a creator monetization admin debug contract, route summary wiring, and source-only validation lane.",
+        "Mapped Fan Pass, creator entitlement, paid chat, access denial, and source-of-funds mismatch health into compact admin debug evidence.",
+        "Kept provider payloads, private user identifiers, payment runtime, and GumDrop math out of the summary path."
+      ],
+      "affectedSurfaces": [
+        "Admin Debug Control Tower",
+        "Creator monetization debug evidence",
+        "Fan Pass admin summary",
+        "Creator entitlement and chat pricing diagnostics"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-monetization-admin-debug.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/creator-monetization-admin-debug.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-monetization-admin-debug.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/admin/creator-monetization-debug-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/creator-monetization-admin-debug.spec.ts"
+      ],
+      "effectiveChangeCount": 13,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.79",
       "previousVersion": "1.4.78",
@@ -1430,57 +1489,6 @@
       ],
       "effectiveChangeCount": 10,
       "excludedGeneratedChangeCount": 14,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.55",
-      "previousVersion": "1.4.54",
-      "betaReleaseCounter": 455,
-      "previousBetaReleaseCounter": 454,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): complete dependency inventory",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T02:10:00.000Z",
-      "generatedAt": "2026-05-25T02:10:00.000Z",
-      "committedAtUtc": "2026-05-25T02:10:00.000Z",
-      "generatedAtUtc": "2026-05-25T02:10:00.000Z",
-      "category": "Fixed",
-      "title": "Infrastructure dependency inventory",
-      "updatedAtUtc": "2026-05-25T02:10:00.000Z",
-      "summary": "Expanded Admin Debug infrastructure dependency reporting so package inventory, external service dependencies, expected-absent dependencies, and runtime checks stay complete and separate.",
-      "userFacingTitle": "Infrastructure dependency inventory",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Expanded infrastructure dependency inventory to include every root/functions dependency, override, external service, and expected-absent dependency.",
-        "Separated package inventory from runtime connectivity checks.",
-        "Replaced fake package updated timestamps with explicit timestamp-unavailable classification."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Package versions, lockfiles, payment runtime, provider behavior, and GumDrop math were not changed."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug infrastructure",
-        "Dependency inventory",
-        "External service dependency map",
-        "Runtime evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/debug/dependency-inventory-engine.ts",
-        "src/lib/debug/dependency-inventory-contract.ts",
-        "src/lib/debug/external-dependency-map.ts",
-        "src/lib/debug/dependency-inventory-display.ts",
-        "src/lib/debug/debug-cockpit-batch26-dependency-inventory.ts",
-        "src/app/admin/debug/components/DebugTabInfrastructure.tsx",
-        "src/app/api/admin/debug/route.ts"
-      ],
-      "effectiveChangeCount": 7,
-      "excludedGeneratedChangeCount": 8,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

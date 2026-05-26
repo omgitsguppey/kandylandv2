@@ -50,6 +50,7 @@ import { buildLegacyRecoveryDebugSummary } from "@/lib/server/admin-debug/legacy
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
+import { buildCreatorMonetizationAdminDebugSummary } from "@/lib/admin/creator-monetization-debug-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
 import { buildDailyTaskGuidanceAuditReport } from "@/lib/tasks/daily-task-guidance-contract";
 import { buildDailyTaskLifecycleDebugLane } from "@/lib/tasks/daily-task-telemetry";
@@ -5162,6 +5163,58 @@ export async function GET(request: NextRequest) {
                 description: policy.description,
             })),
         };
+        const creatorMonetizationAdminDebug = buildCreatorMonetizationAdminDebugSummary({
+            creators: usersSnapshot.docs
+                .map((doc) => {
+                    const raw = doc.data() as Record<string, unknown>;
+                    return {
+                        creatorId: doc.id,
+                        creatorSettings: raw.creatorSettings,
+                        creatorRestrictions: raw.creatorRestrictions,
+                        creatorSettingsUpdatedAt: toNumber(raw.creatorSettingsUpdatedAt) || toTimestampNumber(raw.creatorSettingsUpdatedAt) || toNumber(raw.updatedAtMs) || toTimestampNumber(raw.updatedAt),
+                        profileHidden: raw.profileHidden === true,
+                        role: toStringValue(raw.role),
+                    };
+                })
+                .filter((entry) => entry.role === "creator" || entry.role === "admin" || Boolean(entry.creatorSettings)),
+            entitlements: [
+                ...creatorSubscriptionsSnapshot.docs.map((doc) => {
+                    const raw = doc.data() as Record<string, unknown>;
+                    return {
+                        entitlementType: "fan_pass_access",
+                        status: toStringValue(raw.status) || toStringValue(raw.state),
+                        sourceFeature: "fan_pass",
+                        sourceOfFunds: toStringValue(raw.sourceOfFunds) || toStringValue(raw.ledgerSource),
+                        creatorId: toStringValue(raw.creatorId),
+                        userId: toStringValue(raw.userId),
+                        mismatchReasons: normalizeStringArray(raw.mismatchReasons),
+                    };
+                }),
+                ...creatorMessagesSnapshot.docs.map((doc) => {
+                    const raw = doc.data() as Record<string, unknown>;
+                    const rewardAmountSpent = toNumber(raw.rewardAmountSpent);
+                    return {
+                        entitlementType: "paid_chat_message",
+                        status: toStringValue(raw.status) || toStringValue(raw.state),
+                        sourceFeature: "chat",
+                        sourceOfFunds: toStringValue(raw.sourceOfFunds) || toStringValue(raw.ledgerSource),
+                        creatorId: toStringValue(raw.creatorId),
+                        userId: toStringValue(raw.userId),
+                        mismatchReasons: rewardAmountSpent > 0 ? ["paid_source_required"] : normalizeStringArray(raw.mismatchReasons),
+                    };
+                }),
+            ],
+            transactions: transactionEntries,
+            accessFailures: [
+                ...creatorSpendTransactions7d
+                    .filter((entry) => toNumber(entry.rewardAmountSpent) > 0 || toStringValue(entry.ledgerSource) === "reward" || toStringValue(entry.ledgerSource) === "mixed")
+                    .map(() => ({ reason: "paid_source_required" })),
+                ...transactionEntries
+                    .filter((entry) => CREATOR_SPEND_TRANSACTION_TYPES.includes(toStringValue(entry.type) as typeof CREATOR_SPEND_TRANSACTION_TYPES[number]) && toStringValue(entry.status) === "failed")
+                    .map((entry) => ({ reason: toStringValue(entry.errorCode) || "creator_monetization_failed" })),
+            ],
+            nowMs,
+        });
         const taskGumdropGuardrails: TaskGumdropGuardrailState = {
             generatedAtUtc: new Date(nowMs).toISOString(),
             affectedUsersCount: assignmentIssues.length,
@@ -5994,6 +6047,7 @@ export async function GET(request: NextRequest) {
                 legacyRewardVersionCount,
             },
             creatorSpendParity,
+            creatorMonetizationAdminDebug,
             bugIntakeTriage,
             bugReports,
             creatorOnboardingDiagnostics,
@@ -6867,6 +6921,7 @@ export async function GET(request: NextRequest) {
                 chatTelemetryAdminTruth: {
                     summaryLane: buildChatAdminTelemetrySummaryLane(),
                 },
+                creatorMonetizationAdminDebug,
                 ["legacy" + "Recovery"]: buildLegacyRecoveryDebugSummary(),
                 telemetryHealth,
                 behavioralSnapshotStatus,
