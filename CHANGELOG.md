@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.77 - 2026-05-26
+- Fan Pass lifecycle
+- Added Fan Pass lifecycle and access contracts.
+- Connected Fan Pass visibility, access, chat bypass, telemetry, and debug truth.
+- Kept payment runtime and GumDrop math unchanged.
+
 ## 1.4.76 - 2026-05-25
 - Media discovery score lock
 - Locked media upload, private access, creator discovery, and search telemetry readiness.

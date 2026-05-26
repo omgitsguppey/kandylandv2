@@ -343,7 +343,12 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
   metric({
     id: "fan_pass_views",
     label: "Fan Pass views",
-    eventNames: ["creator_fan_pass_viewed", "creator_subscription_viewed"],
+    eventNames: [
+      "creator_fan_pass_viewed",
+      "creator_subscription_viewed",
+      "fan_pass_surface_viewed",
+      "fan_pass_cta_clicked",
+    ],
     sourceOfTruth: "creator subscription telemetry",
     consentEligibility: { depth: "minimal_product", allowedModes: MINIMAL_MODES },
     materializer: "person_metrics.fan_pass_views",
@@ -354,7 +359,18 @@ export const PERSON_METRIC_DEFINITIONS: PersonMetricDefinition[] = [
   metric({
     id: "fan_pass_purchases",
     label: "Fan Pass purchases",
-    eventNames: ["creator_fan_pass_started", "creator_subscription_started", "creator_subscription_renewed"],
+    eventNames: [
+      "creator_fan_pass_started",
+      "creator_subscription_started",
+      "creator_subscription_renewed",
+      "fan_pass_purchase_attempted",
+      "fan_pass_purchase_succeeded",
+      "fan_pass_purchase_failed",
+      "fan_pass_access_granted",
+      "fan_pass_access_denied",
+      "fan_pass_cancelled",
+      "fan_pass_expired",
+    ],
     sourceOfTruth: "creator subscription transaction facts",
     consentEligibility: { depth: "necessary_product", allowedModes: NECESSARY_MODES },
     materializer: "person_metrics.fan_pass_purchases",

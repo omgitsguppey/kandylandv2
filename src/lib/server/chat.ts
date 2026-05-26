@@ -21,6 +21,7 @@ import {
     type ChatViewerRole,
 } from "@/lib/chat";
 import { buildChatGatingTelemetryPayload } from "@/lib/chat/chat-gating-contract";
+import { resolveFanPassAccess } from "@/lib/fan-pass/fan-pass-access-resolver";
 import { buildNotificationRecord } from "@/lib/notification-contracts";
 import { buildNotificationDocumentId, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
 import { buildChatSoftSealScope, softOpenChatValue, softSealChatValue } from "@/lib/chat-soft-seal";
@@ -339,7 +340,17 @@ function buildThreadBackfillPatch(thread: CreatorMessageThread, creator: UserSum
 }
 
 function shouldGrantSubscriberFreeChat(subscriptionActive: boolean, creatorSettings: CreatorSettings) {
-    return subscriptionActive && creatorSettings.chatFreeForSubscribers !== false;
+    const fanPassAccess = resolveFanPassAccess({
+        creatorId: "chat_pricing_contract",
+        fanUserId: "chat_pricing_contract",
+        enabledByCreator: creatorSettings.chatFreeForSubscribers !== false,
+        activeForUser: subscriptionActive,
+        subscriptionStatus: subscriptionActive ? "active" : "missing",
+        sourceTruth: "chat_pricing",
+        price: 0,
+        chatFreeForSubscribers: creatorSettings.chatFreeForSubscribers !== false,
+    });
+    return fanPassAccess.chatBypassStatus === "granted";
 }
 
 function buildChatPricingSummary(input: {

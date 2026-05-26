@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-05-25T23:08:34.138Z
+Generated: 2026-05-26T01:34:35.239Z
 Status: pass
-Current head: 34ae5354ee4da70af0bf16e911e75cd7fee5dece
+Current head: 42bdd44bf02066df05ab2b18dc351681fc93d1cf
 
 ## Contract
 
@@ -14,7 +14,7 @@ Current head: 34ae5354ee4da70af0bf16e911e75cd7fee5dece
 
 ## Debug Lane
 
-- Producers registered: 243
+- Producers registered: 252
 - Producers connected: 36
 - Event envelopes hydrated: 49
 - Person metrics mapped: 36
@@ -71,26 +71,34 @@ Current head: 34ae5354ee4da70af0bf16e911e75cd7fee5dece
 
 ## Dirty Files
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- CHANGELOG.md: release_artifact_expected
+- agent/state/creator-pricing-wiring.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-settings-control-plane.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/search-discovery-cost.generated.json: current_generated_artifact_to_commit
+- agent/state/fan-pass-lifecycle.generated.json: current_generated_artifact_to_commit
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-pricing-wiring.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/creator-settings-control-plane.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/search-discovery-cost.md: documentation_artifact_expected
+- docs/agent-truth/fan-pass-lifecycle.md: documentation_artifact_expected
+- docs/agent-truth/feature-registration-gate.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
-- scripts/agent/validate-search-discovery-cost.ts: validator_artifact_expected
-- src/app/drops/DropsClient.tsx: real_source_change_needs_review
-- src/components/StickyFilterBar.tsx: real_source_change_needs_review
+- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-fan-pass-lifecycle.ts: validator_artifact_expected
+- src/app/api/creator/subscriptions/route.ts: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-contract.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/behavioral/event-fact-contract.ts: real_source_change_needs_review
-- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
-- src/lib/behavioral/search-intent-profile.ts: real_source_change_needs_review
-- src/lib/behavioral/tracking-surface-map.ts: real_source_change_needs_review
-- src/lib/discovery/search-cost-contract.ts: real_source_change_needs_review
-- src/lib/discovery/search-telemetry-contract.ts: real_source_change_needs_review
+- src/lib/fan-pass/fan-pass-access-resolver.ts: real_source_change_needs_review
+- src/lib/fan-pass/fan-pass-lifecycle-contract.ts: real_source_change_needs_review
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- src/lib/server/chat.ts: real_source_change_needs_review
 - src/lib/telemetry-catalog.ts: real_source_change_needs_review
-- tests/unit/search-discovery-cost.spec.ts: test_artifact_expected
+- tests/unit/fan-pass-lifecycle.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

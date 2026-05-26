@@ -23,6 +23,7 @@ import {
 } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { buildFanPassTelemetry } from "@/lib/fan-pass/fan-pass-access-resolver";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
@@ -334,6 +335,13 @@ async function GET_handler(request: NextRequest) {
 }
 
 async function POST_handler(request: NextRequest) {
+    let lifecycleTelemetryContext: {
+        callerUid: string;
+        creatorId: string;
+        action: CreatorSubscriptionAction;
+        fanPassId: string;
+        priceGd?: number;
+    } | null = null;
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/subscriptions",
@@ -384,6 +392,12 @@ async function POST_handler(request: NextRequest) {
             creatorId,
             action,
         };
+        lifecycleTelemetryContext = {
+            callerUid: caller.uid,
+            creatorId,
+            action,
+            fanPassId: buildSubscriptionId(caller.uid, creatorId),
+        };
         if (creatorId === caller.uid) {
             return buildSubscriptionProblemResponse(new CreatorSubscriptionProblem(
                 400,
@@ -420,6 +434,19 @@ async function POST_handler(request: NextRequest) {
             dedupeKey: idempotencyKey,
             source: "creator_experience_transaction",
         }));
+        if (action === "subscribe") {
+            void trackServerEvent("fan_pass_purchase_attempted", buildFanPassTelemetry({
+                eventName: "fan_pass_purchase_attempted",
+                creatorId,
+                fanUserId: caller.uid,
+                fanPassId: buildSubscriptionId(caller.uid, creatorId),
+                state: "purchase_attempted",
+                sourceTruth: "creator_settings",
+                price: 0,
+                surface: "creator_profile",
+                route: "/api/creator/subscriptions",
+            }), caller.uid).catch(() => undefined);
+        }
 
         const creatorRef = adminDb.collection("users").doc(creatorId);
         const userRef = adminDb.collection("users").doc(caller.uid);
@@ -656,6 +683,30 @@ async function POST_handler(request: NextRequest) {
 
         const eventName = result.action === "cancel" ? "creator_subscription_canceled" : "creator_subscription_started";
         await Promise.allSettled([
+            trackServerEvent(result.action === "cancel" ? "fan_pass_cancelled" : "fan_pass_purchase_succeeded", buildFanPassTelemetry({
+                eventName: result.action === "cancel" ? "fan_pass_cancelled" : "fan_pass_purchase_succeeded",
+                creatorId,
+                fanUserId: caller.uid,
+                fanPassId: buildSubscriptionId(caller.uid, creatorId),
+                state: result.action === "cancel" ? "cancelled" : "purchase_succeeded",
+                sourceTruth: "creator_subscription",
+                price: result.priceGd,
+                surface: "creator_profile",
+                route: "/api/creator/subscriptions",
+            }), caller.uid),
+            result.action === "subscribe"
+                ? trackServerEvent("fan_pass_access_granted", buildFanPassTelemetry({
+                    eventName: "fan_pass_access_granted",
+                    creatorId,
+                    fanUserId: caller.uid,
+                    fanPassId: buildSubscriptionId(caller.uid, creatorId),
+                    state: "access_granted",
+                    sourceTruth: "creator_subscription",
+                    price: result.priceGd,
+                    surface: "creator_profile",
+                    route: "/api/creator/subscriptions",
+                }), caller.uid)
+                : Promise.resolve(null),
             trackServerEvent(eventName, {
                 ...buildCreatorExperienceTelemetryPayload({
                     marker: actorMarker,
@@ -717,6 +768,26 @@ async function POST_handler(request: NextRequest) {
         });
     } catch (error) {
         if (error instanceof CreatorSubscriptionProblem) {
+            if (lifecycleTelemetryContext?.action === "subscribe") {
+                await Promise.allSettled([
+                    trackServerEvent("fan_pass_purchase_failed", buildFanPassTelemetry({
+                        eventName: "fan_pass_purchase_failed",
+                        creatorId: lifecycleTelemetryContext.creatorId,
+                        fanUserId: lifecycleTelemetryContext.callerUid,
+                        fanPassId: lifecycleTelemetryContext.fanPassId,
+                        state: "purchase_failed",
+                        sourceTruth: "creator_subscription",
+                        price: error.context.priceGd ?? lifecycleTelemetryContext.priceGd ?? 0,
+                        surface: "creator_profile",
+                        route: "/api/creator/subscriptions",
+                        failureReason: error.code === "subscriptions_unavailable"
+                            ? "creator_disabled"
+                            : error.code === "unauthorized"
+                                ? "auth_required"
+                                : "subscription_missing",
+                    }), lifecycleTelemetryContext.callerUid),
+                ]);
+            }
             return buildSubscriptionProblemResponse(error);
         }
         if (isAuthUnauthorized(error)) {

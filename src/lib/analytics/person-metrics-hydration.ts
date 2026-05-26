@@ -448,7 +448,10 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "tests/unit/surface-telemetry-parity.spec.ts") return "test_artifact_expected";
   if (/^src\/lib\/telemetry\/surface-telemetry-(catalog-events|contract|registry)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts" || normalized === "src/lib/analytics/event-envelope-builder.ts" || normalized === "src/lib/analytics/event-translation-bridge.ts" || normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/media/media-upload-contract.ts" || normalized === "src/lib/media/media-upload-telemetry.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/fan-pass/fan-pass-lifecycle-contract.ts" || normalized === "src/lib/fan-pass/fan-pass-access-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/creator/subscriptions/route.ts" || normalized === "src/lib/server/chat.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/creator-relationship-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/search-telemetry-contract.ts" || normalized === "src/lib/discovery/search-cost-contract.ts") return "real_source_change_needs_review";
@@ -470,6 +473,10 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "tests/unit/media-upload-lifecycle.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/media-upload-lifecycle.generated.json" || normalized === "agent/state/feature-registration-gate.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/media-upload-lifecycle.md" || normalized === "docs/agent-truth/feature-registration-gate.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-fan-pass-lifecycle.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/fan-pass-lifecycle.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/fan-pass-lifecycle.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/fan-pass-lifecycle.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/surface-parity-doctrine.generated.json" || normalized === "docs/agent-truth/surface-parity-doctrine.md") return "stale_generated_artifact_to_regenerate";
   if (
     normalized === "CHANGELOG.md"
