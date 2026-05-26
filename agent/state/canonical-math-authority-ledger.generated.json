@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T06:17:30.826Z",
+  "generatedAtUtc": "2026-05-26T08:31:47.608Z",
   "reportKey": "canonical-math-authority-ledger",
-  "currentHead": "c84694d7f546c25f68639db1ed4680dab9abaccb",
+  "currentHead": "d8cab39150662e8600c129d90d931b812256ab77",
   "status": "pass",
   "productionReadsRequired": false,
   "productionDataMutated": false,
@@ -39,7 +39,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from current source scan; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "beta_score.domain_score",
@@ -72,7 +73,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from current source scan; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "beta_score.source_health",
@@ -105,7 +107,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from current beta evidence run; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "beta_score.runtime_health",
@@ -138,7 +141,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from current beta evidence run; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "beta_score.evidence_completeness",
@@ -171,7 +175,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from current beta evidence run; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "beta_score.freshness_score",
@@ -204,7 +209,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Freshness is computed from generatedAt/currentHead evidence and the explicit report window."
     },
     {
       "formulaId": "beta_score.cost_risk",
@@ -237,7 +243,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from current source-only cost evidence run; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "beta_score.regression_risk",
@@ -270,7 +277,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from current evidence run plus stale report window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "beta_score.overall_health",
@@ -303,7 +311,8 @@
         "src/lib/agent-score/weights.ts",
         "src/lib/agent-score/evidence-quality.ts",
         "src/lib/agent-score/non-event-score-policy.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from current beta score run; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "person_metrics.hydrated_event_count",
@@ -330,7 +339,8 @@
         "src/lib/analytics/person-metrics-contract.ts"
       ],
       "countRule": "integer",
-      "globalUserDivergenceRule": "person metrics may diverge by scope: global, guest, signedIn, linkedPerson, and creatorRole are intentionally separate."
+      "globalUserDivergenceRule": "person metrics may diverge by scope: global, guest, signedIn, linkedPerson, and creatorRole are intentionally separate.",
+      "freshnessRule": "Admin display must show source freshness from source event window supplied to hydratePersonMetrics; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "global_metrics.event_fact_count",
@@ -356,7 +366,8 @@
         "src/lib/behavioral/normalize-event-fact.ts"
       ],
       "countRule": "integer",
-      "globalUserDivergenceRule": "global dedupe counts globally eligible events even when user-specific identity is unavailable."
+      "globalUserDivergenceRule": "global dedupe counts globally eligible events even when user-specific identity is unavailable.",
+      "freshnessRule": "Admin display must show source freshness from event fact source window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "user_metrics.event_fact_count",
@@ -382,7 +393,8 @@
         "src/lib/behavioral/normalize-event-fact.ts"
       ],
       "countRule": "integer",
-      "globalUserDivergenceRule": "user dedupe can intentionally diverge from global dedupe when identity is guest, weak, suppressed, or linked later."
+      "globalUserDivergenceRule": "user dedupe can intentionally diverge from global dedupe when identity is guest, weak, suppressed, or linked later.",
+      "freshnessRule": "Admin display must show source freshness from event fact source window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "count_dedupe.page_session_count",
@@ -396,6 +408,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -431,6 +444,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -459,6 +473,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -487,6 +502,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -515,6 +531,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -550,6 +567,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -578,6 +596,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -606,6 +625,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -638,6 +658,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -670,6 +691,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -698,6 +720,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -726,6 +749,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -754,6 +778,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -782,6 +807,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -810,6 +836,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -838,6 +865,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -866,6 +894,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -894,6 +923,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -922,6 +952,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -950,6 +981,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -982,6 +1014,7 @@
       "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
       "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
       "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
       "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
       "userFacingAllowed": true,
@@ -1020,7 +1053,8 @@
       "sourcePaths": [
         "src/lib/behavioral/normalize-event-fact.ts"
       ],
-      "countRule": "integer"
+      "countRule": "integer",
+      "freshnessRule": "Admin display must show source freshness from behavioral event source window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "session_metrics.active_session_time",
@@ -1052,7 +1086,8 @@
         "idle",
         "hidden",
         "unknown"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from session lifecycle from startSession to closeSession; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "bounce.session_bounce_status",
@@ -1084,7 +1119,8 @@
         "idle",
         "hidden",
         "unknown"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from session lifecycle; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "watch_time.active_watch_ms",
@@ -1116,7 +1152,8 @@
         "hidden",
         "playback",
         "unknown"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from drop watch session lifecycle; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "watch_time.normalized_watch_percent",
@@ -1146,7 +1183,8 @@
         "hidden",
         "playback",
         "unknown"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from drop watch session lifecycle; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "duration_math.session_active",
@@ -1160,6 +1198,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1198,6 +1237,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1236,6 +1276,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1274,6 +1315,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1312,6 +1354,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": true,
@@ -1350,6 +1393,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "missing or <= 0 denominator returns null/unavailable instead of 0%",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": true,
@@ -1388,6 +1432,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1424,6 +1469,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1462,6 +1508,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1495,6 +1542,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1528,6 +1576,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1561,6 +1610,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1599,6 +1649,7 @@
       "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
       "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
       "confidenceLevel": "mixed_explicit",
+      "freshnessRule": "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
       "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
       "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
       "userFacingAllowed": false,
@@ -1648,7 +1699,8 @@
         "src/lib/analytics/sql-database-parity-engine.ts",
         "scripts/agent/validate-sql-database-parity-cost-lock.ts"
       ],
-      "countRule": "integer"
+      "countRule": "integer",
+      "freshnessRule": "Admin display must show source freshness from event fact export partition; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "revenue.server_verified_revenue",
@@ -1677,7 +1729,8 @@
         "revenue_cents",
         "source_of_funds",
         "confidence"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from explicit metric/reporting window required by consumer; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "gumdrop.source_of_funds_balance",
@@ -1709,7 +1762,8 @@
         "bonus_gd",
         "source_of_funds",
         "confidence"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from ledger/reporting window required by consumer; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "creator_monetization.entitlement_metric",
@@ -1739,7 +1793,8 @@
         "source_of_funds",
         "confidence",
         "revenue_cents"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from explicit creator metric window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "fan_pass.access_lifecycle_metric",
@@ -1763,7 +1818,8 @@
       "sourcePaths": [
         "src/lib/fan-pass/fan-pass-lifecycle-contract.ts"
       ],
-      "countRule": "integer"
+      "countRule": "integer",
+      "freshnessRule": "Admin display must show source freshness from explicit fan pass reporting window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "discovery.search_result_rate",
@@ -1786,7 +1842,8 @@
       "authorityStatus": "needs_operator_decision",
       "sourcePaths": [
         "src/lib/discovery/search-telemetry-contract.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from explicit discovery reporting window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "chat.message_outcome_count",
@@ -1810,7 +1867,8 @@
       "sourcePaths": [
         "src/lib/chat/chat-telemetry-contract.ts"
       ],
-      "countRule": "integer"
+      "countRule": "integer",
+      "freshnessRule": "Admin display must show source freshness from explicit chat reporting window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "daily_tasks.reward_and_completion_count",
@@ -1840,7 +1898,8 @@
         "reward_gd",
         "source_of_funds",
         "confidence"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from daily task window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "notifications.permission_outcome_rate",
@@ -1863,7 +1922,8 @@
       "authorityStatus": "needs_operator_decision",
       "sourcePaths": [
         "src/lib/notifications/notification-permission-contract.ts"
-      ]
+      ],
+      "freshnessRule": "Admin display must show source freshness from explicit notification reporting window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "media.upload_lifecycle_count",
@@ -1887,7 +1947,8 @@
       "sourcePaths": [
         "src/lib/media/media-upload-contract.ts"
       ],
-      "countRule": "integer"
+      "countRule": "integer",
+      "freshnessRule": "Admin display must show source freshness from explicit media reporting window; missing or stale source windows render stale/unavailable instead of healthy."
     },
     {
       "formulaId": "legacy_recovery.legacy_event_recovered_count",
@@ -1913,7 +1974,8 @@
         "scripts/analytics/map-legacy-events.ts",
         "scripts/analytics/inventory-legacy-sources.ts"
       ],
-      "countRule": "integer"
+      "countRule": "integer",
+      "freshnessRule": "Admin display must show source freshness from dry-run legacy recovery batch; missing or stale source windows render stale/unavailable instead of healthy."
     }
   ],
   "sourceInventory": [
@@ -2358,40 +2420,12 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/drop-watch-time-accuracy.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/duration-math-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/session-bounce-calculation.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "docs/agent-truth/canonical-math-authority-ledger.md",
       "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/duration-math-normalization.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/session-bounce-calculation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
     },
     {
       "path": "public/kandydrops-release-notes.json",
@@ -2402,31 +2436,11 @@
       "classification": "failed_validator_to_repair"
     },
     {
-      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "scripts/agent/validate-duration-math-normalization.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "scripts/agent/validate-session-bounce-calculation.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/math/canonical-math-authority-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/math/canonical-math-authority-ledger.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/duration-math-normalizer.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -2438,7 +2452,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/duration-math-normalization.spec.ts",
+      "path": "tests/unit/canonical-math-authority-ledger.spec.ts",
       "classification": "current_generated_artifact_to_commit"
     }
   ],

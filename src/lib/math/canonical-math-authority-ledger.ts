@@ -8,6 +8,28 @@ import type {
 } from "./canonical-math-authority-contract";
 
 const SCORE_CAP = "launch/evidence caps apply after weighted health score";
+type FormulaDefinitionInput = Omit<FormulaDefinition, "freshnessRule"> & { freshnessRule?: string };
+
+function defaultFreshnessRule(formula: FormulaDefinitionInput): string {
+  if (formula.domain === "freshness") {
+    return "Freshness is computed from generatedAt/currentHead evidence and the explicit report window.";
+  }
+  if (formula.sourcePaths.some((path) => path.startsWith("agent/state/"))) {
+    return "Generated artifacts are snapshots only and must match currentHead and freshness windows before use.";
+  }
+  if (formula.adminFacingAllowed) {
+    return `Admin display must show source freshness from ${formula.timeWindow}; missing or stale source windows render stale/unavailable instead of healthy.`;
+  }
+  return "Freshness is inherited from the owning source window; unavailable freshness blocks display promotion.";
+}
+
+function withFreshnessRule(formula: FormulaDefinitionInput): FormulaDefinition {
+  return {
+    ...formula,
+    freshnessRule: formula.freshnessRule ?? defaultFreshnessRule(formula),
+  };
+}
+
 const SCORE_SOURCE_PATHS = [
   "src/lib/agent-score/core.ts",
   "src/lib/agent-score/weights.ts",
@@ -49,6 +71,7 @@ function countFormula(input: {
     sourceTruth: "canonical count deduplication normalizer and upstream event envelope/event fact truth",
     confidenceRule: "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
     confidenceLevel: "mixed_explicit",
+    freshnessRule: "Count freshness is inherited from the explicit source/reporting window supplied by the consumer; stale windows are not shown as current.",
     zeroDenominatorRule: "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
     legacyRule: "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
     userFacingAllowed: true,
@@ -114,6 +137,7 @@ function durationFormula(input: {
     sourceTruth: "canonical duration math normalizer with surface lifecycle source events",
     confidenceRule: "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
     confidenceLevel: "mixed_explicit",
+    freshnessRule: "Duration freshness is inherited from the lifecycle source window; missing start/end or stale lifecycle evidence returns unavailable/stale, not zero.",
     zeroDenominatorRule: input.denominator && input.denominator !== "n/a"
       ? "missing or <= 0 denominator returns null/unavailable instead of 0%"
       : "n/a; missing duration is unavailable, not zero",
@@ -245,7 +269,7 @@ const DURATION_MATH_FORMULAS = [
   }),
 ] as const satisfies readonly FormulaDefinition[];
 
-export const CANONICAL_MATH_FORMULAS = [
+export const CANONICAL_MATH_FORMULAS = ([
   {
     formulaId: "beta_score.scanner_penalty",
     domain: "beta_score",
@@ -959,7 +983,7 @@ export const CANONICAL_MATH_FORMULAS = [
     ],
     countRule: "integer",
   },
-] as const satisfies readonly FormulaDefinition[];
+] as const satisfies readonly FormulaDefinitionInput[]).map(withFreshnessRule);
 
 export const CANONICAL_MATH_FORMULA_REFERENCES = [
   {
@@ -1302,6 +1326,7 @@ export function explainFormula(formulaId: MathFormulaId): string {
     `timeWindow=${formula.timeWindow}`,
     `dedupeKey=${formula.dedupeKey}`,
     `zeroDenominatorRule=${formula.zeroDenominatorRule}`,
+    `freshnessRule=${formula.freshnessRule}`,
     `confidenceRule=${formula.confidenceRule}`,
     `legacyRule=${formula.legacyRule}`,
     `authorityStatus=${formula.authorityStatus}`,

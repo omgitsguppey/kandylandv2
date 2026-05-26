@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.95",
-  "betaReleaseCounter": 495,
+  "currentVersion": "1.4.96",
+  "betaReleaseCounter": 496,
   "channel": "beta",
-  "generatedAt": "2026-05-26T08:10:00.000Z",
-  "generatedAtUtc": "2026-05-26T08:10:00.000Z",
+  "generatedAt": "2026-05-26T08:30:00.000Z",
+  "generatedAtUtc": "2026-05-26T08:30:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.96",
+      "previousVersion": "1.4.95",
+      "betaReleaseCounter": 496,
+      "previousBetaReleaseCounter": 495,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(math): add canonical authority ledger",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T08:30:00.000Z",
+      "generatedAt": "2026-05-26T08:30:00.000Z",
+      "committedAtUtc": "2026-05-26T08:30:00.000Z",
+      "generatedAtUtc": "2026-05-26T08:30:00.000Z",
+      "category": "Improved",
+      "title": "Canonical math authority ledger",
+      "updatedAtUtc": "2026-05-26T08:30:00.000Z",
+      "summary": "Added canonical math authority ledger.",
+      "userFacingTitle": "Canonical math authority ledger",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added canonical math authority ledger.",
+        "Inventoried formulas across score, metrics, sessions, watch time, GumDrops, revenue, and legacy recovery.",
+        "Blocked unowned formulas from silently affecting user/admin metrics."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added freshness semantics to the canonical math authority contract so admin-facing formulas declare source freshness alongside source, confidence, and display policy.",
+        "Updated the ledger validator, generated evidence, and unit coverage to fail admin-facing formulas that lack freshness rules.",
+        "Kept payment runtime, GumDrop math, production data, provider calls, and navigation unchanged."
+      ],
+      "affectedSurfaces": [
+        "Canonical math authority ledger",
+        "Math authority validator",
+        "Math authority generated evidence",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/canonical-math-authority-ledger.generated.json",
+        "docs/agent-truth/canonical-math-authority-ledger.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-canonical-math-authority-ledger.ts",
+        "src/lib/math/canonical-math-authority-contract.ts",
+        "src/lib/math/canonical-math-authority-ledger.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/canonical-math-authority-ledger.spec.ts"
+      ],
+      "effectiveChangeCount": 10,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.95",
       "previousVersion": "1.4.94",
@@ -1586,59 +1643,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "docs/agent-truth/event-translation-bridge.md",
         "agent/state/person-metrics-hydration.generated.json",
         "docs/agent-truth/person-metrics-hydration.md",
-        "agent/state/public-beta-score.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.71",
-      "previousVersion": "1.4.70",
-      "betaReleaseCounter": 471,
-      "previousBetaReleaseCounter": 470,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(parity): lock telemetry parity",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T21:50:05.854Z",
-      "generatedAt": "2026-05-25T21:50:05.854Z",
-      "committedAtUtc": "2026-05-25T21:50:05.854Z",
-      "generatedAtUtc": "2026-05-25T21:50:05.854Z",
-      "category": "Improved",
-      "title": "Final parity telemetry lock",
-      "updatedAtUtc": "2026-05-25T21:50:05.854Z",
-      "summary": "Locked surface parity, telemetry parity, state feedback, and role permissions.",
-      "userFacingTitle": "Final parity telemetry lock",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked surface parity, telemetry parity, state feedback, and role permissions.",
-        "Simplified debug lanes for product consistency.",
-        "Reported score impact by dimension."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a final source-only parity telemetry lock validator over the existing surface, telemetry, state, and role registries.",
-        "Recorded surface coverage, debug-lane status, stale logic cleanup, score dimensions, remaining gaps, and next exact steps.",
-        "Refreshed current beta-exit status metadata from current beta score without clearing external/runtime evidence gates."
-      ],
-      "affectedSurfaces": [
-        "Surface parity, surface telemetry, surface state, and role permission locks",
-        "Debug parity evidence and generated lock report",
-        "Public beta score and release-note evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "scripts/agent/validate-final-parity-telemetry-lock.ts",
-        "tests/unit/final-parity-telemetry-lock.spec.ts",
-        "agent/state/final-parity-telemetry-lock.generated.json",
-        "docs/agent-truth/final-parity-telemetry-lock.md",
-        "agent/state/current-beta-exit-status.generated.json",
         "agent/state/public-beta-score.generated.json",
         "package.json",
         "public/kandydrops-release-notes.json",

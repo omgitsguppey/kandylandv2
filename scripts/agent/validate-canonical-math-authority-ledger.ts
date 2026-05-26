@@ -198,6 +198,7 @@ function validateFormula(formula: FormulaDefinition, failures: string[]) {
     dedupeKey: formula.dedupeKey,
     sourceTruth: formula.sourceTruth,
     confidenceRule: formula.confidenceRule,
+    freshnessRule: formula.freshnessRule,
     zeroDenominatorRule: formula.zeroDenominatorRule,
     legacyRule: formula.legacyRule,
     owner: formula.owner,
@@ -225,6 +226,9 @@ function validateFormula(formula: FormulaDefinition, failures: string[]) {
   }
   if (formula.adminFacingAllowed && (!formula.sourceTruth || !formula.confidenceRule)) {
     failures.push(`${label} admin-facing formula missing source/confidence.`);
+  }
+  if (formula.adminFacingAllowed && !formula.freshnessRule) {
+    failures.push(`${label} admin-facing formula missing freshness rule.`);
   }
 }
 
@@ -259,9 +263,9 @@ function renderDoc(report: JsonRecord) {
     "",
     "## Canonical Formula Inventory",
     "",
-    "| Formula | Domain | Status | Owner | Source truth |",
-    "| --- | --- | --- | --- | --- |",
-    ...formulas.map((formula) => `| ${formula.formulaId} | ${formula.domain} | ${formula.authorityStatus} | ${formula.owner} | ${formula.sourceTruth.replace(/\|/gu, "/")} |`),
+    "| Formula | Domain | Status | Owner | Source truth | Freshness | Confidence |",
+    "| --- | --- | --- | --- | --- | --- | --- |",
+    ...formulas.map((formula) => `| ${formula.formulaId} | ${formula.domain} | ${formula.authorityStatus} | ${formula.owner} | ${formula.sourceTruth.replace(/\|/gu, "/")} | ${formula.freshnessRule.replace(/\|/gu, "/")} | ${formula.confidenceRule.replace(/\|/gu, "/")} |`),
     "",
     "## Source Inventory",
     "",

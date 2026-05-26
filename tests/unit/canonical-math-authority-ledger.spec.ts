@@ -137,4 +137,14 @@ describe("canonical math authority ledger", () => {
     expect(explainFormula("watch_time.normalized_watch_percent")).toContain("confidenceRule");
     expect(getFormulaDefinition("missing.formula")).toBeNull();
   });
+
+  it("requires every admin-facing formula to declare freshness semantics", () => {
+    const adminFacing = listFormulaDefinitions().filter((formula) => formula.adminFacingAllowed);
+
+    expect(adminFacing.length).toBeGreaterThan(0);
+    for (const formula of adminFacing) {
+      expect(formula.freshnessRule, formula.formulaId).toBeTruthy();
+      expect(explainFormula(formula.formulaId)).toContain("freshnessRule");
+    }
+  });
 });

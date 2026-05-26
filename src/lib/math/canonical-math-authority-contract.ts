@@ -126,6 +126,7 @@ export type FormulaDefinition = {
   sourceTruth: string;
   confidenceRule: string;
   confidenceLevel: MathConfidenceRule;
+  freshnessRule: string;
   zeroDenominatorRule: string;
   legacyRule: string;
   userFacingAllowed: boolean;
