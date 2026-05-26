@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-26T07:46:18.808Z",
-  "currentHead": "14c6202f49c9c282b7c00004d378ffe5e483338c",
+  "generatedAtUtc": "2026-05-26T08:12:42.391Z",
+  "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5309,6 +5309,14 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
@@ -5317,8 +5325,16 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/final-product-integrity-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/interpretive-brain-debug-triage.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
@@ -5326,6 +5342,26 @@
     },
     {
       "path": "agent/state/product-body-map.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/sql-database-parity-cost-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/surface-parity-doctrine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/surface-telemetry-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/user-journey-behavioral-intelligence.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -5337,7 +5373,19 @@
       "classification": "documentation_artifact_expected"
     },
     {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-backlog-engine.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-product-integrity-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5345,11 +5393,31 @@
       "classification": "documentation_artifact_expected"
     },
     {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/product-body-map.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/sql-database-parity-cost-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/surface-parity-doctrine.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/surface-telemetry-parity.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/user-journey-behavioral-intelligence.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5361,7 +5429,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-body-system-wiring-repair.ts",
+      "path": "scripts/agent/validate-final-product-integrity-lock.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -5373,15 +5441,15 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/product-integrity/body-system-wiring-repair.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/product-integrity/central-normalizer.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/product-integrity/final-product-integrity-lock.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -5401,7 +5469,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/body-system-wiring-repair.spec.ts",
+      "path": "tests/unit/final-product-integrity-lock.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

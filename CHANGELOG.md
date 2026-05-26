@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.95 - 2026-05-26
+- Product integrity lock
+- Locked product integrity body map, central normalizer, interpretive brain, and wiring repair.
+- Connected major product limbs to telemetry, metrics, debug, journey, and score.
+- Classified remaining gaps with owners and next actions.
+
 ## 1.4.94 - 2026-05-26
 - Body system wiring repair
 - Repaired highest-impact disconnected product limbs across routes, telemetry, metrics, debug, and score.

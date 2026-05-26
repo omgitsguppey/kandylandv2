@@ -544,6 +544,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (/^scripts\/agent\/validate-(pwa-service-worker-safety|notification-pwa-score-lock|sql-database-parity-cost-lock)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (/^tests\/unit\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/final-product-integrity-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/body-system-wiring-repair.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/product-body-map.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/central-normalizer-spine.generated.json") return "current_generated_artifact_to_commit";
@@ -560,6 +561,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "agent/state/event-liveness-audit.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/future-activity-signal-reclassification.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/final-product-integrity-lock.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/body-system-wiring-repair.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/product-body-map.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
@@ -576,6 +578,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/event-liveness-audit.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/future-activity-signal-reclassification.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-final-product-integrity-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-body-system-wiring-repair.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-drop-watch-time-accuracy.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-session-bounce-calculation.ts") return "validator_artifact_expected";
@@ -596,6 +599,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-non-event-score-policy.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/person-metrics-hydration.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/final-product-integrity-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/body-system-wiring-repair.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/drop-watch-time-accuracy.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/session-bounce-calculation.spec.ts") return "test_artifact_expected";
@@ -625,7 +629,7 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
-  if (/^src\/lib\/product-integrity\/(product-body-map|central-normalizer|interpretive-brain|body-system-wiring-repair)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (/^src\/lib\/product-integrity\/(product-body-map|central-normalizer|interpretive-brain|body-system-wiring-repair|final-product-integrity-lock)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/drop-watch-time-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/drop-watch-time-engine.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/session-metrics-contract.ts") return "real_source_change_needs_review";

@@ -120,6 +120,7 @@ const SCORE_GATE_SYSTEMS: Record<PublicBetaHealthDimension, BodySystemId> = {
 };
 
 const EXPECTED_ARTIFACTS = [
+  { path: "agent/state/final-product-integrity-lock.generated.json", owner: "product-integrity", system: "admin_debug_ops" as const, status: "connected" as const },
   { path: "agent/state/interpretive-brain-debug-triage.generated.json", owner: "product-integrity", system: "admin_debug_ops" as const, status: "connected" as const },
   { path: "agent/state/product-body-map.generated.json", owner: "product-integrity", system: "admin_debug_ops" as const, status: "connected" as const },
   { path: "agent/state/final-parity-telemetry-lock.generated.json", owner: "parity", system: "telemetry_behavioral_intelligence" as const, status: "connected" as const },
@@ -495,6 +496,20 @@ export function listProductBodyLimbs(): ProductLimb[] {
     nextAction: "Keep Product brain triage mapped to root cause, score impact, formal gates, cost risks, and exact next actions.",
   }));
 
+  limbs.push(limb({
+    limbId: "validator:check:final-product-integrity-lock",
+    kind: "validator",
+    label: "check:final-product-integrity-lock",
+    status: "connected",
+    primaryBodySystem: "admin_debug_ops",
+    secondaryBodySystems: ["telemetry_behavioral_intelligence", "cost_runtime_infrastructure"],
+    owner: "product-integrity",
+    sourceFiles: ["scripts/agent/validate-final-product-integrity-lock.ts"],
+    validators: [PRODUCT_BODY_MAP_VALIDATOR, "check:final-product-integrity-lock"],
+    scoreImpact: ["evidenceCompleteness", "freshness", "regressionRisk"],
+    nextAction: "Keep the final product integrity lock composed from body map, normalizer, Product brain, and wiring repair evidence.",
+  }));
+
   return dedupeLimbs(limbs);
 }
 
@@ -658,15 +673,18 @@ export function buildProductBodyMapReport(input: {
 export function classifyProductBodyMapDirtyFile(path: string): ProductBodyMapDirtyFile["classification"] {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/state/product-body-map.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/final-product-integrity-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/interpretive-brain-debug-triage.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/central-normalizer-spine.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/body-system-wiring-repair.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/product-body-map.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/final-product-integrity-lock.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/interpretive-brain-debug-triage.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/body-system-wiring-repair.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/product-integrity/product-body-system-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/product-body-map.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/product-integrity/final-product-integrity-lock.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/body-system-wiring-repair.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/central-normalizer-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/central-normalizer.ts") return "real_source_change_needs_review";
@@ -676,10 +694,12 @@ export function classifyProductBodyMapDirtyFile(path: string): ProductBodyMapDir
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-product-body-map.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-final-product-integrity-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-interpretive-brain-debug-triage.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-central-normalizer-spine.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-body-system-wiring-repair.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/product-body-map.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/final-product-integrity-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/interpretive-brain-debug-triage.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/central-normalizer-spine.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/body-system-wiring-repair.spec.ts") return "test_artifact_expected";

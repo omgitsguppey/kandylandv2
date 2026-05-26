@@ -1,65 +1,71 @@
-# Body System Wiring Repair
+# Final Product Integrity Lock
 
-Generated: 2026-05-26T08:11:57.221Z
+Generated: 2026-05-26T08:18:03.231Z
 Current head: a74f489c81e605f1c9a280f28726d352fcb54dee
 Status: pass
 
 ## Scope
 
-This source-only pass repairs the highest-impact disconnected product limbs discovered by Product body map, Central normalizer, and Product brain evidence. It does not add product features, mutate production data, run providers, deploy, alter payment runtime, change GumDrop math, or touch navigation.
+This source-only lock composes Product body map, Central normalizer, Product brain debug triage, and Body system wiring repair. It does not mutate production data, run providers, deploy, alter payment runtime, change GumDrop math, or touch navigation.
 
 ## Summary
 
-- gaps before: 1
-- gaps fixed: 1
-- gaps deferred with owner: 1
-- unsafe unknown: 0
-- body systems affected: telemetry_behavioral_intelligence
-- score dimensions: evidenceCompleteness, freshness
+- body systems: 16
+- mapped limbs: 1047
+- connected limbs: 1045
+- orphaned limbs: 1
+- duplicated limbs: 0
+- stale limbs: 0
+- unsafe unknown limbs: 0
+- central normalizer: pass
+- interpretive brain: pass
+- wiring repair: pass
+- debug summary: product_brain_root_cause_ready
 
-## Fixed Wiring Gaps
+## Score Dimensions
 
-- metric:global:runtime_watch_time: Converted an unexplained product-body orphan into explicit source-ready evidence-gap wiring. Validators=check:body-system-wiring-repair, check:product-body-map, check:drop-watch-time-accuracy Tests=tests/unit/body-system-wiring-repair.spec.ts
+- sourceHealth: before=100; after=100; status=meets_target; next=No score action needed for this dimension.
+- runtimeHealth: before=84.2; after=84.2; status=meets_target; next=No score action needed for this dimension.
+- evidenceCompleteness: before=84.6; after=84.6; status=meets_target; next=No score action needed for this dimension.
+- freshness: before=91.88; after=91.88; status=meets_target; next=No score action needed for this dimension.
+- costRisk: before=42; after=42; status=below_target; next=costRisk remains below 80; keep exact owner next action visible in Product brain and beta score.
+- regressionRisk: before=86; after=86; status=meets_target; next=No score action needed for this dimension.
+- overallHealthScore: before=85.34; after=85.34; status=meets_target; next=No score action needed for this dimension.
 
-## Deferred Gaps
+## Launch Blockers
 
-- metric:global:runtime_watch_time: owner=viewer-runtime; policy=do_not_claim_runtime_proof; next=Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output.
+- runtime-provider-smoke: formal_evidence_required; formalGateCleared=false; next=Attach the required formal runtime, provider, or admin truth artifact before clearing this gate.
+- admin-truth-sample-evidence: formal_evidence_required; formalGateCleared=false; next=Attach the required formal runtime, provider, or admin truth artifact before clearing this gate.
+
+## Remaining Gaps
+
+- metric:global:runtime_watch_time: deferred_with_owner; owner=viewer-runtime; next=Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output.
+- metric:global:external_ga4_evidence: intentionally_deprecated; owner=analytics-evidence; next=Keep external evidence archive-only unless an explicit guarded refresh artifact is produced.
 
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/body-system-wiring-repair.generated.json: current_generated_artifact_to_commit
 - agent/state/central-normalizer-spine.generated.json: current_generated_artifact_to_commit
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-backlog-engine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-backlog-engine.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
 - agent/state/final-product-integrity-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/interpretive-brain-debug-triage.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/product-body-map.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- agent/state/sql-database-parity-cost-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/surface-parity-doctrine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/surface-telemetry-parity.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-journey-behavioral-intelligence.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/body-system-wiring-repair.md: documentation_artifact_expected
 - docs/agent-truth/central-normalizer-spine.md: documentation_artifact_expected
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-backlog-engine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/current-beta-exit-status.md: documentation_artifact_expected
+- docs/agent-truth/debug-backlog-engine.md: documentation_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
 - docs/agent-truth/final-product-integrity-lock.md: documentation_artifact_expected
 - docs/agent-truth/interpretive-brain-debug-triage.md: documentation_artifact_expected
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
 - docs/agent-truth/product-body-map.md: documentation_artifact_expected
-- docs/agent-truth/sql-database-parity-cost-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/surface-parity-doctrine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/surface-telemetry-parity.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/user-journey-behavioral-intelligence.md: stale_generated_artifact_to_regenerate
-- package.json: real_source_change_needs_review
+- package.json: validator_artifact_expected
 - public/kandydrops-release-notes.json: release_artifact_expected
 - scripts/agent/validate-final-product-integrity-lock.ts: validator_artifact_expected
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review

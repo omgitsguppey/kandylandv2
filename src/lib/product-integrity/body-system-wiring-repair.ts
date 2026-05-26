@@ -235,15 +235,18 @@ export function buildBodySystemWiringRepairDebugLane(report: Pick<BodySystemWiri
 export function classifyBodySystemWiringDirtyFile(path: string): BodySystemWiringDirtyClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/state/body-system-wiring-repair.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/final-product-integrity-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/product-body-map.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/central-normalizer-spine.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/interpretive-brain-debug-triage.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/body-system-wiring-repair.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/final-product-integrity-lock.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/product-body-map.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/interpretive-brain-debug-triage.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/product-integrity/body-system-wiring-repair.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/product-integrity/final-product-integrity-lock.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/product-body-map.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/product-body-system-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/central-normalizer.ts") return "real_source_change_needs_review";
@@ -252,7 +255,9 @@ export function classifyBodySystemWiringDirtyFile(path: string): BodySystemWirin
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-body-system-wiring-repair.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-final-product-integrity-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/body-system-wiring-repair.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/final-product-integrity-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === "CHANGELOG.md") return "release_artifact_expected";
   if (normalized === "public/kandydrops-release-notes.json") return "release_artifact_expected";

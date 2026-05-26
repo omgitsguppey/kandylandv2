@@ -1,23 +1,23 @@
 {
-  "generatedAtUtc": "2026-05-25T02:50:23.458Z",
+  "generatedAtUtc": "2026-05-26T08:13:32.829Z",
   "reportKey": "debug-backlog-engine",
-  "currentHead": "0d73de989138b1b12b9b1c447b321a2f27916d90",
+  "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
   "oldScore": 41.92,
-  "newScore": 79,
-  "publicBetaStatus": "beta-risk",
-  "readinessStatus": "Stale evidence",
+  "newScore": 85.34,
+  "publicBetaStatus": "warning",
+  "readinessStatus": "Runtime unverified",
   "summary": {
-    "total": 52,
+    "total": 51,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 17,
-      "p2": 35,
+      "p2": 34,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 45,
+      "open": 44,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
@@ -27,7 +27,7 @@
     },
     "bySource": {
       "debug_panel": 15,
-      "beta_score": 8,
+      "beta_score": 7,
       "route_diagnostics": 1,
       "telemetry": 6,
       "admin_truth": 2,
@@ -38,7 +38,7 @@
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 37,
+      "evidence_refresh": 36,
       "stale_retire": 1,
       "algorithm_refine": 0,
       "route_fix": 1,
@@ -47,32 +47,32 @@
       "manual_required": 5,
       "no_action": 0
     },
-    "open": 45,
+    "open": 44,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 4,
     "blockedExternal": 2,
     "staleRetired": 1,
     "sourceFixable": 9,
-    "evidenceRefreshable": 37,
+    "evidenceRefreshable": 36,
     "manualRequired": 5,
     "p0P1Open": 17,
-    "p0P1GroupOpen": 8,
-    "p2GroupOpen": 8,
+    "p0P1GroupOpen": 9,
+    "p2GroupOpen": 7,
     "p1P2GroupOpen": 16,
-    "rawP1P2SignalCount": 52,
+    "rawP1P2SignalCount": 51,
     "groupedSignalCount": 16,
     "defaultVisibleGroups": 16,
     "hiddenByDefaultGroups": 0,
-    "defaultVisible": 52,
+    "defaultVisible": 51,
     "hiddenByDefault": 0,
     "quietFutureActivity": 0,
     "duplicateSignalsCollapsed": 0,
     "formalGates": 9,
-    "scoreImpacting": 51,
+    "scoreImpacting": 50,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 42,
+      "score_impacting": 41,
       "evidence_required": 1,
       "formal_gate": 9,
       "quiet_future_activity": 0,
@@ -83,17 +83,17 @@
     }
   },
   "actionabilitySummary": {
-    "totalSignals": 52,
-    "uniqueSignals": 52,
-    "defaultVisibleCount": 52,
+    "totalSignals": 51,
+    "uniqueSignals": 51,
+    "defaultVisibleCount": 51,
     "hiddenByDefaultCount": 0,
     "quietFutureActivityCount": 0,
     "duplicateSignalCount": 0,
     "formalGateCount": 9,
-    "scoreImpactingCount": 51,
+    "scoreImpactingCount": 50,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 42,
+      "score_impacting": 41,
       "evidence_required": 1,
       "formal_gate": 9,
       "quiet_future_activity": 0,
@@ -206,7 +206,7 @@
         "severity": "p1",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
-          "freshness"
+          "evidenceCompleteness"
         ],
         "estimatedPointImpact": 4,
         "owner": "admin_debug",
@@ -216,7 +216,7 @@
         ],
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
         "duplicateChildren": []
       },
       {
@@ -225,7 +225,7 @@
         "severity": "p1",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
-          "freshness"
+          "evidenceCompleteness"
         ],
         "estimatedPointImpact": 4,
         "owner": "admin_debug",
@@ -235,7 +235,7 @@
         ],
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
         "duplicateChildren": []
       },
       {
@@ -274,25 +274,6 @@
         ],
         "defaultVisible": true,
         "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-final-integration-lock-was-generated-from-an-older-code-version-refres",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
-        "signalType": "beta_score",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "evidenceCompleteness"
-        ],
-        "estimatedPointImpact": 69.6,
-        "owner": "beta_score",
-        "nextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
-        "sourceFiles": [
-          "agent/state/public-beta-score.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|refresh-the-owning-evidence-artifact-and-keep-the-beta-cap-visible-until-evidenc",
         "duplicateChildren": []
       },
       {
@@ -597,7 +578,7 @@
         "severity": "p2",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
-          "freshness"
+          "evidenceCompleteness"
         ],
         "estimatedPointImpact": 1,
         "owner": "admin_debug",
@@ -607,7 +588,7 @@
         ],
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
         "duplicateChildren": []
       },
       {
@@ -927,7 +908,26 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+        "signalId": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 84.6,
+        "owner": "admin_debug",
+        "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-2",
         "signalType": "formal_gate",
         "severity": "p1",
         "actionability": "formal_gate",
@@ -962,25 +962,6 @@
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
         "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
-        "signalType": "formal_gate",
-        "severity": "p1",
-        "actionability": "formal_gate",
-        "scoreDimensionsAffected": [
-          "evidenceCompleteness"
-        ],
-        "estimatedPointImpact": 69.6,
-        "owner": "admin_debug",
-        "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-        "sourceFiles": [
-          "agent/state/public-beta-score.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
         "duplicateChildren": []
       },
       {
@@ -1104,7 +1085,36 @@
   },
   "backlog": [
     {
-      "id": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
+      "title": "Ready with smoke required: Admin truth/sample evidence",
+      "owner": "admin_debug",
+      "surface": "admin_debug",
+      "severity": "p1",
+      "source": "admin_truth",
+      "status": "blocked_manual",
+      "fixClass": "manual_required",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ],
+      "scoreImpact": 84.6,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "sourceRoute": "/admin/debug",
+      "evidenceStatus": "formal_missing",
+      "evidenceReason": "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+      "sourceMessage": "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
+      "sourceValidator": "npm run check:beta-score",
+      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation.",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 84.6,
+      "defaultVisible": true,
+      "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
+      "duplicateChildren": []
+    },
+    {
+      "id": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-2",
       "title": "Ready with smoke required: Debug/runtime evidence",
       "owner": "runtime_evidence",
       "surface": "runtime_evidence",
@@ -1131,7 +1141,7 @@
       "defaultVisible": true,
       "dedupeKey": "formal_gate|beta_score|runtime_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
       "duplicateChildren": [
-        "beta-cap-ready-with-smoke-required-evidence-bridge-4"
+        "beta-cap-ready-with-smoke-required-evidence-bridge-3"
       ]
     },
     {
@@ -1161,35 +1171,6 @@
       "estimatedPointImpact": 84.2,
       "defaultVisible": true,
       "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
-      "duplicateChildren": []
-    },
-    {
-      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
-      "title": "Ready with smoke required: Admin truth/sample evidence",
-      "owner": "admin_debug",
-      "surface": "admin_debug",
-      "severity": "p1",
-      "source": "admin_truth",
-      "status": "blocked_manual",
-      "fixClass": "manual_required",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 69.6,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "/admin/debug",
-      "evidenceStatus": "formal_missing",
-      "evidenceReason": "Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceMessage": "Ready with smoke required: Admin truth/sample evidence - Attach a redacted production admin truth sample before clearing the formal admin truth evidence gate.",
-      "sourceValidator": "npm run check:beta-score",
-      "blockedReason": "Formal evidence is required and cannot be generated from source-only validation.",
-      "actionability": "formal_gate",
-      "estimatedPointImpact": 69.6,
-      "defaultVisible": true,
-      "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
       "duplicateChildren": []
     },
     {
@@ -1361,9 +1342,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "exactNextAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "sourceValidator": "npm run check:final-launch-readiness-report",
       "refreshCommand": "npm run check:final-launch-readiness-report",
       "actionability": "score_impacting",
@@ -1390,9 +1371,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "evidenceReason": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "exactNextAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "sourceMessage": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "sourceValidator": "npm run check:launch-pr-triage",
       "refreshCommand": "npm run check:launch-pr-triage",
       "actionability": "score_impacting",
@@ -1419,9 +1400,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "evidenceReason": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "exactNextAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "sourceMessage": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "sourceValidator": "npm run check:launch-readiness-final",
       "refreshCommand": "npm run check:launch-readiness-final",
       "actionability": "score_impacting",
@@ -1469,23 +1450,23 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "freshness"
+        "evidenceCompleteness"
       ],
       "scoreImpact": 4,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead c97ea37af1d868bd3974264fc49890e3809549b6 does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "Debug source status is beta-risk.",
       "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
-      "sourceMessage": "Source drift: currentHead c97ea37af1d868bd3974264fc49890e3809549b6 does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "sourceMessage": "Debug source status is beta-risk.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta",
       "actionability": "score_impacting",
       "estimatedPointImpact": 4,
       "defaultVisible": true,
-      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
       "duplicateChildren": []
     },
     {
@@ -1527,14 +1508,14 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "freshness"
+        "evidenceCompleteness"
       ],
       "scoreImpact": 4,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
+      "evidenceStatus": "source_backed",
       "evidenceReason": "5 beta score cap reason(s) remain visible.",
       "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
       "sourceMessage": "5 beta score cap reason(s) remain visible.",
@@ -1543,7 +1524,7 @@
       "actionability": "score_impacting",
       "estimatedPointImpact": 4,
       "defaultVisible": true,
-      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
       "duplicateChildren": []
     },
     {
@@ -1604,34 +1585,6 @@
       "duplicateChildren": [
         "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json"
       ]
-    },
-    {
-      "id": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
-      "title": "Stale evidence: Report freshness and PR integrity",
-      "owner": "beta_score",
-      "surface": "beta_score",
-      "severity": "p2",
-      "source": "beta_score",
-      "status": "open",
-      "fixClass": "evidence_refresh",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
-      ],
-      "scoreImpact": 69.6,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "sourceRoute": "agent/state/public-beta-score.generated.json",
-      "evidenceStatus": "unknown",
-      "evidenceReason": "Unknown evidence classification: 5 required generated report(s) are older than the freshness window.",
-      "exactNextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
-      "sourceMessage": "Stale evidence: Report freshness and PR integrity - 5 required generated report(s) are older than the freshness window.",
-      "sourceValidator": "npm run check:beta-score",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 69.6,
-      "defaultVisible": true,
-      "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|refresh-the-owning-evidence-artifact-and-keep-the-beta-cap-visible-until-evidenc",
-      "duplicateChildren": []
     },
     {
       "id": "score-drag-freshnessscore",
@@ -2037,9 +1990,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "evidenceReason": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "exactNextAction": "Leave the item labeled as evidence or archive until a focused refresh command exists.",
-      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "sourceMessage": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "sourceValidator": "npm run check:analytics-rewire-phase-one",
       "refreshCommand": "",
       "staleRetireReason": "Debug panel item is stale without an owner refresh command.",
@@ -2072,9 +2025,9 @@
       ],
       "sourceRoute": "/admin/debug",
       "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "evidenceReason": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "exactNextAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "sourceMessage": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 9dc79a00f40df751841c8d8f10d98de636336397.",
       "sourceValidator": "npm run check:user-facing-feature-connection-audit",
       "refreshCommand": "npm run check:user-facing-feature-connection-audit",
       "actionability": "score_impacting",
@@ -2133,23 +2086,23 @@
       "status": "open",
       "fixClass": "evidence_refresh",
       "scoreDimensionImpact": [
-        "freshness"
+        "evidenceCompleteness"
       ],
       "scoreImpact": 1,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
       ],
       "sourceRoute": "/admin/debug",
-      "evidenceStatus": "stale",
-      "evidenceReason": "Source drift: currentHead c97ea37af1d868bd3974264fc49890e3809549b6 does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "evidenceStatus": "source_backed",
+      "evidenceReason": "Debug source status is beta-risk.",
       "exactNextAction": "Run npm run score:beta when this stale warning must be refreshed.",
-      "sourceMessage": "Source drift: currentHead c97ea37af1d868bd3974264fc49890e3809549b6 does not match repo HEAD 0d73de989138b1b12b9b1c447b321a2f27916d90.",
+      "sourceMessage": "Debug source status is beta-risk.",
       "sourceValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta",
       "actionability": "score_impacting",
       "estimatedPointImpact": 1,
       "defaultVisible": true,
-      "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
+      "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
       "duplicateChildren": []
     },
     {

@@ -143,6 +143,7 @@
         "check:central-normalizer-spine": "tsx scripts/agent/validate-central-normalizer-spine.ts",
         "check:interpretive-brain-debug-triage": "tsx scripts/agent/validate-interpretive-brain-debug-triage.ts",
         "check:body-system-wiring-repair": "tsx scripts/agent/validate-body-system-wiring-repair.ts",
+        "check:final-product-integrity-lock": "tsx scripts/agent/validate-final-product-integrity-lock.ts",
         "check:refresh-safeguards": "tsx scripts/agent/validate-refresh-safeguards.ts",
         "check:self-healing-refresh-queue": "tsx scripts/agent/validate-self-healing-refresh-queue.ts",
         "check:admin-balance-body-cap": "tsx scripts/agent/validate-admin-balance-body-cap.ts",

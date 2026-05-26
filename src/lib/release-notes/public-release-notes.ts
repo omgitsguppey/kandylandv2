@@ -1,13 +1,78 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.94",
-  "betaReleaseCounter": 494,
+  "currentVersion": "1.4.95",
+  "betaReleaseCounter": 495,
   "channel": "beta",
-  "generatedAt": "2026-05-26T07:45:00.000Z",
-  "generatedAtUtc": "2026-05-26T07:45:00.000Z",
+  "generatedAt": "2026-05-26T08:10:00.000Z",
+  "generatedAtUtc": "2026-05-26T08:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.95",
+      "previousVersion": "1.4.94",
+      "betaReleaseCounter": 495,
+      "previousBetaReleaseCounter": 494,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(integrity): lock product body wiring",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T08:10:00.000Z",
+      "generatedAt": "2026-05-26T08:10:00.000Z",
+      "committedAtUtc": "2026-05-26T08:10:00.000Z",
+      "generatedAtUtc": "2026-05-26T08:10:00.000Z",
+      "category": "Improved",
+      "title": "Product integrity lock",
+      "updatedAtUtc": "2026-05-26T08:10:00.000Z",
+      "summary": "Locked product integrity body map, central normalizer, interpretive brain, and wiring repair.",
+      "userFacingTitle": "Product integrity lock",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked product integrity body map, central normalizer, interpretive brain, and wiring repair.",
+        "Connected major product limbs to telemetry, metrics, debug, journey, and score.",
+        "Classified remaining gaps with owners and next actions."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a final Product integrity lock lane over the product body map, central normalizer, interpretive brain, and wiring repair artifacts.",
+        "Recorded body-system coverage, limb classifications, debug root-cause readiness, score dimensions, launch blockers, and exact next actions.",
+        "Kept runtime, provider, payment, GumDrop, navigation, and formal beta-gate evidence unchanged."
+      ],
+      "affectedSurfaces": [
+        "Product body map",
+        "Central normalizer",
+        "Product brain",
+        "Body system wiring repair",
+        "Admin Debug tracking summary",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/final-product-integrity-lock.generated.json",
+        "docs/agent-truth/final-product-integrity-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-product-integrity-lock.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/product-integrity/body-system-wiring-repair.ts",
+        "src/lib/product-integrity/central-normalizer.ts",
+        "src/lib/product-integrity/final-product-integrity-lock.ts",
+        "src/lib/product-integrity/interpretive-brain.ts",
+        "src/lib/product-integrity/product-body-map.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-product-integrity-lock.spec.ts"
+      ],
+      "effectiveChangeCount": 16,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.94",
       "previousVersion": "1.4.93",
@@ -1575,59 +1640,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "docs/agent-truth/final-parity-telemetry-lock.md",
         "agent/state/current-beta-exit-status.generated.json",
         "agent/state/public-beta-score.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.70",
-      "previousVersion": "1.4.69",
-      "betaReleaseCounter": 470,
-      "previousBetaReleaseCounter": 469,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(parity): enforce role permissions",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T21:36:26.165Z",
-      "generatedAt": "2026-05-25T21:36:26.165Z",
-      "committedAtUtc": "2026-05-25T21:36:26.165Z",
-      "generatedAtUtc": "2026-05-25T21:36:26.165Z",
-      "category": "Improved",
-      "title": "Role permission parity",
-      "updatedAtUtc": "2026-05-25T21:36:26.165Z",
-      "summary": "Standardized role and permission rules across user, creator, admin, and guest surfaces.",
-      "userFacingTitle": "Role permission parity",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Standardized role and permission rules across user, creator, admin, and guest surfaces.",
-        "Added telemetry for permission denials and route mismatches.",
-        "Protected admin and creator controls from leaking into the wrong surfaces."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a canonical role permission contract and resolver for guest, user, creator, admin, and system roles.",
-        "Mapped surface permissions to granted, denied, role mismatch, and stale-route redirect telemetry events.",
-        "Added source-only validation for creator-only actions, admin-only controls, Account Settings vs Creator Settings split, and role parity debug evidence."
-      ],
-      "affectedSurfaces": [
-        "Public, user, creator, admin, and system role permissions",
-        "Role parity telemetry and debug evidence",
-        "Role permission validator and generated report"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/parity/role-permission-contract.ts",
-        "src/lib/parity/role-permission-resolver.ts",
-        "scripts/agent/validate-role-permission-parity.ts",
-        "tests/unit/role-permission-parity.spec.ts",
-        "agent/state/role-permission-parity.generated.json",
-        "docs/agent-truth/role-permission-parity.md",
         "package.json",
         "public/kandydrops-release-notes.json",
         "src/lib/release-notes/public-release-notes.ts",
