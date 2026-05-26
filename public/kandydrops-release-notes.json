@@ -1,11 +1,70 @@
 {
-  "currentVersion": "1.5.4",
-  "betaReleaseCounter": 504,
+  "currentVersion": "1.5.5",
+  "betaReleaseCounter": 505,
   "channel": "beta",
-  "generatedAt": "2026-05-26T11:10:00.000Z",
-  "generatedAtUtc": "2026-05-26T11:10:00.000Z",
+  "generatedAt": "2026-05-26T11:25:00.000Z",
+  "generatedAtUtc": "2026-05-26T11:25:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.5",
+      "previousVersion": "1.5.4",
+      "betaReleaseCounter": 505,
+      "previousBetaReleaseCounter": 504,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): finalize cost export parity",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T11:25:00.000Z",
+      "generatedAt": "2026-05-26T11:25:00.000Z",
+      "committedAtUtc": "2026-05-26T11:25:00.000Z",
+      "generatedAtUtc": "2026-05-26T11:25:00.000Z",
+      "category": "Improved",
+      "title": "Cost export parity math",
+      "updatedAtUtc": "2026-05-26T11:25:00.000Z",
+      "summary": "Finalized cost, export, SQL parity, batching, and summary math while keeping external billing proof separate.",
+      "userFacingTitle": "Cost export parity math",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Finalized cost, export, SQL parity, batching, and summary math.",
+        "Protected metric accuracy while reducing duplicate reads, writes, and exports.",
+        "Separated source cost guards from external billing proof."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added canonical cost/export parity math for daily watermark batch windows, summary freshness floors, admin read risk, hot-path risk, and source-vs-external cost readiness.",
+        "Validated BigQuery per-event export remains blocked and Cloud SQL mirror sync stays manual/cost-approved only.",
+        "Kept provider calls, exports, deployments, payment runtime, and GumDrop math unchanged."
+      ],
+      "affectedSurfaces": [
+        "Cost export parity math",
+        "SQL/Data Connect parity evidence",
+        "BigQuery export guard evidence",
+        "Admin debug cost summaries",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/cost-export-sql-parity-math.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/cost-export-sql-parity-math.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-cost-export-sql-parity-math.ts",
+        "src/lib/math/cost-export-parity-math.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/cost-export-sql-parity-math.spec.ts"
+      ],
+      "effectiveChangeCount": 11,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.4",
       "previousVersion": "1.5.3",

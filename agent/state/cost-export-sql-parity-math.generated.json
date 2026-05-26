@@ -1,0 +1,265 @@
+{
+  "reportKey": "cost-export-sql-parity-math",
+  "generatedAtUtc": "2026-05-26T11:27:33.861Z",
+  "currentHead": "14264ff8",
+  "status": "pass",
+  "productionExportsRun": false,
+  "providerCallsRun": false,
+  "deployPerformed": false,
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "externalBillingReviewed": false,
+  "exportBatchStatus": {
+    "mode": "watermark_batch",
+    "cadenceMs": 86400000,
+    "windowStartMs": 1779703200000,
+    "windowEndMs": 1779796800000,
+    "maxRows": 500,
+    "perEventExportAllowed": false,
+    "providerCallRequired": false
+  },
+  "watermarkStatus": {
+    "status": "watermark_ready",
+    "perEventExportAllowed": false,
+    "windowStartMs": 1779710400000,
+    "windowEndMs": 1779796800000,
+    "watermarkEventId": "",
+    "reason": "Export range is bounded by watermark and daily cadence."
+  },
+  "summaryFreshnessStatus": {
+    "noncriticalAnalytics": {
+      "status": "allowed",
+      "refreshMs": 86400000,
+      "minimumRefreshMs": 86400000,
+      "reason": "Refresh cadence preserves cost and summary freshness."
+    },
+    "realtimeSummary": {
+      "status": "allowed",
+      "refreshMs": 300000,
+      "minimumRefreshMs": 300000,
+      "reason": "Refresh cadence preserves cost and summary freshness."
+    },
+    "diagnosticRollup": {
+      "status": "allowed",
+      "refreshMs": 3600000,
+      "minimumRefreshMs": 3600000,
+      "reason": "Refresh cadence preserves cost and summary freshness."
+    }
+  },
+  "hotPathRiskStatus": {
+    "risk": "low",
+    "accuracyPreserved": true,
+    "reason": "essential_summary_hot_path"
+  },
+  "adminReadRiskStatus": {
+    "risk": "low",
+    "defaultSafe": true,
+    "reason": "summary_first_paged_drilldown"
+  },
+  "sqlMirrorGuardStatus": "manual_cost_approved_only",
+  "costReadinessStatus": {
+    "status": "source_guarded_external_review_remaining",
+    "scoreCredit": "partial",
+    "externalReviewRemaining": true,
+    "reason": "No runtime usage is detected and source guard exists, but external billing review remains."
+  },
+  "accuracyPreservedStatus": {
+    "allowed": true,
+    "accuracyPreserved": true,
+    "reason": "accuracy_preserving_cost_reduction",
+    "improvements": [
+      "duplicate_reads_reduced",
+      "duplicate_writes_reduced",
+      "excessive_refresh_reduced"
+    ],
+    "explanation": "Cost reduction preserves canonical facts and works by reducing duplicate reads/writes or excessive refresh frequency."
+  },
+  "debugLane": {
+    "label": "Cost/export math",
+    "hotPathRisk": "low",
+    "exportBatchStatus": "watermark_batch",
+    "adminReadRisk": "low",
+    "sqlMirrorGuard": "manual_cost_approved_only",
+    "accuracyPreserved": true
+  },
+  "scoreBefore": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 89.19
+  },
+  "scoreAfter": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 80.5,
+    "regressionRisk": 86,
+    "overallHealthScore": 89.19
+  },
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk",
+    "regressionRisk"
+  ],
+  "remainingGaps": [
+    "External billing/provider review remains required before full cost closure.",
+    "Cloud Run/App Hosting, Cloud SQL/Data Connect, and Gemini/Cloud Assist/Vertex still need external billing artifacts for full credit."
+  ],
+  "nextExactSteps": [
+    "Attach external billing/provider evidence before moving costRisk from source-guarded partial credit to full credit.",
+    "Keep BigQuery export on daily watermark batches and Cloud SQL mirror sync manual/cost-approved only.",
+    "Keep admin/debug default reads summary-first with paged raw drilldowns."
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/cost-export-sql-parity-math.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/cost-export-sql-parity-math.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-cost-export-sql-parity-math.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/math/cost-export-parity-math.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/cost-export-sql-parity-math.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "openPrs": [
+    {
+      "number": 302,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "onboarding_telemetry_external_review_required"
+    },
+    {
+      "number": 301,
+      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "doctrine_governance_external_review_required"
+    },
+    {
+      "number": 300,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "architecture_refactor_external_review_required"
+    },
+    {
+      "number": 299,
+      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 298,
+      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 297,
+      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 296,
+      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 295,
+      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 294,
+      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 293,
+      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "security_patch_external_review_required"
+    },
+    {
+      "number": 292,
+      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "performance_patch_external_review_required"
+    },
+    {
+      "number": 291,
+      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "accessibility_patch_external_review_required"
+    }
+  ],
+  "validationFailures": []
+}

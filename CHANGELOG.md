@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.5 - 2026-05-26
+- Cost export parity math
+- Finalized cost, export, SQL parity, batching, and summary math.
+- Protected metric accuracy while reducing duplicate reads, writes, and exports.
+- Separated source cost guards from external billing proof.
+
 ## 1.5.4 - 2026-05-26
 - Creator revenue math
 - Finalized creator revenue, Fan Pass, paid chat bypass, and entitlement math.
