@@ -88,6 +88,8 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const suggestionRequestRef = useRef(0);
     const availabilityRequestRef = useRef(0);
     const emailAuthSubmissionInFlightRef = useRef(false);
+    const modeSwitchCountRef = useRef(0);
+    const authFailureCountRef = useRef(0);
     const creatorIntakeStartedRef = useRef(false);
     const creatorRecommendedSetupTrackedRef = useRef<string | null>(null);
     const [emailSignInCooldownUntil, setEmailSignInCooldownUntil] = useState<number | null>(null);
@@ -321,6 +323,13 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         setUsernameAvailable(null);
         emailAuthSubmissionInFlightRef.current = false;
         setMode(newMode);
+        modeSwitchCountRef.current += 1;
+        if (modeSwitchCountRef.current === 4) {
+            trackEvent("auth_onboarding_friction", {
+                friction_type: "mode_switching_loop",
+                mode_switches: modeSwitchCountRef.current,
+            });
+        }
         setAuthError(null);
         setAuthConflict(null);
         setResetSent(false);
@@ -471,6 +480,14 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             trackEvent("auth_google_sign_in_success", mergedParams);
             onClose();
         } catch (error: unknown) {
+            authFailureCountRef.current += 1;
+            if (authFailureCountRef.current === 3) {
+                trackEvent("auth_onboarding_friction", {
+                    friction_type: "repeated_auth_failures",
+                    failure_count: authFailureCountRef.current,
+                    last_error_code: (error as { code?: string }).code || "unknown",
+                });
+            }
             reportClientIssue({
                 channel: "auth",
                 message: "Google sign-in failed",
@@ -754,6 +771,14 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             onClose();
             reset();
         } catch (error: unknown) {
+            authFailureCountRef.current += 1;
+            if (authFailureCountRef.current === 3) {
+                trackEvent("auth_onboarding_friction", {
+                    friction_type: "repeated_auth_failures",
+                    failure_count: authFailureCountRef.current,
+                    last_error_code: (error as { code?: string }).code || "unknown",
+                });
+            }
             reportClientIssue({
                 channel: "auth",
                 message: isSignupMode(mode) ? "Email sign-up failed" : "Email sign-in failed",

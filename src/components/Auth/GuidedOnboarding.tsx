@@ -84,6 +84,15 @@ export function GuidedOnboarding() {
     const stepMetricsRef = useRef<Record<string, OnboardingStepMetric>>({});
     const serverProgressKeysRef = useRef<Set<string>>(new Set());
     const viewedStepKeysRef = useRef<Set<string>>(new Set());
+    const stepStalledTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (stepStalledTimeoutRef.current) {
+                clearTimeout(stepStalledTimeoutRef.current);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (!isVisible) {
@@ -235,10 +244,22 @@ export function GuidedOnboarding() {
         }
 
         if (activeStepIdRef.current !== step.id) {
+            if (stepStalledTimeoutRef.current) {
+                clearTimeout(stepStalledTimeoutRef.current);
+            }
+
             const startedAtMs = Date.now();
             activeStepIdRef.current = step.id;
             stepStartedAtRef.current[step.id] = startedAtMs;
             const registrationMethod = user?.providerData[0]?.providerId === "google.com" ? "google" : "email";
+
+            stepStalledTimeoutRef.current = setTimeout(() => {
+                trackEvent("onboarding_friction", {
+                    friction_type: "stalled_on_step",
+                    step_key: step.id,
+                    time_spent_ms: 60000,
+                });
+            }, 60000);
 
             trackEvent("guided_onboarding_step_started", {
                 step_key: step.id,
@@ -378,6 +399,9 @@ export function GuidedOnboarding() {
     };
 
     const completeStepAndAdvance = (completionReason: string, extraParams?: Record<string, string | number | boolean>) => {
+        if (stepStalledTimeoutRef.current) {
+            clearTimeout(stepStalledTimeoutRef.current);
+        }
         completeCurrentStep(completionReason, extraParams);
         goToNextStep();
     };

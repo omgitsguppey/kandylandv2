@@ -21,6 +21,8 @@ const ALLOWED_EVENT_NAMES = new Set([
     "guided_onboarding_step_started",
     "guided_onboarding_step_completed",
     "onboarding_step_viewed",
+    "onboarding_friction",
+    "auth_onboarding_friction",
 ]);
 
 function isAlreadyExistsError(error: unknown) {
@@ -85,7 +87,7 @@ async function POST_handler(request: NextRequest) {
 
         const timestamp = eventName === "guided_onboarding_started"
             ? flowStartedAtMs || Date.now()
-            : (eventName === "guided_onboarding_step_started" || eventName === "onboarding_step_viewed")
+            : (eventName === "guided_onboarding_step_started" || eventName === "onboarding_step_viewed" || eventName === "onboarding_friction" || eventName === "auth_onboarding_friction")
                 ? startedAtMs || flowStartedAtMs || Date.now()
                 : completedAtMs || Math.max(startedAtMs + durationMs, flowStartedAtMs, Date.now());
         const storageKey = buildOnboardingAnalyticsStorageKey({
