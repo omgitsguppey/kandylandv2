@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T04:25:37.974Z",
+  "generatedAtUtc": "2026-05-26T04:39:51.619Z",
   "reportKey": "cost-risk-exit-pass",
-  "currentHead": "8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a",
+  "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -152,7 +152,7 @@
     }
   },
   "costRisk": {
-    "before": 42,
+    "before": 80.5,
     "after": 80.5,
     "target": 80
   },
@@ -178,7 +178,7 @@
       "target": 80
     },
     "costRisk": {
-      "before": 42,
+      "before": 80.5,
       "after": 80.5,
       "target": 80
     },
@@ -188,7 +188,7 @@
       "target": 80
     },
     "overallHealthScore": {
-      "before": 84.12,
+      "before": 87.97,
       "after": 87.97,
       "target": 80
     }
@@ -216,19 +216,11 @@
   ],
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/bigquery-cloud-pipeline-closure.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "path": "agent/state/admin-truth-source-sample.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -240,6 +232,14 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
@@ -248,11 +248,11 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/bigquery-cloud-pipeline-closure.md",
+      "path": "agent/state/source-backed-runtime-confidence.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "path": "docs/agent-truth/admin-truth-source-sample.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -264,7 +264,19 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/launch-blocker-evidence-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -272,28 +284,16 @@
       "classification": "score_model_evidence_supported"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "scripts/agent/validate-cost-risk-exit-pass.ts",
       "classification": "cost_evidence_validator"
     },
     {
-      "path": "scripts/agent/validate-score-80-cost-readiness.ts",
+      "path": "scripts/agent/validate-launch-blocker-evidence-closure.ts",
       "classification": "score_model_evidence_supported"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/cost-risk-exit-pass.spec.ts",
-      "classification": "cost_evidence_test"
+      "path": "tests/unit/launch-blocker-evidence-closure.spec.ts",
+      "classification": "score_model_evidence_supported"
     }
   ],
   "staleLogicClassification": [
@@ -314,8 +314,8 @@
     }
   ],
   "evidence": [
-    "currentHead=8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a",
-    "costRiskBefore=42",
+    "currentHead=d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+    "costRiskBefore=80.5",
     "costRiskAfter=80.5",
     "sourceGuardedLaneCount=4",
     "externalBillingReviewed=false",

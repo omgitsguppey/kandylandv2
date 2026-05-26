@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.85 - 2026-05-26
+- Launch blocker evidence closure
+- Classified remaining launch blockers by formal evidence, source confidence, and stale PR integrity.
+- Closed PR integrity evidence where current repository state supports it.
+- Kept runtime, provider, and admin formal gates honest.
+
 ## 1.4.84 - 2026-05-26
 - Cost risk exit pass
 - Refined cost risk exit evidence for Cloud Run, Cloud SQL, Gemini/AI, and route 4xx lanes.

@@ -1,8 +1,8 @@
 # Score 80 Cost Readiness
 
-Generated: 2026-05-26T04:24:00.649Z
+Generated: 2026-05-26T04:39:57.915Z
 
-Latest code version: 8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a
+Latest code version: d1f8e2fb4435ad131c8fc7cc85debe027a31346a
 
 ## Summary
 
@@ -29,7 +29,7 @@ Latest code version: 8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a
 | npm run check:cost-risk-exit-pass | pass | agent/state/cost-risk-exit-pass.generated.json | Current cost risk exit pass is available. |
 | npm run check:cost-risk-owner-review-closure | pass | agent/state/cost-risk-owner-review-closure.generated.json | Current cost risk owner-review closure is available. |
 | npm run check:cost-owner-review-source-closure | failed_or_not_run | agent/state/cost-owner-review-source-closure.generated.json | Cost owner-review source closure is missing or stale. |
-| npm run check:cloud-sql-gemini-cost-guards | pass | agent/state/cloud-sql-gemini-cost-guards.generated.json | Current Cloud SQL/Gemini guard report is available. |
+| npm run check:cloud-sql-gemini-cost-guards | failed_or_not_run | agent/state/cloud-sql-gemini-cost-guards.generated.json | Cloud SQL/Gemini guard report is missing or stale. |
 | npm run check:global-cost-surfaces | missing_script | agent/state/global-cost-surfaces.generated.json | Package script is not present; existing global-cost source report is treated as supporting source context only. |
 | npm run check:billing-spike-radar | missing_script | agent/state/billing-spike-radar.generated.json | Package script is not present; billing spike radar remains supporting watchlist context only. |
 | npm run check:analytics-cost-runtime-inventory | failed_or_not_run | agent/state/analytics-cost-runtime-inventory.generated.json | Analytics cost runtime inventory refresh is tracked separately from external billing proof. |

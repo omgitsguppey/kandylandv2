@@ -1,0 +1,443 @@
+{
+  "generatedAtUtc": "2026-05-26T04:44:19.999Z",
+  "reportKey": "launch-blocker-evidence-closure",
+  "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+  "status": "pass",
+  "launchGateStatus": "owner_review",
+  "formalGatesCleared": false,
+  "blockers": {
+    "runtimeProviderSmoke": {
+      "id": "runtimeProviderSmoke",
+      "label": "Runtime/provider smoke",
+      "currentStatus": "Runtime/provider smoke: Runtime unverified",
+      "classification": "cannot_close_without_manual_or_runtime_artifact",
+      "classificationDetails": [
+        "formal_artifact_missing",
+        "formal_artifact_missing",
+        "source_confidence_ready",
+        "operator_confirmed_ready",
+        "cannot_close_without_manual_or_runtime_artifact"
+      ],
+      "canCloseNow": false,
+      "formalGateCleared": false,
+      "sourceConfidenceStatus": "source_confidence_ready",
+      "operatorConfirmedReady": true,
+      "staleArtifactRefreshNeeded": false,
+      "externalReviewRequired": true,
+      "missingArtifact": "agent/state/provider-smoke-evidence.generated.json + agent/state/runtime-smoke-evidence.generated.json",
+      "evidence": [
+        "providerSmoke.cleared=false",
+        "deployedRuntimeSmoke.cleared=false",
+        "realUsageConfidenceScore=92",
+        "runtimeSubstituteEvidenceScore=75.56",
+        "operatorConfirmedRevenue=true",
+        "formalGateCanClearFromSource=false"
+      ],
+      "nextAction": "Attach formal provider smoke and deployed runtime smoke artifacts; source confidence and operator revenue do not clear this gate."
+    },
+    "adminTruthSample": {
+      "id": "adminTruthSample",
+      "label": "Admin truth/sample evidence",
+      "currentStatus": "Admin truth/sample evidence: Ready with smoke required",
+      "classification": "cannot_close_without_manual_or_runtime_artifact",
+      "classificationDetails": [
+        "formal_artifact_missing",
+        "cannot_close_without_manual_or_runtime_artifact",
+        "source_confidence_ready"
+      ],
+      "canCloseNow": false,
+      "formalGateCleared": false,
+      "sourceConfidenceStatus": "source_confidence_ready",
+      "operatorConfirmedReady": false,
+      "staleArtifactRefreshNeeded": false,
+      "externalReviewRequired": true,
+      "missingArtifact": "agent/state/admin-truth-sample-evidence.generated.json",
+      "evidence": [
+        "adminProductionSample.cleared=false",
+        "adminSourceStatus=source_ready_admin_truth_sample",
+        "productionSampleAttached=false",
+        "formalAdminTruthSamplePassed=false",
+        "adminSourceConfidenceScore=65",
+        "formalGateCanClearFromSource=false"
+      ],
+      "nextAction": "Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate."
+    },
+    "reportFreshnessPrIntegrity": {
+      "id": "reportFreshnessPrIntegrity",
+      "label": "Report freshness and PR integrity",
+      "currentStatus": "Report freshness and PR integrity: Stale evidence",
+      "classification": "external_review_required",
+      "classificationDetails": [
+        "external_review_required"
+      ],
+      "canCloseNow": false,
+      "formalGateCleared": false,
+      "sourceConfidenceStatus": "not_applicable",
+      "operatorConfirmedReady": false,
+      "staleArtifactRefreshNeeded": false,
+      "externalReviewRequired": true,
+      "missingArtifact": "current open PR owner disposition",
+      "evidence": [
+        "openPrCount=9",
+        "classifiedOpenPrCount=9",
+        "unclassifiedOpenPrCount=0",
+        "stalePrIntegrityBlockerClosed=false"
+      ],
+      "nextAction": "Review, merge, port, or close the classified open PRs before treating PR integrity as closed."
+    }
+  },
+  "openPrIntegrity": {
+    "openPrCount": 9,
+    "classifiedOpenPrCount": 9,
+    "unclassifiedOpenPrCount": 0,
+    "stalePrIntegrityBlockerClosed": false,
+    "openPrs": [
+      {
+        "author": {
+          "is_bot": true,
+          "login": "app/dependabot"
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 299,
+        "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
+        "updatedAt": "2026-05-25T20:52:19Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
+        "classification": "dependency_update_external_review_required",
+        "reason": "Dependency update PR remains open and needs normal dependency/security review before merge.",
+        "nextAction": "Review dependency PR #299, then merge or close it outside this source-evidence pass."
+      },
+      {
+        "author": {
+          "is_bot": true,
+          "login": "app/dependabot"
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 298,
+        "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
+        "updatedAt": "2026-05-25T20:39:13Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
+        "classification": "dependency_update_external_review_required",
+        "reason": "Dependency update PR remains open and needs normal dependency/security review before merge.",
+        "nextAction": "Review dependency PR #298, then merge or close it outside this source-evidence pass."
+      },
+      {
+        "author": {
+          "is_bot": true,
+          "login": "app/dependabot"
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 297,
+        "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
+        "updatedAt": "2026-05-25T20:38:54Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
+        "classification": "dependency_update_external_review_required",
+        "reason": "Dependency update PR remains open and needs normal dependency/security review before merge.",
+        "nextAction": "Review dependency PR #297, then merge or close it outside this source-evidence pass."
+      },
+      {
+        "author": {
+          "is_bot": true,
+          "login": "app/dependabot"
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 296,
+        "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
+        "updatedAt": "2026-05-25T20:38:39Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
+        "classification": "dependency_update_external_review_required",
+        "reason": "Dependency update PR remains open and needs normal dependency/security review before merge.",
+        "nextAction": "Review dependency PR #296, then merge or close it outside this source-evidence pass."
+      },
+      {
+        "author": {
+          "is_bot": true,
+          "login": "app/dependabot"
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 295,
+        "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
+        "updatedAt": "2026-05-25T20:38:28Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
+        "classification": "dependency_update_external_review_required",
+        "reason": "Dependency update PR remains open and needs normal dependency/security review before merge.",
+        "nextAction": "Review dependency PR #295, then merge or close it outside this source-evidence pass."
+      },
+      {
+        "author": {
+          "is_bot": true,
+          "login": "app/dependabot"
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 294,
+        "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
+        "updatedAt": "2026-05-26T04:31:57Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
+        "classification": "dependency_update_external_review_required",
+        "reason": "Dependency update PR remains open and needs normal dependency/security review before merge.",
+        "nextAction": "Review dependency PR #294, then merge or close it outside this source-evidence pass."
+      },
+      {
+        "author": {
+          "id": "MDQ6VXNlcjI5NjY2MDQ3",
+          "is_bot": false,
+          "login": "omgitsguppey",
+          "name": ""
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 293,
+        "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
+        "updatedAt": "2026-05-25T15:13:59Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
+        "classification": "security_patch_external_review_required",
+        "reason": "Security-oriented PR remains open and needs owner review before it can be treated as resolved.",
+        "nextAction": "Review security PR #293, port current-source-safe changes if needed, then close or merge intentionally."
+      },
+      {
+        "author": {
+          "id": "MDQ6VXNlcjI5NjY2MDQ3",
+          "is_bot": false,
+          "login": "omgitsguppey",
+          "name": ""
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 292,
+        "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
+        "updatedAt": "2026-05-25T14:33:05Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+        "classification": "performance_patch_external_review_required",
+        "reason": "Performance PR remains open and needs current-source review before merge.",
+        "nextAction": "Review performance PR #292 against current source before merge or close."
+      },
+      {
+        "author": {
+          "id": "MDQ6VXNlcjI5NjY2MDQ3",
+          "is_bot": false,
+          "login": "omgitsguppey",
+          "name": ""
+        },
+        "isDraft": false,
+        "mergeStateStatus": "CLEAN",
+        "number": 291,
+        "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
+        "updatedAt": "2026-05-25T14:26:07Z",
+        "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+        "classification": "accessibility_patch_external_review_required",
+        "reason": "Accessibility/UI-support PR remains open and needs current-source review before merge.",
+        "nextAction": "Review accessibility PR #291 against current source before merge or close."
+      }
+    ],
+    "evidence": [
+      "openPrCount=9",
+      "unclassifiedOpenPrCount=0",
+      "pr#299=dependency_update_external_review_required",
+      "pr#298=dependency_update_external_review_required",
+      "pr#297=dependency_update_external_review_required",
+      "pr#296=dependency_update_external_review_required",
+      "pr#295=dependency_update_external_review_required",
+      "pr#294=dependency_update_external_review_required",
+      "pr#293=security_patch_external_review_required",
+      "pr#292=performance_patch_external_review_required",
+      "pr#291=accessibility_patch_external_review_required"
+    ]
+  },
+  "scoreDimensions": {
+    "sourceHealth": {
+      "before": 100,
+      "after": 100,
+      "target": 80
+    },
+    "runtimeHealth": {
+      "before": 84.2,
+      "after": 84.2,
+      "target": 80
+    },
+    "evidenceCompleteness": {
+      "before": 84.6,
+      "after": 84.6,
+      "target": 80
+    },
+    "freshness": {
+      "before": 91.88,
+      "after": 91.88,
+      "target": 80
+    },
+    "costRisk": {
+      "before": 80.5,
+      "after": 80.5,
+      "target": 80
+    },
+    "regressionRisk": {
+      "before": 86,
+      "after": 86,
+      "target": 80
+    },
+    "overallHealthScore": {
+      "before": 89.19,
+      "after": 89.19,
+      "target": 80
+    }
+  },
+  "remainingLaunchBlockers": [
+    "formal_provider_smoke",
+    "deployed_runtime_smoke",
+    "production_admin_truth_sample",
+    "open_pr_owner_review"
+  ],
+  "nextExactSteps": [
+    "runtimeProviderSmoke: Attach formal provider smoke and deployed runtime smoke artifacts; source confidence and operator revenue do not clear this gate.",
+    "adminTruthSample: Attach a redacted production admin truth sample; source wiring and debug labels do not clear the formal admin gate.",
+    "reportFreshnessPrIntegrity: Review, merge, port, or close the classified open PRs before treating PR integrity as closed."
+  ],
+  "formalEvidenceImpact": "classification_only_does_not_clear_formal_gates",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "deployPerformed": false,
+  "productRuntimeChanged": false,
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "agent/state/source-backed-runtime-confidence.generated.json",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/admin-truth-source-sample.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/launch-blocker-evidence-closure.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "package.json",
+      "classification": "launch_blocker_validator"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-cost-risk-exit-pass.ts",
+      "classification": "score_evidence_artifact"
+    },
+    {
+      "path": "scripts/agent/validate-launch-blocker-evidence-closure.ts",
+      "classification": "launch_blocker_validator"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/launch-blocker-evidence-closure.spec.ts",
+      "classification": "launch_blocker_test"
+    }
+  ],
+  "blockerReferenceClassification": [
+    {
+      "reference": "Runtime/provider smoke: Runtime unverified",
+      "classification": "cannot_close_without_manual_or_runtime_artifact",
+      "reason": "Source/runtime confidence and operator revenue are confidence signals only; formal provider and deployed runtime artifacts remain required."
+    },
+    {
+      "reference": "Admin truth/sample evidence: Ready with smoke required",
+      "classification": "cannot_close_without_manual_or_runtime_artifact",
+      "reason": "Source admin truth wiring is present, but a redacted production sample remains the formal gate."
+    },
+    {
+      "reference": "Report freshness and PR integrity: Stale evidence",
+      "classification": "external_review_required",
+      "reason": "Open PRs are classified but still require owner disposition before integrity can be closed."
+    }
+  ],
+  "evidence": [
+    "currentHead=d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+    "launchGateStatus=owner_review",
+    "formalEvidenceImpact=classification_only_does_not_clear_formal_gates",
+    "openPrCount=9",
+    "productionReadsPerformed=false",
+    "providerCallsPerformed=false",
+    "deployPerformed=false"
+  ],
+  "validationFailures": []
+}

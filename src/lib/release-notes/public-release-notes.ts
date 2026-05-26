@@ -1,13 +1,69 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.84",
-  "betaReleaseCounter": 484,
+  "currentVersion": "1.4.85",
+  "betaReleaseCounter": 485,
   "channel": "beta",
-  "generatedAt": "2026-05-26T04:22:07.000Z",
-  "generatedAtUtc": "2026-05-26T04:22:07.000Z",
+  "generatedAt": "2026-05-26T04:41:10.000Z",
+  "generatedAtUtc": "2026-05-26T04:41:10.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.85",
+      "previousVersion": "1.4.84",
+      "betaReleaseCounter": 485,
+      "previousBetaReleaseCounter": 484,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): classify launch blockers",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T04:41:10.000Z",
+      "generatedAt": "2026-05-26T04:41:10.000Z",
+      "committedAtUtc": "2026-05-26T04:41:10.000Z",
+      "generatedAtUtc": "2026-05-26T04:41:10.000Z",
+      "category": "Improved",
+      "title": "Launch blocker evidence closure",
+      "updatedAtUtc": "2026-05-26T04:41:10.000Z",
+      "summary": "Classified remaining launch blockers by formal evidence, source confidence, and stale PR integrity.",
+      "userFacingTitle": "Launch blocker evidence closure",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Classified remaining launch blockers by formal evidence, source confidence, and stale PR integrity.",
+        "Closed PR integrity evidence where current repository state supports it.",
+        "Kept runtime, provider, and admin formal gates honest."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a source-only launch blocker closure validator and artifact for runtime/provider smoke, admin truth samples, and PR integrity.",
+        "Classified current open PRs without treating them as merged, closed, or production-ready.",
+        "Preserved formal provider smoke, deployed runtime smoke, and production admin truth sample gates until real artifacts exist."
+      ],
+      "affectedSurfaces": [
+        "Public beta launch evidence",
+        "Runtime/provider smoke classification",
+        "Admin truth sample classification",
+        "PR integrity evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/launch-blocker-evidence-closure.generated.json",
+        "docs/agent-truth/launch-blocker-evidence-closure.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-launch-blocker-evidence-closure.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/launch-blocker-evidence-closure.spec.ts"
+      ],
+      "effectiveChangeCount": 9,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.84",
       "previousVersion": "1.4.83",
@@ -1487,62 +1543,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 7,
       "excludedGeneratedChangeCount": 10,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.60",
-      "previousVersion": "1.4.59",
-      "betaReleaseCounter": 460,
-      "previousBetaReleaseCounter": 459,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(tasks): repair guidance parity",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T06:10:29.267Z",
-      "generatedAt": "2026-05-25T06:10:29.267Z",
-      "committedAtUtc": "2026-05-25T06:10:29.267Z",
-      "generatedAtUtc": "2026-05-25T06:10:29.267Z",
-      "category": "Fixed",
-      "title": "Task guidance parity repair",
-      "updatedAtUtc": "2026-05-25T06:10:29.267Z",
-      "summary": "Repaired task guidance telemetry parity so task lifecycle, onboarding activity, and guidance UI evidence report as separate source-truth dimensions.",
-      "userFacingTitle": "Task guidance parity repair",
-      "surfaceCategory": "Daily tasks",
-      "bullets": [
-        "Repaired task guidance telemetry parity across UI instrumentation, event normalization, and admin validation.",
-        "Separated task lifecycle/onboarding activity from task guidance UI evidence.",
-        "Kept task reward, reset, and GumDrop math unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Task guidance views, taps, dismissals, completions, task-card expansions, and task-help opens are now explicit telemetry and rollup fields.",
-        "Guidance samples remain blocked when zero; no fake samples, production backfill, reward math, reset policy, or GumDrop math changed."
-      ],
-      "affectedSurfaces": [
-        "Daily task guidance UI",
-        "Task guidance telemetry contract",
-        "Task guidance event normalization",
-        "Admin Debug Data Validation",
-        "Debug cockpit validation artifacts"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/components/Dashboard/DailyTasksModule.tsx",
-        "src/components/Dashboard/TaskGuidanceBanner.tsx",
-        "src/lib/task-guidance.ts",
-        "src/lib/tasks/task-guidance-telemetry-contract.ts",
-        "src/lib/tasks/task-guidance-history-recovery.ts",
-        "src/lib/analytics/task-onboarding-parity-semantics.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/privacy/consent-tracking-policy.ts",
-        "src/lib/server/admin-analytics-historical-tasks.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts"
-      ],
-      "effectiveChangeCount": 10,
-      "excludedGeneratedChangeCount": 12,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }
