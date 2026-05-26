@@ -43,6 +43,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "person_metrics_hydration",
   "user_management",
   "testing_coverage",
+  "math_authority",
   "behavior_math",
   "feature_telemetry_coverage",
   "settings_health",
@@ -142,6 +143,7 @@ const TRACKING_GROUPS = [
   "person_metrics_hydration",
   "user_management",
   "testing_coverage",
+  "math_authority",
   "behavior_math",
   "feature_coverage",
   "settings",
@@ -377,6 +379,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     sourceContractPresent: true,
     configTruthHealthy: true,
     warningCount: settingsWarningCount,
+  }).status;
+  const mathAuthority = input.canonicalMathAuthorityLedger?.debugLane ?? {};
+  const mathAuthorityFormulas = toNumber(mathAuthority.formulasInventoried);
+  const mathAuthorityDuplicates = toNumber(mathAuthority.duplicateFormulas);
+  const mathAuthorityMissingDefinitions = toNumber(mathAuthority.missingDefinitions);
+  const mathAuthorityNeedsDecision = toNumber(mathAuthority.needsOperatorDecision);
+  const mathAuthorityWarnings = mathAuthorityDuplicates + mathAuthorityMissingDefinitions;
+  const mathAuthorityStatus = classifyAdminSummaryLaneStatus({
+    laneId: "math_authority",
+    sourceContractPresent: true,
+    sampleLoaded: mathAuthorityFormulas > 0,
+    configTruthHealthy: mathAuthorityWarnings === 0 && mathAuthorityFormulas > 0,
+    counts: [mathAuthorityFormulas],
+    warningCount: mathAuthorityWarnings,
   }).status;
   const behaviorCleanup = input.behaviorMathStatusCleanup;
   const behaviorStatus = behaviorCleanup?.status === "healthy" || behaviorCleanup?.status === `source_ready_${"waiting_for_activity"}`
@@ -859,6 +875,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: testingCoverageWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#testing-coverage",
+    }),
+    makeLane({
+      id: "math_authority",
+      label: "Math authority",
+      trackingSystem: "math_authority",
+      sourceOwner: "analytics",
+      sourceOfTruth: "src/lib/math/canonical-math-authority-ledger.ts",
+      status: mathAuthorityStatus,
+      severity: severityFromCounts(mathAuthorityMissingDefinitions, mathAuthorityWarnings, mathAuthorityStatus),
+      scoreImpact: "medium",
+      primarySignal: `Formulas=${mathAuthorityFormulas}; duplicate=${mathAuthorityDuplicates}; missing=${mathAuthorityMissingDefinitions}; needsOperatorDecision=${mathAuthorityNeedsDecision}.`,
+      criticalCount: mathAuthorityMissingDefinitions,
+      warningCount: mathAuthorityWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#math-authority",
     }),
     makeLane({
       id: "behavior_math",

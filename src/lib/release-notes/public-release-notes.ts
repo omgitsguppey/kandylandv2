@@ -1,13 +1,72 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.86",
-  "betaReleaseCounter": 486,
+  "currentVersion": "1.4.87",
+  "betaReleaseCounter": 487,
   "channel": "beta",
-  "generatedAt": "2026-05-26T04:55:43.000Z",
-  "generatedAtUtc": "2026-05-26T04:55:43.000Z",
+  "generatedAt": "2026-05-26T05:22:00.000Z",
+  "generatedAtUtc": "2026-05-26T05:22:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.87",
+      "previousVersion": "1.4.86",
+      "betaReleaseCounter": 487,
+      "previousBetaReleaseCounter": 486,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(math): add canonical authority ledger",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T05:22:00.000Z",
+      "generatedAt": "2026-05-26T05:22:00.000Z",
+      "committedAtUtc": "2026-05-26T05:22:00.000Z",
+      "generatedAtUtc": "2026-05-26T05:22:00.000Z",
+      "category": "Improved",
+      "title": "Canonical math authority ledger",
+      "updatedAtUtc": "2026-05-26T05:22:00.000Z",
+      "summary": "Added canonical math authority ledger.",
+      "userFacingTitle": "Canonical math authority ledger",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added canonical math authority ledger.",
+        "Inventoried formulas across score, metrics, sessions, watch time, GumDrops, revenue, and legacy recovery.",
+        "Blocked unowned formulas from silently affecting user/admin metrics."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-only math authority contract and ledger APIs for formula lookup, explanation, metric validation, score validation, and unowned formula classification.",
+        "Inventoried current beta score, person metric, session, bounce, watch-time, behavioral dedupe, SQL parity, revenue, GumDrop, creator monetization, Fan Pass, discovery, chat, task, notification, media, and legacy recovery formula authorities.",
+        "Added a validator, generated evidence report, agent-truth doc, and unit coverage without changing payment runtime, PayPal, wallet, GumDrop ledger math, nav, or production data."
+      ],
+      "affectedSurfaces": [
+        "Math authority ledger",
+        "Public beta score formulas",
+        "Analytics and behavior metric formulas",
+        "Revenue and GumDrop formula inventory",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/canonical-math-authority-ledger.generated.json",
+        "docs/agent-truth/canonical-math-authority-ledger.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-canonical-math-authority-ledger.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/math/canonical-math-authority-contract.ts",
+        "src/lib/math/canonical-math-authority-ledger.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/canonical-math-authority-ledger.spec.ts"
+      ],
+      "effectiveChangeCount": 12,
+      "excludedGeneratedChangeCount": 1,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.86",
       "previousVersion": "1.4.85",
