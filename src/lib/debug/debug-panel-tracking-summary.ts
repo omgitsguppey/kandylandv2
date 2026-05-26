@@ -20,6 +20,7 @@ import { buildAuthProviderConflictDebugLane } from "@/lib/auth/auth-provider-con
 import { buildAuthPersistenceDebugLane } from "@/lib/auth/auth-persistence-contract";
 import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedupe-engine";
+import { COUNT_DEDUPLICATION_CONTRACT_VERSION } from "@/lib/math/count-deduplication-normalizer";
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
 import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
 import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
@@ -34,6 +35,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "consent_tracking_mode",
   "event_envelope",
   "global_user_dedupe",
+  "count_dedupe_math",
   "drop_watch_time",
   "session_bounce",
   "user_journey",
@@ -134,6 +136,7 @@ const TRACKING_GROUPS = [
   "consent",
   "event_envelope",
   "global_user_dedupe",
+  "count_dedupe_math",
   "drop_watch_time",
   "session_bounce",
   "user_journey",
@@ -245,6 +248,24 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
   const globalUserDedupeWarnings = toNumber(globalUserDedupeLane.globalUserMismatchCount)
     + (globalUserDedupeLane.sqlExportParityStatus === "mapped" ? 0 : 1)
     + (globalUserDedupeLane.linkedGuestUserDedupeHealth === "healthy" ? 0 : 1);
+  const countDedupeMathLane = input.countDeduplicationNormalization?.debugLane ?? {};
+  const countDedupeDuplicateRisk = toNumber(countDedupeMathLane.duplicateRiskCount);
+  const countDedupeLegacyBucket = toNumber(countDedupeMathLane.legacyBucketCount);
+  const countDedupeReplaySuppressed = toNumber(countDedupeMathLane.replaySuppressedCount);
+  const countDedupeMissingFormula = toNumber(countDedupeMathLane.missingFormulaReferences);
+  const countDedupeWarnings = countDedupeDuplicateRisk + countDedupeMissingFormula;
+  const countDedupeStatus = classifyAdminSummaryLaneStatus({
+    laneId: "count_dedupe_math",
+    sourceContractPresent: true,
+    configTruthHealthy: countDedupeMissingFormula === 0,
+    sampleLoaded: toNumber(countDedupeMathLane.requiredDomainsCovered) > 0,
+    counts: [
+      toNumber(countDedupeMathLane.requiredDomainsCovered),
+      countDedupeLegacyBucket,
+      countDedupeReplaySuppressed,
+    ],
+    warningCount: countDedupeWarnings,
+  }).status;
   const dropWatchTimeLane = input.dropWatchTimeAccuracy?.debugLane ?? buildDropWatchTimeDebugLane();
   const dropWatchTimeWarnings = toNumber(dropWatchTimeLane.durationMissingCount)
     + toNumber(dropWatchTimeLane.suspiciousPageTimeFallbackCount);
@@ -747,6 +768,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: globalUserDedupeWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#global-user-dedupe",
+    }),
+    makeLane({
+      id: "count_dedupe_math",
+      label: "Count dedupe math",
+      trackingSystem: "count_dedupe_math",
+      sourceOwner: "analytics_math",
+      sourceOfTruth: "src/lib/math/count-deduplication-normalizer.ts",
+      status: countDedupeStatus,
+      severity: severityFromCounts(0, countDedupeWarnings, countDedupeStatus),
+      scoreImpact: "medium",
+      primarySignal: `Contract=${COUNT_DEDUPLICATION_CONTRACT_VERSION}; domains=${toNumber(countDedupeMathLane.requiredDomainsCovered)}; duplicateRisk=${countDedupeDuplicateRisk}; legacyBucket=${countDedupeLegacyBucket}; replaySuppressed=${countDedupeReplaySuppressed}; formulaMissing=${countDedupeMissingFormula}; divergence=${toNumber(countDedupeMathLane.globalUserDivergenceExplanations)}.`,
+      criticalCount: 0,
+      warningCount: countDedupeWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#count-dedupe-math",
     }),
     makeLane({
       id: "drop_watch_time",

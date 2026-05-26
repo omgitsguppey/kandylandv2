@@ -1,0 +1,534 @@
+{
+  "generatedAtUtc": "2026-05-26T05:44:21.998Z",
+  "reportKey": "count-deduplication-normalization",
+  "currentHead": "699a4be3edf19f8659605d7c92a572f27bbfc7b4",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "productionDataMutated": false,
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "scoreBefore": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreAfter": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "requiredDomains": [
+    "page_session_events",
+    "signup_login_events",
+    "drops_opened",
+    "unwraps",
+    "watch_sessions",
+    "wallet_opens",
+    "checkout_starts",
+    "payments_approved",
+    "daily_task_events",
+    "chat_events",
+    "creator_profile_views",
+    "creator_relationships",
+    "fan_pass_events",
+    "notification_events",
+    "media_events",
+    "support_account_actions"
+  ],
+  "domainFormulaChecks": [
+    {
+      "domain": "page_session_events",
+      "formulaId": "count_dedupe.page_session_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "signup_login_events",
+      "formulaId": "count_dedupe.signup_login_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "drops_opened",
+      "formulaId": "count_dedupe.drop_open_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "unwraps",
+      "formulaId": "count_dedupe.unwrap_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "watch_sessions",
+      "formulaId": "count_dedupe.watch_session_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "wallet_opens",
+      "formulaId": "count_dedupe.wallet_open_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "checkout_starts",
+      "formulaId": "count_dedupe.checkout_start_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "payments_approved",
+      "formulaId": "count_dedupe.payment_approved_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "daily_task_events",
+      "formulaId": "count_dedupe.daily_task_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "chat_events",
+      "formulaId": "count_dedupe.chat_event_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "creator_profile_views",
+      "formulaId": "count_dedupe.creator_profile_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "creator_relationships",
+      "formulaId": "count_dedupe.creator_relationship_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "fan_pass_events",
+      "formulaId": "count_dedupe.fan_pass_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "notification_events",
+      "formulaId": "count_dedupe.notification_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "media_events",
+      "formulaId": "count_dedupe.media_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    },
+    {
+      "domain": "support_account_actions",
+      "formulaId": "count_dedupe.support_account_count",
+      "formulaExists": true,
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it."
+    }
+  ],
+  "sampleDecisions": {
+    "linked": {
+      "domain": "creator_relationships",
+      "eventName": "creator_followed",
+      "eventId": "validator_linked",
+      "sessionId": "session_validator",
+      "guestId": "guest_validator",
+      "userId": "user_validator",
+      "linkedPersonId": "person_validator",
+      "linkId": "link_validator",
+      "creatorId": "creator_validator",
+      "identityConfidence": "linked",
+      "formulaId": "count_dedupe.creator_relationship_count",
+      "canonicalKey": "event:validator_linked",
+      "globalKey": "global:creator_relationships:event:validator_linked",
+      "userKey": "user:person_validator:creator_relationships:event:validator_linked",
+      "creatorKey": "creator:creator_validator:creator_relationships:event:validator_linked",
+      "guestKey": null,
+      "legacyKey": "legacy:creator_relationships:event:validator_linked",
+      "bestUserIdentity": "person_validator",
+      "legacyBucket": false,
+      "replaySuppressed": false,
+      "duplicateRisk": "linked_guest_user_duplicate_risk_suppressed",
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it.",
+      "divergenceExplanation": "Global count increments once and user count is attributed to the best user identity; guest scope is suppressed to avoid double counting.",
+      "decisions": {
+        "global": {
+          "scope": "global",
+          "increment": true,
+          "key": "global:creator_relationships:event:validator_linked",
+          "formulaId": "count_dedupe.creator_relationship_count",
+          "reason": "linked_guest_attributed_to_best_user_identity"
+        },
+        "user": {
+          "scope": "user",
+          "increment": true,
+          "key": "user:person_validator:creator_relationships:event:validator_linked",
+          "formulaId": "count_dedupe.creator_relationship_count",
+          "reason": "linked_guest_attributed_to_best_user_identity"
+        },
+        "creator": {
+          "scope": "creator",
+          "increment": true,
+          "key": "creator:creator_validator:creator_relationships:event:validator_linked",
+          "formulaId": "count_dedupe.creator_relationship_count",
+          "reason": "linked_guest_attributed_to_best_user_identity"
+        },
+        "guest": {
+          "scope": "guest",
+          "increment": false,
+          "key": null,
+          "formulaId": "count_dedupe.creator_relationship_count",
+          "reason": "linked_guest_attributed_to_best_user_identity"
+        },
+        "legacy": {
+          "scope": "legacy",
+          "increment": false,
+          "key": "legacy:creator_relationships:event:validator_linked",
+          "formulaId": "count_dedupe.legacy_bucket_count",
+          "reason": "linked_guest_attributed_to_best_user_identity"
+        }
+      }
+    },
+    "legacy": {
+      "domain": "support_account_actions",
+      "eventName": "support_ticket_created",
+      "eventId": "validator_legacy",
+      "sessionId": "legacy_session",
+      "userId": "legacy_user",
+      "identityConfidence": "unknown",
+      "legacy": true,
+      "formulaId": "count_dedupe.support_account_count",
+      "canonicalKey": "event:validator_legacy",
+      "globalKey": "global:support_account_actions:event:validator_legacy",
+      "userKey": "user:legacy_user:support_account_actions:event:validator_legacy",
+      "creatorKey": null,
+      "guestKey": null,
+      "legacyKey": "legacy:support_account_actions:event:validator_legacy",
+      "bestUserIdentity": "legacy_user",
+      "legacyBucket": true,
+      "replaySuppressed": false,
+      "duplicateRisk": "legacy_bucket_only",
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it.",
+      "divergenceExplanation": "Legacy weak or unknown confidence is counted in the legacy bucket only, not exact global or user buckets.",
+      "decisions": {
+        "global": {
+          "scope": "global",
+          "increment": false,
+          "key": "global:support_account_actions:event:validator_legacy",
+          "formulaId": "count_dedupe.support_account_count",
+          "reason": "legacy_bucket_only"
+        },
+        "user": {
+          "scope": "user",
+          "increment": false,
+          "key": "user:legacy_user:support_account_actions:event:validator_legacy",
+          "formulaId": "count_dedupe.support_account_count",
+          "reason": "legacy_bucket_only"
+        },
+        "creator": {
+          "scope": "creator",
+          "increment": false,
+          "key": null,
+          "formulaId": "count_dedupe.support_account_count",
+          "reason": "legacy_bucket_only"
+        },
+        "guest": {
+          "scope": "guest",
+          "increment": false,
+          "key": null,
+          "formulaId": "count_dedupe.support_account_count",
+          "reason": "legacy_bucket_only"
+        },
+        "legacy": {
+          "scope": "legacy",
+          "increment": true,
+          "key": "legacy:support_account_actions:event:validator_legacy",
+          "formulaId": "count_dedupe.legacy_bucket_count",
+          "reason": "legacy_bucket_only"
+        }
+      }
+    },
+    "replay": {
+      "domain": "wallet_opens",
+      "eventName": "wallet_opened",
+      "eventId": "validator_replay",
+      "sessionId": "session_validator",
+      "userId": "user_validator",
+      "identityConfidence": "exact",
+      "replayOfEventId": "wallet_opened:validator",
+      "formulaId": "count_dedupe.wallet_open_count",
+      "canonicalKey": "event:validator_replay",
+      "globalKey": "global:wallet_opens:event:validator_replay",
+      "userKey": "user:user_validator:wallet_opens:event:validator_replay",
+      "creatorKey": null,
+      "guestKey": null,
+      "legacyKey": "legacy:wallet_opens:event:validator_replay",
+      "bestUserIdentity": "user_validator",
+      "legacyBucket": false,
+      "replaySuppressed": true,
+      "duplicateRisk": "retry_replay_suppressed",
+      "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it.",
+      "divergenceExplanation": "Retry or replay evidence is preserved outside standard user-facing counts unless replay is the metric itself.",
+      "decisions": {
+        "global": {
+          "scope": "global",
+          "increment": false,
+          "key": "global:wallet_opens:event:validator_replay",
+          "formulaId": "count_dedupe.wallet_open_count",
+          "reason": "retry_replay_suppressed"
+        },
+        "user": {
+          "scope": "user",
+          "increment": false,
+          "key": "user:user_validator:wallet_opens:event:validator_replay",
+          "formulaId": "count_dedupe.wallet_open_count",
+          "reason": "retry_replay_suppressed"
+        },
+        "creator": {
+          "scope": "creator",
+          "increment": false,
+          "key": null,
+          "formulaId": "count_dedupe.wallet_open_count",
+          "reason": "retry_replay_suppressed"
+        },
+        "guest": {
+          "scope": "guest",
+          "increment": false,
+          "key": null,
+          "formulaId": "count_dedupe.wallet_open_count",
+          "reason": "retry_replay_suppressed"
+        },
+        "legacy": {
+          "scope": "legacy",
+          "increment": false,
+          "key": "legacy:wallet_opens:event:validator_replay",
+          "formulaId": "count_dedupe.legacy_bucket_count",
+          "reason": "retry_replay_suppressed"
+        }
+      }
+    }
+  },
+  "existingGlobalUserDedupeReference": {
+    "formulaId": "count_dedupe.creator_relationship_count",
+    "domain": "creator_relationships",
+    "canonicalKey": "event:validator_existing",
+    "globalKey": "global:creator_relationships:event:validator_existing",
+    "userKey": "user:person_validator:creator_relationships:event:validator_existing",
+    "creatorKey": null,
+    "legacyKey": "legacy:creator_relationships:event:validator_existing",
+    "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it.",
+    "divergenceExplanation": "Global count increments once and user count is attributed to the best user identity; guest scope is suppressed to avoid double counting.",
+    "replaySuppressed": false,
+    "legacyBucket": false
+  },
+  "debugLane": {
+    "label": "Count dedupe math",
+    "requiredDomainsCovered": 16,
+    "duplicateRiskCount": 3,
+    "legacyBucketCount": 1,
+    "replaySuppressedCount": 1,
+    "globalUserDivergenceExplanations": 3,
+    "missingFormulaReferences": 0
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/canonical-math-authority-ledger.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/count-deduplication-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/count-deduplication-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-canonical-math-authority-ledger.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-count-deduplication-normalization.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics/global-user-dedupe-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/global-user-dedupe-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/canonical-math-authority-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/canonical-math-authority-ledger.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/count-deduplication-normalizer.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/count-deduplication-normalization.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "openPullRequests": [
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 302,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "classification": "onboarding_telemetry_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 301,
+      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
+      "classification": "doctrine_governance_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 300,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
+      "classification": "architecture_refactor_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 299,
+      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 298,
+      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 297,
+      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 296,
+      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 295,
+      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 294,
+      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 293,
+      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
+      "classification": "security_patch_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 292,
+      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+      "classification": "performance_patch_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 291,
+      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+      "classification": "accessibility_patch_external_review_required"
+    }
+  ],
+  "validationFailures": [],
+  "nextExactSteps": [
+    "Use count-deduplication-normalizer for new global/user/creator count materializers.",
+    "Keep weak or unknown legacy counts in the legacy bucket until source identity truth is exact or linked.",
+    "Keep SQL/export raw facts separate from user-facing counts when retries or replays are present."
+  ]
+}

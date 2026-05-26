@@ -98,9 +98,17 @@ function classifyDirtyFile(path: string) {
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "src/lib/math/canonical-math-authority-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/math/canonical-math-authority-ledger.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/count-deduplication-normalizer.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/global-user-dedupe-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/global-user-dedupe-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-canonical-math-authority-ledger.ts") return "failed_validator_to_repair";
+  if (normalized === "scripts/agent/validate-count-deduplication-normalization.ts") return "failed_validator_to_repair";
   if (normalized === "tests/unit/canonical-math-authority-ledger.spec.ts") return "current_generated_artifact_to_commit";
+  if (normalized === "tests/unit/count-deduplication-normalization.spec.ts") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/count-deduplication-normalization.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/count-deduplication-normalization.md") return "release_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === "CHANGELOG.md") return "release_artifact_expected";
   if (normalized === "public/kandydrops-release-notes.json") return "release_artifact_expected";
@@ -120,7 +128,10 @@ function classifyOpenPr(pr: JsonRecord) {
   if (/sentinel|security|Math\.random|ID generation/i.test(title)) return "security_patch_external_review_required";
   if (/bolt|performance|Map lookup/i.test(title)) return "performance_patch_external_review_required";
   if (/palette|accessibility|loading states/i.test(title)) return "accessibility_patch_external_review_required";
-  return number > 0 ? "unsafe_unknown" : "not_applicable";
+  if (/doctrine|banned-pattern|drift/i.test(title)) return "doctrine_governance_external_review_required";
+  if (/monolith|responsibility boundaries|file risk/i.test(title)) return "architecture_refactor_external_review_required";
+  if (/onboarding|friction|rescue signals/i.test(title)) return "onboarding_telemetry_external_review_required";
+  return number > 0 ? "open_pr_external_review_required" : "not_applicable";
 }
 
 function listOpenPrs() {

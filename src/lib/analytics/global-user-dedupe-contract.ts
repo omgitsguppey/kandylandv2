@@ -79,6 +79,20 @@ export interface GlobalUserDedupeDebugDecision {
   nextAction: string;
 }
 
+export interface CountDedupeMathReference {
+  formulaId: string;
+  domain: string;
+  canonicalKey: string;
+  globalKey: string;
+  userKey: string | null;
+  creatorKey: string | null;
+  legacyKey: string | null;
+  zeroUnknownBehavior: string;
+  divergenceExplanation: string;
+  replaySuppressed: boolean;
+  legacyBucket: boolean;
+}
+
 export interface GlobalUserDedupeDecision {
   input: GlobalUserDedupeInput;
   dedupeScope: GlobalUserDedupeScope;
@@ -91,6 +105,7 @@ export interface GlobalUserDedupeDecision {
   globalUserParity: GlobalUserParityFields;
   duplicateRisk: DuplicateRisk;
   suppressedDuplicateKeys: string[];
+  countDedupeMath?: CountDedupeMathReference;
   debug: GlobalUserDedupeDebugDecision;
 }
 

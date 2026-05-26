@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T05:24:08.542Z",
+  "generatedAtUtc": "2026-05-26T05:44:23.285Z",
   "reportKey": "canonical-math-authority-ledger",
-  "currentHead": "9f9e4665586353eab6fc37075eaeb31f8e56c0ba",
+  "currentHead": "699a4be3edf19f8659605d7c92a572f27bbfc7b4",
   "status": "pass",
   "productionReadsRequired": false,
   "productionDataMutated": false,
@@ -383,6 +383,620 @@
       ],
       "countRule": "integer",
       "globalUserDivergenceRule": "user dedupe can intentionally diverge from global dedupe when identity is guest, weak, suppressed, or linked later."
+    },
+    {
+      "formulaId": "count_dedupe.page_session_count",
+      "domain": "session_metrics",
+      "humanName": "Deduped page/session event count",
+      "formulaExpression": "count += 1 for unique page/session action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "analytics_count_dedupe",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "unknown"
+      ],
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.signup_login_count",
+      "domain": "user_metrics",
+      "humanName": "Deduped signup/login event count",
+      "formulaExpression": "count += 1 for unique auth action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "auth_analytics",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.drop_open_count",
+      "domain": "global_metrics",
+      "humanName": "Deduped drop opened count",
+      "formulaExpression": "count += 1 for unique drop open action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "drops_analytics",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.unwrap_count",
+      "domain": "global_metrics",
+      "humanName": "Deduped unwrap count",
+      "formulaExpression": "count += 1 for server-backed unique unwrap/unlock action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "commerce_server_truth",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.watch_session_count",
+      "domain": "watch_time",
+      "humanName": "Deduped watch session count",
+      "formulaExpression": "count += 1 for unique watch session action key; replay increments only when replay is the metric",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "analytics_watch_time",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "durationStates": [
+        "active",
+        "passive",
+        "hidden",
+        "playback",
+        "unknown"
+      ],
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.wallet_open_count",
+      "domain": "user_metrics",
+      "humanName": "Deduped wallet opened count",
+      "formulaExpression": "count += 1 for unique wallet open action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "wallet_analytics",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.checkout_start_count",
+      "domain": "user_metrics",
+      "humanName": "Deduped checkout start count",
+      "formulaExpression": "count += 1 for unique checkout start action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "commerce_funnel",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.payment_approved_count",
+      "domain": "revenue",
+      "humanName": "Deduped payment approved count",
+      "formulaExpression": "count += 1 for unique server/provider-linked payment approval action key; this does not change revenue math",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "commerce_server_truth",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "valueSourceBreakdown": [
+        "source_of_funds",
+        "confidence"
+      ],
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.daily_task_count",
+      "domain": "daily_tasks",
+      "humanName": "Deduped daily task event count",
+      "formulaExpression": "count += 1 for unique daily task action or reward key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "daily_tasks",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "valueSourceBreakdown": [
+        "source_of_funds",
+        "confidence"
+      ],
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.chat_event_count",
+      "domain": "chat",
+      "humanName": "Deduped chat event count",
+      "formulaExpression": "count += 1 for unique chat attempt/send/block action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "chat",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.creator_profile_count",
+      "domain": "discovery",
+      "humanName": "Deduped creator profile view count",
+      "formulaExpression": "count += 1 for unique creator profile action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "creator_discovery",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.creator_relationship_count",
+      "domain": "discovery",
+      "humanName": "Deduped creator follow relationship count",
+      "formulaExpression": "count += 1 for unique follow/unfollow relationship action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "creator_relationships",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.fan_pass_count",
+      "domain": "fan_pass",
+      "humanName": "Deduped Fan Pass lifecycle count",
+      "formulaExpression": "count += 1 for unique Fan Pass lifecycle/access action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "fan_pass",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.notification_count",
+      "domain": "notifications",
+      "humanName": "Deduped notification event count",
+      "formulaExpression": "count += 1 for unique prompt/token/targeting action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "notifications",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.media_count",
+      "domain": "media",
+      "humanName": "Deduped media upload/access count",
+      "formulaExpression": "count += 1 for unique media upload/access action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "media",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.support_account_count",
+      "domain": "user_metrics",
+      "humanName": "Deduped support/account action count",
+      "formulaExpression": "count += 1 for unique support or account action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "support_account",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.legacy_bucket_count",
+      "domain": "legacy_recovery",
+      "humanName": "Legacy bucket count",
+      "formulaExpression": "legacyCount += 1 only for weak/unknown legacy confidence action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "legacy_recovery",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.global_count",
+      "domain": "global_metrics",
+      "humanName": "Canonical global count",
+      "formulaExpression": "globalCount += 1 for non-legacy non-replay unique action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "analytics_count_dedupe",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.user_count",
+      "domain": "user_metrics",
+      "humanName": "Canonical user count",
+      "formulaExpression": "userCount += 1 under best user identity for non-legacy non-replay unique action key",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "analytics_count_dedupe",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.creator_count",
+      "domain": "creator_monetization",
+      "humanName": "Canonical creator count",
+      "formulaExpression": "creatorCount += 1 for creator-scoped unique action key when creatorId exists",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "analytics_count_dedupe",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "valueSourceBreakdown": [
+        "source_of_funds",
+        "confidence"
+      ],
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
+    },
+    {
+      "formulaId": "count_dedupe.retry_replay_suppression",
+      "domain": "global_metrics",
+      "humanName": "Retry and replay count suppression",
+      "formulaExpression": "standardCount += 0 for retry/replay unless replay is the metric itself",
+      "numerator": "unique accepted count increments",
+      "denominator": "n/a",
+      "timeWindow": "explicit source/reporting window supplied by the consumer",
+      "dedupeKey": "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+      "sourceTruth": "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+      "confidenceRule": "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+      "legacyRule": "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "analytics_count_dedupe",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/count-deduplication-normalizer.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/analytics/sql-database-parity-engine.ts"
+      ],
+      "countRule": "integer",
+      "globalUserDivergenceRule": "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression."
     },
     {
       "formulaId": "behavioral_event_fact.deduped_count",
@@ -876,6 +1490,20 @@
       "reason": "Current source maps normalized event facts to summary/export rows and records mismatches."
     },
     {
+      "referenceId": "count_deduplication_normalizer",
+      "formulaId": "count_dedupe.global_count",
+      "sourcePath": "src/lib/math/count-deduplication-normalizer.ts",
+      "status": "canonical",
+      "reason": "Current source defines eventId/dedupeKey/timestamp-bucket priority, linked guest/user suppression, legacy buckets, and replay suppression."
+    },
+    {
+      "referenceId": "count_deduplication_user_identity",
+      "formulaId": "count_dedupe.user_count",
+      "sourcePath": "src/lib/analytics/global-user-dedupe-engine.ts",
+      "status": "canonical",
+      "reason": "Existing global/user dedupe engine now carries the canonical count math explanation for normalized summary paths."
+    },
+    {
       "referenceId": "revenue_truth_inventory",
       "formulaId": "revenue.server_verified_revenue",
       "sourcePath": "docs/runbooks/payment-incident.md",
@@ -912,17 +1540,22 @@
     "global_event_fact_count": "global_metrics.event_fact_count",
     "user_event_fact_count": "user_metrics.event_fact_count",
     "behavioral_event_facts": "behavioral_event_fact.deduped_count",
+    "count_dedupe_global_count": "count_dedupe.global_count",
+    "count_dedupe_user_count": "count_dedupe.user_count",
+    "count_dedupe_creator_count": "count_dedupe.creator_count",
+    "count_dedupe_legacy_bucket_count": "count_dedupe.legacy_bucket_count",
+    "count_dedupe_retry_replay_suppression": "count_dedupe.retry_replay_suppression",
     "server_verified_revenue": "revenue.server_verified_revenue",
     "gumdrop_source_of_funds_balance": "gumdrop.source_of_funds_balance"
   },
   "statusCounts": {
-    "canonical": 19,
+    "canonical": 40,
     "needs_operator_decision": 9
   },
   "debugLane": {
     "label": "Math authority",
-    "formulasInventoried": 28,
-    "canonicalFormulas": 19,
+    "formulasInventoried": 49,
+    "canonicalFormulas": 40,
     "duplicateFormulas": 0,
     "missingDefinitions": 0,
     "needsOperatorDecision": 9
@@ -945,11 +1578,116 @@
     "regressionRisk": 86,
     "overallHealthScore": 85.34
   },
-  "dirtyFiles": [],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/canonical-math-authority-ledger.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/count-deduplication-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/count-deduplication-normalization.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-canonical-math-authority-ledger.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-count-deduplication-normalization.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "src/lib/analytics/global-user-dedupe-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/global-user-dedupe-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/canonical-math-authority-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/canonical-math-authority-ledger.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/count-deduplication-normalizer.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/count-deduplication-normalization.spec.ts",
+      "classification": "current_generated_artifact_to_commit"
+    }
+  ],
   "openPullRequests": [
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
+      "number": 302,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "classification": "onboarding_telemetry_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 301,
+      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
+      "classification": "doctrine_governance_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 300,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
+      "classification": "architecture_refactor_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
       "number": 299,
       "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
@@ -957,7 +1695,7 @@
     },
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
       "number": 298,
       "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
@@ -965,7 +1703,7 @@
     },
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
       "number": 297,
       "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
@@ -973,7 +1711,7 @@
     },
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
       "number": 296,
       "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
@@ -981,7 +1719,7 @@
     },
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
       "number": 295,
       "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
@@ -989,7 +1727,7 @@
     },
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
       "number": 294,
       "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
@@ -997,7 +1735,7 @@
     },
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
       "number": 293,
       "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
@@ -1005,7 +1743,7 @@
     },
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
       "number": 292,
       "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
@@ -1013,7 +1751,7 @@
     },
     {
       "isDraft": false,
-      "mergeStateStatus": "UNKNOWN",
+      "mergeStateStatus": "CLEAN",
       "number": 291,
       "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
       "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",

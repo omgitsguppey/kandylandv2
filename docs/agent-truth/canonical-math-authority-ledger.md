@@ -1,7 +1,7 @@
 # Canonical Math Authority Ledger
 
-Generated: 2026-05-26T05:24:08.542Z
-Current head: 9f9e4665586353eab6fc37075eaeb31f8e56c0ba
+Generated: 2026-05-26T05:44:23.285Z
+Current head: 699a4be3edf19f8659605d7c92a572f27bbfc7b4
 Status: pass
 
 ## Scope
@@ -10,7 +10,7 @@ This source-only ledger inventories the current formula authorities for scores, 
 
 ## Status Counts
 
-- canonical: 19
+- canonical: 40
 - needs_operator_decision: 9
 - duplicate: 0
 - stale: 0
@@ -33,6 +33,27 @@ This source-only ledger inventories the current formula authorities for scores, 
 | person_metrics.hydrated_event_count | user_metrics | canonical | analytics_person_metrics | canonical event envelope and person metric definitions |
 | global_metrics.event_fact_count | global_metrics | canonical | analytics_global_user_dedupe | normalized behavioral event fact global dedupe decision |
 | user_metrics.event_fact_count | user_metrics | canonical | analytics_global_user_dedupe | normalized behavioral event fact user dedupe decision |
+| count_dedupe.page_session_count | session_metrics | canonical | analytics_count_dedupe | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.signup_login_count | user_metrics | canonical | auth_analytics | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.drop_open_count | global_metrics | canonical | drops_analytics | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.unwrap_count | global_metrics | canonical | commerce_server_truth | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.watch_session_count | watch_time | canonical | analytics_watch_time | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.wallet_open_count | user_metrics | canonical | wallet_analytics | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.checkout_start_count | user_metrics | canonical | commerce_funnel | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.payment_approved_count | revenue | canonical | commerce_server_truth | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.daily_task_count | daily_tasks | canonical | daily_tasks | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.chat_event_count | chat | canonical | chat | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.creator_profile_count | discovery | canonical | creator_discovery | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.creator_relationship_count | discovery | canonical | creator_relationships | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.fan_pass_count | fan_pass | canonical | fan_pass | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.notification_count | notifications | canonical | notifications | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.media_count | media | canonical | media | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.support_account_count | user_metrics | canonical | support_account | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.legacy_bucket_count | legacy_recovery | canonical | legacy_recovery | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.global_count | global_metrics | canonical | analytics_count_dedupe | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.user_count | user_metrics | canonical | analytics_count_dedupe | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.creator_count | creator_monetization | canonical | analytics_count_dedupe | canonical count deduplication normalizer and upstream event envelope/event fact truth |
+| count_dedupe.retry_replay_suppression | global_metrics | canonical | analytics_count_dedupe | canonical count deduplication normalizer and upstream event envelope/event fact truth |
 | behavioral_event_fact.deduped_count | global_metrics | canonical | behavioral_event_fact | normalizeBehavioralEventFactWithDiagnostics |
 | session_metrics.active_session_time | session_metrics | canonical | analytics_session_metrics | session metrics engine activity updates |
 | bounce.session_bounce_status | bounce | canonical | analytics_session_metrics | classifyBounce and classifyEngagedSession |
@@ -64,10 +85,32 @@ This source-only ledger inventories the current formula authorities for scores, 
 
 ## Dirty Files
 
-- none
+- CHANGELOG.md: release_artifact_expected
+- agent/state/canonical-math-authority-ledger.generated.json: current_generated_artifact_to_commit
+- agent/state/count-deduplication-normalization.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/canonical-math-authority-ledger.md: release_artifact_expected
+- docs/agent-truth/count-deduplication-normalization.md: release_artifact_expected
+- package.json: real_source_change_needs_review
+- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-canonical-math-authority-ledger.ts: failed_validator_to_repair
+- scripts/agent/validate-count-deduplication-normalization.ts: failed_validator_to_repair
+- src/lib/analytics/global-user-dedupe-contract.ts: real_source_change_needs_review
+- src/lib/analytics/global-user-dedupe-engine.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
+- src/lib/math/canonical-math-authority-contract.ts: real_source_change_needs_review
+- src/lib/math/canonical-math-authority-ledger.ts: real_source_change_needs_review
+- src/lib/math/count-deduplication-normalizer.ts: real_source_change_needs_review
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- tests/unit/count-deduplication-normalization.spec.ts: current_generated_artifact_to_commit
 
 ## Open PR Classification
 
+- #302 🧭 Improve onboarding friction visibility and technical rescue signals: onboarding_telemetry_external_review_required
+- #301 📚 Reduce doctrine drift and banned-pattern reintroduction: doctrine_governance_external_review_required
+- #300 🧱 Reduce monolith file risk and clarify responsibility boundaries: architecture_refactor_external_review_required
 - #299 chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates: dependency_update_external_review_required
 - #298 chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1: dependency_update_external_review_required
 - #297 chore(deps): bump knip from 5.88.1 to 6.14.2: dependency_update_external_review_required

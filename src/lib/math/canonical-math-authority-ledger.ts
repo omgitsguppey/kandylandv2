@@ -13,6 +13,73 @@ const SCORE_SOURCE_PATHS = [
   "src/lib/agent-score/evidence-quality.ts",
   "src/lib/agent-score/non-event-score-policy.ts",
 ];
+const COUNT_DEDUPE_SOURCE_PATHS = [
+  "src/lib/math/count-deduplication-normalizer.ts",
+  "src/lib/analytics/global-user-dedupe-engine.ts",
+  "src/lib/analytics/person-metrics-hydration.ts",
+  "src/lib/analytics/sql-database-parity-engine.ts",
+];
+
+function countFormula(input: {
+  formulaId: MathFormulaId;
+  domain: FormulaDefinition["domain"];
+  humanName: string;
+  formulaExpression: string;
+  owner: string;
+}): FormulaDefinition {
+  return {
+    formulaId: input.formulaId,
+    domain: input.domain,
+    humanName: input.humanName,
+    formulaExpression: input.formulaExpression,
+    numerator: "unique accepted count increments",
+    denominator: "n/a",
+    timeWindow: "explicit source/reporting window supplied by the consumer",
+    dedupeKey: "canonical eventId, else dedupeKey, else sessionId|eventName|objectId|timestamp bucket",
+    sourceTruth: "canonical count deduplication normalizer and upstream event envelope/event fact truth",
+    confidenceRule: "exact/linked/inferred can count in eligible scopes; weak/unknown legacy counts only in legacy bucket",
+    confidenceLevel: "mixed_explicit",
+    zeroDenominatorRule: "n/a; zero means no accepted count increment in the evaluated window, unknown remains uncounted until linked",
+    legacyRule: "legacy weak/unknown confidence cannot become exact user count and remains in the legacy bucket until exact identity/event truth exists.",
+    userFacingAllowed: true,
+    adminFacingAllowed: true,
+    scoreImpact: null,
+    owner: input.owner,
+    authorityStatus: "canonical",
+    sourcePaths: COUNT_DEDUPE_SOURCE_PATHS,
+    countRule: "integer",
+    ...(input.domain === "session_metrics" ? { durationStates: ["active", "passive", "idle", "hidden", "unknown"] as const } : {}),
+    ...(input.domain === "watch_time" ? { durationStates: ["active", "passive", "hidden", "playback", "unknown"] as const } : {}),
+    ...(["revenue", "gumdrop", "creator_monetization", "daily_tasks"].includes(input.domain) ? {
+      valueSourceBreakdown: ["source_of_funds", "confidence"] as const,
+    } : {}),
+    globalUserDivergenceRule: "global, user, creator, guest, and legacy scopes use the same canonical action key; divergence must explain missing identity, linked guest/user suppression, legacy confidence, or replay suppression.",
+  };
+}
+
+const COUNT_DEDUPE_FORMULAS = [
+  countFormula({ formulaId: "count_dedupe.page_session_count", domain: "session_metrics", humanName: "Deduped page/session event count", formulaExpression: "count += 1 for unique page/session action key", owner: "analytics_count_dedupe" }),
+  countFormula({ formulaId: "count_dedupe.signup_login_count", domain: "user_metrics", humanName: "Deduped signup/login event count", formulaExpression: "count += 1 for unique auth action key", owner: "auth_analytics" }),
+  countFormula({ formulaId: "count_dedupe.drop_open_count", domain: "global_metrics", humanName: "Deduped drop opened count", formulaExpression: "count += 1 for unique drop open action key", owner: "drops_analytics" }),
+  countFormula({ formulaId: "count_dedupe.unwrap_count", domain: "global_metrics", humanName: "Deduped unwrap count", formulaExpression: "count += 1 for server-backed unique unwrap/unlock action key", owner: "commerce_server_truth" }),
+  countFormula({ formulaId: "count_dedupe.watch_session_count", domain: "watch_time", humanName: "Deduped watch session count", formulaExpression: "count += 1 for unique watch session action key; replay increments only when replay is the metric", owner: "analytics_watch_time" }),
+  countFormula({ formulaId: "count_dedupe.wallet_open_count", domain: "user_metrics", humanName: "Deduped wallet opened count", formulaExpression: "count += 1 for unique wallet open action key", owner: "wallet_analytics" }),
+  countFormula({ formulaId: "count_dedupe.checkout_start_count", domain: "user_metrics", humanName: "Deduped checkout start count", formulaExpression: "count += 1 for unique checkout start action key", owner: "commerce_funnel" }),
+  countFormula({ formulaId: "count_dedupe.payment_approved_count", domain: "revenue", humanName: "Deduped payment approved count", formulaExpression: "count += 1 for unique server/provider-linked payment approval action key; this does not change revenue math", owner: "commerce_server_truth" }),
+  countFormula({ formulaId: "count_dedupe.daily_task_count", domain: "daily_tasks", humanName: "Deduped daily task event count", formulaExpression: "count += 1 for unique daily task action or reward key", owner: "daily_tasks" }),
+  countFormula({ formulaId: "count_dedupe.chat_event_count", domain: "chat", humanName: "Deduped chat event count", formulaExpression: "count += 1 for unique chat attempt/send/block action key", owner: "chat" }),
+  countFormula({ formulaId: "count_dedupe.creator_profile_count", domain: "discovery", humanName: "Deduped creator profile view count", formulaExpression: "count += 1 for unique creator profile action key", owner: "creator_discovery" }),
+  countFormula({ formulaId: "count_dedupe.creator_relationship_count", domain: "discovery", humanName: "Deduped creator follow relationship count", formulaExpression: "count += 1 for unique follow/unfollow relationship action key", owner: "creator_relationships" }),
+  countFormula({ formulaId: "count_dedupe.fan_pass_count", domain: "fan_pass", humanName: "Deduped Fan Pass lifecycle count", formulaExpression: "count += 1 for unique Fan Pass lifecycle/access action key", owner: "fan_pass" }),
+  countFormula({ formulaId: "count_dedupe.notification_count", domain: "notifications", humanName: "Deduped notification event count", formulaExpression: "count += 1 for unique prompt/token/targeting action key", owner: "notifications" }),
+  countFormula({ formulaId: "count_dedupe.media_count", domain: "media", humanName: "Deduped media upload/access count", formulaExpression: "count += 1 for unique media upload/access action key", owner: "media" }),
+  countFormula({ formulaId: "count_dedupe.support_account_count", domain: "user_metrics", humanName: "Deduped support/account action count", formulaExpression: "count += 1 for unique support or account action key", owner: "support_account" }),
+  countFormula({ formulaId: "count_dedupe.legacy_bucket_count", domain: "legacy_recovery", humanName: "Legacy bucket count", formulaExpression: "legacyCount += 1 only for weak/unknown legacy confidence action key", owner: "legacy_recovery" }),
+  countFormula({ formulaId: "count_dedupe.global_count", domain: "global_metrics", humanName: "Canonical global count", formulaExpression: "globalCount += 1 for non-legacy non-replay unique action key", owner: "analytics_count_dedupe" }),
+  countFormula({ formulaId: "count_dedupe.user_count", domain: "user_metrics", humanName: "Canonical user count", formulaExpression: "userCount += 1 under best user identity for non-legacy non-replay unique action key", owner: "analytics_count_dedupe" }),
+  countFormula({ formulaId: "count_dedupe.creator_count", domain: "creator_monetization", humanName: "Canonical creator count", formulaExpression: "creatorCount += 1 for creator-scoped unique action key when creatorId exists", owner: "analytics_count_dedupe" }),
+  countFormula({ formulaId: "count_dedupe.retry_replay_suppression", domain: "global_metrics", humanName: "Retry and replay count suppression", formulaExpression: "standardCount += 0 for retry/replay unless replay is the metric itself", owner: "analytics_count_dedupe" }),
+] as const satisfies readonly FormulaDefinition[];
 
 export const CANONICAL_MATH_FORMULAS = [
   {
@@ -346,6 +413,7 @@ export const CANONICAL_MATH_FORMULAS = [
     countRule: "integer",
     globalUserDivergenceRule: "user dedupe can intentionally diverge from global dedupe when identity is guest, weak, suppressed, or linked later.",
   },
+  ...COUNT_DEDUPE_FORMULAS,
   {
     formulaId: "behavioral_event_fact.deduped_count",
     domain: "global_metrics",
@@ -779,6 +847,20 @@ export const CANONICAL_MATH_FORMULA_REFERENCES = [
     reason: "Current source maps normalized event facts to summary/export rows and records mismatches.",
   },
   {
+    referenceId: "count_deduplication_normalizer",
+    formulaId: "count_dedupe.global_count",
+    sourcePath: "src/lib/math/count-deduplication-normalizer.ts",
+    status: "canonical",
+    reason: "Current source defines eventId/dedupeKey/timestamp-bucket priority, linked guest/user suppression, legacy buckets, and replay suppression.",
+  },
+  {
+    referenceId: "count_deduplication_user_identity",
+    formulaId: "count_dedupe.user_count",
+    sourcePath: "src/lib/analytics/global-user-dedupe-engine.ts",
+    status: "canonical",
+    reason: "Existing global/user dedupe engine now carries the canonical count math explanation for normalized summary paths.",
+  },
+  {
     referenceId: "revenue_truth_inventory",
     formulaId: "revenue.server_verified_revenue",
     sourcePath: "docs/runbooks/payment-incident.md",
@@ -816,6 +898,11 @@ export const METRIC_FORMULA_REFERENCES: Record<string, MathFormulaId> = {
   global_event_fact_count: "global_metrics.event_fact_count",
   user_event_fact_count: "user_metrics.event_fact_count",
   behavioral_event_facts: "behavioral_event_fact.deduped_count",
+  count_dedupe_global_count: "count_dedupe.global_count",
+  count_dedupe_user_count: "count_dedupe.user_count",
+  count_dedupe_creator_count: "count_dedupe.creator_count",
+  count_dedupe_legacy_bucket_count: "count_dedupe.legacy_bucket_count",
+  count_dedupe_retry_replay_suppression: "count_dedupe.retry_replay_suppression",
   server_verified_revenue: "revenue.server_verified_revenue",
   gumdrop_source_of_funds_balance: "gumdrop.source_of_funds_balance",
 };

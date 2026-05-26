@@ -1,4 +1,8 @@
 import type { IdentityConfidence, IdentityState } from "@/lib/analytics/identity-handoff-contract";
+import {
+  inferCountDomain,
+  normalizeCountInput,
+} from "@/lib/math/count-deduplication-normalizer";
 
 import type {
   AggregationCountDecision,
@@ -151,6 +155,28 @@ export function normalizeGlobalUserMetric(input: GlobalUserDedupeInput): GlobalU
   const userKey = buildUserDedupeKey(input);
   const linkedKey = buildLinkedPersonDedupeKey(input);
   const sqlKey = ["export", sanitizeKey(input.eventName), baseActionKey(input)].join(":");
+  const countDedupeMath = normalizeCountInput({
+    domain: inferCountDomain({
+      eventName: input.eventName,
+      featureId: input.featureId,
+      surface: input.surface,
+    }),
+    eventName: input.eventName,
+    eventId: input.eventId,
+    dedupeKey: input.idempotencyKey,
+    sessionId: input.sessionId,
+    objectId: input.featureId || input.surface,
+    userId: input.userId,
+    guestId: input.guestId,
+    linkedPersonId: input.linkedPersonId,
+    linkId: input.linkId,
+    identityConfidence,
+    legacy: legacy,
+    retryAttempt: input.retryAttempt,
+    replayOfEventId: input.replayOfEventId,
+    metricIsReplay: false,
+    sourceTruth: "global_user_dedupe_engine",
+  });
 
   const reason: AggregationCountDecision["reason"] = replay
     ? "retry_replay_not_counted"
@@ -214,6 +240,19 @@ export function normalizeGlobalUserMetric(input: GlobalUserDedupeInput): GlobalU
     },
     duplicateRisk,
     suppressedDuplicateKeys: linked && cleanString(input.guestId) ? [`guest:${input.guestId}`] : [],
+    countDedupeMath: {
+      formulaId: countDedupeMath.formulaId,
+      domain: countDedupeMath.domain,
+      canonicalKey: countDedupeMath.canonicalKey,
+      globalKey: countDedupeMath.globalKey,
+      userKey: countDedupeMath.userKey,
+      creatorKey: countDedupeMath.creatorKey,
+      legacyKey: countDedupeMath.legacyKey,
+      zeroUnknownBehavior: countDedupeMath.zeroUnknownBehavior,
+      divergenceExplanation: countDedupeMath.divergenceExplanation,
+      replaySuppressed: countDedupeMath.replaySuppressed,
+      legacyBucket: countDedupeMath.legacyBucket,
+    },
     debug: {
       lane: "Global vs user dedupe",
       defaultVisible: duplicateRisk !== "none",
@@ -235,6 +274,9 @@ export function normalizeGlobalUserMetric(input: GlobalUserDedupeInput): GlobalU
 }
 
 export function explainDedupeDecision(input: GlobalUserDedupeDecision) {
+  if (input.countDedupeMath?.divergenceExplanation) {
+    return input.countDedupeMath.divergenceExplanation;
+  }
   if (input.duplicateRisk === "linked_guest_user_duplicate_risk_suppressed") {
     return `A linked guest action for ${input.input.eventName} is counted once globally and attributed to the linked guest user identity.`;
   }

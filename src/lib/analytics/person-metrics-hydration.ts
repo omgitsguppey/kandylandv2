@@ -621,6 +621,9 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/global-user-dedupe-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/global-user-dedupe-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/count-deduplication-normalizer.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/canonical-math-authority-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/canonical-math-authority-ledger.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics-action-taxonomy.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/auth/auth-provider-conflict-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/auth/auth-provider-conflict-resolver.ts") return "real_source_change_needs_review";
@@ -688,6 +691,13 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/global-user-dedupe-normalization.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/count-deduplication-normalization.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/count-deduplication-normalization.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-count-deduplication-normalization.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/count-deduplication-normalization.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/canonical-math-authority-ledger.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/canonical-math-authority-ledger.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-canonical-math-authority-ledger.ts") return "validator_artifact_expected";
   if (normalized === "src/lib/tasks/daily-task-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-duration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-telemetry.ts") return "real_source_change_needs_review";
