@@ -30,3 +30,8 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+
+## 2026-05-26 - [Open Redirect in PromoCard getSafeUrl]
+**Vulnerability:** Open redirect via protocol-relative path bypasses.
+**Learning:** Checking for `pathname` starting with `//` or `\\` is not enough when `trimmedUrl` could start with these characters, which could lead to open redirects if appending unmodified strings or using specific parsers.
+**Prevention:** Make sure `trimmedUrl` is explicitly checked for leading backslashes (`\`) and forward slashes (`//` or `/\`) before accepting it.

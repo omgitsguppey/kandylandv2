@@ -20,4 +20,10 @@ describe("getSafeUrl", () => {
     expect(getSafeUrl(" data:text/html,<svg/onload=alert(1)>")).toBeUndefined();
     expect(getSafeUrl("vbscript:msgbox('xss')")).toBeUndefined();
   });
+
+  it("blocks open redirects with backslashes and forward slashes in original string", () => {
+    expect(getSafeUrl("\\evil.com")).toBeUndefined();
+    expect(getSafeUrl("//evil.com")).toBeUndefined();
+    expect(getSafeUrl("/\\evil.com")).toBeUndefined();
+  });
 });

@@ -13887,3 +13887,6 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-05-26 #issue] PRE: Protect against protocol-relative open redirect in getSafeUrl
+## [2026-05-26 #issue] POST: Fixed open redirect vulnerability in `src/components/PromoCard.tsx`'s `getSafeUrl` function. Ensured `trimmedUrl` cannot be used to bypass domain checks using backslashes (`\`) or forward slashes (`//` or `/\`). Tested changes via `tests/unit/promo-card.spec.ts`.

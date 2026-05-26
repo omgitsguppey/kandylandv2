@@ -29,12 +29,15 @@ export function getSafeUrl(url: string | undefined): string | undefined {
             return undefined;
         }
 
+        if (trimmedUrl.startsWith("//") || trimmedUrl.startsWith("/\\") || trimmedUrl.startsWith("\\")) {
+            return undefined;
+        }
+
         if (parsed.origin === PROMO_CARD_URL_BASE) {
             if (
                 parsed.pathname.startsWith("//")
                 || parsed.pathname.startsWith("/\\")
                 || parsed.pathname.startsWith("\\")
-                || trimmedUrl.startsWith("\\")
             ) {
                 return undefined;
             }
