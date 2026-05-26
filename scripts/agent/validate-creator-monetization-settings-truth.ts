@@ -106,6 +106,12 @@ export function classifyCreatorMonetizationSettingsDirtyFile(filePath: string): 
   if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/feature-registration-gate.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/settings-connection-parity.md") return "documentation_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-readiness-lock.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-monetization-readiness-lock.spec.ts") return "test_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-admin-debug.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-creator-monetization-settings-truth.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/creator-monetization-settings-truth.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "validator_artifact_expected";
@@ -121,6 +127,7 @@ export function classifyCreatorMonetizationSettingsDirtyFile(filePath: string): 
   if (normalized === "src/lib/creator-public-pages.ts") return "current_source_change";
   if (normalized === "src/lib/telemetry-catalog.ts") return "current_source_change";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "current_source_change";
+  if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "current_source_change";
   if (normalized === "src/lib/features/feature-registration-registry.ts") return "current_source_change";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "current_source_change";
   if (normalized === "CHANGELOG.md") return "release_artifact_expected";

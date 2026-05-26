@@ -1,0 +1,104 @@
+{
+  "reportKey": "creator-monetization-readiness-lock",
+  "generatedAtUtc": "2026-05-26T03:28:03.423Z",
+  "currentHead": "2a024ce1",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "fanPassLifecycleStatus": "pass",
+  "creatorSettingsTruthStatus": "pass",
+  "entitlementLedgerStatus": "pass",
+  "chatPricingStatus": "pass",
+  "accessRulesStatus": "pass",
+  "adminDebugStatus": "pass",
+  "telemetryStatus": "pass",
+  "personMetricsStatus": "pass",
+  "paymentRuntimeStatus": "unchanged",
+  "gumdropMathStatus": "unchanged",
+  "privacyStatus": "pass",
+  "scoreBefore": 77.83,
+  "scoreAfter": 77.83,
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "regressionRisk"
+  ],
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "Keep Fan Pass purchases paid-source only and route future monetization consumers through the creator monetization resolver."
+  ],
+  "phaseArtifacts": {
+    "fanPassLifecycle": "agent/state/fan-pass-lifecycle.generated.json",
+    "creatorSettingsTruth": "agent/state/creator-monetization-settings-truth.generated.json",
+    "entitlementLedger": "agent/state/creator-revenue-entitlement-ledger.generated.json",
+    "adminDebug": "agent/state/creator-monetization-admin-debug.generated.json"
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-admin-debug.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-settings-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-fan-pass-lifecycle.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/creator-monetization-readiness-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

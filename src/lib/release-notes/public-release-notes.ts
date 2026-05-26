@@ -1,13 +1,77 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.80",
-  "betaReleaseCounter": 480,
+  "currentVersion": "1.4.81",
+  "betaReleaseCounter": 481,
   "channel": "beta",
-  "generatedAt": "2026-05-26T03:05:00.000Z",
-  "generatedAtUtc": "2026-05-26T03:05:00.000Z",
+  "generatedAt": "2026-05-26T03:25:00.000Z",
+  "generatedAtUtc": "2026-05-26T03:25:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.81",
+      "previousVersion": "1.4.80",
+      "betaReleaseCounter": 481,
+      "previousBetaReleaseCounter": 480,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(creator): lock monetization readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T03:25:00.000Z",
+      "generatedAt": "2026-05-26T03:25:00.000Z",
+      "committedAtUtc": "2026-05-26T03:25:00.000Z",
+      "generatedAtUtc": "2026-05-26T03:25:00.000Z",
+      "category": "Improved",
+      "title": "Creator monetization readiness lock",
+      "updatedAtUtc": "2026-05-26T03:25:00.000Z",
+      "summary": "Locked creator monetization readiness across Fan Pass, settings, entitlements, and admin debug.",
+      "userFacingTitle": "Creator monetization readiness lock",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Locked creator monetization readiness across Fan Pass, settings, entitlements, and admin debug.",
+        "Connected monetization attempts, access, and failures to telemetry and person metrics.",
+        "Kept payment runtime and GumDrop math unchanged."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Added a final creator monetization readiness lock validator over Fan Pass lifecycle, creator settings truth, entitlement ledger, chat pricing, access rules, admin debug, telemetry, person metrics, and beta score evidence.",
+        "Extended adjacent validator allowlists for the final lock artifacts without changing payment, wallet, payout, provider, or GumDrop runtime logic.",
+        "Recorded readiness evidence in agent state and agent-truth documentation."
+      ],
+      "affectedSurfaces": [
+        "Fan Pass lifecycle",
+        "Creator monetization settings",
+        "Creator entitlement ledger",
+        "Creator chat pricing",
+        "Admin creator monetization debug",
+        "Telemetry and person metrics evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-monetization-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/creator-monetization-readiness-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-monetization-admin-debug.ts",
+        "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+        "scripts/agent/validate-creator-monetization-settings-truth.ts",
+        "scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
+        "scripts/agent/validate-fan-pass-lifecycle.ts",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-monetization-readiness-lock.spec.ts"
+      ],
+      "effectiveChangeCount": 16,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.80",
       "previousVersion": "1.4.79",
@@ -1436,61 +1500,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 9,
       "excludedGeneratedChangeCount": 18,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.56",
-      "previousVersion": "1.4.55",
-      "betaReleaseCounter": 456,
-      "previousBetaReleaseCounter": 455,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "feat(debug): add ai repair workbench",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T04:20:00.000Z",
-      "generatedAt": "2026-05-25T04:20:00.000Z",
-      "committedAtUtc": "2026-05-25T04:20:00.000Z",
-      "generatedAtUtc": "2026-05-25T04:20:00.000Z",
-      "category": "New",
-      "title": "AI repair workbench",
-      "updatedAtUtc": "2026-05-25T04:20:00.000Z",
-      "summary": "Refactored the Admin Debug AI assistant into a bounded repair workbench so debug evidence becomes structured work items, proposal queues, critic gates, and approval-safe manual implementation packets.",
-      "userFacingTitle": "AI repair workbench",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refactored AI Debug Assistant into an async repair workbench with bounded context, deterministic triage, critic review, and approval gates.",
-        "Separated deterministic fallback summaries from repair proposals.",
-        "Prevented live AI calls, raw sensitive context, and silent auto-apply without explicit approval."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Gemini planning remains optional and admin-triggered only; tests and validators do not call providers.",
-        "Payment runtime, wallet behavior, PayPal behavior, and GumDrop math were not changed."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug AI assistant",
-        "AI repair workbench",
-        "Repair proposal workflow",
-        "Runtime evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/debug/ai-repair-workbench-contract.ts",
-        "src/lib/debug/ai-repair-context-packet.ts",
-        "src/lib/debug/ai-repair-triage-engine.ts",
-        "src/lib/server/ai-repair-planner.ts",
-        "src/lib/debug/ai-repair-critic.ts",
-        "src/lib/debug/ai-repair-approval-gate.ts",
-        "src/lib/debug/ai-repair-proposal-store.ts",
-        "src/lib/debug/ai-repair-apply-contract.ts",
-        "src/app/admin/debug/components/DebugTabAi.tsx",
-        "src/app/api/admin/debug/assistant/fix/route.ts"
-      ],
-      "effectiveChangeCount": 10,
-      "excludedGeneratedChangeCount": 14,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

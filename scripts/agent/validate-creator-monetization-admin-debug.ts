@@ -101,10 +101,22 @@ export function classifyCreatorMonetizationAdminDebugDirtyFile(filePath: string)
   if (normalized === "src/app/api/admin/debug/route.ts") return "current_source_change";
   if (normalized === "src/lib/telemetry-catalog.ts") return "current_source_change";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "current_source_change";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "current_source_change";
+  if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "current_source_change";
   if (normalized === "scripts/agent/validate-creator-monetization-admin-debug.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-settings-truth.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/creator-monetization-admin-debug.spec.ts") return "test_artifact_expected";
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-settings-truth.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-settings-truth.md") return "documentation_artifact_expected";
+  if (normalized === "agent/state/creator-revenue-entitlement-ledger.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-revenue-entitlement-ledger.md") return "documentation_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-readiness-lock.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-monetization-readiness-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "validator_artifact_expected";
   if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
   if (

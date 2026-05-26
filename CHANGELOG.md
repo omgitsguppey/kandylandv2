@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.81 - 2026-05-26
+- Creator monetization readiness lock
+- Locked creator monetization readiness across Fan Pass, settings, entitlements, and admin debug.
+- Connected monetization attempts, access, and failures to telemetry and person metrics.
+- Kept payment runtime and GumDrop math unchanged.
+
 ## 1.4.80 - 2026-05-26
 - Creator monetization admin debug
 - Connected creator monetization and entitlement health to admin debug.

@@ -482,6 +482,16 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "tests/unit/creator-revenue-entitlement-ledger.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/creator-revenue-entitlement-ledger.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/creator-revenue-entitlement-ledger.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-settings-truth.ts") return "validator_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-settings-truth.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-settings-truth.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-admin-debug.ts") return "validator_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-admin-debug.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-admin-debug.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-monetization-readiness-lock.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-readiness-lock.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/surface-parity-doctrine.generated.json" || normalized === "docs/agent-truth/surface-parity-doctrine.md") return "stale_generated_artifact_to_regenerate";
   if (
     normalized === "CHANGELOG.md"

@@ -108,6 +108,15 @@ export function classifyFanPassLifecycleDirtyFile(filePath: string): FanPassDirt
   if (normalized === "tests/unit/creator-revenue-entitlement-ledger.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/creator-revenue-entitlement-ledger.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/creator-revenue-entitlement-ledger.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-admin-debug.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-monetization-admin-debug.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-admin-debug.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-admin-debug.md") return "documentation_artifact_expected";
+  if (normalized === "src/lib/admin/creator-monetization-debug-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-monetization-readiness-lock.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-readiness-lock.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";

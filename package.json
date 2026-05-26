@@ -85,6 +85,7 @@
         "check:creator-monetization-settings-truth": "tsx scripts/agent/validate-creator-monetization-settings-truth.ts",
         "check:creator-revenue-entitlement-ledger": "tsx scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
         "check:creator-monetization-admin-debug": "tsx scripts/agent/validate-creator-monetization-admin-debug.ts",
+        "check:creator-monetization-readiness-lock": "tsx scripts/agent/validate-creator-monetization-readiness-lock.ts",
         "check:activity-verification-engine": "tsx scripts/agent/validate-activity-verification-engine.ts",
         "check:new-additions-score-coverage": "tsx scripts/agent/validate-new-additions-score-coverage.ts",
         "check:final-behavioral-privacy-telemetry-lock": "tsx scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts",

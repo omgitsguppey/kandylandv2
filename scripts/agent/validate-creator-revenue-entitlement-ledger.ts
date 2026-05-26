@@ -112,6 +112,10 @@ export function classifyCreatorRevenueEntitlementDirtyFile(filePath: string): Di
   if (normalized === "tests/unit/creator-revenue-entitlement-ledger.spec.ts") return "test_artifact_expected";
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
+  if (normalized === "agent/state/fan-pass-lifecycle.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/fan-pass-lifecycle.md") return "documentation_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-settings-truth.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-settings-truth.md") return "documentation_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (
     normalized === "CHANGELOG.md"
@@ -120,10 +124,17 @@ export function classifyCreatorRevenueEntitlementDirtyFile(filePath: string): Di
     || normalized === "src/lib/release-notes/release-version-contract.ts"
   ) return "release_artifact_expected";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-fan-pass-lifecycle.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-settings-truth.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-admin-debug.ts") return "validator_artifact_expected";
   if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-readiness-lock.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-readiness-lock.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-monetization-readiness-lock.spec.ts") return "test_artifact_expected";
   if (/^src\/app\/api\/paypal\//u.test(normalized)) return "unsafe_unknown";
   if (/^src\/lib\/(gumdrop-ledger|server\/gumdrop-ledger|server\/paypal|paypal|wallet)\.ts$/u.test(normalized)) return "unsafe_unknown";
   if (/payment|payout|paypal|wallet|gumdrop-ledger/iu.test(normalized)) return "unsafe_unknown";
