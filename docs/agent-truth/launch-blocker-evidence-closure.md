@@ -6,7 +6,7 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 ## Summary
 
-- Current head: `d1f8e2fb4435ad131c8fc7cc85debe027a31346a`
+- Current head: `a81cdb0b885f65dec63a582e4b9fe4cfdfeced39`
 - Launch gate status: `owner_review`
 - Formal gates cleared by this pass: false
 - Open PRs: 9
@@ -52,33 +52,13 @@ Validator: `npm run check:launch-blocker-evidence-closure`
 
 | File | Classification |
 | --- | --- |
-| CHANGELOG.md | release_artifact_expected |
-| agent/state/admin-truth-source-sample.generated.json | score_evidence_artifact |
+| agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
 | agent/state/cost-risk-exit-pass.generated.json | score_evidence_artifact |
-| agent/state/cost-risk-owner-review-closure.generated.json | score_evidence_artifact |
-| agent/state/current-beta-exit-status.generated.json | score_evidence_artifact |
-| agent/state/formal-evidence-bridge.generated.json | score_evidence_artifact |
-| agent/state/launch-blocker-evidence-closure.generated.json | current_generated_artifact_to_commit |
-| agent/state/overnight-beta-readiness-lock.generated.json | score_evidence_artifact |
-| agent/state/public-beta-score.generated.json | score_evidence_artifact |
-| agent/state/score-80-cost-readiness.generated.json | score_evidence_artifact |
-| agent/state/source-backed-runtime-confidence.generated.json | score_evidence_artifact |
-| docs/agent-truth/admin-truth-source-sample.md | score_evidence_artifact |
+| agent/state/freshness-window-repair.generated.json | score_evidence_artifact |
+| agent/state/targeted-behavior-evidence-repair.generated.json | score_evidence_artifact |
 | docs/agent-truth/cost-risk-exit-pass.md | score_evidence_artifact |
-| docs/agent-truth/cost-risk-owner-review-closure.md | score_evidence_artifact |
-| docs/agent-truth/current-beta-exit-status.md | score_evidence_artifact |
-| docs/agent-truth/formal-evidence-bridge.md | score_evidence_artifact |
-| docs/agent-truth/launch-blocker-evidence-closure.md | release_artifact_expected |
-| docs/agent-truth/overnight-beta-readiness-lock.md | score_evidence_artifact |
-| docs/agent-truth/score-80-cost-readiness.md | score_evidence_artifact |
-| docs/agent-truth/source-backed-runtime-confidence.md | score_evidence_artifact |
-| package.json | launch_blocker_validator |
-| public/kandydrops-release-notes.json | release_artifact_expected |
-| scripts/agent/validate-cost-risk-exit-pass.ts | score_evidence_artifact |
-| scripts/agent/validate-launch-blocker-evidence-closure.ts | launch_blocker_validator |
-| src/lib/release-notes/public-release-notes.ts | release_artifact_expected |
-| src/lib/release-notes/release-version-contract.ts | release_artifact_expected |
-| tests/unit/launch-blocker-evidence-closure.spec.ts | launch_blocker_test |
+| docs/agent-truth/freshness-window-repair.md | score_evidence_artifact |
+| docs/agent-truth/targeted-behavior-evidence-repair.md | score_evidence_artifact |
 
 ## Remaining Launch Blockers
 

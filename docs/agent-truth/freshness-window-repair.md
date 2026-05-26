@@ -6,11 +6,11 @@ Validator: `npm run check:freshness-window-repair`
 
 ## Summary
 
-- Current head: `e75d98523cda258032a04e11eb16e1d128bea2f9`
-- Latest main head: `e75d98523cda258032a04e11eb16e1d128bea2f9`
+- Current head: `a81cdb0b885f65dec63a582e4b9fe4cfdfeced39`
+- Latest main head: `a81cdb0b885f65dec63a582e4b9fe4cfdfeced39`
 - Stale required reports before: 7
-- Freshness: 75.63 -> 83.75
-- Health score: 78.03 -> 84.12
+- Freshness: 75.63 -> 91.88
+- Health score: 78.03 -> 89.19
 - Formal evidence impact: `does_not_clear_formal_gates`
 - Production reads/provider calls/deploys performed: false
 
@@ -41,30 +41,9 @@ Validator: `npm run check:freshness-window-repair`
 
 | File | Classification |
 | --- | --- |
-| CHANGELOG.md | release_artifact_expected |
-| agent/state/creator-experience-simplification.generated.json | current_generated_artifact_to_commit |
-| agent/state/current-beta-exit-status.generated.json | current_generated_artifact_to_commit |
-| agent/state/evidence-capture-status.generated.json | current_generated_artifact_to_commit |
-| agent/state/freshness-window-repair.generated.json | current_generated_artifact_to_commit |
-| agent/state/gumdrop-economy-accuracy.generated.json | current_generated_artifact_to_commit |
-| agent/state/overnight-beta-readiness-lock.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
-| agent/state/refresh-safeguards.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/self-healing-refresh-queue.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/user-creator-ui-parity.generated.json | current_generated_artifact_to_commit |
-| docs/agent-truth/current-beta-exit-status.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/evidence-capture-status.md | current_generated_artifact_to_commit |
-| docs/agent-truth/freshness-window-repair.md | current_generated_artifact_to_commit |
-| docs/agent-truth/overnight-beta-readiness-lock.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/refresh-safeguards.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/self-healing-refresh-queue.md | stale_generated_artifact_to_regenerate |
-| package.json | freshness_required_input_fix |
-| public/kandydrops-release-notes.json | release_artifact_expected |
-| scripts/agent/score-public-beta-readiness.ts | freshness_required_input_fix |
-| scripts/agent/validate-freshness-window-repair.ts | failed_validator_to_repair |
-| src/lib/release-notes/public-release-notes.ts | release_artifact_expected |
-| src/lib/release-notes/release-version-contract.ts | release_artifact_expected |
-| tests/unit/freshness-window-repair.spec.ts | failed_validator_to_repair |
+| agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
+| agent/state/targeted-behavior-evidence-repair.generated.json | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/targeted-behavior-evidence-repair.md | stale_generated_artifact_to_regenerate |
 
 ## Remaining Gaps
 

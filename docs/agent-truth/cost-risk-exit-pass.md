@@ -6,7 +6,7 @@ Validator: `npm run check:cost-risk-exit-pass`
 
 ## Summary
 
-- Current head: `d1f8e2fb4435ad131c8fc7cc85debe027a31346a`
+- Current head: `a81cdb0b885f65dec63a582e4b9fe4cfdfeced39`
 - Cost risk: 80.5 -> 80.5
 - Source guarded lanes: 4
 - Generic owner-review lanes: 0
@@ -22,10 +22,10 @@ Validator: `npm run check:cost-risk-exit-pass`
 | sourceHealth | 100 | 100 | 80 |
 | runtimeHealth | 84.2 | 84.2 | 80 |
 | evidenceCompleteness | 84.6 | 84.6 | 80 |
-| freshness | 83.75 | 83.75 | 80 |
+| freshness | 91.88 | 91.88 | 80 |
 | costRisk | 80.5 | 80.5 | 80 |
 | regressionRisk | 86 | 86 | 80 |
-| overallHealthScore | 87.97 | 87.97 | 80 |
+| overallHealthScore | 89.19 | 89.19 | 80 |
 
 ## Exit Lanes
 
@@ -41,25 +41,10 @@ Validator: `npm run check:cost-risk-exit-pass`
 | File | Classification |
 | --- | --- |
 | agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
-| agent/state/admin-truth-source-sample.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/cost-risk-exit-pass.generated.json | current_generated_artifact_to_commit |
-| agent/state/cost-risk-owner-review-closure.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/formal-evidence-bridge.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/launch-blocker-evidence-closure.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
-| agent/state/score-80-cost-readiness.generated.json | current_generated_artifact_to_commit |
-| agent/state/source-backed-runtime-confidence.generated.json | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/admin-truth-source-sample.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/cost-risk-exit-pass.md | current_generated_artifact_to_commit |
-| docs/agent-truth/cost-risk-owner-review-closure.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/formal-evidence-bridge.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/launch-blocker-evidence-closure.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/score-80-cost-readiness.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/source-backed-runtime-confidence.md | stale_generated_artifact_to_regenerate |
-| package.json | score_model_evidence_supported |
-| scripts/agent/validate-cost-risk-exit-pass.ts | cost_evidence_validator |
-| scripts/agent/validate-launch-blocker-evidence-closure.ts | score_model_evidence_supported |
-| tests/unit/launch-blocker-evidence-closure.spec.ts | score_model_evidence_supported |
+| agent/state/freshness-window-repair.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/targeted-behavior-evidence-repair.generated.json | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/freshness-window-repair.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/targeted-behavior-evidence-repair.md | stale_generated_artifact_to_regenerate |
 
 ## Stale Reference Classification
 

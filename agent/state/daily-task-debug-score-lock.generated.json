@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-25T08:21:21.319Z",
-  "currentHead": "e53968ae",
+  "generatedAtUtc": "2026-05-26T04:49:26.835Z",
+  "currentHead": "a81cdb0b",
   "resetTruthStatus": "pass",
   "lifecycleTelemetryStatus": "pass",
   "durationTrackingStatus": "active_duration_only",
@@ -24,18 +24,18 @@
     "overallHealthScore": 61.55
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
+    "sourceHealth": 100,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 75.63,
-    "costRisk": 42,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 80.5,
     "regressionRisk": 86,
-    "overallHealthScore": 77.83
+    "overallHealthScore": 89.19
   },
   "scoreDimensions": {
     "sourceHealth": {
       "before": 91.7,
-      "after": 91.7,
+      "after": 100,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No daily-task score action needed for this dimension."
@@ -49,24 +49,24 @@
     },
     "evidenceCompleteness": {
       "before": 37.75,
-      "after": 69.6,
+      "after": 84.6,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Complete formal beta evidence gates and keep daily task generated reports fresh."
+      "status": "target_met",
+      "nextExactAction": "No daily-task score action needed for this dimension."
     },
     "freshness": {
       "before": 62.86,
-      "after": 75.63,
+      "after": 91.88,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Refresh stale score-impacting artifacts with targeted validators."
+      "status": "target_met",
+      "nextExactAction": "No daily-task score action needed for this dimension."
     },
     "costRisk": {
       "before": 42,
-      "after": 42,
+      "after": 80.5,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve owner-review cost lanes without touching payment or GumDrop paid math."
+      "status": "target_met",
+      "nextExactAction": "No daily-task score action needed for this dimension."
     },
     "regressionRisk": {
       "before": 42,
@@ -77,23 +77,15 @@
     },
     "overallHealthScore": {
       "before": 61.55,
-      "after": 77.83,
+      "after": 89.19,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Raise below-target component dimensions before treating overall health as solved."
+      "status": "target_met",
+      "nextExactAction": "No daily-task score action needed for this dimension."
     }
   },
-  "remainingGaps": [
-    "evidenceCompleteness below 80: Complete formal beta evidence gates and keep daily task generated reports fresh.",
-    "freshness below 80: Refresh stale score-impacting artifacts with targeted validators.",
-    "costRisk below 80: Resolve owner-review cost lanes without touching payment or GumDrop paid math.",
-    "overallHealthScore below 80: Raise below-target component dimensions before treating overall health as solved."
-  ],
+  "remainingGaps": [],
   "nextExactSteps": [
-    "evidenceCompleteness below 80: Complete formal beta evidence gates and keep daily task generated reports fresh.",
-    "freshness below 80: Refresh stale score-impacting artifacts with targeted validators.",
-    "costRisk below 80: Resolve owner-review cost lanes without touching payment or GumDrop paid math.",
-    "overallHealthScore below 80: Raise below-target component dimensions before treating overall health as solved."
+    "Keep daily task validators in the targeted signoff lane; collect formal runtime/provider evidence separately."
   ],
   "sourceReports": {
     "resetTruth": "agent/state/daily-task-reset-truth.generated.json",
@@ -126,272 +118,80 @@
   ],
   "dirtyFileClassifications": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "agent/context/optimized-task-context.generated.json",
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/behavior-math-verification.generated.json",
+      "path": "agent/state/auth-readiness-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/behavior-normalization-internals.generated.json",
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/behavior-task-telemetry-ui-cleanup.generated.json",
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/behavioral-intelligence-snapshot-truth.generated.json",
+      "path": "agent/state/final-parity-telemetry-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "path": "agent/state/freshness-window-repair.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/debug-cockpit-batch35-behavior-stack.generated.json",
+      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/experiment-rollout-registry-reconstruction.generated.json",
+      "path": "agent/state/media-discovery-score-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/source-window-zero-shell-classifier.generated.json",
+      "path": "agent/state/notification-pwa-score-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/task-catalog-runtime-reconstruction.generated.json",
+      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/task-telemetry-mapping-reconstruction.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/telemetry-truth-recovery-formulas.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/behavior-normalization-internals.md",
+      "path": "docs/agent-truth/auth-readiness-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/behavior-task-telemetry-ui-cleanup.md",
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/behavioral-intelligence-snapshot-truth.md",
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/debug-cockpit-batch35-behavior-stack.md",
+      "path": "docs/agent-truth/freshness-window-repair.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/experiment-rollout-registry-reconstruction.md",
+      "path": "docs/agent-truth/launch-blocker-evidence-closure.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/source-window-zero-shell-classifier.md",
+      "path": "docs/agent-truth/media-discovery-score-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/task-catalog-runtime-reconstruction.md",
+      "path": "docs/agent-truth/notification-pwa-score-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/task-telemetry-mapping-reconstruction.md",
+      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-truth-recovery-formulas.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-behavior-normalization-internals.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-behavior-task-telemetry-ui-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-behavioral-intelligence-snapshot-truth.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-debug-cockpit-batch35-behavior-stack.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-experiment-rollout-registry-reconstruction.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-source-window-zero-shell-classifier.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-task-catalog-runtime-reconstruction.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-task-telemetry-mapping-reconstruction.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-telemetry-truth-recovery-formulas.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedExperiments.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugPrimitives.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/api/admin/debug/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/telemetry-truth-recovery-formulas.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/telemetry-truth-recovery-status.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/behavior-normalization-internals-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/behavior-normalization-internals-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/behavioral-intelligence-snapshot-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/behavioral-intelligence-snapshot-status.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/source-window-zero-shell-classifier.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/experiments/experiment-rollout-registry-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/experiments/experiment-rollout-registry-status.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/tasks/task-catalog-coverage-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/tasks/task-catalog-coverage-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/tasks/task-runtime-sample-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/tasks/task-telemetry-mapping-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/tasks/task-telemetry-mapping-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/behavior-normalization-internals.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/behavior-task-telemetry-ui-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/behavioral-intelligence-snapshot-truth.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/debug-cockpit-batch35-behavior-stack.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/experiment-rollout-registry-reconstruction.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/source-window-zero-shell-classifier.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/task-catalog-runtime-reconstruction.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/task-telemetry-mapping-reconstruction.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/telemetry-truth-recovery-formulas.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "oldTaskLogicClassification": [

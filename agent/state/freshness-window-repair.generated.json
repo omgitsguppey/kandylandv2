@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-26T04:09:59.504Z",
+  "generatedAtUtc": "2026-05-26T04:49:05.967Z",
   "reportKey": "freshness-window-repair",
-  "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
-  "latestMainHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
+  "currentHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
+  "latestMainHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
   "status": "pass",
   "exactStaleRequiredReportCountBefore": 7,
   "staleReports": [
@@ -104,11 +104,11 @@
     "agent/state/creator-monetization-readiness-lock.generated.json"
   ],
   "scoreBefore": 78.03,
-  "scoreAfter": 84.12,
+  "scoreAfter": 89.19,
   "scoreDimensions": {
     "freshness": {
       "before": 75.63,
-      "after": 83.75,
+      "after": 91.88,
       "target": 80
     },
     "evidenceCompleteness": {
@@ -118,11 +118,11 @@
     },
     "overallHealthScore": {
       "before": 78.03,
-      "after": 84.12,
+      "after": 89.19,
       "target": 80
     }
   },
-  "scoreArtifactCurrentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
+  "scoreArtifactCurrentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
   "currentHeadMatchesLatestMain": true,
   "formalEvidenceImpact": "does_not_clear_formal_gates",
   "formalEvidenceGatesPreserved": true,
@@ -133,100 +133,16 @@
   "gumdropMathChanged": false,
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/creator-experience-simplification.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/freshness-window-repair.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/refresh-safeguards.generated.json",
+      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/self-healing-refresh-queue.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-creator-ui-parity.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/freshness-window-repair.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/refresh-safeguards.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/self-healing-refresh-queue.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "package.json",
-      "classification": "freshness_required_input_fix"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "classification": "freshness_required_input_fix"
-    },
-    {
-      "path": "scripts/agent/validate-freshness-window-repair.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/freshness-window-repair.spec.ts",
-      "classification": "failed_validator_to_repair"
     }
   ],
   "remainingGaps": [],
@@ -239,9 +155,9 @@
     "refreshedReports=4",
     "retiredReports=3",
     "freshnessBefore=75.63",
-    "freshnessAfter=83.75",
-    "currentHead=e75d98523cda258032a04e11eb16e1d128bea2f9",
-    "latestMainHead=e75d98523cda258032a04e11eb16e1d128bea2f9",
+    "freshnessAfter=91.88",
+    "currentHead=a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
+    "latestMainHead=a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
     "formalEvidenceImpact=does_not_clear_formal_gates"
   ]
 }

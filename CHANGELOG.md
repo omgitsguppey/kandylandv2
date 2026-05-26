@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.86 - 2026-05-26
+- Final beta exit gate readiness
+- Locked beta-exit gate readiness with current score, blocker, PR, and evidence state.
+- Classified all remaining formal evidence, freshness, and cost review gaps.
+- Kept operator-final visual review outside Codex score blocking.
+
 ## 1.4.85 - 2026-05-26
 - Launch blocker evidence closure
 - Classified remaining launch blockers by formal evidence, source confidence, and stale PR integrity.

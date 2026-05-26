@@ -1,13 +1,98 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.85",
-  "betaReleaseCounter": 485,
+  "currentVersion": "1.4.86",
+  "betaReleaseCounter": 486,
   "channel": "beta",
-  "generatedAt": "2026-05-26T04:41:10.000Z",
-  "generatedAtUtc": "2026-05-26T04:41:10.000Z",
+  "generatedAt": "2026-05-26T04:55:43.000Z",
+  "generatedAtUtc": "2026-05-26T04:55:43.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.86",
+      "previousVersion": "1.4.85",
+      "betaReleaseCounter": 486,
+      "previousBetaReleaseCounter": 485,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): lock exit gate readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T04:55:43.000Z",
+      "generatedAt": "2026-05-26T04:55:43.000Z",
+      "committedAtUtc": "2026-05-26T04:55:43.000Z",
+      "generatedAtUtc": "2026-05-26T04:55:43.000Z",
+      "category": "Improved",
+      "title": "Final beta exit gate readiness",
+      "updatedAtUtc": "2026-05-26T04:55:43.000Z",
+      "summary": "Locked beta-exit gate readiness with current score, blocker, PR, and evidence state.",
+      "userFacingTitle": "Final beta exit gate readiness",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked beta-exit gate readiness with current score, blocker, PR, and evidence state.",
+        "Classified all remaining formal evidence, freshness, and cost review gaps.",
+        "Kept operator-final visual review outside Codex score blocking."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a final beta-exit gate readiness validator and artifact that refuses stale score heads, unclassified PRs, unclassified stale artifacts, and unsafe dirty files.",
+        "Preserved formal provider smoke, deployed runtime smoke, production admin truth sample, external billing, and operator visual review as separate gates.",
+        "Refreshed current score/status artifacts from source-only validators without production reads, provider calls, deploys, payment changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Public beta score",
+        "Beta exit gate readiness",
+        "Launch blocker classification",
+        "PR integrity evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/auth-readiness-lock.generated.json",
+        "agent/state/chat-functionality-score-lock.generated.json",
+        "agent/state/cost-risk-exit-pass.generated.json",
+        "agent/state/creator-monetization-readiness-lock.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/daily-task-debug-score-lock.generated.json",
+        "agent/state/final-beta-exit-gate-readiness.generated.json",
+        "agent/state/final-parity-telemetry-lock.generated.json",
+        "agent/state/freshness-window-repair.generated.json",
+        "agent/state/launch-blocker-evidence-closure.generated.json",
+        "agent/state/media-discovery-score-lock.generated.json",
+        "agent/state/notification-pwa-score-lock.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/sql-database-parity-cost-lock.generated.json",
+        "agent/state/targeted-behavior-evidence-repair.generated.json",
+        "docs/agent-truth/auth-readiness-lock.md",
+        "docs/agent-truth/chat-functionality-score-lock.md",
+        "docs/agent-truth/cost-risk-exit-pass.md",
+        "docs/agent-truth/creator-monetization-readiness-lock.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/daily-task-debug-score-lock.md",
+        "docs/agent-truth/final-beta-exit-gate-readiness.md",
+        "docs/agent-truth/final-parity-telemetry-lock.md",
+        "docs/agent-truth/freshness-window-repair.md",
+        "docs/agent-truth/launch-blocker-evidence-closure.md",
+        "docs/agent-truth/media-discovery-score-lock.md",
+        "docs/agent-truth/notification-pwa-score-lock.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "docs/agent-truth/sql-database-parity-cost-lock.md",
+        "docs/agent-truth/targeted-behavior-evidence-repair.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-beta-exit-gate-readiness.spec.ts"
+      ],
+      "effectiveChangeCount": 38,
+      "excludedGeneratedChangeCount": 31,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.85",
       "previousVersion": "1.4.84",
@@ -1490,59 +1575,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 10,
       "excludedGeneratedChangeCount": 12,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.61",
-      "previousVersion": "1.4.60",
-      "betaReleaseCounter": 461,
-      "previousBetaReleaseCounter": 460,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(commerce): repair purchase parity",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T07:00:00.000Z",
-      "generatedAt": "2026-05-25T07:00:00.000Z",
-      "committedAtUtc": "2026-05-25T07:00:00.000Z",
-      "generatedAtUtc": "2026-05-25T07:00:00.000Z",
-      "category": "Fixed",
-      "title": "Commerce purchase parity repair",
-      "updatedAtUtc": "2026-05-25T07:00:00.000Z",
-      "summary": "Repaired commerce parity so completed purchase transactions, canonical server purchase telemetry, commerce rollups, and purchase journey metrics report exact source reasons.",
-      "userFacingTitle": "Commerce purchase parity repair",
-      "surfaceCategory": "Wallet",
-      "bullets": [
-        "Repaired commerce parity between purchase ledger, server telemetry, rollups, and journey metrics.",
-        "Added canonical server purchase telemetry after verified PayPal capture without changing payment math.",
-        "Kept creator spend source-of-funds restrictions passing."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Verified PayPal captures now emit deterministic canonical server purchase telemetry with transaction linkage and idempotency keys.",
-        "Historical missing telemetry remains blocked; no fake purchase events, production backfill, payment math, or GumDrop source-of-funds policy changed."
-      ],
-      "affectedSurfaces": [
-        "PayPal capture telemetry",
-        "Purchase ledger parity",
-        "Commerce rollup reconciliation",
-        "Purchase journey normalization",
-        "Admin Debug Data Validation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/app/api/paypal/capture/route.ts",
-        "src/lib/server/analytics.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/lib/commerce/commerce-parity-contract.ts",
-        "src/lib/commerce/commerce-rollup-reconciliation.ts",
-        "src/lib/commerce/purchase-journey-normalization.ts"
-      ],
-      "effectiveChangeCount": 7,
-      "excludedGeneratedChangeCount": 10,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

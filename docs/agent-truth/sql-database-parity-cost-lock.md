@@ -1,8 +1,8 @@
 # SQL Database Parity Cost Lock
 
-Generated: 2026-05-24T22:49:55.198Z
-Status: fail
-Current head: 650b22a88d5b827de725f39e135fcb6e05965b60
+Generated: 2026-05-26T04:49:32.008Z
+Status: pass
+Current head: a81cdb0b885f65dec63a582e4b9fe4cfdfeced39
 
 ## Contract
 
@@ -25,46 +25,40 @@ Current head: 650b22a88d5b827de725f39e135fcb6e05965b60
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 92.5 | 92.5 | target_met | No SQL parity score action needed for this dimension. |
+| sourceHealth | 100 | 100 | target_met | No SQL parity score action needed for this dimension. |
 | runtimeHealth | 84.2 | 84.2 | target_met | No SQL parity score action needed for this dimension. |
-| evidenceCompleteness | 69.6 | 69.6 | below_target | Keep external billing/formal evidence separate; do not fake SQL or provider proof. |
-| freshness | 83.75 | 83.75 | target_met | No SQL parity score action needed for this dimension. |
-| costRisk | 42 | 42 | below_target | Keep external billing/formal evidence separate; do not fake SQL or provider proof. |
+| evidenceCompleteness | 84.6 | 84.6 | target_met | No SQL parity score action needed for this dimension. |
+| freshness | 91.88 | 91.88 | target_met | No SQL parity score action needed for this dimension. |
+| costRisk | 80.5 | 80.5 | target_met | No SQL parity score action needed for this dimension. |
 | regressionRisk | 86 | 86 | target_met | No SQL parity score action needed for this dimension. |
-| overallHealthScore | 79.25 | 79.25 | below_target | Keep external billing/formal evidence separate; do not fake SQL or provider proof. |
+| overallHealthScore | 89.19 | 89.19 | target_met | No SQL parity score action needed for this dimension. |
 
 ## Dirty Files
 
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/debug-cockpit-batch22-commerce-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/recent-transaction-feed-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/transaction-sequence-journey.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/unlock-transaction-source-metadata.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-cockpit-batch22-commerce-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/recent-transaction-feed-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/transaction-sequence-journey.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/unlock-transaction-source-metadata.md: stale_generated_artifact_to_regenerate
-- package.json: real_source_change_needs_review
-- scripts/agent/debug-cockpit-batch22-commerce-shared.ts: unsafe_unknown
-- scripts/agent/validate-debug-cockpit-batch22-commerce-truth.ts: unsafe_unknown
-- scripts/agent/validate-recent-transaction-feed-cleanup.ts: unsafe_unknown
-- scripts/agent/validate-transaction-sequence-journey.ts: unsafe_unknown
-- scripts/agent/validate-unlock-transaction-source-metadata.ts: unsafe_unknown
-- src/app/admin/debug/components/DebugTabMonitoring.tsx: unsafe_unknown
-- src/app/api/admin/overview/route.ts: unsafe_unknown
-- src/lib/admin-analytics-recent-commerce-feed.ts: unsafe_unknown
-- src/lib/admin-overview.ts: unsafe_unknown
-- src/lib/behavioral/transaction-sequence-contract.ts: unsafe_unknown
-- src/lib/commerce/transaction-source-of-funds-contract.ts: unsafe_unknown
-- src/lib/debug/debug-cockpit-batch22-commerce-truth.ts: unsafe_unknown
-- src/lib/debug/recent-transaction-feed-contract.ts: unsafe_unknown
-- src/lib/gumdrop-ledger.ts: unsafe_unknown
-- src/types/admin-analytics.ts: unsafe_unknown
-- tests/unit/debug-cockpit-batch22-commerce-truth.spec.ts: unsafe_unknown
-- tests/unit/recent-transaction-feed-cleanup.spec.ts: unsafe_unknown
-- tests/unit/transaction-sequence-journey.spec.ts: unsafe_unknown
-- tests/unit/unlock-transaction-source-metadata.spec.ts: unsafe_unknown
+- agent/state/auth-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/chat-functionality-score-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/cost-risk-exit-pass.generated.json: stale_sql_export_materializer_logic_to_remove
+- agent/state/creator-monetization-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/final-parity-telemetry-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/freshness-window-repair.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/launch-blocker-evidence-closure.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/media-discovery-score-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/notification-pwa-score-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/targeted-behavior-evidence-repair.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/auth-readiness-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/chat-functionality-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/cost-risk-exit-pass.md: stale_sql_export_materializer_logic_to_remove
+- docs/agent-truth/creator-monetization-readiness-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/final-parity-telemetry-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/freshness-window-repair.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/launch-blocker-evidence-closure.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/media-discovery-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/notification-pwa-score-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/targeted-behavior-evidence-repair.md: stale_generated_artifact_to_regenerate
 
 ## Validation Failures
 
-- dirty files are unclassified.
+- none

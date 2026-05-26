@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T04:44:19.999Z",
+  "generatedAtUtc": "2026-05-26T04:49:12.045Z",
   "reportKey": "launch-blocker-evidence-closure",
-  "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+  "currentHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
   "status": "pass",
   "launchGateStatus": "owner_review",
   "formalGatesCleared": false,
@@ -176,7 +176,7 @@
         "mergeStateStatus": "CLEAN",
         "number": 294,
         "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-        "updatedAt": "2026-05-26T04:31:57Z",
+        "updatedAt": "2026-05-26T04:47:22Z",
         "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
         "classification": "dependency_update_external_review_required",
         "reason": "Dependency update PR remains open and needs normal dependency/security review before merge.",
@@ -305,51 +305,19 @@
   "gumdropMathChanged": false,
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
-      "classification": "score_evidence_artifact"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
       "path": "agent/state/cost-risk-exit-pass.generated.json",
       "classification": "score_evidence_artifact"
     },
     {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "path": "agent/state/freshness-window-repair.generated.json",
       "classification": "score_evidence_artifact"
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "agent/state/score-80-cost-readiness.generated.json",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "agent/state/source-backed-runtime-confidence.generated.json",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
+      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
       "classification": "score_evidence_artifact"
     },
     {
@@ -357,60 +325,12 @@
       "classification": "score_evidence_artifact"
     },
     {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "path": "docs/agent-truth/freshness-window-repair.md",
       "classification": "score_evidence_artifact"
     },
     {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
       "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "docs/agent-truth/launch-blocker-evidence-closure.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "docs/agent-truth/score-80-cost-readiness.md",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "package.json",
-      "classification": "launch_blocker_validator"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-cost-risk-exit-pass.ts",
-      "classification": "score_evidence_artifact"
-    },
-    {
-      "path": "scripts/agent/validate-launch-blocker-evidence-closure.ts",
-      "classification": "launch_blocker_validator"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/launch-blocker-evidence-closure.spec.ts",
-      "classification": "launch_blocker_test"
     }
   ],
   "blockerReferenceClassification": [
@@ -431,7 +351,7 @@
     }
   ],
   "evidence": [
-    "currentHead=d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+    "currentHead=a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
     "launchGateStatus=owner_review",
     "formalEvidenceImpact=classification_only_does_not_clear_formal_gates",
     "openPrCount=9",

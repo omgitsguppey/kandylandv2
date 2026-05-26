@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T04:39:51.619Z",
+  "generatedAtUtc": "2026-05-26T04:49:08.341Z",
   "reportKey": "cost-risk-exit-pass",
-  "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+  "currentHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -173,8 +173,8 @@
       "target": 80
     },
     "freshness": {
-      "before": 83.75,
-      "after": 83.75,
+      "before": 91.88,
+      "after": 91.88,
       "target": 80
     },
     "costRisk": {
@@ -188,8 +188,8 @@
       "target": 80
     },
     "overallHealthScore": {
-      "before": 87.97,
-      "after": 87.97,
+      "before": 89.19,
+      "after": 89.19,
       "target": 80
     }
   },
@@ -220,80 +220,20 @@
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "path": "agent/state/freshness-window-repair.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/cost-risk-exit-pass.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "path": "docs/agent-truth/freshness-window-repair.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
+      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/score-80-cost-readiness.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/source-backed-runtime-confidence.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/admin-truth-source-sample.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-exit-pass.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/launch-blocker-evidence-closure.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/score-80-cost-readiness.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "package.json",
-      "classification": "score_model_evidence_supported"
-    },
-    {
-      "path": "scripts/agent/validate-cost-risk-exit-pass.ts",
-      "classification": "cost_evidence_validator"
-    },
-    {
-      "path": "scripts/agent/validate-launch-blocker-evidence-closure.ts",
-      "classification": "score_model_evidence_supported"
-    },
-    {
-      "path": "tests/unit/launch-blocker-evidence-closure.spec.ts",
-      "classification": "score_model_evidence_supported"
     }
   ],
   "staleLogicClassification": [
@@ -314,7 +254,7 @@
     }
   ],
   "evidence": [
-    "currentHead=d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+    "currentHead=a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
     "costRiskBefore=80.5",
     "costRiskAfter=80.5",
     "sourceGuardedLaneCount=4",
