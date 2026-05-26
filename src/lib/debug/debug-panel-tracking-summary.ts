@@ -25,6 +25,7 @@ import { DURATION_MATH_CONTRACT_VERSION } from "@/lib/math/duration-math-normali
 import { INTERPRETIVE_BRAIN_CONTRACT_VERSION } from "@/lib/product-integrity/interpretive-brain";
 import { PRODUCT_BODY_MAP_VERSION } from "@/lib/product-integrity/product-body-map";
 import { CENTRAL_NORMALIZER_CONTRACT_VERSION } from "@/lib/product-integrity/central-normalizer";
+import { BODY_SYSTEM_WIRING_REPAIR_VERSION } from "@/lib/product-integrity/body-system-wiring-repair";
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
 import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
 import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
@@ -52,6 +53,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "user_management",
   "testing_coverage",
   "product_body_map",
+  "body_system_wiring_repair",
   "central_normalizer",
   "math_authority",
   "behavior_math",
@@ -157,6 +159,7 @@ const TRACKING_GROUPS = [
   "user_management",
   "testing_coverage",
   "product_body_map",
+  "body_system_wiring_repair",
   "central_normalizer",
   "math_authority",
   "behavior_math",
@@ -490,6 +493,21 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     counts: [productBodySystems, productBodyLimbs, productBodyDisconnected],
     warningCount: productBodyWarnings,
     criticalCount: productBodyUnsafe,
+  }).status;
+  const bodySystemWiring = input.bodySystemWiringRepair?.debugLane ?? {};
+  const bodySystemWiringBefore = toNumber(bodySystemWiring.gapsBefore);
+  const bodySystemWiringFixed = toNumber(bodySystemWiring.gapsFixed);
+  const bodySystemWiringDeferred = toNumber(bodySystemWiring.gapsDeferred);
+  const bodySystemWiringUnsafe = toNumber(bodySystemWiring.unsafeUnknown);
+  const bodySystemWiringWarnings = bodySystemWiringDeferred + bodySystemWiringUnsafe;
+  const bodySystemWiringStatus = classifyAdminSummaryLaneStatus({
+    laneId: "body_system_wiring_repair",
+    sourceContractPresent: true,
+    sampleLoaded: bodySystemWiringBefore + bodySystemWiringFixed + bodySystemWiringDeferred > 0,
+    configTruthHealthy: bodySystemWiringUnsafe === 0,
+    counts: [bodySystemWiringBefore, bodySystemWiringFixed, bodySystemWiringDeferred],
+    warningCount: bodySystemWiringWarnings,
+    criticalCount: bodySystemWiringUnsafe,
   }).status;
   const centralNormalizer = input.centralNormalizerSpine?.debugLane ?? {};
   const centralSignalsReceived = toNumber(centralNormalizer.signalsReceived);
@@ -1048,6 +1066,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: productBodyUnsafe,
       warningCount: productBodyWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#product-body-map",
+    }),
+    makeLane({
+      id: "body_system_wiring_repair",
+      label: "Body system wiring repair",
+      trackingSystem: "body_system_wiring_repair",
+      sourceOwner: "product-integrity",
+      sourceOfTruth: "src/lib/product-integrity/body-system-wiring-repair.ts",
+      status: bodySystemWiringStatus,
+      severity: severityFromCounts(bodySystemWiringUnsafe, bodySystemWiringWarnings, bodySystemWiringStatus),
+      scoreImpact: bodySystemWiringWarnings > 0 || bodySystemWiringFixed > 0 ? "medium" : "none",
+      primarySignal: `Contract=${BODY_SYSTEM_WIRING_REPAIR_VERSION}; before=${bodySystemWiringBefore}; fixed=${bodySystemWiringFixed}; deferred=${bodySystemWiringDeferred}; unsafeUnknown=${bodySystemWiringUnsafe}.`,
+      criticalCount: bodySystemWiringUnsafe,
+      warningCount: bodySystemWiringWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#body-system-wiring-repair",
     }),
     makeLane({
       id: "central_normalizer",

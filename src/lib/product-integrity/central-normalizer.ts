@@ -553,6 +553,9 @@ export function classifyCentralNormalizerDirtyFile(path: string): CentralNormali
   if (normalized === "agent/state/interpretive-brain-debug-triage.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/product-body-map.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/body-system-wiring-repair.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/feature-registration-gate.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/event-translation-bridge.generated.json") {
     return "stale_generated_artifact_to_regenerate";
   }
@@ -560,16 +563,21 @@ export function classifyCentralNormalizerDirtyFile(path: string): CentralNormali
   if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/interpretive-brain-debug-triage.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/product-body-map.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/body-system-wiring-repair.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/event-translation-bridge.md") {
     return "stale_generated_artifact_to_regenerate";
   }
   if (normalized === "scripts/agent/validate-central-normalizer-spine.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-interpretive-brain-debug-triage.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-body-system-wiring-repair.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/central-normalizer-spine.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/interpretive-brain-debug-triage.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/body-system-wiring-repair.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/product-integrity/central-normalizer.ts" || normalized === "src/lib/product-integrity/central-normalizer-contract.ts") {
     return "real_source_change_needs_review";
   }
+  if (normalized === "src/lib/product-integrity/body-system-wiring-repair.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/interpretive-brain.ts" || normalized === "src/lib/product-integrity/interpretive-brain-contract.ts") {
     return "real_source_change_needs_review";
   }

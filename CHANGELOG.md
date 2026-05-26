@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.94 - 2026-05-26
+- Body system wiring repair
+- Repaired highest-impact disconnected product limbs across routes, telemetry, metrics, debug, and score.
+- Reduced duplicate truth sources and orphaned telemetry.
+- Kept product runtime and monetization math unchanged.
+
 ## 1.4.93 - 2026-05-26
 - Interpretive brain debug triage
 - Added interpretive brain for normalized product signals.

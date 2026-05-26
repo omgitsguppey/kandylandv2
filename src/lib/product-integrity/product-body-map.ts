@@ -82,6 +82,7 @@ const DEBUG_LANE_SYSTEMS: Record<string, BodySystemId> = {
   user_management: "admin_debug_ops",
   testing_coverage: "telemetry_behavioral_intelligence",
   product_body_map: "admin_debug_ops",
+  body_system_wiring_repair: "admin_debug_ops",
   central_normalizer: "telemetry_behavioral_intelligence",
   math_authority: "telemetry_behavioral_intelligence",
   behavior_math: "telemetry_behavioral_intelligence",
@@ -659,11 +660,14 @@ export function classifyProductBodyMapDirtyFile(path: string): ProductBodyMapDir
   if (normalized === "agent/state/product-body-map.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/interpretive-brain-debug-triage.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/central-normalizer-spine.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/body-system-wiring-repair.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/product-body-map.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/interpretive-brain-debug-triage.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/body-system-wiring-repair.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/product-integrity/product-body-system-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/product-body-map.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/product-integrity/body-system-wiring-repair.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/central-normalizer-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/central-normalizer.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/interpretive-brain-contract.ts") return "real_source_change_needs_review";
@@ -674,9 +678,11 @@ export function classifyProductBodyMapDirtyFile(path: string): ProductBodyMapDir
   if (normalized === "scripts/agent/validate-product-body-map.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-interpretive-brain-debug-triage.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-central-normalizer-spine.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-body-system-wiring-repair.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/product-body-map.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/interpretive-brain-debug-triage.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/central-normalizer-spine.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/body-system-wiring-repair.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === "CHANGELOG.md") return "release_artifact_expected";
   if (normalized === "public/kandydrops-release-notes.json") return "release_artifact_expected";
