@@ -1,13 +1,65 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.9",
-  "betaReleaseCounter": 509,
+  "currentVersion": "1.5.10",
+  "betaReleaseCounter": 510,
   "channel": "beta",
   "generatedAt": "2026-05-26T17:20:00.000Z",
   "generatedAtUtc": "2026-05-26T17:20:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.10",
+      "previousVersion": "1.5.9",
+      "betaReleaseCounter": 510,
+      "previousBetaReleaseCounter": 509,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(release): add truth reconciliation",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T21:30:00.000Z",
+      "generatedAt": "2026-05-26T21:30:00.000Z",
+      "committedAtUtc": "2026-05-26T21:30:00.000Z",
+      "generatedAtUtc": "2026-05-26T21:30:00.000Z",
+      "category": "Improved",
+      "title": "Automated truth reconciliation",
+      "updatedAtUtc": "2026-05-26T21:30:00.000Z",
+      "summary": "Added automated readiness audits that verify claimed release evidence against source, validators, wiring, score freshness, cost risk, and manual-QA gates.",
+      "userFacingTitle": "Automated truth reconciliation",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added automated truth reconciliation to audit claimed readiness, validator authority, wiring completeness, score freshness, cost risk, and manual-QA readiness.",
+        "Blocked manual QA recommendation until release-critical automated gaps and PR/security hygiene are resolved.",
+        "Kept formal provider/runtime/admin evidence gates honest."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-only claim, validator authority, wiring, score, half-implementation, cost, and manual-QA readiness reports.",
+        "Classified formal runtime/provider/admin and operator visual QA gates without clearing them.",
+        "Kept security PRs visible as blockers before manual QA can start."
+      ],
+      "affectedSurfaces": [
+        "Automated truth reconciliation",
+        "Validator authority audit",
+        "Wiring truth audit",
+        "Manual QA readiness gate",
+        "Cost risk evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/automated-truth-reconciliation.generated.json",
+        "docs/agent-truth/automated-truth-reconciliation.md",
+        "scripts/agent/validate-automated-truth-reconciliation.ts",
+        "src/lib/release-readiness/automated-truth-reconciliation.ts"
+      ],
+      "effectiveChangeCount": 5,
+      "excludedGeneratedChangeCount": 14,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.9",
       "previousVersion": "1.5.8",

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.10 - 2026-05-26
+- Automated truth reconciliation
+- Added automated truth reconciliation to audit claimed readiness, validator authority, wiring completeness, score freshness, cost risk, and manual-QA readiness.
+- Blocked manual QA recommendation until release-critical automated gaps and PR/security hygiene are resolved.
+- Kept formal provider/runtime/admin evidence gates honest.
+
 ## 1.5.9 - 2026-05-26
 - Release evidence finalization
 - Added final release evidence, runtime smoke harness, PR hygiene, rollback, operator QA, and beta exit readiness packet.

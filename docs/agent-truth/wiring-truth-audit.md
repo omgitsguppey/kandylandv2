@@ -1,0 +1,256 @@
+# Wiring Truth Audit
+
+Artifact: `agent/state/wiring-truth-audit.generated.json`
+Validator: `npm run check:wiring-truth-audit`
+
+## Summary
+
+- Generated: `2026-05-26T22:55:29.572Z`
+- Current head: `ab170d4c0157ad2529b1e5c606d5ca65db1b3346`
+- Validation status: `pass`
+
+## Evidence Boundary
+
+This is an automated source/artifact/package-script/import-shape audit. It does not run production reads, provider calls, deployment, manual visual QA, payment runtime, or GumDrop math changes. Formal provider/runtime/admin/manual gates remain unproven unless explicitly attached as formal artifacts.
+
+## Report
+
+```json
+{
+  "reportKey": "wiring-truth-audit",
+  "generatedAtUtc": "2026-05-26T22:55:29.572Z",
+  "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+  "lanes": [
+    {
+      "laneId": "auth-signup-login",
+      "status": "complete",
+      "routeOrSurface": "src/lib/features/feature-registration-registry.ts",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "wallet-payment-gumdrops",
+      "status": "complete",
+      "routeOrSurface": "src/app/api/wallet",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "drops-unlock-unwrap-watch",
+      "status": "complete",
+      "routeOrSurface": "src/app/api/drops",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "chat",
+      "status": "complete",
+      "routeOrSurface": "src/lib/chat",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "daily-tasks-rewards",
+      "status": "complete",
+      "routeOrSurface": "src/lib/tasks",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "notifications-pwa",
+      "status": "complete",
+      "routeOrSurface": "src/lib/notifications",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "account-settings-support-delete-export",
+      "status": "complete",
+      "routeOrSurface": "src/lib/settings",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "creator-settings",
+      "status": "complete",
+      "routeOrSurface": "src/lib/creator-monetization/creator-monetization-contract.ts",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "creator-monetization-fan-pass-entitlements",
+      "status": "complete",
+      "routeOrSurface": "src/lib/fan-pass/fan-pass-access-resolver.ts",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "creator-profile-discovery-search-follow",
+      "status": "complete",
+      "routeOrSurface": "src/lib/telemetry-catalog.ts",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "media-upload-private-access",
+      "status": "complete",
+      "routeOrSurface": "src/lib/media/media-upload-contract.ts",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "admin-debug-user-management",
+      "status": "complete",
+      "routeOrSurface": "src/lib/debug/debug-backlog-builder.ts",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "sql-export-cost",
+      "status": "complete",
+      "routeOrSurface": "src/lib/analytics/sql-database-parity-engine.ts",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    },
+    {
+      "laneId": "release-readiness-evidence",
+      "status": "complete",
+      "routeOrSurface": "src/lib/release-readiness/final-release-readiness.ts",
+      "featureRegistry": "present",
+      "telemetryCatalog": "present",
+      "eventEnvelope": "present",
+      "normalizer": "present_or_documented",
+      "eventFact": "present",
+      "metric": "present",
+      "journey": "present_or_not_applicable",
+      "debugLane": "present",
+      "scoreEvidence": "present",
+      "displayState": "present_or_not_user_facing",
+      "exactNextAction": "Keep lane under current validators."
+    }
+  ],
+  "releaseCriticalGaps": [],
+  "validationFailures": []
+}
+```
+
+## Validation
+
+- Pass.
