@@ -1,6 +1,7 @@
 import type {
   FormulaDefinition,
   FormulaInventoryReference,
+  FormulaSourceInventoryEntry,
   FormulaValidationResult,
   MathFormulaId,
   UnownedFormulaInput,
@@ -883,6 +884,162 @@ export const CANONICAL_MATH_FORMULA_REFERENCES = [
   },
 ] as const satisfies readonly FormulaInventoryReference[];
 
+export const REQUIRED_FORMULA_SOURCE_PATHS = [
+  "src/lib/agent-score/core.ts",
+  "src/lib/agent-score/weights.ts",
+  "src/lib/agent-score/reporting.ts",
+  "src/lib/analytics/person-metrics-hydration.ts",
+  "src/lib/analytics/event-translation-bridge.ts",
+  "src/lib/analytics/session-metrics-engine.ts",
+  "src/lib/analytics/drop-watch-time-engine.ts",
+  "src/lib/analytics/sql-database-parity-engine.ts",
+  "src/lib/behavioral/event-fact-normalizer.ts",
+  "src/lib/behavioral/normalize-event-fact.ts",
+  "src/lib/debug/debug-panel-tracking-summary.ts",
+  "scripts/agent/score-code-organization.ts",
+  "scripts/agent/validate-session-bounce-calculation.ts",
+  "scripts/agent/validate-drop-watch-time-accuracy.ts",
+  "scripts/agent/validate-sql-database-parity-cost-lock.ts",
+  "agent/state/public-beta-score.generated.json",
+] as const;
+
+export const CANONICAL_MATH_SOURCE_INVENTORY = [
+  {
+    sourcePath: "src/lib/agent-score/core.ts",
+    formulaIds: [
+      "beta_score.scanner_penalty",
+      "beta_score.domain_score",
+      "beta_score.source_health",
+      "beta_score.runtime_health",
+      "beta_score.evidence_completeness",
+      "beta_score.freshness_score",
+      "beta_score.cost_risk",
+      "beta_score.regression_risk",
+      "beta_score.overall_health",
+    ],
+    status: "canonical",
+    detectedFormulaKinds: ["score", "weight", "average", "cap", "penalty", "dedupe"],
+    reason: "Current source owns public beta score formulas, caps, penalties, launch blockers, and score dimension breakdowns.",
+  },
+  {
+    sourcePath: "src/lib/agent-score/weights.ts",
+    formulaIds: [
+      "beta_score.domain_score",
+      "beta_score.source_health",
+      "beta_score.runtime_health",
+      "beta_score.evidence_completeness",
+      "beta_score.freshness_score",
+      "beta_score.cost_risk",
+      "beta_score.regression_risk",
+    ],
+    status: "canonical",
+    detectedFormulaKinds: ["weight", "threshold", "cap", "penalty"],
+    reason: "Current source defines score weights, evidence caps, status thresholds, and severity/blast-radius penalties.",
+  },
+  {
+    sourcePath: "src/lib/agent-score/reporting.ts",
+    formulaIds: ["beta_score.overall_health"],
+    status: "canonical",
+    detectedFormulaKinds: ["score", "command_budget"],
+    reason: "Reporting prints current score summaries and command-budget limits without creating a separate score formula.",
+  },
+  {
+    sourcePath: "src/lib/analytics/person-metrics-hydration.ts",
+    formulaIds: ["person_metrics.hydrated_event_count"],
+    status: "canonical",
+    detectedFormulaKinds: ["count", "confidence", "legacy", "global_user_divergence"],
+    reason: "Current source hydrates person/global/guest/linked scopes from event envelopes and blocks unsupported legacy exact promotion.",
+  },
+  {
+    sourcePath: "src/lib/analytics/event-translation-bridge.ts",
+    formulaIds: ["global_metrics.event_fact_count", "person_metrics.hydrated_event_count"],
+    status: "canonical",
+    detectedFormulaKinds: ["count", "score_dimension", "debug_gap"],
+    reason: "Current source maps events to feature activity, person metrics, debug visibility, and score dimension inputs.",
+  },
+  {
+    sourcePath: "src/lib/analytics/session-metrics-engine.ts",
+    formulaIds: ["session_metrics.active_session_time", "bounce.session_bounce_status"],
+    status: "canonical",
+    detectedFormulaKinds: ["duration", "count", "bounce", "confidence"],
+    reason: "Current source distinguishes active, idle, hidden, passive, and unknown session states and classifies bounce/engagement.",
+  },
+  {
+    sourcePath: "src/lib/analytics/drop-watch-time-engine.ts",
+    formulaIds: ["watch_time.active_watch_ms", "watch_time.normalized_watch_percent"],
+    status: "canonical",
+    detectedFormulaKinds: ["duration", "rate", "percent", "dedupe", "replay"],
+    reason: "Current source calculates active watch, normalized percent, replay caps, duration confidence, and watch-session dedupe.",
+  },
+  {
+    sourcePath: "src/lib/analytics/sql-database-parity-engine.ts",
+    formulaIds: ["sql_parity.summary_count_delta"],
+    status: "canonical",
+    detectedFormulaKinds: ["count", "dedupe", "global_user_divergence", "cost"],
+    reason: "Current source maps normalized facts to global/user SQL summaries and records parity mismatches without using SQL as runtime truth.",
+  },
+  {
+    sourcePath: "src/lib/behavioral/event-fact-normalizer.ts",
+    formulaIds: ["behavioral_event_fact.deduped_count"],
+    status: "canonical",
+    detectedFormulaKinds: ["confidence", "normalization", "revenue_context", "gumdrop_context"],
+    reason: "Current source normalizes identified metric facts, confidence, metric eligibility, and value context without promoting UI facts to money truth.",
+  },
+  {
+    sourcePath: "src/lib/behavioral/normalize-event-fact.ts",
+    formulaIds: [
+      "behavioral_event_fact.deduped_count",
+      "revenue.server_verified_revenue",
+      "gumdrop.source_of_funds_balance",
+    ],
+    status: "needs_operator_decision",
+    detectedFormulaKinds: ["dedupe", "normalization", "revenue", "gumdrop", "legacy"],
+    reason: "Behavioral facts extract valueUsd and GumDrop context, but exact revenue and source-of-funds formulas remain operator-decision-needed and must not be changed in this phase.",
+  },
+  {
+    sourcePath: "src/lib/debug/debug-panel-tracking-summary.ts",
+    formulaIds: ["beta_score.overall_health"],
+    status: "canonical",
+    detectedFormulaKinds: ["admin_metric", "count", "status"],
+    reason: "Current source exposes Math authority and related debug lanes from generated reports without creating a separate metric formula.",
+  },
+  {
+    sourcePath: "scripts/agent/score-code-organization.ts",
+    formulaIds: ["unowned.code_organization_score"],
+    status: "needs_operator_decision",
+    detectedFormulaKinds: ["score", "weight", "penalty", "risk"],
+    reason: "Code organization scoring is source-inventoried but outside the Phase 1 MathDomain list; it must remain needs_operator_decision until a later authority expansion approves it.",
+  },
+  {
+    sourcePath: "scripts/agent/validate-session-bounce-calculation.ts",
+    formulaIds: ["session_metrics.active_session_time", "bounce.session_bounce_status"],
+    status: "canonical",
+    detectedFormulaKinds: ["validator", "duration", "bounce", "score_dimension"],
+    reason: "Validator proves session/bounce duration semantics and score-dimension reporting.",
+  },
+  {
+    sourcePath: "scripts/agent/validate-drop-watch-time-accuracy.ts",
+    formulaIds: ["watch_time.active_watch_ms", "watch_time.normalized_watch_percent"],
+    status: "canonical",
+    detectedFormulaKinds: ["validator", "duration", "rate", "confidence"],
+    reason: "Validator proves active watch duration, normalized watch percent, confidence, and debug coverage.",
+  },
+  {
+    sourcePath: "scripts/agent/validate-sql-database-parity-cost-lock.ts",
+    formulaIds: ["sql_parity.summary_count_delta"],
+    status: "canonical",
+    detectedFormulaKinds: ["validator", "count", "dedupe", "cost"],
+    reason: "Validator proves SQL parity count deltas and cost-guard evidence stay source-only.",
+  },
+  {
+    sourcePath: "agent/state/public-beta-score.generated.json",
+    formulaIds: ["beta_score.overall_health"],
+    status: "stale",
+    detectedFormulaKinds: ["generated_report", "score_snapshot"],
+    reason: "Generated score report is an evidence snapshot only; it never overrides the runtime score formula definitions.",
+  },
+] as const satisfies readonly FormulaSourceInventoryEntry[];
+
 export const METRIC_FORMULA_REFERENCES: Record<string, MathFormulaId> = {
   scannerScore: "beta_score.domain_score",
   sourceHealth: "beta_score.source_health",
@@ -911,6 +1068,10 @@ const FORMULA_BY_ID = new Map(CANONICAL_MATH_FORMULAS.map((formula) => [formula.
 
 export function listFormulaDefinitions(): FormulaDefinition[] {
   return [...CANONICAL_MATH_FORMULAS];
+}
+
+export function listFormulaSourceInventory(): FormulaSourceInventoryEntry[] {
+  return [...CANONICAL_MATH_SOURCE_INVENTORY];
 }
 
 export function getFormulaDefinition(formulaId: string): FormulaDefinition | null {

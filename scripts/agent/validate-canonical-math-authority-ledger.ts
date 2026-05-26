@@ -4,7 +4,9 @@ import { dirname, join } from "node:path";
 
 import {
   CANONICAL_MATH_FORMULA_REFERENCES,
+  REQUIRED_FORMULA_SOURCE_PATHS,
   METRIC_FORMULA_REFERENCES,
+  listFormulaSourceInventory,
   listFormulaDefinitions,
 } from "@/lib/math/canonical-math-authority-ledger";
 import type {
@@ -217,6 +219,7 @@ function validateFormula(formula: FormulaDefinition, failures: string[]) {
 
 function renderDoc(report: JsonRecord) {
   const formulas = report.formulas as FormulaDefinition[];
+  const sourceInventory = report.sourceInventory as Array<{ sourcePath: string; status: string; detectedFormulaKinds: string[] }>;
   const statuses = report.statusCounts as Record<MathAuthorityStatus, number>;
   const decisions = formulas.filter((formula) => formula.authorityStatus === "needs_operator_decision");
   const dirtyFiles = report.dirtyFiles as Array<{ path: string; classification: string }>;
@@ -249,6 +252,12 @@ function renderDoc(report: JsonRecord) {
     "| --- | --- | --- | --- | --- |",
     ...formulas.map((formula) => `| ${formula.formulaId} | ${formula.domain} | ${formula.authorityStatus} | ${formula.owner} | ${formula.sourceTruth.replace(/\|/gu, "/")} |`),
     "",
+    "## Source Inventory",
+    "",
+    "| Source | Status | Formula kinds |",
+    "| --- | --- | --- |",
+    ...sourceInventory.map((entry) => `| ${entry.sourcePath} | ${entry.status} | ${entry.detectedFormulaKinds.join(", ")} |`),
+    "",
     "## Needs Operator Decision",
     "",
     ...(decisions.length
@@ -272,9 +281,11 @@ function renderDoc(report: JsonRecord) {
 
 function main() {
   const formulas = listFormulaDefinitions();
+  const sourceInventory = listFormulaSourceInventory();
   const validationFailures: string[] = [];
   const formulaIds = new Set<string>();
   const domains = new Set(formulas.map((formula) => formula.domain));
+  const sourceInventoryByPath = new Map(sourceInventory.map((entry) => [entry.sourcePath, entry]));
 
   for (const formula of formulas) {
     if (formulaIds.has(formula.formulaId)) validationFailures.push(`duplicate formula id remains unclassified: ${formula.formulaId}`);
@@ -307,6 +318,30 @@ function main() {
     }
     if (reference.status !== "needs_operator_decision" && !formulaIds.has(reference.formulaId)) {
       validationFailures.push(`${reference.referenceId} references missing formula ${reference.formulaId}.`);
+    }
+  }
+  for (const sourcePath of REQUIRED_FORMULA_SOURCE_PATHS) {
+    const entry = sourceInventoryByPath.get(sourcePath);
+    if (!entry) {
+      validationFailures.push(`required formula source path missing from inventory: ${sourcePath}`);
+      continue;
+    }
+    if (entry.detectedFormulaKinds.length === 0) {
+      validationFailures.push(`${sourcePath} source inventory lacks detected formula kinds.`);
+    }
+    if (entry.formulaIds.length === 0) {
+      validationFailures.push(`${sourcePath} source inventory lacks formula references.`);
+    }
+    for (const formulaId of entry.formulaIds) {
+      if (!String(formulaId).startsWith("unowned.") && !formulaIds.has(formulaId)) {
+        validationFailures.push(`${sourcePath} references missing source-inventory formula ${formulaId}.`);
+      }
+    }
+    if (entry.sourcePath === "scripts/agent/score-code-organization.ts" && entry.status !== "needs_operator_decision") {
+      validationFailures.push("score-code-organization formula inventory must stay needs_operator_decision until MathDomain authority expands.");
+    }
+    if (entry.sourcePath.startsWith("agent/state/") && entry.status === "canonical") {
+      validationFailures.push(`${entry.sourcePath} generated report cannot be canonical math authority.`);
     }
   }
   const debugSummarySource = readFileSync(join(ROOT, "src/lib/debug/debug-panel-tracking-summary.ts"), "utf8");
@@ -342,12 +377,14 @@ function main() {
     paymentRuntimeChanged: false,
     gumdropMathChanged: false,
     formulas,
+    sourceInventory,
     formulaReferences: CANONICAL_MATH_FORMULA_REFERENCES,
     metricFormulaReferences: METRIC_FORMULA_REFERENCES,
     statusCounts,
     debugLane: {
       label: "Math authority",
       formulasInventoried: formulas.length,
+      sourceFilesInventoried: sourceInventory.length,
       canonicalFormulas: statusCounts.canonical ?? 0,
       duplicateFormulas: statusCounts.duplicate ?? 0,
       missingDefinitions: statusCounts.missing_definition ?? 0,

@@ -137,6 +137,14 @@ export type FormulaInventoryReference = {
   reason: string;
 };
 
+export type FormulaSourceInventoryEntry = {
+  sourcePath: string;
+  formulaIds: Array<MathFormulaId | `unowned.${string}`>;
+  status: MathAuthorityStatus;
+  detectedFormulaKinds: string[];
+  reason: string;
+};
+
 export type FormulaValidationResult = {
   ok: boolean;
   formulaId?: MathFormulaId;

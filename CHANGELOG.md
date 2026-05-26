@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.89 - 2026-05-26
+- Canonical math authority ledger coverage
+- Added canonical math authority ledger.
+- Inventoried formulas across score, metrics, sessions, watch time, GumDrops, revenue, and legacy recovery.
+- Blocked unowned formulas from silently affecting user/admin metrics.
+
 ## 1.4.88 - 2026-05-26
 - Count deduplication normalization
 - Normalized global, user, creator, and legacy count deduplication.

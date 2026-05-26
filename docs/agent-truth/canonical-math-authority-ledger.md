@@ -1,7 +1,7 @@
 # Canonical Math Authority Ledger
 
-Generated: 2026-05-26T05:44:23.285Z
-Current head: 699a4be3edf19f8659605d7c92a572f27bbfc7b4
+Generated: 2026-05-26T05:55:28.215Z
+Current head: daf1dc1ea1fbf28039ab19b0f6e0c17ac62393cd
 Status: pass
 
 ## Scope
@@ -71,6 +71,27 @@ This source-only ledger inventories the current formula authorities for scores, 
 | media.upload_lifecycle_count | media | needs_operator_decision | media | media upload lifecycle contract |
 | legacy_recovery.legacy_event_recovered_count | legacy_recovery | canonical | legacy_recovery | legacy recovery candidate dry-run report |
 
+## Source Inventory
+
+| Source | Status | Formula kinds |
+| --- | --- | --- |
+| src/lib/agent-score/core.ts | canonical | score, weight, average, cap, penalty, dedupe |
+| src/lib/agent-score/weights.ts | canonical | weight, threshold, cap, penalty |
+| src/lib/agent-score/reporting.ts | canonical | score, command_budget |
+| src/lib/analytics/person-metrics-hydration.ts | canonical | count, confidence, legacy, global_user_divergence |
+| src/lib/analytics/event-translation-bridge.ts | canonical | count, score_dimension, debug_gap |
+| src/lib/analytics/session-metrics-engine.ts | canonical | duration, count, bounce, confidence |
+| src/lib/analytics/drop-watch-time-engine.ts | canonical | duration, rate, percent, dedupe, replay |
+| src/lib/analytics/sql-database-parity-engine.ts | canonical | count, dedupe, global_user_divergence, cost |
+| src/lib/behavioral/event-fact-normalizer.ts | canonical | confidence, normalization, revenue_context, gumdrop_context |
+| src/lib/behavioral/normalize-event-fact.ts | needs_operator_decision | dedupe, normalization, revenue, gumdrop, legacy |
+| src/lib/debug/debug-panel-tracking-summary.ts | canonical | admin_metric, count, status |
+| scripts/agent/score-code-organization.ts | needs_operator_decision | score, weight, penalty, risk |
+| scripts/agent/validate-session-bounce-calculation.ts | canonical | validator, duration, bounce, score_dimension |
+| scripts/agent/validate-drop-watch-time-accuracy.ts | canonical | validator, duration, rate, confidence |
+| scripts/agent/validate-sql-database-parity-cost-lock.ts | canonical | validator, count, dedupe, cost |
+| agent/state/public-beta-score.generated.json | stale | generated_report, score_snapshot |
+
 ## Needs Operator Decision
 
 - revenue.server_verified_revenue: legacy/client purchase events cannot become exact revenue without server transaction linkage.
@@ -87,24 +108,14 @@ This source-only ledger inventories the current formula authorities for scores, 
 
 - CHANGELOG.md: release_artifact_expected
 - agent/state/canonical-math-authority-ledger.generated.json: current_generated_artifact_to_commit
-- agent/state/count-deduplication-normalization.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/canonical-math-authority-ledger.md: release_artifact_expected
-- docs/agent-truth/count-deduplication-normalization.md: release_artifact_expected
-- package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
 - scripts/agent/validate-canonical-math-authority-ledger.ts: failed_validator_to_repair
-- scripts/agent/validate-count-deduplication-normalization.ts: failed_validator_to_repair
-- src/lib/analytics/global-user-dedupe-contract.ts: real_source_change_needs_review
-- src/lib/analytics/global-user-dedupe-engine.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/math/canonical-math-authority-contract.ts: real_source_change_needs_review
 - src/lib/math/canonical-math-authority-ledger.ts: real_source_change_needs_review
-- src/lib/math/count-deduplication-normalizer.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/count-deduplication-normalization.spec.ts: current_generated_artifact_to_commit
+- tests/unit/canonical-math-authority-ledger.spec.ts: current_generated_artifact_to_commit
 
 ## Open PR Classification
 

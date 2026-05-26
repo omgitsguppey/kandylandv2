@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T05:44:23.285Z",
+  "generatedAtUtc": "2026-05-26T05:55:28.215Z",
   "reportKey": "canonical-math-authority-ledger",
-  "currentHead": "699a4be3edf19f8659605d7c92a572f27bbfc7b4",
+  "currentHead": "daf1dc1ea1fbf28039ab19b0f6e0c17ac62393cd",
   "status": "pass",
   "productionReadsRequired": false,
   "productionDataMutated": false,
@@ -1439,6 +1439,251 @@
       "countRule": "integer"
     }
   ],
+  "sourceInventory": [
+    {
+      "sourcePath": "src/lib/agent-score/core.ts",
+      "formulaIds": [
+        "beta_score.scanner_penalty",
+        "beta_score.domain_score",
+        "beta_score.source_health",
+        "beta_score.runtime_health",
+        "beta_score.evidence_completeness",
+        "beta_score.freshness_score",
+        "beta_score.cost_risk",
+        "beta_score.regression_risk",
+        "beta_score.overall_health"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "score",
+        "weight",
+        "average",
+        "cap",
+        "penalty",
+        "dedupe"
+      ],
+      "reason": "Current source owns public beta score formulas, caps, penalties, launch blockers, and score dimension breakdowns."
+    },
+    {
+      "sourcePath": "src/lib/agent-score/weights.ts",
+      "formulaIds": [
+        "beta_score.domain_score",
+        "beta_score.source_health",
+        "beta_score.runtime_health",
+        "beta_score.evidence_completeness",
+        "beta_score.freshness_score",
+        "beta_score.cost_risk",
+        "beta_score.regression_risk"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "weight",
+        "threshold",
+        "cap",
+        "penalty"
+      ],
+      "reason": "Current source defines score weights, evidence caps, status thresholds, and severity/blast-radius penalties."
+    },
+    {
+      "sourcePath": "src/lib/agent-score/reporting.ts",
+      "formulaIds": [
+        "beta_score.overall_health"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "score",
+        "command_budget"
+      ],
+      "reason": "Reporting prints current score summaries and command-budget limits without creating a separate score formula."
+    },
+    {
+      "sourcePath": "src/lib/analytics/person-metrics-hydration.ts",
+      "formulaIds": [
+        "person_metrics.hydrated_event_count"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "count",
+        "confidence",
+        "legacy",
+        "global_user_divergence"
+      ],
+      "reason": "Current source hydrates person/global/guest/linked scopes from event envelopes and blocks unsupported legacy exact promotion."
+    },
+    {
+      "sourcePath": "src/lib/analytics/event-translation-bridge.ts",
+      "formulaIds": [
+        "global_metrics.event_fact_count",
+        "person_metrics.hydrated_event_count"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "count",
+        "score_dimension",
+        "debug_gap"
+      ],
+      "reason": "Current source maps events to feature activity, person metrics, debug visibility, and score dimension inputs."
+    },
+    {
+      "sourcePath": "src/lib/analytics/session-metrics-engine.ts",
+      "formulaIds": [
+        "session_metrics.active_session_time",
+        "bounce.session_bounce_status"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "duration",
+        "count",
+        "bounce",
+        "confidence"
+      ],
+      "reason": "Current source distinguishes active, idle, hidden, passive, and unknown session states and classifies bounce/engagement."
+    },
+    {
+      "sourcePath": "src/lib/analytics/drop-watch-time-engine.ts",
+      "formulaIds": [
+        "watch_time.active_watch_ms",
+        "watch_time.normalized_watch_percent"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "duration",
+        "rate",
+        "percent",
+        "dedupe",
+        "replay"
+      ],
+      "reason": "Current source calculates active watch, normalized percent, replay caps, duration confidence, and watch-session dedupe."
+    },
+    {
+      "sourcePath": "src/lib/analytics/sql-database-parity-engine.ts",
+      "formulaIds": [
+        "sql_parity.summary_count_delta"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "count",
+        "dedupe",
+        "global_user_divergence",
+        "cost"
+      ],
+      "reason": "Current source maps normalized facts to global/user SQL summaries and records parity mismatches without using SQL as runtime truth."
+    },
+    {
+      "sourcePath": "src/lib/behavioral/event-fact-normalizer.ts",
+      "formulaIds": [
+        "behavioral_event_fact.deduped_count"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "confidence",
+        "normalization",
+        "revenue_context",
+        "gumdrop_context"
+      ],
+      "reason": "Current source normalizes identified metric facts, confidence, metric eligibility, and value context without promoting UI facts to money truth."
+    },
+    {
+      "sourcePath": "src/lib/behavioral/normalize-event-fact.ts",
+      "formulaIds": [
+        "behavioral_event_fact.deduped_count",
+        "revenue.server_verified_revenue",
+        "gumdrop.source_of_funds_balance"
+      ],
+      "status": "needs_operator_decision",
+      "detectedFormulaKinds": [
+        "dedupe",
+        "normalization",
+        "revenue",
+        "gumdrop",
+        "legacy"
+      ],
+      "reason": "Behavioral facts extract valueUsd and GumDrop context, but exact revenue and source-of-funds formulas remain operator-decision-needed and must not be changed in this phase."
+    },
+    {
+      "sourcePath": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "formulaIds": [
+        "beta_score.overall_health"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "admin_metric",
+        "count",
+        "status"
+      ],
+      "reason": "Current source exposes Math authority and related debug lanes from generated reports without creating a separate metric formula."
+    },
+    {
+      "sourcePath": "scripts/agent/score-code-organization.ts",
+      "formulaIds": [
+        "unowned.code_organization_score"
+      ],
+      "status": "needs_operator_decision",
+      "detectedFormulaKinds": [
+        "score",
+        "weight",
+        "penalty",
+        "risk"
+      ],
+      "reason": "Code organization scoring is source-inventoried but outside the Phase 1 MathDomain list; it must remain needs_operator_decision until a later authority expansion approves it."
+    },
+    {
+      "sourcePath": "scripts/agent/validate-session-bounce-calculation.ts",
+      "formulaIds": [
+        "session_metrics.active_session_time",
+        "bounce.session_bounce_status"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "validator",
+        "duration",
+        "bounce",
+        "score_dimension"
+      ],
+      "reason": "Validator proves session/bounce duration semantics and score-dimension reporting."
+    },
+    {
+      "sourcePath": "scripts/agent/validate-drop-watch-time-accuracy.ts",
+      "formulaIds": [
+        "watch_time.active_watch_ms",
+        "watch_time.normalized_watch_percent"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "validator",
+        "duration",
+        "rate",
+        "confidence"
+      ],
+      "reason": "Validator proves active watch duration, normalized watch percent, confidence, and debug coverage."
+    },
+    {
+      "sourcePath": "scripts/agent/validate-sql-database-parity-cost-lock.ts",
+      "formulaIds": [
+        "sql_parity.summary_count_delta"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "validator",
+        "count",
+        "dedupe",
+        "cost"
+      ],
+      "reason": "Validator proves SQL parity count deltas and cost-guard evidence stay source-only."
+    },
+    {
+      "sourcePath": "agent/state/public-beta-score.generated.json",
+      "formulaIds": [
+        "beta_score.overall_health"
+      ],
+      "status": "stale",
+      "detectedFormulaKinds": [
+        "generated_report",
+        "score_snapshot"
+      ],
+      "reason": "Generated score report is an evidence snapshot only; it never overrides the runtime score formula definitions."
+    }
+  ],
   "formulaReferences": [
     {
       "referenceId": "public_beta_score_core",
@@ -1555,6 +1800,7 @@
   "debugLane": {
     "label": "Math authority",
     "formulasInventoried": 49,
+    "sourceFilesInventoried": 16,
     "canonicalFormulas": 40,
     "duplicateFormulas": 0,
     "missingDefinitions": 0,
@@ -1588,24 +1834,8 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/count-deduplication-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "docs/agent-truth/canonical-math-authority-ledger.md",
       "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/count-deduplication-normalization.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
     },
     {
       "path": "public/kandydrops-release-notes.json",
@@ -1616,35 +1846,11 @@
       "classification": "failed_validator_to_repair"
     },
     {
-      "path": "scripts/agent/validate-count-deduplication-normalization.ts",
-      "classification": "failed_validator_to_repair"
-    },
-    {
-      "path": "src/lib/analytics/global-user-dedupe-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/global-user-dedupe-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/math/canonical-math-authority-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/math/canonical-math-authority-ledger.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/count-deduplication-normalizer.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -1656,7 +1862,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/count-deduplication-normalization.spec.ts",
+      "path": "tests/unit/canonical-math-authority-ledger.spec.ts",
       "classification": "current_generated_artifact_to_commit"
     }
   ],

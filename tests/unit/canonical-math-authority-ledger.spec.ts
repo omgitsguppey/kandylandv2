@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   CANONICAL_MATH_FORMULA_REFERENCES,
+  REQUIRED_FORMULA_SOURCE_PATHS,
   classifyUnownedFormula,
   explainFormula,
   getFormulaDefinition,
   listFormulaDefinitions,
+  listFormulaSourceInventory,
   requireFormulaDefinition,
   validateMetricHasFormula,
   validateScoreHasFormula,
@@ -34,6 +36,20 @@ describe("canonical math authority ledger", () => {
       "legacy_recovery",
     ]));
     expect(CANONICAL_MATH_FORMULA_REFERENCES.some((entry) => entry.status === "needs_operator_decision")).toBe(true);
+  });
+
+  it("inventories required formula-bearing source paths before later normalization phases", () => {
+    const inventory = listFormulaSourceInventory();
+    const sourcePaths = new Set(inventory.map((entry) => entry.sourcePath));
+
+    expect([...sourcePaths]).toEqual(expect.arrayContaining([...REQUIRED_FORMULA_SOURCE_PATHS]));
+    expect(inventory.find((entry) => entry.sourcePath === "scripts/agent/score-code-organization.ts")).toMatchObject({
+      status: "needs_operator_decision",
+    });
+    expect(inventory.find((entry) => entry.sourcePath === "agent/state/public-beta-score.generated.json")).toMatchObject({
+      status: "stale",
+    });
+    expect(inventory.every((entry) => entry.detectedFormulaKinds.length > 0 && entry.formulaIds.length > 0)).toBe(true);
   });
 
   it("requires score dimensions to carry weight, formula, cap, penalty, and blocker metadata", () => {

@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.88",
-  "betaReleaseCounter": 488,
+  "currentVersion": "1.4.89",
+  "betaReleaseCounter": 489,
   "channel": "beta",
-  "generatedAt": "2026-05-26T05:35:00.000Z",
-  "generatedAtUtc": "2026-05-26T05:35:00.000Z",
+  "generatedAt": "2026-05-26T06:05:00.000Z",
+  "generatedAtUtc": "2026-05-26T06:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.89",
+      "previousVersion": "1.4.88",
+      "betaReleaseCounter": 489,
+      "previousBetaReleaseCounter": 488,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(math): add canonical authority ledger",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T06:05:00.000Z",
+      "generatedAt": "2026-05-26T06:05:00.000Z",
+      "committedAtUtc": "2026-05-26T06:05:00.000Z",
+      "generatedAtUtc": "2026-05-26T06:05:00.000Z",
+      "category": "Improved",
+      "title": "Canonical math authority ledger coverage",
+      "updatedAtUtc": "2026-05-26T06:05:00.000Z",
+      "summary": "Added canonical math authority ledger.",
+      "userFacingTitle": "Canonical math authority ledger coverage",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added canonical math authority ledger.",
+        "Inventoried formulas across score, metrics, sessions, watch time, GumDrops, revenue, and legacy recovery.",
+        "Blocked unowned formulas from silently affecting user/admin metrics."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-inventory coverage for formula-bearing score, analytics, behavioral, SQL parity, debug, validator, and generated score artifact paths.",
+        "Kept code-organization scoring outside current MathDomain authority as needs_operator_decision instead of silently promoting it.",
+        "Refreshed canonical math authority validator evidence and unit coverage without changing runtime payment, wallet, PayPal, GumDrop, or navigation behavior."
+      ],
+      "affectedSurfaces": [
+        "Math authority ledger",
+        "Formula source inventory",
+        "Public beta score formulas",
+        "Analytics and behavior metric formulas",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/canonical-math-authority-ledger.generated.json",
+        "docs/agent-truth/canonical-math-authority-ledger.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-canonical-math-authority-ledger.ts",
+        "src/lib/math/canonical-math-authority-contract.ts",
+        "src/lib/math/canonical-math-authority-ledger.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/canonical-math-authority-ledger.spec.ts"
+      ],
+      "effectiveChangeCount": 10,
+      "excludedGeneratedChangeCount": 1,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.88",
       "previousVersion": "1.4.87",
