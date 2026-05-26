@@ -81,6 +81,7 @@ const DEBUG_LANE_SYSTEMS: Record<string, BodySystemId> = {
   user_management: "admin_debug_ops",
   testing_coverage: "telemetry_behavioral_intelligence",
   product_body_map: "admin_debug_ops",
+  central_normalizer: "telemetry_behavioral_intelligence",
   math_authority: "telemetry_behavioral_intelligence",
   behavior_math: "telemetry_behavioral_intelligence",
   feature_telemetry_coverage: "telemetry_behavioral_intelligence",
@@ -640,12 +641,20 @@ export function buildProductBodyMapReport(input: {
 export function classifyProductBodyMapDirtyFile(path: string): ProductBodyMapDirtyFile["classification"] {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/state/product-body-map.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/central-normalizer-spine.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/product-body-map.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/product-integrity/product-body-system-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/product-body-map.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/product-integrity/central-normalizer-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/product-integrity/central-normalizer.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-product-body-map.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-central-normalizer-spine.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/product-body-map.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/central-normalizer-spine.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === "CHANGELOG.md") return "release_artifact_expected";
   if (normalized === "public/kandydrops-release-notes.json") return "release_artifact_expected";

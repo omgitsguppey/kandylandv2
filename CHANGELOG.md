@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.92 - 2026-05-26
+- Central normalizer spine
+- Added central normalizer spine for product signals.
+- Routed events, metrics, journeys, debug, score, and export facts through one normalization contract.
+- Classified legacy direct pathways.
+
 ## 1.4.91 - 2026-05-26
 - Product integrity map
 - Mapped product features, routes, telemetry, metrics, debug lanes, and score gates into one product integrity map.

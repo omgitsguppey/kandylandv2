@@ -1,12 +1,12 @@
 # Product Body Map
-Generated: 2026-05-26T06:39:27.805Z
-Current head: f0ebf4fa09ceec193dfb22fcd2b7639dff1d4930
+Generated: 2026-05-26T07:06:12.348Z
+Current head: 6e80f4748fd209193320340ceb73fe01146cfa81
 Status: pass
 ## Scope
 This source-only pass maps product features, surfaces, routes, telemetry events, materializers, metrics, journey steps, debug lanes, score gates, validators, and generated artifacts into canonical product body systems. It does not change payment runtime, GumDrop math, navigation, deployed runtime, provider state, or production data.
 ## Summary
 - body systems covered: 16/16
-- total limbs: 1040
+- total limbs: 1041
 - features mapped: 21
 - surfaces mapped: 17
 - telemetry events mapped: 748
@@ -15,7 +15,7 @@ This source-only pass maps product features, surfaces, routes, telemetry events,
 - materializers mapped: 18
 ## Debug Lane
 - default view: disconnected_only
-- connected: 1038
+- connected: 1039
 - disconnected: 1
 - orphaned: 1
 - duplicated: 0
@@ -36,26 +36,31 @@ This source-only pass maps product features, surfaces, routes, telemetry events,
 - notifications_pwa: primary=69, secondary=0, score=runtimeHealth, evidenceCompleteness, freshness
 - account_settings_support: primary=63, secondary=31, score=sourceHealth, evidenceCompleteness, regressionRisk, runtimeHealth
 - media_storage_access: primary=1, secondary=0, score=evidenceCompleteness, freshness
-- admin_debug_ops: primary=169, secondary=319, score=sourceHealth, runtimeHealth, evidenceCompleteness, freshness, regressionRisk, costRisk
-- telemetry_behavioral_intelligence: primary=246, secondary=483, score=sourceHealth, evidenceCompleteness, runtimeHealth, freshness, costRisk, regressionRisk
+- admin_debug_ops: primary=169, secondary=320, score=sourceHealth, runtimeHealth, evidenceCompleteness, freshness, regressionRisk, costRisk
+- telemetry_behavioral_intelligence: primary=247, secondary=483, score=sourceHealth, evidenceCompleteness, runtimeHealth, freshness, costRisk, regressionRisk
 - cost_runtime_infrastructure: primary=13, secondary=216, score=runtimeHealth, evidenceCompleteness, costRisk, sourceHealth, freshness, regressionRisk
 ## Disconnected Limbs
 - metric:global:runtime_watch_time: orphaned; Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output.
 - metric:global:external_ga4_evidence: deprecated; Keep external evidence archive-only unless an explicit guarded refresh artifact is produced.
 ## Dirty Files
 - CHANGELOG.md: release_artifact_expected
+- agent/state/central-normalizer-spine.generated.json: current_generated_artifact_to_commit
 - agent/state/product-body-map.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/central-normalizer-spine.md: documentation_artifact_expected
 - docs/agent-truth/product-body-map.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-product-body-map.ts: validator_artifact_expected
+- scripts/agent/validate-central-normalizer-spine.ts: validator_artifact_expected
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
+- src/lib/product-integrity/central-normalizer-contract.ts: real_source_change_needs_review
+- src/lib/product-integrity/central-normalizer.ts: real_source_change_needs_review
 - src/lib/product-integrity/product-body-map.ts: real_source_change_needs_review
-- src/lib/product-integrity/product-body-system-contract.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/product-body-map.spec.ts: test_artifact_expected
+- tests/unit/central-normalizer-spine.spec.ts: test_artifact_expected
 ## Open PR Classification
 - #302 🧭 Improve onboarding friction visibility and technical rescue signals: onboarding_telemetry_external_review_required
 - #301 📚 Reduce doctrine drift and banned-pattern reintroduction: doctrine_governance_external_review_required

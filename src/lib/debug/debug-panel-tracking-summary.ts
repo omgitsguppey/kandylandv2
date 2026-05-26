@@ -23,6 +23,7 @@ import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedu
 import { COUNT_DEDUPLICATION_CONTRACT_VERSION } from "@/lib/math/count-deduplication-normalizer";
 import { DURATION_MATH_CONTRACT_VERSION } from "@/lib/math/duration-math-normalizer";
 import { PRODUCT_BODY_MAP_VERSION } from "@/lib/product-integrity/product-body-map";
+import { CENTRAL_NORMALIZER_CONTRACT_VERSION } from "@/lib/product-integrity/central-normalizer";
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
 import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
 import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
@@ -49,6 +50,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "user_management",
   "testing_coverage",
   "product_body_map",
+  "central_normalizer",
   "math_authority",
   "behavior_math",
   "feature_telemetry_coverage",
@@ -152,6 +154,7 @@ const TRACKING_GROUPS = [
   "user_management",
   "testing_coverage",
   "product_body_map",
+  "central_normalizer",
   "math_authority",
   "behavior_math",
   "feature_coverage",
@@ -460,6 +463,26 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     counts: [productBodySystems, productBodyLimbs, productBodyDisconnected],
     warningCount: productBodyWarnings,
     criticalCount: productBodyUnsafe,
+  }).status;
+  const centralNormalizer = input.centralNormalizerSpine?.debugLane ?? {};
+  const centralSignalsReceived = toNumber(centralNormalizer.signalsReceived);
+  const centralNormalized = toNumber(centralNormalizer.normalizedSuccessfully);
+  const centralFailed = toNumber(centralNormalizer.failedNormalization);
+  const centralMissingBody = toNumber(centralNormalizer.missingBodySystem);
+  const centralMissingIdentity = toNumber(centralNormalizer.missingIdentity);
+  const centralMissingMetric = toNumber(centralNormalizer.missingMetricRoute);
+  const centralMissingDebug = toNumber(centralNormalizer.missingDebugRoute);
+  const centralMissingExport = toNumber(centralNormalizer.missingExportRoute);
+  const centralUnsafe = toNumber(centralNormalizer.unsafeUnknownCount);
+  const centralWarnings = centralFailed + centralMissingBody + centralMissingIdentity + centralMissingMetric + centralMissingDebug + centralMissingExport;
+  const centralNormalizerStatus = classifyAdminSummaryLaneStatus({
+    laneId: "central_normalizer",
+    sourceContractPresent: true,
+    sampleLoaded: centralSignalsReceived > 0,
+    configTruthHealthy: centralUnsafe === 0 && centralWarnings === 0 && centralSignalsReceived > 0,
+    counts: [centralSignalsReceived, centralNormalized],
+    warningCount: centralWarnings,
+    criticalCount: centralUnsafe,
   }).status;
   const behaviorCleanup = input.behaviorMathStatusCleanup;
   const behaviorStatus = behaviorCleanup?.status === "healthy" || behaviorCleanup?.status === `source_ready_${"waiting_for_activity"}`
@@ -984,6 +1007,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: productBodyUnsafe,
       warningCount: productBodyWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#product-body-map",
+    }),
+    makeLane({
+      id: "central_normalizer",
+      label: "Central normalizer",
+      trackingSystem: "central_normalizer",
+      sourceOwner: "product-integrity",
+      sourceOfTruth: "src/lib/product-integrity/central-normalizer.ts",
+      status: centralNormalizerStatus,
+      severity: severityFromCounts(centralUnsafe, centralWarnings, centralNormalizerStatus),
+      scoreImpact: centralWarnings > 0 || centralUnsafe > 0 ? "high" : "medium",
+      primarySignal: `Contract=${CENTRAL_NORMALIZER_CONTRACT_VERSION}; received=${centralSignalsReceived}; normalized=${centralNormalized}; failed=${centralFailed}; missingBody=${centralMissingBody}; missingIdentity=${centralMissingIdentity}.`,
+      criticalCount: centralUnsafe,
+      warningCount: centralWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#central-normalizer",
     }),
     makeLane({
       id: "math_authority",

@@ -1,11 +1,73 @@
 {
-  "currentVersion": "1.4.91",
-  "betaReleaseCounter": 491,
+  "currentVersion": "1.4.92",
+  "betaReleaseCounter": 492,
   "channel": "beta",
-  "generatedAt": "2026-05-26T06:45:00.000Z",
-  "generatedAtUtc": "2026-05-26T06:45:00.000Z",
+  "generatedAt": "2026-05-26T07:05:00.000Z",
+  "generatedAtUtc": "2026-05-26T07:05:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.92",
+      "previousVersion": "1.4.91",
+      "betaReleaseCounter": 492,
+      "previousBetaReleaseCounter": 491,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(integrity): add central normalizer",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T07:05:00.000Z",
+      "generatedAt": "2026-05-26T07:05:00.000Z",
+      "committedAtUtc": "2026-05-26T07:05:00.000Z",
+      "generatedAtUtc": "2026-05-26T07:05:00.000Z",
+      "category": "Improved",
+      "title": "Central normalizer spine",
+      "updatedAtUtc": "2026-05-26T07:05:00.000Z",
+      "summary": "Added a central normalizer spine for product signals.",
+      "userFacingTitle": "Central normalizer spine",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added central normalizer spine for product signals.",
+        "Routed events, metrics, journeys, debug, score, and export facts through one normalization contract.",
+        "Classified legacy direct pathways."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added typed central normalizer contracts and adapters over event envelopes, event facts, person metrics, journey, debug, score, export, and cost paths.",
+        "Added source-only validator evidence and unit coverage for the normalizer spine.",
+        "Connected central normalizer status to Admin Debug while preserving payment runtime, GumDrop math, navigation, production data, provider calls, and deploy state."
+      ],
+      "affectedSurfaces": [
+        "Central normalizer",
+        "Event envelope",
+        "Behavioral event facts",
+        "Person and global metrics",
+        "User journey intelligence",
+        "Admin Debug tracking summary",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/central-normalizer-spine.generated.json",
+        "docs/agent-truth/central-normalizer-spine.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-central-normalizer-spine.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/product-integrity/central-normalizer-contract.ts",
+        "src/lib/product-integrity/central-normalizer.ts",
+        "src/lib/product-integrity/product-body-map.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/central-normalizer-spine.spec.ts"
+      ],
+      "effectiveChangeCount": 13,
+      "excludedGeneratedChangeCount": 1,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.91",
       "previousVersion": "1.4.90",
@@ -1535,59 +1597,6 @@
         "tests/unit/surface-telemetry-parity.spec.ts",
         "agent/state/surface-telemetry-parity.generated.json",
         "docs/agent-truth/surface-telemetry-parity.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.67",
-      "previousVersion": "1.4.66",
-      "betaReleaseCounter": 467,
-      "previousBetaReleaseCounter": 466,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(parity): define surface doctrine",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T20:47:18.746Z",
-      "generatedAt": "2026-05-25T20:47:18.746Z",
-      "committedAtUtc": "2026-05-25T20:47:18.746Z",
-      "generatedAtUtc": "2026-05-25T20:47:18.746Z",
-      "category": "Improved",
-      "title": "Surface parity doctrine",
-      "updatedAtUtc": "2026-05-25T20:47:18.746Z",
-      "summary": "Added canonical surface parity doctrine.",
-      "userFacingTitle": "Surface parity doctrine",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added canonical surface parity doctrine.",
-        "Mapped major user, creator, admin, and public surfaces to roles, states, telemetry, and debug lanes.",
-        "Retired stale parity logic where superseded."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only surface parity contract and registry for 17 major public, user, creator, and admin surfaces.",
-        "Mapped each surface to role visibility, required loading/empty/ready/degraded/error/permission/not-configured states, data sources, backend routes/actions, telemetry events, debug lanes, score impact, and old-logic status.",
-        "Classified user/creator-only parity validators as supporting evidence under the new cross-role surface parity authority."
-      ],
-      "affectedSurfaces": [
-        "Public, user, creator, and admin surface doctrine",
-        "Feature registration and telemetry parity evidence",
-        "Surface parity validator and generated report"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/parity/surface-parity-contract.ts",
-        "src/lib/parity/surface-parity-registry.ts",
-        "scripts/agent/validate-surface-parity-doctrine.ts",
-        "tests/unit/surface-parity-doctrine.spec.ts",
-        "agent/state/surface-parity-doctrine.generated.json",
-        "docs/agent-truth/surface-parity-doctrine.md",
         "package.json",
         "public/kandydrops-release-notes.json",
         "src/lib/release-notes/public-release-notes.ts",

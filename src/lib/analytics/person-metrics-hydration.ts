@@ -442,6 +442,12 @@ export function confidenceFromHydratedCount(count: number, confidence: IdentityC
 export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "agent/state/central-normalizer-spine.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-central-normalizer-spine.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/central-normalizer-spine.spec.ts") return "test_artifact_expected";
+  if (/^src\/lib\/product-integrity\/central-normalizer(-contract)?\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/lib/product-integrity/product-body-map.ts") return "real_source_change_needs_review";
   if (normalized === "agent/state/surface-telemetry-parity.generated.json" || normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/surface-telemetry-parity.md" || normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-surface-telemetry-parity.ts") return "validator_artifact_expected";
