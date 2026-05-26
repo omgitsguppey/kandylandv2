@@ -106,6 +106,13 @@ function classifyDirtyFile(path: string) {
   if (/^tests\/unit\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
+  if (normalized === "agent/state/canonical-math-authority-ledger.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/duration-math-normalization.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/canonical-math-authority-ledger.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/duration-math-normalization.md") return "documentation_artifact_expected";
+  if (normalized === "src/lib/math/canonical-math-authority-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/canonical-math-authority-ledger.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/duration-math-normalizer.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/session-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/session-metrics-engine.ts") return "real_source_change_needs_review";
   if (normalized === "src/components/Analytics/DeepTracker.tsx") return "real_source_change_needs_review";
@@ -120,9 +127,10 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-session-bounce-calculation.ts") return "validator_artifact_expected";
-  if (/^scripts\/agent\/validate-(pwa-service-worker-safety|notification-pwa-score-lock|drop-watch-time-accuracy|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(pwa-service-worker-safety|notification-pwa-score-lock|drop-watch-time-accuracy|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration|canonical-math-authority-ledger|duration-math-normalization)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/session-bounce-calculation.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/duration-math-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === SCORE_PATH || normalized === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";

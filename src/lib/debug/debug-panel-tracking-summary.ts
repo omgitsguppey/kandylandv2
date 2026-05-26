@@ -21,6 +21,7 @@ import { buildAuthPersistenceDebugLane } from "@/lib/auth/auth-persistence-contr
 import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedupe-engine";
 import { COUNT_DEDUPLICATION_CONTRACT_VERSION } from "@/lib/math/count-deduplication-normalizer";
+import { DURATION_MATH_CONTRACT_VERSION } from "@/lib/math/duration-math-normalizer";
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
 import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
 import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
@@ -36,6 +37,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "event_envelope",
   "global_user_dedupe",
   "count_dedupe_math",
+  "duration_math",
   "drop_watch_time",
   "session_bounce",
   "user_journey",
@@ -137,6 +139,7 @@ const TRACKING_GROUPS = [
   "event_envelope",
   "global_user_dedupe",
   "count_dedupe_math",
+  "duration_math",
   "drop_watch_time",
   "session_bounce",
   "user_journey",
@@ -265,6 +268,27 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       countDedupeReplaySuppressed,
     ],
     warningCount: countDedupeWarnings,
+  }).status;
+  const durationMathLane = input.durationMathNormalization?.debugLane ?? {};
+  const durationMathExact = toNumber(durationMathLane.exactCount);
+  const durationMathEstimated = toNumber(durationMathLane.estimatedCount);
+  const durationMathUnavailable = toNumber(durationMathLane.unavailableCount);
+  const durationMathPageFallback = toNumber(durationMathLane.suspiciousPageTimeFallbackCount);
+  const durationMathBackgroundExcluded = toNumber(durationMathLane.backgroundExcludedCount);
+  const durationMathMissingFormula = toNumber(durationMathLane.missingFormulaReferences);
+  const durationMathWarnings = durationMathPageFallback + durationMathMissingFormula;
+  const durationMathStatus = classifyAdminSummaryLaneStatus({
+    laneId: "duration_math",
+    sourceContractPresent: true,
+    configTruthHealthy: durationMathMissingFormula === 0,
+    sampleLoaded: durationMathExact + durationMathEstimated + durationMathUnavailable > 0,
+    counts: [
+      durationMathExact,
+      durationMathEstimated,
+      durationMathUnavailable,
+      durationMathBackgroundExcluded,
+    ],
+    warningCount: durationMathWarnings,
   }).status;
   const dropWatchTimeLane = input.dropWatchTimeAccuracy?.debugLane ?? buildDropWatchTimeDebugLane();
   const dropWatchTimeWarnings = toNumber(dropWatchTimeLane.durationMissingCount)
@@ -782,6 +806,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: countDedupeWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#count-dedupe-math",
+    }),
+    makeLane({
+      id: "duration_math",
+      label: "Duration math",
+      trackingSystem: "duration_math",
+      sourceOwner: "analytics_math",
+      sourceOfTruth: "src/lib/math/duration-math-normalizer.ts",
+      status: durationMathStatus,
+      severity: severityFromCounts(0, durationMathWarnings, durationMathStatus),
+      scoreImpact: "medium",
+      primarySignal: `Contract=${DURATION_MATH_CONTRACT_VERSION}; exact=${durationMathExact}; estimated=${durationMathEstimated}; unavailable=${durationMathUnavailable}; pageFallback=${durationMathPageFallback}; backgroundExcluded=${durationMathBackgroundExcluded}; formulaMissing=${durationMathMissingFormula}.`,
+      criticalCount: 0,
+      warningCount: durationMathWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#duration-math",
     }),
     makeLane({
       id: "drop_watch_time",

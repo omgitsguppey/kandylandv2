@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.90 - 2026-05-26
+- Duration math normalization
+- Normalized duration math across sessions, watch time, tasks, flows, chat, media, auth, and notifications.
+- Separated active, passive, idle, hidden, and unknown duration buckets.
+- Blocked page-open and legacy unknown durations from becoming exact watch or active time.
+
 ## 1.4.89 - 2026-05-26
 - Canonical math authority ledger coverage
 - Added canonical math authority ledger.

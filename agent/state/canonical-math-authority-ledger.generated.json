@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T05:55:28.215Z",
+  "generatedAtUtc": "2026-05-26T06:17:30.826Z",
   "reportKey": "canonical-math-authority-ledger",
-  "currentHead": "daf1dc1ea1fbf28039ab19b0f6e0c17ac62393cd",
+  "currentHead": "c84694d7f546c25f68639db1ed4680dab9abaccb",
   "status": "pass",
   "productionReadsRequired": false,
   "productionDataMutated": false,
@@ -1149,6 +1149,483 @@
       ]
     },
     {
+      "formulaId": "duration_math.session_active",
+      "domain": "session_metrics",
+      "humanName": "Session active duration",
+      "formulaExpression": "activeMs = foreground visible activity with hidden, idle, and passive buckets excluded",
+      "numerator": "foreground active milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.session_passive",
+      "domain": "session_metrics",
+      "humanName": "Session passive visible duration",
+      "formulaExpression": "passiveVisibleMs = visible foreground time not classified as active, idle, or hidden",
+      "numerator": "passive visible milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.session_idle",
+      "domain": "session_metrics",
+      "humanName": "Session idle duration",
+      "formulaExpression": "idleMs is tracked separately and excluded from user-facing active time",
+      "numerator": "idle milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.session_hidden",
+      "domain": "session_metrics",
+      "humanName": "Session hidden duration",
+      "formulaExpression": "hiddenMs is background/hidden time and excluded from active time",
+      "numerator": "hidden/background milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.drop_watch_active",
+      "domain": "watch_time",
+      "humanName": "Drop active watch duration",
+      "formulaExpression": "watchMs = mediaActiveMs or playingMs only; pageOpenMs is rejected as watch time",
+      "numerator": "active media/content exposure milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.drop_watch_normalized",
+      "domain": "watch_time",
+      "humanName": "Drop normalized watch percent",
+      "formulaExpression": "normalizedWatchPercent = capped activeWatchMs / contentDurationMs, capped unless replay is explicitly counted",
+      "numerator": "capped active media/content exposure milliseconds",
+      "denominator": "contentDurationMs times replay multiplier when replay is explicitly counted",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "missing or <= 0 denominator returns null/unavailable instead of 0%",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": true,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.task_active_duration",
+      "domain": "daily_tasks",
+      "humanName": "Task active duration",
+      "formulaExpression": "task duration uses attempt/start and finish events; passive page time is not used",
+      "numerator": "task active lifecycle milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/tasks/daily-task-duration.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ],
+      "valueSourceBreakdown": [
+        "confidence"
+      ]
+    },
+    {
+      "formulaId": "duration_math.checkout_flow_duration",
+      "domain": "user_metrics",
+      "humanName": "Checkout flow duration",
+      "formulaExpression": "checkout flow duration uses checkout start and success/failure/abandon timestamps, not page render time",
+      "numerator": "checkout lifecycle milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.auth_flow_duration",
+      "domain": "user_metrics",
+      "humanName": "Auth flow duration",
+      "formulaExpression": "auth flow duration uses auth start and completed/failed/abandoned timestamps",
+      "numerator": "auth lifecycle milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/auth/auth-telemetry-contract.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.chat_typing_duration",
+      "domain": "chat",
+      "humanName": "Chat typing duration",
+      "formulaExpression": "chat typing duration uses typing started/stopped lifecycle events and timeout as estimated end",
+      "numerator": "chat typing lifecycle milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.media_upload_duration",
+      "domain": "media",
+      "humanName": "Media upload duration",
+      "formulaExpression": "media upload duration uses prepare/storage/complete lifecycle start and finish events with orphan/timeout estimated separately",
+      "numerator": "media upload lifecycle milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/media/media-upload-contract.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.notification_permission_duration",
+      "domain": "notifications",
+      "humanName": "Notification permission lifecycle duration",
+      "formulaExpression": "notification permission duration uses prompt start and permission outcome timestamps",
+      "numerator": "notification permission lifecycle milliseconds",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
+      "formulaId": "duration_math.unknown_legacy_duration",
+      "domain": "legacy_recovery",
+      "humanName": "Unknown legacy duration",
+      "formulaExpression": "legacy duration without start/end returns unavailable and cannot become exact",
+      "numerator": "n/a",
+      "denominator": "n/a",
+      "timeWindow": "explicit lifecycle start/finish window supplied by the source surface",
+      "dedupeKey": "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+      "sourceTruth": "canonical duration math normalizer with surface lifecycle source events",
+      "confidenceRule": "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+      "confidenceLevel": "mixed_explicit",
+      "zeroDenominatorRule": "n/a; missing duration is unavailable, not zero",
+      "legacyRule": "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+      "userFacingAllowed": false,
+      "adminFacingAllowed": true,
+      "scoreImpact": null,
+      "owner": "duration_math",
+      "authorityStatus": "canonical",
+      "sourcePaths": [
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/tasks/daily-task-duration.ts",
+        "src/lib/media/media-upload-contract.ts",
+        "src/lib/auth/auth-telemetry-contract.ts",
+        "src/lib/chat/chat-typing-controller.ts"
+      ],
+      "countRule": "not_count",
+      "durationStates": [
+        "active",
+        "passive",
+        "idle",
+        "hidden",
+        "playback",
+        "unknown"
+      ]
+    },
+    {
       "formulaId": "sql_parity.summary_count_delta",
       "domain": "global_metrics",
       "humanName": "SQL parity summary count delta",
@@ -1556,6 +2033,33 @@
       "reason": "Current source calculates active watch, normalized percent, replay caps, duration confidence, and watch-session dedupe."
     },
     {
+      "sourcePath": "src/lib/math/duration-math-normalizer.ts",
+      "formulaIds": [
+        "duration_math.session_active",
+        "duration_math.session_passive",
+        "duration_math.session_idle",
+        "duration_math.session_hidden",
+        "duration_math.drop_watch_active",
+        "duration_math.drop_watch_normalized",
+        "duration_math.task_active_duration",
+        "duration_math.checkout_flow_duration",
+        "duration_math.auth_flow_duration",
+        "duration_math.chat_typing_duration",
+        "duration_math.media_upload_duration",
+        "duration_math.notification_permission_duration",
+        "duration_math.unknown_legacy_duration"
+      ],
+      "status": "canonical",
+      "detectedFormulaKinds": [
+        "duration",
+        "watch_time",
+        "flow",
+        "confidence",
+        "legacy"
+      ],
+      "reason": "Current source applies the shared duration rules: active excludes hidden/idle, watch rejects page-open time, flows use lifecycle timestamps, and unknown legacy stays unavailable."
+    },
+    {
       "sourcePath": "src/lib/analytics/sql-database-parity-engine.ts",
       "formulaIds": [
         "sql_parity.summary_count_delta"
@@ -1721,6 +2225,13 @@
       "reason": "Current source caps active watch by duration and replay count."
     },
     {
+      "referenceId": "duration_math_normalizer",
+      "formulaId": "duration_math.session_active",
+      "sourcePath": "src/lib/math/duration-math-normalizer.ts",
+      "status": "canonical",
+      "reason": "Current source normalizes active, passive, idle, hidden, watch, flow, and unknown legacy duration decisions."
+    },
+    {
       "referenceId": "behavioral_fact_normalizer",
       "formulaId": "behavioral_event_fact.deduped_count",
       "sourcePath": "src/lib/behavioral/normalize-event-fact.ts",
@@ -1790,18 +2301,31 @@
     "count_dedupe_creator_count": "count_dedupe.creator_count",
     "count_dedupe_legacy_bucket_count": "count_dedupe.legacy_bucket_count",
     "count_dedupe_retry_replay_suppression": "count_dedupe.retry_replay_suppression",
+    "duration_session_active": "duration_math.session_active",
+    "duration_session_passive": "duration_math.session_passive",
+    "duration_session_idle": "duration_math.session_idle",
+    "duration_session_hidden": "duration_math.session_hidden",
+    "duration_drop_watch_active": "duration_math.drop_watch_active",
+    "duration_drop_watch_normalized": "duration_math.drop_watch_normalized",
+    "duration_task_active_duration": "duration_math.task_active_duration",
+    "duration_checkout_flow_duration": "duration_math.checkout_flow_duration",
+    "duration_auth_flow_duration": "duration_math.auth_flow_duration",
+    "duration_chat_typing_duration": "duration_math.chat_typing_duration",
+    "duration_media_upload_duration": "duration_math.media_upload_duration",
+    "duration_notification_permission_duration": "duration_math.notification_permission_duration",
+    "duration_unknown_legacy_duration": "duration_math.unknown_legacy_duration",
     "server_verified_revenue": "revenue.server_verified_revenue",
     "gumdrop_source_of_funds_balance": "gumdrop.source_of_funds_balance"
   },
   "statusCounts": {
-    "canonical": 40,
+    "canonical": 53,
     "needs_operator_decision": 9
   },
   "debugLane": {
     "label": "Math authority",
-    "formulasInventoried": 49,
-    "sourceFilesInventoried": 16,
-    "canonicalFormulas": 40,
+    "formulasInventoried": 62,
+    "sourceFilesInventoried": 17,
+    "canonicalFormulas": 53,
     "duplicateFormulas": 0,
     "missingDefinitions": 0,
     "needsOperatorDecision": 9
@@ -1834,8 +2358,40 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/drop-watch-time-accuracy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/duration-math-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/session-bounce-calculation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/canonical-math-authority-ledger.md",
       "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/duration-math-normalization.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/session-bounce-calculation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "public/kandydrops-release-notes.json",
@@ -1846,11 +2402,31 @@
       "classification": "failed_validator_to_repair"
     },
     {
+      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-duration-math-normalization.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-session-bounce-calculation.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
       "path": "src/lib/math/canonical-math-authority-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/math/canonical-math-authority-ledger.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/duration-math-normalizer.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -1862,7 +2438,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/canonical-math-authority-ledger.spec.ts",
+      "path": "tests/unit/duration-math-normalization.spec.ts",
       "classification": "current_generated_artifact_to_commit"
     }
   ],

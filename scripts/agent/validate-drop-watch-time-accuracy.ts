@@ -119,6 +119,13 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx") return "real_source_change_needs_review";
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
+  if (normalized === "agent/state/canonical-math-authority-ledger.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/duration-math-normalization.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/canonical-math-authority-ledger.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/duration-math-normalization.md") return "documentation_artifact_expected";
+  if (normalized === "src/lib/math/canonical-math-authority-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/canonical-math-authority-ledger.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/duration-math-normalizer.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/drop-watch-time-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/drop-watch-time-engine.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
@@ -133,8 +140,9 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-drop-watch-time-accuracy.ts") return "validator_artifact_expected";
-  if (/^scripts\/agent\/validate-(admin-debug-control-tower|pwa-service-worker-safety|notification-pwa-score-lock|session-bounce-calculation|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^scripts\/agent\/validate-(admin-debug-control-tower|pwa-service-worker-safety|notification-pwa-score-lock|session-bounce-calculation|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration|canonical-math-authority-ledger|duration-math-normalization)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "tests/unit/drop-watch-time-accuracy.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/duration-math-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";

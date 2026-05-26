@@ -1,13 +1,83 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.89",
-  "betaReleaseCounter": 489,
+  "currentVersion": "1.4.90",
+  "betaReleaseCounter": 490,
   "channel": "beta",
-  "generatedAt": "2026-05-26T06:05:00.000Z",
-  "generatedAtUtc": "2026-05-26T06:05:00.000Z",
+  "generatedAt": "2026-05-26T06:30:00.000Z",
+  "generatedAtUtc": "2026-05-26T06:30:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.90",
+      "previousVersion": "1.4.89",
+      "betaReleaseCounter": 490,
+      "previousBetaReleaseCounter": 489,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): normalize duration math",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T06:30:00.000Z",
+      "generatedAt": "2026-05-26T06:30:00.000Z",
+      "committedAtUtc": "2026-05-26T06:30:00.000Z",
+      "generatedAtUtc": "2026-05-26T06:30:00.000Z",
+      "category": "Improved",
+      "title": "Duration math normalization",
+      "updatedAtUtc": "2026-05-26T06:30:00.000Z",
+      "summary": "Normalized duration math across sessions, watch time, tasks, flows, chat, media, auth, and notifications.",
+      "userFacingTitle": "Duration math normalization",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Normalized duration math across sessions, watch time, tasks, flows, chat, media, auth, and notifications.",
+        "Separated active, passive, idle, hidden, and unknown duration buckets.",
+        "Blocked page-open and legacy unknown durations from becoming exact watch or active time."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a canonical duration math normalizer for active, passive, idle, hidden, watch, flow, and legacy unknown duration decisions.",
+        "Registered duration formula references in the canonical math authority ledger and Admin Debug duration math lane.",
+        "Added source-only validator evidence and unit coverage without changing payment runtime, GumDrop math, or production data."
+      ],
+      "affectedSurfaces": [
+        "Duration math normalizer",
+        "Math authority ledger",
+        "Admin Debug duration math lane",
+        "Analytics duration validators",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/canonical-math-authority-ledger.generated.json",
+        "agent/state/drop-watch-time-accuracy.generated.json",
+        "agent/state/duration-math-normalization.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/session-bounce-calculation.generated.json",
+        "docs/agent-truth/canonical-math-authority-ledger.md",
+        "docs/agent-truth/drop-watch-time-accuracy.md",
+        "docs/agent-truth/duration-math-normalization.md",
+        "docs/agent-truth/session-bounce-calculation.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-canonical-math-authority-ledger.ts",
+        "scripts/agent/validate-drop-watch-time-accuracy.ts",
+        "scripts/agent/validate-duration-math-normalization.ts",
+        "scripts/agent/validate-session-bounce-calculation.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/math/canonical-math-authority-contract.ts",
+        "src/lib/math/canonical-math-authority-ledger.ts",
+        "src/lib/math/duration-math-normalizer.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/duration-math-normalization.spec.ts"
+      ],
+      "effectiveChangeCount": 23,
+      "excludedGeneratedChangeCount": 5,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.89",
       "previousVersion": "1.4.88",
@@ -1536,121 +1606,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/release-notes/release-version-contract.ts",
         "CHANGELOG.md"
       ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.65",
-      "previousVersion": "1.4.64",
-      "betaReleaseCounter": 465,
-      "previousBetaReleaseCounter": 464,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(admin): compact platform pulse",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T19:59:22.226Z",
-      "generatedAt": "2026-05-25T19:59:22.226Z",
-      "committedAtUtc": "2026-05-25T19:59:22.226Z",
-      "generatedAtUtc": "2026-05-25T19:59:22.226Z",
-      "category": "Improved",
-      "title": "Compact Platform pulse",
-      "updatedAtUtc": "2026-05-25T19:59:22.226Z",
-      "summary": "Compact Platform pulse into six rolling-30-day stats with clear trend deltas.",
-      "userFacingTitle": "Compact Platform pulse",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Compact Platform pulse into six rolling-30-day stats with clear trend deltas.",
-        "Removed success badges and debug subtext from pulse cards while preserving issue badges.",
-        "Added GumDrops circulation and Support/Bugs metrics using summary-first source truth."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Admin Overview Platform pulse now shows current 30d values against the previous 30d window.",
-        "GumDrops display total keeps reward, paid, and paid bonus source metadata split for backend truth.",
-        "Support/Bugs counts user-reported bug reports and support requests only."
-      ],
-      "affectedSurfaces": [
-        "Admin Overview Platform pulse",
-        "Admin overview metrics API",
-        "Public Beta release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/app/api/admin/overview/route.ts",
-        "src/components/Admin/AdminStatsBar.tsx",
-        "src/lib/admin-overview.ts",
-        "src/lib/admin/platform-pulse-window.ts",
-        "tests/unit/platform-pulse-window.spec.ts",
-        "tests/unit/admin-stats-bar-compact.spec.ts",
-        "tests/unit/admin-overview-platform-pulse.spec.ts",
-        "tests/unit/admin-overview-route.spec.ts",
-        "scripts/agent/validate-platform-pulse-compact.ts",
-        "agent/state/platform-pulse-compact.generated.json",
-        "docs/agent-truth/platform-pulse-compact.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.64",
-      "previousVersion": "1.4.63",
-      "betaReleaseCounter": 464,
-      "previousBetaReleaseCounter": 463,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): repair behavior stack sources",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T08:17:15.525Z",
-      "generatedAt": "2026-05-25T08:17:15.525Z",
-      "committedAtUtc": "2026-05-25T08:17:15.525Z",
-      "generatedAtUtc": "2026-05-25T08:17:15.525Z",
-      "category": "Fixed",
-      "title": "Behavior stack source reconstruction",
-      "updatedAtUtc": "2026-05-25T08:17:15.525Z",
-      "summary": "Rebuilt behavioral, task, telemetry, recovery, and experiment debug source contracts so loaded zero shells now show exact source, formula, freshness, and registry states.",
-      "userFacingTitle": "Behavior stack source reconstruction",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Rebuilt behavioral, task, telemetry, recovery, and experiment debug source contracts to eliminate loaded zero-shells.",
-        "Added source windows, formula states, rebuild provenance, and deterministic baseline requirements.",
-        "Separated real zero, no sample, missing source, stale rebuild, and formula-missing states across advanced debug panels."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Advanced Debug now uses a shared source-window zero-shell classifier for behavior, task, telemetry, recovery, and experiment panels.",
-        "Missing samples, missing formulas, stale rebuilds, and missing registries now remain actionable instead of rendering as clean loaded zeros."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug Advanced panels",
-        "Behavior normalization source truth",
-        "Task catalog and telemetry mapping",
-        "Telemetry truth recovery",
-        "Experiment registry source status"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/debug/source-window-zero-shell-classifier.ts",
-        "src/lib/behavioral/behavior-normalization-internals-engine.ts",
-        "src/lib/tasks/task-catalog-coverage-engine.ts",
-        "src/lib/tasks/task-telemetry-mapping-engine.ts",
-        "src/lib/behavioral/behavioral-intelligence-snapshot-status.ts",
-        "src/lib/analytics/telemetry-truth-recovery-status.ts",
-        "src/lib/experiments/experiment-rollout-registry-status.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
-        "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
-        "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx"
-      ],
-      "effectiveChangeCount": 11,
-      "excludedGeneratedChangeCount": 18,
-      "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }
   ]

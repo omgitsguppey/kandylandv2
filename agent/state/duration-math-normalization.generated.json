@@ -1,0 +1,395 @@
+{
+  "generatedAtUtc": "2026-05-26T06:17:28.054Z",
+  "reportKey": "duration-math-normalization",
+  "currentHead": "c84694d7f546c25f68639db1ed4680dab9abaccb",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "productionDataMutated": false,
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "categories": [
+    "session_active",
+    "session_passive",
+    "session_idle",
+    "session_hidden",
+    "drop_watch_active",
+    "drop_watch_normalized",
+    "task_active_duration",
+    "checkout_flow_duration",
+    "auth_flow_duration",
+    "chat_typing_duration",
+    "media_upload_duration",
+    "notification_permission_duration",
+    "unknown_legacy_duration"
+  ],
+  "sampleDecisions": [
+    {
+      "contractVersion": "duration-math-normalization.v1",
+      "input": {
+        "category": "session_active",
+        "source": "session",
+        "startedAtMs": 1000,
+        "endedAtMs": 11000,
+        "foregroundVisibleMs": 10000,
+        "activeMs": 5000,
+        "passiveVisibleMs": 2000,
+        "idleMs": 1000,
+        "hiddenMs": 2000,
+        "recentActivityAtMs": 10500
+      },
+      "category": "session_active",
+      "formulaId": "duration_math.session_active",
+      "durationMs": 5000,
+      "activeMs": 5000,
+      "passiveVisibleMs": 2000,
+      "idleMs": 1000,
+      "hiddenMs": 2000,
+      "watchMs": null,
+      "flowMs": 10000,
+      "normalizedWatchPercent": null,
+      "confidence": "exact",
+      "availability": "available",
+      "suspiciousPageTimeFallback": false,
+      "backgroundExcluded": true,
+      "reasons": [
+        "hidden/background duration excluded from active time",
+        "idle duration excluded from active time"
+      ]
+    },
+    {
+      "contractVersion": "duration-math-normalization.v1",
+      "input": {
+        "category": "drop_watch_active",
+        "source": "page",
+        "startedAtMs": 1000,
+        "endedAtMs": 31000,
+        "pageOpenMs": 30000,
+        "activeMs": 30000,
+        "contentDurationMs": 30000
+      },
+      "category": "drop_watch_active",
+      "formulaId": "duration_math.drop_watch_active",
+      "durationMs": null,
+      "activeMs": 30000,
+      "passiveVisibleMs": null,
+      "idleMs": 0,
+      "hiddenMs": 0,
+      "watchMs": null,
+      "flowMs": null,
+      "normalizedWatchPercent": null,
+      "confidence": "unavailable",
+      "availability": "unavailable",
+      "suspiciousPageTimeFallback": true,
+      "backgroundExcluded": false,
+      "reasons": [
+        "page-open time is not watch time",
+        "unknown duration is unavailable, not zero"
+      ]
+    },
+    {
+      "contractVersion": "duration-math-normalization.v1",
+      "input": {
+        "category": "drop_watch_normalized",
+        "source": "media",
+        "mediaActiveMs": 45000,
+        "contentDurationMs": 30000,
+        "replayCount": 2,
+        "countReplay": false
+      },
+      "category": "drop_watch_normalized",
+      "formulaId": "duration_math.drop_watch_normalized",
+      "durationMs": 30000,
+      "activeMs": null,
+      "passiveVisibleMs": null,
+      "idleMs": 0,
+      "hiddenMs": 0,
+      "watchMs": 30000,
+      "flowMs": null,
+      "normalizedWatchPercent": 100,
+      "confidence": "exact",
+      "availability": "available",
+      "suspiciousPageTimeFallback": false,
+      "backgroundExcluded": false,
+      "reasons": []
+    },
+    {
+      "contractVersion": "duration-math-normalization.v1",
+      "input": {
+        "category": "checkout_flow_duration",
+        "source": "flow",
+        "startedAtMs": 1000,
+        "abandonedAtMs": 16000,
+        "pageOpenMs": 60000
+      },
+      "category": "checkout_flow_duration",
+      "formulaId": "duration_math.checkout_flow_duration",
+      "durationMs": 15000,
+      "activeMs": null,
+      "passiveVisibleMs": null,
+      "idleMs": 0,
+      "hiddenMs": 0,
+      "watchMs": null,
+      "flowMs": 15000,
+      "normalizedWatchPercent": null,
+      "confidence": "estimated",
+      "availability": "available",
+      "suspiciousPageTimeFallback": false,
+      "backgroundExcluded": false,
+      "reasons": [
+        "duration is estimated from abandonment, timeout, or partial lifecycle evidence"
+      ]
+    },
+    {
+      "contractVersion": "duration-math-normalization.v1",
+      "input": {
+        "category": "unknown_legacy_duration",
+        "source": "legacy",
+        "legacy": true
+      },
+      "category": "unknown_legacy_duration",
+      "formulaId": "duration_math.unknown_legacy_duration",
+      "durationMs": null,
+      "activeMs": null,
+      "passiveVisibleMs": null,
+      "idleMs": null,
+      "hiddenMs": null,
+      "watchMs": null,
+      "flowMs": null,
+      "normalizedWatchPercent": null,
+      "confidence": "legacy_unknown",
+      "availability": "unavailable",
+      "suspiciousPageTimeFallback": false,
+      "backgroundExcluded": false,
+      "reasons": [
+        "legacy duration without exact start/end remains unavailable",
+        "unknown duration is unavailable, not zero"
+      ]
+    }
+  ],
+  "debugLane": {
+    "label": "Duration math",
+    "exactCount": 2,
+    "estimatedCount": 1,
+    "unavailableCount": 2,
+    "suspiciousPageTimeFallbackCount": 1,
+    "backgroundExcludedCount": 1,
+    "missingFormulaReferences": 0,
+    "sourceTruth": "src/lib/math/duration-math-normalizer.ts"
+  },
+  "scoreBefore": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreAfter": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/canonical-math-authority-ledger.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/drop-watch-time-accuracy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/duration-math-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/session-bounce-calculation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/drop-watch-time-accuracy.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/duration-math-normalization.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/session-bounce-calculation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-canonical-math-authority-ledger.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-drop-watch-time-accuracy.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-duration-math-normalization.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "scripts/agent/validate-session-bounce-calculation.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/canonical-math-authority-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/canonical-math-authority-ledger.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/duration-math-normalizer.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/duration-math-normalization.spec.ts",
+      "classification": "current_generated_artifact_to_commit"
+    }
+  ],
+  "openPullRequests": [
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 302,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "classification": "onboarding_telemetry_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 301,
+      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
+      "classification": "doctrine_governance_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 300,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
+      "classification": "architecture_refactor_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 299,
+      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 298,
+      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 297,
+      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 296,
+      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 295,
+      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 294,
+      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 293,
+      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
+      "classification": "security_patch_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 292,
+      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+      "classification": "performance_patch_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 291,
+      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+      "classification": "accessibility_patch_external_review_required"
+    }
+  ],
+  "validationFailures": [],
+  "nextExactSteps": [
+    "Use duration formula references before displaying any new user/admin duration metric.",
+    "Keep page-open time out of watch time and active time calculations.",
+    "Escalate any uncovered legacy duration formula as needs_operator_decision instead of promoting it to exact."
+  ]
+}

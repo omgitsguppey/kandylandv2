@@ -1,7 +1,7 @@
 # Canonical Math Authority Ledger
 
-Generated: 2026-05-26T05:55:28.215Z
-Current head: daf1dc1ea1fbf28039ab19b0f6e0c17ac62393cd
+Generated: 2026-05-26T06:17:30.826Z
+Current head: c84694d7f546c25f68639db1ed4680dab9abaccb
 Status: pass
 
 ## Scope
@@ -10,7 +10,7 @@ This source-only ledger inventories the current formula authorities for scores, 
 
 ## Status Counts
 
-- canonical: 40
+- canonical: 53
 - needs_operator_decision: 9
 - duplicate: 0
 - stale: 0
@@ -59,6 +59,19 @@ This source-only ledger inventories the current formula authorities for scores, 
 | bounce.session_bounce_status | bounce | canonical | analytics_session_metrics | classifyBounce and classifyEngagedSession |
 | watch_time.active_watch_ms | watch_time | canonical | analytics_watch_time | drop watch time session progress events |
 | watch_time.normalized_watch_percent | watch_time | canonical | analytics_watch_time | drop watch time session with contentDurationMs |
+| duration_math.session_active | session_metrics | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.session_passive | session_metrics | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.session_idle | session_metrics | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.session_hidden | session_metrics | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.drop_watch_active | watch_time | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.drop_watch_normalized | watch_time | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.task_active_duration | daily_tasks | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.checkout_flow_duration | user_metrics | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.auth_flow_duration | user_metrics | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.chat_typing_duration | chat | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.media_upload_duration | media | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.notification_permission_duration | notifications | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
+| duration_math.unknown_legacy_duration | legacy_recovery | canonical | duration_math | canonical duration math normalizer with surface lifecycle source events |
 | sql_parity.summary_count_delta | global_metrics | canonical | analytics_sql_parity | normalized_event_fact |
 | revenue.server_verified_revenue | revenue | needs_operator_decision | commerce_server_truth | server transaction truth only; client checkout is funnel context, not revenue |
 | gumdrop.source_of_funds_balance | gumdrop | needs_operator_decision | gumdrop_ledger | GumDrop ledger and transaction source-of-funds contract |
@@ -82,6 +95,7 @@ This source-only ledger inventories the current formula authorities for scores, 
 | src/lib/analytics/event-translation-bridge.ts | canonical | count, score_dimension, debug_gap |
 | src/lib/analytics/session-metrics-engine.ts | canonical | duration, count, bounce, confidence |
 | src/lib/analytics/drop-watch-time-engine.ts | canonical | duration, rate, percent, dedupe, replay |
+| src/lib/math/duration-math-normalizer.ts | canonical | duration, watch_time, flow, confidence, legacy |
 | src/lib/analytics/sql-database-parity-engine.ts | canonical | count, dedupe, global_user_divergence, cost |
 | src/lib/behavioral/event-fact-normalizer.ts | canonical | confidence, normalization, revenue_context, gumdrop_context |
 | src/lib/behavioral/normalize-event-fact.ts | needs_operator_decision | dedupe, normalization, revenue, gumdrop, legacy |
@@ -108,14 +122,27 @@ This source-only ledger inventories the current formula authorities for scores, 
 
 - CHANGELOG.md: release_artifact_expected
 - agent/state/canonical-math-authority-ledger.generated.json: current_generated_artifact_to_commit
+- agent/state/drop-watch-time-accuracy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/duration-math-normalization.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/session-bounce-calculation.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/canonical-math-authority-ledger.md: release_artifact_expected
+- docs/agent-truth/drop-watch-time-accuracy.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/duration-math-normalization.md: release_artifact_expected
+- docs/agent-truth/session-bounce-calculation.md: stale_generated_artifact_to_regenerate
+- package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
 - scripts/agent/validate-canonical-math-authority-ledger.ts: failed_validator_to_repair
+- scripts/agent/validate-drop-watch-time-accuracy.ts: failed_validator_to_repair
+- scripts/agent/validate-duration-math-normalization.ts: failed_validator_to_repair
+- scripts/agent/validate-session-bounce-calculation.ts: failed_validator_to_repair
+- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/math/canonical-math-authority-contract.ts: real_source_change_needs_review
 - src/lib/math/canonical-math-authority-ledger.ts: real_source_change_needs_review
+- src/lib/math/duration-math-normalizer.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/canonical-math-authority-ledger.spec.ts: current_generated_artifact_to_commit
+- tests/unit/duration-math-normalization.spec.ts: current_generated_artifact_to_commit
 
 ## Open PR Classification
 

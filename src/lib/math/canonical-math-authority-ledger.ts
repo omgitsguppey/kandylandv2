@@ -20,6 +20,15 @@ const COUNT_DEDUPE_SOURCE_PATHS = [
   "src/lib/analytics/person-metrics-hydration.ts",
   "src/lib/analytics/sql-database-parity-engine.ts",
 ];
+const DURATION_MATH_SOURCE_PATHS = [
+  "src/lib/math/duration-math-normalizer.ts",
+  "src/lib/analytics/session-metrics-engine.ts",
+  "src/lib/analytics/drop-watch-time-engine.ts",
+  "src/lib/tasks/daily-task-duration.ts",
+  "src/lib/media/media-upload-contract.ts",
+  "src/lib/auth/auth-telemetry-contract.ts",
+  "src/lib/chat/chat-typing-controller.ts",
+];
 
 function countFormula(input: {
   formulaId: MathFormulaId;
@@ -80,6 +89,160 @@ const COUNT_DEDUPE_FORMULAS = [
   countFormula({ formulaId: "count_dedupe.user_count", domain: "user_metrics", humanName: "Canonical user count", formulaExpression: "userCount += 1 under best user identity for non-legacy non-replay unique action key", owner: "analytics_count_dedupe" }),
   countFormula({ formulaId: "count_dedupe.creator_count", domain: "creator_monetization", humanName: "Canonical creator count", formulaExpression: "creatorCount += 1 for creator-scoped unique action key when creatorId exists", owner: "analytics_count_dedupe" }),
   countFormula({ formulaId: "count_dedupe.retry_replay_suppression", domain: "global_metrics", humanName: "Retry and replay count suppression", formulaExpression: "standardCount += 0 for retry/replay unless replay is the metric itself", owner: "analytics_count_dedupe" }),
+] as const satisfies readonly FormulaDefinition[];
+
+function durationFormula(input: {
+  formulaId: MathFormulaId;
+  domain: FormulaDefinition["domain"];
+  humanName: string;
+  formulaExpression: string;
+  numerator: string;
+  denominator?: string;
+  owner: string;
+  userFacingAllowed?: boolean;
+  sourcePaths?: string[];
+}): FormulaDefinition {
+  return {
+    formulaId: input.formulaId,
+    domain: input.domain,
+    humanName: input.humanName,
+    formulaExpression: input.formulaExpression,
+    numerator: input.numerator,
+    denominator: input.denominator ?? "n/a",
+    timeWindow: "explicit lifecycle start/finish window supplied by the source surface",
+    dedupeKey: "duration owner id such as sessionId, watch session dedupeKey, taskId, uploadId, authAttemptId, or flow correlation id",
+    sourceTruth: "canonical duration math normalizer with surface lifecycle source events",
+    confidenceRule: "exact only with validated timestamps or media runtime truth; estimated for abandon/timeout; unavailable for unknown; legacy_unknown cannot become exact without start/end truth",
+    confidenceLevel: "mixed_explicit",
+    zeroDenominatorRule: input.denominator && input.denominator !== "n/a"
+      ? "missing or <= 0 denominator returns null/unavailable instead of 0%"
+      : "n/a; missing duration is unavailable, not zero",
+    legacyRule: "legacy duration without start/end cannot become exact and page-open time cannot become watch time.",
+    userFacingAllowed: input.userFacingAllowed ?? false,
+    adminFacingAllowed: true,
+    scoreImpact: null,
+    owner: input.owner,
+    authorityStatus: "canonical",
+    sourcePaths: input.sourcePaths ?? DURATION_MATH_SOURCE_PATHS,
+    countRule: "not_count",
+    durationStates: ["active", "passive", "idle", "hidden", "playback", "unknown"],
+    ...(input.domain === "daily_tasks" ? { valueSourceBreakdown: ["confidence"] as const } : {}),
+  };
+}
+
+const DURATION_MATH_FORMULAS = [
+  durationFormula({
+    formulaId: "duration_math.session_active",
+    domain: "session_metrics",
+    humanName: "Session active duration",
+    formulaExpression: "activeMs = foreground visible activity with hidden, idle, and passive buckets excluded",
+    numerator: "foreground active milliseconds",
+    owner: "duration_math",
+  }),
+  durationFormula({
+    formulaId: "duration_math.session_passive",
+    domain: "session_metrics",
+    humanName: "Session passive visible duration",
+    formulaExpression: "passiveVisibleMs = visible foreground time not classified as active, idle, or hidden",
+    numerator: "passive visible milliseconds",
+    owner: "duration_math",
+  }),
+  durationFormula({
+    formulaId: "duration_math.session_idle",
+    domain: "session_metrics",
+    humanName: "Session idle duration",
+    formulaExpression: "idleMs is tracked separately and excluded from user-facing active time",
+    numerator: "idle milliseconds",
+    owner: "duration_math",
+  }),
+  durationFormula({
+    formulaId: "duration_math.session_hidden",
+    domain: "session_metrics",
+    humanName: "Session hidden duration",
+    formulaExpression: "hiddenMs is background/hidden time and excluded from active time",
+    numerator: "hidden/background milliseconds",
+    owner: "duration_math",
+  }),
+  durationFormula({
+    formulaId: "duration_math.drop_watch_active",
+    domain: "watch_time",
+    humanName: "Drop active watch duration",
+    formulaExpression: "watchMs = mediaActiveMs or playingMs only; pageOpenMs is rejected as watch time",
+    numerator: "active media/content exposure milliseconds",
+    owner: "duration_math",
+    userFacingAllowed: true,
+  }),
+  durationFormula({
+    formulaId: "duration_math.drop_watch_normalized",
+    domain: "watch_time",
+    humanName: "Drop normalized watch percent",
+    formulaExpression: "normalizedWatchPercent = capped activeWatchMs / contentDurationMs, capped unless replay is explicitly counted",
+    numerator: "capped active media/content exposure milliseconds",
+    denominator: "contentDurationMs times replay multiplier when replay is explicitly counted",
+    owner: "duration_math",
+    userFacingAllowed: true,
+  }),
+  durationFormula({
+    formulaId: "duration_math.task_active_duration",
+    domain: "daily_tasks",
+    humanName: "Task active duration",
+    formulaExpression: "task duration uses attempt/start and finish events; passive page time is not used",
+    numerator: "task active lifecycle milliseconds",
+    owner: "duration_math",
+    sourcePaths: ["src/lib/math/duration-math-normalizer.ts", "src/lib/tasks/daily-task-duration.ts"],
+  }),
+  durationFormula({
+    formulaId: "duration_math.checkout_flow_duration",
+    domain: "user_metrics",
+    humanName: "Checkout flow duration",
+    formulaExpression: "checkout flow duration uses checkout start and success/failure/abandon timestamps, not page render time",
+    numerator: "checkout lifecycle milliseconds",
+    owner: "duration_math",
+  }),
+  durationFormula({
+    formulaId: "duration_math.auth_flow_duration",
+    domain: "user_metrics",
+    humanName: "Auth flow duration",
+    formulaExpression: "auth flow duration uses auth start and completed/failed/abandoned timestamps",
+    numerator: "auth lifecycle milliseconds",
+    owner: "duration_math",
+    sourcePaths: ["src/lib/math/duration-math-normalizer.ts", "src/lib/auth/auth-telemetry-contract.ts"],
+  }),
+  durationFormula({
+    formulaId: "duration_math.chat_typing_duration",
+    domain: "chat",
+    humanName: "Chat typing duration",
+    formulaExpression: "chat typing duration uses typing started/stopped lifecycle events and timeout as estimated end",
+    numerator: "chat typing lifecycle milliseconds",
+    owner: "duration_math",
+    sourcePaths: ["src/lib/math/duration-math-normalizer.ts", "src/lib/chat/chat-typing-controller.ts"],
+  }),
+  durationFormula({
+    formulaId: "duration_math.media_upload_duration",
+    domain: "media",
+    humanName: "Media upload duration",
+    formulaExpression: "media upload duration uses prepare/storage/complete lifecycle start and finish events with orphan/timeout estimated separately",
+    numerator: "media upload lifecycle milliseconds",
+    owner: "duration_math",
+    sourcePaths: ["src/lib/math/duration-math-normalizer.ts", "src/lib/media/media-upload-contract.ts"],
+  }),
+  durationFormula({
+    formulaId: "duration_math.notification_permission_duration",
+    domain: "notifications",
+    humanName: "Notification permission lifecycle duration",
+    formulaExpression: "notification permission duration uses prompt start and permission outcome timestamps",
+    numerator: "notification permission lifecycle milliseconds",
+    owner: "duration_math",
+  }),
+  durationFormula({
+    formulaId: "duration_math.unknown_legacy_duration",
+    domain: "legacy_recovery",
+    humanName: "Unknown legacy duration",
+    formulaExpression: "legacy duration without start/end returns unavailable and cannot become exact",
+    numerator: "n/a",
+    owner: "duration_math",
+    userFacingAllowed: false,
+  }),
 ] as const satisfies readonly FormulaDefinition[];
 
 export const CANONICAL_MATH_FORMULAS = [
@@ -537,6 +700,7 @@ export const CANONICAL_MATH_FORMULAS = [
     sourcePaths: ["src/lib/analytics/drop-watch-time-engine.ts"],
     durationStates: ["active", "passive", "hidden", "playback", "unknown"],
   },
+  ...DURATION_MATH_FORMULAS,
   {
     formulaId: "sql_parity.summary_count_delta",
     domain: "global_metrics",
@@ -834,6 +998,13 @@ export const CANONICAL_MATH_FORMULA_REFERENCES = [
     reason: "Current source caps active watch by duration and replay count.",
   },
   {
+    referenceId: "duration_math_normalizer",
+    formulaId: "duration_math.session_active",
+    sourcePath: "src/lib/math/duration-math-normalizer.ts",
+    status: "canonical",
+    reason: "Current source normalizes active, passive, idle, hidden, watch, flow, and unknown legacy duration decisions.",
+  },
+  {
     referenceId: "behavioral_fact_normalizer",
     formulaId: "behavioral_event_fact.deduped_count",
     sourcePath: "src/lib/behavioral/normalize-event-fact.ts",
@@ -892,6 +1063,7 @@ export const REQUIRED_FORMULA_SOURCE_PATHS = [
   "src/lib/analytics/event-translation-bridge.ts",
   "src/lib/analytics/session-metrics-engine.ts",
   "src/lib/analytics/drop-watch-time-engine.ts",
+  "src/lib/math/duration-math-normalizer.ts",
   "src/lib/analytics/sql-database-parity-engine.ts",
   "src/lib/behavioral/event-fact-normalizer.ts",
   "src/lib/behavioral/normalize-event-fact.ts",
@@ -970,6 +1142,27 @@ export const CANONICAL_MATH_SOURCE_INVENTORY = [
     status: "canonical",
     detectedFormulaKinds: ["duration", "rate", "percent", "dedupe", "replay"],
     reason: "Current source calculates active watch, normalized percent, replay caps, duration confidence, and watch-session dedupe.",
+  },
+  {
+    sourcePath: "src/lib/math/duration-math-normalizer.ts",
+    formulaIds: [
+      "duration_math.session_active",
+      "duration_math.session_passive",
+      "duration_math.session_idle",
+      "duration_math.session_hidden",
+      "duration_math.drop_watch_active",
+      "duration_math.drop_watch_normalized",
+      "duration_math.task_active_duration",
+      "duration_math.checkout_flow_duration",
+      "duration_math.auth_flow_duration",
+      "duration_math.chat_typing_duration",
+      "duration_math.media_upload_duration",
+      "duration_math.notification_permission_duration",
+      "duration_math.unknown_legacy_duration",
+    ],
+    status: "canonical",
+    detectedFormulaKinds: ["duration", "watch_time", "flow", "confidence", "legacy"],
+    reason: "Current source applies the shared duration rules: active excludes hidden/idle, watch rejects page-open time, flows use lifecycle timestamps, and unknown legacy stays unavailable.",
   },
   {
     sourcePath: "src/lib/analytics/sql-database-parity-engine.ts",
@@ -1060,6 +1253,19 @@ export const METRIC_FORMULA_REFERENCES: Record<string, MathFormulaId> = {
   count_dedupe_creator_count: "count_dedupe.creator_count",
   count_dedupe_legacy_bucket_count: "count_dedupe.legacy_bucket_count",
   count_dedupe_retry_replay_suppression: "count_dedupe.retry_replay_suppression",
+  duration_session_active: "duration_math.session_active",
+  duration_session_passive: "duration_math.session_passive",
+  duration_session_idle: "duration_math.session_idle",
+  duration_session_hidden: "duration_math.session_hidden",
+  duration_drop_watch_active: "duration_math.drop_watch_active",
+  duration_drop_watch_normalized: "duration_math.drop_watch_normalized",
+  duration_task_active_duration: "duration_math.task_active_duration",
+  duration_checkout_flow_duration: "duration_math.checkout_flow_duration",
+  duration_auth_flow_duration: "duration_math.auth_flow_duration",
+  duration_chat_typing_duration: "duration_math.chat_typing_duration",
+  duration_media_upload_duration: "duration_math.media_upload_duration",
+  duration_notification_permission_duration: "duration_math.notification_permission_duration",
+  duration_unknown_legacy_duration: "duration_math.unknown_legacy_duration",
   server_verified_revenue: "revenue.server_verified_revenue",
   gumdrop_source_of_funds_balance: "gumdrop.source_of_funds_balance",
 };
