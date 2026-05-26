@@ -36,10 +36,11 @@ const REQUIRED_EVIDENCE_REPORTS = [
   "agent/state/evidence-capture-status.generated.json",
   "agent/state/gumdrop-economy-accuracy.generated.json",
   "agent/state/creator-experience-simplification.generated.json",
-  "agent/state/post-economy-creator-flow-qa.generated.json",
   "agent/state/user-creator-ui-parity.generated.json",
-  "agent/state/user-facing-feature-connection-audit.generated.json",
-  "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+  "agent/state/targeted-behavior-evidence.generated.json",
+  "agent/state/final-parity-telemetry-lock.generated.json",
+  "agent/state/media-discovery-score-lock.generated.json",
+  "agent/state/creator-monetization-readiness-lock.generated.json",
 ] as const;
 
 const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.generated.json";
@@ -280,7 +281,11 @@ function collectGeneratedReportEvidence(root: string, now = Date.now()): PublicB
 
     const parsed = parseJsonObject(readFileSync(fullPath, "utf8"));
     const stats = statSync(fullPath);
-    const generatedAt = typeof parsed.generatedAt === "string" ? parsed.generatedAt : stats.mtime.toISOString();
+    const generatedAt = typeof parsed.generatedAtUtc === "string"
+      ? parsed.generatedAtUtc
+      : typeof parsed.generatedAt === "string"
+        ? parsed.generatedAt
+        : stats.mtime.toISOString();
     const ageHours = (now - Date.parse(generatedAt)) / (60 * 60 * 1000);
     const embeddedFreshness = parsed.freshness === "fresh" || parsed.freshness === "stale" || parsed.freshness === "unknown"
       ? parsed.freshness

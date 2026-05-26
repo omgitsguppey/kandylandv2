@@ -1,14 +1,14 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-25T08:25:54.891Z
+Generated: 2026-05-26T04:06:09.517Z
 
-Latest code version: e53968ae1b6975aa492461625f7fd76133493226
+Latest code version: e75d98523cda258032a04e11eb16e1d128bea2f9
 
 ## Summary
 
-- Beta version: 1.4.64
-- Beta score: 77.83
-- Beta status: Stale evidence
+- Beta version: 1.4.82
+- Beta score: 84.12
+- Beta status: Runtime unverified
 - Visual evidence: source_only_screenshotEvidenceAttached_false
 - Provider smoke: missing_formal_evidence
 - Operator revenue smoke: operator_confirmed_revenue_smoke
@@ -34,7 +34,7 @@ Latest code version: e53968ae1b6975aa492461625f7fd76133493226
 
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
 - agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
-- agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:evidence-capture-status`.
+- agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
 - agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.

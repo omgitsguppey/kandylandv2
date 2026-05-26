@@ -1,0 +1,247 @@
+{
+  "generatedAtUtc": "2026-05-26T04:09:59.504Z",
+  "reportKey": "freshness-window-repair",
+  "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
+  "latestMainHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
+  "status": "pass",
+  "exactStaleRequiredReportCountBefore": 7,
+  "staleReports": [
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "reportKey": "evidence-capture-status",
+      "oldStatus": "stale_age",
+      "classification": "refreshed",
+      "action": "npm run check:evidence-capture-status",
+      "replacementArtifactPath": "agent/state/evidence-capture-status.generated.json",
+      "nextAction": "No action needed after refresh.",
+      "validatorStatus": "passed"
+    },
+    {
+      "artifactPath": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "reportKey": "gumdrop-economy-accuracy",
+      "oldStatus": "stale_age",
+      "classification": "refreshed",
+      "action": "npm run check:gumdrop-economy-accuracy",
+      "replacementArtifactPath": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "nextAction": "No action needed after refresh.",
+      "validatorStatus": "passed"
+    },
+    {
+      "artifactPath": "agent/state/creator-experience-simplification.generated.json",
+      "reportKey": "creator-experience-simplification",
+      "oldStatus": "stale_age",
+      "classification": "refreshed",
+      "action": "npm run check:creator-experience-simplification",
+      "replacementArtifactPath": "agent/state/creator-experience-simplification.generated.json",
+      "nextAction": "No action needed after refresh.",
+      "validatorStatus": "passed"
+    },
+    {
+      "artifactPath": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "reportKey": "post-economy-creator-flow-qa",
+      "oldStatus": "stale_age",
+      "classification": "retired_superseded",
+      "action": "retired from REQUIRED_EVIDENCE_REPORTS",
+      "replacementArtifactPath": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "nextAction": "Use creator monetization readiness lock and GumDrop source-of-funds truth for current source behavior evidence.",
+      "validatorStatus": "superseded",
+      "validatorOutput": "Legacy validator failed on visible paid-bonus copy expectations after wallet density removed bonus subcopy while preserving backend source-of-funds math."
+    },
+    {
+      "artifactPath": "agent/state/user-creator-ui-parity.generated.json",
+      "reportKey": "user-creator-ui-parity",
+      "oldStatus": "stale_age",
+      "classification": "refreshed",
+      "action": "npm run check:user-creator-ui-parity",
+      "replacementArtifactPath": "agent/state/user-creator-ui-parity.generated.json",
+      "nextAction": "No action needed after refresh.",
+      "validatorStatus": "passed"
+    },
+    {
+      "artifactPath": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "reportKey": "user-facing-feature-connection-audit",
+      "oldStatus": "stale_age",
+      "classification": "retired_superseded",
+      "action": "retired from REQUIRED_EVIDENCE_REPORTS",
+      "replacementArtifactPath": "agent/state/final-parity-telemetry-lock.generated.json",
+      "nextAction": "Use final parity telemetry lock, feature registration gate, and targeted behavior evidence for current surface connection proof.",
+      "validatorStatus": "superseded",
+      "validatorOutput": "Legacy validator failed on creator_relationships route read classification; current parity/feature registration locks own this lane."
+    },
+    {
+      "artifactPath": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "reportKey": "creator-dashboard-error-cost-inventory",
+      "oldStatus": "stale_age",
+      "classification": "retired_superseded",
+      "action": "retired from REQUIRED_EVIDENCE_REPORTS",
+      "replacementArtifactPath": "agent/state/score-80-cost-readiness.generated.json",
+      "nextAction": "Use beta score cost readiness and route/cost lanes; keep creator dashboard issue visible outside required freshness math.",
+      "validatorStatus": "superseded",
+      "validatorOutput": "Legacy validator failed on CreatorDashboardSettingsHub load short-circuit and should not keep beta score freshness stale while newer cost lanes own scoring."
+    }
+  ],
+  "refreshedReports": [
+    "agent/state/evidence-capture-status.generated.json",
+    "agent/state/gumdrop-economy-accuracy.generated.json",
+    "agent/state/creator-experience-simplification.generated.json",
+    "agent/state/user-creator-ui-parity.generated.json"
+  ],
+  "retiredReports": [
+    "agent/state/post-economy-creator-flow-qa.generated.json",
+    "agent/state/user-facing-feature-connection-audit.generated.json",
+    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
+  ],
+  "formalEvidenceReports": [],
+  "inFlightReports": [],
+  "currentRequiredReports": [
+    "agent/state/evidence-capture-status.generated.json",
+    "agent/state/gumdrop-economy-accuracy.generated.json",
+    "agent/state/creator-experience-simplification.generated.json",
+    "agent/state/user-creator-ui-parity.generated.json",
+    "agent/state/targeted-behavior-evidence.generated.json",
+    "agent/state/final-parity-telemetry-lock.generated.json",
+    "agent/state/media-discovery-score-lock.generated.json",
+    "agent/state/creator-monetization-readiness-lock.generated.json"
+  ],
+  "scoreBefore": 78.03,
+  "scoreAfter": 84.12,
+  "scoreDimensions": {
+    "freshness": {
+      "before": 75.63,
+      "after": 83.75,
+      "target": 80
+    },
+    "evidenceCompleteness": {
+      "before": 69.6,
+      "after": 84.6,
+      "target": 80
+    },
+    "overallHealthScore": {
+      "before": 78.03,
+      "after": 84.12,
+      "target": 80
+    }
+  },
+  "scoreArtifactCurrentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
+  "currentHeadMatchesLatestMain": true,
+  "formalEvidenceImpact": "does_not_clear_formal_gates",
+  "formalEvidenceGatesPreserved": true,
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "deployPerformed": false,
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/freshness-window-repair.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/refresh-safeguards.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/self-healing-refresh-queue.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-creator-ui-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/freshness-window-repair.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/refresh-safeguards.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/self-healing-refresh-queue.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "package.json",
+      "classification": "freshness_required_input_fix"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "freshness_required_input_fix"
+    },
+    {
+      "path": "scripts/agent/validate-freshness-window-repair.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/freshness-window-repair.spec.ts",
+      "classification": "failed_validator_to_repair"
+    }
+  ],
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "Run npm run score:beta and npm run check:beta-score after any further source changes.",
+    "Do not use source freshness repair to clear formal manual, provider, runtime, or admin truth gates."
+  ],
+  "evidence": [
+    "exactStaleRequiredReportCountBefore=7",
+    "refreshedReports=4",
+    "retiredReports=3",
+    "freshnessBefore=75.63",
+    "freshnessAfter=83.75",
+    "currentHead=e75d98523cda258032a04e11eb16e1d128bea2f9",
+    "latestMainHead=e75d98523cda258032a04e11eb16e1d128bea2f9",
+    "formalEvidenceImpact=does_not_clear_formal_gates"
+  ]
+}

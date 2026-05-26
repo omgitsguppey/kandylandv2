@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-25T08:25:54.891Z",
-  "currentHead": "e53968ae1b6975aa492461625f7fd76133493226",
-  "betaScore": 77.83,
-  "betaStatus": "Stale evidence",
+  "generatedAtUtc": "2026-05-26T04:06:09.517Z",
+  "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
+  "betaScore": 84.12,
+  "betaStatus": "Runtime unverified",
   "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
   "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",
   "cost4xxStatus": "passed; p0=0; p1=0; p2=7; route4xx=3",

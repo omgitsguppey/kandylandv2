@@ -1,11 +1,81 @@
 {
-  "currentVersion": "1.4.82",
-  "betaReleaseCounter": 482,
+  "currentVersion": "1.4.83",
+  "betaReleaseCounter": 483,
   "channel": "beta",
-  "generatedAt": "2026-05-26T04:05:00.000Z",
-  "generatedAtUtc": "2026-05-26T04:05:00.000Z",
+  "generatedAt": "2026-05-26T04:15:00.000Z",
+  "generatedAtUtc": "2026-05-26T04:15:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.83",
+      "previousVersion": "1.4.82",
+      "betaReleaseCounter": 483,
+      "previousBetaReleaseCounter": 482,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(beta): repair freshness window",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T04:15:00.000Z",
+      "generatedAt": "2026-05-26T04:15:00.000Z",
+      "committedAtUtc": "2026-05-26T04:15:00.000Z",
+      "generatedAtUtc": "2026-05-26T04:15:00.000Z",
+      "category": "Improved",
+      "title": "Freshness window repair",
+      "updatedAtUtc": "2026-05-26T04:15:00.000Z",
+      "summary": "Refreshed stale required beta evidence reports.",
+      "userFacingTitle": "Freshness window repair",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed stale required beta evidence reports.",
+        "Retired superseded stale artifacts where newer locks own the lane.",
+        "Aligned beta score freshness with the latest commit."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Updated beta score freshness inputs so current lock artifacts own superseded parity, feature connection, and creator cost lanes.",
+        "Added a freshness-window repair validator, generated evidence report, and unit coverage for stale report classification.",
+        "Preserved formal manual, provider, runtime, and admin truth gates without production reads, provider calls, payment runtime changes, or GumDrop math changes."
+      ],
+      "affectedSurfaces": [
+        "Public beta score evidence",
+        "Freshness repair evidence",
+        "Current beta exit status",
+        "Refresh safeguards"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/freshness-window-repair.generated.json",
+        "agent/state/gumdrop-economy-accuracy.generated.json",
+        "agent/state/creator-experience-simplification.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/refresh-safeguards.generated.json",
+        "agent/state/self-healing-refresh-queue.generated.json",
+        "agent/state/user-creator-ui-parity.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/evidence-capture-status.md",
+        "docs/agent-truth/freshness-window-repair.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "docs/agent-truth/refresh-safeguards.md",
+        "docs/agent-truth/self-healing-refresh-queue.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-freshness-window-repair.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/freshness-window-repair.spec.ts"
+      ],
+      "effectiveChangeCount": 24,
+      "excludedGeneratedChangeCount": 9,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.82",
       "previousVersion": "1.4.81",
@@ -1467,61 +1537,6 @@
       ],
       "effectiveChangeCount": 9,
       "excludedGeneratedChangeCount": 10,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.58",
-      "previousVersion": "1.4.57",
-      "betaReleaseCounter": 458,
-      "previousBetaReleaseCounter": 457,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): repair source hierarchy",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T05:14:45.811Z",
-      "generatedAt": "2026-05-25T05:14:45.811Z",
-      "committedAtUtc": "2026-05-25T05:14:45.811Z",
-      "generatedAtUtc": "2026-05-25T05:14:45.811Z",
-      "category": "Fixed",
-      "title": "Analytics source hierarchy repair",
-      "updatedAtUtc": "2026-05-25T05:14:45.811Z",
-      "summary": "Repaired analytics source-of-truth hierarchy so GA4 availability, chart readiness, source agreement, validation parity, and Analytics tab empty states report separate causes.",
-      "userFacingTitle": "Analytics source hierarchy repair",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed analytics chart readiness hierarchy so source agreement failure blocks ready status.",
-        "Separated GA4 report availability from usable chart data.",
-        "Aligned Debug validation and Analytics tab source-of-truth states."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "GA4 setup/report availability now remains separate from loaded chart sample evidence and source agreement parity.",
-        "Payment runtime, wallet behavior, PayPal behavior, GumDrop math, external GA4 calls, production reads, and production writes were not changed."
-      ],
-      "affectedSurfaces": [
-        "Admin Analytics overview",
-        "Admin Analytics charts",
-        "Admin Debug Data Validation",
-        "Analytics source health",
-        "Debug cockpit validation artifacts"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/lib/analytics/ga4-availability-semantics.ts",
-        "src/lib/analytics/admin-analytics-source-hierarchy.ts",
-        "src/lib/analytics/source-agreement-detail.ts",
-        "src/lib/debug/debug-cockpit-batch29-analytics-source-hierarchy.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
-        "src/types/admin-analytics.ts"
-      ],
-      "effectiveChangeCount": 9,
-      "excludedGeneratedChangeCount": 18,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }
