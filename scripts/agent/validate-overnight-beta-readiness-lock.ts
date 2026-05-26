@@ -7,6 +7,7 @@ import {
   validateCurrentBetaExitStatusReport,
   type CurrentBetaExitStatusReport,
 } from "./validate-current-beta-exit-status";
+import { classifyGeneratedArtifactFromGit, isGeneratedArtifactCurrent } from "../../src/lib/agent-score/generated-artifact-version-policy";
 import {
   buildRefreshPlan,
   staleArtifactsFromPlan,
@@ -306,7 +307,14 @@ export function validateOvernightBetaReadinessLockReport(
 ) {
   const failures: string[] = [];
   if (!report) return ["overnight-beta-readiness-lock artifact missing"];
-  if (report.currentHead !== head) failures.push(`report currentHead must match git HEAD (${head}).`);
+  const version = classifyGeneratedArtifactFromGit({
+    cwd: repoRoot,
+    artifactPath: overnightReportRelativePath,
+    artifactHead: report.currentHead,
+  });
+  if (!isGeneratedArtifactCurrent(version)) {
+    failures.push(`report currentHead must match git HEAD (${head}) or an accepted generated artifact version.`);
+  }
   if (report.canStartBetaExitReview && /\bmissing\b/iu.test(report.evidenceStatus)) {
     failures.push("canStartBetaExitReview must remain false while required evidence is missing.");
   }

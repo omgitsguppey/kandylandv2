@@ -124,6 +124,7 @@
         "score:beta": "tsx scripts/agent/score-public-beta-readiness.ts",
         "repair:beta": "tsx scripts/agent/repair-public-beta-safe.ts",
         "check:beta-score": "tsx scripts/agent/validate-public-beta-score.ts",
+        "check:generated-artifact-version-policy": "tsx scripts/agent/validate-generated-artifact-version-policy.ts",
         "check:beta-health-algorithm-v2": "tsx scripts/agent/validate-beta-health-algorithm-v2.ts",
         "check:algorithmic-evidence-policy": "tsx scripts/agent/validate-algorithmic-evidence-policy.ts",
         "check:formal-evidence-bridge": "tsx scripts/agent/validate-formal-evidence-bridge.ts",

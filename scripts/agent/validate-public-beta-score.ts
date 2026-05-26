@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 import { assertAutofixGate, type PublicBetaAutofixPlan } from "../../src/lib/agent-score/autofix";
 import type { PublicBetaEvidenceGate, PublicBetaFinding, PublicBetaScoreReport } from "../../src/lib/agent-score/core";
+import { classifyGeneratedArtifactFromGit, isGeneratedArtifactCurrent } from "../../src/lib/agent-score/generated-artifact-version-policy";
 import { PUBLIC_BETA_SCORE_REPORT_PATH } from "../../src/lib/agent-score/reporting";
 
 const root = process.cwd();
@@ -41,28 +42,6 @@ function readReport() {
     failures.push(`${PUBLIC_BETA_SCORE_REPORT_PATH} must be valid JSON: ${(error as Error).message}`);
     return null;
   }
-}
-
-function changedInHead(relativePath: string) {
-  try {
-    const changed = execFileSync("git", ["diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"], { cwd: root, encoding: "utf8" });
-    return changed.split(/\r?\n/u).includes(relativePath);
-  } catch {
-    return false;
-  }
-}
-
-function parentHead() {
-  try {
-    return execFileSync("git", ["rev-parse", "HEAD^"], { cwd: root, encoding: "utf8" }).trim();
-  } catch {
-    return null;
-  }
-}
-
-function matchesCurrentOrSameCommitArtifact(reportHead: string | undefined, currentHead: string, artifactPath: string) {
-  if (reportHead === currentHead) return true;
-  return reportHead === parentHead() && changedInHead(artifactPath);
 }
 
 function requireNumber(value: unknown, label: string, min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_INFINITY) {
@@ -141,8 +120,13 @@ function validateFinding(finding: PublicBetaFinding, index: number) {
 const report = readReport();
 if (report) {
   const headSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-  if (!matchesCurrentOrSameCommitArtifact(report.currentHead, headSha, PUBLIC_BETA_SCORE_REPORT_PATH)) {
-    failures.push(`public beta score currentHead must match git HEAD (${headSha}) or a same-commit generated artifact parent.`);
+  const version = classifyGeneratedArtifactFromGit({
+    cwd: root,
+    artifactPath: PUBLIC_BETA_SCORE_REPORT_PATH,
+    artifactHead: report.currentHead,
+  });
+  if (!isGeneratedArtifactCurrent(version)) {
+    failures.push(`public beta score currentHead must match git HEAD (${headSha}) or an accepted generated artifact version.`);
   }
   requireNumber(report.scannerScore, "scannerScore", 0, 100);
   if (report.scoreVersion !== "beta_health_v2") {

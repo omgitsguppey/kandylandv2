@@ -5,6 +5,9 @@ import {
   REFRESH_ARTIFACT_REGISTRY,
   type RefreshArtifactRegistryEntry,
 } from "./refresh-registry";
+import {
+  classifyGeneratedArtifactVersion,
+} from "./generated-artifact-version-policy";
 
 export type RefreshArtifactInput = {
   artifactPath: string;
@@ -13,6 +16,10 @@ export type RefreshArtifactInput = {
   sourceCommit?: string;
   currentHead?: string;
   currentCodeVersion?: string;
+  parentHead?: string | null;
+  changedFilesInHead?: string[];
+  changedFilesSinceArtifactHead?: string[];
+  ownedSourcePaths?: string[];
   nowUtc?: string;
   maxAgeHours?: number;
   exists?: boolean;
@@ -25,8 +32,11 @@ export type ArtifactRefreshStatus =
     label: string;
     status:
       | "current"
+      | "same_commit_snapshot"
+      | "current_by_impact"
       | "missing"
       | "stale_source_version"
+      | "missing_version"
       | "stale_age"
       | "unknown_freshness"
       | "unregistered";
@@ -44,17 +54,16 @@ function readTimestamp(input: RefreshArtifactInput) {
   return input.generatedAtUtc ?? input.generatedAt;
 }
 
+function statusIsCurrent(status: ArtifactRefreshStatus["status"]) {
+  return status === "current" || status === "same_commit_snapshot" || status === "current_by_impact";
+}
+
 function ageHours(generatedAtUtc: string | undefined, nowUtc: string) {
   if (!generatedAtUtc) return undefined;
   const generatedMs = Date.parse(generatedAtUtc);
   const nowMs = Date.parse(nowUtc);
   if (!Number.isFinite(generatedMs) || !Number.isFinite(nowMs)) return undefined;
   return Math.max(0, (nowMs - generatedMs) / (60 * 60 * 1000));
-}
-
-function sameSourceVersion(sourceCommit: string | undefined, currentCodeVersion: string | undefined) {
-  if (!sourceCommit || !currentCodeVersion) return true;
-  return sourceCommit === currentCodeVersion;
 }
 
 function statusFromInput(
@@ -64,8 +73,21 @@ function statusFromInput(
 ) {
   if (input.exists === false) return "missing" as const;
   if (!registryEntry) return "unregistered" as const;
-  if (!sameSourceVersion(input.sourceCommit ?? input.currentHead, input.currentCodeVersion)) {
-    return "stale_source_version" as const;
+  if (input.currentCodeVersion) {
+    const version = classifyGeneratedArtifactVersion({
+      artifactPath: input.artifactPath,
+      artifactHead: input.sourceCommit ?? input.currentHead,
+      currentHead: input.currentCodeVersion,
+      parentHead: input.parentHead,
+      changedFilesInHead: input.changedFilesInHead,
+      changedFilesSinceArtifactHead: input.changedFilesSinceArtifactHead,
+      ownedSourcePaths: input.ownedSourcePaths,
+    });
+    if (version.status !== "current_head") {
+      return version.status === "same_commit_snapshot" || version.status === "current_by_impact"
+        ? version.status
+        : version.status satisfies "stale_source_version" | "missing_version";
+    }
   }
   if (typeof generatedAgeHours !== "number") return "unknown_freshness" as const;
   if (generatedAgeHours > (input.maxAgeHours ?? registryEntry.maxAgeHours)) {
@@ -82,11 +104,20 @@ export function buildPlainRefreshMessage(status: Pick<ArtifactRefreshStatus, "la
   if (status.status === "current") {
     return `${status.label} is current for the latest code version.`;
   }
+  if (status.status === "same_commit_snapshot") {
+    return `${status.label} is current as a same-commit generated report snapshot.`;
+  }
+  if (status.status === "current_by_impact") {
+    return `${status.label} is current because its owned source inputs did not change.`;
+  }
   if (status.status === "missing") {
     return `${status.label} is missing. Refresh this report from the latest code version.`;
   }
   if (status.status === "stale_source_version") {
     return `${status.label} was generated from an older code version. Refresh this report from the latest code version.`;
+  }
+  if (status.status === "missing_version") {
+    return `${status.label} does not include source version metadata. Refresh this report from the latest code version.`;
   }
   if (status.status === "stale_age") {
     return `${status.label} is older than the freshness window. Refresh this report from the latest code version.`;
@@ -110,7 +141,7 @@ export function getArtifactRefreshStatus(input: RefreshArtifactInput): ArtifactR
     reportKey: registryEntry?.reportKey,
     label,
     status,
-    needsRefresh: status !== "current",
+    needsRefresh: !statusIsCurrent(status),
     generatedAtUtc,
     ageHours: computedAgeHours,
     refreshCommand,
@@ -118,13 +149,13 @@ export function getArtifactRefreshStatus(input: RefreshArtifactInput): ArtifactR
     maxAgeHours: input.maxAgeHours ?? registryEntry?.maxAgeHours ?? DEFAULT_REFRESH_MAX_AGE_HOURS,
     message: "",
     nextAction: "",
-    formalEvidenceGateCanClear: status === "current",
+    formalEvidenceGateCanClear: statusIsCurrent(status),
   } satisfies ArtifactRefreshStatus;
   const message = buildPlainRefreshMessage(base);
   return {
     ...base,
     message,
-    nextAction: status === "current"
+    nextAction: statusIsCurrent(status)
       ? "No refresh needed."
       : refreshCommand
         ? `${message} Run: ${refreshCommand}`
@@ -142,6 +173,9 @@ export function buildRefreshPlan(
   })),
   options: {
     currentCodeVersion?: string;
+    parentHead?: string | null;
+    changedFilesInHead?: string[];
+    changedFilesSinceArtifactHead?: string[];
     nowUtc?: string;
   } = {},
 ) {
@@ -149,6 +183,9 @@ export function buildRefreshPlan(
     getArtifactRefreshStatus({
       ...artifact,
       currentCodeVersion: artifact.currentCodeVersion ?? options.currentCodeVersion,
+      parentHead: artifact.parentHead ?? options.parentHead,
+      changedFilesInHead: artifact.changedFilesInHead ?? options.changedFilesInHead,
+      changedFilesSinceArtifactHead: artifact.changedFilesSinceArtifactHead ?? options.changedFilesSinceArtifactHead,
       nowUtc: artifact.nowUtc ?? options.nowUtc,
     }));
 }

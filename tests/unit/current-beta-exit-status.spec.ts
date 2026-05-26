@@ -31,14 +31,14 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       economyP1: 0,
       visualEvidenceStatus: "source_only_screenshotEvidenceAttached_false",
       providerSmokeStatus: "missing_formal_evidence",
-      operatorRevenueSmokeStatus: "not_recorded",
-      operatorRevenueSmokeAmountUsd: null,
-      operatorRevenueSmokeProduct: "unknown",
-      operatorRevenueSmokeConfirmationSource: "unknown",
+      operatorRevenueSmokeStatus: "operator_confirmed_revenue_smoke",
+      operatorRevenueSmokeAmountUsd: 50,
+      operatorRevenueSmokeProduct: "GumDrops",
+      operatorRevenueSmokeConfirmationSource: "operator_confirmed",
       operatorRevenueSmokeProviderArtifactAttached: false,
       operatorRevenueSmokeFormalProviderSmokePassed: false,
-      operatorRevenueSmokeBetaGateImpact: "none",
-      operatorRevenueSmokeNote: "No operator-confirmed GumDrop revenue smoke is recorded.",
+      operatorRevenueSmokeBetaGateImpact: "product_signal_only",
+      operatorRevenueSmokeNote: "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
       runtimeSmokeStatus: "runtime_unverified",
       adminTruthSampleStatus: "missing_or_unknown",
       cloudRunCostReadiness: "cost_review_required",
@@ -243,11 +243,22 @@ describe("current beta exit status validator", () => {
     );
   });
 
-  it("fails when currentHead does not match git HEAD", () => {
+  it("fails when currentHead is not an accepted generated artifact version", () => {
     const report = reportFixture({ currentHead: "old-head" });
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
-      "report currentHead must match git HEAD (head).",
+      "report currentHead must match git HEAD (head) or an accepted generated artifact version.",
+    );
+  });
+
+  it("accepts same-commit generated artifact snapshots", () => {
+    const report = reportFixture({ currentHead: "parent-head" });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head", {
+      parentHead: "parent-head",
+      changedFilesInHead: ["agent/state/current-beta-exit-status.generated.json"],
+    })).not.toContain(
+      "report currentHead must match git HEAD (head) or an accepted generated artifact version.",
     );
   });
 
