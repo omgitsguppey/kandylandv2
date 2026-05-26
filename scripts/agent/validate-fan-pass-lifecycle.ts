@@ -105,9 +105,14 @@ export function classifyFanPassLifecycleDirtyFile(filePath: string): FanPassDirt
   if (normalized === "src/components/Creators/CreatorExperiencesPanel.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/creator-public-pages.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-revenue-entitlement-math.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/creator-revenue-entitlement-ledger.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/creator-revenue-entitlement-math.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/creator-revenue-entitlement-ledger.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/creator-revenue-entitlement-math.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/creator-revenue-entitlement-ledger.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/creator-revenue-entitlement-math.md") return "documentation_artifact_expected";
+  if (normalized === "src/lib/math/creator-revenue-entitlement-math.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-creator-monetization-admin-debug.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/creator-monetization-admin-debug.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/creator-monetization-admin-debug.generated.json") return "current_generated_artifact_to_commit";

@@ -109,9 +109,13 @@ export function classifyCreatorRevenueEntitlementDirtyFile(filePath: string): Di
   if (normalized === "src/lib/creator-monetization/creator-entitlement-contract.ts") return "current_source_change";
   if (normalized === "src/lib/creator-monetization/creator-entitlement-resolver.ts") return "current_source_change";
   if (normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-revenue-entitlement-math.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/creator-revenue-entitlement-ledger.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/creator-revenue-entitlement-math.spec.ts") return "test_artifact_expected";
   if (normalized === STATE_PATH) return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/creator-revenue-entitlement-math.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/creator-revenue-entitlement-math.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/fan-pass-lifecycle.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/fan-pass-lifecycle.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/creator-monetization-settings-truth.generated.json") return "current_generated_artifact_to_commit";
@@ -131,6 +135,7 @@ export function classifyCreatorRevenueEntitlementDirtyFile(filePath: string): Di
   if (normalized === "scripts/agent/validate-gumdrop-ledger-math.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-daily-task-reward-ledger.ts") return "validator_artifact_expected";
   if (normalized === "src/lib/math/gumdrop-ledger-math.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/creator-revenue-entitlement-math.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/math/canonical-math-ledger.ts") return "real_source_change_needs_review";
   if (normalized === "src/components/PurchaseModal.tsx") return "real_source_change_needs_review";
   if (normalized === "tests/unit/gumdrop-ledger-math.spec.ts") return "test_artifact_expected";

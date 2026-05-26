@@ -1,11 +1,72 @@
 {
-  "currentVersion": "1.5.3",
-  "betaReleaseCounter": 503,
+  "currentVersion": "1.5.4",
+  "betaReleaseCounter": 504,
   "channel": "beta",
-  "generatedAt": "2026-05-26T10:45:00.000Z",
-  "generatedAtUtc": "2026-05-26T10:45:00.000Z",
+  "generatedAt": "2026-05-26T11:10:00.000Z",
+  "generatedAtUtc": "2026-05-26T11:10:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.4",
+      "previousVersion": "1.5.3",
+      "betaReleaseCounter": 504,
+      "previousBetaReleaseCounter": 503,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): finalize creator revenue",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T11:10:00.000Z",
+      "generatedAt": "2026-05-26T11:10:00.000Z",
+      "committedAtUtc": "2026-05-26T11:10:00.000Z",
+      "generatedAtUtc": "2026-05-26T11:10:00.000Z",
+      "category": "Improved",
+      "title": "Creator revenue math",
+      "updatedAtUtc": "2026-05-26T11:10:00.000Z",
+      "summary": "Finalized creator revenue, Fan Pass access, paid chat bypass, and entitlement math without changing payment or payout runtime.",
+      "userFacingTitle": "Creator revenue math",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Finalized creator revenue, Fan Pass, paid chat bypass, and entitlement math.",
+        "Separated exact, linked, inferred, weak, and unknown revenue confidence.",
+        "Prevented expired/refunded entitlements from remaining active."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Added canonical creator revenue entitlement math for exact, linked, inferred, weak, and unknown confidence buckets.",
+        "Validated Fan Pass active state against creator enablement, entitlement status, access window, lifetime entitlement, and refund/cancellation state.",
+        "Kept payment runtime, payout formulas, PayPal capture, and GumDrop math unchanged."
+      ],
+      "affectedSurfaces": [
+        "Creator revenue math",
+        "Fan Pass access math",
+        "Paid chat bypass math",
+        "Creator dashboard metrics",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-revenue-entitlement-math.generated.json",
+        "docs/agent-truth/creator-revenue-entitlement-math.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-monetization-settings-truth.ts",
+        "scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
+        "scripts/agent/validate-creator-revenue-entitlement-math.ts",
+        "scripts/agent/validate-fan-pass-lifecycle.ts",
+        "src/lib/math/creator-revenue-entitlement-math.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/creator-revenue-entitlement-math.spec.ts"
+      ],
+      "effectiveChangeCount": 13,
+      "excludedGeneratedChangeCount": 1,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.3",
       "previousVersion": "1.5.2",
@@ -1548,78 +1609,6 @@
       ],
       "effectiveChangeCount": 13,
       "excludedGeneratedChangeCount": 2,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.79",
-      "previousVersion": "1.4.78",
-      "betaReleaseCounter": 479,
-      "previousBetaReleaseCounter": 478,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(creator): centralize monetization settings",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T02:35:00.000Z",
-      "generatedAt": "2026-05-26T02:35:00.000Z",
-      "committedAtUtc": "2026-05-26T02:35:00.000Z",
-      "generatedAtUtc": "2026-05-26T02:35:00.000Z",
-      "category": "Improved",
-      "title": "Creator monetization settings truth",
-      "updatedAtUtc": "2026-05-26T02:35:00.000Z",
-      "summary": "Centralized creator monetization settings truth.",
-      "userFacingTitle": "Creator monetization settings truth",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Centralized creator monetization settings truth.",
-        "Connected creator settings to chat pricing, Fan Pass, profile, timeline, and broadcasts.",
-        "Added mismatch telemetry and debug visibility."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Added a canonical creator monetization contract and resolver over existing creator settings and pricing truth.",
-        "Routed creator settings, public profile, chat pricing, Fan Pass, broadcasts, and creator experience consumers through the shared resolver.",
-        "Added creator monetization telemetry, person metrics, debug evidence, and a source-only validator without changing payment, payout, or GumDrop math."
-      ],
-      "affectedSurfaces": [
-        "Creator settings",
-        "Creator public profile and timeline",
-        "Creator chat pricing",
-        "Fan Pass access",
-        "Creator broadcasts",
-        "Creator monetization debug evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-monetization-settings-truth.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/creator-monetization-settings-truth.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-monetization-settings-truth.ts",
-        "scripts/agent/validate-fan-pass-lifecycle.ts",
-        "src/app/api/creator/broadcasts/route.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/api/creator/subscriptions/route.ts",
-        "src/app/api/creators/[username]/route.ts",
-        "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "src/components/Creators/CreatorExperiencesPanel.tsx",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/creator-monetization/creator-monetization-contract.ts",
-        "src/lib/creator-monetization/creator-monetization-resolver.ts",
-        "src/lib/creator-public-pages.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/chat.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/creator-monetization-settings-truth.spec.ts"
-      ],
-      "effectiveChangeCount": 24,
-      "excludedGeneratedChangeCount": 3,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

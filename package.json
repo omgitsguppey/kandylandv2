@@ -84,6 +84,7 @@
         "check:fan-pass-lifecycle": "tsx scripts/agent/validate-fan-pass-lifecycle.ts",
         "check:creator-monetization-settings-truth": "tsx scripts/agent/validate-creator-monetization-settings-truth.ts",
         "check:creator-revenue-entitlement-ledger": "tsx scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
+        "check:creator-revenue-entitlement-math": "tsx scripts/agent/validate-creator-revenue-entitlement-math.ts",
         "check:creator-monetization-admin-debug": "tsx scripts/agent/validate-creator-monetization-admin-debug.ts",
         "check:creator-monetization-readiness-lock": "tsx scripts/agent/validate-creator-monetization-readiness-lock.ts",
         "check:activity-verification-engine": "tsx scripts/agent/validate-activity-verification-engine.ts",

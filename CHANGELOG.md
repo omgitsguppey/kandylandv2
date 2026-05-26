@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.4 - 2026-05-26
+- Creator revenue math
+- Finalized creator revenue, Fan Pass, paid chat bypass, and entitlement math.
+- Separated exact, linked, inferred, weak, and unknown revenue confidence.
+- Prevented expired/refunded entitlements from remaining active.
+
 ## 1.5.3 - 2026-05-26
 - GumDrop ledger math
 - Finalized GumDrop ledger math across paid, bonus, reward, task, admin, refund, and legacy sources.
