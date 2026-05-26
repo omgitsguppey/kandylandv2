@@ -1,0 +1,205 @@
+# Current Head Release Reconciliation
+
+Artifact: `agent/state/current-head-release-reconciliation.generated.json`
+Validator: `npm run check:current-head-release-reconciliation`
+
+## Summary
+
+- Generated: `2026-05-26T17:21:57.413Z`
+- Current head: `5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6`
+- Status: `pass`
+
+## Report
+
+```json
+{
+  "reportKey": "current-head-release-reconciliation",
+  "generatedAtUtc": "2026-05-26T17:21:57.413Z",
+  "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "publicBetaScoreCurrentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "currentBetaExitStatusCurrentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "scoreBefore": 85.34,
+  "scoreAfter": 85.34,
+  "scoreDimensions": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "artifacts": [
+    {
+      "artifactPath": "agent/state/public-beta-score.generated.json",
+      "reportKey": "",
+      "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+      "generatedAtUtc": "2026-05-26T17:21:33.575Z",
+      "status": "current",
+      "affectsReadiness": true,
+      "nextExactAction": "No refresh needed."
+    },
+    {
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
+      "reportKey": "current-beta-exit-status",
+      "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+      "generatedAtUtc": "2026-05-26T17:18:08.870Z",
+      "status": "current",
+      "affectsReadiness": true,
+      "nextExactAction": "No refresh needed."
+    },
+    {
+      "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
+      "reportKey": "formal-evidence-bridge",
+      "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+      "generatedAtUtc": "2026-05-26T04:41:50.407Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/formal-evidence-bridge.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/final-product-integrity-lock.generated.json",
+      "reportKey": "final-product-integrity-lock",
+      "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
+      "generatedAtUtc": "2026-05-26T08:18:03.231Z",
+      "status": "head_mismatch",
+      "affectsReadiness": false,
+      "nextExactAction": "Refresh agent/state/final-product-integrity-lock.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/final-math-normalization-lock.generated.json",
+      "reportKey": "final-math-normalization-lock",
+      "currentHead": "a996b197",
+      "generatedAtUtc": "2026-05-26T12:01:44.102Z",
+      "status": "head_mismatch",
+      "affectsReadiness": false,
+      "nextExactAction": "Refresh agent/state/final-math-normalization-lock.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/mega-legacy-pipeline-hardening.generated.json",
+      "reportKey": "mega-legacy-pipeline-hardening",
+      "currentHead": "01b28a9022edc27123c71b8f8b5c8e86ee691829",
+      "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+      "status": "head_mismatch",
+      "affectsReadiness": false,
+      "nextExactAction": "Refresh agent/state/mega-legacy-pipeline-hardening.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/self-revealing-codebase.generated.json",
+      "reportKey": "self-revealing-codebase",
+      "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+      "status": "current",
+      "affectsReadiness": false,
+      "nextExactAction": "No refresh needed."
+    },
+    {
+      "artifactPath": "agent/state/codebase-organization-hardening.generated.json",
+      "reportKey": "codebase-organization-hardening",
+      "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+      "status": "current",
+      "affectsReadiness": false,
+      "nextExactAction": "No refresh needed."
+    },
+    {
+      "artifactPath": "agent/state/codex-execution-guardrails.generated.json",
+      "reportKey": "codex-execution-guardrails",
+      "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+      "status": "current",
+      "affectsReadiness": false,
+      "nextExactAction": "No refresh needed."
+    },
+    {
+      "artifactPath": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "reportKey": "runtime-smoke-substitute-matrix",
+      "currentHead": "bbd8d8c7da74cf60bb978373242a76e5e0f305d7",
+      "generatedAtUtc": "2026-05-21T14:22:56.228Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/runtime-smoke-substitute-matrix.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/source-backed-runtime-confidence.generated.json",
+      "reportKey": "source-backed-runtime-confidence",
+      "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+      "generatedAtUtc": "2026-05-26T04:41:50.491Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/source-backed-runtime-confidence.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/admin-truth-source-sample.generated.json",
+      "reportKey": "admin-truth-source-sample",
+      "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+      "generatedAtUtc": "2026-05-26T04:41:50.347Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/admin-truth-source-sample.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
+      "reportKey": "debug-runtime-evidence",
+      "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+      "generatedAtUtc": "2026-05-25T05:51:35.791Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/debug-runtime-evidence.generated.json with its owning check before it can affect readiness."
+    }
+  ],
+  "staleArtifactsRemaining": [
+    {
+      "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
+      "reportKey": "formal-evidence-bridge",
+      "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+      "generatedAtUtc": "2026-05-26T04:41:50.407Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/formal-evidence-bridge.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "reportKey": "runtime-smoke-substitute-matrix",
+      "currentHead": "bbd8d8c7da74cf60bb978373242a76e5e0f305d7",
+      "generatedAtUtc": "2026-05-21T14:22:56.228Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/runtime-smoke-substitute-matrix.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/source-backed-runtime-confidence.generated.json",
+      "reportKey": "source-backed-runtime-confidence",
+      "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+      "generatedAtUtc": "2026-05-26T04:41:50.491Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/source-backed-runtime-confidence.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/admin-truth-source-sample.generated.json",
+      "reportKey": "admin-truth-source-sample",
+      "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+      "generatedAtUtc": "2026-05-26T04:41:50.347Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/admin-truth-source-sample.generated.json with its owning check before it can affect readiness."
+    },
+    {
+      "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
+      "reportKey": "debug-runtime-evidence",
+      "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+      "generatedAtUtc": "2026-05-25T05:51:35.791Z",
+      "status": "head_mismatch",
+      "affectsReadiness": true,
+      "nextExactAction": "Refresh agent/state/debug-runtime-evidence.generated.json with its owning check before it can affect readiness."
+    }
+  ],
+  "validationFailures": []
+}
+```
+
+## Evidence Boundary
+
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
+
+## Validation
+
+- Pass.

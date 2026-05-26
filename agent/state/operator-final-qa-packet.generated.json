@@ -1,0 +1,377 @@
+{
+  "reportKey": "operator-final-qa-packet",
+  "generatedAtUtc": "2026-05-26T17:18:38.245Z",
+  "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "outsideCodexScoreGate": true,
+  "surfaces": [
+    {
+      "surfaceId": "homepage",
+      "route": "/",
+      "role": "guest",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches homepage screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "signup-login",
+      "route": "/login",
+      "role": "guest",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches signup-login screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "user-dashboard",
+      "route": "/dashboard",
+      "role": "user",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches user-dashboard screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "wallet-purchase-modal",
+      "route": "/dashboard?wallet=1",
+      "role": "user",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches wallet-purchase-modal screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "drops-library",
+      "route": "/drops",
+      "role": "user",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches drops-library screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "drop-detail-unlock-unwrap-watch",
+      "route": "/drops/[id]",
+      "role": "user",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches drop-detail-unlock-unwrap-watch screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "creator-profile",
+      "route": "/creator/[handle]",
+      "role": "guest/user",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches creator-profile screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "creator-dashboard",
+      "route": "/creator/dashboard",
+      "role": "creator",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches creator-dashboard screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "creator-settings",
+      "route": "/creator/settings",
+      "role": "creator",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches creator-settings screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "creator-drop-manager",
+      "route": "/creator/drops",
+      "role": "creator",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches creator-drop-manager screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "chat",
+      "route": "/chat",
+      "role": "user",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches chat screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "daily-tasks",
+      "route": "/experiences",
+      "role": "user",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches daily-tasks screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "account-settings-support",
+      "route": "/settings",
+      "role": "user",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches account-settings-support screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "notifications-pwa-prompt",
+      "route": "/dashboard",
+      "role": "user",
+      "device": [
+        "mobile"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches notifications-pwa-prompt screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "admin-debug",
+      "route": "/admin/debug",
+      "role": "admin",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches admin-debug screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    },
+    {
+      "surfaceId": "user-management",
+      "route": "/admin/users",
+      "role": "admin",
+      "device": [
+        "mobile",
+        "desktop"
+      ],
+      "screenshotRequired": true,
+      "checks": [
+        "no nav overlap",
+        "no clipped CTA",
+        "no unreadable text",
+        "loading state",
+        "empty state",
+        "error state",
+        "primary action visible",
+        "telemetry/debug lane source-ready"
+      ],
+      "status": "operator_pending",
+      "nextExactAction": "Operator captures and attaches user-management screenshots for required devices.",
+      "notes": "Outside Codex score gates; organized for operator-final review."
+    }
+  ],
+  "operatorFinalStatus": "operator_pending",
+  "validationFailures": []
+}

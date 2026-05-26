@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.9 - 2026-05-26
+- Release evidence finalization
+- Added final release evidence, runtime smoke harness, PR hygiene, rollback, operator QA, and beta exit readiness packet.
+- Classified formal provider/runtime/admin evidence without faking proof.
+- Prepared release notes and rollback readiness for operator-final beta exit review.
+
 ## 1.5.8 - 2026-05-26
 - Legacy pipeline hardening
 - Reinforced legacy, math, cost, debug, and pipeline ownership checks.
@@ -153,45 +159,3 @@ Showing the last 25 public updates in pages of 5.
 - Refined cost risk exit evidence for Cloud Run, Cloud SQL, Gemini/AI, and route 4xx lanes.
 - Separated external billing review from source cost guards.
 - Kept product runtime unchanged.
-
-## 1.4.83 - 2026-05-26
-- Freshness window repair
-- Refreshed stale required beta evidence reports.
-- Retired superseded stale artifacts where newer locks own the lane.
-- Aligned beta score freshness with the latest commit.
-
-## 1.4.82 - 2026-05-26
-- Targeted behavior evidence repair
-- Repaired targeted behavior evidence using current validators.
-- Replaced superseded source behavior checks with current lock artifacts.
-- Kept formal runtime, provider, admin, and visual gates separate.
-
-## 1.4.81 - 2026-05-26
-- Creator monetization readiness lock
-- Locked creator monetization readiness across Fan Pass, settings, entitlements, and admin debug.
-- Connected monetization attempts, access, and failures to telemetry and person metrics.
-- Kept payment runtime and GumDrop math unchanged.
-
-## 1.4.80 - 2026-05-26
-- Creator monetization diagnostics
-- Connected creator monetization and entitlement health to admin debug.
-- Added summary-first Fan Pass, chat pricing, and access mismatch visibility.
-- Protected private payment and user data from admin summaries.
-
-## 1.4.79 - 2026-05-26
-- Creator monetization settings truth
-- Centralized creator monetization settings truth.
-- Connected creator settings to chat pricing, Fan Pass, profile, timeline, and broadcasts.
-- Added mismatch telemetry and debug visibility.
-
-## 1.4.78 - 2026-05-26
-- Creator revenue entitlement ledger
-- Added creator entitlement ledger for Fan Pass, chat, drops, and experiences.
-- Mapped entitlements to creator metrics and source-of-funds truth.
-- Kept payment and GumDrop math unchanged.
-
-## 1.4.77 - 2026-05-26
-- Fan Pass lifecycle
-- Added Fan Pass lifecycle and access contracts.
-- Connected Fan Pass visibility, access, chat bypass, telemetry, and debug truth.
-- Kept payment runtime and GumDrop math unchanged.
