@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Bot, ClipboardList, Coins, RadioTower, RefreshCw, ShieldCheck, Target } from "lucide-react";
+import { AlertTriangle, Bot, Candy, ClipboardList, RadioTower, RefreshCw, ShieldCheck, Target } from "lucide-react";
 
 import type { DebugOperatorCockpitReport, DebugOperatorCockpitSection } from "@/lib/debug/debug-operator-cockpit";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ const ICONS = {
     stale_artifact_refresh_queue: RefreshCw,
     admin_truth_status: ShieldCheck,
     telemetry_lane_status: RadioTower,
-    cost_owner_review_lanes: Coins,
+    cost_owner_review_lanes: Candy,
     ai_critic_requested_changes: Bot,
     recovery_playbook_cta: ClipboardList,
 };
@@ -58,15 +58,15 @@ function CockpitSectionCard({ section }: { section: DebugOperatorCockpitSection 
                             <h3 className="text-sm font-black text-white">{section.title}</h3>
                             <p className="mt-1 text-xs leading-5 text-gray-300">{section.operatorSummary}</p>
                         </div>
-                        <span className={cn("rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em]", stateTone(section.state))}>
+                        <span className={cn("rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]", stateTone(section.state))}>
                             {section.state}
                         </span>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                        <span className="rounded-sm bg-black/25 px-2 py-0.5 text-[11px] text-gray-300">
                             Owner: {section.owner}
                         </span>
-                        <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                        <span className="rounded-sm bg-black/25 px-2 py-0.5 text-[11px] text-gray-300">
                             Score impact: {section.scoreImpactEstimate}
                         </span>
                     </div>
@@ -113,13 +113,13 @@ export function DebugOperatorCockpit({ cockpit }: { cockpit?: DebugOperatorCockp
                     <p className="mt-1 text-xs leading-5 text-gray-300">Sorted by score impact, owner, and required evidence path.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                    <span className="rounded-sm bg-black/25 px-2 py-0.5 text-[11px] text-gray-300">
                         Sections {cockpit.summary.sectionCount}
                     </span>
-                    <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                    <span className="rounded-sm bg-black/25 px-2 py-0.5 text-[11px] text-gray-300">
                         AI critic {cockpit.summary.aiCriticFindings}
                     </span>
-                    <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                    <span className="rounded-sm bg-black/25 px-2 py-0.5 text-[11px] text-gray-300">
                         Playbooks {cockpit.summary.recoveryPlaybooks}
                     </span>
                 </div>

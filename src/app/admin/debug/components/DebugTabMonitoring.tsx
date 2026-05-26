@@ -596,7 +596,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </ScrollWrap>
             </Section>
 
-            <Section title="Recent task activity sample" subtitle="Recent task events and longer-tail rollups from the activity sample." defaultOpen={false} summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Rollups" value={(data?.taskRollups || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /></>}>
+            <Section title="Recent task activity sample" subtitle="Recent task events and longer-tail rollups from the activity sample." defaultOpen={false} summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Rollups" value={(data?.taskRollups || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Daily events" value={(data?.dailyTaskSeries || []).length} truthState={data ? "live" : "unavailable"} badgeLabel="LOADED" /></>}>
                 <div className="grid gap-4 lg:grid-cols-1">
                     <ScrollWrap>
                         <div className="divide-y divide-white/10" data-daily-task-activity-loaded-count={(data?.recentTaskEvents || []).length}>
