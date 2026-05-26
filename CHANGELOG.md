@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.91 - 2026-05-26
+- Product integrity map
+- Mapped product features, routes, telemetry, metrics, debug lanes, and score gates into one product integrity map.
+- Identified orphaned, duplicated, stale, and in-flight limbs.
+- Added product body map debug visibility.
+
 ## 1.4.90 - 2026-05-26
 - Duration math normalization
 - Normalized duration math across sessions, watch time, tasks, flows, chat, media, auth, and notifications.

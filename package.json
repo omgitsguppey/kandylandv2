@@ -139,6 +139,7 @@
         "check:canonical-math-authority-ledger": "tsx scripts/agent/validate-canonical-math-authority-ledger.ts",
         "check:count-deduplication-normalization": "tsx scripts/agent/validate-count-deduplication-normalization.ts",
         "check:duration-math-normalization": "tsx scripts/agent/validate-duration-math-normalization.ts",
+        "check:product-body-map": "tsx scripts/agent/validate-product-body-map.ts",
         "check:refresh-safeguards": "tsx scripts/agent/validate-refresh-safeguards.ts",
         "check:self-healing-refresh-queue": "tsx scripts/agent/validate-self-healing-refresh-queue.ts",
         "check:admin-balance-body-cap": "tsx scripts/agent/validate-admin-balance-body-cap.ts",

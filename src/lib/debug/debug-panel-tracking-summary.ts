@@ -22,6 +22,7 @@ import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedupe-engine";
 import { COUNT_DEDUPLICATION_CONTRACT_VERSION } from "@/lib/math/count-deduplication-normalizer";
 import { DURATION_MATH_CONTRACT_VERSION } from "@/lib/math/duration-math-normalizer";
+import { PRODUCT_BODY_MAP_VERSION } from "@/lib/product-integrity/product-body-map";
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
 import { buildSessionBounceDebugLane } from "@/lib/analytics/session-metrics-contract";
 import { buildUserJourneyDebugLane } from "@/lib/behavioral/user-journey-contract";
@@ -47,6 +48,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "person_metrics_hydration",
   "user_management",
   "testing_coverage",
+  "product_body_map",
   "math_authority",
   "behavior_math",
   "feature_telemetry_coverage",
@@ -149,6 +151,7 @@ const TRACKING_GROUPS = [
   "person_metrics_hydration",
   "user_management",
   "testing_coverage",
+  "product_body_map",
   "math_authority",
   "behavior_math",
   "feature_coverage",
@@ -438,6 +441,25 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     configTruthHealthy: mathAuthorityWarnings === 0 && mathAuthorityFormulas > 0,
     counts: [mathAuthorityFormulas],
     warningCount: mathAuthorityWarnings,
+  }).status;
+  const productBodyMap = input.productBodyMap?.debugLane ?? {};
+  const productBodySystems = toNumber(productBodyMap.systemsCovered);
+  const productBodyLimbs = toNumber(productBodyMap.totalLimbs);
+  const productBodyDisconnected = toNumber(productBodyMap.disconnectedCount);
+  const productBodyOrphaned = toNumber(productBodyMap.orphanedCount);
+  const productBodyDuplicated = toNumber(productBodyMap.duplicatedCount);
+  const productBodyStale = toNumber(productBodyMap.staleCount);
+  const productBodyInFlight = toNumber(productBodyMap.inFlightCount);
+  const productBodyUnsafe = toNumber(productBodyMap.unsafeUnknownCount);
+  const productBodyWarnings = productBodyOrphaned + productBodyDuplicated + productBodyStale + productBodyUnsafe;
+  const productBodyStatus = classifyAdminSummaryLaneStatus({
+    laneId: "product_body_map",
+    sourceContractPresent: true,
+    sampleLoaded: productBodySystems > 0 && productBodyLimbs > 0,
+    configTruthHealthy: productBodyUnsafe === 0 && productBodyDuplicated === 0 && productBodySystems > 0,
+    counts: [productBodySystems, productBodyLimbs, productBodyDisconnected],
+    warningCount: productBodyWarnings,
+    criticalCount: productBodyUnsafe,
   }).status;
   const behaviorCleanup = input.behaviorMathStatusCleanup;
   const behaviorStatus = behaviorCleanup?.status === "healthy" || behaviorCleanup?.status === `source_ready_${"waiting_for_activity"}`
@@ -948,6 +970,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: testingCoverageWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#testing-coverage",
+    }),
+    makeLane({
+      id: "product_body_map",
+      label: "Product body map",
+      trackingSystem: "product_body_map",
+      sourceOwner: "product-integrity",
+      sourceOfTruth: "src/lib/product-integrity/product-body-map.ts",
+      status: productBodyStatus,
+      severity: severityFromCounts(productBodyUnsafe, productBodyWarnings, productBodyStatus),
+      scoreImpact: productBodyWarnings > 0 ? "medium" : "none",
+      primarySignal: `Contract=${PRODUCT_BODY_MAP_VERSION}; systems=${productBodySystems}; limbs=${productBodyLimbs}; disconnected=${productBodyDisconnected}; orphaned=${productBodyOrphaned}; duplicated=${productBodyDuplicated}; stale=${productBodyStale}; inFlight=${productBodyInFlight}; unsafeUnknown=${productBodyUnsafe}.`,
+      criticalCount: productBodyUnsafe,
+      warningCount: productBodyWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#product-body-map",
     }),
     makeLane({
       id: "math_authority",
