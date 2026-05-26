@@ -1,7 +1,7 @@
 {
   "reportKey": "current-head-release-reconciliation",
-  "generatedAtUtc": "2026-05-26T17:21:57.413Z",
-  "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "generatedAtUtc": "2026-05-26T21:08:26.734Z",
+  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
   "publicBetaScoreCurrentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
   "currentBetaExitStatusCurrentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
   "scoreBefore": 85.34,
@@ -21,18 +21,18 @@
       "reportKey": "",
       "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
       "generatedAtUtc": "2026-05-26T17:21:33.575Z",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "affectsReadiness": true,
-      "nextExactAction": "No refresh needed."
+      "nextExactAction": "agent/state/public-beta-score.generated.json is a same commit generated artifact snapshot."
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
       "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
       "generatedAtUtc": "2026-05-26T17:18:08.870Z",
-      "status": "current",
+      "status": "same_commit_snapshot",
       "affectsReadiness": true,
-      "nextExactAction": "No refresh needed."
+      "nextExactAction": "agent/state/current-beta-exit-status.generated.json is a same commit generated artifact snapshot."
     },
     {
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
@@ -74,25 +74,25 @@
       "artifactPath": "agent/state/self-revealing-codebase.generated.json",
       "reportKey": "self-revealing-codebase",
       "generatedAtUtc": "2026-05-26T12:24:12.748Z",
-      "status": "current",
+      "status": "head_mismatch",
       "affectsReadiness": false,
-      "nextExactAction": "No refresh needed."
+      "nextExactAction": "Refresh agent/state/self-revealing-codebase.generated.json with its owning check before it can affect readiness."
     },
     {
       "artifactPath": "agent/state/codebase-organization-hardening.generated.json",
       "reportKey": "codebase-organization-hardening",
       "generatedAtUtc": "2026-05-26T12:24:12.748Z",
-      "status": "current",
+      "status": "head_mismatch",
       "affectsReadiness": false,
-      "nextExactAction": "No refresh needed."
+      "nextExactAction": "Refresh agent/state/codebase-organization-hardening.generated.json with its owning check before it can affect readiness."
     },
     {
       "artifactPath": "agent/state/codex-execution-guardrails.generated.json",
       "reportKey": "codex-execution-guardrails",
       "generatedAtUtc": "2026-05-26T12:24:12.748Z",
-      "status": "current",
+      "status": "head_mismatch",
       "affectsReadiness": false,
-      "nextExactAction": "No refresh needed."
+      "nextExactAction": "Refresh agent/state/codex-execution-guardrails.generated.json with its owning check before it can affect readiness."
     },
     {
       "artifactPath": "agent/state/runtime-smoke-substitute-matrix.generated.json",

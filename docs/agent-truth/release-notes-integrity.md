@@ -5,8 +5,8 @@ Validator: `npm run check:release-notes-integrity`
 
 ## Summary
 
-- Generated: `2026-05-26T17:20:52.739Z`
-- Current head: `5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6`
+- Generated: `2026-05-26T21:09:20.250Z`
+- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:release-notes-integrity`
 ```json
 {
   "reportKey": "release-notes-integrity",
-  "generatedAtUtc": "2026-05-26T17:20:52.739Z",
-  "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "generatedAtUtc": "2026-05-26T21:09:20.250Z",
+  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
   "currentVersion": "1.5.9",
   "publicReleaseJsonValid": true,
   "claimsBetaExit": false,

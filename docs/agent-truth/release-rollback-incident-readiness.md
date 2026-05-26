@@ -5,8 +5,8 @@ Validator: `npm run check:release-rollback-incident-readiness`
 
 ## Summary
 
-- Generated: `2026-05-26T17:18:22.158Z`
-- Current head: `5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6`
+- Generated: `2026-05-26T21:09:13.029Z`
+- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
 - Status: `pass`
 
 ## Report
@@ -14,9 +14,9 @@ Validator: `npm run check:release-rollback-incident-readiness`
 ```json
 {
   "reportKey": "release-rollback-incident-readiness",
-  "generatedAtUtc": "2026-05-26T17:18:22.158Z",
-  "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
-  "releaseVersion": "1.5.8",
+  "generatedAtUtc": "2026-05-26T21:09:13.029Z",
+  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
+  "releaseVersion": "1.5.9",
   "migrationStatus": "no_migration_detected",
   "featureFlagsAndKillSwitches": [
     {

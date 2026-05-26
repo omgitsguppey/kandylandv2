@@ -5,8 +5,8 @@ Validator: `npm run check:operator-final-qa-packet`
 
 ## Summary
 
-- Generated: `2026-05-26T17:18:38.245Z`
-- Current head: `5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6`
+- Generated: `2026-05-26T21:09:06.001Z`
+- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:operator-final-qa-packet`
 ```json
 {
   "reportKey": "operator-final-qa-packet",
-  "generatedAtUtc": "2026-05-26T17:18:38.245Z",
-  "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "generatedAtUtc": "2026-05-26T21:09:06.001Z",
+  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
   "outsideCodexScoreGate": true,
   "surfaces": [
     {

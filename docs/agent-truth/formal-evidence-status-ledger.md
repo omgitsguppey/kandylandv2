@@ -5,8 +5,8 @@ Validator: `npm run check:formal-evidence-status-ledger`
 
 ## Summary
 
-- Generated: `2026-05-26T17:18:22.263Z`
-- Current head: `5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6`
+- Generated: `2026-05-26T21:08:33.961Z`
+- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:formal-evidence-status-ledger`
 ```json
 {
   "reportKey": "formal-evidence-status-ledger",
-  "generatedAtUtc": "2026-05-26T17:18:22.263Z",
-  "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "generatedAtUtc": "2026-05-26T21:08:33.961Z",
+  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
   "scoreDimensions": {
     "sourceHealth": 100,
     "runtimeHealth": 84.2,

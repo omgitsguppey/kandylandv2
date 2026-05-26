@@ -5,8 +5,8 @@ Validator: `npm run check:admin-truth-redaction-packet`
 
 ## Summary
 
-- Generated: `2026-05-26T17:18:37.821Z`
-- Current head: `5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6`
+- Generated: `2026-05-26T21:08:58.066Z`
+- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:admin-truth-redaction-packet`
 ```json
 {
   "reportKey": "admin-truth-redaction-packet",
-  "generatedAtUtc": "2026-05-26T17:18:37.821Z",
-  "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "generatedAtUtc": "2026-05-26T21:08:58.066Z",
+  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
   "environment": "source_schema_only_no_production_read",
   "sampleSource": "none_attached",
   "redactionPolicy": {
