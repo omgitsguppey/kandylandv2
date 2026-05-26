@@ -371,7 +371,7 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
       creatorRoleMetricsHydrated: Object.values(scopes.creatorRole.metrics).filter((metric) => metric.count > 0).length,
       personMetricsMapped: PERSON_METRIC_DEFINITIONS.length,
       lowConfidenceMetrics: lowConfidenceMetrics.length,
-      gaps: 0,
+      gaps: gapCount,
     },
     metricStatus,
     scopes,
@@ -390,7 +390,7 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
       unknownLegacyBecameExact: false,
       zeroWithoutProvenZero: false,
     },
-    scoreImpactByDimension: scoreImpact(lowConfidenceMetrics.length, 0),
+    scoreImpactByDimension: scoreImpact(lowConfidenceMetrics.length, gapCount),
   };
 }
 

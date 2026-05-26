@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.98 - 2026-05-26
+- Canonical math ledger freeze
+- Created canonical math ledger for score, confidence, session, watch, dedupe, and legacy recovery formulas.
+- Fixed person-metric hydration gap math to report real gaps.
+- Documented how formula refinements improve tracking accuracy.
+
 ## 1.4.97 - 2026-05-26
 - Count deduplication normalization
 - Normalized global, user, creator, and legacy count deduplication.

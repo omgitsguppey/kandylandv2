@@ -137,6 +137,7 @@
         "check:launch-blocker-evidence-closure": "tsx scripts/agent/validate-launch-blocker-evidence-closure.ts",
         "check:final-beta-exit-gate-readiness": "tsx scripts/agent/validate-final-beta-exit-gate-readiness.ts",
         "check:canonical-math-authority-ledger": "tsx scripts/agent/validate-canonical-math-authority-ledger.ts",
+        "check:canonical-math-ledger": "tsx scripts/agent/validate-canonical-math-ledger.ts",
         "check:count-deduplication-normalization": "tsx scripts/agent/validate-count-deduplication-normalization.ts",
         "check:duration-math-normalization": "tsx scripts/agent/validate-duration-math-normalization.ts",
         "check:product-body-map": "tsx scripts/agent/validate-product-body-map.ts",
