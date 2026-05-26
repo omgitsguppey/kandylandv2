@@ -65,6 +65,7 @@ const JOURNEY_SYSTEMS: Record<string, BodySystemId> = {
 };
 
 const DEBUG_LANE_SYSTEMS: Record<string, BodySystemId> = {
+  product_brain: "admin_debug_ops",
   identity_handoff: "identity_auth",
   consent_tracking_mode: "identity_auth",
   event_envelope: "telemetry_behavioral_intelligence",
@@ -118,6 +119,7 @@ const SCORE_GATE_SYSTEMS: Record<PublicBetaHealthDimension, BodySystemId> = {
 };
 
 const EXPECTED_ARTIFACTS = [
+  { path: "agent/state/interpretive-brain-debug-triage.generated.json", owner: "product-integrity", system: "admin_debug_ops" as const, status: "connected" as const },
   { path: "agent/state/product-body-map.generated.json", owner: "product-integrity", system: "admin_debug_ops" as const, status: "connected" as const },
   { path: "agent/state/final-parity-telemetry-lock.generated.json", owner: "parity", system: "telemetry_behavioral_intelligence" as const, status: "connected" as const },
   { path: "agent/state/media-discovery-score-lock.generated.json", owner: "media-discovery", system: "media_storage_access" as const, status: "connected" as const },
@@ -478,6 +480,20 @@ export function listProductBodyLimbs(): ProductLimb[] {
     nextAction: "Keep product body map validation in package scripts and release evidence.",
   }));
 
+  limbs.push(limb({
+    limbId: "validator:check:interpretive-brain-debug-triage",
+    kind: "validator",
+    label: "check:interpretive-brain-debug-triage",
+    status: "connected",
+    primaryBodySystem: "admin_debug_ops",
+    secondaryBodySystems: ["telemetry_behavioral_intelligence", "cost_runtime_infrastructure"],
+    owner: "product-integrity",
+    sourceFiles: ["scripts/agent/validate-interpretive-brain-debug-triage.ts"],
+    validators: [PRODUCT_BODY_MAP_VALIDATOR, "check:interpretive-brain-debug-triage"],
+    scoreImpact: ["evidenceCompleteness", "freshness", "costRisk"],
+    nextAction: "Keep Product brain triage mapped to root cause, score impact, formal gates, cost risks, and exact next actions.",
+  }));
+
   return dedupeLimbs(limbs);
 }
 
@@ -641,19 +657,25 @@ export function buildProductBodyMapReport(input: {
 export function classifyProductBodyMapDirtyFile(path: string): ProductBodyMapDirtyFile["classification"] {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/state/product-body-map.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/interpretive-brain-debug-triage.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/central-normalizer-spine.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/product-body-map.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/interpretive-brain-debug-triage.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/product-integrity/product-body-system-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/product-body-map.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/central-normalizer-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/product-integrity/central-normalizer.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/product-integrity/interpretive-brain-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/product-integrity/interpretive-brain.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-product-body-map.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-interpretive-brain-debug-triage.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-central-normalizer-spine.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/product-body-map.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/interpretive-brain-debug-triage.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/central-normalizer-spine.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === "CHANGELOG.md") return "release_artifact_expected";

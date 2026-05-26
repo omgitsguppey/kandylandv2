@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.93 - 2026-05-26
+- Interpretive brain debug triage
+- Added interpretive brain for normalized product signals.
+- Unified debug triage around root cause, score impact, and next actions.
+- Collapsed duplicate debug findings behind product health summary.
+
 ## 1.4.92 - 2026-05-26
 - Central normalizer spine
 - Added central normalizer spine for product signals.

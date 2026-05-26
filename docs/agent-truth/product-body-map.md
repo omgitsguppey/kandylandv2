@@ -1,12 +1,12 @@
 # Product Body Map
-Generated: 2026-05-26T07:06:12.348Z
-Current head: 6e80f4748fd209193320340ceb73fe01146cfa81
+Generated: 2026-05-26T07:28:19.215Z
+Current head: 3ece9b84fb13ce2e933e632d4f56588479e5bab2
 Status: pass
 ## Scope
 This source-only pass maps product features, surfaces, routes, telemetry events, materializers, metrics, journey steps, debug lanes, score gates, validators, and generated artifacts into canonical product body systems. It does not change payment runtime, GumDrop math, navigation, deployed runtime, provider state, or production data.
 ## Summary
 - body systems covered: 16/16
-- total limbs: 1041
+- total limbs: 1044
 - features mapped: 21
 - surfaces mapped: 17
 - telemetry events mapped: 748
@@ -15,7 +15,7 @@ This source-only pass maps product features, surfaces, routes, telemetry events,
 - materializers mapped: 18
 ## Debug Lane
 - default view: disconnected_only
-- connected: 1039
+- connected: 1042
 - disconnected: 1
 - orphaned: 1
 - duplicated: 0
@@ -36,31 +36,39 @@ This source-only pass maps product features, surfaces, routes, telemetry events,
 - notifications_pwa: primary=69, secondary=0, score=runtimeHealth, evidenceCompleteness, freshness
 - account_settings_support: primary=63, secondary=31, score=sourceHealth, evidenceCompleteness, regressionRisk, runtimeHealth
 - media_storage_access: primary=1, secondary=0, score=evidenceCompleteness, freshness
-- admin_debug_ops: primary=169, secondary=320, score=sourceHealth, runtimeHealth, evidenceCompleteness, freshness, regressionRisk, costRisk
-- telemetry_behavioral_intelligence: primary=247, secondary=483, score=sourceHealth, evidenceCompleteness, runtimeHealth, freshness, costRisk, regressionRisk
-- cost_runtime_infrastructure: primary=13, secondary=216, score=runtimeHealth, evidenceCompleteness, costRisk, sourceHealth, freshness, regressionRisk
+- admin_debug_ops: primary=172, secondary=321, score=sourceHealth, runtimeHealth, evidenceCompleteness, freshness, regressionRisk, costRisk
+- telemetry_behavioral_intelligence: primary=247, secondary=485, score=sourceHealth, evidenceCompleteness, runtimeHealth, freshness, costRisk, regressionRisk
+- cost_runtime_infrastructure: primary=13, secondary=217, score=runtimeHealth, evidenceCompleteness, costRisk, sourceHealth, freshness, regressionRisk
 ## Disconnected Limbs
 - metric:global:runtime_watch_time: orphaned; Keep runtime watch-time degraded until persisted watch-session evidence proves the metric in admin/debug output.
 - metric:global:external_ga4_evidence: deprecated; Keep external evidence archive-only unless an explicit guarded refresh artifact is produced.
 ## Dirty Files
 - CHANGELOG.md: release_artifact_expected
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/central-normalizer-spine.generated.json: current_generated_artifact_to_commit
-- agent/state/product-body-map.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-backlog-engine.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-signal-actionability.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/debug-signal-grouping.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/final-parity-telemetry-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/interpretive-brain-debug-triage.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/central-normalizer-spine.md: documentation_artifact_expected
-- docs/agent-truth/product-body-map.md: documentation_artifact_expected
+- docs/agent-truth/debug-backlog-engine.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-signal-actionability.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/debug-signal-grouping.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/final-parity-telemetry-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/interpretive-brain-debug-triage.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-central-normalizer-spine.ts: validator_artifact_expected
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- scripts/agent/validate-interpretive-brain-debug-triage.ts: validator_artifact_expected
 - src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
-- src/lib/product-integrity/central-normalizer-contract.ts: real_source_change_needs_review
 - src/lib/product-integrity/central-normalizer.ts: real_source_change_needs_review
+- src/lib/product-integrity/interpretive-brain-contract.ts: real_source_change_needs_review
+- src/lib/product-integrity/interpretive-brain.ts: real_source_change_needs_review
 - src/lib/product-integrity/product-body-map.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/central-normalizer-spine.spec.ts: test_artifact_expected
+- tests/unit/interpretive-brain-debug-triage.spec.ts: test_artifact_expected
 ## Open PR Classification
 - #302 🧭 Improve onboarding friction visibility and technical rescue signals: onboarding_telemetry_external_review_required
 - #301 📚 Reduce doctrine drift and banned-pattern reintroduction: doctrine_governance_external_review_required

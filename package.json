@@ -141,6 +141,7 @@
         "check:duration-math-normalization": "tsx scripts/agent/validate-duration-math-normalization.ts",
         "check:product-body-map": "tsx scripts/agent/validate-product-body-map.ts",
         "check:central-normalizer-spine": "tsx scripts/agent/validate-central-normalizer-spine.ts",
+        "check:interpretive-brain-debug-triage": "tsx scripts/agent/validate-interpretive-brain-debug-triage.ts",
         "check:refresh-safeguards": "tsx scripts/agent/validate-refresh-safeguards.ts",
         "check:self-healing-refresh-queue": "tsx scripts/agent/validate-self-healing-refresh-queue.ts",
         "check:admin-balance-body-cap": "tsx scripts/agent/validate-admin-balance-body-cap.ts",

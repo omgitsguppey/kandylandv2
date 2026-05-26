@@ -1,13 +1,75 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.92",
-  "betaReleaseCounter": 492,
+  "currentVersion": "1.4.93",
+  "betaReleaseCounter": 493,
   "channel": "beta",
-  "generatedAt": "2026-05-26T07:05:00.000Z",
-  "generatedAtUtc": "2026-05-26T07:05:00.000Z",
+  "generatedAt": "2026-05-26T07:25:00.000Z",
+  "generatedAtUtc": "2026-05-26T07:25:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.93",
+      "previousVersion": "1.4.92",
+      "betaReleaseCounter": 493,
+      "previousBetaReleaseCounter": 492,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(debug): unify interpretive brain",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T07:25:00.000Z",
+      "generatedAt": "2026-05-26T07:25:00.000Z",
+      "committedAtUtc": "2026-05-26T07:25:00.000Z",
+      "generatedAtUtc": "2026-05-26T07:25:00.000Z",
+      "category": "Improved",
+      "title": "Interpretive brain debug triage",
+      "updatedAtUtc": "2026-05-26T07:25:00.000Z",
+      "summary": "Unified debug triage around normalized product signals, root cause, score impact, and next actions.",
+      "userFacingTitle": "Interpretive brain debug triage",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added interpretive brain for normalized product signals.",
+        "Unified debug triage around root cause, score impact, and next actions.",
+        "Collapsed duplicate debug findings behind product health summary."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added typed interpretive brain contracts and source-only triage over normalized signals, journey facts, score signals, cost signals, formal gates, stale artifacts, and admin truth samples.",
+        "Added Product brain as the first Admin Debug tracking summary lane while keeping raw debug lanes drilldown-only.",
+        "Added validator evidence and unit coverage without production reads, provider calls, payment runtime changes, GumDrop math changes, or navigation changes."
+      ],
+      "affectedSurfaces": [
+        "Product brain",
+        "Admin Debug tracking summary",
+        "Central normalizer",
+        "Product body map",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/interpretive-brain-debug-triage.generated.json",
+        "docs/agent-truth/interpretive-brain-debug-triage.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-interpretive-brain-debug-triage.ts",
+        "src/lib/debug/debug-panel-tracking-summary.ts",
+        "src/lib/product-integrity/central-normalizer.ts",
+        "src/lib/product-integrity/interpretive-brain-contract.ts",
+        "src/lib/product-integrity/interpretive-brain.ts",
+        "src/lib/product-integrity/product-body-map.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/interpretive-brain-debug-triage.spec.ts"
+      ],
+      "effectiveChangeCount": 14,
+      "excludedGeneratedChangeCount": 1,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.92",
       "previousVersion": "1.4.91",
@@ -1542,63 +1604,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/surface-state-parity.spec.ts",
         "agent/state/surface-state-parity.generated.json",
         "docs/agent-truth/surface-state-parity.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.68",
-      "previousVersion": "1.4.67",
-      "betaReleaseCounter": 468,
-      "previousBetaReleaseCounter": 467,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(telemetry): standardize surface events",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T21:07:32.979Z",
-      "generatedAt": "2026-05-25T21:07:32.979Z",
-      "committedAtUtc": "2026-05-25T21:07:32.979Z",
-      "generatedAtUtc": "2026-05-25T21:07:32.979Z",
-      "category": "Improved",
-      "title": "Surface telemetry parity",
-      "updatedAtUtc": "2026-05-25T21:07:32.979Z",
-      "summary": "Standardized telemetry events across major product surfaces.",
-      "userFacingTitle": "Surface telemetry parity",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Standardized telemetry events across major product surfaces.",
-        "Mapped surface state and action events into the canonical event envelope.",
-        "Grouped missing telemetry parity issues in debug."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a canonical ten-event surface telemetry spine for the 17 registered major surfaces.",
-        "Registered generated surface events in the telemetry catalog and mapped them into canonical envelope, debug, feature activity, and source-ready person-metric classifications.",
-        "Added a deterministic surface telemetry parity validator, report, documentation, and unit coverage."
-      ],
-      "affectedSurfaces": [
-        "Public, user, creator, and admin surface telemetry",
-        "Telemetry catalog and event envelope mapping",
-        "Debug parity evidence and validation artifacts"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/telemetry/surface-telemetry-catalog-events.ts",
-        "src/lib/telemetry/surface-telemetry-contract.ts",
-        "src/lib/telemetry/surface-telemetry-registry.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/analytics/event-envelope-builder.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "scripts/agent/validate-surface-telemetry-parity.ts",
-        "tests/unit/surface-telemetry-parity.spec.ts",
-        "agent/state/surface-telemetry-parity.generated.json",
-        "docs/agent-truth/surface-telemetry-parity.md",
         "package.json",
         "public/kandydrops-release-notes.json",
         "src/lib/release-notes/public-release-notes.ts",

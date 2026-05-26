@@ -22,6 +22,7 @@ import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
 import { buildGlobalUserDedupeDebugLane } from "@/lib/analytics/global-user-dedupe-engine";
 import { COUNT_DEDUPLICATION_CONTRACT_VERSION } from "@/lib/math/count-deduplication-normalizer";
 import { DURATION_MATH_CONTRACT_VERSION } from "@/lib/math/duration-math-normalizer";
+import { INTERPRETIVE_BRAIN_CONTRACT_VERSION } from "@/lib/product-integrity/interpretive-brain";
 import { PRODUCT_BODY_MAP_VERSION } from "@/lib/product-integrity/product-body-map";
 import { CENTRAL_NORMALIZER_CONTRACT_VERSION } from "@/lib/product-integrity/central-normalizer";
 import { buildDropWatchTimeDebugLane } from "@/lib/analytics/drop-watch-time-contract";
@@ -34,6 +35,7 @@ import { classifyAdminSummaryLaneStatus, type AdminSummaryLaneStatus } from "@/l
 import { classifyConfigRuntimeSampleStatus, type ConfigRuntimeSampleStatus } from "@/lib/debug/config-runtime-sample-status-classifier";
 
 export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
+  "product_brain",
   "identity_handoff",
   "consent_tracking_mode",
   "event_envelope",
@@ -138,6 +140,7 @@ export type DebugTrackingSummary = {
 type SummaryInput = Record<string, any>;
 
 const TRACKING_GROUPS = [
+  "product_brain",
   "identity",
   "consent",
   "event_envelope",
@@ -247,6 +250,30 @@ function makeLane(input: Omit<DebugTrackingSummaryLane, "rawDetailsDefaultOpen" 
 }
 
 export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugTrackingSummary {
+  const productBrain = input.interpretiveBrainDebugTriage?.debugLane ?? {};
+  const productBrainTopActions = toNumber(productBrain.topActionCount);
+  const productBrainCritical = toNumber(productBrain.criticalFindingCount);
+  const productBrainScoreBelow80 = toNumber(productBrain.scoreBelow80Reasons);
+  const productBrainFormal = toNumber(productBrain.formalGateFindings);
+  const productBrainCost = toNumber(productBrain.costRiskFindings);
+  const productBrainStale = toNumber(productBrain.staleArtifactFindings);
+  const productBrainInFlight = toNumber(productBrain.inFlightFindings);
+  const productBrainUnsafe = toNumber(productBrain.unsafeUnknownCount);
+  const productBrainWarnings = productBrainScoreBelow80 + productBrainFormal + productBrainCost + productBrainStale + productBrainUnsafe;
+  const productBrainStatus = classifyAdminSummaryLaneStatus({
+    laneId: "product_brain",
+    sourceContractPresent: true,
+    sampleLoaded: productBrainTopActions > 0,
+    configTruthHealthy: productBrainCritical === 0 && productBrainUnsafe === 0,
+    counts: [
+      productBrainTopActions,
+      toNumber(productBrain.bodySystemsHealthy),
+      toNumber(productBrain.bodySystemsDegraded),
+      toNumber(productBrain.bodySystemsBlocked),
+    ],
+    warningCount: productBrainWarnings,
+    criticalCount: productBrainCritical,
+  }).status;
   const identityStatus = toStatus(input.identityHandoff?.status) === "unknown" ? "source_ready_collecting" : toStatus(input.identityHandoff?.status);
   const identityWarnings = input.identityHandoff?.duplicateCountGuardActive === false ? 1 : 0;
   const eventMissingCount = Array.isArray(input.eventEnvelope?.missingEnvelopeFieldsByFeature)
@@ -780,6 +807,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     : "degraded";
 
   const lanes: DebugTrackingSummaryLane[] = [
+    makeLane({
+      id: "product_brain",
+      label: "Product brain",
+      trackingSystem: "product_brain",
+      sourceOwner: "product-integrity",
+      sourceOfTruth: "src/lib/product-integrity/interpretive-brain.ts",
+      status: productBrainStatus,
+      severity: severityFromCounts(productBrainCritical, productBrainWarnings, productBrainStatus),
+      scoreImpact: productBrainWarnings > 0 || productBrainCritical > 0 ? "high" : "medium",
+      primarySignal: `Contract=${INTERPRETIVE_BRAIN_CONTRACT_VERSION}; topActions=${productBrainTopActions}; critical=${productBrainCritical}; scoreBelow80=${productBrainScoreBelow80}; formalGates=${productBrainFormal}; costRisks=${productBrainCost}; staleArtifacts=${productBrainStale}; inFlight=${productBrainInFlight}.`,
+      criticalCount: productBrainCritical,
+      warningCount: productBrainWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#product-brain",
+    }),
     makeLane({
       id: "identity_handoff",
       label: "Identity handoff",
