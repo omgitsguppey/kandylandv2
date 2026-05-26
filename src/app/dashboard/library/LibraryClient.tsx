@@ -70,19 +70,30 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [gridCols, setGridCols] = useState<2 | 3>(2);
 
+    // ⚡ Bolt: Eliminate multiple intermediate array allocations (.filter) by using a single-pass loop.
+    // This reduces GC pressure when typing in the search box, improving rendering responsiveness.
     const filteredDrops = useMemo(() => {
-        let res = unlockedDrops;
-        if (searchQuery) {
-            const lower = searchQuery.toLowerCase();
-            res = res.filter(d => 
-                d.title.toLowerCase().includes(lower) || 
-                (d.creatorId && d.creatorId.toLowerCase().includes(lower))
-            );
+        const filtered: Drop[] = [];
+        const lowerSearch = searchQuery ? searchQuery.toLowerCase() : "";
+        const filteringCategory = selectedCategory !== "All";
+
+        for (const d of unlockedDrops) {
+            let matches = true;
+            if (filteringCategory && d.creatorId !== selectedCategory) {
+                matches = false;
+            } else if (lowerSearch) {
+                const titleMatch = d.title.toLowerCase().includes(lowerSearch);
+                const creatorMatch = d.creatorId && d.creatorId.toLowerCase().includes(lowerSearch);
+                if (!titleMatch && !creatorMatch) {
+                    matches = false;
+                }
+            }
+
+            if (matches) {
+                filtered.push(d);
+            }
         }
-        if (selectedCategory !== "All") {
-            res = res.filter(d => d.creatorId === selectedCategory);
-        }
-        return res;
+        return filtered;
     }, [unlockedDrops, searchQuery, selectedCategory]);
 
     const categories = useMemo(() => {

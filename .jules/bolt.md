@@ -25,3 +25,7 @@
 ## 2024-05-18 - Nested array filters in admin dashboard loops
 **Learning:** Found multiple instances where an array was `.filter()`ed inside iterating functions or map closures (e.g. `allTaskDefinitions.filter(definition => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === eventName)` inside telemetry iterations in `admin/debug/route.ts`). This is an O(N^2) operation that degrades performance linearly as logs or catalogs grow.
 **Action:** When searching elements by a specific property inside iterative loops, pre-compute a `Map` that groups the elements by that property first, turning nested `O(N)` scans into `O(1)` Map lookups.
+
+## 2026-04-22 - Component Render Blocking via Overloaded Dependencies
+**Learning:** Consolidating multiple filtered lists into a single `useMemo` block (to avoid redundant iterations over the same data source) can actually *degrade* performance if the resulting dependencies update at different frequencies. In `LibraryClient.tsx`, grouping `filteredDrops` (depends on fast-updating `searchQuery`) with `categories` (depends only on static `unlockedDrops`) forced the `categories` set extraction and sorting to re-run on every keystroke, causing severe GC pressure.
+**Action:** When optimizing loop consolidations, evaluate the dependencies. Only merge derived state loops that share the exact same dependency lifecycle. Leave static or slowly-updating aggregations in their own isolated `useMemo` hooks.

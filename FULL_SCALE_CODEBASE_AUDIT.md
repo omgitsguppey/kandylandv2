@@ -13887,3 +13887,6 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-04-22] POST: Re-optimization in LibraryClient.tsx
+- **Findings/Verification:** Realized that merging `filteredDrops` and `categories` `useMemo` blocks causes an anti-pattern, because search keystrokes would force a re-run of the `categories` set extraction and sorting. Instead, modified *only* the `filteredDrops` `useMemo` block to use a single-pass `for...of` loop, eliminating redundant array `.filter` allocations. Verified visually and functionally. Cleaned up throwaway dev logs.
