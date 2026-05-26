@@ -61,6 +61,19 @@ function trackedFiles() {
     .filter(Boolean);
 }
 
+function validatorMetadataFor(eventName: string, index: number): CanonicalEventEnvelope["metadata"] {
+  if (/server_purchase_verified|purchase_verified|paypal_capture_completed|purchase_completed|gumdrops_purchase_completed/iu.test(eventName)) {
+    return { providerOrderId: `validator_order_${index}` };
+  }
+  if (/daily_task_reward_granted|daily_task_claimed/iu.test(eventName)) {
+    return { taskId: `validator_task_${index}`, resetWindowId: `validator_reset_${index}` };
+  }
+  if (/drop_preview|drop_opened|creator_profile|creator_card|search_result|notification|chat|message/iu.test(eventName)) {
+    return { objectId: `validator_object_${index}` };
+  }
+  return {};
+}
+
 function envelope(eventName: string, index: number): CanonicalEventEnvelope {
   return {
     eventId: `person_metrics_validator:${eventName}:${index}`,
@@ -82,7 +95,7 @@ function envelope(eventName: string, index: number): CanonicalEventEnvelope {
     debugVisibility: "admin_debug",
     scoreImpact: "evidence_completeness",
     privacyClass: eventName.startsWith("watch_session") || eventName === "viewer_watch_checkpoint" ? "behavioral" : "minimal_product",
-    metadata: {},
+    metadata: validatorMetadataFor(eventName, index),
     pipelineStatus: "normal",
     unavailableGuestReason: null,
     includeInUserBehavior: true,

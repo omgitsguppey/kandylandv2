@@ -1,0 +1,307 @@
+{
+  "reportKey": "global-user-counting-math",
+  "generatedAtUtc": "2026-05-26T09:47:29.898Z",
+  "currentHead": "f34a689d0212cb13f66e801d60c0c2022eb0bd10",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "mutationAllowed": false,
+  "fakeMetricsUsed": false,
+  "version": "2026.05.global-user-counting-math.1",
+  "decisions": {
+    "linkedGlobal": {
+      "scope": "global",
+      "count": true,
+      "dedupeKey": "surface_viewed:drop_preview_opened:unknown:link:link_1:29663160",
+      "reason": "count_unique_action_once",
+      "explanation": "drop_preview_opened global count decision uses canonical key surface_viewed:drop_preview_opened:unknown:link:link_1:29663160.",
+      "suppressedDuplicateKey": null
+    },
+    "linkedGuest": {
+      "scope": "guest",
+      "count": false,
+      "dedupeKey": "surface_viewed:drop_preview_opened:unknown:link:link_1:29663160",
+      "reason": "linked_duplicate_suppressed",
+      "explanation": "drop_preview_opened counts once globally and once for the linked person; guest/signed-in duplicates are suppressed.",
+      "suppressedDuplicateKey": "guest:guest_1"
+    },
+    "linkedSignedIn": {
+      "scope": "signedIn",
+      "count": true,
+      "dedupeKey": "surface_viewed:drop_preview_opened:unknown:link:link_1:29663160",
+      "reason": "signed_in_authenticated_scope",
+      "explanation": "drop_preview_opened signedIn count decision uses canonical key surface_viewed:drop_preview_opened:unknown:link:link_1:29663160.",
+      "suppressedDuplicateKey": null
+    },
+    "linkedPerson": {
+      "scope": "linkedPerson",
+      "count": true,
+      "dedupeKey": "surface_viewed:drop_preview_opened:unknown:link:link_1:29663160",
+      "reason": "linked_person_scope",
+      "explanation": "drop_preview_opened counts once globally and once for the linked person; guest/signed-in duplicates are suppressed.",
+      "suppressedDuplicateKey": "guest:guest_1"
+    },
+    "linkedSuppression": {
+      "input": {
+        "eventName": "drop_preview_opened",
+        "eventId": "signed_evt",
+        "actorKind": "signed_in_user",
+        "identityState": "logged_in_linked_guest",
+        "identityConfidence": "linked",
+        "userId": "user_1",
+        "guestId": "guest_1",
+        "linkId": "link_1",
+        "objectId": "drop_1",
+        "timestamp": "2026-05-26T10:00:03.000Z"
+      },
+      "suppressed": true,
+      "suppressedDuplicateKey": "guest:guest_1",
+      "reason": "linked_duplicate_suppressed",
+      "explanation": "drop_preview_opened counts once globally and once for the linked person; guest/signed-in duplicates are suppressed."
+    },
+    "admin": {
+      "scope": "global",
+      "count": false,
+      "dedupeKey": "surface_viewed:admin_debug_viewed:unknown:user:admin_1:0",
+      "reason": "admin_projection_excluded",
+      "explanation": "Admin projection events never count as user behavior.",
+      "suppressedDuplicateKey": null
+    },
+    "system": {
+      "scope": "global",
+      "count": false,
+      "dedupeKey": "notification:unknown:unknown:0",
+      "reason": "system_excluded",
+      "explanation": "System events never count as user behavior.",
+      "suppressedDuplicateKey": null
+    },
+    "creator": {
+      "scope": "creatorRole",
+      "count": true,
+      "dedupeKey": "surface_viewed:creator_profile_opened:unknown:user:creator_1:0",
+      "reason": "creator_role_signed_in_scope",
+      "explanation": "Creator role metrics are signed-in user metrics with a creator role and do not create a separate person.",
+      "suppressedDuplicateKey": null,
+      "createsSeparatePerson": false
+    },
+    "paymentMissing": {
+      "scope": "global",
+      "count": false,
+      "dedupeKey": "payment_approval:missing_provider_fingerprint",
+      "reason": "payment_provider_fingerprint_required",
+      "explanation": "Payment approval counts require a provider/order fingerprint.",
+      "suppressedDuplicateKey": null
+    },
+    "paymentPresent": {
+      "scope": "global",
+      "count": true,
+      "dedupeKey": "payment_approval:order_1",
+      "reason": "count_unique_action_once",
+      "explanation": "gumdrops_purchased global count decision uses canonical key payment_approval:order_1.",
+      "suppressedDuplicateKey": null
+    },
+    "taskMissing": {
+      "scope": "global",
+      "count": false,
+      "dedupeKey": "task_reward:daily_checkin:unknown:user:user_1",
+      "reason": "task_reset_window_required",
+      "explanation": "Task reward counts require taskId plus resetWindowId.",
+      "suppressedDuplicateKey": null
+    }
+  },
+  "hydrationSummary": {
+    "globalDropOpens": 1,
+    "guestDropOpens": 0,
+    "signedInDropOpens": 0,
+    "linkedPersonDropOpens": 1,
+    "duplicateSuppressionCount": 1
+  },
+  "debugLane": {
+    "label": "Global user counting math",
+    "duplicateSuppressionVisible": true,
+    "duplicateSuppressionReason": "drop_preview_opened counts once globally and once for the linked person; guest/signed-in duplicates are suppressed.",
+    "rawDetailsDefaultOpen": false
+  },
+  "scoreBefore": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreAfter": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/global-user-counting-math.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/global-user-counting-math.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-global-user-counting-math.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/global-user-counting-math.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/global-user-counting-math.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/person-metrics-hydration.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "openPullRequests": [
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 302,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "classification": "onboarding_telemetry_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 301,
+      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
+      "classification": "doctrine_governance_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 300,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
+      "classification": "architecture_refactor_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 299,
+      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 298,
+      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 297,
+      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 296,
+      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 295,
+      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 294,
+      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 293,
+      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
+      "classification": "security_patch_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 292,
+      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+      "classification": "performance_patch_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 291,
+      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+      "classification": "accessibility_patch_external_review_required"
+    }
+  ],
+  "validationFailures": []
+}

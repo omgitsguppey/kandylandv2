@@ -1,6 +1,15 @@
 import type { ActorKind, IdentityConfidence, IdentityState } from "@/lib/analytics/identity-handoff-contract";
 import type { CanonicalEventEnvelope, EventEnvelopeMetadata } from "@/lib/analytics/event-envelope-contract";
 import type { ConsentMode } from "@/lib/privacy/consent-tracking-contract";
+import {
+  calculateCreatorRoleCountDecision,
+  calculateGlobalCountDecision,
+  calculateGuestCountDecision,
+  calculateLinkedPersonCountDecision,
+  calculateSignedInCountDecision,
+  suppressDuplicateLinkedAction,
+  type GlobalUserScopeCountDecision,
+} from "@/lib/math/global-user-counting-math";
 
 import {
   getPersonMetricDefinition,
@@ -30,6 +39,10 @@ export interface PersonMetricCandidate {
   identityConfidence: IdentityConfidence;
   consentMode: ConsentMode;
   sessionId: string;
+  timestamp: string;
+  featureId: string;
+  surface: string;
+  includeInUserBehavior: boolean;
   guestId: string | null;
   userId: string | null;
   linkId: string | null;
@@ -48,6 +61,14 @@ export interface PersonMetricCountDecision {
   countForSignedInUser: boolean;
   countForLinkedPerson: boolean;
   suppressedDuplicateKey: string | null;
+  scopeDecisions: {
+    global: GlobalUserScopeCountDecision;
+    guest: GlobalUserScopeCountDecision;
+    signedIn: GlobalUserScopeCountDecision;
+    linkedPerson: GlobalUserScopeCountDecision;
+    creatorRole: GlobalUserScopeCountDecision;
+  };
+  explanation: string;
   blockedReason:
     | "none"
     | "metric_unknown"
@@ -56,7 +77,9 @@ export interface PersonMetricCountDecision {
     | "identity_confidence_too_low"
     | "legacy_unknown_not_exact_person"
     | "admin_projection_excluded"
-    | "system_excluded";
+    | "system_excluded"
+    | "payment_provider_fingerprint_required"
+    | "task_reset_window_required";
 }
 
 const FORBIDDEN_METADATA_KEYS = [
@@ -124,6 +147,10 @@ export function buildPersonMetricCandidate(input: PersonMetricEventInput): Perso
     identityConfidence: input.identityConfidence,
     consentMode: input.consentMode,
     sessionId: input.sessionId,
+    timestamp: input.timestamp ?? new Date(0).toISOString(),
+    featureId: input.featureId ?? "unknown_feature",
+    surface: input.surface ?? "unknown_surface",
+    includeInUserBehavior: input.includeInUserBehavior !== false,
     guestId,
     userId,
     linkId,
@@ -152,39 +179,110 @@ export function shouldCountPersonMetricEvent(candidate: PersonMetricCandidate): 
     countForSignedInUser: false,
     countForLinkedPerson: false,
     suppressedDuplicateKey: null,
+    scopeDecisions: scopeDecisionsFor(candidate),
+    explanation: "",
   } satisfies Omit<PersonMetricCountDecision, "blockedReason">;
 
   if (candidate.actorKind === "admin_projection") {
-    return { ...baseDecision, countGlobally: false, blockedReason: "admin_projection_excluded" };
+    return withExplanation({ ...baseDecision, countGlobally: false, blockedReason: "admin_projection_excluded" });
   }
   if (candidate.actorKind === "system") {
-    return { ...baseDecision, countGlobally: false, blockedReason: "system_excluded" };
+    return withExplanation({ ...baseDecision, countGlobally: false, blockedReason: "system_excluded" });
   }
   if (candidate.legacyUnknown) {
-    return { ...baseDecision, blockedReason: "legacy_unknown_not_exact_person" };
+    const global = baseDecision.scopeDecisions.global;
+    return withExplanation({
+      ...baseDecision,
+      countGlobally: global.count,
+      blockedReason: "legacy_unknown_not_exact_person",
+    });
   }
   if (!consentAllowsMetric(candidate.metric, candidate.consentMode)) {
-    return {
+    return withExplanation({
       ...baseDecision,
       countGlobally: candidate.metric.consentEligibility.depth === "behavioral" ? true : false,
       blockedReason: candidate.metric.consentEligibility.depth === "behavioral"
         ? "consent_blocks_behavioral_metric"
         : "consent_blocks_metric",
-    };
+    });
   }
   if (!confidenceAtLeast(candidate.identityConfidence, candidate.metric.identityConfidence.minimum)) {
-    return { ...baseDecision, blockedReason: "identity_confidence_too_low" };
+    return withExplanation({ ...baseDecision, blockedReason: "identity_confidence_too_low" });
   }
 
-  const linked = Boolean(candidate.linkId && candidate.userId);
-  const hasUser = Boolean(candidate.userId);
-  const hasGuest = Boolean(candidate.guestId);
-  return {
+  const decisions = baseDecision.scopeDecisions;
+  const blockedReason = decisions.global.reason === "payment_provider_fingerprint_required"
+    ? "payment_provider_fingerprint_required"
+    : decisions.global.reason === "task_reset_window_required"
+      ? "task_reset_window_required"
+      : "none";
+  return withExplanation({
     ...baseDecision,
-    countForGuest: candidate.metric.aggregation.guest.enabled && hasGuest && !linked,
-    countForSignedInUser: candidate.metric.aggregation.signedIn.enabled && hasUser,
-    countForLinkedPerson: candidate.metric.aggregation.linkedPerson.enabled && linked,
-    suppressedDuplicateKey: linked && candidate.guestId ? `guest:${candidate.guestId}` : null,
-    blockedReason: "none",
+    countGlobally: decisions.global.count,
+    countForGuest: candidate.metric.aggregation.guest.enabled && decisions.guest.count,
+    countForSignedInUser: candidate.metric.aggregation.signedIn.enabled && decisions.signedIn.count,
+    countForLinkedPerson: candidate.metric.aggregation.linkedPerson.enabled && decisions.linkedPerson.count,
+    suppressedDuplicateKey: suppressDuplicateLinkedAction(candidate).suppressedDuplicateKey,
+    blockedReason,
+  });
+}
+
+function scopeInput(candidate: PersonMetricCandidate) {
+  const metadata = candidate.metadata;
+  const stringMeta = (key: string) => typeof metadata[key] === "string" ? metadata[key] as string : null;
+  return {
+    eventName: candidate.eventName,
+    eventId: candidate.eventId,
+    actorKind: candidate.actorKind,
+    identityState: candidate.identityState,
+    identityConfidence: candidate.identityConfidence,
+    userId: candidate.userId,
+    guestId: candidate.guestId,
+    linkId: candidate.linkId,
+    sessionId: candidate.sessionId,
+    surface: candidate.surface,
+    featureId: candidate.featureId,
+    timestamp: candidate.timestamp,
+    objectId: stringMeta("objectId") ?? stringMeta("dropId") ?? stringMeta("creatorId") ?? stringMeta("messageId") ?? stringMeta("taskId"),
+    idempotencyKey: stringMeta("idempotencyKey"),
+    providerOrderId: stringMeta("providerOrderId") ?? stringMeta("paypalOrderId"),
+    providerPaymentId: stringMeta("providerPaymentId") ?? stringMeta("paypalCaptureId"),
+    orderId: stringMeta("orderId"),
+    dropId: stringMeta("dropId"),
+    unlockId: stringMeta("unlockId"),
+    watchSessionId: stringMeta("watchSessionId"),
+    messageId: stringMeta("messageId"),
+    taskId: stringMeta("taskId"),
+    resetWindowId: stringMeta("resetWindowId"),
+    intentId: stringMeta("intentId"),
+    recipientId: stringMeta("recipientId"),
+    roles: candidate.actorKind === "creator_user" ? ["creator"] : [],
+    legacyUnknown: candidate.legacyUnknown,
+    replayOfEventId: stringMeta("replayOfEventId"),
+    retryAttempt: typeof metadata.retryAttempt === "number" ? metadata.retryAttempt : null,
+  };
+}
+
+function scopeDecisionsFor(candidate: PersonMetricCandidate): PersonMetricCountDecision["scopeDecisions"] {
+  const input = scopeInput(candidate);
+  return {
+    global: calculateGlobalCountDecision(input),
+    guest: calculateGuestCountDecision(input),
+    signedIn: calculateSignedInCountDecision(input),
+    linkedPerson: calculateLinkedPersonCountDecision(input),
+    creatorRole: calculateCreatorRoleCountDecision(input),
+  };
+}
+
+function withExplanation(decision: PersonMetricCountDecision): PersonMetricCountDecision {
+  return {
+    ...decision,
+    explanation: [
+      decision.scopeDecisions.global.explanation,
+      decision.scopeDecisions.guest.explanation,
+      decision.scopeDecisions.signedIn.explanation,
+      decision.scopeDecisions.linkedPerson.explanation,
+      decision.scopeDecisions.creatorRole.explanation,
+    ].join(" "),
   };
 }

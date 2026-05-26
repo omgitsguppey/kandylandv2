@@ -199,22 +199,83 @@ function addToScope(scope: PersonMetricScopeSummary, metric: PersonMetricDefinit
   if (suppressedDuplicate) entry.suppressedDuplicateCount += 1;
 }
 
-function applyDecision(input: {
-  scopes: Record<PersonMetricHydrationScope, PersonMetricScopeSummary>;
+type PendingMetricDecision = {
   metric: PersonMetricDefinition;
   envelope: CanonicalEventEnvelope;
   decision: PersonMetricCountDecision;
+};
+
+function applyDecisionGroup(input: {
+  scopes: Record<PersonMetricHydrationScope, PersonMetricScopeSummary>;
+  group: PendingMetricDecision[];
 }) {
-  const { scopes, metric, envelope, decision } = input;
-  if (decision.countGlobally) addToScope(scopes.global, metric, envelope, decision.identityConfidence);
-  if (decision.countForGuest) addToScope(scopes.guest, metric, envelope, decision.identityConfidence);
-  if (decision.countForSignedInUser) addToScope(scopes.signedIn, metric, envelope, decision.identityConfidence);
-  if (decision.countForLinkedPerson) {
-    addToScope(scopes.linkedPerson, metric, envelope, "linked", Boolean(decision.suppressedDuplicateKey));
+  const { scopes, group } = input;
+  const linked = group.find((entry) => entry.decision.countForLinkedPerson);
+  const hasLinkedDuplicatePair = Boolean(linked && group.length > 1);
+  if (linked && hasLinkedDuplicatePair) {
+    if (linked.decision.countGlobally) addToScope(scopes.global, linked.metric, linked.envelope, linked.decision.identityConfidence);
+    addToScope(scopes.linkedPerson, linked.metric, linked.envelope, "linked", true);
+    return {
+      hydrated: 1,
+      suppressedDuplicates: Math.max(1, group.length - 1),
+    };
   }
-  if (decision.countForSignedInUser && envelope.actorKind === "creator_user") {
-    addToScope(scopes.creatorRole, metric, envelope, decision.identityConfidence);
+
+  const firstGlobal = group.find((entry) => entry.decision.countGlobally);
+  if (firstGlobal) addToScope(scopes.global, firstGlobal.metric, firstGlobal.envelope, firstGlobal.decision.identityConfidence);
+
+  const seenGuestKeys = new Set<string>();
+  const seenSignedInKeys = new Set<string>();
+  const seenLinkedPersonKeys = new Set<string>();
+  const seenCreatorKeys = new Set<string>();
+  let hydrated = firstGlobal ? 1 : 0;
+  let suppressedDuplicates = Math.max(0, group.filter((entry) => entry.decision.countGlobally).length - (firstGlobal ? 1 : 0));
+
+  for (const entry of group) {
+    const { metric, envelope, decision } = entry;
+    if (decision.countForGuest) {
+      const key = decision.scopeDecisions.guest.dedupeKey;
+      if (!seenGuestKeys.has(key)) {
+        addToScope(scopes.guest, metric, envelope, decision.identityConfidence);
+        seenGuestKeys.add(key);
+        hydrated += 1;
+      } else {
+        suppressedDuplicates += 1;
+      }
+    }
+    if (decision.countForSignedInUser) {
+      const key = decision.scopeDecisions.signedIn.dedupeKey;
+      if (!seenSignedInKeys.has(key)) {
+        addToScope(scopes.signedIn, metric, envelope, decision.identityConfidence);
+        seenSignedInKeys.add(key);
+        hydrated += 1;
+      } else {
+        suppressedDuplicates += 1;
+      }
+    }
+    if (decision.countForLinkedPerson) {
+      const key = decision.scopeDecisions.linkedPerson.dedupeKey;
+      if (!seenLinkedPersonKeys.has(key)) {
+        addToScope(scopes.linkedPerson, metric, envelope, "linked");
+        seenLinkedPersonKeys.add(key);
+        hydrated += 1;
+      } else {
+        suppressedDuplicates += 1;
+      }
+    }
+    if (decision.scopeDecisions.creatorRole.count) {
+      const key = decision.scopeDecisions.creatorRole.dedupeKey;
+      if (!seenCreatorKeys.has(key)) {
+        addToScope(scopes.creatorRole, metric, envelope, decision.identityConfidence);
+        seenCreatorKeys.add(key);
+        hydrated += 1;
+      } else {
+        suppressedDuplicates += 1;
+      }
+    }
   }
+
+  return { hydrated, suppressedDuplicates };
 }
 
 function legacyMetricFor(candidate: LegacyEventRecoveryCandidate) {
@@ -274,6 +335,7 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
   let duplicateGuestUserCountsSuppressed = 0;
   let pageTimeCountsAsWatchTime = false;
   let checkoutStartCountsAsPaymentSuccess = false;
+  const pending = new Map<string, PendingMetricDecision[]>();
 
   for (const envelope of envelopes) {
     const validation = validateEventEnvelope(envelope);
@@ -294,12 +356,17 @@ export function hydratePersonMetrics(input: PersonMetricsHydrationInput = {}): P
       });
       const decision = shouldCountPersonMetricEvent(candidate);
       if (decision.blockedReason !== "none" && !decision.countGlobally) continue;
-      applyDecision({ scopes, metric, envelope, decision });
-      if (decision.countGlobally || decision.countForGuest || decision.countForSignedInUser || decision.countForLinkedPerson) {
-        eventEnvelopesHydrated += 1;
-      }
-      if (decision.suppressedDuplicateKey) duplicateGuestUserCountsSuppressed += 1;
+      const groupKey = `${metric.id}:${decision.scopeDecisions.global.dedupeKey}`;
+      const existing = pending.get(groupKey) ?? [];
+      existing.push({ metric, envelope, decision });
+      pending.set(groupKey, existing);
     }
+  }
+
+  for (const group of pending.values()) {
+    const result = applyDecisionGroup({ scopes, group });
+    eventEnvelopesHydrated += result.hydrated;
+    duplicateGuestUserCountsSuppressed += result.suppressedDuplicates;
   }
 
   let candidatesHydrated = 0;
@@ -712,6 +779,12 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/global-user-dedupe-normalization.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/global-user-counting-math.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/global-user-counting-math.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-global-user-counting-math.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/global-user-counting-math.spec.ts") return "test_artifact_expected";
+  if (normalized === "src/lib/math/global-user-counting-math.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/analytics/person-metrics-engine.ts") return "real_source_change_needs_review";
   if (normalized === "agent/state/count-deduplication-normalization.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/count-deduplication-normalization.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-count-deduplication-normalization.ts") return "validator_artifact_expected";

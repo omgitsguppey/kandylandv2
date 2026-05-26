@@ -84,7 +84,7 @@ describe("person metrics hydration", () => {
     expect(linked.metrics.drop_opens).toMatchObject({
       count: 1,
       confidence: "linked",
-      suppressedDuplicateCount: 1,
+      suppressedDuplicateCount: 0,
     });
     expect(hydrateGuestMetrics({ envelopes: [linkedEnvelope] }).metrics.drop_opens.count).toBe(0);
   });

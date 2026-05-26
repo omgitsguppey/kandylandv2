@@ -335,6 +335,7 @@
         "check:person-metrics-contract": "tsx scripts/agent/validate-person-metrics-contract.ts",
         "check:person-metrics-hydration": "tsx scripts/agent/validate-person-metrics-hydration.ts",
         "check:global-user-dedupe-normalization": "tsx scripts/agent/validate-global-user-dedupe-normalization.ts",
+        "check:global-user-counting-math": "tsx scripts/agent/validate-global-user-counting-math.ts",
         "check:drop-watch-time-accuracy": "tsx scripts/agent/validate-drop-watch-time-accuracy.ts",
         "check:session-bounce-calculation": "tsx scripts/agent/validate-session-bounce-calculation.ts",
         "check:user-journey-behavioral-intelligence": "tsx scripts/agent/validate-user-journey-behavioral-intelligence.ts",

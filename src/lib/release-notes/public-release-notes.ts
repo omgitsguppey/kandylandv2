@@ -1,13 +1,75 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.99",
-  "betaReleaseCounter": 499,
+  "currentVersion": "1.5.0",
+  "betaReleaseCounter": 500,
   "channel": "beta",
-  "generatedAt": "2026-05-26T09:15:00.000Z",
-  "generatedAtUtc": "2026-05-26T09:15:00.000Z",
+  "generatedAt": "2026-05-26T10:00:00.000Z",
+  "generatedAtUtc": "2026-05-26T10:00:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.0",
+      "previousVersion": "1.4.99",
+      "betaReleaseCounter": 500,
+      "previousBetaReleaseCounter": 499,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): normalize user global counts",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T10:00:00.000Z",
+      "generatedAt": "2026-05-26T10:00:00.000Z",
+      "committedAtUtc": "2026-05-26T10:00:00.000Z",
+      "generatedAtUtc": "2026-05-26T10:00:00.000Z",
+      "category": "Improved",
+      "title": "Global user counting math",
+      "updatedAtUtc": "2026-05-26T10:00:00.000Z",
+      "summary": "Finalized global, guest, signed-in, linked-person, and creator-role counting math.",
+      "userFacingTitle": "Global user counting math",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Finalized global, guest, signed-in, linked-person, and creator-role counting math.",
+        "Added exact dedupe windows and duplicate suppression reasons.",
+        "Prevented linked guest/user actions from inflating metrics."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added canonical global-user counting math for global, guest, signed-in, linked-person, and creator-role scopes.",
+        "Routed person metrics through scope-aware dedupe decisions with duplicate suppression debug visibility.",
+        "Kept payment runtime, GumDrop math, production data, provider calls, deploys, and navigation unchanged."
+      ],
+      "affectedSurfaces": [
+        "Global user counting math",
+        "Person metrics hydration",
+        "Global user dedupe validator",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/global-user-counting-math.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/global-user-counting-math.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-global-user-counting-math.ts",
+        "scripts/agent/validate-global-user-dedupe-normalization.ts",
+        "scripts/agent/validate-person-metrics-hydration.ts",
+        "src/lib/analytics/person-metrics-engine.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/math/global-user-counting-math.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/global-user-counting-math.spec.ts"
+      ],
+      "effectiveChangeCount": 15,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.99",
       "previousVersion": "1.4.98",
@@ -1554,82 +1616,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 0,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.75",
-      "previousVersion": "1.4.74",
-      "betaReleaseCounter": 475,
-      "previousBetaReleaseCounter": 474,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(discovery): harden search telemetry cost",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T23:12:39.965Z",
-      "generatedAt": "2026-05-25T23:12:39.965Z",
-      "committedAtUtc": "2026-05-25T23:12:39.965Z",
-      "generatedAtUtc": "2026-05-25T23:12:39.965Z",
-      "category": "Improved",
-      "title": "Search discovery telemetry cost",
-      "updatedAtUtc": "2026-05-25T23:12:39.965Z",
-      "summary": "Added search and discovery telemetry with cost-safe query behavior.",
-      "userFacingTitle": "Search discovery telemetry cost",
-      "surfaceCategory": "Drops & viewer",
-      "bullets": [
-        "Added search and discovery telemetry with cost-safe query behavior.",
-        "Tracked zero-result searches, result clicks, and search failures.",
-        "Protected raw search text from broad telemetry exposure."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added canonical search telemetry and search cost contracts for focus, query, submit, results, zero-result, click, failure, and clear events.",
-        "Wired Drops search to emit redacted query length/hash/category telemetry after the debounce window without backend calls per keystroke.",
-        "Mapped search events into telemetry catalog, behavioral event facts, person metrics, debug evidence, and source-only validation without production reads."
-      ],
-      "affectedSurfaces": [
-        "Drops search",
-        "Discovery filters",
-        "Search telemetry and cost policy",
-        "Search/discovery debug evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/search-discovery-cost.generated.json",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "docs/agent-truth/search-discovery-cost.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-search-discovery-cost.ts",
-        "src/app/drops/DropsClient.tsx",
-        "src/components/StickyFilterBar.tsx",
-        "src/hooks/useDropsSearchTelemetry.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/behavioral/search-intent-profile.ts",
-        "src/lib/behavioral/tracking-surface-map.ts",
-        "src/lib/discovery/search-cost-contract.ts",
-        "src/lib/discovery/search-telemetry-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/search-discovery-cost.spec.ts",
-        "tests/unit/user-management-refactor.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
     }
   ]
-} as const satisfies PublicReleaseNotesDocument;
+} satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,
