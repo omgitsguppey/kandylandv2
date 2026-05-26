@@ -1,13 +1,73 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.98",
-  "betaReleaseCounter": 498,
+  "currentVersion": "1.4.99",
+  "betaReleaseCounter": 499,
   "channel": "beta",
-  "generatedAt": "2026-05-26T09:00:00.000Z",
-  "generatedAtUtc": "2026-05-26T09:00:00.000Z",
+  "generatedAt": "2026-05-26T09:15:00.000Z",
+  "generatedAtUtc": "2026-05-26T09:15:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.99",
+      "previousVersion": "1.4.98",
+      "betaReleaseCounter": 499,
+      "previousBetaReleaseCounter": 498,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): canonicalize legacy metrics",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T09:15:00.000Z",
+      "generatedAt": "2026-05-26T09:15:00.000Z",
+      "committedAtUtc": "2026-05-26T09:15:00.000Z",
+      "generatedAtUtc": "2026-05-26T09:15:00.000Z",
+      "category": "Improved",
+      "title": "Legacy metric canonicalization",
+      "updatedAtUtc": "2026-05-26T09:15:00.000Z",
+      "summary": "Added dry-run canonicalization for legacy event and metric data from March 1.",
+      "userFacingTitle": "Legacy metric canonicalization",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added dry-run canonicalization for legacy event and metric data from March 1.",
+        "Mapped old event aliases into current metrics with confidence and duplicate risk.",
+        "Kept unknown legacy data from becoming exact user truth."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added legacy event and metric alias canonicalization for watch/page duration, drops, wallet/payment, auth, tasks, chat, notifications, creators, search, support, and settings.",
+        "Added a dry-run recovery engine that emits candidate actions, confidence weights, duplicate risk, dedupe keys, and accuracy/user-visible impact without production reads or mutations.",
+        "Kept payment runtime, GumDrop math, navigation, production data, provider calls, and deploys unchanged."
+      ],
+      "affectedSurfaces": [
+        "Legacy metric canonicalization",
+        "Legacy recovery dry-run engine",
+        "Metric recovery validator",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/metric-canonicalization-legacy-recovery.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/metric-canonicalization-legacy-recovery.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/math/legacy-metric-canonicalization.ts",
+        "src/lib/math/legacy-recovery-dry-run-engine.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/metric-canonicalization-legacy-recovery.spec.ts"
+      ],
+      "effectiveChangeCount": 13,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.98",
       "previousVersion": "1.4.97",
@@ -1565,78 +1625,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "src/lib/telemetry-catalog.ts",
         "tests/unit/search-discovery-cost.spec.ts",
         "tests/unit/user-management-refactor.spec.ts"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.74",
-      "previousVersion": "1.4.73",
-      "betaReleaseCounter": 474,
-      "previousBetaReleaseCounter": 473,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(discovery): track creator relationships",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T22:51:25.674Z",
-      "generatedAt": "2026-05-25T22:51:25.674Z",
-      "committedAtUtc": "2026-05-25T22:51:25.674Z",
-      "generatedAtUtc": "2026-05-25T22:51:25.674Z",
-      "category": "Improved",
-      "title": "Creator discovery relationship funnel",
-      "updatedAtUtc": "2026-05-25T22:51:25.674Z",
-      "summary": "Mapped creator discovery, recommendations, profile clicks, and follow actions into telemetry.",
-      "userFacingTitle": "Creator discovery relationship funnel",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Mapped creator discovery, recommendations, profile clicks, and follow actions into telemetry.",
-        "Added person/global metrics for creator relationship funnels.",
-        "Added debug visibility for creator relationship failures."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a canonical creator relationship funnel contract covering discovery, card, profile, recommendation, follow, unfollow, and relationship-list events.",
-        "Wired creator discovery rail, creator profiles, and the relationship route with redacted telemetry payloads and debug reasons.",
-        "Mapped the new funnel events into telemetry catalog, behavioral event facts, person metrics, and source-only validation without production reads."
-      ],
-      "affectedSurfaces": [
-        "Creator discovery rail",
-        "Creator public profile",
-        "Creator relationship route",
-        "Creator relationship telemetry and debug evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-discovery-relationship-funnel.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/creator-discovery-relationship-funnel.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-discovery-relationship-funnel.ts",
-        "src/app/api/creator/relationships/route.ts",
-        "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "src/components/CreatorDiscoveryRail.tsx",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/behavioral/behavior-feature-registry.ts",
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/behavioral/tracking-surface-map.ts",
-        "src/lib/discovery/creator-relationship-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/telemetry/surface-telemetry-catalog-events.ts",
-        "tests/unit/creator-discovery-relationship-funnel.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
     }

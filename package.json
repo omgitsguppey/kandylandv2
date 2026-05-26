@@ -140,6 +140,7 @@
         "check:canonical-math-ledger": "tsx scripts/agent/validate-canonical-math-ledger.ts",
         "check:count-deduplication-normalization": "tsx scripts/agent/validate-count-deduplication-normalization.ts",
         "check:duration-math-normalization": "tsx scripts/agent/validate-duration-math-normalization.ts",
+        "check:metric-canonicalization-legacy-recovery": "tsx scripts/agent/validate-metric-canonicalization-legacy-recovery.ts",
         "check:product-body-map": "tsx scripts/agent/validate-product-body-map.ts",
         "check:central-normalizer-spine": "tsx scripts/agent/validate-central-normalizer-spine.ts",
         "check:interpretive-brain-debug-triage": "tsx scripts/agent/validate-interpretive-brain-debug-triage.ts",

@@ -719,6 +719,12 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "agent/state/canonical-math-authority-ledger.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/canonical-math-authority-ledger.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-canonical-math-authority-ledger.ts") return "validator_artifact_expected";
+  if (normalized === "src/lib/math/legacy-metric-canonicalization.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/legacy-recovery-dry-run-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "agent/state/metric-canonicalization-legacy-recovery.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/metric-canonicalization-legacy-recovery.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/metric-canonicalization-legacy-recovery.spec.ts") return "test_artifact_expected";
   if (normalized === "src/lib/tasks/daily-task-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-duration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/tasks/daily-task-telemetry.ts") return "real_source_change_needs_review";

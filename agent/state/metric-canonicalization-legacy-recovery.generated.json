@@ -1,0 +1,481 @@
+{
+  "reportKey": "metric-canonicalization-legacy-recovery",
+  "generatedAtUtc": "2026-05-26T09:21:14.544Z",
+  "currentHead": "1410a822acc04c6b26de7559d3bb71eeb9c4d4d0",
+  "status": "pass",
+  "scoreBefore": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreAfter": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "dryRunOnly": true,
+  "productionReadsRequired": false,
+  "mutationsAllowed": false,
+  "recoveryStartDate": "2026-03-01",
+  "aliasMappings": [
+    {
+      "aliases": [
+        "page_duration",
+        "page_time",
+        "time_on_page",
+        "watch_seconds_total",
+        "watchSecondsTotal",
+        "viewer_watch_seconds"
+      ],
+      "canonicalEventName": "session_closed",
+      "canonicalMetricId": "sessions",
+      "aliasCategory": "watch_page_duration",
+      "eventKind": "session",
+      "confidenceFloor": "weak",
+      "reason": "Legacy page duration is session evidence, not canonical watch time."
+    },
+    {
+      "aliases": [
+        "unlock_drop_success",
+        "drop_unlocked",
+        "drop_unwrapped",
+        "creator_drop_unwrapped",
+        "entitlement_granted"
+      ],
+      "canonicalEventName": "drop_unlocked",
+      "canonicalMetricId": "unwraps",
+      "aliasCategory": "unlock_drop_open",
+      "eventKind": "click_action",
+      "confidenceFloor": "inferred",
+      "reason": "Unlock aliases map to unwrap metrics; server entitlement remains source truth before current truth promotion."
+    },
+    {
+      "aliases": [
+        "old_drop_view",
+        "drop_opened",
+        "drop_clicked",
+        "view_drop_details",
+        "drop_preview"
+      ],
+      "canonicalEventName": "drop_preview_opened",
+      "canonicalMetricId": "drop_opens",
+      "aliasCategory": "unlock_drop_open",
+      "eventKind": "view_impression",
+      "confidenceFloor": "weak",
+      "reason": "Legacy drop open aliases map to current drop open metrics unless the server entitlement event proves an unwrap."
+    },
+    {
+      "aliases": [
+        "wallet_purchase_completed",
+        "purchase_completed",
+        "purchase_verified",
+        "server_purchase_verified",
+        "paypal_capture_completed",
+        "gumdrops_purchase_completed"
+      ],
+      "canonicalEventName": "gumdrops_purchased",
+      "canonicalMetricId": "payment_approvals",
+      "aliasCategory": "wallet_payment",
+      "eventKind": "payment_ledger",
+      "confidenceFloor": "inferred",
+      "reason": "Payment aliases map to payment approval metrics for dry-run review only; payment/GumDrop math is untouched."
+    },
+    {
+      "aliases": [
+        "auth_sign_up_success",
+        "auth_registration_completed",
+        "user_registered",
+        "login_success",
+        "auth_login_completed"
+      ],
+      "canonicalEventName": "signup_completed",
+      "canonicalMetricId": "auth_runtime_events",
+      "aliasCategory": "signup_login",
+      "eventKind": "click_action",
+      "confidenceFloor": "inferred",
+      "reason": "Signup/login aliases map to auth runtime metrics."
+    },
+    {
+      "aliases": [
+        "daily_check_in_claim",
+        "daily_checkin_claimed",
+        "daily_reward_claimed",
+        "task_completed",
+        "daily_task_completed"
+      ],
+      "canonicalEventName": "task_completed",
+      "canonicalMetricId": "daily_task_completions",
+      "aliasCategory": "daily_task_checkin",
+      "eventKind": "task",
+      "confidenceFloor": "inferred",
+      "reason": "Daily check-in and task aliases map to task completion metrics by reset window."
+    },
+    {
+      "aliases": [
+        "chat_send",
+        "chat_message_send",
+        "chat_message_sent",
+        "creator_message_sent",
+        "chat_message_blocked",
+        "chat_message_failed"
+      ],
+      "canonicalEventName": "chat_message_sent",
+      "canonicalMetricId": "chat_actions",
+      "aliasCategory": "chat_message",
+      "eventKind": "click_action",
+      "confidenceFloor": "weak",
+      "reason": "Chat aliases map to chat action metrics without touching chat internals."
+    },
+    {
+      "aliases": [
+        "push_opened",
+        "notification_clicked",
+        "notification_opened",
+        "notification_read",
+        "notification_delivered"
+      ],
+      "canonicalEventName": "notification_opened",
+      "canonicalMetricId": "notification_interactions",
+      "aliasCategory": "notification",
+      "eventKind": "notification",
+      "confidenceFloor": "weak",
+      "reason": "Notification aliases map by intent/recipient delivery window."
+    },
+    {
+      "aliases": [
+        "creator_profile_viewed",
+        "creator_profile_clicked",
+        "creator_card_clicked"
+      ],
+      "canonicalEventName": "creator_profile_opened",
+      "canonicalMetricId": "creator_profile_views",
+      "aliasCategory": "creator_profile_follow",
+      "eventKind": "view_impression",
+      "confidenceFloor": "weak",
+      "reason": "Creator profile/follow aliases map into discovery relationship metrics."
+    },
+    {
+      "aliases": [
+        "creator_followed",
+        "creator_follow_succeeded",
+        "creator_unfollowed",
+        "creator_unfollow_succeeded"
+      ],
+      "canonicalEventName": "creator_followed",
+      "canonicalMetricId": "follows",
+      "aliasCategory": "creator_profile_follow",
+      "eventKind": "click_action",
+      "confidenceFloor": "inferred",
+      "reason": "Follow relationship aliases map to follow metrics."
+    },
+    {
+      "aliases": [
+        "drops_searched",
+        "search_query_submitted",
+        "creator_search_selected",
+        "filter_selected",
+        "category_clicked"
+      ],
+      "canonicalEventName": "search_submitted",
+      "canonicalMetricId": "search_discovery_actions",
+      "aliasCategory": "search_discovery",
+      "eventKind": "click_action",
+      "confidenceFloor": "weak",
+      "reason": "Search/discovery aliases map to redacted search discovery metrics."
+    },
+    {
+      "aliases": [
+        "support_ticket_submitted",
+        "support_ticket_created",
+        "account_settings_saved",
+        "settings_updated",
+        "bug_report_submitted"
+      ],
+      "canonicalEventName": "support_ticket_created",
+      "canonicalMetricId": "support_account_actions",
+      "aliasCategory": "support_settings",
+      "eventKind": "click_action",
+      "confidenceFloor": "weak",
+      "reason": "Support/settings aliases map to support account action metrics."
+    }
+  ],
+  "dryRun": {
+    "mode": "dry_run_only",
+    "recoveryStartDate": "2026-03-01",
+    "readsProduction": false,
+    "mutationsAllowed": false,
+    "liveBackfill": false,
+    "candidates": [
+      {
+        "candidateId": "legacy:analytics_event_facts:drop_preview_opened:view_impression:drop_preview_opened:user_1:drop_1:/drops/drop_1:29540160",
+        "legacySource": "analytics_event_facts",
+        "canonicalEventName": "drop_preview_opened",
+        "canonicalMetricId": "drop_opens",
+        "confidenceWeight": 1,
+        "identityConfidence": "exact",
+        "duplicateRisk": "medium",
+        "dedupeKey": "view_impression:drop_preview_opened:user_1:drop_1:/drops/drop_1:29540160",
+        "action": "normalize_candidate",
+        "reason": "Legacy drop open aliases map to current drop open metrics unless the server entitlement event proves an unwrap.",
+        "accuracyImpact": "Maps legacy old_drop_view into canonical drop_preview_opened metric evidence with confidence cap 1.",
+        "userVisibleImpact": "No production data is changed; this is a dry-run candidate plan for future operator review.",
+        "dryRunOnly": true,
+        "canMutateProduction": false
+      },
+      {
+        "candidateId": "legacy:transactions:gumdrops_purchased:payment_ledger:idem_1",
+        "legacySource": "transactions",
+        "canonicalEventName": "gumdrops_purchased",
+        "canonicalMetricId": "payment_approvals",
+        "confidenceWeight": 0.6,
+        "identityConfidence": "inferred",
+        "duplicateRisk": "high",
+        "dedupeKey": "payment_ledger:idem_1",
+        "action": "needs_manual_review",
+        "reason": "Payment aliases map to payment approval metrics for dry-run review only; payment/GumDrop math is untouched.",
+        "accuracyImpact": "Maps legacy wallet_purchase_completed into canonical gumdrops_purchased metric evidence with confidence cap 0.6.",
+        "userVisibleImpact": "No production data is changed; this is a dry-run candidate plan for future operator review.",
+        "dryRunOnly": true,
+        "canMutateProduction": false
+      },
+      {
+        "candidateId": "legacy:old_events:unknown_legacy:click_action:unknown_legacy:unknown_identity:unknown_object:unknown_route:354516480",
+        "legacySource": "old_events",
+        "canonicalEventName": "unknown_legacy",
+        "canonicalMetricId": null,
+        "confidenceWeight": 0,
+        "identityConfidence": "unknown",
+        "duplicateRisk": "high",
+        "dedupeKey": "click_action:unknown_legacy:unknown_identity:unknown_object:unknown_route:354516480",
+        "action": "archive_only",
+        "reason": "Unknown legacy cannot become exact and remains archive_only.",
+        "accuracyImpact": "Preserves archive evidence without inflating current canonical metrics.",
+        "userVisibleImpact": "No production data is changed; this is a dry-run candidate plan for future operator review.",
+        "dryRunOnly": true,
+        "canMutateProduction": false
+      },
+      {
+        "candidateId": "legacy:analytics_event_facts:page_viewed:click_action:page_viewed:session_before:unknown_object:/:354464639",
+        "legacySource": "analytics_event_facts",
+        "canonicalEventName": "page_viewed",
+        "canonicalMetricId": null,
+        "confidenceWeight": 0,
+        "identityConfidence": "unknown",
+        "duplicateRisk": "high",
+        "dedupeKey": "click_action:page_viewed:session_before:unknown_object:/:354464639",
+        "action": "ignore",
+        "reason": "Record occurred before the March 1, 2026 recovery boundary.",
+        "accuracyImpact": "Maps legacy page_viewed into canonical page_viewed metric evidence with confidence cap 0.",
+        "userVisibleImpact": "No production data is changed; this is a dry-run candidate plan for future operator review.",
+        "dryRunOnly": true,
+        "canMutateProduction": false
+      }
+    ],
+    "summary": {
+      "inputRecords": 4,
+      "candidateCount": 4,
+      "actionCounts": {
+        "normalize_candidate": 1,
+        "link_candidate": 0,
+        "archive_only": 1,
+        "ignore": 1,
+        "needs_manual_review": 1
+      },
+      "confidenceCounts": {
+        "exact": 1,
+        "linked": 0,
+        "inferred": 1,
+        "weak": 0,
+        "unknown": 2
+      },
+      "duplicateRiskCounts": {
+        "low": 0,
+        "medium": 1,
+        "high": 3
+      },
+      "canonicalMetricCount": 2,
+      "archiveOnlyCount": 1,
+      "manualReviewCount": 1
+    },
+    "mutationPrevention": {
+      "productionMutationBlocked": true,
+      "blockedReason": "dry_run_only_no_production_reads_or_mutations"
+    }
+  },
+  "checks": {
+    "marchFirstBoundary": true,
+    "dryRunOnly": true,
+    "unknownLegacyCannotBecomeExact": true,
+    "aliasMappingHasConfidence": true,
+    "duplicateRiskPresent": true,
+    "canonicalEventNameRequired": true,
+    "recoveryCannotMutateProduction": true,
+    "accuracyExplanationPresent": true
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/metric-canonicalization-legacy-recovery.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/metric-canonicalization-legacy-recovery.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-metric-canonicalization-legacy-recovery.ts",
+      "classification": "failed_validator_to_repair"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/legacy-metric-canonicalization.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/legacy-recovery-dry-run-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/metric-canonicalization-legacy-recovery.spec.ts",
+      "classification": "current_generated_artifact_to_commit"
+    }
+  ],
+  "openPullRequests": [
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 302,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "classification": "onboarding_telemetry_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 301,
+      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
+      "classification": "doctrine_governance_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 300,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
+      "classification": "architecture_refactor_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 299,
+      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 298,
+      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 297,
+      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 296,
+      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 295,
+      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 294,
+      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 293,
+      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
+      "classification": "security_patch_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 292,
+      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+      "classification": "performance_patch_external_review_required"
+    },
+    {
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 291,
+      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+      "classification": "accessibility_patch_external_review_required"
+    }
+  ],
+  "validationFailures": [],
+  "releaseNoteImpact": [
+    "Added dry-run canonicalization for legacy event and metric data from March 1.",
+    "Mapped old event aliases into current metrics with confidence and duplicate risk.",
+    "Kept unknown legacy data from becoming exact user truth."
+  ]
+}

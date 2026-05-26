@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.99 - 2026-05-26
+- Legacy metric canonicalization
+- Added dry-run canonicalization for legacy event and metric data from March 1.
+- Mapped old event aliases into current metrics with confidence and duplicate risk.
+- Kept unknown legacy data from becoming exact user truth.
+
 ## 1.4.98 - 2026-05-26
 - Canonical math ledger freeze
 - Created canonical math ledger for score, confidence, session, watch, dedupe, and legacy recovery formulas.
