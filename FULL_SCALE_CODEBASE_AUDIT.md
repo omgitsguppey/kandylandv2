@@ -13887,3 +13887,46 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2026-05-26 - Monolith File + Responsibility Boundary Audit
+
+**Status:** Blocked Deliverable
+
+### Candidate Files
+- `src/app/api/admin/debug/route.ts` (7006 lines)
+- `src/components/Chat/ChatExperience.tsx` (4218 lines)
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (3214 lines)
+- `src/app/api/admin/users/route.ts` (3163 lines)
+- `src/lib/server/ai-drop-covers.ts` (2873 lines)
+
+### Classification Labels
+- `src/app/api/admin/debug/route.ts`: God-file risk, Mixed responsibility drift
+- `src/components/Chat/ChatExperience.tsx`: God-file risk, Needs split for stability
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: God-file risk, Needs split for stability
+- `src/app/api/admin/users/route.ts`: God-file risk, Mixed responsibility drift
+- `src/lib/server/ai-drop-covers.ts`: God-file risk, Mixed responsibility drift
+
+### Exact Blocker
+Refactoring large monolithic files (>2000 lines) is explicitly defined as too risky for automated scripting in the `REPO_MEMORY_LEDGER`. Automated attempts to decompose these highly complex orchestrator files or API routes have a high likelihood of introducing subtle hydration errors, breaking protected telemetry/logic, or losing context. Human-guided decomposition is required.
+
+### Affected Components
+- Admin Debug Panel (`src/app/admin/debug/page.tsx` and child components)
+- Chat Experience (`src/components/Chat/ChatExperience.tsx`, chat hooks, messaging infrastructure)
+- Admin Analytics Dashboard (`src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, historical traffic, tabs)
+- Admin Users Management (`src/app/admin/users/page.tsx`, User CRM routing)
+- AI Drop Covers Services (`src/lib/server/ai-drop-covers.ts`, related API routes and AI infrastructure)
+
+### Codex Prompt for Future Manual Decomposition
+```text
+You are assisting with a human-guided structural decomposition of a known God-file.
+
+Target File: [Insert File Path, e.g., src/components/Chat/ChatExperience.tsx]
+Goal: Safely reduce this file's footprint by splitting out responsibilities into smaller, focused modules (~300 lines for normal UI files, ~500 for orchestrators), while maintaining exact product behavior.
+
+Instructions:
+1. Do not rewrite core product behavior, protected payment/economy logic, or telemetry pipelines.
+2. Separate purely visual components, custom hooks, and server adapters into standalone files.
+3. Establish clear boundaries between view rendering, fetch logic, and state orchestration.
+4. If modifying shared UI, ensure you follow `control-tower/07-SHARED-COMPONENT-OWNERSHIP.yaml` boundaries.
+5. Provide the refactor plan in stages, allowing human review and unit-test verification after each extracted module.
+```
