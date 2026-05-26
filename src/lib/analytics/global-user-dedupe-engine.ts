@@ -151,7 +151,6 @@ export function normalizeGlobalUserMetric(input: GlobalUserDedupeInput): GlobalU
   const legacy = duplicateRisk === "unknown_legacy_archived";
   const missingIdentity = duplicateRisk === "missing_identity_context";
   const linked = duplicateRisk === "linked_guest_user_duplicate_risk_suppressed";
-  const globalKey = buildGlobalDedupeKey(input);
   const userKey = buildUserDedupeKey(input);
   const linkedKey = buildLinkedPersonDedupeKey(input);
   const sqlKey = ["export", sanitizeKey(input.eventName), baseActionKey(input)].join(":");
@@ -165,7 +164,9 @@ export function normalizeGlobalUserMetric(input: GlobalUserDedupeInput): GlobalU
     eventId: input.eventId,
     dedupeKey: input.idempotencyKey,
     sessionId: input.sessionId,
-    objectId: input.featureId || input.surface,
+    objectId: input.objectId || input.featureId || input.surface,
+    timestampMs: input.timestampMs,
+    timestampBucketMs: input.timestampBucketMs,
     userId: input.userId,
     guestId: input.guestId,
     linkedPersonId: input.linkedPersonId,
@@ -177,6 +178,9 @@ export function normalizeGlobalUserMetric(input: GlobalUserDedupeInput): GlobalU
     metricIsReplay: false,
     sourceTruth: "global_user_dedupe_engine",
   });
+  const canonicalGlobalKey = countDedupeMath.globalKey;
+  const canonicalUserKey = countDedupeMath.userKey ?? userKey;
+  const canonicalLinkedKey = linked ? canonicalUserKey : linkedKey;
 
   const reason: AggregationCountDecision["reason"] = replay
     ? "retry_replay_not_counted"
@@ -199,11 +203,11 @@ export function normalizeGlobalUserMetric(input: GlobalUserDedupeInput): GlobalU
   const output: GlobalUserDedupeDecision = {
     input,
     dedupeScope: resolveScope(input),
-    dedupeKey: globalKey,
+    dedupeKey: canonicalGlobalKey,
     global: decision({
       count: globalCount,
       policy: legacy ? "archive_only" : "count_once",
-      dedupeKey: globalKey,
+      dedupeKey: canonicalGlobalKey,
       reason,
     }),
     guest: decision({
@@ -215,13 +219,13 @@ export function normalizeGlobalUserMetric(input: GlobalUserDedupeInput): GlobalU
     user: decision({
       count: userCount,
       policy: "best_identity_wins",
-      dedupeKey: userKey,
+      dedupeKey: canonicalUserKey,
       reason,
     }),
     linkedPerson: decision({
       count: linkedPersonCount,
       policy: "linked_user_wins",
-      dedupeKey: linkedKey,
+      dedupeKey: canonicalLinkedKey,
       reason,
     }),
     sql: decision({

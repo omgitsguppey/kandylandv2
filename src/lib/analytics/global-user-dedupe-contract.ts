@@ -40,6 +40,9 @@ export type DedupeDecisionReason =
 export interface GlobalUserDedupeInput {
   eventId: string;
   sessionId?: string | null;
+  objectId?: string | null;
+  timestampMs?: number | null;
+  timestampBucketMs?: number | null;
   guestId?: string | null;
   userId?: string | null;
   linkedPersonId?: string | null;

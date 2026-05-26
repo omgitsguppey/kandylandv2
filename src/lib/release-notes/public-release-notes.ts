@@ -1,13 +1,73 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.96",
-  "betaReleaseCounter": 496,
+  "currentVersion": "1.4.97",
+  "betaReleaseCounter": 497,
   "channel": "beta",
-  "generatedAt": "2026-05-26T08:30:00.000Z",
-  "generatedAtUtc": "2026-05-26T08:30:00.000Z",
+  "generatedAt": "2026-05-26T08:45:00.000Z",
+  "generatedAtUtc": "2026-05-26T08:45:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.97",
+      "previousVersion": "1.4.96",
+      "betaReleaseCounter": 497,
+      "previousBetaReleaseCounter": 496,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): normalize count dedupe",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T08:45:00.000Z",
+      "generatedAt": "2026-05-26T08:45:00.000Z",
+      "committedAtUtc": "2026-05-26T08:45:00.000Z",
+      "generatedAtUtc": "2026-05-26T08:45:00.000Z",
+      "category": "Improved",
+      "title": "Count deduplication normalization",
+      "updatedAtUtc": "2026-05-26T08:45:00.000Z",
+      "summary": "Normalized global, user, creator, and legacy count deduplication.",
+      "userFacingTitle": "Count deduplication normalization",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Normalized global, user, creator, and legacy count deduplication.",
+        "Prevented linked guest/user and retry events from inflating metrics.",
+        "Added count formula references and debug explanations."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Aligned global/user summary dedupe keys with the canonical count normalizer fallback order: eventId, dedupeKey, then session/event/object/timestamp bucket.",
+        "Added validator and unit coverage for linked guest/user suppression, legacy buckets, replay suppression, formula references, and timestamp-bucket fallback keys.",
+        "Kept payment runtime, GumDrop math, production data, deploys, provider calls, and navigation unchanged."
+      ],
+      "affectedSurfaces": [
+        "Count deduplication normalizer",
+        "Global/user dedupe engine",
+        "Behavioral event fact normalization",
+        "Count dedupe debug evidence",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/count-deduplication-normalization.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/count-deduplication-normalization.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-count-deduplication-normalization.ts",
+        "src/lib/analytics/global-user-dedupe-contract.ts",
+        "src/lib/analytics/global-user-dedupe-engine.ts",
+        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/count-deduplication-normalization.spec.ts"
+      ],
+      "effectiveChangeCount": 12,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.96",
       "previousVersion": "1.4.95",
@@ -1575,74 +1635,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "scripts/agent/validate-feature-registration-gate.ts",
         "agent/state/feature-registration-gate.generated.json",
         "docs/agent-truth/feature-registration-gate.md",
-        "agent/state/public-beta-score.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.72",
-      "previousVersion": "1.4.71",
-      "betaReleaseCounter": 472,
-      "previousBetaReleaseCounter": 471,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(media): track upload lifecycle",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T22:10:00.000Z",
-      "generatedAt": "2026-05-25T22:10:00.000Z",
-      "committedAtUtc": "2026-05-25T22:10:00.000Z",
-      "generatedAtUtc": "2026-05-25T22:10:00.000Z",
-      "category": "Improved",
-      "title": "Media upload lifecycle",
-      "updatedAtUtc": "2026-05-25T22:10:00.000Z",
-      "summary": "Hardened media upload prepare, storage, and completion lifecycle tracking.",
-      "userFacingTitle": "Media upload lifecycle",
-      "surfaceCategory": "Chat & support",
-      "bullets": [
-        "Hardened media upload prepare, storage, and completion lifecycle tracking.",
-        "Added debug visibility for upload failures and orphan risks.",
-        "Protected private storage paths from broad telemetry exposure."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a canonical media upload lifecycle contract and telemetry bridge for prepare, storage upload, completion, cancellation, orphan, and block states.",
-        "Wired chat attachment prepare and complete routes with upload correlation ids, storage fingerprints, orphan detection, and ownership verification evidence.",
-        "Added source-only validation and generated debug evidence without production reads or provider calls."
-      ],
-      "affectedSurfaces": [
-        "Chat attachment uploads",
-        "Media upload telemetry and debug evidence",
-        "Feature telemetry and person metrics mapping"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/media/media-upload-contract.ts",
-        "src/lib/media/media-upload-telemetry.ts",
-        "src/app/api/chat/attachments/prepare/route.ts",
-        "src/app/api/chat/attachments/complete/route.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "scripts/agent/validate-media-upload-lifecycle.ts",
-        "tests/unit/media-upload-lifecycle.spec.ts",
-        "agent/state/media-upload-lifecycle.generated.json",
-        "docs/agent-truth/media-upload-lifecycle.md",
-        "scripts/agent/validate-feature-registration-gate.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "agent/state/feature-registration-gate.generated.json",
-        "docs/agent-truth/feature-registration-gate.md",
-        "agent/state/event-translation-bridge.generated.json",
-        "docs/agent-truth/event-translation-bridge.md",
-        "agent/state/person-metrics-hydration.generated.json",
-        "docs/agent-truth/person-metrics-hydration.md",
         "agent/state/public-beta-score.generated.json",
         "package.json",
         "public/kandydrops-release-notes.json",

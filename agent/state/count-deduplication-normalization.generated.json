@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T05:44:21.998Z",
+  "generatedAtUtc": "2026-05-26T08:42:18.296Z",
   "reportKey": "count-deduplication-normalization",
-  "currentHead": "699a4be3edf19f8659605d7c92a572f27bbfc7b4",
+  "currentHead": "884fd150a5062368df5ffcfd642484a7a2360b60",
   "status": "pass",
   "productionReadsRequired": false,
   "productionDataMutated": false,
@@ -321,6 +321,81 @@
           "reason": "retry_replay_suppressed"
         }
       }
+    },
+    "fallback": {
+      "input": {
+        "eventId": "",
+        "eventName": "drop_preview_opened",
+        "featureId": "drops",
+        "surface": "drop-preview",
+        "sessionId": "session_bucket",
+        "objectId": "drop_42",
+        "timestampMs": 180000,
+        "userId": "user_bucket",
+        "identityState": "logged_in_unlinked",
+        "identityConfidence": "exact"
+      },
+      "dedupeScope": "event",
+      "dedupeKey": "global:drops_opened:bucket:session_bucket:drop_preview_opened:drop_42:3",
+      "global": {
+        "count": true,
+        "policy": "count_once",
+        "dedupeKey": "global:drops_opened:bucket:session_bucket:drop_preview_opened:drop_42:3",
+        "reason": "count_unique_action_once"
+      },
+      "guest": {
+        "count": false,
+        "policy": "linked_user_wins",
+        "dedupeKey": "user:user_bucket:drop_preview_opened:unknown",
+        "reason": "count_unique_action_once"
+      },
+      "user": {
+        "count": true,
+        "policy": "best_identity_wins",
+        "dedupeKey": "user:user_bucket:drops_opened:bucket:session_bucket:drop_preview_opened:drop_42:3",
+        "reason": "count_unique_action_once"
+      },
+      "linkedPerson": {
+        "count": false,
+        "policy": "linked_user_wins",
+        "dedupeKey": "user:user_bucket:drop_preview_opened:unknown",
+        "reason": "count_unique_action_once"
+      },
+      "sql": {
+        "count": false,
+        "policy": "preserve_raw_fact_normalized_summary",
+        "dedupeKey": "export:drop_preview_opened:unknown",
+        "reason": "count_unique_action_once"
+      },
+      "globalUserParity": {
+        "globalAggregationPolicy": "count_once",
+        "userAggregationPolicy": "best_identity_wins",
+        "sqlAggregationPolicy": "preserve_raw_fact_normalized_summary",
+        "replaySafety": "unsafe_missing_key",
+        "duplicateRisk": "none",
+        "identityConfidence": "exact"
+      },
+      "duplicateRisk": "none",
+      "suppressedDuplicateKeys": [],
+      "countDedupeMath": {
+        "formulaId": "count_dedupe.drop_open_count",
+        "domain": "drops_opened",
+        "canonicalKey": "bucket:session_bucket:drop_preview_opened:drop_42:3",
+        "globalKey": "global:drops_opened:bucket:session_bucket:drop_preview_opened:drop_42:3",
+        "userKey": "user:user_bucket:drops_opened:bucket:session_bucket:drop_preview_opened:drop_42:3",
+        "creatorKey": null,
+        "legacyKey": "legacy:drops_opened:bucket:session_bucket:drop_preview_opened:drop_42:3",
+        "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it.",
+        "divergenceExplanation": "Global, user, creator, and guest counts use the same canonical action key and diverge only when identity or creator scope is unavailable.",
+        "replaySuppressed": false,
+        "legacyBucket": false
+      },
+      "debug": {
+        "lane": "Global vs user dedupe",
+        "defaultVisible": false,
+        "explanation": "Global, user, creator, and guest counts use the same canonical action key and diverge only when identity or creator scope is unavailable.",
+        "nextAction": "No dedupe action needed; global, user, materializer, and export policies agree."
+      }
     }
   },
   "existingGlobalUserDedupeReference": {
@@ -351,10 +426,6 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/canonical-math-authority-ledger.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/count-deduplication-normalization.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
@@ -363,24 +434,12 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/canonical-math-authority-ledger.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/count-deduplication-normalization.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "public/kandydrops-release-notes.json",
       "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-canonical-math-authority-ledger.ts",
-      "classification": "real_source_change_needs_review"
     },
     {
       "path": "scripts/agent/validate-count-deduplication-normalization.ts",
@@ -395,23 +454,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/canonical-math-authority-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/canonical-math-authority-ledger.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/math/count-deduplication-normalizer.ts",
+      "path": "src/lib/behavioral/normalize-event-fact.ts",
       "classification": "real_source_change_needs_review"
     },
     {

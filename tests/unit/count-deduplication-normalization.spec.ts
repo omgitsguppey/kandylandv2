@@ -178,4 +178,30 @@ describe("count deduplication normalization", () => {
     expect(decision.countDedupeMath?.globalKey).toBe("global:creator_relationships:event:evt_existing");
     expect(decision.debug.explanation).toContain("best user identity");
   });
+
+  it("uses canonical timestamp-bucket fallback keys in global and user summary decisions", () => {
+    const input = {
+      eventId: "",
+      eventName: "drop_preview_opened",
+      featureId: "drops",
+      surface: "drop-preview",
+      sessionId: "session_bucket",
+      userId: "user_bucket",
+      identityState: "logged_in_unlinked",
+      identityConfidence: "exact",
+      objectId: "drop_42",
+      timestampMs: 180_000,
+    } as Parameters<typeof normalizeGlobalUserMetric>[0] & {
+      objectId: string;
+      timestampMs: number;
+    };
+    const decision = normalizeGlobalUserMetric(input);
+
+    expect(decision.countDedupeMath?.canonicalKey).toBe("bucket:session_bucket:drop_preview_opened:drop_42:3");
+    expect(decision.dedupeKey).toBe(decision.countDedupeMath?.globalKey);
+    expect(decision.global.dedupeKey).toBe(decision.countDedupeMath?.globalKey);
+    expect(decision.user.dedupeKey).toBe(decision.countDedupeMath?.userKey);
+    expect(decision.global.count).toBe(true);
+    expect(decision.user.count).toBe(true);
+  });
 });

@@ -419,6 +419,8 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
     featureId: readString(merged, "feature_id", "featureId"),
     surface: readString(merged, "surface") || route,
     sessionId,
+    objectId: entityId,
+    timestampMs,
     guestId: anonymousVisitorId,
     userId,
     linkedPersonId,

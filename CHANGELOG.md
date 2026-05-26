@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.97 - 2026-05-26
+- Count deduplication normalization
+- Normalized global, user, creator, and legacy count deduplication.
+- Prevented linked guest/user and retry events from inflating metrics.
+- Added count formula references and debug explanations.
+
 ## 1.4.96 - 2026-05-26
 - Canonical math authority ledger
 - Added canonical math authority ledger.

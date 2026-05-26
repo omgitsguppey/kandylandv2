@@ -1,7 +1,7 @@
 # Count Deduplication Normalization
 
-Generated: 2026-05-26T05:44:21.998Z
-Current head: 699a4be3edf19f8659605d7c92a572f27bbfc7b4
+Generated: 2026-05-26T08:42:18.296Z
+Current head: 884fd150a5062368df5ffcfd642484a7a2360b60
 Status: pass
 
 ## Contract
@@ -24,22 +24,14 @@ Status: pass
 ## Dirty Files
 
 - CHANGELOG.md: release_artifact_expected
-- agent/state/canonical-math-authority-ledger.generated.json: current_generated_artifact_to_commit
 - agent/state/count-deduplication-normalization.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/canonical-math-authority-ledger.md: documentation_artifact_expected
 - docs/agent-truth/count-deduplication-normalization.md: documentation_artifact_expected
-- package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-canonical-math-authority-ledger.ts: real_source_change_needs_review
 - scripts/agent/validate-count-deduplication-normalization.ts: validator_artifact_expected
 - src/lib/analytics/global-user-dedupe-contract.ts: real_source_change_needs_review
 - src/lib/analytics/global-user-dedupe-engine.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
-- src/lib/math/canonical-math-authority-contract.ts: real_source_change_needs_review
-- src/lib/math/canonical-math-authority-ledger.ts: real_source_change_needs_review
-- src/lib/math/count-deduplication-normalizer.ts: real_source_change_needs_review
+- src/lib/behavioral/normalize-event-fact.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 - tests/unit/count-deduplication-normalization.spec.ts: test_artifact_expected

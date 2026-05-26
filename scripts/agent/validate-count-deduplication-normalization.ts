@@ -85,6 +85,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/math/canonical-math-authority-ledger.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/global-user-dedupe-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/global-user-dedupe-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-count-deduplication-normalization.ts") return "validator_artifact_expected";
@@ -260,6 +261,18 @@ function main() {
     identityConfidence: "linked",
     idempotencyKey: "creator_followed:creator_validator",
   });
+  const fallbackDecision = normalizeGlobalUserMetric({
+    eventId: "",
+    eventName: "drop_preview_opened",
+    featureId: "drops",
+    surface: "drop-preview",
+    sessionId: "session_bucket",
+    objectId: "drop_42",
+    timestampMs: 180_000,
+    userId: "user_bucket",
+    identityState: "logged_in_unlinked",
+    identityConfidence: "exact",
+  });
   const domainFormulaChecks = REQUIRED_COUNT_DOMAINS.map((domain) => {
     const normalized = normalizeCountInput({
       domain,
@@ -298,8 +311,19 @@ function main() {
   if (!existingDecision.countDedupeMath?.canonicalKey || !existingDecision.countDedupeMath.divergenceExplanation) {
     validationFailures.push("existing global/user dedupe path lacks count normalizer reference.");
   }
+  if (
+    fallbackDecision.countDedupeMath?.canonicalKey !== "bucket:session_bucket:drop_preview_opened:drop_42:3"
+    || fallbackDecision.dedupeKey !== fallbackDecision.countDedupeMath.globalKey
+    || fallbackDecision.global.dedupeKey !== fallbackDecision.countDedupeMath.globalKey
+    || fallbackDecision.user.dedupeKey !== fallbackDecision.countDedupeMath.userKey
+  ) {
+    validationFailures.push("global/user summary fallback keys bypass canonical count normalizer.");
+  }
   if (!sourceFiles.globalUserEngine.includes("normalizeCountInput") || !sourceFiles.globalUserEngine.includes("countDedupeMath")) {
     validationFailures.push("person/global summary path is not wired to count normalizer where safe.");
+  }
+  if (!sourceFiles.globalUserEngine.includes("timestampMs: input.timestampMs") || !sourceFiles.globalUserEngine.includes("dedupeKey: canonicalGlobalKey")) {
+    validationFailures.push("global/user summary path does not preserve canonical timestamp-bucket count keys.");
   }
   if (!sourceFiles.debugSummary.includes("count_dedupe_math") || !sourceFiles.debugSummary.includes("Count dedupe math")) {
     validationFailures.push("Count dedupe math debug lane missing.");
@@ -363,7 +387,7 @@ function main() {
     scoreAfter,
     requiredDomains: REQUIRED_COUNT_DOMAINS,
     domainFormulaChecks,
-    sampleDecisions: { linked, legacy, replay },
+    sampleDecisions: { linked, legacy, replay, fallback: fallbackDecision },
     existingGlobalUserDedupeReference: existingDecision.countDedupeMath,
     debugLane,
     dirtyFiles,
