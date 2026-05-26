@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.7 - 2026-05-26
+- Final math normalization lock
+- Locked global math normalization, legacy recovery, source-of-funds, watch/session, and display accuracy.
+- Documented formula refinements and accuracy improvements.
+- Kept production data, payment runtime, and GumDrop pricing math unchanged.
+
 ## 1.5.6 - 2026-05-26
 - Metric display accuracy
 - Standardized metric display states across user, creator, and admin surfaces.

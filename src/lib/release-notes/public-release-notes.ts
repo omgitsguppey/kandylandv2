@@ -1,13 +1,75 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.6",
-  "betaReleaseCounter": 506,
+  "currentVersion": "1.5.7",
+  "betaReleaseCounter": 507,
   "channel": "beta",
-  "generatedAt": "2026-05-26T11:40:00.000Z",
-  "generatedAtUtc": "2026-05-26T11:40:00.000Z",
+  "generatedAt": "2026-05-26T12:00:00.000Z",
+  "generatedAtUtc": "2026-05-26T12:00:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.7",
+      "previousVersion": "1.5.6",
+      "betaReleaseCounter": 507,
+      "previousBetaReleaseCounter": 506,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(math): lock normalization accuracy",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T12:00:00.000Z",
+      "generatedAt": "2026-05-26T12:00:00.000Z",
+      "committedAtUtc": "2026-05-26T12:00:00.000Z",
+      "generatedAtUtc": "2026-05-26T12:00:00.000Z",
+      "category": "Improved",
+      "title": "Final math normalization lock",
+      "updatedAtUtc": "2026-05-26T12:00:00.000Z",
+      "summary": "Locked math normalization evidence across legacy recovery, source-of-funds, watch/session, cost/export, creator revenue, and metric display accuracy.",
+      "userFacingTitle": "Final math normalization lock",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked global math normalization, legacy recovery, source-of-funds, watch/session, and display accuracy.",
+        "Documented formula refinements and accuracy improvements.",
+        "Kept production data, payment runtime, and GumDrop pricing math unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a final math normalization lock report covering beta score, confidence, legacy recovery, global user counting, watch time, session bounce, GumDrop ledger, creator revenue, cost/export, and metric display formulas.",
+        "Recorded dry-run-only legacy recovery status, unknown legacy handling, remaining formal gates, cost reviews, and exact next steps.",
+        "Refreshed current beta exit status evidence without clearing runtime, provider, admin, or visual formal gates."
+      ],
+      "affectedSurfaces": [
+        "Math normalization evidence",
+        "Legacy recovery evidence",
+        "Metric display accuracy evidence",
+        "Beta score evidence",
+        "Current beta exit status",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/final-math-normalization-lock.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/final-math-normalization-lock.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-math-normalization-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-math-normalization-lock.spec.ts"
+      ],
+      "effectiveChangeCount": 14,
+      "excludedGeneratedChangeCount": 4,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.6",
       "previousVersion": "1.5.5",

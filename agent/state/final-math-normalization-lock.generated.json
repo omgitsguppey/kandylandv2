@@ -1,0 +1,368 @@
+{
+  "reportKey": "final-math-normalization-lock",
+  "generatedAtUtc": "2026-05-26T12:01:44.102Z",
+  "currentHead": "a996b197",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "legacyMutationPerformed": false,
+  "providerCallsPerformed": false,
+  "deployPerformed": false,
+  "paymentRuntimeChanged": false,
+  "gumdropPricingMathChanged": false,
+  "scoreBefore": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreAfter": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk",
+    "regressionRisk"
+  ],
+  "formulasFinalized": {
+    "betaScore": "finalized",
+    "confidence": "finalized",
+    "legacyRecovery": "finalized",
+    "globalUserCounting": "finalized",
+    "watchTime": "finalized",
+    "sessionBounce": "finalized",
+    "gumdropLedger": "finalized",
+    "creatorRevenue": "finalized",
+    "costExport": "finalized",
+    "metricDisplay": "finalized"
+  },
+  "accuracyImprovements": [
+    {
+      "area": "betaScore",
+      "oldBehavior": "Score math could be read from scattered score artifacts without a final owner summary.",
+      "newFormula": "Weighted beta score uses source 25, runtime 20, evidence 20, freshness 15, cost 10, and regression 10.",
+      "whyMoreAccurate": "The final lock ties the score to explicit weights, dimensions, caps, and blocker classes instead of stale generated snapshots.",
+      "userVisibleImpact": "Beta status stays explainable and does not overstate readiness.",
+      "adminVisibleImpact": "Admin score review can trace each score dimension to a formula owner.",
+      "scoreImpact": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness",
+        "costRisk",
+        "regressionRisk"
+      ]
+    },
+    {
+      "area": "confidence",
+      "oldBehavior": "Exact, linked, inferred, weak, and unknown confidence labels were easy to compare inconsistently.",
+      "newFormula": "Confidence weights are exact 1.0, linked 0.85, inferred 0.60, weak 0.35, and unknown 0.0.",
+      "whyMoreAccurate": "Every metric can now degrade precision using the same confidence scale before it reaches user, creator, or admin display.",
+      "userVisibleImpact": "Weak data is labeled estimated instead of exact.",
+      "adminVisibleImpact": "Debug can distinguish source confidence from display state.",
+      "scoreImpact": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "area": "legacyRecovery",
+      "oldBehavior": "Legacy aliases could be read as if they were current metrics unless every recovery path repeated the confidence cap.",
+      "newFormula": "Legacy recovery is dry-run only from 2026-03-01; unknown legacy stays archive-only and cannot become exact.",
+      "whyMoreAccurate": "Recovered history is mapped into candidates without mutating production or inflating exact user truth.",
+      "userVisibleImpact": "Old data does not silently inflate current user-facing metrics.",
+      "adminVisibleImpact": "Operators see canonicalization candidates, archive-only records, manual review, and duplicate risk separately.",
+      "scoreImpact": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "area": "globalUserCounting",
+      "oldBehavior": "Guest, signed-in, and linked-person actions risked divergent counting if dedupe rules were local.",
+      "newFormula": "Global metrics count each real action once per canonical dedupe key; linked person rollups suppress duplicate guest/signed-in actions.",
+      "whyMoreAccurate": "Counts now explain global, guest, signed-in, linked-person, creator-role, admin projection, and system-event behavior.",
+      "userVisibleImpact": "User activity totals are less likely to double count handoff events.",
+      "adminVisibleImpact": "Duplicate suppression is visible with scope and reason.",
+      "scoreImpact": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "area": "watchTime",
+      "oldBehavior": "Page duration and locked preview exposure could be confused with content watch time.",
+      "newFormula": "Watch time starts only on visible unlocked content or media playback, excludes hidden/idle/page preload, and caps static review exposure.",
+      "whyMoreAccurate": "Watch metrics now represent actual active content exposure rather than generic page-open time.",
+      "userVisibleImpact": "Drop completion and watch labels align better with consumed content.",
+      "adminVisibleImpact": "Debug separates exact runtime, estimated runtime, weak visibility, and unavailable watch sources.",
+      "scoreImpact": [
+        "sourceHealth",
+        "runtimeHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "area": "sessionBounce",
+      "oldBehavior": "Unknown closeout and one-page sessions could be too easy to treat as bounce or active time.",
+      "newFormula": "Session active time excludes hidden/background/idle >30s; bounce requires one route, no meaningful interaction, activeMs <10000, and no conversion.",
+      "whyMoreAccurate": "Unknown closeout stays unknown and conversions prevent false bounce classification.",
+      "userVisibleImpact": "Engagement and activity labels avoid penalizing real conversions.",
+      "adminVisibleImpact": "Session debug shows active, idle, hidden, bounce, and handoff continuity buckets.",
+      "scoreImpact": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "area": "gumdropLedger",
+      "oldBehavior": "Paid, paid bonus, reward, task reward, admin grant, refund, adjustment, and legacy sources could drift in labels.",
+      "newFormula": "Ledger totals preserve source buckets and refund reversals without changing prices, packages, payment runtime, or GumDrop pricing math.",
+      "whyMoreAccurate": "Spend eligibility and wallet display can distinguish paid-source value from reward or legacy unknown value.",
+      "userVisibleImpact": "Wallet labels are source-aware without changing balances.",
+      "adminVisibleImpact": "Source-of-funds debug can catch paid-only violations and display mismatches.",
+      "scoreImpact": [
+        "sourceHealth",
+        "regressionRisk"
+      ]
+    },
+    {
+      "area": "creatorRevenue",
+      "oldBehavior": "Entitlement access and revenue truth could appear more exact than the source evidence allowed.",
+      "newFormula": "Entitlement is access truth; revenue confidence separates exact provider/payment artifacts, linked ledgers, inferred operator confirmation, weak legacy, and unknown.",
+      "whyMoreAccurate": "Creator metrics no longer mix confirmed, inferred, pending, reversed, and unknown legacy revenue.",
+      "userVisibleImpact": "Creator-facing revenue avoids exact-looking weak or refunded access states.",
+      "adminVisibleImpact": "Debug can find active entitlement, refund, cancellation, and paid-chat bypass mismatches.",
+      "scoreImpact": [
+        "sourceHealth",
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "area": "costExport",
+      "oldBehavior": "Cost readiness could remain generic owner review even when source guards existed.",
+      "newFormula": "Cost/export math separates source-guarded partial credit from external billing proof, batches export by watermark, and keeps SQL mirror manual.",
+      "whyMoreAccurate": "Cost risk improves only from source guards or real billing artifacts while preserving canonical metric facts.",
+      "userVisibleImpact": "Analytics accuracy is preserved while unnecessary reads, writes, and exports are bounded.",
+      "adminVisibleImpact": "Admin/debug reads compact summaries first and raw firehose only behind paged drilldown.",
+      "scoreImpact": [
+        "costRisk",
+        "freshness"
+      ]
+    },
+    {
+      "area": "metricDisplay",
+      "oldBehavior": "Missing or weak data could look like exact zero or exact revenue on user, creator, or admin surfaces.",
+      "newFormula": "Display shows zero only with provenZero, collecting for source-ready no-data, not connected for missing producers, estimated for weak/inferred confidence, and stale labels after one hour on admin/creator dashboards.",
+      "whyMoreAccurate": "The display layer now preserves source truth, freshness, confidence, and missing-data semantics instead of flattening everything into numbers.",
+      "userVisibleImpact": "Users and creators see collecting/estimated/not connected states instead of misleading zeros.",
+      "adminVisibleImpact": "Admin summaries can show technical confidence and freshness without leaking jargon to users.",
+      "scoreImpact": [
+        "sourceHealth",
+        "evidenceCompleteness",
+        "freshness"
+      ]
+    }
+  ],
+  "legacyRecoverySummary": {
+    "dryRunOnly": true,
+    "startDate": "2026-03-01",
+    "candidatesCanonicalized": 1,
+    "archiveOnly": 1,
+    "manualReview": 1,
+    "exactPromotionsBlocked": true,
+    "duplicateRisk": {
+      "low": 0,
+      "medium": 1,
+      "high": 3
+    }
+  },
+  "remainingUnknowns": [
+    "Unknown legacy data stays archive-only unless deterministic identity, event, route, and timestamp evidence exists.",
+    "Runtime/provider/admin formal evidence remains outside source math normalization.",
+    "Existing UI consumers should adopt metric display accuracy incrementally before visual redesign."
+  ],
+  "remainingFormalGates": [
+    "Runtime/provider smoke remains formal evidence and is not cleared by source math locks.",
+    "Admin production sample evidence remains a formal evidence lane.",
+    "Visual/operator final review remains outside Codex source-only math proof."
+  ],
+  "remainingCostReviews": [
+    "External billing review remains separate from source cost guards.",
+    "Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx cost lanes retain external review requirements where no billing artifact exists."
+  ],
+  "nextExactSteps": [
+    "Adopt metric display accuracy in remaining user, creator, and admin metric consumers before redesigning those surfaces.",
+    "Use dry-run legacy canonicalization output for operator review; do not write recovered records without an explicit migration plan.",
+    "Attach runtime/provider/admin formal evidence before clearing beta exit gates.",
+    "Attach external billing proof before upgrading source-guarded cost lanes to full credit."
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/final-math-normalization-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-math-normalization-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-final-math-normalization-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/final-math-normalization-lock.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "openPrs": [
+    {
+      "number": 302,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "onboarding_telemetry_external_review_required"
+    },
+    {
+      "number": 301,
+      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "doctrine_governance_external_review_required"
+    },
+    {
+      "number": 300,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "architecture_refactor_external_review_required"
+    },
+    {
+      "number": 299,
+      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 298,
+      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 297,
+      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 296,
+      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 295,
+      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 294,
+      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 293,
+      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "security_patch_external_review_required"
+    },
+    {
+      "number": 292,
+      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "performance_patch_external_review_required"
+    },
+    {
+      "number": 291,
+      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "accessibility_patch_external_review_required"
+    }
+  ],
+  "validationFailures": []
+}
