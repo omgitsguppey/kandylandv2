@@ -1,0 +1,122 @@
+# legacy canonical recovery plan
+
+Source-only hardening artifact. It does not run production reads, provider calls, exports, deploys, or mutate legacy/production data.
+
+```json
+{
+  "reportKey": "legacy-canonical-recovery-plan",
+  "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+  "startDate": "2026-03-01",
+  "dryRunOnly": true,
+  "productionMutationAllowed": false,
+  "confidenceRules": {
+    "exact": {
+      "maximumWeight": 1,
+      "requiredEvidence": [
+        "userId",
+        "sessionId",
+        "eventId",
+        "sourceTimestamp",
+        "sourceRoute"
+      ],
+      "rule": "Exact legacy recovery requires deterministic identity, event, route, and timestamp evidence."
+    },
+    "linked": {
+      "maximumWeight": 0.85,
+      "requiredEvidence": [
+        "linkId_or_deterministic_identity_transfer"
+      ],
+      "rule": "Linked recovery requires a deterministic linkId or identity transfer."
+    },
+    "inferred": {
+      "maximumWeight": 0.6,
+      "requiredEvidence": [
+        "deterministicEvent",
+        "objectId"
+      ],
+      "rule": "Exact source with incomplete identity is inferred at maximum."
+    },
+    "weak": {
+      "maximumWeight": 0.35,
+      "requiredEvidence": [
+        "partialRouteOrEventMatch"
+      ],
+      "rule": "Partial route or event match remains weak."
+    },
+    "unknown": {
+      "maximumWeight": 0,
+      "requiredEvidence": [],
+      "rule": "Unknown source or identity is archive-only and cannot become exact."
+    }
+  },
+  "duplicateWindows": {
+    "click_action": "5s",
+    "view_impression": "60s",
+    "session": "sessionId_or_30m_inactivity",
+    "payment": "provider_order_fingerprint_only",
+    "task": "taskId_resetWindowId",
+    "notification": "intentId_recipientId_1h",
+    "chat": "messageId_or_idempotencyKey",
+    "drop_unlock": "dropId_unlockId_user_or_linkedPerson",
+    "watch": "watchSessionId"
+  },
+  "candidates": [
+    {
+      "candidateId": "legacy-page-view-to-surface-view",
+      "legacySource": "analytics_guest_batches",
+      "oldEventName": "page_view",
+      "canonicalEventName": "semantic_page_viewed",
+      "oldMetricName": "page_views",
+      "canonicalMetricId": "surface_views",
+      "confidence": "weak",
+      "duplicateWindow": "60s",
+      "action": "normalize_candidate",
+      "reason": "Guest batch page views can explain historical navigation but lack exact linked identity.",
+      "accuracyImpact": "Improves historical surface trend explanations while keeping user truth weak.",
+      "userVisibleImpact": "No user-facing numbers change until an approved recovery import exists."
+    },
+    {
+      "candidateId": "legacy-unlock-to-drop-unlocked",
+      "legacySource": "legacy_unlock_events",
+      "oldEventName": "unlock_content",
+      "canonicalEventName": "drop_unlocked",
+      "oldMetricName": "unlocks",
+      "canonicalMetricId": "drop_unlocks",
+      "confidence": "inferred",
+      "duplicateWindow": "dropId_unlockId_user_or_linkedPerson",
+      "action": "link_candidate",
+      "reason": "Unlock records with drop id and user/session can recover access intent, but entitlement/payment truth remains separate.",
+      "accuracyImpact": "Separates unlock from unwrap and watch for better creator/drop metrics.",
+      "userVisibleImpact": "No entitlement or payment record is mutated."
+    },
+    {
+      "candidateId": "legacy-free-gd-to-reward-source",
+      "legacySource": "wallet_legacy_labels",
+      "oldEventName": "free_gd_credit",
+      "canonicalEventName": "gumdrop_reward_credit_classified",
+      "oldMetricName": "free_gd",
+      "canonicalMetricId": "reward_gd",
+      "confidence": "weak",
+      "duplicateWindow": "ledger_id_or_manual_review",
+      "action": "manual_review",
+      "reason": "Old free labels become reward_gd unless deterministic paid purchase package proof exists.",
+      "accuracyImpact": "Prevents legacy source labels from funding paid-only experiences.",
+      "userVisibleImpact": "No wallet balance or spend policy changes in dry-run mode."
+    },
+    {
+      "candidateId": "unknown-legacy-source-archive",
+      "legacySource": "unknown_legacy",
+      "oldEventName": "unknown",
+      "canonicalEventName": "unknown_legacy_archived",
+      "oldMetricName": "unknown",
+      "canonicalMetricId": "archive_only",
+      "confidence": "unknown",
+      "duplicateWindow": "none",
+      "action": "archive_only",
+      "reason": "Unknown legacy source or identity cannot become exact current truth.",
+      "accuracyImpact": "Blocks unsupported promotions and keeps unknowns visible for operator review.",
+      "userVisibleImpact": "No user-facing metric consumes unknown legacy as exact."
+    }
+  ]
+}
+```

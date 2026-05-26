@@ -1,0 +1,168 @@
+# global formula audit
+
+Source-only hardening artifact. It does not run production reads, provider calls, exports, deploys, or mutate legacy/production data.
+
+```json
+{
+  "reportKey": "global-formula-audit",
+  "generatedAtUtc": "2026-05-26T12:24:12.748Z",
+  "status": "pass",
+  "scoreWeights": {
+    "sourceHealth": 25,
+    "runtimeHealth": 20,
+    "evidenceCompleteness": 20,
+    "freshness": 15,
+    "costRisk": 10,
+    "regressionRisk": 10
+  },
+  "confidenceWeights": {
+    "exact": 1,
+    "linked": 0.85,
+    "inferred": 0.6,
+    "weak": 0.35,
+    "unknown": 0
+  },
+  "requiredDecisions": {
+    "missingDataIsZero": false,
+    "unknownLegacyCanBecomeExact": false,
+    "nonEventsCanReduceScore": false,
+    "futureOnlyQuietEventsCanReduceScore": false,
+    "pageDurationCanBeWatchTime": false,
+    "hiddenTimeCanBeActiveSessionTime": false,
+    "paymentApprovalEqualsCheckoutStart": false,
+    "rewardGdCanBecomePaidGd": false,
+    "paidBonusGdCanBecomeRewardGd": false,
+    "legacyUnknownCanFundPaidOnly": false,
+    "costSavingsCanReduceAccuracy": false
+  },
+  "personMetricHydrationGapMath": {
+    "computedGapSource": "missingHydration.length",
+    "debugLaneUsesActualGapCount": true,
+    "scoreImpactUsesActualGapCount": true,
+    "fakeZeroPatternBlocked": true
+  },
+  "entries": [
+    {
+      "area": "beta_score",
+      "formulaOwner": "src/lib/math/canonical-math-ledger.ts",
+      "currentFormula": "Weighted dimensions from src/lib/agent-score/weights.ts.",
+      "canonicalFormula": "sourceHealth 25, runtimeHealth 20, evidenceCompleteness 20, freshness 15, costRisk 10, regressionRisk 10.",
+      "classification": "canonical",
+      "accuracyExplanation": "Freezing the weights prevents score drift and keeps the public beta calculation reproducible.",
+      "filesReviewed": [
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/weights.ts",
+        "src/lib/math/canonical-math-ledger.ts"
+      ]
+    },
+    {
+      "area": "identity_confidence",
+      "formulaOwner": "src/lib/math/canonical-math-ledger.ts",
+      "currentFormula": "Identity confidence labels flow through analytics and person metrics.",
+      "canonicalFormula": "exact=1.0, linked=0.85, inferred=0.60, weak=0.35, unknown=0.0.",
+      "classification": "canonical",
+      "accuracyExplanation": "Shared numeric confidence prevents weak or inferred identity from looking exact in metrics and debug.",
+      "filesReviewed": [
+        "src/lib/math/canonical-math-ledger.ts",
+        "src/lib/analytics/person-metrics-hydration.ts"
+      ]
+    },
+    {
+      "area": "legacy_confidence",
+      "formulaOwner": "src/lib/math/legacy-metric-canonicalization.ts",
+      "currentFormula": "Legacy sources are mapped with confidence caps and dry-run plans.",
+      "canonicalFormula": "Unknown legacy cannot become exact; deterministic identity, event, route, and timestamp are required before stronger confidence.",
+      "classification": "canonical",
+      "accuracyExplanation": "Dry-run confidence caps recover useful history without mutating production or overstating user truth.",
+      "filesReviewed": [
+        "src/lib/math/legacy-metric-canonicalization.ts",
+        "src/lib/math/legacy-recovery-dry-run-engine.ts"
+      ]
+    },
+    {
+      "area": "person_metrics",
+      "formulaOwner": "src/lib/analytics/person-metrics-hydration.ts",
+      "currentFormula": "missingHydration is computed from low confidence metric statuses.",
+      "canonicalFormula": "debugLane.gaps and scoreImpactByDimension use missingHydration.length.",
+      "classification": "normalized",
+      "accuracyExplanation": "Real gap counts stop missing source or bridge work from being hidden as zero.",
+      "filesReviewed": [
+        "src/lib/analytics/person-metrics-hydration.ts"
+      ]
+    },
+    {
+      "area": "watch_time",
+      "formulaOwner": "src/lib/math/drop-watch-unlock-math.ts",
+      "currentFormula": "Drop watch math separates page duration, locked preview, active watch, and confidence.",
+      "canonicalFormula": "media_or_content_exposure_only",
+      "classification": "canonical",
+      "accuracyExplanation": "Watch time reflects active content exposure rather than page-open time.",
+      "filesReviewed": [
+        "src/lib/math/drop-watch-unlock-math.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts"
+      ]
+    },
+    {
+      "area": "bounce",
+      "formulaOwner": "src/lib/math/session-journey-math.ts",
+      "currentFormula": "Bounce requires one route, no meaningful interaction, activeMs below threshold, and no conversion.",
+      "canonicalFormula": "zeroDenominator=If session denominator is missing or unbounded, bounce rate is unavailable instead of 0.",
+      "classification": "canonical",
+      "accuracyExplanation": "Unknown closeouts and one-page conversions cannot corrupt bounce rate.",
+      "filesReviewed": [
+        "src/lib/math/session-journey-math.ts",
+        "src/lib/analytics/session-metrics-engine.ts"
+      ]
+    },
+    {
+      "area": "dedupe_windows",
+      "formulaOwner": "src/lib/math/global-user-counting-math.ts",
+      "currentFormula": "Global/user/guest/linked-person counts route through canonical dedupe windows.",
+      "canonicalFormula": "{\"eventIdPriority\":\"canonical_event_id\",\"fallbackPriority\":[\"dedupeKey\",\"sessionId:eventName:objectId:timestampBucket\"],\"linkedGuestUserRule\":\"count once globally and once under best user identity only\",\"legacyWeakUnknownRule\":\"count in legacy bucket, not exact user bucket\",\"retryReplayRule\":\"retry/replay events do not increment standard counts unless replay is the metric itself\"}",
+      "classification": "canonical",
+      "accuracyExplanation": "Linked guest/user actions count once globally and once under the best person identity.",
+      "filesReviewed": [
+        "src/lib/math/global-user-counting-math.ts",
+        "src/lib/math/count-deduplication-normalizer.ts"
+      ]
+    },
+    {
+      "area": "gumdrop_source_of_funds",
+      "formulaOwner": "src/lib/math/gumdrop-ledger-math.ts",
+      "currentFormula": "Source buckets distinguish paid, paid bonus, reward, task reward, admin grant, refund, adjustment, and legacy unknown.",
+      "canonicalFormula": "{\"paidBaseGumDropsSource\":\"paid_gd\",\"paidPackageBonusGumDropsSource\":\"paid_bonus_gd\",\"rewardGumDropsSource\":\"reward_gd\",\"taskRewardGumDropsSource\":\"task_reward_gd\",\"adminGrantGumDropsSource\":\"admin_grant_gd\",\"unknownLegacyGumDropsSource\":\"legacy_unknown\",\"bonusGumDropsMustPreserveSourceOfFunds\":true,\"paidBonusSpendEligibilityFollowsCurrentPaidBonusPolicy\":true,\"rewardGumDropsEligibleForFanPassRenewal\":false,\"sourceTruth\":\"wallet capture and source-of-funds ledger; this ledger documents formula authority without changing GumDrop math\"}",
+      "classification": "canonical",
+      "accuracyExplanation": "Source-of-funds math prevents reward or unknown legacy balances from funding paid-only creator experiences.",
+      "filesReviewed": [
+        "src/lib/math/gumdrop-ledger-math.ts",
+        "src/lib/gumdrop-ledger.ts"
+      ]
+    },
+    {
+      "area": "cost_risk",
+      "formulaOwner": "src/lib/math/cost-export-parity-math.ts",
+      "currentFormula": "Source guards can improve cost readiness; external billing review remains separate.",
+      "canonicalFormula": "{\"externalBillingProofRequiredForDollarClaims\":true,\"sourceGuardsCanImproveSourceCostReadiness\":true,\"missingExternalBillingClassification\":\"source_guarded_external_review_remaining\",\"route4xxRule\":\"Known validation errors should be nonretryable and mapped before they affect cost risk.\"}",
+      "classification": "canonical",
+      "accuracyExplanation": "Cost risk improves only through source guards or external artifacts, not by dropping canonical facts.",
+      "filesReviewed": [
+        "src/lib/math/cost-export-parity-math.ts",
+        "src/lib/server/global-cost-surface-contract.ts"
+      ]
+    },
+    {
+      "area": "sql_export_parity",
+      "formulaOwner": "src/lib/math/cost-export-parity-math.ts",
+      "currentFormula": "Exports are batch/watermark based and Cloud SQL mirror sync is manual/cost-approved.",
+      "canonicalFormula": "Batch export by watermark; SQL mirror sync manual/cost-approved only.",
+      "classification": "canonical",
+      "accuracyExplanation": "Batching protects cost while preserving canonical event facts needed for accuracy.",
+      "filesReviewed": [
+        "src/lib/analytics/sql-database-parity-engine.ts",
+        "src/lib/math/cost-export-parity-math.ts"
+      ]
+    }
+  ],
+  "validationFailures": []
+}
+```

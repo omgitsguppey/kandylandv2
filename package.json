@@ -88,6 +88,8 @@
         "check:cost-export-sql-parity-math": "tsx scripts/agent/validate-cost-export-sql-parity-math.ts",
         "check:metric-display-accuracy": "tsx scripts/agent/validate-metric-display-accuracy.ts",
         "check:final-math-normalization-lock": "tsx scripts/agent/validate-final-math-normalization-lock.ts",
+        "check:codebase-organization-hardening": "tsx scripts/agent/validate-codebase-organization-hardening.ts",
+        "check:mega-legacy-pipeline-hardening": "tsx scripts/agent/validate-mega-legacy-pipeline-hardening.ts",
         "check:creator-monetization-admin-debug": "tsx scripts/agent/validate-creator-monetization-admin-debug.ts",
         "check:creator-monetization-readiness-lock": "tsx scripts/agent/validate-creator-monetization-readiness-lock.ts",
         "check:activity-verification-engine": "tsx scripts/agent/validate-activity-verification-engine.ts",
