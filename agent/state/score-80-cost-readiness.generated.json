@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-24T05:04:29.432Z",
+  "generatedAtUtc": "2026-05-26T04:24:00.649Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
-  "sourceCommit": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "currentHead": "8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a",
+  "sourceCommit": "8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
@@ -15,7 +15,7 @@
     "route4xxSourceReady": true,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 5
+    "p2Count": 4
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
@@ -95,11 +95,11 @@
     "finalCostCurrent=false",
     "telemetryCurrent=false",
     "costOwnerReviewSourceClosureCurrent=false",
-    "costRiskOwnerReviewClosureCurrent=true"
+    "costRiskOwnerReviewClosureCurrent=true",
+    "costRiskExitPassCurrent=true"
   ],
   "staleArtifacts": [
     "agent/state/final-cost-audit-lock.generated.json",
-    "agent/state/cloud-sql-gemini-cost-guards.generated.json",
     "agent/state/analytics-cost-runtime-inventory.generated.json",
     "agent/state/final-telemetry-closure-lock.generated.json",
     "agent/state/creator-dashboard-error-cost-inventory.generated.json"
@@ -120,6 +120,12 @@
       "detail": "Final cost lock is missing or stale."
     },
     {
+      "command": "npm run check:cost-risk-exit-pass",
+      "status": "pass",
+      "artifactPath": "agent/state/cost-risk-exit-pass.generated.json",
+      "detail": "Current cost risk exit pass is available."
+    },
+    {
       "command": "npm run check:cost-risk-owner-review-closure",
       "status": "pass",
       "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
@@ -133,9 +139,9 @@
     },
     {
       "command": "npm run check:cloud-sql-gemini-cost-guards",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "detail": "Cloud SQL/Gemini guard report is missing or stale."
+      "detail": "Current Cloud SQL/Gemini guard report is available."
     },
     {
       "command": "npm run check:global-cost-surfaces",

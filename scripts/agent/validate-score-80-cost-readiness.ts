@@ -25,6 +25,7 @@ export type Score80CostReadinessArtifacts = {
   finalTelemetryClosureLock?: JsonRecord | null;
   costOwnerReviewSourceClosure?: JsonRecord | null;
   costRiskOwnerReviewClosure?: JsonRecord | null;
+  costRiskExitPass?: JsonRecord | null;
 };
 
 export type Score80CostReadinessReport = {
@@ -157,6 +158,8 @@ export function buildScore80CostReadinessReport(input: {
   const costOwnerClosureCurrent = artifactCurrent(costOwnerClosure, input.currentHead);
   const costRiskClosure = input.artifacts.costRiskOwnerReviewClosure ?? null;
   const costRiskClosureCurrent = artifactCurrent(costRiskClosure, input.currentHead);
+  const costRiskExitPass = input.artifacts.costRiskExitPass ?? null;
+  const costRiskExitPassCurrent = artifactCurrent(costRiskExitPass, input.currentHead);
   const creatorInventory = input.artifacts.creatorDashboardErrorCostInventory ?? null;
 
   const finalCostCurrent = artifactCurrent(finalCost, input.currentHead);
@@ -220,9 +223,12 @@ export function buildScore80CostReadinessReport(input: {
   });
   const closureCostReadiness = record(costOwnerClosure?.costReadiness);
   const riskClosureCostReadiness = record(costRiskClosure?.costReadiness);
-  const costReadiness: PublicBetaCostReadiness = costRiskClosureCurrent && Object.keys(riskClosureCostReadiness).length > 0
-    ? riskClosureCostReadiness as PublicBetaCostReadiness
-    : costOwnerClosureCurrent && Object.keys(closureCostReadiness).length > 0
+  const exitPassCostReadiness = record(costRiskExitPass?.costReadiness);
+  const costReadiness: PublicBetaCostReadiness = costRiskExitPassCurrent && Object.keys(exitPassCostReadiness).length > 0
+    ? exitPassCostReadiness as PublicBetaCostReadiness
+    : costRiskClosureCurrent && Object.keys(riskClosureCostReadiness).length > 0
+      ? riskClosureCostReadiness as PublicBetaCostReadiness
+      : costOwnerClosureCurrent && Object.keys(closureCostReadiness).length > 0
       ? closureCostReadiness as PublicBetaCostReadiness
       : costOwnerReviewLanesToScoreInput(costOwnerReviewLanes);
   const costScore = scoreCostReadiness(costReadiness);
@@ -242,7 +248,7 @@ export function buildScore80CostReadinessReport(input: {
     currentHead: input.currentHead,
     sourceCommit: input.currentHead,
     summary: {
-      latestCostLocksPreferred: costRiskClosureCurrent || costOwnerClosureCurrent || (finalCostCurrent && telemetryCurrent),
+      latestCostLocksPreferred: costRiskExitPassCurrent || costRiskClosureCurrent || costOwnerClosureCurrent || (finalCostCurrent && telemetryCurrent),
       externalOwnerReviewStillRequired,
       sourceCostReadinessScore: costScore.score,
       costRiskScore: costScore.score,
@@ -267,6 +273,7 @@ export function buildScore80CostReadinessReport(input: {
       `telemetryCurrent=${telemetryCurrent}`,
       `costOwnerReviewSourceClosureCurrent=${costOwnerClosureCurrent}`,
       `costRiskOwnerReviewClosureCurrent=${costRiskClosureCurrent}`,
+      `costRiskExitPassCurrent=${costRiskExitPassCurrent}`,
     ],
     staleArtifacts,
     ignoredLegacyArtifacts,
@@ -277,6 +284,12 @@ export function buildScore80CostReadinessReport(input: {
         status: finalCostCurrent ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/final-cost-audit-lock.generated.json",
         detail: finalCostCurrent ? "Current final cost lock is available." : "Final cost lock is missing or stale.",
+      },
+      {
+        command: "npm run check:cost-risk-exit-pass",
+        status: costRiskExitPassCurrent ? "pass" : "failed_or_not_run",
+        artifactPath: "agent/state/cost-risk-exit-pass.generated.json",
+        detail: costRiskExitPassCurrent ? "Current cost risk exit pass is available." : "Cost risk exit pass is missing or stale.",
       },
       {
         command: "npm run check:cost-risk-owner-review-closure",
@@ -384,6 +397,7 @@ export function buildScore80CostReadinessFromRepo(root = ROOT): Score80CostReadi
       finalTelemetryClosureLock: readJson(root, "agent/state/final-telemetry-closure-lock.generated.json"),
       costOwnerReviewSourceClosure: readJson(root, "agent/state/cost-owner-review-source-closure.generated.json"),
       costRiskOwnerReviewClosure: readJson(root, "agent/state/cost-risk-owner-review-closure.generated.json"),
+      costRiskExitPass: readJson(root, "agent/state/cost-risk-exit-pass.generated.json"),
     },
   });
 }

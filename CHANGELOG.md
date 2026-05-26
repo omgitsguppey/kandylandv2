@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.84 - 2026-05-26
+- Cost risk exit pass
+- Refined cost risk exit evidence for Cloud Run, Cloud SQL, Gemini/AI, and route 4xx lanes.
+- Separated external billing review from source cost guards.
+- Kept product runtime unchanged.
+
 ## 1.4.83 - 2026-05-26
 - Freshness window repair
 - Refreshed stale required beta evidence reports.

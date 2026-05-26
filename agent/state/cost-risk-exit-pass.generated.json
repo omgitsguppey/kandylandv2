@@ -1,0 +1,327 @@
+{
+  "generatedAtUtc": "2026-05-26T04:25:37.974Z",
+  "reportKey": "cost-risk-exit-pass",
+  "currentHead": "8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a",
+  "status": "pass",
+  "lanes": {
+    "cloudRun": {
+      "id": "cloudRun",
+      "label": "Cloud Run/App Hosting",
+      "owner": "speed-security-cost",
+      "sourceGuardStatus": "source_guarded_external_review_remaining",
+      "sourceGuarded": true,
+      "sourceGuardReason": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
+      "externalBillingRequirement": "external_billing_required",
+      "externalBillingReviewed": false,
+      "missingArtifact": null,
+      "exactNextAction": "Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof.",
+      "evidence": [
+        "finalCostCurrent=true",
+        "globalCostSourceClean=true",
+        "cloudRunGuarded=true",
+        "externalBillingReviewed=false"
+      ]
+    },
+    "cloudSqlDataConnect": {
+      "id": "cloudSqlDataConnect",
+      "label": "Cloud SQL/Data Connect",
+      "owner": "agent-context-mirror",
+      "sourceGuardStatus": "source_ready_no_runtime_usage_detected",
+      "sourceGuarded": true,
+      "sourceGuardReason": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
+      "externalBillingRequirement": "external_billing_required",
+      "externalBillingReviewed": false,
+      "missingArtifact": null,
+      "exactNextAction": "Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console.",
+      "evidence": [
+        "cloudSqlGuardReportCurrent=true",
+        "cloudSqlRuntimeDetected=false",
+        "sqlMirrorScriptsGuarded=true",
+        "sqlMirrorRequiresExplicitApproval=true",
+        "notDetectedIsNotPass=true",
+        "externalBillingReviewed=false"
+      ]
+    },
+    "geminiCloudAssistVertex": {
+      "id": "geminiCloudAssistVertex",
+      "label": "Gemini/Cloud Assist/Vertex AI",
+      "owner": "admin-ai",
+      "sourceGuardStatus": "source_guarded_external_review_remaining",
+      "sourceGuarded": true,
+      "sourceGuardReason": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
+      "externalBillingRequirement": "external_billing_required",
+      "externalBillingReviewed": false,
+      "missingArtifact": null,
+      "exactNextAction": "Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited.",
+      "evidence": [
+        "cloudSqlGeminiGuardCurrent=true",
+        "geminiRuntimeDetected=true",
+        "aiCallsRequireExplicitAction=true",
+        "aiCallsHaveRateOrCacheGuard=true",
+        "geminiExternalBillingObserved=true",
+        "externalBillingReviewed=false"
+      ]
+    },
+    "route4xx": {
+      "id": "route4xx",
+      "label": "Route 4xx",
+      "owner": "server-routing",
+      "sourceGuardStatus": "source_ready_retry_storm_guarded",
+      "sourceGuarded": true,
+      "sourceGuardReason": "Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.",
+      "externalBillingRequirement": "external_billing_not_required",
+      "externalBillingReviewed": false,
+      "missingArtifact": null,
+      "exactNextAction": "Keep noisy 4xx routes typed, deduped, and non-retryable unless a validator proves retry is needed.",
+      "evidence": [
+        "artifactPath=agent/state/final-cost-audit-lock.generated.json",
+        "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
+        "finalCostCurrent=true",
+        "analyticsRuntimeCurrent=true",
+        "route4xxSourceReady=true",
+        "retry4xxClassified=true"
+      ]
+    }
+  },
+  "costReadiness": {
+    "cloudRunCostReadiness": {
+      "status": "source_guarded_external_review_remaining",
+      "detail": "Cloud Run/App Hosting has source guard coverage; deployed billing review remains external.",
+      "evidence": [
+        "finalCostCurrent=true",
+        "globalCostSourceClean=true",
+        "cloudRunGuarded=true",
+        "externalBillingReviewed=false",
+        "owner=speed-security-cost",
+        "externalReviewRequired=true",
+        "externalBillingReviewed=false",
+        "nextAction=Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof."
+      ],
+      "blocksBetaExit": false
+    },
+    "cloudSqlCostReadiness": {
+      "status": "source_ready_no_runtime_usage_detected",
+      "detail": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
+      "evidence": [
+        "cloudSqlGuardReportCurrent=true",
+        "cloudSqlRuntimeDetected=false",
+        "sqlMirrorScriptsGuarded=true",
+        "sqlMirrorRequiresExplicitApproval=true",
+        "notDetectedIsNotPass=true",
+        "externalBillingReviewed=false",
+        "owner=agent-context-mirror",
+        "externalReviewRequired=true",
+        "externalBillingReviewed=false",
+        "nextAction=Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console."
+      ],
+      "blocksBetaExit": false
+    },
+    "geminiCloudAssistCostReadiness": {
+      "status": "source_guarded_external_review_remaining",
+      "detail": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
+      "evidence": [
+        "cloudSqlGeminiGuardCurrent=true",
+        "geminiRuntimeDetected=true",
+        "aiCallsRequireExplicitAction=true",
+        "aiCallsHaveRateOrCacheGuard=true",
+        "geminiExternalBillingObserved=true",
+        "externalBillingReviewed=false",
+        "owner=admin-ai",
+        "externalReviewRequired=true",
+        "externalBillingReviewed=false",
+        "nextAction=Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited."
+      ],
+      "blocksBetaExit": false
+    },
+    "route4xxReadiness": {
+      "status": "source_ready_retry_storm_guarded",
+      "detail": "Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.",
+      "evidence": [
+        "artifactPath=agent/state/final-cost-audit-lock.generated.json",
+        "artifactPath=agent/state/final-telemetry-closure-lock.generated.json",
+        "finalCostCurrent=true",
+        "analyticsRuntimeCurrent=true",
+        "route4xxSourceReady=true",
+        "retry4xxClassified=true",
+        "owner=server-routing",
+        "externalReviewRequired=false",
+        "externalBillingReviewed=false",
+        "nextAction=Keep noisy 4xx routes typed, deduped, and non-retryable unless a validator proves retry is needed."
+      ],
+      "blocksBetaExit": false
+    }
+  },
+  "costRisk": {
+    "before": 42,
+    "after": 80.5,
+    "target": 80
+  },
+  "scoreDimensions": {
+    "sourceHealth": {
+      "before": 100,
+      "after": 100,
+      "target": 80
+    },
+    "runtimeHealth": {
+      "before": 84.2,
+      "after": 84.2,
+      "target": 80
+    },
+    "evidenceCompleteness": {
+      "before": 84.6,
+      "after": 84.6,
+      "target": 80
+    },
+    "freshness": {
+      "before": 83.75,
+      "after": 83.75,
+      "target": 80
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 80.5,
+      "target": 80
+    },
+    "regressionRisk": {
+      "before": 86,
+      "after": 86,
+      "target": 80
+    },
+    "overallHealthScore": {
+      "before": 84.12,
+      "after": 87.97,
+      "target": 80
+    }
+  },
+  "externalBillingReviewed": false,
+  "externalBillingRemaining": [
+    "cloudRun",
+    "cloudSqlDataConnect",
+    "geminiCloudAssistVertex"
+  ],
+  "formalEvidenceImpact": "source_cost_guard_only_does_not_clear_provider_billing",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "deployPerformed": false,
+  "productRuntimeChanged": false,
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "sourceGuardedLaneCount": 4,
+  "genericOwnerReviewLaneCount": 0,
+  "nextExactSteps": [
+    "cloudRun: Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof.",
+    "cloudSqlDataConnect: Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console.",
+    "geminiCloudAssistVertex: Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited.",
+    "Do not promote source cost guard evidence to external billing proof without a separate owner-reviewed artifact."
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/bigquery-cloud-pipeline-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/bigquery-cloud-pipeline-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "package.json",
+      "classification": "score_model_evidence_supported"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-cost-risk-exit-pass.ts",
+      "classification": "cost_evidence_validator"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-cost-readiness.ts",
+      "classification": "score_model_evidence_supported"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/cost-risk-exit-pass.spec.ts",
+      "classification": "cost_evidence_test"
+    }
+  ],
+  "staleLogicClassification": [
+    {
+      "reference": "cost_review_required",
+      "classification": "historical_reference",
+      "reason": "Generic cost review remains valid only when source guards are missing."
+    },
+    {
+      "reference": "source_guarded_external_review_remaining",
+      "classification": "source_guarded",
+      "reason": "Source guard can raise costRisk credit but does not prove provider billing."
+    },
+    {
+      "reference": "owner_review_external_billing_required",
+      "classification": "external_billing_required",
+      "reason": "Cloud SQL/Data Connect and Gemini/Vertex provider billing require external owner evidence."
+    }
+  ],
+  "evidence": [
+    "currentHead=8a062a92bdd8a0f6a2d39e32bc6033498cda5d9a",
+    "costRiskBefore=42",
+    "costRiskAfter=80.5",
+    "sourceGuardedLaneCount=4",
+    "externalBillingReviewed=false",
+    "productionReadsPerformed=false",
+    "providerCallsPerformed=false",
+    "deployPerformed=false"
+  ],
+  "validationFailures": []
+}

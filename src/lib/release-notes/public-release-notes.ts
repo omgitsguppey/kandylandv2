@@ -1,13 +1,72 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.83",
-  "betaReleaseCounter": 483,
+  "currentVersion": "1.4.84",
+  "betaReleaseCounter": 484,
   "channel": "beta",
-  "generatedAt": "2026-05-26T04:15:00.000Z",
-  "generatedAtUtc": "2026-05-26T04:15:00.000Z",
+  "generatedAt": "2026-05-26T04:22:07.000Z",
+  "generatedAtUtc": "2026-05-26T04:22:07.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.84",
+      "previousVersion": "1.4.83",
+      "betaReleaseCounter": 484,
+      "previousBetaReleaseCounter": 483,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): repair cost risk exit lane",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T04:22:07.000Z",
+      "generatedAt": "2026-05-26T04:22:07.000Z",
+      "committedAtUtc": "2026-05-26T04:22:07.000Z",
+      "generatedAtUtc": "2026-05-26T04:22:07.000Z",
+      "category": "Improved",
+      "title": "Cost risk exit pass",
+      "updatedAtUtc": "2026-05-26T04:22:07.000Z",
+      "summary": "Refined cost risk exit evidence for Cloud Run, Cloud SQL, Gemini/AI, and route 4xx lanes.",
+      "userFacingTitle": "Cost risk exit pass",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refined cost risk exit evidence for Cloud Run, Cloud SQL, Gemini/AI, and route 4xx lanes.",
+        "Separated external billing review from source cost guards.",
+        "Kept product runtime unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added a source-only cost-risk exit pass artifact and validator for Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Vertex, and route 4xx readiness.",
+        "Updated beta cost scoring to prefer current cost-risk exit evidence while keeping external billing review separate.",
+        "Preserved product runtime, payment runtime, GumDrop math, production reads, provider calls, and deploy boundaries."
+      ],
+      "affectedSurfaces": [
+        "Public beta score evidence",
+        "Cost risk scoring",
+        "Cost guard evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/cost-risk-exit-pass.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/score-80-cost-readiness.generated.json",
+        "docs/agent-truth/cost-risk-exit-pass.md",
+        "docs/agent-truth/score-80-cost-readiness.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-cost-risk-exit-pass.ts",
+        "scripts/agent/validate-score-80-cost-readiness.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/cost-risk-exit-pass.spec.ts"
+      ],
+      "effectiveChangeCount": 13,
+      "excludedGeneratedChangeCount": 3,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.83",
       "previousVersion": "1.4.82",
@@ -1486,64 +1545,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 12,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.59",
-      "previousVersion": "1.4.58",
-      "betaReleaseCounter": 459,
-      "previousBetaReleaseCounter": 458,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(analytics): repair telemetry parity gate",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T05:40:55.201Z",
-      "generatedAt": "2026-05-25T05:40:55.201Z",
-      "committedAtUtc": "2026-05-25T05:40:55.201Z",
-      "generatedAtUtc": "2026-05-25T05:40:55.201Z",
-      "category": "Fixed",
-      "title": "Telemetry parity gate repair",
-      "updatedAtUtc": "2026-05-25T05:40:55.201Z",
-      "summary": "Repaired Advanced Debug telemetry parity semantics so low-confidence samples and active refresh diagnostics block parity promotion with exact route attribution.",
-      "userFacingTitle": "Telemetry parity gate repair",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed telemetry parity pass gating for low-confidence samples and refresh diagnostics failures.",
-        "Separated event sample presence from parity readiness.",
-        "Mapped Analytics.IngestIdentified and unknown route diagnostics into blocking telemetry parity evidence."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Event sample presence now remains separate from telemetry parity promotion when confidence is low or refresh diagnostics are failing.",
-        "Payment runtime, wallet behavior, PayPal behavior, GumDrop math, external GA4 calls, production reads, and production writes were not changed."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug Data Validation",
-        "Telemetry parity validation",
-        "Analytics refresh diagnostics",
-        "Analytics ingest identified diagnostics",
-        "Debug cockpit validation artifacts"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/analytics/telemetry-parity-pass-gate.ts",
-        "src/lib/analytics/refresh-diagnostics-failure-clusters.ts",
-        "src/lib/analytics/ingest-identified-parity-blocker.ts",
-        "src/lib/analytics/advanced-telemetry-parity-ui.ts",
-        "src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
-        "src/types/admin-analytics.ts"
-      ],
-      "effectiveChangeCount": 9,
-      "excludedGeneratedChangeCount": 10,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
     }
   ]
-} satisfies PublicReleaseNotesDocument;
+} as const satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,

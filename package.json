@@ -133,6 +133,7 @@
         "check:beta-evidence-gap-map": "tsx scripts/agent/validate-beta-evidence-gap-map.ts",
         "check:beta-freshness-language": "tsx scripts/agent/validate-beta-freshness-language.ts",
         "check:freshness-window-repair": "tsx scripts/agent/validate-freshness-window-repair.ts",
+        "check:cost-risk-exit-pass": "tsx scripts/agent/validate-cost-risk-exit-pass.ts",
         "check:refresh-safeguards": "tsx scripts/agent/validate-refresh-safeguards.ts",
         "check:self-healing-refresh-queue": "tsx scripts/agent/validate-self-healing-refresh-queue.ts",
         "check:admin-balance-body-cap": "tsx scripts/agent/validate-admin-balance-body-cap.ts",
