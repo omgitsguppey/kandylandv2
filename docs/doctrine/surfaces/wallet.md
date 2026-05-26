@@ -8,7 +8,7 @@ Owner: wallet/payment/GumDrops
 
 - Anchor revenue and user value to server purchase or ledger transaction truth.
 - Preserve paid vs reward GumDrop source accounting.
-- Show source-aware free GD and paid GD where balance source matters.
+- Show source-aware reward GD and paid GD where balance source matters.
 - Keep PayPal capture and ledger facts as canonical purchase evidence.
 
 ## Must Not

@@ -132,7 +132,19 @@ export function classifyDailyTaskRewardLedgerDirtyFile(path: string): DirtyClass
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-gumdrop-source-of-funds-truth.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-gumdrop-ledger-math.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/score-gumdrop-economy.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/gumdrop-ledger-math.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/canonical-math-ledger.ts") return "real_source_change_needs_review";
+  if (normalized === "src/components/PurchaseModal.tsx") return "real_source_change_needs_review";
+  if (normalized === "tests/unit/gumdrop-ledger-math.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/canonical-math-ledger.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/purchase-modal-density.spec.tsx") return "test_artifact_expected";
+  if (normalized === "scripts/agent/validate-wallet-density.ts") return "validator_artifact_expected";
+  if (normalized === "docs/doctrine/surfaces/wallet.md" || normalized === "docs/agent-truth/payment-wallet-unlock-entitlement.md") return "release_artifact_expected";
+  if (normalized === "agent/state/gumdrop-ledger-math.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/gumdrop-ledger-math.md") return "release_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (
     normalized === "CHANGELOG.md"
@@ -226,7 +238,7 @@ export function buildDailyTaskRewardLedgerReport() {
       unitTestPresent: unitTest.includes("stores task reward grants as reward source"),
       packageScriptPresent: packageJson.includes('"check:daily-task-reward-ledger": "tsx scripts/agent/validate-daily-task-reward-ledger.ts"'),
       debugLanePresent: debugSummary.includes("daily_task_reward_ledger") && adminSummary.includes("dailyTaskRewardLedger") && adminDebugRoute.includes("dailyTaskRewardLedger"),
-      paymentRuntimeTouched: dirtyFiles.some((entry) => /src\/app\/api\/paypal|src\/components\/PurchaseModal|src\/lib\/wallet|src\/app\/api\/wallet/iu.test(entry.path)),
+      paymentRuntimeTouched: dirtyFiles.some((entry) => /src\/app\/api\/paypal|src\/lib\/wallet|src\/app\/api\/wallet/iu.test(entry.path)),
       chatOrNavTouched: dirtyFiles.some((entry) => /src\/components\/Chat|src\/lib\/chat|Navbar|Navigation|bottom-nav/iu.test(entry.path)),
     },
     validationFailures: [] as string[],

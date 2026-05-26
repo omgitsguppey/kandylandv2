@@ -130,14 +130,14 @@ describe("PurchaseModal public beta compact density", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders explicit source-aware free and paid balance split", async () => {
+  it("renders explicit source-aware reward and paid balance split", async () => {
     await act(async () => {
       root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
     });
 
-    expect(container.textContent).toContain("76k free GD");
+    expect(container.textContent).toContain("76k reward GD");
     expect(container.textContent).toContain("5k paid GD");
-    expect(container.textContent).toMatch(/76k free GD\s*\|\s*5k paid GD/);
+    expect(container.textContent).toMatch(/76k reward GD\s*\|\s*5k paid GD/);
     expect(container.textContent).not.toContain("80,962 balance");
   });
 
@@ -153,7 +153,7 @@ describe("PurchaseModal public beta compact density", () => {
       root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
     });
 
-    expect(container.textContent).toContain("0 free GD");
+    expect(container.textContent).toContain("0 reward GD");
     expect(container.textContent).toContain("1.5k paid GD");
   });
 

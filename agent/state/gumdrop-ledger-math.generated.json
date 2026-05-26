@@ -1,0 +1,278 @@
+{
+  "reportKey": "gumdrop-ledger-math",
+  "contractVersion": "2026.05.gumdrop-ledger-math.1",
+  "generatedAtUtc": "2026-05-26T10:52:46.013Z",
+  "currentHead": "c68093cf8453ae0218d2035c2b653a388aaa536f",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "paymentRuntimeTouched": false,
+  "packageMathTouched": false,
+  "sourceBuckets": [
+    "paid_gd",
+    "paid_bonus_gd",
+    "reward_gd",
+    "task_reward_gd",
+    "admin_grant_gd",
+    "adjustment_gd",
+    "refund_reversal",
+    "legacy_unknown"
+  ],
+  "ledgerBalance": {
+    "paidGd": 400,
+    "paidBonusGd": 50,
+    "rewardGd": 0,
+    "taskRewardGd": 25,
+    "adminGrantGd": 100,
+    "adjustmentGd": 0,
+    "refundReversalGd": 0,
+    "legacyUnknownGd": 10,
+    "totalGd": 585
+  },
+  "paidSpend": {
+    "eligible": true,
+    "reason": "paid_source_available",
+    "paidGdSpent": 400,
+    "paidBonusGdSpent": 50,
+    "rewardGdSpent": 0,
+    "taskRewardGdSpent": 0,
+    "adminGrantGdSpent": 0,
+    "legacyUnknownSpent": 0
+  },
+  "blockedSpend": {
+    "eligible": false,
+    "reason": "insufficient_paid_source_gd",
+    "paidGdSpent": 400,
+    "paidBonusGdSpent": 50,
+    "rewardGdSpent": 0,
+    "taskRewardGdSpent": 0,
+    "adminGrantGdSpent": 0,
+    "legacyUnknownSpent": 0
+  },
+  "displayParity": {
+    "valid": true,
+    "reason": "displayed_wallet_total_matches_source_ledger",
+    "displayedTotalGd": 585,
+    "ledgerTotalGd": 585,
+    "deltaGd": 0
+  },
+  "debugLane": {
+    "label": "GumDrop ledger math",
+    "balanceParity": "matched",
+    "sourceUnknownCount": 1,
+    "paidOnlySpendViolationCount": 0,
+    "refundReversalCount": 1,
+    "displayMismatchCount": 1,
+    "sourceTruth": "src/lib/math/gumdrop-ledger-math.ts"
+  },
+  "scoreBefore": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreAfter": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreDimensions": [
+    "sourceHealth",
+    "runtimeHealth",
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk",
+    "regressionRisk"
+  ],
+  "openPullRequests": [
+    {
+      "number": 302,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "onboarding_telemetry_external_review_required"
+    },
+    {
+      "number": 301,
+      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "doctrine_governance_external_review_required"
+    },
+    {
+      "number": 300,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "architecture_refactor_external_review_required"
+    },
+    {
+      "number": 299,
+      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 298,
+      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 297,
+      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 296,
+      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 295,
+      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 294,
+      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "dependency_update_external_review_required"
+    },
+    {
+      "number": 293,
+      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "security_patch_external_review_required"
+    },
+    {
+      "number": 292,
+      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "performance_patch_external_review_required"
+    },
+    {
+      "number": 291,
+      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+      "mergeStateStatus": "CLEAN",
+      "isDraft": false,
+      "classification": "accessibility_patch_external_review_required"
+    }
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/gumdrop-ledger-math.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/gumdrop-ledger-math.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/doctrine/surfaces/wallet.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-daily-task-reward-ledger.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-gumdrop-ledger-math.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-wallet-density.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/components/PurchaseModal.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/canonical-math-ledger.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/math/gumdrop-ledger-math.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/canonical-math-ledger.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/gumdrop-ledger-math.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/purchase-modal-density.spec.tsx",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": [],
+  "nextExactSteps": [
+    "Keep payment/package runtime untouched; use gumdrop-ledger-math for future source-bucket audits."
+  ]
+}

@@ -195,10 +195,10 @@ function PurchaseModalHeader({
         <div
           className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full"
           data-wallet-mobile-density="compact"
-          aria-label={`Wallet balance: ${formatCompactGd(freeGd)} free GD, ${formatCompactGd(paidGd)} paid GD`}
+          aria-label={`Wallet balance: ${formatCompactGd(freeGd)} reward GD, ${formatCompactGd(paidGd)} paid GD`}
         >
           <Candy className="w-3.5 h-3.5 text-brand-purple" />
-          <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(freeGd)} free GD</span>
+          <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(freeGd)} reward GD</span>
           <span className="text-[11px] font-bold text-white/25" aria-hidden="true">|</span>
           <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(paidGd)} paid GD</span>
         </div>

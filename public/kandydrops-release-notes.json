@@ -1,11 +1,76 @@
 {
-  "currentVersion": "1.5.2",
-  "betaReleaseCounter": 502,
+  "currentVersion": "1.5.3",
+  "betaReleaseCounter": 503,
   "channel": "beta",
-  "generatedAt": "2026-05-26T10:30:00.000Z",
-  "generatedAtUtc": "2026-05-26T10:30:00.000Z",
+  "generatedAt": "2026-05-26T10:45:00.000Z",
+  "generatedAtUtc": "2026-05-26T10:45:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.3",
+      "previousVersion": "1.5.2",
+      "betaReleaseCounter": 503,
+      "previousBetaReleaseCounter": 502,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): finalize gumdrop ledger",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T10:45:00.000Z",
+      "generatedAt": "2026-05-26T10:45:00.000Z",
+      "committedAtUtc": "2026-05-26T10:45:00.000Z",
+      "generatedAtUtc": "2026-05-26T10:45:00.000Z",
+      "category": "Improved",
+      "title": "GumDrop ledger math",
+      "updatedAtUtc": "2026-05-26T10:45:00.000Z",
+      "summary": "Finalized GumDrop source-of-funds math so paid, bonus, reward, task, admin, refund, and legacy sources stay distinct.",
+      "userFacingTitle": "GumDrop ledger math",
+      "surfaceCategory": "Wallet",
+      "bullets": [
+        "Finalized GumDrop ledger math across paid, bonus, reward, task, admin, refund, and legacy sources.",
+        "Prevented source-of-funds drift from affecting spend eligibility.",
+        "Aligned wallet display labels with ledger source truth."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added canonical GumDrop ledger math for paid_gd, paid_bonus_gd, reward_gd, task_reward_gd, admin_grant_gd, adjustment_gd, refund_reversal, and legacy_unknown buckets.",
+        "Validated paid-only spend eligibility against paid base and paid bonus sources while blocking reward, admin grant, and legacy unknown sources.",
+        "Kept payment runtime, package prices, PayPal capture, and GumDrop package amounts unchanged."
+      ],
+      "affectedSurfaces": [
+        "GumDrop ledger math",
+        "Wallet source-of-funds truth",
+        "Creator paid-only eligibility",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/gumdrop-ledger-math.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/gumdrop-ledger-math.md",
+        "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+        "docs/doctrine/surfaces/wallet.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-gumdrop-ledger-math.ts",
+        "scripts/agent/validate-wallet-density.ts",
+        "src/components/PurchaseModal.tsx",
+        "src/lib/math/canonical-math-ledger.ts",
+        "src/lib/math/gumdrop-ledger-math.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/canonical-math-ledger.spec.ts",
+        "tests/unit/gumdrop-ledger-math.spec.ts",
+        "tests/unit/purchase-modal-density.spec.tsx"
+      ],
+      "effectiveChangeCount": 18,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.2",
       "previousVersion": "1.5.1",
@@ -1554,67 +1619,6 @@
         "tests/unit/creator-monetization-settings-truth.spec.ts"
       ],
       "effectiveChangeCount": 24,
-      "excludedGeneratedChangeCount": 3,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.78",
-      "previousVersion": "1.4.77",
-      "betaReleaseCounter": 478,
-      "previousBetaReleaseCounter": 477,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(creator): track entitlements",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T02:10:45.000Z",
-      "generatedAt": "2026-05-26T02:10:45.000Z",
-      "committedAtUtc": "2026-05-26T02:10:45.000Z",
-      "generatedAtUtc": "2026-05-26T02:10:45.000Z",
-      "category": "Improved",
-      "title": "Creator revenue entitlement ledger",
-      "updatedAtUtc": "2026-05-26T02:10:45.000Z",
-      "summary": "Added creator entitlement ledger for Fan Pass, chat, drops, and experiences.",
-      "userFacingTitle": "Creator revenue entitlement ledger",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Added creator entitlement ledger for Fan Pass, chat, drops, and experiences.",
-        "Mapped entitlements to creator metrics and source-of-funds truth.",
-        "Kept payment and GumDrop math unchanged."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Added a source-only creator entitlement contract and resolver for Fan Pass, paid chat, drop unlock, creator experience, broadcast, system grant, and legacy states.",
-        "Mapped creator entitlement evidence to creator settings metrics, person metrics, source-of-funds truth, and debug lane validation.",
-        "Kept payment runtime, payout math, and GumDrop ledger math unchanged."
-      ],
-      "affectedSurfaces": [
-        "Creator entitlement ledger",
-        "Fan Pass access",
-        "Creator chat monetization",
-        "Drop unlock access",
-        "Creator metrics and debug evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-revenue-entitlement-ledger.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/creator-revenue-entitlement-ledger.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
-        "scripts/agent/validate-fan-pass-lifecycle.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/creator-monetization/creator-entitlement-contract.ts",
-        "src/lib/creator-monetization/creator-entitlement-resolver.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/creator-revenue-entitlement-ledger.spec.ts"
-      ],
-      "effectiveChangeCount": 14,
       "excludedGeneratedChangeCount": 3,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"

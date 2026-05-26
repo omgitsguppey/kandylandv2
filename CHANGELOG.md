@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.3 - 2026-05-26
+- GumDrop ledger math
+- Finalized GumDrop ledger math across paid, bonus, reward, task, admin, refund, and legacy sources.
+- Prevented source-of-funds drift from affecting spend eligibility.
+- Aligned wallet display labels with ledger source truth.
+
 ## 1.5.2 - 2026-05-26
 - Session journey math
 - Finalized session active time, idle time, bounce, engagement, and journey duration math.

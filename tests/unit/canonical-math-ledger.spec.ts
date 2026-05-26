@@ -82,7 +82,10 @@ describe("canonical math ledger", () => {
     expect(BOUNCE_THRESHOLDS.zeroDenominatorRule).toContain("unavailable");
     expect(DEDUPE_WINDOWS.eventIdPriority).toBe("canonical_event_id");
     expect(COST_WEIGHTING_RULES.externalBillingProofRequiredForDollarClaims).toBe(true);
-    expect(SOURCE_OF_FUNDS_RULES.paidPackageBonusGumDropsSource).toBe("paid_gd");
+    expect(SOURCE_OF_FUNDS_RULES.paidBaseGumDropsSource).toBe("paid_gd");
+    expect(SOURCE_OF_FUNDS_RULES.paidPackageBonusGumDropsSource).toBe("paid_bonus_gd");
+    expect(SOURCE_OF_FUNDS_RULES.taskRewardGumDropsSource).toBe("task_reward_gd");
+    expect(SOURCE_OF_FUNDS_RULES.unknownLegacyGumDropsSource).toBe("legacy_unknown");
     expect(SOURCE_OF_FUNDS_RULES.rewardGumDropsEligibleForFanPassRenewal).toBe(false);
   });
 

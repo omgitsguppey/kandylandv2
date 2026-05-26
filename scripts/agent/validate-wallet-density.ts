@@ -50,7 +50,7 @@ for (const expected of [
   "data-wallet-package-subcopy=\"removed\"",
   "data-wallet-bonus-chip-theme=\"brand-purple\"",
   "data-payment-module-density=\"compact-v2\"",
-  "formatCompactGd(freeGd)} free GD",
+  "formatCompactGd(freeGd)} reward GD",
   "formatCompactGd(paidGd)} paid GD",
   "aria-hidden=\"true\">|</span>",
   "resolveWalletBalanceSplit(userProfile)",
@@ -122,9 +122,9 @@ for (const expected of [
 }
 
 for (const expected of [
-  "76k free GD",
+  "76k reward GD",
   "5k paid GD",
-  "76k free GD\\s*\\|\\s*5k paid GD",
+  "76k reward GD\\s*\\|\\s*5k paid GD",
   "1.5k paid GD",
   "not.toMatch(/\\d+ paid \\+ \\d+ bonus GumDrops/)",
   "not.toContain(\"80,962 balance\")",

@@ -76,9 +76,14 @@ export const COST_WEIGHTING_RULES = {
 } as const;
 
 export const SOURCE_OF_FUNDS_RULES = {
-  paidPackageBonusGumDropsSource: "paid_gd",
+  paidBaseGumDropsSource: "paid_gd",
+  paidPackageBonusGumDropsSource: "paid_bonus_gd",
   rewardGumDropsSource: "reward_gd",
+  taskRewardGumDropsSource: "task_reward_gd",
+  adminGrantGumDropsSource: "admin_grant_gd",
+  unknownLegacyGumDropsSource: "legacy_unknown",
   bonusGumDropsMustPreserveSourceOfFunds: true,
+  paidBonusSpendEligibilityFollowsCurrentPaidBonusPolicy: true,
   rewardGumDropsEligibleForFanPassRenewal: false,
   sourceTruth: "wallet capture and source-of-funds ledger; this ledger documents formula authority without changing GumDrop math",
 } as const;
@@ -162,12 +167,12 @@ export const FORMULA_COMPARISON_ARTIFACTS: FormulaComparisonArtifact[] = [
   {
     formulaOwnerId: "source_of_funds",
     currentFormula: "Source-of-funds rules live in wallet/economy truth and validators.",
-    canonicalFormula: "Paid package bonus GumDrops are paid-source; reward GumDrops are non-purchase rewards; source confidence must remain explicit.",
-    delta: "Documents existing source-of-funds authority without changing payment, wallet, PayPal, or GumDrop math.",
+    canonicalFormula: "Paid base GumDrops are paid_gd; paid bundle bonus GumDrops are paid_bonus_gd; reward/task/admin grants remain non-paid; unknown legacy cannot fund paid-only experiences.",
+    delta: "Documents paid bonus as its own paid-source bucket without changing payment, wallet, PayPal, package, or GumDrop runtime math.",
     accuracyBenefit: "Prevents future metric formulas from blending paid, reward, and bonus GumDrops.",
     userVisibleProductImpact: "Creator monetization and Fan Pass readiness can distinguish eligible paid-source balances from reward balances.",
     migrationRisk: "low_no_runtime_math_change",
-    filesChanged: ["src/lib/math/canonical-math-ledger.ts", "src/lib/math/math-authority-map.ts"],
+    filesChanged: ["src/lib/math/canonical-math-ledger.ts", "src/lib/math/math-authority-map.ts", "src/lib/math/gumdrop-ledger-math.ts"],
   },
 ];
 
