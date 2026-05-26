@@ -113,8 +113,10 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/math/canonical-math-authority-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/math/canonical-math-authority-ledger.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/math/duration-math-normalizer.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/session-journey-math.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/session-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/session-metrics-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/user-journey-builder.ts") return "real_source_change_needs_review";
   if (normalized === "src/components/Analytics/DeepTracker.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
@@ -127,9 +129,11 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-session-bounce-calculation.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-session-journey-duration-math.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(pwa-service-worker-safety|notification-pwa-score-lock|drop-watch-time-accuracy|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration|canonical-math-authority-ledger|duration-math-normalization)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/session-bounce-calculation.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/session-journey-duration-math.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/duration-math-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";

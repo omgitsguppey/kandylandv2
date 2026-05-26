@@ -338,6 +338,7 @@
         "check:global-user-counting-math": "tsx scripts/agent/validate-global-user-counting-math.ts",
         "check:drop-watch-time-accuracy": "tsx scripts/agent/validate-drop-watch-time-accuracy.ts",
         "check:session-bounce-calculation": "tsx scripts/agent/validate-session-bounce-calculation.ts",
+        "check:session-journey-duration-math": "tsx scripts/agent/validate-session-journey-duration-math.ts",
         "check:user-journey-behavioral-intelligence": "tsx scripts/agent/validate-user-journey-behavioral-intelligence.ts",
         "check:sql-database-parity-cost-lock": "tsx scripts/agent/validate-sql-database-parity-cost-lock.ts",
         "check:telemetry-trigger-test-matrix": "tsx scripts/agent/validate-telemetry-trigger-test-matrix.ts",

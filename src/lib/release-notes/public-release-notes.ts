@@ -1,13 +1,76 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.1",
-  "betaReleaseCounter": 501,
+  "currentVersion": "1.5.2",
+  "betaReleaseCounter": 502,
   "channel": "beta",
-  "generatedAt": "2026-05-26T10:15:00.000Z",
-  "generatedAtUtc": "2026-05-26T10:15:00.000Z",
+  "generatedAt": "2026-05-26T10:30:00.000Z",
+  "generatedAtUtc": "2026-05-26T10:30:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.2",
+      "previousVersion": "1.5.1",
+      "betaReleaseCounter": 502,
+      "previousBetaReleaseCounter": 501,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): finalize session journey math",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T10:30:00.000Z",
+      "generatedAt": "2026-05-26T10:30:00.000Z",
+      "committedAtUtc": "2026-05-26T10:30:00.000Z",
+      "generatedAtUtc": "2026-05-26T10:30:00.000Z",
+      "category": "Improved",
+      "title": "App session reliability",
+      "updatedAtUtc": "2026-05-26T10:30:00.000Z",
+      "summary": "Improved session reliability so activity, idle time, and sign-in handoffs are counted consistently.",
+      "userFacingTitle": "App session reliability",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved session activity, idle time, bounce, engagement, and journey duration tracking.",
+        "Prevented hidden time and unknown closeouts from corrupting session metrics.",
+        "Preserved guest-to-user session continuity."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added canonical session journey math for active, idle, hidden, bounce, engagement, journey duration, closeout, and guest-user handoff rules.",
+        "Routed session metrics and journey duration calculations through the canonical math module without adding production reads.",
+        "Kept payment, wallet, and GumDrop math unchanged."
+      ],
+      "affectedSurfaces": [
+        "Session metrics",
+        "User journey intelligence",
+        "Person metrics hydration",
+        "Debug session math lane",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/session-journey-duration-math.generated.json",
+        "docs/agent-truth/session-journey-duration-math.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-session-bounce-calculation.ts",
+        "scripts/agent/validate-session-journey-duration-math.ts",
+        "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
+        "src/lib/analytics/session-metrics-engine.ts",
+        "src/lib/behavioral/user-journey-builder.ts",
+        "src/lib/math/session-journey-math.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/session-journey-duration-math.spec.ts"
+      ],
+      "effectiveChangeCount": 15,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.1",
       "previousVersion": "1.5.0",
@@ -1555,80 +1618,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 14,
       "excludedGeneratedChangeCount": 3,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.77",
-      "previousVersion": "1.4.76",
-      "betaReleaseCounter": 477,
-      "previousBetaReleaseCounter": 476,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(fan-pass): define lifecycle",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T01:30:05.827Z",
-      "generatedAt": "2026-05-26T01:30:05.827Z",
-      "committedAtUtc": "2026-05-26T01:30:05.827Z",
-      "generatedAtUtc": "2026-05-26T01:30:05.827Z",
-      "category": "Improved",
-      "title": "Fan Pass lifecycle",
-      "updatedAtUtc": "2026-05-26T01:30:05.827Z",
-      "summary": "Added Fan Pass lifecycle and access contracts.",
-      "userFacingTitle": "Fan Pass lifecycle",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Added Fan Pass lifecycle and access contracts.",
-        "Connected Fan Pass visibility, access, chat bypass, telemetry, and debug truth.",
-        "Kept payment runtime and GumDrop math unchanged."
-      ],
-      "audience": "creators",
-      "technicalDetails": [
-        "Added source-only Fan Pass lifecycle and access resolver contracts with debug lane evidence.",
-        "Registered Fan Pass lifecycle events through telemetry catalog, feature registration, event bridge, and person metrics hydration.",
-        "Connected creator subscription and chat bypass paths to the contract while preserving paid-source GumDrop execution."
-      ],
-      "affectedSurfaces": [
-        "Fan Pass lifecycle",
-        "Creator subscriptions",
-        "Creator profile monetization",
-        "Chat subscriber bypass",
-        "Telemetry and debug evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/creator-pricing-wiring.generated.json",
-        "agent/state/creator-settings-control-plane.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/fan-pass-lifecycle.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "docs/agent-truth/creator-pricing-wiring.md",
-        "docs/agent-truth/creator-settings-control-plane.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/fan-pass-lifecycle.md",
-        "docs/agent-truth/feature-registration-gate.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-fan-pass-lifecycle.ts",
-        "src/app/api/creator/subscriptions/route.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-contract.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/fan-pass/fan-pass-access-resolver.ts",
-        "src/lib/fan-pass/fan-pass-lifecycle-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/chat.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/fan-pass-lifecycle.spec.ts"
-      ],
-      "effectiveChangeCount": 27,
-      "excludedGeneratedChangeCount": 10,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

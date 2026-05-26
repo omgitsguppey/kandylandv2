@@ -7,6 +7,14 @@ import {
   type SessionMetricState,
   type SessionMetricsTelemetryEvent,
 } from "@/lib/analytics/session-metrics-contract";
+import {
+  calculateSessionActiveMs,
+  calculateSessionIdleMs,
+  classifyBounce as classifyCanonicalBounce,
+  classifyEngagedSession as classifyCanonicalEngagedSession,
+  classifySessionCloseout,
+  linkGuestUserSession,
+} from "@/lib/math/session-journey-math";
 
 export interface StartSessionInput {
   sessionId: string;
@@ -77,17 +85,38 @@ export function startSession(input: StartSessionInput): SessionMetricState {
 export function updateSessionActivity(session: SessionMetricState, input: SessionActivityInput): SessionMetricState {
   const hiddenMsDelta = clampMs(input.hiddenMsDelta);
   const explicitActiveMs = clampMs(input.activeMsDelta);
-  const foregroundMs = Math.max(0, clampMs(input.foregroundMsDelta) - hiddenMsDelta);
+  const rawForegroundMs = clampMs(input.foregroundMsDelta);
+  const foregroundMs = Math.max(0, rawForegroundMs - hiddenMsDelta);
   const meaningfulInteractions = Math.max(0, Math.trunc(input.meaningfulInteractionCountDelta ?? 0));
   const inferredActiveMs = explicitActiveMs > 0
     ? explicitActiveMs
     : meaningfulInteractions > 0
       ? foregroundMs
       : 0;
-  const activeMsDelta = Math.min(inferredActiveMs, foregroundMs > 0 ? foregroundMs : inferredActiveMs);
+  const activeMsDelta = explicitActiveMs > 0
+    ? Math.min(inferredActiveMs, foregroundMs > 0 ? foregroundMs : inferredActiveMs)
+    : meaningfulInteractions > 0
+      ? calculateSessionActiveMs({
+      intervals: [{
+        startedAtMs: clampMs(input.at) - rawForegroundMs,
+        endedAtMs: clampMs(input.at) - hiddenMsDelta,
+        foreground: rawForegroundMs > hiddenMsDelta,
+        lastMeaningfulInteractionAtMs: meaningfulInteractions > 0 ? clampMs(input.at) : null,
+      }],
+    })
+      : 0;
   const idleMsDelta = input.idleMsDelta !== undefined
     ? clampMs(input.idleMsDelta)
-    : Math.max(0, foregroundMs - activeMsDelta);
+    : meaningfulInteractions > 0
+      ? calculateSessionIdleMs({
+      intervals: [{
+        startedAtMs: clampMs(input.at) - rawForegroundMs,
+        endedAtMs: clampMs(input.at) - hiddenMsDelta,
+        foreground: rawForegroundMs > hiddenMsDelta,
+        lastMeaningfulInteractionAtMs: meaningfulInteractions > 0 ? clampMs(input.at) : null,
+      }],
+    }) || Math.max(0, foregroundMs - activeMsDelta)
+      : Math.max(0, foregroundMs - activeMsDelta);
   const routeCount = Math.max(1, session.routeCount + Math.trunc(input.routeCountDelta ?? 0));
   const eventCount = Math.max(0, session.eventCount + Math.trunc(input.eventCountDelta ?? 0));
   const meaningfulInteractionCount = Math.max(0, session.meaningfulInteractionCount + meaningfulInteractions);
@@ -118,19 +147,28 @@ export function calculateActiveSessionTime(session: SessionMetricState) {
 }
 
 export function classifyBounce(session: SessionMetricState): SessionBounceStatus {
-  if (session.conversionCount > 0 || session.meaningfulInteractionCount > 0 || session.activeMs >= 3_000 || session.routeCount > 1) {
-    return "not_bounced";
-  }
-  if (session.eventCount > 0 || session.endedAt || session.idleMs > 0 || session.hiddenMs > 0) {
-    return "bounced";
-  }
-  return "unknown";
+  const closeout = session.endReason === "missing_closeout" || session.confidence === "estimated_missing_closeout"
+    ? "unknown_closeout"
+    : session.endedAt
+      ? "observed_closeout"
+      : "active_session";
+  return classifyCanonicalBounce({
+    routeCount: session.routeCount,
+    meaningfulInteractionCount: session.meaningfulInteractionCount,
+    activeMs: session.activeMs,
+    conversionCount: session.conversionCount,
+    closeout,
+  }).bounceStatus;
 }
 
 export function classifyEngagedSession(session: SessionMetricState): SessionEngagementStatus {
-  if (session.conversionCount > 0 || session.meaningfulInteractionCount > 0 || session.activeMs >= 3_000 || session.routeCount > 1) {
-    return "engaged";
-  }
+  const engaged = classifyCanonicalEngagedSession({
+    routeCount: session.routeCount,
+    meaningfulInteractionCount: session.meaningfulInteractionCount,
+    activeMs: session.activeMs,
+    conversionCount: session.conversionCount,
+  });
+  if (engaged.engagementStatus === "engaged") return "engaged";
   if (session.endedAt && session.activeMs === 0 && session.idleMs >= session.inactivityThresholdMs) {
     return "abandoned";
   }
@@ -142,11 +180,12 @@ export function classifyEngagedSession(session: SessionMetricState): SessionEnga
 
 export function closeSession(session: SessionMetricState, input: CloseSessionInput): SessionMetricState {
   const endedAt = Math.max(clampMs(input.endedAt), session.startedAt);
+  const closeout = classifySessionCloseout({ closeoutObserved: input.closeoutObserved, endReason: input.endReason });
   const closed = {
     ...session,
     endedAt,
     endReason: input.endReason,
-    confidence: input.closeoutObserved ? "exact_closeout" : "estimated_missing_closeout",
+    confidence: closeout.confidence === "exact" ? "exact_closeout" : "estimated_missing_closeout",
   } satisfies SessionMetricState;
   return {
     ...closed,
@@ -159,7 +198,17 @@ export function linkGuestSessionToUser(session: SessionMetricState, input: {
   userId: string;
   linkedPersonId?: string | null;
   linkId?: string | null;
+  authTransitionAt?: number | null;
 }): SessionMetricState {
+  const handoff = linkGuestUserSession({
+    guestSessionId: session.sessionId,
+    userSessionId: session.sessionId,
+    guestEventAtMs: session.lastActivityAt,
+    authTransitionAtMs: input.authTransitionAt ?? session.lastActivityAt,
+    guestId: session.guestId,
+    userId: input.userId,
+    linkId: input.linkId ?? session.linkId,
+  });
   return {
     ...session,
     actorKind: input.linkedPersonId ? "linked_person" : "signed_in",
@@ -167,8 +216,8 @@ export function linkGuestSessionToUser(session: SessionMetricState, input: {
     linkedPersonId: input.linkedPersonId ?? session.linkedPersonId ?? null,
     linkId: input.linkId ?? session.linkId ?? null,
     guestUserHandoff: {
-      doubleCountSuppressed: Boolean(session.guestId && input.userId),
-      preservedSessionContinuity: true,
+      doubleCountSuppressed: handoff.doubleCountSuppressed,
+      preservedSessionContinuity: handoff.preservedSessionContinuity,
       sourceGuestId: session.guestId ?? null,
       targetUserId: input.userId,
     },

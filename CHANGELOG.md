@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.2 - 2026-05-26
+- Session journey math
+- Finalized session active time, idle time, bounce, engagement, and journey duration math.
+- Prevented hidden time and unknown closeouts from corrupting session metrics.
+- Preserved guest-to-user session continuity.
+
 ## 1.5.1 - 2026-05-26
 - Drop watch and unlock math
 - Finalized drop open, unlock, unwrap, and watch-time math.

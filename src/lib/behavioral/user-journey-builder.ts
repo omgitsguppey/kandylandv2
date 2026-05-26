@@ -15,6 +15,7 @@ import {
   type UserJourneySessionSummary,
   type UserJourneyStepClassification,
 } from "@/lib/behavioral/user-journey-contract";
+import { calculateJourneyStepDuration } from "@/lib/math/session-journey-math";
 
 type RawJourneyEventInput = Omit<UserJourneyEvent, "journeyEventId" | "previousJourneyEventId" | "nextExpectedActions" | "conversionTag" | "failureTag" | "confidence" | "privacyClass"> & {
   journeyEventId?: string;
@@ -325,6 +326,11 @@ export function buildJourneyEvent(input: BuildJourneyEventInput): UserJourneyEve
         : input.fact.dedupeDecision?.input.linkedPersonId,
       cleanString(input.fact.userId ?? input.fact.anonymousVisitorId ?? input.fact.sessionId, "unknown"),
     );
+    const journeyDuration = calculateJourneyStepDuration({
+      startedAtMs: input.fact.timestampMs,
+      endedAtMs: input.fact.durationMs ? input.fact.timestampMs + input.fact.durationMs : null,
+      activeMs: input.fact.activeMs,
+    });
     const event: UserJourneyEvent = {
       journeyEventId: `journey:${idPart(input.fact.sessionId)}:${idPart(input.fact.eventId)}`,
       eventId: input.fact.eventId,
@@ -340,8 +346,8 @@ export function buildJourneyEvent(input: BuildJourneyEventInput): UserJourneyEve
       action: input.fact.normalizedAction,
       objectType: step.objectType,
       objectId: objectIdForFact(input.fact),
-      durationMs: clampMs(input.fact.durationMs),
-      activeMs: clampMs(input.fact.activeMs),
+      durationMs: journeyDuration.durationMs ?? clampMs(input.fact.durationMs),
+      activeMs: journeyDuration.activeMs ?? clampMs(input.fact.activeMs),
       sourceEventName: input.fact.eventName,
       previousJourneyEventId: input.previousJourneyEventId ?? null,
       nextExpectedActions: step.nextExpectedActions,
@@ -359,6 +365,11 @@ export function buildJourneyEvent(input: BuildJourneyEventInput): UserJourneyEve
     sourceEventName: raw.sourceEventName,
     objectType: raw.objectType,
   });
+  const journeyDuration = calculateJourneyStepDuration({
+    startedAtMs: Date.parse(raw.timestamp),
+    endedAtMs: raw.durationMs ? Date.parse(raw.timestamp) + raw.durationMs : null,
+    activeMs: raw.activeMs,
+  });
 
   return {
     journeyEventId: raw.journeyEventId ?? `journey:${idPart(raw.sessionId)}:${idPart(raw.eventId)}`,
@@ -375,8 +386,8 @@ export function buildJourneyEvent(input: BuildJourneyEventInput): UserJourneyEve
     action: raw.action,
     objectType: step.objectType ?? raw.objectType,
     objectId: raw.objectId,
-    durationMs: clampMs(raw.durationMs),
-    activeMs: clampMs(raw.activeMs),
+    durationMs: journeyDuration.durationMs ?? clampMs(raw.durationMs),
+    activeMs: journeyDuration.activeMs ?? clampMs(raw.activeMs),
     sourceEventName: raw.sourceEventName,
     previousJourneyEventId: input.previousJourneyEventId ?? raw.previousJourneyEventId ?? null,
     nextExpectedActions: raw.nextExpectedActions ?? step.nextExpectedActions,
