@@ -86,6 +86,7 @@
         "check:creator-revenue-entitlement-ledger": "tsx scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
         "check:creator-revenue-entitlement-math": "tsx scripts/agent/validate-creator-revenue-entitlement-math.ts",
         "check:cost-export-sql-parity-math": "tsx scripts/agent/validate-cost-export-sql-parity-math.ts",
+        "check:metric-display-accuracy": "tsx scripts/agent/validate-metric-display-accuracy.ts",
         "check:creator-monetization-admin-debug": "tsx scripts/agent/validate-creator-monetization-admin-debug.ts",
         "check:creator-monetization-readiness-lock": "tsx scripts/agent/validate-creator-monetization-readiness-lock.ts",
         "check:activity-verification-engine": "tsx scripts/agent/validate-activity-verification-engine.ts",

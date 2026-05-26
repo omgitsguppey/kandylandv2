@@ -1,11 +1,70 @@
 {
-  "currentVersion": "1.5.5",
-  "betaReleaseCounter": 505,
+  "currentVersion": "1.5.6",
+  "betaReleaseCounter": 506,
   "channel": "beta",
-  "generatedAt": "2026-05-26T11:25:00.000Z",
-  "generatedAtUtc": "2026-05-26T11:25:00.000Z",
+  "generatedAt": "2026-05-26T11:40:00.000Z",
+  "generatedAtUtc": "2026-05-26T11:40:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.6",
+      "previousVersion": "1.5.5",
+      "betaReleaseCounter": 506,
+      "previousBetaReleaseCounter": 505,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): improve metric display accuracy",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T11:40:00.000Z",
+      "generatedAt": "2026-05-26T11:40:00.000Z",
+      "committedAtUtc": "2026-05-26T11:40:00.000Z",
+      "generatedAtUtc": "2026-05-26T11:40:00.000Z",
+      "category": "Improved",
+      "title": "Metric display accuracy",
+      "updatedAtUtc": "2026-05-26T11:40:00.000Z",
+      "summary": "Standardized metric display states so missing, stale, weak, and source-disconnected data no longer looks like exact zero.",
+      "userFacingTitle": "Metric display accuracy",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Standardized metric display states across user, creator, and admin surfaces.",
+        "Prevented missing or weak data from showing as exact zero.",
+        "Added confidence and freshness-aware display rules."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added canonical metric display accuracy rules for exact, linked, estimated, collecting, proven zero, stale, not connected, unavailable, and hidden-by-permission states.",
+        "Validated creator fans/drops/views, wallet source buckets, admin freshness/confidence labels, and user-safe copy.",
+        "Kept production reads, deployment, payment runtime, and GumDrop math unchanged."
+      ],
+      "affectedSurfaces": [
+        "Metric display accuracy math",
+        "Creator dashboard metric display",
+        "Wallet source bucket display",
+        "Admin metric confidence display",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/metric-display-accuracy.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/metric-display-accuracy.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-metric-display-accuracy.ts",
+        "src/lib/math/metric-display-accuracy.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/metric-display-accuracy.spec.ts"
+      ],
+      "effectiveChangeCount": 11,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.5",
       "previousVersion": "1.5.4",

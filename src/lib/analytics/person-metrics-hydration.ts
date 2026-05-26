@@ -821,6 +821,11 @@ export function classifyPersonMetricsHydrationDirtyFile(path: string) {
   if (normalized === "docs/agent-truth/daily-task-lifecycle-telemetry.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/notification-pwa-score-lock.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/notification-pwa-score-lock.md") return "documentation_artifact_expected";
+  if (normalized === "src/lib/math/metric-display-accuracy.ts") return "real_source_change_needs_review";
+  if (normalized === "agent/state/metric-display-accuracy.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/metric-display-accuracy.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-metric-display-accuracy.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/metric-display-accuracy.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (
     normalized === "CHANGELOG.md"

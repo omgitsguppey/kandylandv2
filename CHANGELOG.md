@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.6 - 2026-05-26
+- Metric display accuracy
+- Standardized metric display states across user, creator, and admin surfaces.
+- Prevented missing or weak data from showing as exact zero.
+- Added confidence and freshness-aware display rules.
+
 ## 1.5.5 - 2026-05-26
 - Cost export parity math
 - Finalized cost, export, SQL parity, batching, and summary math.
