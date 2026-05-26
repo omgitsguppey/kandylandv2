@@ -43,6 +43,28 @@ function readReport() {
   }
 }
 
+function changedInHead(relativePath: string) {
+  try {
+    const changed = execFileSync("git", ["diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"], { cwd: root, encoding: "utf8" });
+    return changed.split(/\r?\n/u).includes(relativePath);
+  } catch {
+    return false;
+  }
+}
+
+function parentHead() {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD^"], { cwd: root, encoding: "utf8" }).trim();
+  } catch {
+    return null;
+  }
+}
+
+function matchesCurrentOrSameCommitArtifact(reportHead: string | undefined, currentHead: string, artifactPath: string) {
+  if (reportHead === currentHead) return true;
+  return reportHead === parentHead() && changedInHead(artifactPath);
+}
+
 function requireNumber(value: unknown, label: string, min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_INFINITY) {
   if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) {
     failures.push(`${label} must be a number between ${min} and ${max}.`);
@@ -119,8 +141,8 @@ function validateFinding(finding: PublicBetaFinding, index: number) {
 const report = readReport();
 if (report) {
   const headSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-  if (report.currentHead !== headSha) {
-    failures.push(`public beta score currentHead must match git HEAD (${headSha}).`);
+  if (!matchesCurrentOrSameCommitArtifact(report.currentHead, headSha, PUBLIC_BETA_SCORE_REPORT_PATH)) {
+    failures.push(`public beta score currentHead must match git HEAD (${headSha}) or a same-commit generated artifact parent.`);
   }
   requireNumber(report.scannerScore, "scannerScore", 0, 100);
   if (report.scoreVersion !== "beta_health_v2") {

@@ -125,6 +125,28 @@ function readReport() {
   return JSON.parse(readFileSync(reportPath, "utf8")) as CurrentBetaExitStatusReport;
 }
 
+function changedInHead(relativePath: string) {
+  try {
+    const changed = execFileSync("git", ["diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"], { cwd: repoRoot, encoding: "utf8" });
+    return changed.split(/\r?\n/u).includes(relativePath);
+  } catch {
+    return false;
+  }
+}
+
+function parentHead() {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD^"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  } catch {
+    return null;
+  }
+}
+
+function matchesCurrentOrSameCommitArtifact(reportHead: string | undefined, head: string) {
+  if (reportHead === head) return true;
+  return reportHead === parentHead() && changedInHead(reportRelativePath);
+}
+
 function evidenceMissing(status: string) {
   if (/\b(false|missing|unverified|unknown|source_only)\b/iu.test(status)) return true;
   return !/\b(pass|passed|attached|formal_.*_passed)\b/iu.test(status);
@@ -174,8 +196,8 @@ export function validateCurrentBetaExitStatusReport(
   if (report.reportKey !== "current-beta-exit-status") {
     failures.push("reportKey must be current-beta-exit-status.");
   }
-  if (report.currentHead !== head) {
-    failures.push(`report currentHead must match git HEAD (${head}).`);
+  if (!matchesCurrentOrSameCommitArtifact(report.currentHead, head)) {
+    failures.push(`report currentHead must match git HEAD (${head}) or a same-commit generated artifact parent.`);
   }
   if (!report.summary || typeof report.summary !== "object") {
     failures.push("summary is required.");
