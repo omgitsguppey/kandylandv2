@@ -211,28 +211,6 @@ async function POST_handler(request: NextRequest) {
         idempotency_key: `entitlement_granted:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
         sourceTruth: "server_unlock_route",
       });
-      await trackServerEvent("drop_unlocked", {
-        drop_id: dropId,
-        drop_title: result.title ?? "Drop",
-        drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
-        creator_id: result.creatorId ?? "",
-        target_creator_id: result.creatorId ?? "",
-        target_user_id: userId,
-        unlock_cost: result.cost ?? 0,
-        gumdrops_spent: result.cost ?? 0,
-        price_gd: result.priceGd ?? result.cost ?? 0,
-        paid_gd_used: result.paidGdUsed ?? 0,
-        reward_gd_used: result.rewardGdUsed ?? 0,
-        unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
-        entitlement_id: result.entitlementId,
-        transaction_id: result.transactionId,
-        idempotency_key: `entitlement_granted:${result.transactionId || result.entitlementId}:${dropId}`,
-        sourceTruth: "server_unlock_route",
-        source_component: "drops_unlock_route",
-        route: "/api/drops/unlock",
-        page_path: `/drops/${dropId}/preview`,
-        metricEligible: true,
-      }, userId).catch(() => null);
       await trackServerEvent(serverUnlockTelemetry.eventName, {
         ...serverUnlockTelemetry.params,
         drop_title: result.title ?? "Drop",

@@ -131,6 +131,7 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/behavioral/event-fact-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/event-fact-normalizer.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
@@ -138,10 +139,14 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/hooks/useViewerWatchSession.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/testing/telemetry-trigger-test-matrix.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/math/drop-watch-unlock-math.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/pwa/pwa-service-worker-contract.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-drop-watch-time-accuracy.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-drop-watch-unlock-math.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(admin-debug-control-tower|pwa-service-worker-safety|notification-pwa-score-lock|session-bounce-calculation|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration|canonical-math-authority-ledger|duration-math-normalization)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "tests/unit/drop-watch-time-accuracy.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/drop-watch-unlock-math.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/user-management-refactor.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/duration-math-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
@@ -308,7 +313,7 @@ function main() {
   if (videoSession.activeWatchMs !== 30_000 || videoSession.backgroundMs <= 0) failures.push("page-open or background time can count as video watch time.");
   if (imageSession.activeWatchMs !== 8_000 || imageSession.passiveVisibleMs < 12_000) failures.push("image watch time can count passive page-open time.");
   if (!sourceFiles.contract.includes("watchConfidence") || unknownSession.watchConfidence === "exact_media_runtime") failures.push("watch time lacks confidence.");
-  if (calculateNormalizedWatchPercent(videoSession) !== 100 || !sourceFiles.contract.includes("durationBiasPolicy")) failures.push("duration bias not normalized.");
+  if (calculateNormalizedWatchPercent(videoSession) !== 1 || !sourceFiles.contract.includes("durationBiasPolicy")) failures.push("duration bias not normalized.");
   if (closedVideo.completionPercent !== 100 || closedVideo.activeWatchMs > 30_000 * Math.max(1, closedVideo.replayCount)) failures.push("video completion can exceed duration without replay.");
   if (resolveDropWatchTelemetryPolicy({ eventName: "drop_watch_progress", lastProgressEventAtMs: 1_000, nowMs: 2_000 }).shouldEmit) failures.push("progress telemetry can spam every tick.");
   if (!metric || !DROP_WATCH_TIME_TELEMETRY_EVENTS.every((eventName) => metric.eventNames.includes(eventName))) failures.push("global/user metrics omit watch time.");

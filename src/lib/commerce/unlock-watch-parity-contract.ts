@@ -1,8 +1,8 @@
-export const CANONICAL_SERVER_UNLOCK_EVENT_NAME = "drop_unwrapped" as const;
+export const CANONICAL_SERVER_UNLOCK_EVENT_NAME = "drop_unlocked" as const;
 
 export const CANONICAL_SERVER_UNLOCK_ALIASES = [
   CANONICAL_SERVER_UNLOCK_EVENT_NAME,
-  "drop_unlocked",
+  "drop_unwrapped",
   "unlock_drop_success",
   "entitlement_granted",
 ] as const;

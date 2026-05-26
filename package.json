@@ -776,7 +776,8 @@
         "check:canonical-business-truth-refresh": "tsx scripts/agent/validate-canonical-business-truth-refresh.ts",
         "check:recovery-playbook-cta-cleanup": "tsx scripts/agent/validate-recovery-playbook-cta-cleanup.ts",
         "check:debug-cockpit-batch8-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch8-cleanup.ts",
-        "check:debug-cockpit-batch9-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch9-cleanup.ts"
+        "check:debug-cockpit-batch9-cleanup": "tsx scripts/agent/validate-debug-cockpit-batch9-cleanup.ts",
+        "check:drop-watch-unlock-math": "tsx scripts/agent/validate-drop-watch-unlock-math.ts"
     },
     "dependencies": {
         "@axe-core/react": "^4.11.2",

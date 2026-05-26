@@ -6,6 +6,12 @@ import {
   type DropWatchTimeSession,
   type DropWatchTimeTelemetryEvent,
 } from "@/lib/analytics/drop-watch-time-contract";
+import {
+  calculateNormalizedWatchPercent as calculateCanonicalNormalizedWatchPercent,
+  calculateStaticDropWatch,
+  classifyWatchCompletion,
+  classifyWatchConfidence as classifyCanonicalWatchConfidence,
+} from "@/lib/math/drop-watch-unlock-math";
 
 export const DROP_WATCH_PROGRESS_THROTTLE_MS = 15_000;
 
@@ -82,16 +88,22 @@ export function calculateActiveWatchMs(input: DropWatchTimeSession) {
 }
 
 export function calculateNormalizedWatchPercent(input: DropWatchTimeSession) {
-  if (!input.contentDurationMs || input.contentDurationMs <= 0) return null;
-  const allowedMs = input.contentDurationMs * Math.max(1, input.replayCount || 1);
-  return boundedPercent((Math.min(input.activeWatchMs, allowedMs) / allowedMs) * 100);
+  return calculateCanonicalNormalizedWatchPercent({
+    activeWatchMs: input.activeWatchMs,
+    contentDurationMs: input.contentDurationMs,
+    mediaKind: input.mediaKind,
+  });
 }
 
 export function classifyWatchConfidence(input: Pick<DropWatchTimeSession, "mediaKind" | "contentDurationMs" | "activeWatchMs">): DropWatchConfidence {
-  if (input.activeWatchMs <= 0) return "unavailable";
-  if (isMediaRuntimeKind(input.mediaKind) && input.contentDurationMs) return "exact_media_runtime";
-  if (input.mediaKind === "image" && input.contentDurationMs) return "active_visibility_estimated";
-  return input.contentDurationMs ? "active_visibility_estimated" : "weak_visibility_only";
+  return classifyCanonicalWatchConfidence({
+    mediaKind: input.mediaKind,
+    activeWatchMs: input.activeWatchMs,
+    contentDurationMs: input.contentDurationMs,
+    playbackEventsPresent: isMediaRuntimeKind(input.mediaKind) && input.activeWatchMs > 0,
+    renderedVisible: input.activeWatchMs > 0,
+    interacted: input.mediaKind === "image" && input.activeWatchMs > 0,
+  });
 }
 
 export function startDropWatchSession(input: StartDropWatchSessionInput): DropWatchTimeSession {
@@ -134,7 +146,16 @@ export function updateDropWatchProgress(session: DropWatchTimeSession, progress:
     || Math.max(0, visibleMs - Math.max(activeMs, playingMs));
   const nextActiveWatchMs = session.activeWatchMs + (isMediaRuntimeKind(session.mediaKind) ? playingMs : activeMs);
   const capMs = contentDurationMs ? contentDurationMs * Math.max(1, replayCount || 1) : null;
-  const activeWatchMs = capMs ? Math.min(nextActiveWatchMs, capMs) : nextActiveWatchMs;
+  const activeWatchMs = session.mediaKind === "image"
+    ? calculateStaticDropWatch({
+      mediaKind: "image",
+      unlocked: true,
+      renderedVisible: true,
+      activeVisibleMs: nextActiveWatchMs,
+      contentDurationMs: contentDurationMs ?? undefined,
+      interacted: false,
+    }).activeWatchMs
+    : capMs ? Math.min(nextActiveWatchMs, capMs) : nextActiveWatchMs;
   const playbackPositionMs = normalizeMs(progress.playbackPositionMs);
   const completionPercent = contentDurationMs
     ? boundedPercent((Math.min(playbackPositionMs || activeWatchMs, contentDurationMs) / contentDurationMs) * 100)
@@ -164,7 +185,15 @@ export function updateDropWatchProgress(session: DropWatchTimeSession, progress:
 
 export function stopDropWatchSession(session: DropWatchTimeSession, input: { nowMs?: number | null; reason?: string | null } = {}): DropWatchTimeSession {
   const reason = String(input.reason ?? "");
-  const status: DropWatchSessionStatus = reason === "completed" || (session.completionPercent ?? 0) >= 100
+  const completion = classifyWatchCompletion({
+    mediaKind: session.mediaKind,
+    activeWatchMs: session.activeWatchMs,
+    contentDurationMs: session.contentDurationMs,
+    playbackEventsPresent: isMediaRuntimeKind(session.mediaKind) && session.activeWatchMs > 0,
+    renderedVisible: session.activeWatchMs > 0,
+    interacted: session.mediaKind === "image" && session.activeWatchMs > 0,
+  });
+  const status: DropWatchSessionStatus = reason === "completed" || completion.completed
     ? "completed"
     : reason === "hidden"
       ? "hidden"

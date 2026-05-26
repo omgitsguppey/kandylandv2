@@ -124,6 +124,7 @@ const watchSessionSchema = z.object({
     hasFocus: z.boolean().optional(),
     reducedMotion: z.boolean().optional(),
     displayMode: z.enum(["browser", "standalone", "fullscreen", "unknown"]).optional(),
+    pageDurationMs: z.never().optional(),
     assets: z.array(assetSnapshotSchema).max(64),
 });
 

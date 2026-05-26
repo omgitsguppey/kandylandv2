@@ -100,6 +100,7 @@ const NORMALIZED_ACTION_FAMILY: Partial<Record<BehavioralNormalizedAction, Ident
   recommendation_dismissed: "content",
   drop_unwrap_attempted: "commerce",
   drop_unlocked: "commerce",
+  drop_unwrapped: "watch",
   drop_unwrap_failed: "commerce",
   file_viewed: "watch",
   watch_session_started: "watch",

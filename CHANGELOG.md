@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.1 - 2026-05-26
+- Drop watch and unlock math
+- Finalized drop open, unlock, unwrap, and watch-time math.
+- Separated active watch time from page duration.
+- Added confidence and normalized completion rules for video and static drops.
+
 ## 1.5.0 - 2026-05-26
 - Global user counting math
 - Finalized global, guest, signed-in, linked-person, and creator-role counting math.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added Fan Pass lifecycle and access contracts.
 - Connected Fan Pass visibility, access, chat bypass, telemetry, and debug truth.
 - Kept payment runtime and GumDrop math unchanged.
-
-## 1.4.76 - 2026-05-25
-- Media discovery score lock
-- Locked media upload, private access, creator discovery, and search telemetry readiness.
-- Connected discovery and media events to debug, person metrics, and score.
-- Kept private media and search data protected.

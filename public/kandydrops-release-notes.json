@@ -1,11 +1,82 @@
 {
-  "currentVersion": "1.5.0",
-  "betaReleaseCounter": 500,
+  "currentVersion": "1.5.1",
+  "betaReleaseCounter": 501,
   "channel": "beta",
-  "generatedAt": "2026-05-26T10:00:00.000Z",
-  "generatedAtUtc": "2026-05-26T10:00:00.000Z",
+  "generatedAt": "2026-05-26T10:15:00.000Z",
+  "generatedAtUtc": "2026-05-26T10:15:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.1",
+      "previousVersion": "1.5.0",
+      "betaReleaseCounter": 501,
+      "previousBetaReleaseCounter": 500,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(math): finalize drop watch math",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T10:15:00.000Z",
+      "generatedAt": "2026-05-26T10:15:00.000Z",
+      "committedAtUtc": "2026-05-26T10:15:00.000Z",
+      "generatedAtUtc": "2026-05-26T10:15:00.000Z",
+      "category": "Improved",
+      "title": "Drop watch and unlock math",
+      "updatedAtUtc": "2026-05-26T10:15:00.000Z",
+      "summary": "Finalized drop open, unlock, unwrap, and watch-time math.",
+      "userFacingTitle": "Drop watch and unlock math",
+      "surfaceCategory": "Drops & viewer",
+      "bullets": [
+        "Finalized drop open, unlock, unwrap, and watch-time math.",
+        "Separated active watch time from page duration.",
+        "Added confidence and normalized completion rules for video and static drops."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added canonical drop watch/unlock math for open, unlock, unwrap, watch, completion, confidence, replay, and static review calculations.",
+        "Routed the existing drop watch-time engine through canonical math and rejected pageDurationMs in the watch-session route.",
+        "Separated server unlock telemetry from payload unwrap telemetry without changing GumDrop unlock price or spend math."
+      ],
+      "affectedSurfaces": [
+        "Drop watch math",
+        "Viewer watch-session route",
+        "Drop unlock route telemetry",
+        "Person metrics hydration",
+        "Beta score evidence",
+        "Release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/drop-watch-unlock-math.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/drop-watch-unlock-math.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-drop-watch-time-accuracy.ts",
+        "scripts/agent/validate-drop-watch-unlock-math.ts",
+        "scripts/agent/validate-unlock-telemetry-truth.ts",
+        "src/app/api/drops/unlock/route.ts",
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/lib/analytics/drop-watch-time-engine.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/analytics/person-metrics-hydration.ts",
+        "src/lib/behavioral/event-fact-normalizer.ts",
+        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/commerce/unlock-watch-parity-contract.ts",
+        "src/lib/math/drop-watch-unlock-math.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/drop-watch-time-accuracy.spec.ts",
+        "tests/unit/drop-watch-unlock-math.spec.ts"
+      ],
+      "effectiveChangeCount": 23,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.0",
       "previousVersion": "1.4.99",
@@ -1556,62 +1627,6 @@
       ],
       "effectiveChangeCount": 27,
       "excludedGeneratedChangeCount": 10,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.76",
-      "previousVersion": "1.4.75",
-      "betaReleaseCounter": 476,
-      "previousBetaReleaseCounter": 475,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(discovery): lock media discovery",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T23:29:04.159Z",
-      "generatedAt": "2026-05-25T23:29:04.159Z",
-      "committedAtUtc": "2026-05-25T23:29:04.159Z",
-      "generatedAtUtc": "2026-05-25T23:29:04.159Z",
-      "category": "Improved",
-      "title": "Media discovery score lock",
-      "updatedAtUtc": "2026-05-25T23:29:04.159Z",
-      "summary": "Locked media upload, private access, creator discovery, and search telemetry readiness.",
-      "userFacingTitle": "Media discovery score lock",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked media upload, private access, creator discovery, and search telemetry readiness.",
-        "Connected discovery and media events to debug, person metrics, and score.",
-        "Kept private media and search data protected."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a final source-only media discovery score lock validator and generated evidence report without production reads or provider calls.",
-        "Verified existing media upload, private media access, creator relationship, and search discovery phase artifacts as the active evidence chain.",
-        "Checked redacted media/search telemetry, debug lanes, sensitive route access state, score dimensions, and dirty-file boundaries."
-      ],
-      "affectedSurfaces": [
-        "Media upload lifecycle",
-        "Private media access",
-        "Creator discovery and relationships",
-        "Search discovery telemetry",
-        "Debug and score evidence"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/media-discovery-score-lock.generated.json",
-        "docs/agent-truth/media-discovery-score-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-media-discovery-score-lock.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/media-discovery-score-lock.spec.ts"
-      ],
-      "effectiveChangeCount": 9,
-      "excludedGeneratedChangeCount": 0,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

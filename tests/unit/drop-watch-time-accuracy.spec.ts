@@ -42,7 +42,7 @@ describe("drop watch time accuracy", () => {
     expect(progressed.activeWatchMs).toBe(30_000);
     expect(progressed.backgroundMs).toBe(10_000);
     expect(progressed.completionPercent).toBe(100);
-    expect(progressed.normalizedWatchPercent).toBe(100);
+    expect(progressed.normalizedWatchPercent).toBe(1);
     expect(progressed.replayCount).toBe(1);
     expect(progressed.watchConfidence).toBe("exact_media_runtime");
     expect(stopDropWatchSession(progressed, { nowMs: 41_000, reason: "completed" }).status).toBe("completed");

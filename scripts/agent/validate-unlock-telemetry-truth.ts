@@ -46,9 +46,9 @@ if (packageJson.scripts?.["check:unlock-telemetry-truth"] !== "tsx scripts/agent
   failures.push("package.json must expose check:unlock-telemetry-truth.");
 }
 
-requireIncludes(unlockRoute, 'trackServerEvent("drop_unlocked"', "Drop unlock route");
-requireIncludes(unlockRoute, "buildServerUnlockTelemetryEvent", "Drop unlock route canonical server unlock helper");
 requireIncludes(unlockRoute, "trackServerEvent(serverUnlockTelemetry.eventName", "Drop unlock route canonical server unlock telemetry");
+requireExcludes(unlockRoute, 'trackServerEvent("drop_unwrapped"', "Drop unlock route");
+requireIncludes(unlockRoute, "buildServerUnlockTelemetryEvent", "Drop unlock route canonical server unlock helper");
 requireIncludes(unlockRoute, 'trackServerEvent("entitlement_granted"', "Drop unlock entitlement route");
 requireIncludes(unlockRoute, 'entitlement_id: result.entitlementId', "Drop unlock route entitlement id telemetry");
 requireIncludes(unlockRoute, 'transaction_id: result.transactionId', "Drop unlock route transaction id telemetry");
@@ -56,7 +56,8 @@ requireIncludes(unlockRoute, "idempotency_key: serverUnlockTelemetry.idempotency
 requireIncludes(unlockRoute, 'source_component: "drops_unlock_route"', "Drop unlock route source component telemetry");
 requireIncludes(unlockRoute, 'route: "/api/drops/unlock"', "Drop unlock route route telemetry");
 requireIncludes(unlockRoute, 'sourceTruth: "server_unlock_route"', "Drop unlock route server truth");
-requireIncludes(unlockWatchContract, 'CANONICAL_SERVER_UNLOCK_EVENT_NAME = "drop_unwrapped"', "Unlock watch parity contract canonical server unlock event");
+requireIncludes(unlockWatchContract, 'CANONICAL_SERVER_UNLOCK_EVENT_NAME = "drop_unlocked"', "Unlock watch parity contract canonical server unlock event");
+requireIncludes(unlockWatchContract, '"drop_unwrapped"', "Unlock watch parity contract legacy unwrap alias classification");
 requireIncludes(unlockWatchContract, 'idempotency_key: eventId', "Unlock watch parity contract idempotency key");
 requireIncludes(unlockWatchContract, 'transaction_id: transactionId', "Unlock watch parity contract transaction linkage");
 requireIncludes(unlockWatchContract, 'drop_id: dropId', "Unlock watch parity contract drop linkage");
