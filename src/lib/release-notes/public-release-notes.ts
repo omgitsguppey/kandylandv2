@@ -1,13 +1,85 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.4.78",
-  "betaReleaseCounter": 478,
+  "currentVersion": "1.4.79",
+  "betaReleaseCounter": 479,
   "channel": "beta",
-  "generatedAt": "2026-05-26T02:10:45.000Z",
-  "generatedAtUtc": "2026-05-26T02:10:45.000Z",
+  "generatedAt": "2026-05-26T02:35:00.000Z",
+  "generatedAtUtc": "2026-05-26T02:35:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.4.79",
+      "previousVersion": "1.4.78",
+      "betaReleaseCounter": 479,
+      "previousBetaReleaseCounter": 478,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(creator): centralize monetization settings",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-26T02:35:00.000Z",
+      "generatedAt": "2026-05-26T02:35:00.000Z",
+      "committedAtUtc": "2026-05-26T02:35:00.000Z",
+      "generatedAtUtc": "2026-05-26T02:35:00.000Z",
+      "category": "Improved",
+      "title": "Creator monetization settings truth",
+      "updatedAtUtc": "2026-05-26T02:35:00.000Z",
+      "summary": "Centralized creator monetization settings truth.",
+      "userFacingTitle": "Creator monetization settings truth",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Centralized creator monetization settings truth.",
+        "Connected creator settings to chat pricing, Fan Pass, profile, timeline, and broadcasts.",
+        "Added mismatch telemetry and debug visibility."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Added a canonical creator monetization contract and resolver over existing creator settings and pricing truth.",
+        "Routed creator settings, public profile, chat pricing, Fan Pass, broadcasts, and creator experience consumers through the shared resolver.",
+        "Added creator monetization telemetry, person metrics, debug evidence, and a source-only validator without changing payment, payout, or GumDrop math."
+      ],
+      "affectedSurfaces": [
+        "Creator settings",
+        "Creator public profile and timeline",
+        "Creator chat pricing",
+        "Fan Pass access",
+        "Creator broadcasts",
+        "Creator monetization debug evidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-monetization-settings-truth.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/creator-monetization-settings-truth.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-monetization-settings-truth.ts",
+        "scripts/agent/validate-fan-pass-lifecycle.ts",
+        "src/app/api/creator/broadcasts/route.ts",
+        "src/app/api/creator/settings/route.ts",
+        "src/app/api/creator/subscriptions/route.ts",
+        "src/app/api/creators/[username]/route.ts",
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/Creators/CreatorExperiencesPanel.tsx",
+        "src/lib/analytics/event-translation-bridge.ts",
+        "src/lib/analytics/person-metrics-contract.ts",
+        "src/lib/creator-monetization/creator-monetization-contract.ts",
+        "src/lib/creator-monetization/creator-monetization-resolver.ts",
+        "src/lib/creator-public-pages.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/chat.ts",
+        "src/lib/telemetry-catalog.ts",
+        "tests/unit/creator-monetization-settings-truth.spec.ts"
+      ],
+      "effectiveChangeCount": 24,
+      "excludedGeneratedChangeCount": 3,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.4.78",
       "previousVersion": "1.4.77",
@@ -1411,56 +1483,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 7,
       "excludedGeneratedChangeCount": 8,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.54",
-      "previousVersion": "1.4.53",
-      "betaReleaseCounter": 454,
-      "previousBetaReleaseCounter": 453,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(debug): enrich queue drop metadata",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-25T00:10:00.000Z",
-      "generatedAt": "2026-05-25T00:10:00.000Z",
-      "committedAtUtc": "2026-05-25T00:10:00.000Z",
-      "generatedAtUtc": "2026-05-25T00:10:00.000Z",
-      "category": "Fixed",
-      "title": "Queue drop metadata cleanup",
-      "updatedAtUtc": "2026-05-25T00:10:00.000Z",
-      "summary": "Improved queue dispatch monitoring so drop activation scheduler keys resolve scheduled times and valid drop IDs use bounded metadata status instead of generic unknown labels.",
-      "userFacingTitle": "Queue drop metadata cleanup",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Resolved queue dispatch drop metadata enrichment and scheduler key timestamp parsing.",
-        "Separated notification dispatch outcomes from debug metadata enrichment gaps.",
-        "Replaced generic Unknown drop rows with bounded metadata status and fallback labels."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Notification dispatch behavior, drop activation scheduling, payment runtime, and GumDrop math were not changed."
-      ],
-      "affectedSurfaces": [
-        "Admin Debug monitoring",
-        "Queue dispatch outcomes",
-        "Drop metadata enrichment",
-        "Scheduler key parsing"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/debug/drop-activation-scheduler-key.ts",
-        "src/lib/debug/queue-drop-metadata-enrichment.ts",
-        "src/lib/debug/dispatch-outcome-display-cleanup.ts",
-        "src/lib/debug/queue-metadata-gap-summary.ts",
-        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
-        "src/app/api/admin/debug/route.ts"
-      ],
-      "effectiveChangeCount": 6,
-      "excludedGeneratedChangeCount": 10,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

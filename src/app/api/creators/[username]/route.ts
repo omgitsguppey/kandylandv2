@@ -11,6 +11,10 @@ import { CREATOR_COLLECTIONS, isCreatorRole, normalizeCreatorSettings } from "@/
 import { sanitizeDropForClient } from "@/lib/server/drops";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildCreatorProfileTimeline } from "@/lib/creator-profile/timeline-contract";
+import {
+    resolveCreatorMonetizationSettings,
+    resolveUserFacingCreatorMonetization,
+} from "@/lib/creator-monetization/creator-monetization-resolver";
 
 const CREATOR_PROFILE_DROP_LIMIT = 40;
 const CREATOR_PROFILE_BROADCAST_LIMIT = 20;
@@ -64,6 +68,15 @@ async function GET_handler(
         const followerCount = followersSnapshot.data().count;
 
         const creatorSettings = normalizeCreatorSettings(creatorRaw.creatorSettings);
+        const monetizationSettings = resolveCreatorMonetizationSettings({
+            creatorId: creatorDoc.id,
+            rawSettings: creatorRaw.creatorSettings ?? creatorSettings,
+            rawRestrictions: creatorRaw.creatorRestrictions,
+            settingsConfigured: Boolean(creatorRaw.creatorSettings && typeof creatorRaw.creatorSettings === "object"),
+            profileHidden: creatorRaw.profileHidden === true,
+            updatedAt: typeof creatorRaw.creatorSettingsUpdatedAt === "number" ? creatorRaw.creatorSettingsUpdatedAt : null,
+        });
+        const userFacingMonetization = resolveUserFacingCreatorMonetization(monetizationSettings);
         const creator = {
             uid: creatorDoc.id,
             displayName: typeof creatorRaw.displayName === "string" ? creatorRaw.displayName : "Creator",
@@ -74,6 +87,8 @@ async function GET_handler(
             isVerified: creatorRaw.isVerified === true,
             followerCount,
             creatorSettings,
+            monetizationSettings,
+            userFacingMonetization,
         };
 
         const dropsSnapshot = await adminDb.collection("drops")
@@ -87,7 +102,7 @@ async function GET_handler(
                 ? [sanitizeDropForClient(normalized)]
                 : [];
         }).sort((left, right) => right.validFrom - left.validFrom);
-        const broadcastsSnapshot = creatorSettings.profileTimelineEnabled !== false && creatorSettings.showBroadcastsOnTimeline !== false
+        const broadcastsSnapshot = userFacingMonetization.timeline.visible && userFacingMonetization.broadcasts.visible
             ? await adminDb.collection(CREATOR_COLLECTIONS.broadcasts)
                 .where("creatorId", "==", creator.uid)
                 .limit(CREATOR_PROFILE_BROADCAST_LIMIT)

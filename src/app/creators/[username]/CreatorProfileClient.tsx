@@ -19,7 +19,6 @@ import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
-    CREATOR_MESSAGE_COSTS,
     CREATOR_BOOKING_MIN_MINUTES,
 } from "@/lib/creator-experiences";
 import { getCreatorBookingProblemCopy, getCreatorRequestProblemCopy, getCreatorSubscriptionProblemCopy } from "@/lib/problem-state-copy";
@@ -391,7 +390,9 @@ export default function CreatorProfileClient() {
     const hasExperiences = availableExperienceViews.length > 0;
     const canMessageCreator = availableExperienceViews.includes("messages");
     const purchasedBalanceGd = currentUserProfile?.gumDropsPurchasedBalance ?? 0;
-    const chatCostGd = creatorSettings.chatFreeForSubscribers && subscriptionActive ? 0 : CREATOR_MESSAGE_COSTS.text;
+    const chatCostGd = creatorPublicState.userFacingMonetization.chat.subscriberFreeChatEnabled && subscriptionActive
+        ? 0
+        : creatorPublicState.userFacingMonetization.chat.textPriceGd;
     const creatorDisplayName = creatorFirstName || creator?.displayName || "this creator";
     const messageHint = currentUser
         ? !following

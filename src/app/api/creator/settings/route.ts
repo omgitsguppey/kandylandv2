@@ -30,6 +30,10 @@ import {
     sanitizeCreatorSettingsControlPlaneUpdate,
     stripAdminOnlyCreatorSettingsFields,
 } from "@/lib/creator-settings/creator-settings-contract";
+import {
+    resolveCreatorMonetizationSettings,
+    resolveUserFacingCreatorMonetization,
+} from "@/lib/creator-monetization/creator-monetization-resolver";
 
 const CREATOR_SETTINGS_BODY_LIMIT_BYTES = 32_768;
 
@@ -471,6 +475,13 @@ async function GET_handler(request: NextRequest) {
         const creatorRestrictions = rawCreatorRestrictions && typeof rawCreatorRestrictions === "object"
             ? normalizeCreatorRestrictions(rawCreatorRestrictions)
             : DEFAULT_CREATOR_RESTRICTIONS;
+        const monetizationSettings = resolveCreatorMonetizationSettings({
+            creatorId,
+            rawSettings: rawCreatorSettings ?? creatorSettings,
+            rawRestrictions: rawCreatorRestrictions ?? creatorRestrictions,
+            settingsConfigured: settingsState === "configured",
+            updatedAt: typeof data.creatorSettingsUpdatedAt === "number" ? toFiniteNumber(data.creatorSettingsUpdatedAt) : null,
+        });
         const sourceIssues = [
             settingsState === "not_configured" ? "creator_settings_not_configured" : null,
         ].filter((issue): issue is string => Boolean(issue));
@@ -525,6 +536,8 @@ async function GET_handler(request: NextRequest) {
             missingSetupItems: settingsCompletion.missingSetupItems,
             sourceTruth: settingsState === "configured" ? "creator_settings_doc" : "safe_defaults_missing_settings_doc",
             userFacingImpact: buildCreatorSettingsUserFacingImpact(controlPlaneSettings),
+            monetizationSettings,
+            userFacingMonetization: resolveUserFacingCreatorMonetization(monetizationSettings),
             creatorRestrictions,
             stats: {
                 earningsGd,
@@ -583,6 +596,12 @@ async function PUT_handler(request: NextRequest) {
         if (controlPlanePayload) {
             const sanitized = sanitizeCreatorSettingsControlPlaneUpdate(controlPlanePayload, data.creatorSettings ?? DEFAULT_CREATOR_SETTINGS);
             if (!sanitized.ok) {
+                await trackServerEvent("creator_monetization_save_failed", {
+                    page_path: "/dashboard/creator",
+                    error_code: "invalid_creator_settings",
+                    source_truth: "creator_settings_control_plane",
+                    changed_sections: "invalid_control_plane",
+                }, caller.uid).catch(() => undefined);
                 return NextResponse.json({
                     success: false,
                     code: "invalid_creator_settings",
@@ -598,6 +617,12 @@ async function PUT_handler(request: NextRequest) {
         } else if (payload.creatorSettings) {
             const stripped = stripAdminOnlyCreatorSettingsFields(payload.creatorSettings);
             if (stripped.rejectedAdminOnlyFields.length > 0) {
+                await trackServerEvent("creator_monetization_save_failed", {
+                    page_path: "/dashboard/creator",
+                    error_code: "admin_only_creator_settings_fields",
+                    source_truth: "creator_settings_control_plane",
+                    changed_sections: "legacy_creator_settings",
+                }, caller.uid).catch(() => undefined);
                 return NextResponse.json({
                     success: false,
                     code: "admin_only_creator_settings_fields",
@@ -651,12 +676,27 @@ async function PUT_handler(request: NextRequest) {
             source_truth: "creator_settings_control_plane",
             ...actorMarkerToTelemetryPayload(actorMarker),
         }, caller.uid).catch(() => undefined);
+        await trackServerEvent("creator_monetization_save_succeeded", {
+            page_path: "/dashboard/creator",
+            creator_settings_updated: Boolean(payload.creatorSettings || controlPlanePayload),
+            creator_restrictions_updated: Boolean(payload.creatorRestrictions),
+            changed_sections: changedSections.join(","),
+            source_truth: "creator_settings_doc",
+            ...actorMarkerToTelemetryPayload(actorMarker),
+        }, caller.uid).catch(() => undefined);
         const nextControlPlaneSettings = buildCreatorSettingsControlPlane(update.creatorSettings ?? data.creatorSettings ?? DEFAULT_CREATOR_SETTINGS, {
             displayName: profilePatch.displayName ?? data.displayName,
             bio: profilePatch.bio ?? data.bio,
             photoURL: profilePatch.photoURL ?? data.photoURL,
         });
         const nextCompletion = buildCreatorSettingsCompletion(nextControlPlaneSettings, "configured");
+        const nextMonetizationSettings = resolveCreatorMonetizationSettings({
+            creatorId: caller.uid,
+            rawSettings: update.creatorSettings ?? data.creatorSettings ?? DEFAULT_CREATOR_SETTINGS,
+            rawRestrictions: update.creatorRestrictions ?? data.creatorRestrictions ?? DEFAULT_CREATOR_RESTRICTIONS,
+            settingsConfigured: true,
+            updatedAt: Date.now(),
+        });
         return NextResponse.json({
             success: true,
             settings: nextControlPlaneSettings,
@@ -664,6 +704,8 @@ async function PUT_handler(request: NextRequest) {
             missingSetupItems: nextCompletion.missingSetupItems,
             sourceTruth: "creator_settings_doc",
             userFacingImpact: buildCreatorSettingsUserFacingImpact(nextControlPlaneSettings),
+            monetizationSettings: nextMonetizationSettings,
+            userFacingMonetization: resolveUserFacingCreatorMonetization(nextMonetizationSettings),
         });
     } catch (error) {
         if (isBoundedJsonBodyError(error)) {

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.4.79 - 2026-05-26
+- Creator monetization settings truth
+- Centralized creator monetization settings truth.
+- Connected creator settings to chat pricing, Fan Pass, profile, timeline, and broadcasts.
+- Added mismatch telemetry and debug visibility.
+
 ## 1.4.78 - 2026-05-26
 - Creator revenue entitlement ledger
 - Added creator entitlement ledger for Fan Pass, chat, drops, and experiences.

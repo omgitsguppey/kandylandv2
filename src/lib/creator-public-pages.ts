@@ -1,10 +1,13 @@
 import {
-    CREATOR_MESSAGE_COSTS,
     DEFAULT_CREATOR_SETTINGS,
     isCreatorRole,
     normalizeCreatorSettings,
     type CreatorSettings,
 } from "@/lib/creator-experiences";
+import {
+    resolveCreatorMonetizationSettings,
+    resolveUserFacingCreatorMonetization,
+} from "@/lib/creator-monetization/creator-monetization-resolver";
 import { normalizeCreatorOnboardingApprovalStatus } from "@/lib/creator-onboarding";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import {
@@ -105,6 +108,12 @@ export function isCreatorVisibleInDiscovery(input: {
 
 export function resolveCreatorPublicExperienceState(settingsInput: CreatorSettings | null | undefined, activeDropCount: number) {
     const settings = settingsInput ? normalizeCreatorSettings(settingsInput) : DEFAULT_CREATOR_SETTINGS;
+    const monetizationSettings = resolveCreatorMonetizationSettings({
+        creatorId: "public_creator_profile",
+        rawSettings: settingsInput ?? settings,
+        settingsConfigured: Boolean(settingsInput),
+    });
+    const userFacingMonetization = resolveUserFacingCreatorMonetization(monetizationSettings);
     const resolvedPricing = resolveCreatorPricing(settingsInput);
     const enabledRequestCategories = settings.requestCategories.filter((category) => category.enabled);
     const summaryCards: CreatorPublicExperienceCard[] = [];
@@ -134,7 +143,7 @@ export function resolveCreatorPublicExperienceState(settingsInput: CreatorSettin
         summaryCards.push({
             key: "messages",
             eyebrow: "Private chat",
-            label: `${CREATOR_MESSAGE_COSTS.text} to ${CREATOR_MESSAGE_COSTS.video} GD`,
+            label: `${userFacingMonetization.chat.textPriceGd} to ${userFacingMonetization.chat.videoPriceGd} GD`,
             summary: "Fans can send private messages, images, or video requests from the same page.",
         });
     }
@@ -185,6 +194,8 @@ export function resolveCreatorPublicExperienceState(settingsInput: CreatorSettin
 
     return {
         settings,
+        monetizationSettings,
+        userFacingMonetization,
         enabledRequestCategories,
         summaryCards,
         hasEnabledExperiences: summaryCards.some((card) => card.key !== "drops"),

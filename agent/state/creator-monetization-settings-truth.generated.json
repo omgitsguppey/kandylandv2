@@ -1,0 +1,163 @@
+{
+  "reportKey": "creator-monetization-settings-truth",
+  "generatedAtUtc": "2026-05-26T02:44:52.523Z",
+  "currentHead": "1bac904e",
+  "status": "pass",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "contractStatus": "pass",
+  "resolverStatus": "pass",
+  "consumerStatus": "pass",
+  "telemetryStatus": "pass",
+  "personMetricsStatus": "pass",
+  "featureRegistrationStatus": "pass",
+  "debugVisibilityStatus": "pass",
+  "paymentRuntimeStatus": "unchanged",
+  "payoutMathStatus": "unchanged",
+  "gumdropMathStatus": "unchanged",
+  "debugLane": {
+    "label": "Creator monetization settings",
+    "monitors": [
+      "mismatches",
+      "stale settings",
+      "missing consumer",
+      "invalid pricing",
+      "not_configured"
+    ]
+  },
+  "userFacingConsumers": [
+    "public_creator_profile",
+    "creator_profile_timeline",
+    "creator_experiences_panel",
+    "chat_pricing",
+    "fan_pass_access",
+    "broadcasts",
+    "drop_manager"
+  ],
+  "creatorFacingControls": [
+    "creator_settings_fan_pass",
+    "creator_settings_chat",
+    "creator_settings_gumdrop_experiences",
+    "creator_settings_broadcasts",
+    "creator_settings_timeline",
+    "creator_settings_drop_manager"
+  ],
+  "telemetryEvents": [
+    "creator_monetization_settings_viewed",
+    "creator_monetization_setting_changed",
+    "creator_monetization_save_succeeded",
+    "creator_monetization_save_failed",
+    "creator_monetization_user_surface_applied",
+    "creator_monetization_mismatch_detected"
+  ],
+  "scoreBefore": 77.83,
+  "scoreAfter": 77.83,
+  "scoreDimensions": [
+    "sourceHealth",
+    "evidenceCompleteness",
+    "runtimeHealth"
+  ],
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "Keep creator monetization changes routed through the resolver before touching user-facing consumers."
+  ],
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/state/creator-monetization-settings-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-settings-truth.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "package.json",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-settings-truth.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-fan-pass-lifecycle.ts",
+      "classification": "stale_fan_pass_logic_to_remove"
+    },
+    {
+      "path": "src/app/api/creator/broadcasts/route.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/app/api/creator/settings/route.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/app/api/creator/subscriptions/route.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/app/api/creators/[username]/route.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-contract.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/creator-monetization/creator-monetization-contract.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/creator-monetization/creator-monetization-resolver.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/creator-public-pages.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/server/chat.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "src/lib/telemetry-catalog.ts",
+      "classification": "current_source_change"
+    },
+    {
+      "path": "tests/unit/creator-monetization-settings-truth.spec.ts",
+      "classification": "test_artifact_expected"
+    }
+  ],
+  "validationFailures": []
+}

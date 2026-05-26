@@ -467,6 +467,9 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/lib/media/media-upload-contract.ts" || normalized === "src/lib/media/media-upload-telemetry.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/fan-pass/fan-pass-lifecycle-contract.ts" || normalized === "src/lib/fan-pass/fan-pass-access-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/creator/subscriptions/route.ts" || normalized === "src/lib/server/chat.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/creator-monetization/creator-monetization-contract.ts" || normalized === "src/lib/creator-monetization/creator-monetization-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/creator/settings/route.ts" || normalized === "src/app/api/creator/broadcasts/route.ts" || normalized === "src/app/api/creators/[username]/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/components/Creators/CreatorExperiencesPanel.tsx" || normalized === "src/lib/creator-public-pages.ts") return "real_source_change_needs_review";
   if (normalized === "src/app/api/chat/attachments/prepare/route.ts" || normalized === "src/app/api/chat/attachments/complete/route.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/creator-relationship-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/discovery/search-telemetry-contract.ts" || normalized === "src/lib/discovery/search-cost-contract.ts") return "real_source_change_needs_review";
@@ -476,6 +479,7 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "src/app/drops/DropsClient.tsx" || normalized === "src/components/StickyFilterBar.tsx" || normalized === "src/hooks/useDropsSearchTelemetry.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/search-intent-profile.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/behavior-feature-registry.ts" || normalized === "src/lib/behavioral/event-fact-contract.ts" || normalized === "src/lib/behavioral/normalize-event-fact.ts" || normalized === "src/lib/behavioral/tracking-surface-map.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/features/feature-registration-registry.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-search-discovery-cost.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/search-discovery-cost.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/search-discovery-cost.generated.json") return "current_generated_artifact_to_commit";
@@ -492,6 +496,10 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "tests/unit/fan-pass-lifecycle.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/fan-pass-lifecycle.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/fan-pass-lifecycle.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-settings-truth.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-monetization-settings-truth.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/creator-monetization-settings-truth.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-settings-truth.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/surface-parity-doctrine.generated.json" || normalized === "docs/agent-truth/surface-parity-doctrine.md") return "stale_generated_artifact_to_regenerate";
   if (
     normalized === "CHANGELOG.md"

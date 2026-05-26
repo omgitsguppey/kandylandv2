@@ -7,6 +7,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { resolveCreatorMonetizationSettings } from "@/lib/creator-monetization/creator-monetization-resolver";
 import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -157,7 +158,13 @@ async function POST_handler(request: NextRequest) {
         const creatorRestrictions = callerRecord.creatorRestrictions && typeof callerRecord.creatorRestrictions === "object"
             ? callerRecord.creatorRestrictions as Record<string, unknown>
             : {};
-        if (creatorSettings.broadcastsEnabled === false || creatorRestrictions.broadcastsRestricted === true) {
+        const monetizationSettings = resolveCreatorMonetizationSettings({
+            creatorId: caller.uid,
+            rawSettings: creatorSettings,
+            rawRestrictions: creatorRestrictions,
+            settingsConfigured: Boolean(callerRecord.creatorSettings && typeof callerRecord.creatorSettings === "object"),
+        });
+        if (!monetizationSettings.broadcastsEnabled) {
             return NextResponse.json({ error: "Broadcasts are unavailable for this creator." }, { status: 403 });
         }
 

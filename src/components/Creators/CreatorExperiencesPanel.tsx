@@ -30,11 +30,11 @@ import {
 import type { HumanErrorDescriptor } from "@/lib/errors/error-language";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
-    CREATOR_MESSAGE_COSTS,
     CREATOR_SUBSCRIPTION_MIN_GD,
     type CreatorRequestCategoryConfig,
     type CreatorSettings,
 } from "@/lib/creator-experiences";
+import { resolveCreatorMonetizationSettings } from "@/lib/creator-monetization/creator-monetization-resolver";
 import { resolveCreatorPricing } from "@/lib/creator-settings/creator-pricing-resolver";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
@@ -160,6 +160,11 @@ export function CreatorExperiencesPanel({
         bookingDurationMinutes,
         subscriptionActive,
     }), [bookingDurationMinutes, bookingServiceType, requestCategoryId, settings, subscriptionActive]);
+    const monetizationSettings = useMemo(() => resolveCreatorMonetizationSettings({
+        creatorId,
+        rawSettings: settings,
+        settingsConfigured: true,
+    }), [creatorId, settings]);
     const availabilityWindows = settings.availabilityWindows || [];
     const fanPassPriceGd = pricing.fanPass.priceGd || CREATOR_SUBSCRIPTION_MIN_GD;
     const bookingRatePerMinute = pricing.booking?.ratePerMinuteGd ?? 0;
@@ -569,7 +574,7 @@ export function CreatorExperiencesPanel({
                     <div className="mb-4 ml-10 flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-black text-white">Private Chat</h2>
-                            {settings.chatFreeForSubscribers && subscriptionActive && (
+                            {monetizationSettings.subscriberFreeChatEnabled && subscriptionActive && (
                                 <span className="rounded-full bg-brand-purple/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-purple-light">Free for you</span>
                             )}
                         </div>
@@ -582,15 +587,15 @@ export function CreatorExperiencesPanel({
                         <div className="mt-3 grid grid-cols-3 gap-2">
                             <div className="rounded-xl bg-black/35 px-2 py-2 text-center">
                                 <span className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500">Text</span>
-                                <span className="mt-1 block text-sm font-bold text-white">{CREATOR_MESSAGE_COSTS.text} GD</span>
+                                <span className="mt-1 block text-sm font-bold text-white">{monetizationSettings.chatTextPriceGd} GD</span>
                             </div>
                             <div className="rounded-xl bg-black/35 px-2 py-2 text-center">
                                 <span className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500">Image</span>
-                                <span className="mt-1 block text-sm font-bold text-white">{CREATOR_MESSAGE_COSTS.image} GD</span>
+                                <span className="mt-1 block text-sm font-bold text-white">{monetizationSettings.chatImagePriceGd} GD</span>
                             </div>
                             <div className="rounded-xl bg-black/35 px-2 py-2 text-center">
                                 <span className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500">Video</span>
-                                <span className="mt-1 block text-sm font-bold text-white">{CREATOR_MESSAGE_COSTS.video} GD</span>
+                                <span className="mt-1 block text-sm font-bold text-white">{monetizationSettings.chatVideoPriceGd} GD</span>
                             </div>
                         </div>
                     </details>
@@ -632,7 +637,7 @@ export function CreatorExperiencesPanel({
 
                     {!hasRecentThread && renderCTA(
                         "messages",
-                        (settings.chatFreeForSubscribers && subscriptionActive) ? 0 : CREATOR_MESSAGE_COSTS.text,
+                        (monetizationSettings.subscriberFreeChatEnabled && subscriptionActive) ? 0 : monetizationSettings.chatTextPriceGd,
                         onOpenChat,
                         false,
                         <MessageSquare className="h-4 w-4" />,

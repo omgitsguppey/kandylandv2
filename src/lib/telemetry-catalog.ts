@@ -434,6 +434,12 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "creator_settings_updated", label: "Creator settings updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator"] },
     { eventName: "creator_setting_updated", label: "Creator setting updated", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
     { eventName: "creator_settings_control_plane_saved", label: "Creator settings control plane saved", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"], aliases: ["creator_setting_updated"] },
+    { eventName: "creator_monetization_settings_viewed", label: "Creator monetization settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
+    { eventName: "creator_monetization_setting_changed", label: "Creator monetization setting changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
+    { eventName: "creator_monetization_save_succeeded", label: "Creator monetization save succeeded", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
+    { eventName: "creator_monetization_save_failed", label: "Creator monetization save failed", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
+    { eventName: "creator_monetization_user_surface_applied", label: "Creator monetization user surface applied", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
+    { eventName: "creator_monetization_mismatch_detected", label: "Creator monetization mismatch detected", category: "system", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "runtime"] },
     { eventName: "creator_drop_submitted", label: "Creator drop submitted", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "content"] },
     { eventName: "creator_drop_updated", label: "Creator drop updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "content"] },
     { eventName: "admin_creator_drop_reviewed", label: "Admin creator drop reviewed", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "content"] },
@@ -1559,6 +1565,7 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     || eventName === "creator_broadcast_manager_viewed"
     || eventName === "creator_broadcast_empty_state_viewed"
     || eventName === "creator_settings_migrated_redirect_viewed"
+    || eventName.startsWith("creator_monetization_")
   ) {
     return [
       "actor_role|actorRole",

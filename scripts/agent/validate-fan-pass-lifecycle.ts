@@ -92,6 +92,18 @@ export function classifyFanPassLifecycleDirtyFile(filePath: string): FanPassDirt
   if (normalized === "src/lib/fan-pass/fan-pass-access-resolver.ts") return "current_source_change";
   if (normalized === "src/lib/creator-monetization/creator-entitlement-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/creator-monetization/creator-entitlement-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/creator-monetization/creator-monetization-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/creator-monetization/creator-monetization-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "agent/state/creator-monetization-settings-truth.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/creator-monetization-settings-truth.md") return "documentation_artifact_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-settings-truth.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/creator-monetization-settings-truth.spec.ts") return "test_artifact_expected";
+  if (normalized === "src/app/api/creator/broadcasts/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/creator/settings/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/creators/[username]/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/creators/[username]/CreatorProfileClient.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/components/Creators/CreatorExperiencesPanel.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/lib/creator-public-pages.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-creator-revenue-entitlement-ledger.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/creator-revenue-entitlement-ledger.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/creator-revenue-entitlement-ledger.generated.json") return "current_generated_artifact_to_commit";
@@ -113,11 +125,13 @@ export function classifyFanPassLifecycleDirtyFile(filePath: string): FanPassDirt
   if (normalized === "agent/state/feature-registration-gate.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/creator-settings-control-plane.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/creator-pricing-wiring.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/settings-connection-parity.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/feature-registration-gate.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/creator-settings-control-plane.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/creator-pricing-wiring.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/settings-connection-parity.md") return "documentation_artifact_expected";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"

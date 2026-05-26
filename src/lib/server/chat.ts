@@ -22,6 +22,7 @@ import {
 } from "@/lib/chat";
 import { buildChatGatingTelemetryPayload } from "@/lib/chat/chat-gating-contract";
 import { resolveFanPassAccess } from "@/lib/fan-pass/fan-pass-access-resolver";
+import { resolveCreatorMonetizationSettings } from "@/lib/creator-monetization/creator-monetization-resolver";
 import { buildNotificationRecord } from "@/lib/notification-contracts";
 import { buildNotificationDocumentId, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
 import { buildChatSoftSealScope, softOpenChatValue, softSealChatValue } from "@/lib/chat-soft-seal";
@@ -340,15 +341,20 @@ function buildThreadBackfillPatch(thread: CreatorMessageThread, creator: UserSum
 }
 
 function shouldGrantSubscriberFreeChat(subscriptionActive: boolean, creatorSettings: CreatorSettings) {
+    const monetization = resolveCreatorMonetizationSettings({
+        creatorId: "chat_pricing_contract",
+        rawSettings: creatorSettings,
+        settingsConfigured: true,
+    });
     const fanPassAccess = resolveFanPassAccess({
         creatorId: "chat_pricing_contract",
         fanUserId: "chat_pricing_contract",
-        enabledByCreator: creatorSettings.chatFreeForSubscribers !== false,
+        enabledByCreator: monetization.subscriberFreeChatEnabled,
         activeForUser: subscriptionActive,
         subscriptionStatus: subscriptionActive ? "active" : "missing",
         sourceTruth: "chat_pricing",
         price: 0,
-        chatFreeForSubscribers: creatorSettings.chatFreeForSubscribers !== false,
+        chatFreeForSubscribers: monetization.subscriberFreeChatEnabled,
     });
     return fanPassAccess.chatBypassStatus === "granted";
 }
@@ -358,18 +364,26 @@ function buildChatPricingSummary(input: {
     fanPassActive: boolean;
     subscriberFreeChatApplies: boolean;
     subscriberFreeChatEnabled: boolean;
+    creatorSettings?: CreatorSettings;
 }): ChatThreadPricing {
     const free = input.subscriberFreeChatApplies;
+    const monetization = input.creatorSettings
+        ? resolveCreatorMonetizationSettings({
+            creatorId: "chat_pricing_contract",
+            rawSettings: input.creatorSettings,
+            settingsConfigured: true,
+        })
+        : null;
 
     return {
-        textPriceGd: free ? 0 : 1,
-        imagePriceGd: free ? 0 : 5,
-        videoPriceGd: free ? 0 : 10,
+        textPriceGd: free ? 0 : monetization?.chatTextPriceGd ?? 1,
+        imagePriceGd: free ? 0 : monetization?.chatImagePriceGd ?? 5,
+        videoPriceGd: free ? 0 : monetization?.chatVideoPriceGd ?? 10,
         purchasedOnly: true,
         purchasedBalanceGd: Math.max(0, Math.trunc(input.purchasedBalanceGd)),
         fanPassActive: input.fanPassActive,
         subscriberFreeChatApplies: free,
-        subscriberFreeChatEnabled: input.subscriberFreeChatEnabled,
+        subscriberFreeChatEnabled: monetization?.subscriberFreeChatEnabled ?? input.subscriberFreeChatEnabled,
     };
 }
 
@@ -743,6 +757,7 @@ export async function getChatThreadDetailForViewer(input: {
         fanPassActive: subscriptionActive,
         subscriberFreeChatApplies,
         subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
+        creatorSettings: creator.creatorSettings,
     });
     const paidGdGate = buildChatPaidGdGateState({
         viewerRole,
@@ -959,6 +974,11 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
 
         const subscriptionActive = subscriptionSnap.exists && readString((subscriptionSnap.data() as Record<string, unknown>).status) === "active";
         const subscriberFreeChatApplies = shouldGrantSubscriberFreeChat(subscriptionActive, creator.creatorSettings);
+        const chatMonetization = resolveCreatorMonetizationSettings({
+            creatorId: creator.uid,
+            rawSettings: creator.creatorSettings,
+            settingsConfigured: true,
+        });
         const participantBalance = viewerRole === "user"
             ? readSourceAwareBalance(participant.raw)
             : { total: 0, purchased: 0, reward: 0 };
@@ -968,10 +988,10 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             : subscriberFreeChatApplies
                 ? 0
                 : messageKind === "image"
-                    ? 5
+                    ? chatMonetization.chatImagePriceGd
                     : messageKind === "video"
-                        ? 10
-                        : 1;
+                        ? chatMonetization.chatVideoPriceGd
+                        : chatMonetization.chatTextPriceGd;
         if (messageSnap.exists || transactionSnap.exists) {
             if (!messageSnap.exists || !threadSnap.exists) {
                 throw new ChatClientError("This creator message is already being processed.", 409, buildChatErrorBody({
@@ -995,6 +1015,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                     fanPassActive: subscriptionActive,
                     subscriberFreeChatApplies,
                     subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
+                    creatorSettings: creator.creatorSettings,
                 }),
                 costGd: existingMessage.costGd,
                 creatorAccrualId: existingAccrualId,
@@ -1174,6 +1195,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 fanPassActive: subscriptionActive,
                 subscriberFreeChatApplies,
                 subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
+                creatorSettings: creator.creatorSettings,
             }),
             costGd,
             creatorAccrualId,

@@ -7,6 +7,7 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorOrAdminRole, isCreatorRole } from "@/lib/creator-experiences";
 import { resolveCreatorFanPassPricing } from "@/lib/creator-settings/creator-pricing-resolver";
+import { resolveCreatorMonetizationSettings } from "@/lib/creator-monetization/creator-monetization-resolver";
 import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
@@ -485,8 +486,14 @@ async function POST_handler(request: NextRequest) {
             const creatorSettings = creatorData.creatorSettings && typeof creatorData.creatorSettings === "object"
                 ? creatorData.creatorSettings as Record<string, unknown>
                 : {};
+            const monetizationSettings = resolveCreatorMonetizationSettings({
+                creatorId,
+                rawSettings: creatorSettings,
+                rawRestrictions: creatorData.creatorRestrictions,
+                settingsConfigured: Boolean(creatorData.creatorSettings && typeof creatorData.creatorSettings === "object"),
+            });
             const fanPassPricing = resolveCreatorFanPassPricing(creatorSettings);
-            const subscriptionsEnabled = fanPassPricing.enabled;
+            const subscriptionsEnabled = monetizationSettings.fanPassEnabled && fanPassPricing.enabled;
             const subscriptionsRestricted = creatorData.creatorRestrictions && typeof creatorData.creatorRestrictions === "object"
                 ? (creatorData.creatorRestrictions as Record<string, unknown>).subscriptionsRestricted === true
                 : false;

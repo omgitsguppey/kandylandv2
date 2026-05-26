@@ -82,6 +82,7 @@
         "check:search-discovery-cost": "tsx scripts/agent/validate-search-discovery-cost.ts",
         "check:media-discovery-score-lock": "tsx scripts/agent/validate-media-discovery-score-lock.ts",
         "check:fan-pass-lifecycle": "tsx scripts/agent/validate-fan-pass-lifecycle.ts",
+        "check:creator-monetization-settings-truth": "tsx scripts/agent/validate-creator-monetization-settings-truth.ts",
         "check:creator-revenue-entitlement-ledger": "tsx scripts/agent/validate-creator-revenue-entitlement-ledger.ts",
         "check:activity-verification-engine": "tsx scripts/agent/validate-activity-verification-engine.ts",
         "check:new-additions-score-coverage": "tsx scripts/agent/validate-new-additions-score-coverage.ts",
