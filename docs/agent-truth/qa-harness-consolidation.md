@@ -1,7 +1,7 @@
 # QA Harness Consolidation
 
 Generated: 2026-05-27T00:00:00.000Z
-Current head: eb93068b1c0df79e92c921213b08923327907189
+Current head: 73bb5a8b1aa989f93c2580e04b7c1e22ff62db93
 Harnesses audited: 9
 Duplicate harnesses unclassified: 0
 Unsafe unknowns: 0

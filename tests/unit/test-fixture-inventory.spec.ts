@@ -31,4 +31,18 @@ describe("test fixture inventory", () => {
     expect(envelope.privacyClass).toBe("minimal_product");
     expect(envelope.includeInUserBehavior).toBe(true);
   });
+
+  it("does not treat fake-zero protection language as fake fixture drift", () => {
+    const report = buildTestFixtureInventoryReport();
+
+    expect(report.remainingGaps).not.toContain(
+      "scripts/agent/validate-admin-analytics-finalization.ts: replace local fake/mock data with canonical test factory where practical.",
+    );
+    expect(report.remainingGaps).not.toContain(
+      "scripts/agent/validate-admin-analytics-no-pure-realtime.ts: replace local fake/mock data with canonical test factory where practical.",
+    );
+    expect(report.remainingGaps).not.toContain(
+      "scripts/agent/validate-admin-analytics-snapshot-migration.ts: replace local fake/mock data with canonical test factory where practical.",
+    );
+  });
 });

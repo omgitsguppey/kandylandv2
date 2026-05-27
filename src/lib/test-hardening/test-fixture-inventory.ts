@@ -68,6 +68,11 @@ function fixtureNameFromPath(path: string) {
   return path.split("/").pop()?.replace(/\.(spec|test)\.(ts|tsx)$/u, "").replace(/\.(ts|tsx|json|md)$/u, "") ?? path;
 }
 
+function countDirectFixtureDoubles(text: string) {
+  const withoutDisplaySafetyTerms = text.replace(/\bfakeZero[A-Za-z_]*\b/gu, "");
+  return countMatches(withoutDisplaySafetyTerms, /\bfake[A-Z_]|\bmock[A-Z_]|\bas any\b/gu);
+}
+
 export function buildTestFixtureInventoryReport(): TestFixtureInventoryReport {
   const files = listFiles(["tests", "scripts/agent", "src/lib/testing"], [".ts", ".tsx", ".json"]);
   const testFiles = files.filter((file) => /(^tests\/|\.spec\.|\.test\.)/u.test(file));
@@ -85,7 +90,7 @@ export function buildTestFixtureInventoryReport(): TestFixtureInventoryReport {
     const canonicalTypeUsed = hasCanonicalImport(text, domain) || /src\/lib\/testing\/canonical-test-factories\.ts$/u.test(file);
     const canonicalSchemaUsed = canonicalTypeUsed || /z\.object|validate[A-Z]|schema/iu.test(text);
     const mockEvidenceClass = evidenceClassFor(file, text);
-    const directFakeCount = countMatches(text, /\bfake[A-Z_]|\bmock[A-Z_]|\bas any\b/gu);
+    const directFakeCount = countDirectFixtureDoubles(text);
     const driftRisk: TestFixtureInventoryEntry["driftRisk"] = !canonicalTypeUsed && directFakeCount > 0 ? "high" : !canonicalTypeUsed ? "medium" : "low";
     const duplicateCandidates = duplicateNames.includes(fixtureName) ? candidateFiles.filter((candidate) => fixtureNameFromPath(candidate) === fixtureName && candidate !== file) : [];
     const action: TestFixtureAction = driftRisk === "high"

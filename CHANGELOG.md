@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.19 - 2026-05-27
+- Test fixture QA refinement
+- Consolidated test fixtures, mock evidence classes, validators, and QA harness ownership.
+- Reduced test-layer schema drift and fake proof risk.
+- Added system memory rules for test and fixture discipline.
+
 ## 1.5.18 - 2026-05-27
 - Test fixture harness consolidation
 - Consolidated test fixtures, mock evidence classes, validators, and QA harness ownership.

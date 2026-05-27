@@ -1,13 +1,79 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.18",
-  "betaReleaseCounter": 518,
+  "currentVersion": "1.5.19",
+  "betaReleaseCounter": 519,
   "channel": "beta",
-  "generatedAt": "2026-05-27T05:24:02.749Z",
-  "generatedAtUtc": "2026-05-27T05:24:02.749Z",
+  "generatedAt": "2026-05-27T05:39:17.824Z",
+  "generatedAtUtc": "2026-05-27T05:39:17.824Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.19",
+      "previousVersion": "1.5.18",
+      "betaReleaseCounter": 519,
+      "previousBetaReleaseCounter": 518,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(test): consolidate fixture harnesses",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T05:39:17.824Z",
+      "generatedAt": "2026-05-27T05:39:17.824Z",
+      "committedAtUtc": "2026-05-27T05:39:17.824Z",
+      "generatedAtUtc": "2026-05-27T05:39:17.824Z",
+      "category": "Improved",
+      "title": "Test fixture QA refinement",
+      "updatedAtUtc": "2026-05-27T05:39:17.824Z",
+      "summary": "Improved internal beta reliability by tightening fixture drift detection around canonical test harnesses and fake-zero safety terminology.",
+      "userFacingTitle": "Test fixture QA refinement",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Consolidated test fixtures, mock evidence classes, validators, and QA harness ownership.",
+        "Reduced test-layer schema drift and fake proof risk.",
+        "Added system memory rules for test and fixture discipline."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Stopped the fixture inventory from treating fake-zero protection identifiers as fake DTO or mock data drift.",
+        "Added a regression test that keeps display-safety terminology separate from fixture/mock evidence classification.",
+        "Refreshed compact test-hardening artifacts at the current source version without changing runtime payment or GumDrop math."
+      ],
+      "affectedSurfaces": [
+        "Test fixture inventory",
+        "Mock evidence classification",
+        "Generated artifact size policy",
+        "QA harness policy"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/generated-artifact-size-policy.generated.json",
+        "agent/state/qa-harness-consolidation.generated.json",
+        "agent/state/test-fixture-gut-consolidation.generated.json",
+        "agent/state/test-fixture-inventory.generated.json",
+        "agent/state/test-fixture-memory-writeback.generated.json",
+        "agent/state/test-quality-guards.generated.json",
+        "agent/state/validator-ownership-map.generated.json",
+        "docs/agent-truth/generated-artifact-size-policy.md",
+        "docs/agent-truth/qa-harness-consolidation.md",
+        "docs/agent-truth/test-fixture-gut-consolidation.md",
+        "docs/agent-truth/test-fixture-inventory.md",
+        "docs/agent-truth/test-fixture-memory-writeback.md",
+        "docs/agent-truth/test-quality-guards.md",
+        "docs/agent-truth/validator-ownership-map.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/test-hardening/test-fixture-inventory.ts",
+        "tests/unit/test-fixture-inventory.spec.ts"
+      ],
+      "effectiveChangeCount": 3,
+      "excludedGeneratedChangeCount": 17,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.18",
       "previousVersion": "1.5.17",
@@ -1596,83 +1662,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 16,
       "excludedGeneratedChangeCount": 2,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.94",
-      "previousVersion": "1.4.93",
-      "betaReleaseCounter": 494,
-      "previousBetaReleaseCounter": 493,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(integrity): repair body system wiring",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T07:45:00.000Z",
-      "generatedAt": "2026-05-26T07:45:00.000Z",
-      "committedAtUtc": "2026-05-26T07:45:00.000Z",
-      "generatedAtUtc": "2026-05-26T07:45:00.000Z",
-      "category": "Improved",
-      "title": "Body system wiring repair",
-      "updatedAtUtc": "2026-05-26T07:45:00.000Z",
-      "summary": "Repaired highest-impact disconnected product limbs across routes, telemetry, metrics, debug, and score.",
-      "userFacingTitle": "Body system wiring repair",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Repaired highest-impact disconnected product limbs across routes, telemetry, metrics, debug, and score.",
-        "Reduced duplicate truth sources and orphaned telemetry.",
-        "Kept product runtime and monetization math unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a Body system wiring repair lane that turns the runtime watch-time orphan into an owned deferred evidence gap without claiming fake runtime proof.",
-        "Connected the repair lane to Product body map, Central normalizer, Product brain, Admin Debug, event translation, person metrics, and beta score evidence classifiers.",
-        "Added source-only validation, generated evidence, documentation, and unit coverage without production reads, provider calls, payment runtime changes, GumDrop math changes, or navigation edits."
-      ],
-      "affectedSurfaces": [
-        "Product body map",
-        "Body system wiring repair",
-        "Admin Debug tracking summary",
-        "Central normalizer",
-        "Product brain",
-        "Event translation bridge",
-        "Person metrics hydration",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/body-system-wiring-repair.generated.json",
-        "agent/state/central-normalizer-spine.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/feature-registration-gate.generated.json",
-        "agent/state/interpretive-brain-debug-triage.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/product-body-map.generated.json",
-        "docs/agent-truth/body-system-wiring-repair.md",
-        "docs/agent-truth/central-normalizer-spine.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/interpretive-brain-debug-triage.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "docs/agent-truth/product-body-map.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-body-system-wiring-repair.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/product-integrity/body-system-wiring-repair.ts",
-        "src/lib/product-integrity/central-normalizer.ts",
-        "src/lib/product-integrity/interpretive-brain.ts",
-        "src/lib/product-integrity/product-body-map.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/body-system-wiring-repair.spec.ts"
-      ],
-      "effectiveChangeCount": 27,
-      "excludedGeneratedChangeCount": 7,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }
