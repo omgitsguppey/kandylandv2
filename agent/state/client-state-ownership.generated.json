@@ -1,0 +1,119 @@
+{
+  "reportKey": "client-state-ownership",
+  "generatedAtUtc": "2026-05-27T04:16:39.289Z",
+  "currentHead": "e6ca1352",
+  "ownershipRules": [
+    {
+      "stateLane": "auth",
+      "canonicalOwner": "AuthContext/auth hooks",
+      "sourceTruth": "Firebase Auth and profile snapshot",
+      "allowedClientRole": "render session and call auth helpers",
+      "doNotDo": "Do not fork role/session state in page components.",
+      "validator": "check:client-state-ownership"
+    },
+    {
+      "stateLane": "user_profile",
+      "canonicalOwner": "user profile context/hooks",
+      "sourceTruth": "users profile document",
+      "allowedClientRole": "render profile-dependent display state",
+      "doNotDo": "Do not infer account truth from local-only flags.",
+      "validator": "check:client-state-ownership"
+    },
+    {
+      "stateLane": "wallet",
+      "canonicalOwner": "wallet hooks/resolvers",
+      "sourceTruth": "wallet balance and package service truth",
+      "allowedClientRole": "render purchase affordances",
+      "doNotDo": "Do not duplicate source-of-funds or PayPal runtime math.",
+      "validator": "check:client-state-ownership"
+    },
+    {
+      "stateLane": "creator_settings",
+      "canonicalOwner": "creator settings resolver/hook",
+      "sourceTruth": "server-backed creator settings",
+      "allowedClientRole": "render editable settings state",
+      "doNotDo": "Do not simulate creator monetization controls.",
+      "validator": "check:client-state-ownership"
+    },
+    {
+      "stateLane": "chat",
+      "canonicalOwner": "chat hooks/services",
+      "sourceTruth": "chat thread/message service",
+      "allowedClientRole": "render selected list/detail/composer state",
+      "doNotDo": "Do not create another message ordering owner.",
+      "validator": "check:client-state-ownership"
+    },
+    {
+      "stateLane": "admin_analytics",
+      "canonicalOwner": "useAdminAnalyticsState and panel hydration resolver",
+      "sourceTruth": "admin analytics summaries and hydration adapter",
+      "allowedClientRole": "render compact summaries and per-panel lookup",
+      "doNotDo": "Do not reimplement hydration math in panels.",
+      "validator": "check:client-state-ownership"
+    },
+    {
+      "stateLane": "surface_state",
+      "canonicalOwner": "surface-state resolver",
+      "sourceTruth": "surface parity/debug status",
+      "allowedClientRole": "render loading/error/empty states",
+      "doNotDo": "Do not hide permanent failures behind skeletons.",
+      "validator": "check:client-state-ownership"
+    },
+    {
+      "stateLane": "telemetry",
+      "canonicalOwner": "telemetry/event envelope helpers",
+      "sourceTruth": "telemetry catalog and event envelope builder",
+      "allowedClientRole": "call thin surface action helper",
+      "doNotDo": "Do not build raw repeated telemetry payloads in components.",
+      "validator": "check:frontend-telemetry-consolidation"
+    },
+    {
+      "stateLane": "role_permission",
+      "canonicalOwner": "role permission resolver/AuthContext",
+      "sourceTruth": "verified user/profile role",
+      "allowedClientRole": "render allowed affordances",
+      "doNotDo": "Do not let UI-only role checks define server permission.",
+      "validator": "check:client-state-ownership"
+    },
+    {
+      "stateLane": "mobile_density",
+      "canonicalOwner": "device layout contract and shell tokens",
+      "sourceTruth": "device layout contract",
+      "allowedClientRole": "apply contract classes/tokens",
+      "doNotDo": "Do not use ad hoc innerWidth breakpoints.",
+      "validator": "check:hydration-race-cleanup"
+    }
+  ],
+  "duplicateStateFindings": [
+    "signup_login: high duplicate local state risk -> consolidate",
+    "user_dashboard: high duplicate local state risk -> consolidate",
+    "wallet_purchase_modal: high duplicate local state risk -> consolidate",
+    "drops_library: high duplicate local state risk -> consolidate",
+    "drop_detail_unlock_watch: high duplicate local state risk -> consolidate",
+    "creator_profile: high duplicate local state risk -> consolidate",
+    "creator_dashboard: high duplicate local state risk -> consolidate",
+    "creator_settings: medium duplicate local state risk -> consolidate",
+    "chat: high duplicate local state risk -> consolidate",
+    "daily_tasks: high duplicate local state risk -> consolidate",
+    "notifications_pwa_prompt: medium duplicate local state risk -> consolidate",
+    "account_settings_support: medium duplicate local state risk -> consolidate",
+    "admin_analytics: medium duplicate local state risk -> consolidate",
+    "admin_debug: medium duplicate local state risk -> consolidate",
+    "user_management: high duplicate local state risk -> consolidate"
+  ],
+  "duplicateLocalStateRemoved": 15,
+  "routesThroughCanonicalHooks": [
+    "auth -> AuthContext/auth hooks",
+    "user_profile -> user profile context/hooks",
+    "wallet -> wallet hooks/resolvers",
+    "creator_settings -> creator settings resolver/hook",
+    "chat -> chat hooks/services",
+    "admin_analytics -> useAdminAnalyticsState and panel hydration resolver",
+    "surface_state -> surface-state resolver",
+    "telemetry -> telemetry/event envelope helpers",
+    "role_permission -> role permission resolver/AuthContext",
+    "mobile_density -> device layout contract and shell tokens"
+  ],
+  "unsafeUnknowns": [],
+  "validationFailures": []
+}

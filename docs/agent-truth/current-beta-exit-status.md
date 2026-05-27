@@ -1,444 +1,78 @@
 # Current Beta Exit Status
 
-Artifact: `agent/state/current-beta-exit-status.generated.json`
+Generated: 2026-05-27T04:21:44.761Z
 
-- Generated: `2026-05-27T01:04:47.686Z`
-- Current head: `dd4b37320ddd4e920d6633c91d90b01243089231`
+Latest code version: e6ca135231406a07d92742aadf4d535279dc9961
 
-```json
-{
-  "generatedAtUtc": "2026-05-27T01:04:47.686Z",
-  "reportKey": "current-beta-exit-status",
-  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-  "summary": {
-    "betaVersion": "1.5.13",
-    "betaScore": 85.34,
-    "betaStatus": "Runtime unverified",
-    "scoreVersion": "beta_health_v2",
-    "healthScore": 85.34,
-    "launchGateStatus": "owner_review",
-    "sourceHealthScore": 100,
-    "runtimeHealthScore": 84.2,
-    "evidenceCompletenessScore": 84.6,
-    "freshnessScore": 91.88,
-    "costRiskScore": 42,
-    "regressionRiskScore": 86,
-    "sourceCleanupP0": 0,
-    "sourceCleanupP1": 0,
-    "userCreatorP0": 0,
-    "userCreatorP1": 0,
-    "economyP0": 0,
-    "economyP1": 0,
-    "visualEvidenceStatus": "source_only_screenshotEvidenceAttached_false",
-    "providerSmokeStatus": "missing_formal_evidence",
-    "operatorRevenueSmokeStatus": "operator_confirmed_revenue_smoke",
-    "operatorRevenueSmokeAmountUsd": 50,
-    "operatorRevenueSmokeProduct": "GumDrops",
-    "operatorRevenueSmokeConfirmationSource": "operator_confirmed",
-    "operatorRevenueSmokeProviderArtifactAttached": false,
-    "operatorRevenueSmokeFormalProviderSmokePassed": false,
-    "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
-    "operatorRevenueSmokeNote": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
-    "runtimeSmokeStatus": "runtime_unverified",
-    "adminTruthSampleStatus": "missing_or_unknown",
-    "cloudRunCostReadiness": "cost_review_required",
-    "cloudSqlCostReadiness": "not_detected_in_repo",
-    "geminiCloudAssistCostReadiness": "cost_review_required",
-    "route4xxReadiness": "source_inventory_complete",
-    "errorHandlingSourceStatus": "error_handling_source_complete",
-    "analyticsSemanticsSourceStatus": "analytics_semantics_source_ready_runtime_proof_required; runtime watch-time accuracy still needs deployed media evidence",
-    "speedSecurityStatus": "51/beta-risk; findings=86; critical=0; p2BacklogVisible=true",
-    "releaseNotesStatus": "same_commit_release_note_artifacts_required",
-    "canStartManualScreenshotQa": true,
-    "canStartProviderSmoke": true,
-    "canStartRuntimeSmoke": true,
-    "canStartBetaExitReview": false
-  },
-  "checksRun": [
-    {
-      "command": "npm run check:gumdrop-economy-accuracy",
-      "status": "passed",
-      "evidence": "represented in refreshed source evidence."
-    },
-    {
-      "command": "npm run check:creator-experience-simplification",
-      "status": "passed",
-      "evidence": "represented in refreshed source evidence."
-    },
-    {
-      "command": "npm run check:post-economy-creator-flow-qa",
-      "status": "passed",
-      "evidence": "represented in refreshed source evidence."
-    },
-    {
-      "command": "npm run check:release-notes",
-      "status": "passed",
-      "evidence": "required final validator for same-commit release notes."
-    },
-    {
-      "command": "npm run check:operator-revenue-smoke",
-      "status": "passed",
-      "evidence": "operator-confirmed $50 GumDrop payment recorded as product signal only."
-    },
-    {
-      "command": "npm run check:evidence-capture-status",
-      "status": "passed",
-      "evidence": "templates only; complete evidence remains missing."
-    },
-    {
-      "command": "npm run check:overnight-beta-readiness-lock",
-      "status": "passed",
-      "evidence": "agent/state/overnight-beta-readiness-lock.generated.json"
-    }
-  ],
-  "refreshPlan": [
-    {
-      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "reportKey": "current-beta-exit-status",
-      "label": "Current beta exit status",
-      "status": "current",
-      "needsRefresh": false,
-      "generatedAtUtc": "2026-05-27T01:04:47.686Z",
-      "ageHours": 0,
-      "refreshCommand": "npm run check:current-beta-exit-status",
-      "owner": "beta",
-      "maxAgeHours": 24,
-      "message": "Current beta exit status is current for the latest code version.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
-    },
-    {
-      "artifactPath": "agent/state/public-beta-score.generated.json",
-      "reportKey": "public-beta-score",
-      "label": "Public beta score",
-      "status": "current",
-      "needsRefresh": false,
-      "generatedAtUtc": "2026-05-27T01:02:00.108Z",
-      "ageHours": 0,
-      "refreshCommand": "npm run score:beta && npm run check:beta-score",
-      "owner": "beta",
-      "maxAgeHours": 24,
-      "message": "Public beta score is current for the latest code version.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
-    },
-    {
-      "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "reportKey": "evidence-capture-status",
-      "label": "Evidence capture status",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 13.336848055555556,
-      "refreshCommand": "npm run check:evidence-capture-status",
-      "owner": "evidence",
-      "maxAgeHours": 24,
-      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "reportKey": "beta-evidence-gap-map",
-      "label": "Beta evidence gap map",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 121.04568861111112,
-      "refreshCommand": "npm run check:beta-evidence-gap-map",
-      "owner": "evidence",
-      "maxAgeHours": 24,
-      "message": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "reportKey": "beta-evidence-lane-prep",
-      "label": "Beta evidence lane prep",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 121.04364111111111,
-      "refreshCommand": "npm run check:beta-evidence-lane-prep",
-      "owner": "evidence",
-      "maxAgeHours": 24,
-      "message": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
-      "reportKey": "source-truth-authority-map",
-      "label": "Source truth authority map",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 121.0374375,
-      "refreshCommand": "npm run check:source-truth-authority-map",
-      "owner": "evidence",
-      "maxAgeHours": 24,
-      "message": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-      "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "reportKey": "final-telemetry-closure-lock",
-      "label": "Telemetry closure lock",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 121.03535,
-      "refreshCommand": "npm run check:final-telemetry-closure-lock",
-      "owner": "telemetry",
-      "maxAgeHours": 24,
-      "message": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-      "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "reportKey": "mobile-ui-final-lock",
-      "label": "Mobile UI final lock",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 121.0334613888889,
-      "refreshCommand": "npm run check:mobile-ui-final-lock",
-      "owner": "mobile",
-      "maxAgeHours": 24,
-      "message": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-      "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "reportKey": "creator-settings-control-plane",
-      "label": "Creator settings control plane",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 15.704566944444444,
-      "refreshCommand": "npm run check:creator-settings-control-plane",
-      "owner": "creator",
-      "maxAgeHours": 24,
-      "message": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-      "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "reportKey": "creator-drop-status-metrics",
-      "label": "Creator drop status metrics",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 121.01610166666667,
-      "refreshCommand": "npm run check:creator-drop-status-metrics",
-      "owner": "creator",
-      "maxAgeHours": 24,
-      "message": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-      "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "reportKey": "operator-revenue-smoke",
-      "label": "Operator revenue smoke",
-      "status": "stale_source_version",
-      "needsRefresh": true,
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "ageHours": 121.01607166666666,
-      "refreshCommand": "npm run check:operator-revenue-smoke",
-      "owner": "evidence",
-      "maxAgeHours": 24,
-      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "formalEvidenceGateCanClear": false
-    }
-  ],
-  "staleArtifacts": [
-    {
-      "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "reportKey": "evidence-capture-status",
-      "status": "stale_source_version",
-      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "refreshCommand": "npm run check:evidence-capture-status"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "reportKey": "beta-evidence-gap-map",
-      "status": "stale_source_version",
-      "message": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "refreshCommand": "npm run check:beta-evidence-gap-map"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "reportKey": "beta-evidence-lane-prep",
-      "status": "stale_source_version",
-      "message": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep"
-    },
-    {
-      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
-      "reportKey": "source-truth-authority-map",
-      "status": "stale_source_version",
-      "message": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-      "refreshCommand": "npm run check:source-truth-authority-map"
-    },
-    {
-      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "reportKey": "final-telemetry-closure-lock",
-      "status": "stale_source_version",
-      "message": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-      "refreshCommand": "npm run check:final-telemetry-closure-lock"
-    },
-    {
-      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "reportKey": "mobile-ui-final-lock",
-      "status": "stale_source_version",
-      "message": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-      "refreshCommand": "npm run check:mobile-ui-final-lock"
-    },
-    {
-      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "reportKey": "creator-settings-control-plane",
-      "status": "stale_source_version",
-      "message": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-      "refreshCommand": "npm run check:creator-settings-control-plane"
-    },
-    {
-      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "reportKey": "creator-drop-status-metrics",
-      "status": "stale_source_version",
-      "message": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-      "refreshCommand": "npm run check:creator-drop-status-metrics"
-    },
-    {
-      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "reportKey": "operator-revenue-smoke",
-      "status": "stale_source_version",
-      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "refreshCommand": "npm run check:operator-revenue-smoke"
-    }
-  ],
-  "exactRefreshCommands": [
-    "npm run check:current-beta-exit-status",
-    "npm run score:beta && npm run check:beta-score",
-    "npm run check:evidence-capture-status",
-    "npm run check:beta-evidence-gap-map",
-    "npm run check:beta-evidence-lane-prep",
-    "npm run check:source-truth-authority-map",
-    "npm run check:final-telemetry-closure-lock",
-    "npm run check:mobile-ui-final-lock",
-    "npm run check:creator-settings-control-plane",
-    "npm run check:creator-drop-status-metrics",
-    "npm run check:operator-revenue-smoke"
-  ],
-  "failedChecks": [],
-  "refreshedArtifacts": [
-    "agent/state/overnight-beta-readiness-lock.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "agent/state/evidence-capture-status.generated.json",
-    "agent/state/operator-revenue-smoke.generated.json",
-    "agent/state/source-truth-authority-map.generated.json",
-    "agent/state/cost-4xx-reduction.generated.json",
-    "agent/state/speed-security-hardening.generated.json"
-  ],
-  "remainingBlockers": [
-    {
-      "id": "manual_screenshot_evidence_missing",
-      "severity": "P1",
-      "status": "missing",
-      "evidence": [
-        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
-      ],
-      "nextAction": "Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
-    },
-    {
-      "id": "provider_smoke_evidence_missing",
-      "severity": "P1",
-      "status": "missing",
-      "evidence": [
-        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
-      ],
-      "nextAction": "Attach redacted PayPal/GumDrop/creator spend provider smoke evidence."
-    },
-    {
-      "id": "runtime_smoke_evidence_missing",
-      "severity": "P1",
-      "status": "missing",
-      "evidence": [
-        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
-      ],
-      "nextAction": "Attach deployed runtime smoke evidence for the required user and creator routes."
-    },
-    {
-      "id": "admin_truth_sample_evidence_missing",
-      "severity": "P1",
-      "status": "missing",
-      "evidence": [
-        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
-      ],
-      "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
-    },
-    {
-      "id": "speed_security_owner_review_backlog",
-      "severity": "P2",
-      "status": "owner_review",
-      "evidence": [
-        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
-      ],
-      "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
-    }
-  ],
-  "deferredOwnerReview": [
-    {
-      "id": "cloud_cost_owner_review",
-      "owner": "platform-cost",
-      "reason": "Cloud Run, Cloud SQL/Data Connect, and Gemini/Vertex lanes are source inventory or owner-review lanes, not formal provider evidence.",
-      "nextAction": "Attach owner-reviewed cost evidence before treating these lanes as beta-exit proof."
-    },
-    {
-      "id": "speed_security_p2_backlog",
-      "owner": "speed-security",
-      "reason": "Speed/security source scan still carries a visible P2 backlog.",
-      "nextAction": "Keep backlog visible; fix only owner-scoped P0/P1 or evidence-proven risks before beta exit."
-    }
-  ],
-  "nextExactSteps": [
-    "First evidence lane: manual product-behavior screenshot QA. Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.",
-    "Manual route/flow checklist: /, /drops, /drops/[id]/preview locked state, /dashboard, /dashboard/creator, /dashboard/profile, /dashboard/settings, /dashboard/library, /dashboard/chat shell only, /creators/[username], wallet / GumDrop purchase modal, creator profile Fan Pass, creator profile requests, creator profile booking slots, creator owner profile mode, Beta release notes drawer, mobile nav/sidebar/profile dropdown.",
-    "Manual artifact needed: copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated non-template JSON, set status complete only with real screenshots, and place screenshots under agent/evidence/manual-screenshot-qa/screenshots/.",
-    "Second lane after manual screenshots: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.",
-    "Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
-    "Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.",
-    "Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.",
-    "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
-    "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
-    "Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.",
-    "Run npm run check:overnight-beta-readiness-lock after attaching evidence.",
-    "Refresh generated status with npm run check:current-beta-exit-status.",
-    "Refresh generated status with npm run score:beta && npm run check:beta-score.",
-    "Refresh generated status with npm run check:evidence-capture-status.",
-    "Refresh generated status with npm run check:beta-evidence-gap-map.",
-    "Refresh generated status with npm run check:beta-evidence-lane-prep.",
-    "Refresh generated status with npm run check:source-truth-authority-map.",
-    "Refresh generated status with npm run check:final-telemetry-closure-lock.",
-    "Refresh generated status with npm run check:mobile-ui-final-lock.",
-    "Refresh generated status with npm run check:creator-settings-control-plane.",
-    "Refresh generated status with npm run check:creator-drop-status-metrics.",
-    "Refresh generated status with npm run check:operator-revenue-smoke."
-  ]
-}
-```
+## Summary
+
+- Beta version: 1.5.15
+- Beta score: 77.83
+- Beta status: Stale evidence
+- Visual evidence: source_only_screenshotEvidenceAttached_false
+- Provider smoke: missing_formal_evidence
+- Operator revenue smoke: operator_confirmed_revenue_smoke
+- Operator revenue note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
+- Runtime smoke: runtime_unverified
+- Admin truth sample: missing_or_unknown
+- Cloud Run cost readiness: cost_review_required
+- Cloud SQL cost readiness: not_detected_in_repo
+- Gemini/Cloud Assist cost readiness: cost_review_required
+- Route 4xx readiness: source_inventory_complete
+- Error handling source readiness: error_handling_source_complete
+- Speed/security: 51/beta-risk; findings=86; critical=0; p2BacklogVisible=true
+- Release notes: same_commit_release_note_artifacts_required
+
+## Start Gates
+
+- Manual screenshot QA can start: true
+- Provider smoke can start: true
+- Runtime smoke can start: true
+- Beta exit review can start: false
+
+## Refresh Plan
+
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:evidence-capture-status`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
+- agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:source-truth-authority-map`.
+- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
+- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
+- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
+- agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-drop-status-metrics`.
+- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
+
+## Remaining Blockers
+
+- P1 manual_screenshot_evidence_missing: Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/.
+- P1 provider_smoke_evidence_missing: Attach redacted PayPal/GumDrop/creator spend provider smoke evidence.
+- P1 runtime_smoke_evidence_missing: Attach deployed runtime smoke evidence for the required user and creator routes.
+- P1 admin_truth_sample_evidence_missing: Attach a redacted admin truth sample artifact with source freshness.
+- P2 speed_security_owner_review_backlog: Keep speed/security P2 cost and route hardening backlog visible.
+
+## Next Exact Steps
+
+- First evidence lane: manual product-behavior screenshot QA. Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.
+- Manual route/flow checklist: /, /drops, /drops/[id]/preview locked state, /dashboard, /dashboard/creator, /dashboard/profile, /dashboard/settings, /dashboard/library, /dashboard/chat shell only, /creators/[username], wallet / GumDrop purchase modal, creator profile Fan Pass, creator profile requests, creator profile booking slots, creator owner profile mode, Beta release notes drawer, mobile nav/sidebar/profile dropdown.
+- Manual artifact needed: copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated non-template JSON, set status complete only with real screenshots, and place screenshots under agent/evidence/manual-screenshot-qa/screenshots/.
+- Second lane after manual screenshots: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.
+- Revenue smoke note: A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.
+- Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.
+- Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.
+- Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.
+- Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.
+- Outdated launch/readiness reports should stay retired until after evidence capture; refresh them only if beta-exit review needs a fresh launch package.
+- Run npm run check:overnight-beta-readiness-lock after attaching evidence.
+- Refresh generated status with npm run check:current-beta-exit-status.
+- Refresh generated status with npm run score:beta && npm run check:beta-score.
+- Refresh generated status with npm run check:evidence-capture-status.
+- Refresh generated status with npm run check:beta-evidence-gap-map.
+- Refresh generated status with npm run check:beta-evidence-lane-prep.
+- Refresh generated status with npm run check:source-truth-authority-map.
+- Refresh generated status with npm run check:final-telemetry-closure-lock.
+- Refresh generated status with npm run check:mobile-ui-final-lock.
+- Refresh generated status with npm run check:creator-settings-control-plane.
+- Refresh generated status with npm run check:creator-drop-status-metrics.
+- Refresh generated status with npm run check:operator-revenue-smoke.

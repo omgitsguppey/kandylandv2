@@ -199,6 +199,17 @@ Required backend memory lessons:
 - Do not use source-only evidence as provider/runtime/admin proof.
 - Cost savings must reduce duplicate work, retries, reads, writes, or exports without reducing canonical fact accuracy.
 
+## Frontend Consolidation Rules
+
+Components must stay thin: render canonical state, call canonical hooks/services, and avoid owning business math, permission truth, telemetry pipelines, route truth, or backend rules inline. Do not solve frontend parity by adding another wrapper/hook when an existing surface state, telemetry, or role resolver already owns the behavior. Route components through canonical hooks/resolvers, keep UI components thin, and end every frontend task by searching duplicate state/hook/telemetry logic. Loading, empty, and error states must preserve source and degraded/failure explanations instead of hiding permanent failures behind skeletons. Browser APIs must be guarded, realtime/listener effects must clean up, high-frequency telemetry must be summarized or throttled, and mobile density must use the device layout contract instead of ad hoc viewport checks.
+
+Required frontend memory lesson:
+- Do not solve frontend parity by adding another wrapper/hook when an existing surface state, telemetry, or role resolver already owns the behavior.
+- Repeated component-level logic creates inconsistent UI states, hydration races, and telemetry duplication.
+- Route components through canonical hooks/resolvers, keep UI components thin, and end every frontend task by searching duplicate state/hook/telemetry logic.
+- Do not add parallel local state managers, direct trackEvent payload sprawl, or per-component business math.
+- Use `check:frontend-component-consolidation` as the preventing validator for frontend consolidation passes.
+
 ## Debug Evidence Pipeline
 
 KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows.

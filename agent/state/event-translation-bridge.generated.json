@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-26T08:12:42.391Z",
-  "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
+  "generatedAtUtc": "2026-05-27T04:17:23.268Z",
+  "currentHead": "e6ca135231406a07d92742aadf4d535279dc9961",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -45,14 +45,21 @@
   },
   "debugLane": {
     "label": "Event translation bridge",
-    "producersRegistered": 748,
-    "producersConnected": 748,
-    "eventEnvelopesTranslated": 748,
-    "materializersMapped": 748,
-    "personMetricsMapped": 207,
+    "producersRegistered": 749,
+    "producersConnected": 749,
+    "eventEnvelopesTranslated": 749,
+    "materializersMapped": 749,
+    "personMetricsMapped": 208,
     "gaps": 0
   },
   "waitingOnActivity": [
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
     {
       "reason": "future_real_activity_pending",
       "scoreDrag": false,
@@ -5293,132 +5300,88 @@
   "gaps": [],
   "dirtyFiles": [
     {
+      "path": "AGENTS.md",
+      "classification": "real_source_change_needs_review"
+    },
+    {
       "path": "CHANGELOG.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "REPO_MEMORY_LEDGER.md",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "agent/state/body-system-wiring-repair.generated.json",
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "agent/state/client-state-ownership.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/central-normalizer-spine.generated.json",
+      "path": "agent/state/codex-frontend-memory-writeback.generated.json",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-backlog-engine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/feature-registration-gate.generated.json",
+      "path": "agent/state/frontend-component-consolidation.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/final-product-integrity-lock.generated.json",
+      "path": "agent/state/frontend-gut-consolidation.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/interpretive-brain-debug-triage.generated.json",
+      "path": "agent/state/frontend-telemetry-consolidation.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/hydration-race-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/product-body-map.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/sql-database-parity-cost-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/surface-parity-doctrine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/surface-telemetry-parity.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/user-journey-behavioral-intelligence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/body-system-wiring-repair.md",
+      "path": "docs/agent-truth/client-state-ownership.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/central-normalizer-spine.md",
+      "path": "docs/agent-truth/codex-frontend-memory-writeback.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-backlog-engine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/event-translation-bridge.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/final-product-integrity-lock.md",
+      "path": "docs/agent-truth/frontend-component-consolidation.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/interpretive-brain-debug-triage.md",
+      "path": "docs/agent-truth/frontend-gut-consolidation.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/frontend-telemetry-consolidation.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/hydration-race-cleanup.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/product-body-map.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/sql-database-parity-cost-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/surface-parity-doctrine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/surface-telemetry-parity.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-journey-behavioral-intelligence.md",
-      "classification": "documentation_artifact_expected"
     },
     {
       "path": "package.json",
@@ -5429,8 +5392,28 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-final-product-integrity-lock.ts",
+      "path": "scripts/agent/validate-client-state-ownership.ts",
       "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-codex-frontend-memory-writeback.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-frontend-component-consolidation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-frontend-telemetry-consolidation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-hydration-race-cleanup.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/components/Support/SupportInbox.tsx",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/analytics/event-translation-bridge.ts",
@@ -5441,23 +5424,23 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/product-integrity/body-system-wiring-repair.ts",
+      "path": "src/lib/frontend-hardening/client-state-ownership.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/product-integrity/central-normalizer.ts",
+      "path": "src/lib/frontend-hardening/component-bloat-audit.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/product-integrity/final-product-integrity-lock.ts",
+      "path": "src/lib/frontend-hardening/frontend-surface-inventory.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/product-integrity/interpretive-brain.ts",
+      "path": "src/lib/frontend-hardening/frontend-telemetry-usage.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/product-integrity/product-body-map.ts",
+      "path": "src/lib/frontend-hardening/hydration-race-guard.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -5469,7 +5452,23 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/final-product-integrity-lock.spec.ts",
+      "path": "tests/unit/client-state-ownership.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/codex-frontend-memory-writeback.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/frontend-component-consolidation.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/frontend-telemetry-consolidation.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/hydration-race-cleanup.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

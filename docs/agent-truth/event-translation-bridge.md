@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-26T08:12:42.391Z
+Generated: 2026-05-27T04:17:23.268Z
 Status: pass
-Current head: a74f489c81e605f1c9a280f28726d352fcb54dee
+Current head: e6ca135231406a07d92742aadf4d535279dc9961
 
 ## Contract
 
@@ -12,11 +12,11 @@ Current head: a74f489c81e605f1c9a280f28726d352fcb54dee
 
 ## Debug Lane
 
-- Producers registered: 748
-- Producers connected: 748
-- Event envelopes translated: 748
-- Materializers mapped: 748
-- Person metrics mapped: 207
+- Producers registered: 749
+- Producers connected: 749
+- Event envelopes translated: 749
+- Materializers mapped: 749
+- Person metrics mapped: 208
 - Gaps: 0
 
 ## Score Impact
@@ -53,51 +53,49 @@ Current head: a74f489c81e605f1c9a280f28726d352fcb54dee
 
 ## Dirty Files
 
+- AGENTS.md: real_source_change_needs_review
 - CHANGELOG.md: release_artifact_expected
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/body-system-wiring-repair.generated.json: current_generated_artifact_to_commit
-- agent/state/central-normalizer-spine.generated.json: current_generated_artifact_to_commit
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-backlog-engine.generated.json: stale_generated_artifact_to_regenerate
+- REPO_MEMORY_LEDGER.md: real_source_change_needs_review
+- agent/index/known-pitfalls.json: real_source_change_needs_review
+- agent/state/client-state-ownership.generated.json: current_generated_artifact_to_commit
+- agent/state/codex-frontend-memory-writeback.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
-- agent/state/final-product-integrity-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/interpretive-brain-debug-triage.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/frontend-component-consolidation.generated.json: current_generated_artifact_to_commit
+- agent/state/frontend-gut-consolidation.generated.json: current_generated_artifact_to_commit
+- agent/state/frontend-telemetry-consolidation.generated.json: current_generated_artifact_to_commit
+- agent/state/hydration-race-cleanup.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/product-body-map.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/sql-database-parity-cost-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/surface-parity-doctrine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/surface-telemetry-parity.generated.json: current_generated_artifact_to_commit
-- agent/state/user-journey-behavioral-intelligence.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/body-system-wiring-repair.md: documentation_artifact_expected
-- docs/agent-truth/central-normalizer-spine.md: documentation_artifact_expected
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-backlog-engine.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/client-state-ownership.md: documentation_artifact_expected
+- docs/agent-truth/codex-frontend-memory-writeback.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/final-product-integrity-lock.md: documentation_artifact_expected
-- docs/agent-truth/interpretive-brain-debug-triage.md: documentation_artifact_expected
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/frontend-component-consolidation.md: documentation_artifact_expected
+- docs/agent-truth/frontend-gut-consolidation.md: documentation_artifact_expected
+- docs/agent-truth/frontend-telemetry-consolidation.md: documentation_artifact_expected
+- docs/agent-truth/hydration-race-cleanup.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/product-body-map.md: documentation_artifact_expected
-- docs/agent-truth/sql-database-parity-cost-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/surface-parity-doctrine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/surface-telemetry-parity.md: documentation_artifact_expected
-- docs/agent-truth/user-journey-behavioral-intelligence.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-final-product-integrity-lock.ts: validator_artifact_expected
+- scripts/agent/validate-client-state-ownership.ts: validator_artifact_expected
+- scripts/agent/validate-codex-frontend-memory-writeback.ts: validator_artifact_expected
+- scripts/agent/validate-frontend-component-consolidation.ts: validator_artifact_expected
+- scripts/agent/validate-frontend-telemetry-consolidation.ts: validator_artifact_expected
+- scripts/agent/validate-hydration-race-cleanup.ts: validator_artifact_expected
+- src/components/Support/SupportInbox.tsx: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/product-integrity/body-system-wiring-repair.ts: real_source_change_needs_review
-- src/lib/product-integrity/central-normalizer.ts: real_source_change_needs_review
-- src/lib/product-integrity/final-product-integrity-lock.ts: real_source_change_needs_review
-- src/lib/product-integrity/interpretive-brain.ts: real_source_change_needs_review
-- src/lib/product-integrity/product-body-map.ts: real_source_change_needs_review
+- src/lib/frontend-hardening/client-state-ownership.ts: real_source_change_needs_review
+- src/lib/frontend-hardening/component-bloat-audit.ts: real_source_change_needs_review
+- src/lib/frontend-hardening/frontend-surface-inventory.ts: real_source_change_needs_review
+- src/lib/frontend-hardening/frontend-telemetry-usage.ts: real_source_change_needs_review
+- src/lib/frontend-hardening/hydration-race-guard.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
 - src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/final-product-integrity-lock.spec.ts: test_artifact_expected
+- tests/unit/client-state-ownership.spec.ts: test_artifact_expected
+- tests/unit/codex-frontend-memory-writeback.spec.ts: test_artifact_expected
+- tests/unit/frontend-component-consolidation.spec.ts: test_artifact_expected
+- tests/unit/frontend-telemetry-consolidation.spec.ts: test_artifact_expected
+- tests/unit/hydration-race-cleanup.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

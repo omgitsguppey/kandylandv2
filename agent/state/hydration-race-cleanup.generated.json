@@ -1,0 +1,76 @@
+{
+  "reportKey": "hydration-race-cleanup",
+  "generatedAtUtc": "2026-05-27T04:16:39.156Z",
+  "currentHead": "e6ca1352",
+  "highRiskSurfaces": [
+    "signup_login",
+    "user_dashboard",
+    "drop_detail_unlock_watch",
+    "creator_profile",
+    "creator_settings",
+    "chat",
+    "daily_tasks",
+    "notifications_pwa_prompt",
+    "account_settings_support",
+    "admin_analytics",
+    "admin_debug",
+    "user_management"
+  ],
+  "hydrationRules": [
+    "Client-only browser APIs must be guarded.",
+    "Loading state must have source and timeout/degraded state.",
+    "Skeleton must not hide permanent failure.",
+    "Hydration mismatch risky code must use stable defaults.",
+    "Data fetch effects need cancellation/ignore stale response.",
+    "Realtime listeners need cleanup.",
+    "Route changes must not leave stale state.",
+    "No infinite loading loops."
+  ],
+  "hydrationRaceRisksFixed": 12,
+  "browserApiRisks": [
+    "src/app/admin/analytics/AnalyticsHelpers.tsx",
+    "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+    "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+    "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+    "src/app/admin/analytics/loading.tsx",
+    "src/app/admin/analytics/page.tsx",
+    "src/app/admin/debug/components/AdminAiAssistantRealtimePanel.tsx",
+    "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
+    "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+    "src/app/admin/debug/components/DebugAdvancedDrift.tsx"
+  ],
+  "staleResponseRisks": [
+    "signup_login: direct fetch state should be keyed/cancellable",
+    "user_dashboard: direct fetch state should be keyed/cancellable",
+    "wallet_purchase_modal: direct fetch state should be keyed/cancellable",
+    "drop_detail_unlock_watch: direct fetch state should be keyed/cancellable",
+    "creator_profile: direct fetch state should be keyed/cancellable",
+    "creator_dashboard: direct fetch state should be keyed/cancellable",
+    "chat: direct fetch state should be keyed/cancellable",
+    "admin_analytics: direct fetch state should be keyed/cancellable",
+    "admin_debug: direct fetch state should be keyed/cancellable",
+    "user_management: direct fetch state should be keyed/cancellable"
+  ],
+  "listenerCleanupRisks": [
+    "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+    "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
+    "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+    "src/components/Chat/ChatExperience.tsx",
+    "src/context/AuthContext.tsx",
+    "src/hooks/useAdminModerationRealtime.ts",
+    "src/hooks/useAdminOverviewRealtime.ts",
+    "src/hooks/useAdminSupportRealtime.ts",
+    "src/hooks/useAdminUsersRealtime.ts",
+    "src/hooks/useNotifications.ts",
+    "src/hooks/useViewerWatchSession.ts"
+  ],
+  "remainingRisks": [
+    "admin_analytics: versioned storage/focus freshness remains the canonical follow-up from the hydration skeleton audit",
+    "chat: selected-thread detail should remain keyed to the active thread generation",
+    "support: selected-thread detail should not show previous ticket while loading"
+  ],
+  "unsafeUnknowns": [],
+  "validationFailures": []
+}

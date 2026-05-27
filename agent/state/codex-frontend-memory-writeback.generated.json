@@ -1,0 +1,18 @@
+{
+  "reportKey": "codex-frontend-memory-writeback",
+  "generatedAtUtc": "2026-05-27T04:16:39.168Z",
+  "currentHead": "e6ca1352",
+  "memorySource": "AGENTS.md",
+  "entriesAdded": 1,
+  "mistakePatternsCaptured": [
+    "Do not solve frontend parity by adding another wrapper/hook when an existing surface state, telemetry, or role resolver already owns the behavior."
+  ],
+  "affectedFiles": [
+    "AGENTS.md",
+    "REPO_MEMORY_LEDGER.md",
+    "agent/index/known-pitfalls.json"
+  ],
+  "preventingValidator": "check:frontend-component-consolidation",
+  "missingLessons": [],
+  "validationFailures": []
+}

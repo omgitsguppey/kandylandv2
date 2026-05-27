@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.15 - 2026-05-27
+- Frontend client runtime consolidation
+- Consolidated frontend component state, telemetry, and hydration handling.
+- Reduced duplicate client-side logic and hydration race risk.
+- Added Codex memory writeback for frontend consolidation mistakes.
+
 ## 1.5.14 - 2026-05-27
 - Backend consolidation
 - Consolidated backend routes and services into canonical owner systems.

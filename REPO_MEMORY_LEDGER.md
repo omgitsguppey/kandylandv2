@@ -3303,3 +3303,26 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   "preventingValidator": "check:backend-gut-consolidation && check:codex-memory-writeback"
 }
 ```
+
+### 59. Frontend consolidation must reuse canonical hooks, state, telemetry, and layout owners
+
+```json
+{
+  "date": "2026-05-27T04:10:00.000Z",
+  "domain": "frontend_consolidation",
+  "mistakePattern": "Do not solve frontend parity by adding another wrapper/hook when an existing surface state, telemetry, or role resolver already owns the behavior.",
+  "rootCause": "Repeated component-level logic creates inconsistent UI states, hydration races, and telemetry duplication.",
+  "doNextTime": "Route components through canonical hooks/resolvers, keep UI components thin, and end every frontend task by searching duplicate state/hook/telemetry logic.",
+  "doNotDo": "Do not add parallel local state managers, direct trackEvent calls, or per-component business math.",
+  "affectedFiles": [
+    "src/lib/frontend-hardening/frontend-surface-inventory.ts",
+    "src/lib/frontend-hardening/client-state-ownership.ts",
+    "src/lib/frontend-hardening/hydration-race-guard.ts",
+    "src/lib/frontend-hardening/frontend-telemetry-usage.ts",
+    "scripts/agent/validate-frontend-component-consolidation.ts",
+    "AGENTS.md",
+    "REPO_MEMORY_LEDGER.md"
+  ],
+  "preventingValidator": "check:frontend-component-consolidation"
+}
+```

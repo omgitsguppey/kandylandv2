@@ -287,6 +287,34 @@
       "broad_work_relevance": true
     },
     {
+      "stable_id": "pitfall__frontend_parallel_state_wrapper_sprawl",
+      "title": "frontend_parallel_state_wrapper_sprawl",
+      "description": "Frontend parity and hydration fixes can add another wrapper or hook even when an existing surface state, telemetry, or role resolver already owns the behavior.",
+      "symptom_pattern": "Components carry repeated loading/error state, direct telemetry payloads, local role checks, or viewport logic that drifts from canonical hooks and contracts.",
+      "affected_surfaces": [
+        "src/app/**",
+        "src/components/**",
+        "src/hooks/**",
+        "src/context/**"
+      ],
+      "prevention_rule": "Route components through canonical hooks/resolvers, keep UI components thin, and end every frontend task by searching duplicate state/hook/telemetry logic.",
+      "detection_hint": "Run check:frontend-component-consolidation and inspect direct trackEvent, localStorage/sessionStorage, innerWidth, and duplicated useState/useEffect clusters.",
+      "related_commands": [
+        "npm run check:frontend-component-consolidation",
+        "npm run check:client-state-ownership",
+        "npm run check:hydration-race-cleanup",
+        "npm run check:frontend-telemetry-consolidation"
+      ],
+      "related_helpers": [
+        "src/lib/frontend-hardening/frontend-surface-inventory.ts",
+        "src/lib/frontend-hardening/client-state-ownership.ts",
+        "src/lib/frontend-hardening/hydration-race-guard.ts",
+        "src/lib/frontend-hardening/frontend-telemetry-usage.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
+    },
+    {
       "stable_id": "pitfall__viewer_watch_capture_continuity_drift",
       "title": "viewer_watch_capture_continuity_drift",
       "description": "Viewer watch sessions can degrade silently when flush outcomes, close-path sync, or replay recovery are not surfaced into continuity checks.",

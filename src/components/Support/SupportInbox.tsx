@@ -189,6 +189,10 @@ export function SupportInbox() {
         [selectedThreadId, threadList?.threads],
     );
 
+    const activeSelectedThread = useMemo(() => (
+        selectedThread?.thread?.id === selectedThreadId ? selectedThread : null
+    ), [selectedThread, selectedThreadId]);
+
     useEffect(() => {
         if (!selectedThreadSummary) {
             return;
@@ -483,7 +487,7 @@ export function SupportInbox() {
                         <div className="mt-4 rounded-[1.2rem] border border-dashed border-white/10 bg-black/25 px-4 py-8 text-center text-sm text-gray-400">
                             Pick a ticket or open a new one.
                         </div>
-                    ) : selectedThreadLoading && !selectedThread?.thread ? (
+                    ) : selectedThreadLoading && !activeSelectedThread?.thread ? (
                         <div className="mt-4 flex items-center gap-2 rounded-[1.2rem] border border-white/10 bg-black/25 px-4 py-4 text-sm text-gray-300">
                             <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
                             Loading thread...
@@ -492,22 +496,22 @@ export function SupportInbox() {
                         <div className="mt-4 rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
                             {getSupportProblemCopy("load_detail")}
                         </div>
-                    ) : selectedThread?.thread ? (
+                    ) : activeSelectedThread?.thread ? (
                         <>
                             <div className="mt-4 rounded-[1.2rem] border border-white/10 bg-black/25 p-4">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div>
-                                        <p className="text-lg font-black text-white">{selectedThread.thread.subject || "Support thread"}</p>
+                                        <p className="text-lg font-black text-white">{activeSelectedThread.thread.subject || "Support thread"}</p>
                                         <p className="mt-1 text-sm text-gray-400">
-                                            {formatSupportCategoryLabel(selectedThread.thread.category)} • Last update {formatRelativeTime(selectedThread.thread.lastMessageAt)}
+                                            {formatSupportCategoryLabel(activeSelectedThread.thread.category)} • Last update {formatRelativeTime(activeSelectedThread.thread.lastMessageAt)}
                                         </p>
                                     </div>
-                                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${statusTone(selectedThread.thread.status)}`}>
-                                        {describeSupportState(selectedThread.thread.status)}
+                                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${statusTone(activeSelectedThread.thread.status)}`}>
+                                        {describeSupportState(activeSelectedThread.thread.status)}
                                     </span>
                                 </div>
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    {selectedThread.thread.status === "resolved" || selectedThread.thread.status === "closed" ? (
+                                    {activeSelectedThread.thread.status === "resolved" || activeSelectedThread.thread.status === "closed" ? (
                                         <Button type="button" variant="glass" size="sm" isLoading={updatingStatus} onClick={() => void handleStatusAction("reopen")}>
                                             Reopen ticket
                                         </Button>
@@ -521,7 +525,7 @@ export function SupportInbox() {
                             </div>
 
                             <div className="mt-4 space-y-3">
-                                {selectedThread.messages.length ? selectedThread.messages.map((entry) => {
+                                {activeSelectedThread.messages.length ? activeSelectedThread.messages.map((entry) => {
                                     const isUser = entry.senderRole !== "admin";
                                     return (
                                         <div key={entry.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -557,13 +561,13 @@ export function SupportInbox() {
                                         type="button"
                                         variant="brand"
                                         isLoading={replying}
-                                        disabled={reply.trim().length === 0 || selectedThread.thread.status === "resolved" || selectedThread.thread.status === "closed"}
+                                        disabled={reply.trim().length === 0 || activeSelectedThread.thread.status === "resolved" || activeSelectedThread.thread.status === "closed"}
                                         onClick={() => void handleReply()}
                                     >
                                         <Send className="mr-2 h-4 w-4" />
                                         Send reply
                                     </Button>
-                                    {(selectedThread.thread.status === "resolved" || selectedThread.thread.status === "closed") ? (
+                                    {(activeSelectedThread.thread.status === "resolved" || activeSelectedThread.thread.status === "closed") ? (
                                         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/35 px-3 py-2 text-xs font-semibold text-gray-300">
                                             <CircleHelp className="h-4 w-4 text-brand-purple" />
                                             Reopen the ticket before sending more messages.

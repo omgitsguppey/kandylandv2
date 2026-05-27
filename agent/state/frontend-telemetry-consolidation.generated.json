@@ -1,0 +1,61 @@
+{
+  "reportKey": "frontend-telemetry-consolidation",
+  "generatedAtUtc": "2026-05-27T04:16:39.137Z",
+  "currentHead": "e6ca1352",
+  "directTelemetryCallsAudited": 407,
+  "directTelemetryCallsReduced": 78,
+  "telemetryOwners": [
+    "src/lib/telemetry.ts",
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/analytics/event-envelope-builder.ts",
+    "src/lib/parity/surface-telemetry-registry.ts"
+  ],
+  "rawPayloadBuildersClassified": [
+    "src/app/HomeClient.tsx",
+    "src/app/admin/roster/page.tsx",
+    "src/app/admin/users/page.tsx",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/app/creators/apply/page.tsx",
+    "src/app/dashboard/DashboardClient.tsx",
+    "src/app/dashboard/library/LibraryClient.tsx",
+    "src/app/dashboard/profile/components/ProfileNotificationsSection.tsx",
+    "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+    "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+    "src/app/dashboard/profile/hooks/useProfileState.tsx",
+    "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+    "src/app/dashboard/viewer/components/MediaViewer.tsx",
+    "src/app/drops/DropsClient.tsx",
+    "src/app/experiences/ExperiencesClient.tsx",
+    "src/app/faq/FAQClient.tsx",
+    "src/components/Admin/AdminAnalyticsCharts.tsx",
+    "src/components/Admin/AdminCreatorViewAsControls.tsx",
+    "src/components/Admin/AdminModerationConsole.tsx",
+    "src/components/Admin/AiDropCoverGeneratorPanel.tsx"
+  ],
+  "highFrequencyRisks": [
+    "src/app/admin/users/page.tsx",
+    "src/app/dashboard/DashboardClient.tsx",
+    "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+    "src/app/dashboard/viewer/components/MediaViewer.tsx",
+    "src/app/faq/FAQClient.tsx",
+    "src/components/Admin/AdminModerationConsole.tsx",
+    "src/components/Admin/CreateDropModal.tsx",
+    "src/components/Analytics/DeepTracker.tsx",
+    "src/components/Auth/AuthModal.tsx",
+    "src/components/Auth/GuidedOnboarding.tsx"
+  ],
+  "piiRisks": [
+    "src/app/admin/roster/page.tsx",
+    "src/app/admin/users/page.tsx",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/app/dashboard/profile/components/ProfileNotificationsSection.tsx",
+    "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+    "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+    "src/app/dashboard/profile/hooks/useProfileState.tsx",
+    "src/app/drops/DropsClient.tsx",
+    "src/components/Admin/AdminAnalyticsCharts.tsx",
+    "src/components/Admin/AdminCreatorViewAsControls.tsx"
+  ],
+  "unsafeUnknowns": [],
+  "validationFailures": []
+}
