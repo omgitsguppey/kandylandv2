@@ -373,6 +373,37 @@
       ],
       "severity": "high",
       "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__duplicate_type_schema_contract_drift",
+      "title": "duplicate_type_schema_contract_drift",
+      "description": "Shared entities, DTOs, schemas, generated reports, and validator shapes can drift when a pass adds another local interface instead of importing a canonical owner.",
+      "symptom_pattern": "Codex reads one user, creator, wallet, GumDrop, event envelope, debug finding, evidence, or analytics metric shape and writes another incompatible one.",
+      "affected_surfaces": [
+        "src/types/**",
+        "src/lib/**",
+        "scripts/agent/**",
+        "tests/unit/**",
+        "agent/state/*.generated.json"
+      ],
+      "prevention_rule": "Before adding a new interface, DTO, schema, or contract, search for an existing canonical type. Do not create another shape for the same concept unless replacing the old one and updating imports. Every shared domain object must have one canonical owner. User, creator, GumDrop, wallet, entitlement, event envelope, debug finding, release evidence, and analytics metric shapes should not be redefined inside random components, routes, tests, or validators. Generated report schemas must be compact and typed through canonical contracts. Do not create massive generated JSON shapes that drift from source types. If a validator needs a shape, import or derive the canonical type instead of copy-pasting a near-duplicate test-only interface. End every type/schema pass by searching for duplicate interface/type names, local DTOs, stale aliases, and unsafe_unknown schema drift.",
+      "detection_hint": "Run check:type-schema-inventory, check:canonical-type-owner-map, check:schema-validation-ownership, check:generated-report-schema-contract, check:type-schema-memory-writeback, and check:type-schema-gut-consolidation.",
+      "related_commands": [
+        "npm run check:type-schema-inventory",
+        "npm run check:canonical-type-owner-map",
+        "npm run check:schema-validation-ownership",
+        "npm run check:generated-report-schema-contract",
+        "npm run check:type-schema-memory-writeback",
+        "npm run check:type-schema-gut-consolidation"
+      ],
+      "related_helpers": [
+        "src/lib/type-hardening/type-schema-inventory.ts",
+        "src/lib/type-hardening/canonical-type-owner-map.ts",
+        "src/lib/type-hardening/schema-validation-ownership.ts",
+        "src/lib/type-hardening/generated-report-schema-contract.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
     }
   ]
 }

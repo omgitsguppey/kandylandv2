@@ -529,6 +529,13 @@ Anticipate structural iteration, but do it safely.
 ## Mobile Guest Home Hero Shell
 The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
 
+## Type Schema DTO Contract Rules
+Before adding a new interface, DTO, schema, or contract, search for an existing canonical type. Do not create another shape for the same concept unless replacing the old one and updating imports.
+Every shared domain object must have one canonical owner. User, creator, GumDrop, wallet, entitlement, event envelope, debug finding, release evidence, and analytics metric shapes should not be redefined inside random components, routes, tests, or validators.
+Generated report schemas must be compact and typed through canonical contracts. Do not create massive generated JSON shapes that drift from source types.
+If a validator needs a shape, import or derive the canonical type instead of copy-pasting a near-duplicate test-only interface.
+End every type/schema pass by searching for duplicate interface/type names, local DTOs, stale aliases, and unsafe_unknown schema drift.
+
 ## AI Governance & Workflow Execution
 Antigravity must behave like a disciplined senior engineer. 
 **Cycle**: Inspect architecture -> Identify precise owners -> Patch -> Verify Parity -> Verify Regression Safety -> Report.

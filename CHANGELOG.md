@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.17 - 2026-05-27
+- Type schema contract consolidation
+- Consolidated shared types, schemas, DTOs, and generated report contracts.
+- Reduced duplicate type definitions and validation shape drift.
+- Added system memory rules for canonical type ownership.
+
 ## 1.5.16 - 2026-05-27
 - Config infrastructure policy consolidation
 - Consolidated config, env, CI, release, dependency, and security-rule policy.
