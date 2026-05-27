@@ -13887,3 +13887,9 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2024-05-18 #palette-aria-busy] PRE: Add aria-busy to async buttons
+Scope: Identify interactive button elements in the codebase that handle asynchronous actions (loading/saving states) and do not currently use the `aria-busy` attribute. Modify these elements to dynamically map their loading state to `aria-busy` to ensure proper screen reader announcements. Targeted components include `CreatorDashboardSettingsHub` and `LockedDropPreviewView`.
+
+## [2024-05-18 #palette-aria-busy] POST: Added aria-busy to async buttons
+Findings/Verification: Appended `aria-busy` to inline async buttons in `src/components/Creators/CreatorDashboardSettingsHub.tsx` and `src/components/Drops/LockedDropPreviewView.tsx`, binding the attribute to the existing boolean loading state in each module (`savingSection === "..."` and `authLoading || unlocking`). Tested with `pnpm run typecheck` and `npx vitest run`. The change ensures that async operations trigger the appropriate ARIA announcements without modifying the underlying layout or functionality.

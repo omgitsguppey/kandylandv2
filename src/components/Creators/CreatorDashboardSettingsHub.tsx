@@ -912,7 +912,7 @@ export function CreatorDashboardSettingsHub() {
                   className="min-h-20 resize-y rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-brand-purple/50 disabled:opacity-60"
                 />
               </label>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" aria-busy={savingSection === "profile_basics"} disabled={isReadOnlyProjection || savingSection === "profile_basics"} onClick={() => saveSettingsSection("profile_basics")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
                 {savingSection === "profile_basics" ? "Saving..." : "Save profile"}
               </button>
             </div>
@@ -935,7 +935,7 @@ export function CreatorDashboardSettingsHub() {
                   />
                 </label>
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" aria-busy={savingSection === "fan_pass"} disabled={isReadOnlyProjection || savingSection === "fan_pass"} onClick={() => saveSettingsSection("fan_pass")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
                 {savingSection === "fan_pass" ? "Saving..." : "Save Fan Pass"}
               </button>
             </div>
@@ -951,7 +951,7 @@ export function CreatorDashboardSettingsHub() {
                 <ToggleControl label="Enable live time" checked={controlPlaneSettings.callsEnabled} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callsEnabled", value)} />
                 <NumberControl label="Call price per minute GD" value={controlPlaneSettings.callPriceGd} min={500} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("callPriceGd", value)} />
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" aria-busy={savingSection === "gumdrop_experiences"} disabled={isReadOnlyProjection || savingSection === "gumdrop_experiences"} onClick={() => saveSettingsSection("gumdrop_experiences")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
                 {savingSection === "gumdrop_experiences" ? "Saving..." : "Save experiences"}
               </button>
             </div>
@@ -977,7 +977,7 @@ export function CreatorDashboardSettingsHub() {
                   </select>
                 </label>
               </div>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" aria-busy={savingSection === "broadcasts"} disabled={isReadOnlyProjection || savingSection === "broadcasts"} onClick={() => saveSettingsSection("broadcasts")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
                 {savingSection === "broadcasts" ? "Saving..." : "Save broadcasts"}
               </button>
             </div>
@@ -993,7 +993,7 @@ export function CreatorDashboardSettingsHub() {
                 <ToggleControl label="Show broadcasts" checked={controlPlaneSettings.showBroadcastsOnTimeline} disabled={isReadOnlyProjection} onChange={(value) => updateDraftSettings("showBroadcastsOnTimeline", value)} />
               </div>
               <p className="mt-2 text-xs leading-5 text-gray-400">Drop approval, public discovery, and rotation stay admin-only.</p>
-              <button type="button" disabled={isReadOnlyProjection || savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
+              <button type="button" aria-busy={savingSection === "timeline"} disabled={isReadOnlyProjection || savingSection === "timeline"} onClick={() => saveSettingsSection("timeline")} className="mt-3 min-h-11 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-2 text-sm font-bold text-brand-purple disabled:opacity-60">
                 {savingSection === "timeline" ? "Saving..." : "Save timeline"}
               </button>
             </div>

@@ -12,3 +12,7 @@
 ## 2024-05-09 - Added aria-busy to Button component
 **Learning:** The core Button component visually indicated loading states with a spinner, but did not properly announce this asynchronous loading state to screen readers.
 **Action:** Always apply the `aria-busy={isLoading}` attribute to interactive elements like buttons when they enter a loading state to ensure screen readers are informed of the asynchronous process.
+
+## 2024-05-18 - Added aria-busy to async buttons
+**Learning:** Found several inline interactive buttons in the Creator Settings and Drop Preview that had proper visual loading states and disabled attributes, but lacked proper screen reader announcements for asynchronous loading because they were missing `aria-busy`.
+**Action:** Always map React boolean loading states (like `savingSection === "timeline"`) to `aria-busy` on their corresponding buttons to ensure state changes are announced properly to assistive technologies.
