@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-27 Test fixture mock QA harness consolidation memory
+
+Before adding a test fixture, mock, validator, or QA harness, search for the canonical production contract and import it. Do not create test-only shapes that drift from source truth. A green test is not proof if the test uses stale fixtures, fake DTOs, or mocked behavior that bypasses canonical math, telemetry, role, cost, or source-of-funds rules. Every validator must have an owner lane, a package script, a unit test, and a retirement rule. If a newer lock supersedes a validator, retire or alias the old one instead of keeping both active. Mocks must declare whether they simulate source-only, runtime-like, provider-like, admin-like, or operator-only evidence. Mocks must never be treated as provider/runtime/admin proof. End every test/fixture pass by searching for duplicate fixtures, stale sample JSON, fantasy DTOs, obsolete validators, and generated artifacts larger than needed. `check:test-fixture-memory-writeback` validates the lane.
+
 ## 2026-05-27 Type schema contract consolidation memory
 
 Before adding a new interface, DTO, schema, or contract, search for an existing canonical type. Do not create another shape for the same concept unless replacing the old one and updating imports. Every shared domain object must have one canonical owner. User, creator, GumDrop, wallet, entitlement, event envelope, debug finding, release evidence, and analytics metric shapes should not be redefined inside random components, routes, tests, or validators. Generated report schemas must be compact and typed through canonical contracts. Do not create massive generated JSON shapes that drift from source types. If a validator needs a shape, import or derive the canonical type instead of copy-pasting a near-duplicate test-only interface. End every type/schema pass by searching for duplicate interface/type names, local DTOs, stale aliases, and unsafe_unknown schema drift. `check:type-schema-memory-writeback` validates the lane.

@@ -1,8 +1,8 @@
 {
   "reportKey": "final-math-normalization-lock",
-  "generatedAtUtc": "2026-05-26T12:01:44.102Z",
-  "currentHead": "a996b197",
-  "status": "pass",
+  "generatedAtUtc": "2026-05-27T05:21:28.560Z",
+  "currentHead": "eb93068b",
+  "status": "fail",
   "productionReadsPerformed": false,
   "legacyMutationPerformed": false,
   "providerCallsPerformed": false,
@@ -10,22 +10,22 @@
   "paymentRuntimeChanged": false,
   "gumdropPricingMathChanged": false,
   "scoreBefore": {
-    "sourceHealth": 100,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "evidenceCompleteness": 69.6,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "overallHealthScore": 76.61
   },
   "scoreAfter": {
-    "sourceHealth": 100,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "evidenceCompleteness": 69.6,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "overallHealthScore": 76.61
   },
   "scoreDimensions": [
     "sourceHealth",
@@ -210,159 +210,201 @@
   ],
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "AGENTS.md",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "REPO_MEMORY_LEDGER.md",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/final-math-normalization-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/generated-artifact-size-policy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "documentation_artifact_expected"
+      "path": "agent/state/qa-harness-consolidation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/final-math-normalization-lock.md",
-      "classification": "documentation_artifact_expected"
+      "path": "agent/state/test-fixture-gut-consolidation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "documentation_artifact_expected"
+      "path": "agent/state/test-fixture-inventory.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/test-fixture-memory-writeback.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/test-quality-guards.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/validator-ownership-map.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/generated-artifact-size-policy.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/qa-harness-consolidation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/test-fixture-gut-consolidation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/test-fixture-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/test-fixture-memory-writeback.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/test-quality-guards.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/validator-ownership-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "package.json",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/validate-generated-artifact-size-policy.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-final-math-normalization-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-qa-harness-consolidation.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/validate-test-fixture-gut-consolidation.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/validate-test-fixture-inventory.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "tests/unit/final-math-normalization-lock.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "scripts/agent/validate-test-fixture-memory-writeback.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-test-quality-guards.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-validator-ownership-map.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/generated-artifact-size-policy.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/qa-harness-map.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-fixture-gut-consolidation.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-fixture-inventory.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-fixture-memory-writeback.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-hardening-shared.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-quality-guards.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/validator-ownership-map.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/testing/canonical-test-factories.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/testing/mock-evidence-classifier.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/generated-artifact-size-policy.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/qa-harness-consolidation.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/test-fixture-inventory.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/test-fixture-memory-writeback.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/test-quality-guards.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/validator-ownership-map.spec.ts",
+      "classification": "unsafe_unknown"
     }
   ],
-  "openPrs": [
-    {
-      "number": 302,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "onboarding_telemetry_external_review_required"
-    },
-    {
-      "number": 301,
-      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "doctrine_governance_external_review_required"
-    },
-    {
-      "number": 300,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "architecture_refactor_external_review_required"
-    },
-    {
-      "number": 299,
-      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 298,
-      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 297,
-      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 296,
-      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 295,
-      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 294,
-      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "security_patch_external_review_required"
-    },
-    {
-      "number": 292,
-      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "performance_patch_external_review_required"
-    },
-    {
-      "number": 291,
-      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
-      "mergeStateStatus": "CLEAN",
-      "isDraft": false,
-      "classification": "accessibility_patch_external_review_required"
-    }
-  ],
-  "validationFailures": []
+  "openPrs": [],
+  "validationFailures": [
+    "AGENTS.md is unclassified for final math normalization lock.",
+    "REPO_MEMORY_LEDGER.md is unclassified for final math normalization lock.",
+    "agent/index/known-pitfalls.json is unclassified for final math normalization lock.",
+    "scripts/agent/validate-generated-artifact-size-policy.ts is unclassified for final math normalization lock.",
+    "scripts/agent/validate-qa-harness-consolidation.ts is unclassified for final math normalization lock.",
+    "scripts/agent/validate-test-fixture-gut-consolidation.ts is unclassified for final math normalization lock.",
+    "scripts/agent/validate-test-fixture-inventory.ts is unclassified for final math normalization lock.",
+    "scripts/agent/validate-test-fixture-memory-writeback.ts is unclassified for final math normalization lock.",
+    "scripts/agent/validate-test-quality-guards.ts is unclassified for final math normalization lock.",
+    "scripts/agent/validate-validator-ownership-map.ts is unclassified for final math normalization lock.",
+    "src/lib/test-hardening/generated-artifact-size-policy.ts is unclassified for final math normalization lock.",
+    "src/lib/test-hardening/qa-harness-map.ts is unclassified for final math normalization lock.",
+    "src/lib/test-hardening/test-fixture-gut-consolidation.ts is unclassified for final math normalization lock.",
+    "src/lib/test-hardening/test-fixture-inventory.ts is unclassified for final math normalization lock.",
+    "src/lib/test-hardening/test-fixture-memory-writeback.ts is unclassified for final math normalization lock.",
+    "src/lib/test-hardening/test-hardening-shared.ts is unclassified for final math normalization lock.",
+    "src/lib/test-hardening/test-quality-guards.ts is unclassified for final math normalization lock.",
+    "src/lib/test-hardening/validator-ownership-map.ts is unclassified for final math normalization lock.",
+    "src/lib/testing/canonical-test-factories.ts is unclassified for final math normalization lock.",
+    "src/lib/testing/mock-evidence-classifier.ts is unclassified for final math normalization lock.",
+    "tests/unit/generated-artifact-size-policy.spec.ts is unclassified for final math normalization lock.",
+    "tests/unit/qa-harness-consolidation.spec.ts is unclassified for final math normalization lock.",
+    "tests/unit/test-fixture-inventory.spec.ts is unclassified for final math normalization lock.",
+    "tests/unit/test-fixture-memory-writeback.spec.ts is unclassified for final math normalization lock.",
+    "tests/unit/test-quality-guards.spec.ts is unclassified for final math normalization lock.",
+    "tests/unit/validator-ownership-map.spec.ts is unclassified for final math normalization lock."
+  ]
 }

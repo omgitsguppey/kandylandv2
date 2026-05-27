@@ -1,31 +1,38 @@
 # Final Release Exit Readiness Packet
 
 Artifact: `agent/state/final-release-exit-readiness-packet.generated.json`
+Validator: `npm run check:final-release-exit-readiness-packet`
 
-- Generated: `2026-05-27T01:04:06.098Z`
-- Current head: `7747ca78ac19f78c396f9c5c50301347ce492a45`
+## Summary
+
+- Generated: `2026-05-27T05:26:52.184Z`
+- Current head: `eb93068b1c0df79e92c921213b08923327907189`
+- Status: `fail`
+
+## Report
 
 ```json
 {
   "reportKey": "final-release-exit-readiness-packet",
-  "generatedAtUtc": "2026-05-27T01:04:06.098Z",
-  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-  "scoreBefore": 85.34,
-  "scoreAfter": 85.34,
+  "generatedAtUtc": "2026-05-27T05:26:52.184Z",
+  "currentHead": "eb93068b1c0df79e92c921213b08923327907189",
+  "scoreBefore": 76.61,
+  "scoreAfter": 76.61,
   "scoreDimensions": {
-    "sourceHealth": 100,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "evidenceCompleteness": 69.6,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "overallHealthScore": 76.61
   },
   "betaExitReady": false,
   "launchGateStatus": "owner_review",
   "launchBlockers": [
     "Runtime/provider smoke: Runtime unverified",
-    "Admin truth/sample evidence: Ready with smoke required"
+    "Admin truth/sample evidence: Ready with smoke required",
+    "Report freshness and PR integrity: Stale evidence"
   ],
   "blockerClassifications": [
     {
@@ -37,6 +44,11 @@ Artifact: `agent/state/final-release-exit-readiness-packet.generated.json`
       "blocker": "Admin truth/sample evidence: Ready with smoke required",
       "classification": "live_admin_truth_or_redacted_sample_required",
       "nextExactAction": "Attach a redacted live admin truth summary or classify the source as source_missing."
+    },
+    {
+      "blocker": "Report freshness and PR integrity: Stale evidence",
+      "classification": "external_review_required",
+      "nextExactAction": "Classify and close the release blocker through its owner lane."
     }
   ],
   "formalEvidenceLedger": [
@@ -108,8 +120,8 @@ Artifact: `agent/state/final-release-exit-readiness-packet.generated.json`
       "category": "algorithmic non-UI evidence",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/final-math-normalization-lock.generated.json",
-      "currentHead": "a996b197",
-      "generatedAtUtc": "2026-05-26T12:01:44.102Z",
+      "currentHead": "eb93068b",
+      "generatedAtUtc": "2026-05-27T05:21:28.560Z",
       "owner": "math/source validators",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -206,8 +218,8 @@ Artifact: `agent/state/final-release-exit-readiness-packet.generated.json`
     "missingKillSwitches": 3
   },
   "releaseNotesIntegrity": {
-    "status": "pass",
-    "currentVersion": "1.5.12"
+    "status": "warning",
+    "currentVersion": "1.5.18"
   },
   "liveEvidenceGateReplacement": {
     "status": "split_ready",
@@ -228,14 +240,14 @@ Artifact: `agent/state/final-release-exit-readiness-packet.generated.json`
     "nextExactAction": "Complete external billing review; source guards alone cannot lift costRisk above formal review."
   },
   "evidenceCompletenessStatus": {
-    "score": 84.6,
-    "status": "meets_source_target",
-    "nextExactAction": "Keep formal evidence blockers explicit even if source score is above 80."
+    "score": 69.6,
+    "status": "below80_requires_formal_evidence",
+    "nextExactAction": "Attach missing formal runtime/provider/admin evidence."
   },
   "freshnessStatus": {
-    "score": 91.88,
-    "status": "meets_source_target",
-    "nextExactAction": "Keep current-head artifacts fresh after this commit."
+    "score": 67.5,
+    "status": "below80_refresh_required",
+    "nextExactAction": "Refresh stale required artifacts through their owning validators."
   },
   "remainingManualItems": [
     "visual-only operator QA",
@@ -262,6 +274,16 @@ Artifact: `agent/state/final-release-exit-readiness-packet.generated.json`
     "Keep open PR list empty or explicitly deferred before beta-exit signoff.",
     "Operator completes final visual-only QA packet for layout and responsive checks."
   ],
-  "validationFailures": []
+  "validationFailures": [
+    "release notes stale."
+  ]
 }
 ```
+
+## Evidence Boundary
+
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
+
+## Validation
+
+- FAIL: release notes stale.

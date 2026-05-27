@@ -1,8 +1,8 @@
 # Canonical Math Ledger
 
-Generated: 2026-05-26T08:58:56.299Z
-Current head: 34f63bc34ed85473191110bc6084e1dbbead4d2a
-Status: pass
+Generated: 2026-05-27T05:21:28.753Z
+Current head: eb93068b1c0df79e92c921213b08923327907189
+Status: fail
 
 ## Score Freeze
 
@@ -25,9 +25,9 @@ Status: pass
 
 ## Person Metrics Gap Math
 
-- Missing hydration gaps: 36
-- Debug lane gaps: 36
-- Evidence score reason: 36 person metric hydration gap(s) still need source or bridge repair.
+- Missing hydration gaps: 37
+- Debug lane gaps: 37
+- Evidence score reason: 37 person metric hydration gap(s) still need source or bridge repair.
 
 ## Formula Owners
 
@@ -53,39 +53,57 @@ Status: pass
 - legacy_recovery_confidence: Documents maximum confidence and required evidence; no legacy data is mutated. Accuracy: Blocks unsupported exact promotion for legacy events.
 - person_metrics: Fixes fake zero gap count to real missing hydration gap count. Accuracy: Evidence completeness reflects actual missing metric source/bridge gaps.
 - duration_math: No runtime duration formula change; this ledger freezes the already-normalized duration doctrine. Accuracy: Prevents page-open time from being reused as watch time.
-- source_of_funds: Documents existing source-of-funds authority without changing payment, wallet, PayPal, or GumDrop math. Accuracy: Prevents future metric formulas from blending paid, reward, and bonus GumDrops.
+- source_of_funds: Documents paid bonus as its own paid-source bucket without changing payment, wallet, PayPal, package, or GumDrop runtime math. Accuracy: Prevents future metric formulas from blending paid, reward, and bonus GumDrops.
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
-- agent/state/canonical-math-ledger.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/canonical-math-ledger.md: current_generated_artifact_to_commit
+- AGENTS.md: unsafe_unknown
+- REPO_MEMORY_LEDGER.md: unsafe_unknown
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/index/known-pitfalls.json: unsafe_unknown
+- agent/state/generated-artifact-size-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/qa-harness-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/test-fixture-gut-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/test-fixture-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/test-fixture-memory-writeback.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/test-quality-guards.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/validator-ownership-map.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/generated-artifact-size-policy.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/qa-harness-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/test-fixture-gut-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/test-fixture-inventory.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/test-fixture-memory-writeback.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/test-quality-guards.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/validator-ownership-map.md: stale_generated_artifact_to_regenerate
 - package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-canonical-math-ledger.ts: failed_validator_to_repair
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/math/canonical-math-ledger.ts: real_source_change_needs_review
-- src/lib/math/math-authority-map.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/canonical-math-ledger.spec.ts: current_generated_artifact_to_commit
+- scripts/agent/validate-generated-artifact-size-policy.ts: unsafe_unknown
+- scripts/agent/validate-qa-harness-consolidation.ts: unsafe_unknown
+- scripts/agent/validate-test-fixture-gut-consolidation.ts: unsafe_unknown
+- scripts/agent/validate-test-fixture-inventory.ts: unsafe_unknown
+- scripts/agent/validate-test-fixture-memory-writeback.ts: unsafe_unknown
+- scripts/agent/validate-test-quality-guards.ts: unsafe_unknown
+- scripts/agent/validate-validator-ownership-map.ts: unsafe_unknown
+- src/lib/test-hardening/generated-artifact-size-policy.ts: unsafe_unknown
+- src/lib/test-hardening/qa-harness-map.ts: unsafe_unknown
+- src/lib/test-hardening/test-fixture-gut-consolidation.ts: unsafe_unknown
+- src/lib/test-hardening/test-fixture-inventory.ts: unsafe_unknown
+- src/lib/test-hardening/test-fixture-memory-writeback.ts: unsafe_unknown
+- src/lib/test-hardening/test-hardening-shared.ts: unsafe_unknown
+- src/lib/test-hardening/test-quality-guards.ts: unsafe_unknown
+- src/lib/test-hardening/validator-ownership-map.ts: unsafe_unknown
+- src/lib/testing/canonical-test-factories.ts: unsafe_unknown
+- src/lib/testing/mock-evidence-classifier.ts: unsafe_unknown
+- tests/unit/generated-artifact-size-policy.spec.ts: unsafe_unknown
+- tests/unit/qa-harness-consolidation.spec.ts: unsafe_unknown
+- tests/unit/test-fixture-inventory.spec.ts: unsafe_unknown
+- tests/unit/test-fixture-memory-writeback.spec.ts: unsafe_unknown
+- tests/unit/test-quality-guards.spec.ts: unsafe_unknown
+- tests/unit/validator-ownership-map.spec.ts: unsafe_unknown
 
 ## Open PR Classification
 
-- #302 🧭 Improve onboarding friction visibility and technical rescue signals: onboarding_telemetry_external_review_required
-- #301 📚 Reduce doctrine drift and banned-pattern reintroduction: doctrine_governance_external_review_required
-- #300 🧱 Reduce monolith file risk and clarify responsibility boundaries: architecture_refactor_external_review_required
-- #299 chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates: dependency_update_external_review_required
-- #298 chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1: dependency_update_external_review_required
-- #297 chore(deps): bump knip from 5.88.1 to 6.14.2: dependency_update_external_review_required
-- #296 chore(deps): bump syncpack from 14.3.0 to 15.3.1: dependency_update_external_review_required
-- #295 chore(deps): bump puppeteer from 24.40.0 to 25.0.4: dependency_update_external_review_required
-- #294 chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates: dependency_update_external_review_required
-- #293 🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation: security_patch_external_review_required
-- #292 ⚡ Bolt: Replace array `.find()` with Map lookup in debug route: performance_patch_external_review_required
-- #291 🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons: accessibility_patch_external_review_required
+- none
 
 ## Validation Failures
 
-- none
+- Dirty files unclassified: AGENTS.md, REPO_MEMORY_LEDGER.md, agent/index/known-pitfalls.json, scripts/agent/validate-generated-artifact-size-policy.ts, scripts/agent/validate-qa-harness-consolidation.ts, scripts/agent/validate-test-fixture-gut-consolidation.ts, scripts/agent/validate-test-fixture-inventory.ts, scripts/agent/validate-test-fixture-memory-writeback.ts, scripts/agent/validate-test-quality-guards.ts, scripts/agent/validate-validator-ownership-map.ts, src/lib/test-hardening/generated-artifact-size-policy.ts, src/lib/test-hardening/qa-harness-map.ts, src/lib/test-hardening/test-fixture-gut-consolidation.ts, src/lib/test-hardening/test-fixture-inventory.ts, src/lib/test-hardening/test-fixture-memory-writeback.ts, src/lib/test-hardening/test-hardening-shared.ts, src/lib/test-hardening/test-quality-guards.ts, src/lib/test-hardening/validator-ownership-map.ts, src/lib/testing/canonical-test-factories.ts, src/lib/testing/mock-evidence-classifier.ts, tests/unit/generated-artifact-size-policy.spec.ts, tests/unit/qa-harness-consolidation.spec.ts, tests/unit/test-fixture-inventory.spec.ts, tests/unit/test-fixture-memory-writeback.spec.ts, tests/unit/test-quality-guards.spec.ts, tests/unit/validator-ownership-map.spec.ts

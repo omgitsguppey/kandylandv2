@@ -1,11 +1,11 @@
 # Type Schema Gut Consolidation
 
-Generated: 2026-05-27T05:04:18.145Z
-Current head: af292363502db378c7a81b986134de42afdf2627
-Types audited: 3200
+Generated: 2026-05-27T05:21:36.741Z
+Current head: eb93068b1c0df79e92c921213b08923327907189
+Types audited: 3218
 Duplicate types found: 40
-Aliases classified: 885
-Generated report schemas typed: 455
+Aliases classified: 901
+Generated report schemas typed: 462
 Unsafe unknowns: 0
 
 ## Remaining Gaps

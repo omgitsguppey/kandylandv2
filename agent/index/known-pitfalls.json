@@ -404,6 +404,40 @@
       ],
       "severity": "high",
       "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__test_fixture_mock_proof_drift",
+      "title": "test_fixture_mock_proof_drift",
+      "description": "Tests, fixtures, mocks, validators, and QA harnesses can become a fake universe when they redefine production DTOs or let source-only mocks satisfy runtime/provider/admin evidence gates.",
+      "symptom_pattern": "A green test passes against stale fixtures, fake DTOs, or mocked behavior that bypasses canonical math, telemetry, role, cost, or source-of-funds rules.",
+      "affected_surfaces": [
+        "tests/**",
+        "scripts/agent/**",
+        "src/lib/testing/**",
+        "agent/state/*.generated.json",
+        "docs/agent-truth/*.md"
+      ],
+      "prevention_rule": "Before adding a test fixture, mock, validator, or QA harness, search for the canonical production contract and import it. Do not create test-only shapes that drift from source truth. A green test is not proof if the test uses stale fixtures, fake DTOs, or mocked behavior that bypasses canonical math, telemetry, role, cost, or source-of-funds rules. Every validator must have an owner lane, a package script, a unit test, and a retirement rule. If a newer lock supersedes a validator, retire or alias the old one instead of keeping both active. Mocks must declare whether they simulate source-only, runtime-like, provider-like, admin-like, or operator-only evidence. Mocks must never be treated as provider/runtime/admin proof. End every test/fixture pass by searching for duplicate fixtures, stale sample JSON, fantasy DTOs, obsolete validators, and generated artifacts larger than needed.",
+      "detection_hint": "Run check:test-fixture-inventory, check:validator-ownership-map, check:test-quality-guards, check:generated-artifact-size-policy, check:qa-harness-consolidation, and check:test-fixture-memory-writeback.",
+      "related_commands": [
+        "npm run check:test-fixture-inventory",
+        "npm run check:validator-ownership-map",
+        "npm run check:test-quality-guards",
+        "npm run check:generated-artifact-size-policy",
+        "npm run check:qa-harness-consolidation",
+        "npm run check:test-fixture-memory-writeback"
+      ],
+      "related_helpers": [
+        "src/lib/testing/canonical-test-factories.ts",
+        "src/lib/testing/mock-evidence-classifier.ts",
+        "src/lib/test-hardening/test-fixture-inventory.ts",
+        "src/lib/test-hardening/validator-ownership-map.ts",
+        "src/lib/test-hardening/test-quality-guards.ts",
+        "src/lib/test-hardening/generated-artifact-size-policy.ts",
+        "src/lib/test-hardening/qa-harness-map.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
     }
   ]
 }

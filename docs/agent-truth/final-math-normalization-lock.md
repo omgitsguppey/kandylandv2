@@ -1,13 +1,13 @@
 # Final Math Normalization Lock
 
-Generated: 2026-05-26T12:01:44.102Z
-Current head: a996b197
-Status: pass
+Generated: 2026-05-27T05:21:28.560Z
+Current head: eb93068b
+Status: fail
 
 ## Score
 
-- Before: {"sourceHealth":100,"runtimeHealth":84.2,"evidenceCompleteness":84.6,"freshness":91.88,"costRisk":42,"regressionRisk":86,"overallHealthScore":85.34}
-- After: {"sourceHealth":100,"runtimeHealth":84.2,"evidenceCompleteness":84.6,"freshness":91.88,"costRisk":42,"regressionRisk":86,"overallHealthScore":85.34}
+- Before: {"sourceHealth":91.7,"runtimeHealth":84.2,"evidenceCompleteness":69.6,"freshness":67.5,"costRisk":42,"regressionRisk":86,"overallHealthScore":76.61}
+- After: {"sourceHealth":91.7,"runtimeHealth":84.2,"evidenceCompleteness":69.6,"freshness":67.5,"costRisk":42,"regressionRisk":86,"overallHealthScore":76.61}
 - Dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, freshness, costRisk, regressionRisk
 
 ## Formulas Finalized
@@ -72,36 +72,78 @@ Status: pass
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
-- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
-- agent/state/final-math-normalization-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-beta-readiness-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/current-beta-exit-status.md: documentation_artifact_expected
-- docs/agent-truth/final-math-normalization-lock.md: documentation_artifact_expected
-- docs/agent-truth/overnight-beta-readiness-lock.md: documentation_artifact_expected
+- AGENTS.md: unsafe_unknown
+- REPO_MEMORY_LEDGER.md: unsafe_unknown
+- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/index/known-pitfalls.json: unsafe_unknown
+- agent/state/generated-artifact-size-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/qa-harness-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/test-fixture-gut-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/test-fixture-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/test-fixture-memory-writeback.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/test-quality-guards.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/validator-ownership-map.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/generated-artifact-size-policy.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/qa-harness-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/test-fixture-gut-consolidation.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/test-fixture-inventory.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/test-fixture-memory-writeback.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/test-quality-guards.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/validator-ownership-map.md: stale_generated_artifact_to_regenerate
 - package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-final-math-normalization-lock.ts: validator_artifact_expected
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/final-math-normalization-lock.spec.ts: test_artifact_expected
+- scripts/agent/validate-generated-artifact-size-policy.ts: unsafe_unknown
+- scripts/agent/validate-qa-harness-consolidation.ts: unsafe_unknown
+- scripts/agent/validate-test-fixture-gut-consolidation.ts: unsafe_unknown
+- scripts/agent/validate-test-fixture-inventory.ts: unsafe_unknown
+- scripts/agent/validate-test-fixture-memory-writeback.ts: unsafe_unknown
+- scripts/agent/validate-test-quality-guards.ts: unsafe_unknown
+- scripts/agent/validate-validator-ownership-map.ts: unsafe_unknown
+- src/lib/test-hardening/generated-artifact-size-policy.ts: unsafe_unknown
+- src/lib/test-hardening/qa-harness-map.ts: unsafe_unknown
+- src/lib/test-hardening/test-fixture-gut-consolidation.ts: unsafe_unknown
+- src/lib/test-hardening/test-fixture-inventory.ts: unsafe_unknown
+- src/lib/test-hardening/test-fixture-memory-writeback.ts: unsafe_unknown
+- src/lib/test-hardening/test-hardening-shared.ts: unsafe_unknown
+- src/lib/test-hardening/test-quality-guards.ts: unsafe_unknown
+- src/lib/test-hardening/validator-ownership-map.ts: unsafe_unknown
+- src/lib/testing/canonical-test-factories.ts: unsafe_unknown
+- src/lib/testing/mock-evidence-classifier.ts: unsafe_unknown
+- tests/unit/generated-artifact-size-policy.spec.ts: unsafe_unknown
+- tests/unit/qa-harness-consolidation.spec.ts: unsafe_unknown
+- tests/unit/test-fixture-inventory.spec.ts: unsafe_unknown
+- tests/unit/test-fixture-memory-writeback.spec.ts: unsafe_unknown
+- tests/unit/test-quality-guards.spec.ts: unsafe_unknown
+- tests/unit/validator-ownership-map.spec.ts: unsafe_unknown
 
 ## Open PRs
 
-- #302: onboarding_telemetry_external_review_required
-- #301: doctrine_governance_external_review_required
-- #300: architecture_refactor_external_review_required
-- #299: dependency_update_external_review_required
-- #298: dependency_update_external_review_required
-- #297: dependency_update_external_review_required
-- #296: dependency_update_external_review_required
-- #295: dependency_update_external_review_required
-- #294: dependency_update_external_review_required
-- #293: security_patch_external_review_required
-- #292: performance_patch_external_review_required
-- #291: accessibility_patch_external_review_required
+- none
 
 ## Validation Failures
 
-- none
+- AGENTS.md is unclassified for final math normalization lock.
+- REPO_MEMORY_LEDGER.md is unclassified for final math normalization lock.
+- agent/index/known-pitfalls.json is unclassified for final math normalization lock.
+- scripts/agent/validate-generated-artifact-size-policy.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-qa-harness-consolidation.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-test-fixture-gut-consolidation.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-test-fixture-inventory.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-test-fixture-memory-writeback.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-test-quality-guards.ts is unclassified for final math normalization lock.
+- scripts/agent/validate-validator-ownership-map.ts is unclassified for final math normalization lock.
+- src/lib/test-hardening/generated-artifact-size-policy.ts is unclassified for final math normalization lock.
+- src/lib/test-hardening/qa-harness-map.ts is unclassified for final math normalization lock.
+- src/lib/test-hardening/test-fixture-gut-consolidation.ts is unclassified for final math normalization lock.
+- src/lib/test-hardening/test-fixture-inventory.ts is unclassified for final math normalization lock.
+- src/lib/test-hardening/test-fixture-memory-writeback.ts is unclassified for final math normalization lock.
+- src/lib/test-hardening/test-hardening-shared.ts is unclassified for final math normalization lock.
+- src/lib/test-hardening/test-quality-guards.ts is unclassified for final math normalization lock.
+- src/lib/test-hardening/validator-ownership-map.ts is unclassified for final math normalization lock.
+- src/lib/testing/canonical-test-factories.ts is unclassified for final math normalization lock.
+- src/lib/testing/mock-evidence-classifier.ts is unclassified for final math normalization lock.
+- tests/unit/generated-artifact-size-policy.spec.ts is unclassified for final math normalization lock.
+- tests/unit/qa-harness-consolidation.spec.ts is unclassified for final math normalization lock.
+- tests/unit/test-fixture-inventory.spec.ts is unclassified for final math normalization lock.
+- tests/unit/test-fixture-memory-writeback.spec.ts is unclassified for final math normalization lock.
+- tests/unit/test-quality-guards.spec.ts is unclassified for final math normalization lock.
+- tests/unit/validator-ownership-map.spec.ts is unclassified for final math normalization lock.

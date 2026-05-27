@@ -1,25 +1,25 @@
 {
   "reportKey": "canonical-math-ledger",
-  "generatedAtUtc": "2026-05-26T08:58:56.299Z",
-  "currentHead": "34f63bc34ed85473191110bc6084e1dbbead4d2a",
-  "status": "pass",
+  "generatedAtUtc": "2026-05-27T05:21:28.753Z",
+  "currentHead": "eb93068b1c0df79e92c921213b08923327907189",
+  "status": "fail",
   "scoreBefore": {
-    "sourceHealth": 100,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 83.75,
+    "evidenceCompleteness": 69.6,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 84.12
+    "overallHealthScore": 76.61
   },
   "scoreAfter": {
-    "sourceHealth": 100,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 83.75,
+    "evidenceCompleteness": 69.6,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 84.12
+    "overallHealthScore": 76.61
   },
   "scoreDimensions": {
     "sourceHealth": 25,
@@ -101,9 +101,14 @@
     "route4xxRule": "Known validation errors should be nonretryable and mapped before they affect cost risk."
   },
   "sourceOfFundsRules": {
-    "paidPackageBonusGumDropsSource": "paid_gd",
+    "paidBaseGumDropsSource": "paid_gd",
+    "paidPackageBonusGumDropsSource": "paid_bonus_gd",
     "rewardGumDropsSource": "reward_gd",
+    "taskRewardGumDropsSource": "task_reward_gd",
+    "adminGrantGumDropsSource": "admin_grant_gd",
+    "unknownLegacyGumDropsSource": "legacy_unknown",
     "bonusGumDropsMustPreserveSourceOfFunds": true,
+    "paidBonusSpendEligibilityFollowsCurrentPaidBonusPolicy": true,
     "rewardGumDropsEligibleForFanPassRenewal": false,
     "sourceTruth": "wallet capture and source-of-funds ledger; this ledger documents formula authority without changing GumDrop math"
   },
@@ -495,175 +500,197 @@
     {
       "formulaOwnerId": "source_of_funds",
       "currentFormula": "Source-of-funds rules live in wallet/economy truth and validators.",
-      "canonicalFormula": "Paid package bonus GumDrops are paid-source; reward GumDrops are non-purchase rewards; source confidence must remain explicit.",
-      "delta": "Documents existing source-of-funds authority without changing payment, wallet, PayPal, or GumDrop math.",
+      "canonicalFormula": "Paid base GumDrops are paid_gd; paid bundle bonus GumDrops are paid_bonus_gd; reward/task/admin grants remain non-paid; unknown legacy cannot fund paid-only experiences.",
+      "delta": "Documents paid bonus as its own paid-source bucket without changing payment, wallet, PayPal, package, or GumDrop runtime math.",
       "accuracyBenefit": "Prevents future metric formulas from blending paid, reward, and bonus GumDrops.",
       "userVisibleProductImpact": "Creator monetization and Fan Pass readiness can distinguish eligible paid-source balances from reward balances.",
       "migrationRisk": "low_no_runtime_math_change",
       "filesChanged": [
         "src/lib/math/canonical-math-ledger.ts",
-        "src/lib/math/math-authority-map.ts"
+        "src/lib/math/math-authority-map.ts",
+        "src/lib/math/gumdrop-ledger-math.ts"
       ]
     }
   ],
   "personMetricsHydration": {
-    "missingHydrationCount": 36,
-    "debugLaneGaps": 36,
-    "evidenceCompletenessReason": "36 person metric hydration gap(s) still need source or bridge repair."
+    "missingHydrationCount": 37,
+    "debugLaneGaps": 37,
+    "evidenceCompletenessReason": "37 person metric hydration gap(s) still need source or bridge repair."
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "AGENTS.md",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/canonical-math-ledger.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "REPO_MEMORY_LEDGER.md",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "docs/agent-truth/canonical-math-ledger.md",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/index/known-pitfalls.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "agent/state/generated-artifact-size-policy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/qa-harness-consolidation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/test-fixture-gut-consolidation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/test-fixture-inventory.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/test-fixture-memory-writeback.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/test-quality-guards.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/validator-ownership-map.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/generated-artifact-size-policy.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/qa-harness-consolidation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/test-fixture-gut-consolidation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/test-fixture-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/test-fixture-memory-writeback.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/test-quality-guards.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/validator-ownership-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "package.json",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/validate-generated-artifact-size-policy.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-canonical-math-ledger.ts",
-      "classification": "failed_validator_to_repair"
+      "path": "scripts/agent/validate-qa-harness-consolidation.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-test-fixture-gut-consolidation.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/math/canonical-math-ledger.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-test-fixture-inventory.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/math/math-authority-map.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-test-fixture-memory-writeback.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/validate-test-quality-guards.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/validate-validator-ownership-map.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "tests/unit/canonical-math-ledger.spec.ts",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "src/lib/test-hardening/generated-artifact-size-policy.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/qa-harness-map.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-fixture-gut-consolidation.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-fixture-inventory.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-fixture-memory-writeback.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-hardening-shared.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/test-quality-guards.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/test-hardening/validator-ownership-map.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/testing/canonical-test-factories.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/testing/mock-evidence-classifier.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/generated-artifact-size-policy.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/qa-harness-consolidation.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/test-fixture-inventory.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/test-fixture-memory-writeback.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/test-quality-guards.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/validator-ownership-map.spec.ts",
+      "classification": "unsafe_unknown"
     }
   ],
-  "openPullRequests": [
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 302,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
-      "classification": "onboarding_telemetry_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 301,
-      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
-      "classification": "doctrine_governance_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 300,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
-      "classification": "architecture_refactor_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 299,
-      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 298,
-      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 297,
-      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 296,
-      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 295,
-      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 294,
-      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
-      "classification": "dependency_update_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "classification": "security_patch_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 292,
-      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
-      "classification": "performance_patch_external_review_required"
-    },
-    {
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 291,
-      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
-      "classification": "accessibility_patch_external_review_required"
-    }
+  "openPullRequests": [],
+  "validationFailures": [
+    "Dirty files unclassified: AGENTS.md, REPO_MEMORY_LEDGER.md, agent/index/known-pitfalls.json, scripts/agent/validate-generated-artifact-size-policy.ts, scripts/agent/validate-qa-harness-consolidation.ts, scripts/agent/validate-test-fixture-gut-consolidation.ts, scripts/agent/validate-test-fixture-inventory.ts, scripts/agent/validate-test-fixture-memory-writeback.ts, scripts/agent/validate-test-quality-guards.ts, scripts/agent/validate-validator-ownership-map.ts, src/lib/test-hardening/generated-artifact-size-policy.ts, src/lib/test-hardening/qa-harness-map.ts, src/lib/test-hardening/test-fixture-gut-consolidation.ts, src/lib/test-hardening/test-fixture-inventory.ts, src/lib/test-hardening/test-fixture-memory-writeback.ts, src/lib/test-hardening/test-hardening-shared.ts, src/lib/test-hardening/test-quality-guards.ts, src/lib/test-hardening/validator-ownership-map.ts, src/lib/testing/canonical-test-factories.ts, src/lib/testing/mock-evidence-classifier.ts, tests/unit/generated-artifact-size-policy.spec.ts, tests/unit/qa-harness-consolidation.spec.ts, tests/unit/test-fixture-inventory.spec.ts, tests/unit/test-fixture-memory-writeback.spec.ts, tests/unit/test-quality-guards.spec.ts, tests/unit/validator-ownership-map.spec.ts"
   ],
-  "validationFailures": [],
   "releaseNoteImpact": [
     "Created canonical math ledger for score, confidence, session, watch, dedupe, and legacy recovery formulas.",
     "Fixed person-metric hydration gap math to report real gaps.",
