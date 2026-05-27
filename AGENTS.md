@@ -543,6 +543,14 @@ Every validator must have an owner lane, a package script, a unit test, and a re
 Mocks must declare whether they simulate source-only, runtime-like, provider-like, admin-like, or operator-only evidence. Mocks must never be treated as provider/runtime/admin proof.
 End every test/fixture pass by searching for duplicate fixtures, stale sample JSON, fantasy DTOs, obsolete validators, and generated artifacts larger than needed.
 
+## 4xx Route And Treasury Rules
+Classify 4xx errors before fixing them. Validation, auth, permission, not found, conflict, rate limit, and permanent client errors must not be treated as retryable server failures.
+Never let 4xx diagnostics create retry storms, duplicate warning writes, or fake P1 runtime issues. Roll up repeated 4xx failures by route, error class, actor class, and hourly fingerprint.
+Before adding finance, wallet, GumDrop, revenue, transaction, entitlement, or cost logic, check the Treasury owner map. Do not create a new ledger, revenue summary, balance calculation, or source-of-funds rule outside the canonical Treasury structure.
+Treasury must separate appropriations, obligations, outlays, receipts, balances, entitlements, refunds, adjustments, reconciliation, and audit exceptions. Do not mix source-of-funds, revenue confidence, and user wallet display math.
+Treasury reports must be compact, redacted, reconcilable, and confidence-labeled. Unknown legacy money data must never display as exact revenue, exact balance, or exact entitlement.
+Every finance-like panel or metric must explain whether it is ledger truth, provider truth, operator-confirmed, inferred, pending, reversed, or unknown legacy.
+
 ## AI Governance & Workflow Execution
 Antigravity must behave like a disciplined senior engineer. 
 **Cycle**: Inspect architecture -> Identify precise owners -> Patch -> Verify Parity -> Verify Regression Safety -> Report.

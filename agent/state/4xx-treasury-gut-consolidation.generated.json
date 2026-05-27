@@ -1,0 +1,32 @@
+{
+  "reportKey": "4xx-treasury-gut-consolidation",
+  "generatedAtUtc": "2026-05-27T06:07:05.034Z",
+  "route4xxClassesAudited": 12,
+  "highRiskRouteFamiliesAudited": 10,
+  "retryStormRisksReduced": [
+    "validation/auth/permission/not-found permanent errors are non-retryable by default",
+    "diagnostics roll up by route/method/status/class/actor/feature/source/hour"
+  ],
+  "treasuryBureausCreatedOrReused": 9,
+  "treasuryCanonicalOwners": [
+    "src/lib/platform-economy.ts",
+    "src/lib/math/gumdrop-ledger-math.ts",
+    "src/lib/math/creator-revenue-entitlement-math.ts",
+    "src/lib/commerce/transaction-source-of-funds-contract.ts"
+  ],
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "generatedArtifactsCompact": true,
+  "memoryEntriesAdded": 6,
+  "netAdditions": 2499,
+  "netDeletions": 171,
+  "scoreBefore": 76.61,
+  "scoreAfter": 76.61,
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "Adopt route-4xx-mitigation in high-risk routes only when those routes are touched for approved route work.",
+    "Route future finance panels through Treasury bureau ownership before adding new summaries."
+  ],
+  "currentHead": "ee6aa4618401cd53b9b98dcaa8226964e506711c",
+  "validationFailures": []
+}

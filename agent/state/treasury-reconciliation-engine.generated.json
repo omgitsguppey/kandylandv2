@@ -1,0 +1,20 @@
+{
+  "reportKey": "treasury-reconciliation-engine",
+  "generatedAtUtc": "2026-05-27T06:02:04.105Z",
+  "status": "pass",
+  "exports": [
+    "reconcileProviderReceiptsToLedger",
+    "reconcileWalletDisplayToLedger",
+    "reconcileGumdropSources",
+    "reconcileCreatorRevenueToEntitlements",
+    "reconcileTaskRewardsToLedger",
+    "reconcileRefundsAndReversals",
+    "classifyTreasuryException",
+    "buildTreasuryAuditFinding",
+    "explainTreasuryReconciliation"
+  ],
+  "paymentRuntimeChanged": false,
+  "gumdropMathChanged": false,
+  "validationFailures": [],
+  "currentHead": "ee6aa4618401cd53b9b98dcaa8226964e506711c"
+}

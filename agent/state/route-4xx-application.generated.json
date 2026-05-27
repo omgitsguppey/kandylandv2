@@ -1,0 +1,201 @@
+{
+  "reportKey": "route-4xx-application",
+  "generatedAtUtc": "2026-05-27T06:02:04.078Z",
+  "routeFamilies": [
+    {
+      "routeFamily": "analytics_ingest",
+      "routePatterns": [
+        "/api/analytics/ingest",
+        "/api/analytics/ingest-identified"
+      ],
+      "ownerSystem": "analytics",
+      "common4xxClasses": [
+        "validation_error",
+        "malformed_request",
+        "rate_limited"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "auth_navigation_session",
+      "routePatterns": [
+        "/api/auth/navigation-session",
+        "/api/user/register",
+        "/api/user/profile"
+      ],
+      "ownerSystem": "auth",
+      "common4xxClasses": [
+        "auth_required",
+        "validation_error",
+        "conflict"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "wallet_payment_package_selection",
+      "routePatterns": [
+        "/api/wallet/packages",
+        "/api/paypal/create",
+        "/api/paypal/capture"
+      ],
+      "ownerSystem": "wallet_payments",
+      "common4xxClasses": [
+        "validation_error",
+        "auth_required",
+        "permission_denied",
+        "conflict"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "drops_unlock",
+      "routePatterns": [
+        "/api/drops/unlock",
+        "/api/viewer/watch-session"
+      ],
+      "ownerSystem": "drops_unlock_watch",
+      "common4xxClasses": [
+        "auth_required",
+        "permission_denied",
+        "not_found",
+        "conflict",
+        "stale_client_state"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "checkin_tasks",
+      "routePatterns": [
+        "/api/checkin",
+        "/api/tasks/*"
+      ],
+      "ownerSystem": "tasks_rewards",
+      "common4xxClasses": [
+        "auth_required",
+        "validation_error",
+        "conflict",
+        "rate_limited"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "chat_attachments",
+      "routePatterns": [
+        "/api/chat/threads/*",
+        "/api/chat/attachments/*"
+      ],
+      "ownerSystem": "chat_media",
+      "common4xxClasses": [
+        "auth_required",
+        "permission_denied",
+        "not_found",
+        "validation_error"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "creator_relationships_subscriptions_drop_manager",
+      "routePatterns": [
+        "/api/creator/relationships",
+        "/api/creator/subscriptions",
+        "/api/creator/drops"
+      ],
+      "ownerSystem": "creator_monetization",
+      "common4xxClasses": [
+        "auth_required",
+        "permission_denied",
+        "validation_error",
+        "conflict"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "notifications_push_token_intent",
+      "routePatterns": [
+        "/api/notifications",
+        "/api/notifications/push-token"
+      ],
+      "ownerSystem": "notifications",
+      "common4xxClasses": [
+        "auth_required",
+        "validation_error",
+        "rate_limited",
+        "permanent_client_error"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "support_account_safety",
+      "routePatterns": [
+        "/api/support/*",
+        "/api/user/delete",
+        "/api/user/data"
+      ],
+      "ownerSystem": "support_account_safety",
+      "common4xxClasses": [
+        "auth_required",
+        "permission_denied",
+        "not_found",
+        "validation_error"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    },
+    {
+      "routeFamily": "admin_debug_admin_analytics",
+      "routePatterns": [
+        "/api/admin/debug",
+        "/api/admin/analytics"
+      ],
+      "ownerSystem": "admin_debug_analytics",
+      "common4xxClasses": [
+        "auth_required",
+        "permission_denied",
+        "validation_error",
+        "rate_limited"
+      ],
+      "diagnosticMode": "grouped_hourly_rollup",
+      "retryPolicy": "taxonomy_only",
+      "safeTelemetry": true,
+      "runtimeTouched": false
+    }
+  ],
+  "coveredFamilies": 10,
+  "paymentRuntimeChanged": false,
+  "gumdropRuntimeChanged": false,
+  "defaultDiagnosticMode": "grouped_hourly_rollup",
+  "generic500ClientErrorFindings": [],
+  "nextExactSteps": [
+    "Adopt route-4xx-mitigation in routes only when changing that route for another approved reason.",
+    "Keep payment and GumDrop success paths untouched."
+  ],
+  "status": "pass",
+  "currentHead": "ee6aa4618401cd53b9b98dcaa8226964e506711c",
+  "validationFailures": []
+}

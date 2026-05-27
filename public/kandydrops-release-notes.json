@@ -1,11 +1,69 @@
 {
-  "currentVersion": "1.5.19",
-  "betaReleaseCounter": 519,
+  "currentVersion": "1.5.20",
+  "betaReleaseCounter": 520,
   "channel": "beta",
-  "generatedAt": "2026-05-27T05:39:17.824Z",
-  "generatedAtUtc": "2026-05-27T05:39:17.824Z",
+  "generatedAt": "2026-05-27T05:58:43.113Z",
+  "generatedAtUtc": "2026-05-27T05:58:43.113Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.20",
+      "previousVersion": "1.5.19",
+      "betaReleaseCounter": 520,
+      "previousBetaReleaseCounter": 519,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(treasury): consolidate 4xx guardrails",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T05:58:43.113Z",
+      "generatedAt": "2026-05-27T05:58:43.113Z",
+      "committedAtUtc": "2026-05-27T05:58:43.113Z",
+      "generatedAtUtc": "2026-05-27T05:58:43.113Z",
+      "category": "Fixed",
+      "title": "Safer error handling and wallet truth guardrails",
+      "updatedAtUtc": "2026-05-27T05:58:43.113Z",
+      "summary": "Improved wallet and account reliability by making client-side errors safer to recover from and keeping finance displays tied to source-truthed ledger evidence.",
+      "userFacingTitle": "Safer error handling and wallet truth guardrails",
+      "surfaceCategory": "Wallet",
+      "bullets": [
+        "Improved handling for invalid, unauthorized, missing, conflicted, or rate-limited requests so the app avoids wasteful retry loops.",
+        "Added clearer source-truth guardrails for wallet, GumDrop, revenue, entitlement, reconciliation, and audit reporting.",
+        "Kept payment checkout behavior and GumDrop math unchanged while strengthening finance display safety."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added taxonomy and mitigation contracts so permanent client errors do not create retry storms.",
+        "Mapped Treasury bureaus to existing Platform Economy, GumDrop ledger, commerce, and creator entitlement owners.",
+        "Added reconciliation helpers that keep provider truth, ledger truth, inferred revenue, reversals, and unknown legacy money separate."
+      ],
+      "affectedSurfaces": [
+        "Route 4xx taxonomy",
+        "Route diagnostics rollup",
+        "Treasury owner map",
+        "GumDrop ledger reconciliation",
+        "Creator revenue confidence"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "AGENTS.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/index/known-pitfalls.json",
+        "src/lib/route-hardening/route-4xx-taxonomy.ts",
+        "src/lib/route-hardening/route-4xx-mitigation.ts",
+        "src/lib/route-hardening/route-4xx-application.ts",
+        "src/lib/treasury/treasury-structure-contract.ts",
+        "src/lib/treasury/treasury-consolidation-map.ts",
+        "src/lib/treasury/treasury-reconciliation-engine.ts",
+        "scripts/agent/4xx-treasury-validator-shared.ts",
+        "tests/unit/treasury-reconciliation-engine.spec.ts"
+      ],
+      "effectiveChangeCount": 3,
+      "excludedGeneratedChangeCount": 14,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.19",
       "previousVersion": "1.5.18",
@@ -1594,71 +1652,6 @@
         "tests/unit/canonical-math-authority-ledger.spec.ts"
       ],
       "effectiveChangeCount": 10,
-      "excludedGeneratedChangeCount": 2,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.95",
-      "previousVersion": "1.4.94",
-      "betaReleaseCounter": 495,
-      "previousBetaReleaseCounter": 494,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(integrity): lock product body wiring",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T08:10:00.000Z",
-      "generatedAt": "2026-05-26T08:10:00.000Z",
-      "committedAtUtc": "2026-05-26T08:10:00.000Z",
-      "generatedAtUtc": "2026-05-26T08:10:00.000Z",
-      "category": "Improved",
-      "title": "Product integrity lock",
-      "updatedAtUtc": "2026-05-26T08:10:00.000Z",
-      "summary": "Locked product integrity body map, central normalizer, interpretive brain, and wiring repair.",
-      "userFacingTitle": "Product integrity lock",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked product integrity body map, central normalizer, interpretive brain, and wiring repair.",
-        "Connected major product limbs to telemetry, metrics, debug, journey, and score.",
-        "Classified remaining gaps with owners and next actions."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a final Product integrity lock lane over the product body map, central normalizer, interpretive brain, and wiring repair artifacts.",
-        "Recorded body-system coverage, limb classifications, debug root-cause readiness, score dimensions, launch blockers, and exact next actions.",
-        "Kept runtime, provider, payment, GumDrop, navigation, and formal beta-gate evidence unchanged."
-      ],
-      "affectedSurfaces": [
-        "Product body map",
-        "Central normalizer",
-        "Product brain",
-        "Body system wiring repair",
-        "Admin Debug tracking summary",
-        "Beta score evidence",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/final-product-integrity-lock.generated.json",
-        "docs/agent-truth/final-product-integrity-lock.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-product-integrity-lock.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/product-integrity/body-system-wiring-repair.ts",
-        "src/lib/product-integrity/central-normalizer.ts",
-        "src/lib/product-integrity/final-product-integrity-lock.ts",
-        "src/lib/product-integrity/interpretive-brain.ts",
-        "src/lib/product-integrity/product-body-map.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-product-integrity-lock.spec.ts"
-      ],
-      "effectiveChangeCount": 16,
       "excludedGeneratedChangeCount": 2,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"

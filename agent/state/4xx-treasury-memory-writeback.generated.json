@@ -1,0 +1,12 @@
+{
+  "reportKey": "4xx-treasury-memory-writeback",
+  "generatedAtUtc": "2026-05-27T06:02:17.062Z",
+  "memorySources": [
+    "AGENTS.md",
+    "REPO_MEMORY_LEDGER.md",
+    "agent/index/known-pitfalls.json"
+  ],
+  "requiredLessons": 6,
+  "currentHead": "ee6aa4618401cd53b9b98dcaa8226964e506711c",
+  "validationFailures": []
+}

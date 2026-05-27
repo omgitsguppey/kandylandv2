@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.20 - 2026-05-27
+- Safer error handling and wallet truth guardrails
+- Improved handling for invalid, unauthorized, missing, conflicted, or rate-limited requests so the app avoids wasteful retry loops.
+- Added clearer source-truth guardrails for wallet, GumDrop, revenue, entitlement, reconciliation, and audit reporting.
+- Kept payment checkout behavior and GumDrop math unchanged while strengthening finance display safety.
+
 ## 1.5.19 - 2026-05-27
 - Test fixture QA refinement
 - Consolidated test fixtures, mock evidence classes, validators, and QA harness ownership.

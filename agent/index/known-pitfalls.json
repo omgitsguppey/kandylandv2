@@ -438,6 +438,43 @@
       ],
       "severity": "high",
       "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__4xx_treasury_retry_finance_drift",
+      "title": "4xx_treasury_retry_finance_drift",
+      "description": "4xx route errors and finance-like wallet/GumDrop/revenue/entitlement/cost logic can drift when client errors are treated as retryable failures or when a new ledger/revenue summary is added outside the canonical Treasury owner map.",
+      "symptom_pattern": "Validation, auth, permission, not-found, conflict, rate-limit, or permanent client errors create retry storms, duplicate diagnostics, or fake P1 runtime issues; finance panels mix provider truth, ledger truth, inferred revenue, and unknown legacy money.",
+      "affected_surfaces": [
+        "src/app/api/**",
+        "src/lib/route-hardening/**",
+        "src/lib/treasury/**",
+        "src/lib/platform-economy.ts",
+        "src/lib/math/gumdrop-ledger-math.ts",
+        "src/lib/math/creator-revenue-entitlement-math.ts",
+        "src/lib/commerce/**",
+        "agent/state/*.generated.json",
+        "docs/agent-truth/*.md"
+      ],
+      "prevention_rule": "Classify 4xx errors before fixing them. Validation, auth, permission, not found, conflict, rate limit, and permanent client errors must not be treated as retryable server failures. Never let 4xx diagnostics create retry storms, duplicate warning writes, or fake P1 runtime issues. Roll up repeated 4xx failures by route, error class, actor class, and hourly fingerprint. Before adding finance, wallet, GumDrop, revenue, transaction, entitlement, or cost logic, check the Treasury owner map. Do not create a new ledger, revenue summary, balance calculation, or source-of-funds rule outside the canonical Treasury structure. Treasury must separate appropriations, obligations, outlays, receipts, balances, entitlements, refunds, adjustments, reconciliation, and audit exceptions. Treasury reports must be compact, redacted, reconcilable, and confidence-labeled. Every finance-like panel or metric must explain whether it is ledger truth, provider truth, operator-confirmed, inferred, pending, reversed, or unknown legacy.",
+      "detection_hint": "Run check:route-4xx-taxonomy, check:route-4xx-mitigation, check:route-4xx-application, check:treasury-structure-contract, check:treasury-consolidation-map, check:treasury-reconciliation-engine, and check:4xx-treasury-gut-consolidation.",
+      "related_commands": [
+        "npm run check:route-4xx-taxonomy",
+        "npm run check:route-4xx-mitigation",
+        "npm run check:route-4xx-application",
+        "npm run check:treasury-structure-contract",
+        "npm run check:treasury-consolidation-map",
+        "npm run check:treasury-reconciliation-engine",
+        "npm run check:4xx-treasury-gut-consolidation"
+      ],
+      "related_helpers": [
+        "src/lib/route-hardening/route-4xx-taxonomy.ts",
+        "src/lib/route-hardening/route-4xx-mitigation.ts",
+        "src/lib/treasury/treasury-structure-contract.ts",
+        "src/lib/treasury/treasury-consolidation-map.ts",
+        "src/lib/treasury/treasury-reconciliation-engine.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
     }
   ]
 }

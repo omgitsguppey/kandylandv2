@@ -1,0 +1,125 @@
+{
+  "reportKey": "treasury-structure-contract",
+  "generatedAtUtc": "2026-05-27T06:02:17.081Z",
+  "status": "pass",
+  "bureauCount": 9,
+  "bureaus": [
+    {
+      "bureauId": "receipts",
+      "owner": "platform_economy",
+      "canonicalSource": [
+        "src/lib/platform-economy.ts",
+        "src/lib/server/platform-economy.ts",
+        "src/app/api/paypal/capture/route.ts"
+      ],
+      "debugLane": "admin_economy_treasury",
+      "costClass": "bounded_summary",
+      "privacyClass": "redacted_finance",
+      "validator": "check:treasury-structure-contract"
+    },
+    {
+      "bureauId": "ledger",
+      "owner": "gumdrop_ledger_math",
+      "canonicalSource": [
+        "src/lib/math/gumdrop-ledger-math.ts",
+        "src/lib/gumdrop-ledger.ts",
+        "src/lib/server/gumdrop-ledger.ts"
+      ],
+      "debugLane": "gumdrop_ledger",
+      "costClass": "runtime_critical",
+      "privacyClass": "private_user_finance",
+      "validator": "check:gumdrop-ledger-math"
+    },
+    {
+      "bureauId": "appropriations",
+      "owner": "platform_economy",
+      "canonicalSource": [
+        "src/lib/platform-economy.ts",
+        "src/lib/tasks/daily-task-reward-ledger.ts"
+      ],
+      "debugLane": "platform_economy_allocations",
+      "costClass": "bounded_summary",
+      "privacyClass": "admin_only_summary",
+      "validator": "check:platform-economy-commerce-controls"
+    },
+    {
+      "bureauId": "obligations",
+      "owner": "commerce",
+      "canonicalSource": [
+        "src/lib/commerce/transaction-source-of-funds-contract.ts",
+        "src/lib/commerce/purchase-journey-normalization.ts"
+      ],
+      "debugLane": "commerce_obligations",
+      "costClass": "bounded_summary",
+      "privacyClass": "redacted_finance",
+      "validator": "check:payment-module-symmetry"
+    },
+    {
+      "bureauId": "outlays",
+      "owner": "gumdrop_ledger_math",
+      "canonicalSource": [
+        "src/lib/math/gumdrop-ledger-math.ts",
+        "src/lib/commerce/unlock-rollup-reconciliation.ts"
+      ],
+      "debugLane": "gumdrop_outlays",
+      "costClass": "runtime_critical",
+      "privacyClass": "private_user_finance",
+      "validator": "check:gumdrop-ledger-math"
+    },
+    {
+      "bureauId": "entitlements",
+      "owner": "creator_entitlement",
+      "canonicalSource": [
+        "src/lib/math/creator-revenue-entitlement-math.ts",
+        "src/lib/creator-monetization/creator-entitlement-resolver.ts",
+        "src/lib/fan-pass/fan-pass-access-resolver.ts"
+      ],
+      "debugLane": "creator_entitlements",
+      "costClass": "runtime_critical",
+      "privacyClass": "private_user_finance",
+      "validator": "check:creator-revenue-entitlement-math"
+    },
+    {
+      "bureauId": "reconciliation",
+      "owner": "treasury_reconciliation",
+      "canonicalSource": [
+        "src/lib/treasury/treasury-reconciliation-engine.ts",
+        "src/lib/math/gumdrop-ledger-math.ts",
+        "src/lib/math/creator-revenue-entitlement-math.ts"
+      ],
+      "debugLane": "treasury_reconciliation",
+      "costClass": "source_only",
+      "privacyClass": "redacted_finance",
+      "validator": "check:treasury-reconciliation-engine"
+    },
+    {
+      "bureauId": "inspector_general",
+      "owner": "treasury_reconciliation",
+      "canonicalSource": [
+        "src/lib/treasury/treasury-reconciliation-engine.ts",
+        "src/lib/debug/debug-cockpit-batch22-commerce-truth.ts"
+      ],
+      "debugLane": "treasury_inspector_general",
+      "costClass": "source_only",
+      "privacyClass": "redacted_finance",
+      "validator": "check:treasury-reconciliation-engine"
+    },
+    {
+      "bureauId": "public_reporting",
+      "owner": "platform_economy",
+      "canonicalSource": [
+        "src/lib/platform-economy.ts",
+        "src/lib/admin-analytics-commerce-snapshot.ts"
+      ],
+      "debugLane": "admin_economy_reporting",
+      "costClass": "bounded_summary",
+      "privacyClass": "admin_only_summary",
+      "validator": "check:treasury-structure-contract"
+    }
+  ],
+  "validationFailures": [],
+  "nextExactSteps": [
+    "Keep route/payment runtime unchanged; wire future finance panels through this owner map."
+  ],
+  "currentHead": "ee6aa4618401cd53b9b98dcaa8226964e506711c"
+}

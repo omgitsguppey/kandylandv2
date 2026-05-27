@@ -1,0 +1,29 @@
+{
+  "reportKey": "route-4xx-taxonomy",
+  "generatedAtUtc": "2026-05-27T06:02:04.095Z",
+  "status": "pass",
+  "totalClasses": 12,
+  "retryableClasses": [
+    "rate_limited",
+    "stale_client_state"
+  ],
+  "nonRetryablePermanentClasses": [
+    "validation_error",
+    "auth_required",
+    "permission_denied",
+    "not_found",
+    "conflict",
+    "unsupported_method",
+    "malformed_request",
+    "permanent_client_error",
+    "suspicious_client_error",
+    "unsafe_unknown"
+  ],
+  "diagnosticMode": "summary_plus_hourly_rollup",
+  "validationFailures": [],
+  "nextExactSteps": [
+    "Use route-4xx-mitigation for shared retry and diagnostic decisions.",
+    "Map high-risk routes through route-4xx-application before changing route behavior."
+  ],
+  "currentHead": "ee6aa4618401cd53b9b98dcaa8226964e506711c"
+}

@@ -1,0 +1,15 @@
+{
+  "reportKey": "route-4xx-mitigation",
+  "generatedAtUtc": "2026-05-27T06:02:04.086Z",
+  "status": "pass",
+  "defaultWriteMode": "hourly_rollup",
+  "retryPolicy": "permanent_client_errors_do_not_retry",
+  "redaction": "no raw body, token, provider id, email, or payment id in diagnostic keys",
+  "validationFailures": [],
+  "topGuardrails": [
+    "4xx diagnostics are grouped by route, method, status, class, actor, feature, source, and hour.",
+    "Rate limits retry only after Retry-After/backoff.",
+    "Validation/auth/permission/not-found permanent errors do not retry by default."
+  ],
+  "currentHead": "ee6aa4618401cd53b9b98dcaa8226964e506711c"
+}
