@@ -1,21 +1,15 @@
 # Formal Evidence Status Ledger
 
 Artifact: `agent/state/formal-evidence-status-ledger.generated.json`
-Validator: `npm run check:formal-evidence-status-ledger`
 
-## Summary
-
-- Generated: `2026-05-27T00:29:28.493Z`
-- Current head: `724eec6ca6984fafca5707d1dd5556f2be9e4ef2`
-- Status: `pass`
-
-## Report
+- Generated: `2026-05-27T01:01:54.131Z`
+- Current head: `7747ca78ac19f78c396f9c5c50301347ce492a45`
 
 ```json
 {
   "reportKey": "formal-evidence-status-ledger",
-  "generatedAtUtc": "2026-05-27T00:29:28.493Z",
-  "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
+  "generatedAtUtc": "2026-05-27T01:01:54.131Z",
+  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
   "scoreDimensions": {
     "sourceHealth": 100,
     "runtimeHealth": 84.2,
@@ -49,24 +43,34 @@ Validator: `npm run check:formal-evidence-status-ledger`
       "whatItDoesNotProve": "It does not prove production traffic behavior."
     },
     {
-      "category": "runtime/provider smoke",
+      "category": "live route/runtime evidence",
       "status": "formal_missing",
-      "artifactPath": "agent/state/provider-smoke-evidence.generated.json + agent/state/runtime-smoke-evidence.generated.json",
+      "artifactPath": "agent/state/live-evidence-gate-replacement.generated.json + deployed route summary",
       "owner": "operator/runtime owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach redacted formal provider smoke and deployed runtime smoke artifacts before clearing this gate.",
-      "whatItDoesNotProve": "Source-backed runtime confidence and operator payment statements do not prove provider/runtime smoke."
+      "nextExactAction": "Connect redacted live route/runtime summaries for source_missing product systems.",
+      "whatItDoesNotProve": "Source-safe route harnesses and screenshots do not prove deployed runtime behavior."
     },
     {
-      "category": "admin truth/sample evidence",
+      "category": "external provider proof",
       "status": "formal_missing",
-      "artifactPath": "agent/state/admin-truth-redaction-packet.generated.json",
+      "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
+      "owner": "operator/provider owner",
+      "blocksBetaExit": true,
+      "blocksScoreOnly": false,
+      "nextExactAction": "Attach redacted formal provider proof for PayPal/provider flows without raw provider IDs.",
+      "whatItDoesNotProve": "Operator-confirmed revenue and live ledger summaries do not prove provider UI/webhook truth."
+    },
+    {
+      "category": "admin live truth/redacted sample evidence",
+      "status": "formal_missing",
+      "artifactPath": "agent/state/admin-truth-redaction-packet.generated.json + live admin summary",
       "owner": "operator/admin owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach a redacted production admin truth sample packet or keep the gate formal_missing.",
-      "whatItDoesNotProve": "Admin source samples do not prove production admin truth."
+      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; screenshots cannot clear this gate.",
+      "whatItDoesNotProve": "Admin source schema and screenshots do not prove production admin truth."
     },
     {
       "category": "debug/runtime evidence",
@@ -141,18 +145,8 @@ Validator: `npm run check:formal-evidence-status-ledger`
       "owner": "operator",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Operator captures final screenshots and confirms mobile/tablet/desktop visual states.",
-      "whatItDoesNotProve": "Codex source checks cannot replace final visual QA."
-    },
-    {
-      "category": "manual production smoke",
-      "status": "formal_missing",
-      "artifactPath": "operator-attached smoke packet",
-      "owner": "operator/runtime owner",
-      "blocksBetaExit": true,
-      "blocksScoreOnly": false,
-      "nextExactAction": "Run and attach redacted manual production smoke evidence after deploy readiness is approved.",
-      "whatItDoesNotProve": "Local route harness does not prove production runtime."
+      "nextExactAction": "Operator captures final screenshots only for nav overlap, clipping, unreadable text, responsive layout, and visual loading/empty/error states.",
+      "whatItDoesNotProve": "Visual QA does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys."
     },
     {
       "category": "external billing review",
@@ -167,24 +161,34 @@ Validator: `npm run check:formal-evidence-status-ledger`
   ],
   "remainingFormalEvidence": [
     {
-      "category": "runtime/provider smoke",
+      "category": "live route/runtime evidence",
       "status": "formal_missing",
-      "artifactPath": "agent/state/provider-smoke-evidence.generated.json + agent/state/runtime-smoke-evidence.generated.json",
+      "artifactPath": "agent/state/live-evidence-gate-replacement.generated.json + deployed route summary",
       "owner": "operator/runtime owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach redacted formal provider smoke and deployed runtime smoke artifacts before clearing this gate.",
-      "whatItDoesNotProve": "Source-backed runtime confidence and operator payment statements do not prove provider/runtime smoke."
+      "nextExactAction": "Connect redacted live route/runtime summaries for source_missing product systems.",
+      "whatItDoesNotProve": "Source-safe route harnesses and screenshots do not prove deployed runtime behavior."
     },
     {
-      "category": "admin truth/sample evidence",
+      "category": "external provider proof",
       "status": "formal_missing",
-      "artifactPath": "agent/state/admin-truth-redaction-packet.generated.json",
+      "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
+      "owner": "operator/provider owner",
+      "blocksBetaExit": true,
+      "blocksScoreOnly": false,
+      "nextExactAction": "Attach redacted formal provider proof for PayPal/provider flows without raw provider IDs.",
+      "whatItDoesNotProve": "Operator-confirmed revenue and live ledger summaries do not prove provider UI/webhook truth."
+    },
+    {
+      "category": "admin live truth/redacted sample evidence",
+      "status": "formal_missing",
+      "artifactPath": "agent/state/admin-truth-redaction-packet.generated.json + live admin summary",
       "owner": "operator/admin owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach a redacted production admin truth sample packet or keep the gate formal_missing.",
-      "whatItDoesNotProve": "Admin source samples do not prove production admin truth."
+      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; screenshots cannot clear this gate.",
+      "whatItDoesNotProve": "Admin source schema and screenshots do not prove production admin truth."
     },
     {
       "category": "cost review",
@@ -203,18 +207,8 @@ Validator: `npm run check:formal-evidence-status-ledger`
       "owner": "operator",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Operator captures final screenshots and confirms mobile/tablet/desktop visual states.",
-      "whatItDoesNotProve": "Codex source checks cannot replace final visual QA."
-    },
-    {
-      "category": "manual production smoke",
-      "status": "formal_missing",
-      "artifactPath": "operator-attached smoke packet",
-      "owner": "operator/runtime owner",
-      "blocksBetaExit": true,
-      "blocksScoreOnly": false,
-      "nextExactAction": "Run and attach redacted manual production smoke evidence after deploy readiness is approved.",
-      "whatItDoesNotProve": "Local route harness does not prove production runtime."
+      "nextExactAction": "Operator captures final screenshots only for nav overlap, clipping, unreadable text, responsive layout, and visual loading/empty/error states.",
+      "whatItDoesNotProve": "Visual QA does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys."
     },
     {
       "category": "external billing review",
@@ -230,11 +224,3 @@ Validator: `npm run check:formal-evidence-status-ledger`
   "validationFailures": []
 }
 ```
-
-## Evidence Boundary
-
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
-
-## Validation
-
-- Pass.

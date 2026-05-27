@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.12 - 2026-05-26
+- Live evidence gate replacement
+- Replaced broad manual beta gates with live evidence gates where telemetry and admin truth exist.
+- Limited manual visual QA to layout and responsive checks.
+- Separated live product evidence from external provider and billing proof.
+
 ## 1.5.11 - 2026-05-26
 - Final beta-exit closure
 - Resolved final security PR blockers and refreshed beta-exit evidence.

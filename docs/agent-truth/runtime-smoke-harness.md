@@ -1,21 +1,15 @@
 # Runtime Smoke Harness
 
 Artifact: `agent/state/runtime-smoke-harness.generated.json`
-Validator: `npm run check:runtime-smoke-harness`
 
-## Summary
-
-- Generated: `2026-05-26T21:08:49.571Z`
-- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
-- Status: `pass`
-
-## Report
+- Generated: `2026-05-27T00:58:45.414Z`
+- Current head: `7747ca78ac19f78c396f9c5c50301347ce492a45`
 
 ```json
 {
   "reportKey": "runtime-smoke-harness",
-  "generatedAtUtc": "2026-05-26T21:08:49.571Z",
-  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
+  "generatedAtUtc": "2026-05-27T00:58:45.414Z",
+  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
   "claimsDeployedRuntimeProof": false,
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -268,11 +262,3 @@ Validator: `npm run check:runtime-smoke-harness`
   "validationFailures": []
 }
 ```
-
-## Evidence Boundary
-
-This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
-
-## Validation
-
-- Pass.

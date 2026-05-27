@@ -1,121 +1,403 @@
 # User Journey Behavioral Intelligence
 
-Generated: 2026-05-25T08:24:06.598Z
-Status: pass
-Current head: e53968ae1b6975aa492461625f7fd76133493226
+Artifact: `agent/state/user-journey-behavioral-intelligence.generated.json`
 
-## Contract
+- Generated: `2026-05-27T00:55:34.822Z`
+- Current head: `7747ca78ac19f78c396f9c5c50301347ce492a45`
 
-- Journey events are normalized summaries, not raw telemetry payload dumps.
-- Each event keeps who, what, when, where, how, and how-long fields.
-- Identity confidence, session continuity, active duration, and privacy class remain explicit.
-- Payment/provider/chat/private content is redacted before behavioral intelligence receives data.
-- Behavioral intelligence receives compact batched summaries with low-importance firehose events dropped.
-- Core funnels are source-ready: landing/signup, signup/unwrap, wallet/payment, drop/watch, creator/Fan Pass/chat/follow, notifications, daily tasks, and chat outcomes.
-
-## Debug Lane
-
-- Label: User journey
-- Builder connected: true
-- Broken segments: 0
-- Missing next actions: 0
-- Top funnels source-ready: 8
-- Cost guard: batched_rollup
-
-## Score Impact
-
-| Dimension | Before | After | Status | Next action |
-| --- | ---: | ---: | --- | --- |
-| sourceHealth | 91.7 | 91.7 | target_met | No user journey score action needed for this dimension. |
-| runtimeHealth | 84.2 | 84.2 | target_met | No user journey score action needed for this dimension. |
-| evidenceCompleteness | 69.6 | 69.6 | below_target | Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence. |
-| freshness | 75.63 | 75.63 | below_target | Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence. |
-| costRisk | 42 | 42 | below_target | Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence. |
-| regressionRisk | 86 | 86 | target_met | No user journey score action needed for this dimension. |
-| overallHealthScore | 77.83 | 77.83 | below_target | Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence. |
-
-## Dirty Files
-
-- CHANGELOG.md: release_artifact_expected
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/behavior-math-verification.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/behavior-normalization-internals.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/behavior-task-telemetry-ui-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/behavioral-intelligence-snapshot-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-lifecycle-telemetry.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-cockpit-batch35-behavior-stack.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/experiment-rollout-registry-reconstruction.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/source-window-zero-shell-classifier.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/task-catalog-runtime-reconstruction.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/task-guidance-telemetry-contract.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/task-telemetry-mapping-reconstruction.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-parity-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-truth-recovery-formulas.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-journey-behavioral-intelligence.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/behavior-normalization-internals.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/behavior-task-telemetry-ui-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/behavioral-intelligence-snapshot-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-cockpit-batch35-behavior-stack.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/experiment-rollout-registry-reconstruction.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/source-window-zero-shell-classifier.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/task-catalog-runtime-reconstruction.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/task-guidance-telemetry-contract.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/task-telemetry-mapping-reconstruction.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/telemetry-truth-recovery-formulas.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/user-journey-behavioral-intelligence.md: documentation_artifact_expected
-- package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-behavior-normalization-internals.ts: validator_artifact_expected
-- scripts/agent/validate-behavior-task-telemetry-ui-cleanup.ts: validator_artifact_expected
-- scripts/agent/validate-behavioral-intelligence-snapshot-truth.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-debug-score-lock.ts: validator_artifact_expected
-- scripts/agent/validate-daily-task-lifecycle-telemetry.ts: validator_artifact_expected
-- scripts/agent/validate-debug-cockpit-batch35-behavior-stack.ts: validator_artifact_expected
-- scripts/agent/validate-experiment-rollout-registry-reconstruction.ts: validator_artifact_expected
-- scripts/agent/validate-source-window-zero-shell-classifier.ts: validator_artifact_expected
-- scripts/agent/validate-task-catalog-runtime-reconstruction.ts: validator_artifact_expected
-- scripts/agent/validate-task-telemetry-mapping-reconstruction.ts: validator_artifact_expected
-- scripts/agent/validate-telemetry-truth-recovery-formulas.ts: validator_artifact_expected
-- scripts/agent/validate-user-journey-behavioral-intelligence.ts: validator_artifact_expected
-- src/app/admin/debug/components/DebugAdvancedBehavior.tsx: real_source_change_needs_review
-- src/app/admin/debug/components/DebugAdvancedDrift.tsx: real_source_change_needs_review
-- src/app/admin/debug/components/DebugAdvancedExperiments.tsx: real_source_change_needs_review
-- src/app/admin/debug/components/DebugAdvancedTelemetry.tsx: real_source_change_needs_review
-- src/app/admin/debug/components/DebugAdvancedTruth.tsx: real_source_change_needs_review
-- src/app/admin/debug/components/DebugPrimitives.tsx: real_source_change_needs_review
-- src/app/api/admin/debug/route.ts: real_source_change_needs_review
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/telemetry-truth-recovery-formulas.ts: real_source_change_needs_review
-- src/lib/analytics/telemetry-truth-recovery-status.ts: real_source_change_needs_review
-- src/lib/behavioral/behavior-normalization-internals-contract.ts: real_source_change_needs_review
-- src/lib/behavioral/behavior-normalization-internals-engine.ts: real_source_change_needs_review
-- src/lib/behavioral/behavioral-intelligence-snapshot-contract.ts: real_source_change_needs_review
-- src/lib/behavioral/behavioral-intelligence-snapshot-status.ts: real_source_change_needs_review
-- src/lib/debug/source-window-zero-shell-classifier.ts: real_source_change_needs_review
-- src/lib/experiments/experiment-rollout-registry-contract.ts: real_source_change_needs_review
-- src/lib/experiments/experiment-rollout-registry-status.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- src/lib/tasks/task-catalog-coverage-contract.ts: real_source_change_needs_review
-- src/lib/tasks/task-catalog-coverage-engine.ts: real_source_change_needs_review
-- src/lib/tasks/task-runtime-sample-contract.ts: real_source_change_needs_review
-- src/lib/tasks/task-telemetry-mapping-contract.ts: real_source_change_needs_review
-- src/lib/tasks/task-telemetry-mapping-engine.ts: real_source_change_needs_review
-- tests/unit/behavior-normalization-internals.spec.ts: test_artifact_expected
-- tests/unit/behavior-task-telemetry-ui-cleanup.spec.ts: test_artifact_expected
-- tests/unit/behavioral-intelligence-snapshot-truth.spec.ts: test_artifact_expected
-- tests/unit/debug-cockpit-batch35-behavior-stack.spec.ts: test_artifact_expected
-- tests/unit/experiment-rollout-registry-reconstruction.spec.ts: test_artifact_expected
-- tests/unit/source-window-zero-shell-classifier.spec.ts: test_artifact_expected
-- tests/unit/task-catalog-runtime-reconstruction.spec.ts: test_artifact_expected
-- tests/unit/task-telemetry-mapping-reconstruction.spec.ts: test_artifact_expected
-- tests/unit/telemetry-truth-recovery-formulas.spec.ts: test_artifact_expected
-
-## Validation Failures
-
-- none
+```json
+{
+  "generatedAtUtc": "2026-05-27T00:55:34.822Z",
+  "reportKey": "user-journey-behavioral-intelligence",
+  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+  "status": "fail",
+  "productionReadsRequired": false,
+  "legacyMutationAllowed": false,
+  "fakeJourneysUsed": false,
+  "rawSensitivePayloadStored": false,
+  "scoreBefore": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "scoreAfter": {
+    "sourceHealth": 100,
+    "runtimeHealth": 84.2,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
+    "costRisk": 42,
+    "regressionRisk": 86,
+    "overallHealthScore": 85.34
+  },
+  "metrics": {
+    "sourceHealth": {
+      "before": 100,
+      "after": 100,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 84.2,
+      "after": 84.2,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
+    },
+    "evidenceCompleteness": {
+      "before": 84.6,
+      "after": 84.6,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
+    },
+    "freshness": {
+      "before": 91.88,
+      "after": 91.88,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
+    },
+    "costRisk": {
+      "before": 42,
+      "after": 42,
+      "target": 80,
+      "status": "below_target",
+      "nextExactAction": "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence."
+    },
+    "regressionRisk": {
+      "before": 86,
+      "after": 86,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
+    },
+    "overallHealthScore": {
+      "before": 85.34,
+      "after": 85.34,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
+    }
+  },
+  "coreFunnels": [
+    "landing_to_signup",
+    "signup_to_first_unwrap",
+    "wallet_to_checkout_to_payment",
+    "drop_view_to_unlock_to_watch",
+    "creator_profile_to_fan_pass_chat_follow",
+    "notification_prompt_to_permission",
+    "daily_task_to_reward",
+    "chat_open_to_message_outcome"
+  ],
+  "debugLane": {
+    "label": "User journey",
+    "journeyBuilderConnected": true,
+    "brokenJourneySegments": 0,
+    "missingNextActions": 0,
+    "topFunnelsSourceReady": 8,
+    "costGuardStatus": "batched_rollup",
+    "rawDetailsDefaultOpen": false,
+    "sourceOfTruth": "src/lib/behavioral/user-journey-builder.ts"
+  },
+  "sampleJourneyEvent": {
+    "journeyEventId": "journey:session_validator:validator:drop_watch_completed",
+    "eventId": "validator:drop_watch_completed",
+    "sessionId": "session_validator",
+    "linkedPersonId": "person_validator",
+    "actorKind": "signed_in_user",
+    "identityState": "logged_in_linked_guest",
+    "identityConfidence": "linked",
+    "timestamp": "2026-05-24T10:00:00.000Z",
+    "route": "/dashboard/viewer",
+    "surface": "viewer",
+    "featureId": "viewer",
+    "action": "watch_session_completed",
+    "objectType": "drop",
+    "objectId": "drop_validator",
+    "durationMs": 15000,
+    "activeMs": 12000,
+    "sourceEventName": "drop_watch_completed",
+    "previousJourneyEventId": null,
+    "nextExpectedActions": [
+      "drop_unlocked",
+      "wallet_opened"
+    ],
+    "conversionTag": "drop_watch_completed",
+    "failureTag": null,
+    "confidence": 0.95,
+    "privacyClass": "safe_summary"
+  },
+  "sessionSummary": {
+    "sessionId": "session_validator",
+    "linkedPersonId": "person_validator",
+    "startedAt": "2026-05-24T10:00:00.000Z",
+    "endedAt": "2026-05-24T10:00:15.000Z",
+    "totalJourneyEvents": 7,
+    "totalDurationMs": 39000,
+    "totalActiveMs": 36000,
+    "surfaces": [
+      "viewer",
+      "daily_checkin"
+    ],
+    "featureIds": [
+      "viewer",
+      "daily_checkin"
+    ],
+    "conversions": [
+      "drop_watch_completed",
+      "daily_task_rewarded"
+    ],
+    "failures": [],
+    "confidence": "linked",
+    "privacyClass": "private_content_redacted"
+  },
+  "personSummary": {
+    "linkedPersonId": "person_validator",
+    "sessionCount": 1,
+    "totalJourneyEvents": 7,
+    "totalActiveMs": 36000,
+    "topFunnels": [
+      "drop_view_to_unlock_to_watch",
+      "daily_task_to_reward",
+      "chat_open_to_message_outcome"
+    ],
+    "conversionTags": [
+      "drop_watch_completed",
+      "daily_task_rewarded"
+    ],
+    "failureTags": [],
+    "identityConfidence": "linked",
+    "privacyClass": "private_content_redacted"
+  },
+  "compactBehavioralInput": {
+    "storageMode": "compact_summary",
+    "rawFirehoseStored": false,
+    "costGuard": "batched_rollup",
+    "journeyEvents": [
+      {
+        "journeyEventId": "journey:session_validator:validator:drop_watch_completed",
+        "eventId": "validator:drop_watch_completed",
+        "sessionId": "session_validator",
+        "linkedPersonId": "person_validator",
+        "actorKind": "signed_in_user",
+        "identityState": "logged_in_linked_guest",
+        "identityConfidence": "linked",
+        "timestamp": "2026-05-24T10:00:00.000Z",
+        "route": "/dashboard/viewer",
+        "surface": "viewer",
+        "featureId": "viewer",
+        "action": "watch_session_completed",
+        "objectType": "drop",
+        "objectId": "drop_validator",
+        "durationMs": 15000,
+        "activeMs": 12000,
+        "sourceEventName": "drop_watch_completed",
+        "previousJourneyEventId": null,
+        "nextExpectedActions": [
+          "drop_unlocked",
+          "wallet_opened"
+        ],
+        "conversionTag": "drop_watch_completed",
+        "failureTag": null,
+        "confidence": 0.95,
+        "privacyClass": "safe_summary"
+      },
+      {
+        "journeyEventId": "journey:session_validator:validator:daily_task_reward_granted",
+        "eventId": "validator:daily_task_reward_granted",
+        "sessionId": "session_validator",
+        "linkedPersonId": "person_validator",
+        "actorKind": "signed_in_user",
+        "identityState": "logged_in_linked_guest",
+        "identityConfidence": "linked",
+        "timestamp": "2026-05-24T10:00:15.000Z",
+        "route": "/dashboard",
+        "surface": "daily_checkin",
+        "featureId": "daily_checkin",
+        "action": "daily_task_reward_granted",
+        "objectType": "task",
+        "objectId": "task_validator",
+        "durationMs": 4000,
+        "activeMs": 4000,
+        "sourceEventName": "daily_task_reward_granted",
+        "previousJourneyEventId": "journey:session_validator:validator:drop_watch_completed",
+        "nextExpectedActions": [
+          "daily_task_started",
+          "drop_preview_opened"
+        ],
+        "conversionTag": "daily_task_rewarded",
+        "failureTag": null,
+        "confidence": 0.8,
+        "privacyClass": "safe_summary"
+      },
+      {
+        "journeyEventId": "journey:session_validator:validator:daily_task_reward_granted",
+        "eventId": "validator:chat_private",
+        "sessionId": "session_validator",
+        "linkedPersonId": "person_validator",
+        "actorKind": "signed_in_user",
+        "identityState": "logged_in_linked_guest",
+        "identityConfidence": "linked",
+        "timestamp": "2026-05-24T10:00:15.000Z",
+        "route": "/dashboard",
+        "surface": "daily_checkin",
+        "featureId": "daily_checkin",
+        "action": "chat_message_sent",
+        "objectType": "chat",
+        "objectId": "thread_validator",
+        "durationMs": 4000,
+        "activeMs": 4000,
+        "sourceEventName": "chat_message_sent",
+        "previousJourneyEventId": "journey:session_validator:validator:drop_watch_completed",
+        "nextExpectedActions": [
+          "daily_task_started",
+          "drop_preview_opened"
+        ],
+        "conversionTag": "daily_task_rewarded",
+        "failureTag": null,
+        "confidence": 0.8,
+        "privacyClass": "private_content_redacted"
+      }
+    ],
+    "sessionSummaries": [
+      {
+        "sessionId": "session_validator",
+        "linkedPersonId": "person_validator",
+        "startedAt": "2026-05-24T10:00:00.000Z",
+        "endedAt": "2026-05-24T10:00:15.000Z",
+        "totalJourneyEvents": 3,
+        "totalDurationMs": 23000,
+        "totalActiveMs": 20000,
+        "surfaces": [
+          "viewer",
+          "daily_checkin"
+        ],
+        "featureIds": [
+          "viewer",
+          "daily_checkin"
+        ],
+        "conversions": [
+          "drop_watch_completed",
+          "daily_task_rewarded"
+        ],
+        "failures": [],
+        "confidence": "linked",
+        "privacyClass": "private_content_redacted"
+      }
+    ],
+    "personSummaries": [
+      {
+        "linkedPersonId": "person_validator",
+        "sessionCount": 1,
+        "totalJourneyEvents": 3,
+        "totalActiveMs": 20000,
+        "topFunnels": [
+          "drop_view_to_unlock_to_watch",
+          "daily_task_to_reward",
+          "chat_open_to_message_outcome"
+        ],
+        "conversionTags": [
+          "drop_watch_completed",
+          "daily_task_rewarded"
+        ],
+        "failureTags": [],
+        "identityConfidence": "linked",
+        "privacyClass": "private_content_redacted"
+      }
+    ],
+    "droppedLowImportanceCount": 4,
+    "containsRawSensitivePayload": false
+  },
+  "dirtyFiles": [
+    {
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "unrelated_agent_context_file_to_ignore"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-release-exit-readiness-packet.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/real-usage-confidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-release-exit-readiness-packet.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "package.json",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-live-evidence-gate-replacement.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-readiness/final-release-readiness.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/release-readiness/live-evidence-gate-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/final-release-exit-readiness-packet.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
+      "classification": "unsafe_unknown"
+    }
+  ],
+  "validationFailures": [
+    "dirty files are unclassified."
+  ],
+  "nextExactSteps": [
+    "Feed normalized journey summaries from canonical event facts and rollups only.",
+    "Keep raw payment/provider/chat/private payloads out of behavioral storage.",
+    "Batch journey summaries and drop low-importance hover/scroll firehose events."
+  ]
+}
+```

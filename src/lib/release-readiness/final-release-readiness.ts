@@ -3,6 +3,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { classifyGeneratedArtifactFromGit } from "../agent-score/generated-artifact-version-policy";
+import {
+  buildLiveEvidenceGateReplacementReport,
+} from "./live-evidence-resolver";
+import type { LiveEvidenceGateReplacementReport } from "./live-evidence-gate-contract";
 
 export type ReleaseReadinessReportKind =
   | "current-head-release-reconciliation"
@@ -13,7 +17,8 @@ export type ReleaseReadinessReportKind =
   | "operator-final-qa-packet"
   | "release-rollback-incident-readiness"
   | "release-notes-integrity"
-  | "final-release-exit-readiness-packet";
+  | "final-release-exit-readiness-packet"
+  | "live-evidence-gate-replacement";
 
 export type EvidenceStatus =
   | "formal_passed"
@@ -295,6 +300,14 @@ export type FinalReleaseExitReadinessPacketReport = {
   operatorFinalQaPacket: { status: "operator_pending"; surfaceCount: number };
   rollbackIncidentReadiness: { status: "source_ready_operator_contact_required"; missingKillSwitches: number };
   releaseNotesIntegrity: { status: "pass" | "warning"; currentVersion: string };
+  liveEvidenceGateReplacement: {
+    status: "split_ready";
+    broadManualGatesAfter: string[];
+    sourceMissingLiveEvidenceCount: number;
+    visualOnlyManualGateCount: number;
+    externalProviderGateCount: number;
+    externalBillingGateCount: number;
+  };
   costRiskStatus: { score: number; status: "below80_external_review_required" | "meets_source_target"; nextExactAction: string };
   evidenceCompletenessStatus: { score: number; status: "below80_requires_formal_evidence" | "meets_source_target"; nextExactAction: string };
   freshnessStatus: { score: number; status: "below80_refresh_required" | "meets_source_target"; nextExactAction: string };
@@ -315,7 +328,8 @@ export type ReleaseReadinessReport =
   | OperatorFinalQaPacketReport
   | ReleaseRollbackIncidentReadinessReport
   | ReleaseNotesIntegrityReport
-  | FinalReleaseExitReadinessPacketReport;
+  | FinalReleaseExitReadinessPacketReport
+  | LiveEvidenceGateReplacementReport;
 
 export const RELEASE_READINESS_OUTPUTS: Record<ReleaseReadinessReportKind, { statePath: string; docPath: string; checkScript: string }> = {
   "current-head-release-reconciliation": {
@@ -362,6 +376,11 @@ export const RELEASE_READINESS_OUTPUTS: Record<ReleaseReadinessReportKind, { sta
     statePath: "agent/state/final-release-exit-readiness-packet.generated.json",
     docPath: "docs/agent-truth/final-release-exit-readiness-packet.md",
     checkScript: "npm run check:final-release-exit-readiness-packet",
+  },
+  "live-evidence-gate-replacement": {
+    statePath: "agent/state/live-evidence-gate-replacement.generated.json",
+    docPath: "docs/agent-truth/live-evidence-gate-replacement.md",
+    checkScript: "npm run check:live-evidence-gate-replacement",
   },
 };
 
@@ -458,17 +477,17 @@ function currentDirtyFiles(root: string) {
 
 export function classifyReleaseDirtyFile(path: string): DirtyFileClassification {
   const normalized = path.replace(/\\/gu, "/");
-  if (/^agent\/state\/(current-head-release-reconciliation|formal-evidence-status-ledger|open-pr-dependency-hygiene|runtime-smoke-harness|admin-truth-redaction-packet|operator-final-qa-packet|release-rollback-incident-readiness|release-notes-integrity|final-release-exit-readiness-packet|public-beta-score|current-beta-exit-status|overnight-beta-readiness-lock)\.generated\.json$/u.test(normalized)) {
+  if (/^agent\/state\/(current-head-release-reconciliation|formal-evidence-status-ledger|open-pr-dependency-hygiene|runtime-smoke-harness|admin-truth-redaction-packet|operator-final-qa-packet|release-rollback-incident-readiness|release-notes-integrity|final-release-exit-readiness-packet|live-evidence-gate-replacement|public-beta-score|current-beta-exit-status|overnight-beta-readiness-lock)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
-  if (/^docs\/agent-truth\/(current-head-release-reconciliation|formal-evidence-status-ledger|open-pr-dependency-hygiene|runtime-smoke-harness|admin-truth-redaction-packet|operator-final-qa-packet|release-rollback-incident-readiness|release-notes-integrity|final-release-exit-readiness-packet|current-beta-exit-status|overnight-beta-readiness-lock)\.md$/u.test(normalized)) {
+  if (/^docs\/agent-truth\/(current-head-release-reconciliation|formal-evidence-status-ledger|open-pr-dependency-hygiene|runtime-smoke-harness|admin-truth-redaction-packet|operator-final-qa-packet|release-rollback-incident-readiness|release-notes-integrity|final-release-exit-readiness-packet|live-evidence-gate-replacement|current-beta-exit-status|overnight-beta-readiness-lock)\.md$/u.test(normalized)) {
     return "release_artifact_expected";
   }
-  if (/^scripts\/agent\/(release-readiness-report-runner|validate-(current-head-release-reconciliation|formal-evidence-status-ledger|open-pr-dependency-hygiene|runtime-smoke-harness|admin-truth-redaction-packet|operator-final-qa-packet|release-rollback-incident-readiness|release-notes-integrity|final-release-exit-readiness-packet))\.ts$/u.test(normalized)) {
+  if (/^scripts\/agent\/(release-readiness-report-runner|validate-(current-head-release-reconciliation|formal-evidence-status-ledger|open-pr-dependency-hygiene|runtime-smoke-harness|admin-truth-redaction-packet|operator-final-qa-packet|release-rollback-incident-readiness|release-notes-integrity|final-release-exit-readiness-packet|live-evidence-gate-replacement))\.ts$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (/^src\/lib\/release-readiness\/.+\.ts$/u.test(normalized)) return "real_source_change_needs_review";
-  if (/^tests\/unit\/(current-head-release-reconciliation|formal-evidence-status-ledger|open-pr-dependency-hygiene|runtime-smoke-harness|admin-truth-redaction-packet|operator-final-qa-packet|release-rollback-incident-readiness|release-notes-integrity|final-release-exit-readiness-packet)\.spec\.ts$/u.test(normalized)) {
+  if (/^tests\/unit\/(current-head-release-reconciliation|formal-evidence-status-ledger|open-pr-dependency-hygiene|runtime-smoke-harness|admin-truth-redaction-packet|operator-final-qa-packet|release-rollback-incident-readiness|release-notes-integrity|final-release-exit-readiness-packet|live-evidence-gate-replacement)\.spec\.ts$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (normalized === "package.json") return "release_artifact_expected";
@@ -646,6 +665,8 @@ export function buildReleaseReadinessContext(root: string, input: Omit<Partial<R
 export function buildFormalEvidenceCategories(context: ReleaseReadinessContext): FormalEvidenceCategory[] {
   const artifactByPath = new Map(context.artifacts.map((artifact) => [artifact.artifactPath, artifact]));
   const from = (path: string) => artifactByPath.get(path);
+  const liveEvidence = buildLiveEvidenceGateReplacementReport(context);
+  const sourceMissingLiveEvidenceCount = liveEvidence.sourceMissingLiveEvidence.length;
   return [
     {
       category: "source safety",
@@ -670,24 +691,36 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       whatItDoesNotProve: "It does not prove production traffic behavior.",
     },
     {
-      category: "runtime/provider smoke",
+      category: "live route/runtime evidence",
       status: "formal_missing",
-      artifactPath: "agent/state/provider-smoke-evidence.generated.json + agent/state/runtime-smoke-evidence.generated.json",
+      artifactPath: "agent/state/live-evidence-gate-replacement.generated.json + deployed route summary",
       owner: "operator/runtime owner",
       blocksBetaExit: true,
       blocksScoreOnly: false,
-      nextExactAction: "Attach redacted formal provider smoke and deployed runtime smoke artifacts before clearing this gate.",
-      whatItDoesNotProve: "Source-backed runtime confidence and operator payment statements do not prove provider/runtime smoke.",
+      nextExactAction: sourceMissingLiveEvidenceCount > 0
+        ? "Connect redacted live route/runtime summaries for source_missing product systems."
+        : "Attach deployed route/runtime summary evidence before clearing this gate.",
+      whatItDoesNotProve: "Source-safe route harnesses and screenshots do not prove deployed runtime behavior.",
     },
     {
-      category: "admin truth/sample evidence",
+      category: "external provider proof",
       status: "formal_missing",
-      artifactPath: "agent/state/admin-truth-redaction-packet.generated.json",
+      artifactPath: "agent/state/provider-smoke-evidence.generated.json",
+      owner: "operator/provider owner",
+      blocksBetaExit: true,
+      blocksScoreOnly: false,
+      nextExactAction: "Attach redacted formal provider proof for PayPal/provider flows without raw provider IDs.",
+      whatItDoesNotProve: "Operator-confirmed revenue and live ledger summaries do not prove provider UI/webhook truth.",
+    },
+    {
+      category: "admin live truth/redacted sample evidence",
+      status: "formal_missing",
+      artifactPath: "agent/state/admin-truth-redaction-packet.generated.json + live admin summary",
       owner: "operator/admin owner",
       blocksBetaExit: true,
       blocksScoreOnly: false,
-      nextExactAction: "Attach a redacted production admin truth sample packet or keep the gate formal_missing.",
-      whatItDoesNotProve: "Admin source samples do not prove production admin truth.",
+      nextExactAction: "Attach a redacted live admin truth summary or keep admin truth source_missing; screenshots cannot clear this gate.",
+      whatItDoesNotProve: "Admin source schema and screenshots do not prove production admin truth.",
     },
     {
       category: "debug/runtime evidence",
@@ -762,18 +795,8 @@ export function buildFormalEvidenceCategories(context: ReleaseReadinessContext):
       owner: "operator",
       blocksBetaExit: true,
       blocksScoreOnly: false,
-      nextExactAction: "Operator captures final screenshots and confirms mobile/tablet/desktop visual states.",
-      whatItDoesNotProve: "Codex source checks cannot replace final visual QA.",
-    },
-    {
-      category: "manual production smoke",
-      status: "formal_missing",
-      artifactPath: "operator-attached smoke packet",
-      owner: "operator/runtime owner",
-      blocksBetaExit: true,
-      blocksScoreOnly: false,
-      nextExactAction: "Run and attach redacted manual production smoke evidence after deploy readiness is approved.",
-      whatItDoesNotProve: "Local route harness does not prove production runtime.",
+      nextExactAction: "Operator captures final screenshots only for nav overlap, clipping, unreadable text, responsive layout, and visual loading/empty/error states.",
+      whatItDoesNotProve: "Visual QA does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys.",
     },
     {
       category: "external billing review",
@@ -898,8 +921,8 @@ export function validateFormalEvidenceStatusLedgerReport(report: FormalEvidenceS
     if (!category.whatItDoesNotProve) failures.push("evidence category lacks whatItDoesNotProve.");
     if (category.blocksBetaExit && !category.nextExactAction) failures.push("blocker lacks nextExactAction.");
     if (/runtime|provider/u.test(category.category) && category.status === "formal_passed" && /source|operator/iu.test(category.whatItDoesNotProve)) failures.push("formal gate passes from source-only evidence.");
-    if (category.category === "runtime/provider smoke" && category.status !== "formal_missing") failures.push("operator-confirmed evidence is mislabeled formal provider proof.");
-    if (category.category === "admin truth/sample evidence" && category.status !== "formal_missing") failures.push("admin source evidence is mislabeled production admin truth.");
+    if (category.category === "external provider proof" && category.status !== "formal_missing") failures.push("operator-confirmed evidence is mislabeled formal provider proof.");
+    if (category.category === "admin live truth/redacted sample evidence" && category.status !== "formal_missing") failures.push("admin source evidence is mislabeled production admin truth.");
   }
   return Array.from(new Set(failures));
 }
@@ -1121,17 +1144,22 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
   const qa = buildOperatorFinalQaPacketReport(context);
   const rollback = buildReleaseRollbackIncidentReadinessReport(context);
   const notes = buildReleaseNotesIntegrityReport(context);
+  const liveEvidence = buildLiveEvidenceGateReplacementReport(context);
   const remainingFormalEvidence = formal.filter((category) => category.blocksBetaExit || category.status === "formal_missing").map((category) => category.category);
   const costScore = context.scoreDimensions.costRisk ?? 0;
   const evidenceScore = context.scoreDimensions.evidenceCompleteness ?? 0;
   const freshnessScore = context.scoreDimensions.freshness ?? 0;
   const blockerClassifications = context.launchBlockers.map((blocker) => ({
     blocker,
-    classification: /runtime|provider|admin|truth|sample/iu.test(blocker) ? "formal_evidence_required" : "external_review_required",
-    nextExactAction: /runtime|provider/iu.test(blocker)
-      ? "Attach formal provider smoke and deployed runtime smoke evidence."
+    classification: /runtime|provider/iu.test(blocker)
+      ? "split_live_runtime_and_external_provider_required"
       : /admin|truth|sample/iu.test(blocker)
-        ? "Attach a redacted production admin truth sample packet."
+        ? "live_admin_truth_or_redacted_sample_required"
+        : "external_review_required",
+    nextExactAction: /runtime|provider/iu.test(blocker)
+      ? "Attach deployed live route/runtime evidence where available and formal provider proof for provider flows."
+      : /admin|truth|sample/iu.test(blocker)
+        ? "Attach a redacted live admin truth summary or classify the source as source_missing."
         : "Classify and close the release blocker through its owner lane.",
   }));
   const betaExitReady = false;
@@ -1158,6 +1186,14 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
     operatorFinalQaPacket: { status: "operator_pending", surfaceCount: qa.surfaces.length },
     rollbackIncidentReadiness: { status: "source_ready_operator_contact_required", missingKillSwitches: rollback.featureFlagsAndKillSwitches.filter((entry) => entry.status === "missing_kill_switch").length },
     releaseNotesIntegrity: { status: notes.validationFailures.length === 0 ? "pass" : "warning", currentVersion: notes.currentVersion },
+    liveEvidenceGateReplacement: {
+      status: "split_ready",
+      broadManualGatesAfter: liveEvidence.broadManualGatesAfter,
+      sourceMissingLiveEvidenceCount: liveEvidence.sourceMissingLiveEvidence.length,
+      visualOnlyManualGateCount: liveEvidence.visualOnlyManualGatesRemaining.length,
+      externalProviderGateCount: liveEvidence.externalProviderGatesRemaining.length,
+      externalBillingGateCount: liveEvidence.externalBillingGatesRemaining.length,
+    },
     costRiskStatus: {
       score: costScore,
       status: costScore < 80 ? "below80_external_review_required" : "meets_source_target",
@@ -1174,8 +1210,8 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
       nextExactAction: freshnessScore < 80 ? "Refresh stale required artifacts through their owning validators." : "Keep current-head artifacts fresh after this commit.",
     },
     remainingManualItems: [
-      "operator-final visual QA",
-      "manual production smoke",
+      "visual-only operator QA",
+      "source_missing live evidence lanes",
       "external billing review",
       ...(context.openPrs.length > 0 ? ["open PR owner review"] : []),
     ],
@@ -1183,12 +1219,12 @@ export function buildFinalReleaseExitReadinessPacketReport(context: ReleaseReadi
     remainingCostReview: costScore < 80 ? ["external billing review"] : ["external billing review still required for proof separation"],
     remainingOpenPrs: context.openPrs,
     nextExactSteps: [
-      "Attach formal provider smoke evidence.",
-      "Attach deployed runtime smoke evidence.",
-      "Attach redacted production admin truth sample evidence.",
+      "Connect redacted live evidence sources for source_missing product systems.",
+      "Attach formal provider proof for external PayPal/provider flows.",
+      "Attach redacted live admin truth summary or production admin truth sample evidence.",
       "Complete external billing review.",
       context.openPrs.length > 0 ? "Review/cherry-pick/defer/close all open PRs." : "Keep open PR list empty or explicitly deferred before beta-exit signoff.",
-      "Operator completes final visual QA packet.",
+      "Operator completes final visual-only QA packet for layout and responsive checks.",
     ],
     validationFailures: [],
   };
@@ -1205,6 +1241,9 @@ export function validateFinalReleaseExitReadinessPacketReport(report: FinalRelea
   if (!report.operatorFinalQaPacket || report.operatorFinalQaPacket.surfaceCount === 0) failures.push("operator QA missing.");
   if (!report.rollbackIncidentReadiness) failures.push("rollback plan missing.");
   if (!report.adminTruthRedactionPacket) failures.push("admin truth packet missing.");
+  if (!report.liveEvidenceGateReplacement) failures.push("live evidence gate replacement missing.");
+  if (report.remainingManualItems.some((item) => /manual production smoke/iu.test(item))) failures.push("manual production smoke remains broad instead of split by evidence class.");
+  if (report.remainingManualItems.some((item) => /operator-final visual QA/iu.test(item))) failures.push("operator-final visual QA is not limited to visual-only checks.");
   if (report.releaseNotesIntegrity.status !== "pass") failures.push("release notes stale.");
   if (report.costRiskStatus.score < 80 && !report.costRiskStatus.nextExactAction) failures.push("cost risk below80 lacks exact reason/action.");
   if (report.evidenceCompletenessStatus.score < 80 && !report.evidenceCompletenessStatus.nextExactAction) failures.push("evidence completeness below80 lacks exact reason/action.");
@@ -1231,6 +1270,8 @@ export function buildReleaseReadinessReport(kind: ReleaseReadinessReportKind, co
       return buildReleaseNotesIntegrityReport(context);
     case "final-release-exit-readiness-packet":
       return buildFinalReleaseExitReadinessPacketReport(context);
+    case "live-evidence-gate-replacement":
+      return buildLiveEvidenceGateReplacementReport(context);
   }
 }
 

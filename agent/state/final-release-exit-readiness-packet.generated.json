@@ -1,7 +1,7 @@
 {
   "reportKey": "final-release-exit-readiness-packet",
-  "generatedAtUtc": "2026-05-27T00:30:19.477Z",
-  "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
+  "generatedAtUtc": "2026-05-27T01:04:06.098Z",
+  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
   "scoreBefore": 85.34,
   "scoreAfter": 85.34,
   "scoreDimensions": {
@@ -22,13 +22,13 @@
   "blockerClassifications": [
     {
       "blocker": "Runtime/provider smoke: Runtime unverified",
-      "classification": "formal_evidence_required",
-      "nextExactAction": "Attach formal provider smoke and deployed runtime smoke evidence."
+      "classification": "split_live_runtime_and_external_provider_required",
+      "nextExactAction": "Attach deployed live route/runtime evidence where available and formal provider proof for provider flows."
     },
     {
       "blocker": "Admin truth/sample evidence: Ready with smoke required",
-      "classification": "formal_evidence_required",
-      "nextExactAction": "Attach a redacted production admin truth sample packet."
+      "classification": "live_admin_truth_or_redacted_sample_required",
+      "nextExactAction": "Attach a redacted live admin truth summary or classify the source as source_missing."
     }
   ],
   "formalEvidenceLedger": [
@@ -55,24 +55,34 @@
       "whatItDoesNotProve": "It does not prove production traffic behavior."
     },
     {
-      "category": "runtime/provider smoke",
+      "category": "live route/runtime evidence",
       "status": "formal_missing",
-      "artifactPath": "agent/state/provider-smoke-evidence.generated.json + agent/state/runtime-smoke-evidence.generated.json",
+      "artifactPath": "agent/state/live-evidence-gate-replacement.generated.json + deployed route summary",
       "owner": "operator/runtime owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach redacted formal provider smoke and deployed runtime smoke artifacts before clearing this gate.",
-      "whatItDoesNotProve": "Source-backed runtime confidence and operator payment statements do not prove provider/runtime smoke."
+      "nextExactAction": "Connect redacted live route/runtime summaries for source_missing product systems.",
+      "whatItDoesNotProve": "Source-safe route harnesses and screenshots do not prove deployed runtime behavior."
     },
     {
-      "category": "admin truth/sample evidence",
+      "category": "external provider proof",
       "status": "formal_missing",
-      "artifactPath": "agent/state/admin-truth-redaction-packet.generated.json",
+      "artifactPath": "agent/state/provider-smoke-evidence.generated.json",
+      "owner": "operator/provider owner",
+      "blocksBetaExit": true,
+      "blocksScoreOnly": false,
+      "nextExactAction": "Attach redacted formal provider proof for PayPal/provider flows without raw provider IDs.",
+      "whatItDoesNotProve": "Operator-confirmed revenue and live ledger summaries do not prove provider UI/webhook truth."
+    },
+    {
+      "category": "admin live truth/redacted sample evidence",
+      "status": "formal_missing",
+      "artifactPath": "agent/state/admin-truth-redaction-packet.generated.json + live admin summary",
       "owner": "operator/admin owner",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Attach a redacted production admin truth sample packet or keep the gate formal_missing.",
-      "whatItDoesNotProve": "Admin source samples do not prove production admin truth."
+      "nextExactAction": "Attach a redacted live admin truth summary or keep admin truth source_missing; screenshots cannot clear this gate.",
+      "whatItDoesNotProve": "Admin source schema and screenshots do not prove production admin truth."
     },
     {
       "category": "debug/runtime evidence",
@@ -147,18 +157,8 @@
       "owner": "operator",
       "blocksBetaExit": true,
       "blocksScoreOnly": false,
-      "nextExactAction": "Operator captures final screenshots and confirms mobile/tablet/desktop visual states.",
-      "whatItDoesNotProve": "Codex source checks cannot replace final visual QA."
-    },
-    {
-      "category": "manual production smoke",
-      "status": "formal_missing",
-      "artifactPath": "operator-attached smoke packet",
-      "owner": "operator/runtime owner",
-      "blocksBetaExit": true,
-      "blocksScoreOnly": false,
-      "nextExactAction": "Run and attach redacted manual production smoke evidence after deploy readiness is approved.",
-      "whatItDoesNotProve": "Local route harness does not prove production runtime."
+      "nextExactAction": "Operator captures final screenshots only for nav overlap, clipping, unreadable text, responsive layout, and visual loading/empty/error states.",
+      "whatItDoesNotProve": "Visual QA does not prove auth, wallet, payments, drops, tasks, chat, notifications, telemetry, runtime, or journeys."
     },
     {
       "category": "external billing review",
@@ -199,7 +199,20 @@
   },
   "releaseNotesIntegrity": {
     "status": "pass",
-    "currentVersion": "1.5.11"
+    "currentVersion": "1.5.12"
+  },
+  "liveEvidenceGateReplacement": {
+    "status": "split_ready",
+    "broadManualGatesAfter": [
+      "visual-only operator QA",
+      "external provider proof",
+      "external billing review",
+      "source_missing live evidence lanes"
+    ],
+    "sourceMissingLiveEvidenceCount": 5,
+    "visualOnlyManualGateCount": 1,
+    "externalProviderGateCount": 1,
+    "externalBillingGateCount": 1
   },
   "costRiskStatus": {
     "score": 42,
@@ -217,16 +230,16 @@
     "nextExactAction": "Keep current-head artifacts fresh after this commit."
   },
   "remainingManualItems": [
-    "operator-final visual QA",
-    "manual production smoke",
+    "visual-only operator QA",
+    "source_missing live evidence lanes",
     "external billing review"
   ],
   "remainingFormalEvidence": [
-    "runtime/provider smoke",
-    "admin truth/sample evidence",
+    "live route/runtime evidence",
+    "external provider proof",
+    "admin live truth/redacted sample evidence",
     "cost review",
     "operator-final visual QA",
-    "manual production smoke",
     "external billing review"
   ],
   "remainingCostReview": [
@@ -234,12 +247,12 @@
   ],
   "remainingOpenPrs": [],
   "nextExactSteps": [
-    "Attach formal provider smoke evidence.",
-    "Attach deployed runtime smoke evidence.",
-    "Attach redacted production admin truth sample evidence.",
+    "Connect redacted live evidence sources for source_missing product systems.",
+    "Attach formal provider proof for external PayPal/provider flows.",
+    "Attach redacted live admin truth summary or production admin truth sample evidence.",
     "Complete external billing review.",
     "Keep open PR list empty or explicitly deferred before beta-exit signoff.",
-    "Operator completes final visual QA packet."
+    "Operator completes final visual-only QA packet for layout and responsive checks."
   ],
   "validationFailures": []
 }

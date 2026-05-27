@@ -1,34 +1,34 @@
 {
-  "generatedAtUtc": "2026-05-25T08:24:06.598Z",
+  "generatedAtUtc": "2026-05-27T00:55:34.822Z",
   "reportKey": "user-journey-behavioral-intelligence",
-  "currentHead": "e53968ae1b6975aa492461625f7fd76133493226",
-  "status": "pass",
+  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+  "status": "fail",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeJourneysUsed": false,
   "rawSensitivePayloadStored": false,
   "scoreBefore": {
-    "sourceHealth": 91.7,
+    "sourceHealth": 100,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 75.63,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 77.83
+    "overallHealthScore": 85.34
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
+    "sourceHealth": 100,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 75.63,
+    "evidenceCompleteness": 84.6,
+    "freshness": 91.88,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 77.83
+    "overallHealthScore": 85.34
   },
   "metrics": {
     "sourceHealth": {
-      "before": 91.7,
-      "after": 91.7,
+      "before": 100,
+      "after": 100,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No user journey score action needed for this dimension."
@@ -41,18 +41,18 @@
       "nextExactAction": "No user journey score action needed for this dimension."
     },
     "evidenceCompleteness": {
-      "before": 69.6,
-      "after": 69.6,
+      "before": 84.6,
+      "after": 84.6,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence."
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
     },
     "freshness": {
-      "before": 75.63,
-      "after": 75.63,
+      "before": 91.88,
+      "after": 91.88,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence."
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
     },
     "costRisk": {
       "before": 42,
@@ -69,11 +69,11 @@
       "nextExactAction": "No user journey score action needed for this dimension."
     },
     "overallHealthScore": {
-      "before": 77.83,
-      "after": 77.83,
+      "before": 85.34,
+      "after": 85.34,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Resolve formal beta score gates outside user journey summaries; do not fake journey activity or runtime evidence."
+      "status": "target_met",
+      "nextExactAction": "No user journey score action needed for this dimension."
     }
   },
   "coreFunnels": [
@@ -315,124 +315,32 @@
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/behavior-math-verification.generated.json",
+      "path": "agent/state/event-liveness-audit.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/behavior-normalization-internals.generated.json",
+      "path": "agent/state/final-release-exit-readiness-packet.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/behavior-task-telemetry-ui-cleanup.generated.json",
+      "path": "agent/state/live-evidence-gate-replacement.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/behavioral-intelligence-snapshot-truth.generated.json",
+      "path": "agent/state/real-usage-confidence.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "path": "docs/agent-truth/event-liveness-audit.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "path": "docs/agent-truth/final-release-exit-readiness-packet.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/debug-cockpit-batch35-behavior-stack.generated.json",
+      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
       "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/experiment-rollout-registry-reconstruction.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/source-window-zero-shell-classifier.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/task-catalog-runtime-reconstruction.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/task-guidance-telemetry-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/task-telemetry-mapping-reconstruction.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-parity-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-truth-recovery-formulas.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-journey-behavioral-intelligence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/behavior-normalization-internals.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/behavior-task-telemetry-ui-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/behavioral-intelligence-snapshot-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-cockpit-batch35-behavior-stack.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/experiment-rollout-registry-reconstruction.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/source-window-zero-shell-classifier.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/task-catalog-runtime-reconstruction.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/task-guidance-telemetry-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/task-telemetry-mapping-reconstruction.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-truth-recovery-formulas.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/user-journey-behavioral-intelligence.md",
-      "classification": "documentation_artifact_expected"
     },
     {
       "path": "package.json",
@@ -443,120 +351,8 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-behavior-normalization-internals.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-behavior-task-telemetry-ui-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-behavioral-intelligence-snapshot-truth.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-daily-task-lifecycle-telemetry.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-debug-cockpit-batch35-behavior-stack.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-experiment-rollout-registry-reconstruction.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-source-window-zero-shell-classifier.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-task-catalog-runtime-reconstruction.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-task-telemetry-mapping-reconstruction.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-telemetry-truth-recovery-formulas.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-user-journey-behavioral-intelligence.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedExperiments.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/admin/debug/components/DebugPrimitives.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/api/admin/debug/route.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/telemetry-truth-recovery-formulas.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/telemetry-truth-recovery-status.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/behavior-normalization-internals-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/behavior-normalization-internals-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/behavioral-intelligence-snapshot-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/behavioral-intelligence-snapshot-status.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/source-window-zero-shell-classifier.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/experiments/experiment-rollout-registry-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/experiments/experiment-rollout-registry-status.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-live-evidence-gate-replacement.ts",
+      "classification": "unsafe_unknown"
     },
     {
       "path": "src/lib/release-notes/public-release-notes.ts",
@@ -567,63 +363,29 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/tasks/task-catalog-coverage-contract.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "src/lib/release-readiness/final-release-readiness.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/tasks/task-catalog-coverage-engine.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "src/lib/release-readiness/live-evidence-gate-contract.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/tasks/task-runtime-sample-contract.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/tasks/task-telemetry-mapping-contract.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "tests/unit/final-release-exit-readiness-packet.spec.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/tasks/task-telemetry-mapping-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/behavior-normalization-internals.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/behavior-task-telemetry-ui-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/behavioral-intelligence-snapshot-truth.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/debug-cockpit-batch35-behavior-stack.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/experiment-rollout-registry-reconstruction.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/source-window-zero-shell-classifier.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/task-catalog-runtime-reconstruction.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/task-telemetry-mapping-reconstruction.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/telemetry-truth-recovery-formulas.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
+      "classification": "unsafe_unknown"
     }
   ],
-  "validationFailures": [],
+  "validationFailures": [
+    "dirty files are unclassified."
+  ],
   "nextExactSteps": [
     "Feed normalized journey summaries from canonical event facts and rollups only.",
     "Keep raw payment/provider/chat/private payloads out of behavioral storage.",

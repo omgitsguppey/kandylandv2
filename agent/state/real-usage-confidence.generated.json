@@ -1,8 +1,8 @@
 {
   "reportKey": "real-usage-confidence",
-  "generatedAtUtc": "2026-05-24T05:05:51.183Z",
-  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
-  "sourceCommit": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "generatedAtUtc": "2026-05-27T00:55:32.698Z",
+  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+  "sourceCommit": "7747ca78ac19f78c396f9c5c50301347ce492a45",
   "status": "source_ready_real_usage_confidence",
   "passed": true,
   "productionReadsRequired": false,
