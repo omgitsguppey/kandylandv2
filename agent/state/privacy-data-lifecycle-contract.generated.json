@@ -1,0 +1,11 @@
+{
+  "reportKey": "privacy-data-lifecycle-contract",
+  "generatedAtUtc": "2026-05-27T06:46:48.337Z",
+  "status": "pass",
+  "privacyClassesMapped": 13,
+  "objectsMapped": 14,
+  "behavioralDataPoliciesMapped": 1,
+  "rawSensitiveLeaksPrevented": 6,
+  "validationFailures": [],
+  "currentHead": "c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f"
+}

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.22 - 2026-05-27
+- Privacy data lifecycle consolidation
+- Consolidated privacy, consent, data export, delete retention, admin redaction, and support account safety policy.
+- Added system memory rules for privacy/data lifecycle discipline.
+- Prevented raw sensitive data from leaking through exports, admin summaries, or debug artifacts.
+
 ## 1.5.21 - 2026-05-27
 - Deep 4xx route mitigation
 - Deepened 4xx mitigation across route params, stale links, bots, auth drift, and client retry loops.

@@ -558,6 +558,13 @@ When fixing 4xx, check both sides: the API route and the client surface/link/dee
 Do not convert expected 4xx into 500s or hide them. Expected 4xx should be cheap, grouped, non-retryable, and user-readable.
 A route returning 404 for deleted, expired, private, or unavailable content should include a safe reason class and recovery action, not raw missing-data silence.
 
+## Privacy Data Lifecycle Rules
+Before adding telemetry, analytics, behavioral intelligence, admin debug, chat, media, notification, or journey tracking, check the canonical privacy/data lifecycle policy. Do not collect, store, export, or display data unless the consent and privacy class allow it.
+Consent denied does not mean "track nothing." It means only allowed operational/security/minimal analytics may be collected according to the privacy policy. Deep behavioral tracking requires explicit allowed state.
+Delete account, data export, support/report issue, and admin debug must all use the same redaction and retention policy. Do not create one-off redaction or deletion logic inside routes or components.
+Behavioral/user journey records must have privacy class, retention class, export eligibility, delete eligibility, and redaction policy. Unknown legacy data must not be exported as exact user truth.
+Never use manual screenshots or admin panels to expose raw sensitive data. Redacted summaries are the default. Raw drilldown requires explicit admin permission and audit reason.
+
 ## AI Governance & Workflow Execution
 Antigravity must behave like a disciplined senior engineer. 
 **Cycle**: Inspect architecture -> Identify precise owners -> Patch -> Verify Parity -> Verify Regression Safety -> Report.

@@ -1,0 +1,13 @@
+{
+  "reportKey": "privacy-data-memory-writeback",
+  "generatedAtUtc": "2026-05-27T06:46:56.740Z",
+  "memorySources": [
+    "AGENTS.md",
+    "REPO_MEMORY_LEDGER.md",
+    "agent/index/known-pitfalls.json",
+    "Codex ad_hoc notes"
+  ],
+  "requiredLessons": 5,
+  "currentHead": "c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f",
+  "validationFailures": []
+}

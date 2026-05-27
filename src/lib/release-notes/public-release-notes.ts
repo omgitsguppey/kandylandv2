@@ -1,13 +1,72 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.21",
-  "betaReleaseCounter": 521,
+  "currentVersion": "1.5.22",
+  "betaReleaseCounter": 522,
   "channel": "beta",
-  "generatedAt": "2026-05-27T06:25:00.000Z",
-  "generatedAtUtc": "2026-05-27T06:25:00.000Z",
+  "generatedAt": "2026-05-27T12:00:00.000Z",
+  "generatedAtUtc": "2026-05-27T12:00:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.22",
+      "previousVersion": "1.5.21",
+      "betaReleaseCounter": 522,
+      "previousBetaReleaseCounter": 521,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(privacy): consolidate data lifecycle",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T12:00:00.000Z",
+      "generatedAt": "2026-05-27T12:00:00.000Z",
+      "committedAtUtc": "2026-05-27T12:00:00.000Z",
+      "generatedAtUtc": "2026-05-27T12:00:00.000Z",
+      "category": "Fixed",
+      "title": "Privacy data lifecycle consolidation",
+      "updatedAtUtc": "2026-05-27T12:00:00.000Z",
+      "summary": "Consolidated privacy, consent, export, delete, redaction, and support account-safety policy so sensitive data stays redacted and lifecycle decisions use one source of truth.",
+      "userFacingTitle": "Stronger privacy and data lifecycle controls",
+      "surfaceCategory": "Privacy & security",
+      "bullets": [
+        "Consolidated privacy, consent, data export, delete retention, admin redaction, and support account safety policy.",
+        "Added system memory rules for privacy/data lifecycle discipline.",
+        "Prevented raw sensitive data from leaking through exports, admin summaries, or debug artifacts."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added canonical privacy classes, consent classes, retention classes, export eligibility, delete eligibility, and admin visibility policy.",
+        "Delegated consent interpretation to the existing consent tracking policy while clarifying denied-consent operational and security behavior.",
+        "Added compact validators, artifacts, and memory writeback for privacy data lifecycle discipline."
+      ],
+      "affectedSurfaces": [
+        "Privacy data lifecycle",
+        "Consent interpretation",
+        "Data export policy",
+        "Delete account retention",
+        "Admin redaction and drilldown",
+        "Support account safety"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "AGENTS.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/index/known-pitfalls.json",
+        "src/lib/privacy-data/privacy-data-lifecycle-contract.ts",
+        "src/lib/privacy-data/consent-interpreter.ts",
+        "src/lib/privacy-data/data-export-contract.ts",
+        "src/lib/privacy-data/delete-account-retention-policy.ts",
+        "src/lib/privacy-data/admin-redaction-drilldown-policy.ts",
+        "src/lib/privacy-data/support-account-safety-contract.ts",
+        "scripts/agent/privacy-data-validator-shared.ts",
+        "tests/unit/privacy-data-lifecycle-contract.spec.ts"
+      ],
+      "effectiveChangeCount": 6,
+      "excludedGeneratedChangeCount": 16,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.21",
       "previousVersion": "1.5.20",
@@ -1596,66 +1655,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/canonical-math-ledger.spec.ts"
       ],
       "effectiveChangeCount": 13,
-      "excludedGeneratedChangeCount": 2,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.97",
-      "previousVersion": "1.4.96",
-      "betaReleaseCounter": 497,
-      "previousBetaReleaseCounter": 496,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(math): normalize count dedupe",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T08:45:00.000Z",
-      "generatedAt": "2026-05-26T08:45:00.000Z",
-      "committedAtUtc": "2026-05-26T08:45:00.000Z",
-      "generatedAtUtc": "2026-05-26T08:45:00.000Z",
-      "category": "Improved",
-      "title": "Count deduplication normalization",
-      "updatedAtUtc": "2026-05-26T08:45:00.000Z",
-      "summary": "Normalized global, user, creator, and legacy count deduplication.",
-      "userFacingTitle": "Count deduplication normalization",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Normalized global, user, creator, and legacy count deduplication.",
-        "Prevented linked guest/user and retry events from inflating metrics.",
-        "Added count formula references and debug explanations."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Aligned global/user summary dedupe keys with the canonical count normalizer fallback order: eventId, dedupeKey, then session/event/object/timestamp bucket.",
-        "Added validator and unit coverage for linked guest/user suppression, legacy buckets, replay suppression, formula references, and timestamp-bucket fallback keys.",
-        "Kept payment runtime, GumDrop math, production data, deploys, provider calls, and navigation unchanged."
-      ],
-      "affectedSurfaces": [
-        "Count deduplication normalizer",
-        "Global/user dedupe engine",
-        "Behavioral event fact normalization",
-        "Count dedupe debug evidence",
-        "Beta score evidence",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/count-deduplication-normalization.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/count-deduplication-normalization.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-count-deduplication-normalization.ts",
-        "src/lib/analytics/global-user-dedupe-contract.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/count-deduplication-normalization.spec.ts"
-      ],
-      "effectiveChangeCount": 12,
       "excludedGeneratedChangeCount": 2,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"

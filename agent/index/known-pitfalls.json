@@ -17,6 +17,46 @@
   ],
   "pitfalls": [
     {
+      "stable_id": "pitfall__privacy_data_lifecycle_drift",
+      "title": "privacy_data_lifecycle_drift",
+      "description": "Telemetry, behavioral intelligence, admin debug, chat, media, notification, support, export, or delete-account code can drift into one-off privacy and redaction logic.",
+      "symptom_pattern": "A route, component, validator, or generated report collects, stores, exports, deletes, or displays user data without the canonical privacy/data lifecycle policy.",
+      "affected_surfaces": [
+        "src/lib/privacy-data/**",
+        "src/lib/privacy/**",
+        "src/lib/analytics/**",
+        "src/lib/behavioral/**",
+        "src/lib/debug/**",
+        "src/lib/notifications/**",
+        "src/lib/chat**",
+        "src/lib/media/**",
+        "src/app/api/**/support*",
+        "src/app/api/**/export*",
+        "src/app/api/**/delete*"
+      ],
+      "prevention_rule": "Before adding telemetry, analytics, behavioral intelligence, admin debug, chat, media, notification, or journey tracking, check the canonical privacy/data lifecycle policy. Consent denied does not mean track nothing; allowed operational/security/minimal analytics may still be collected, while deep behavioral tracking requires explicit allowed state. Delete account, data export, support/report issue, and admin debug must share the same redaction and retention policy. Behavioral/user journey records must have privacy class, retention class, export eligibility, delete eligibility, and redaction policy. Redacted summaries are default; Raw drilldown requires explicit admin permission and audit reason.",
+      "detection_hint": "Run check:privacy-data-lifecycle-contract, check:consent-interpreter-consolidation, check:data-export-canonicalization, check:delete-account-retention-policy, check:admin-redaction-drilldown-policy, check:support-account-safety-consolidation, and check:privacy-data-memory-writeback.",
+      "related_commands": [
+        "npm run check:privacy-data-lifecycle-contract",
+        "npm run check:consent-interpreter-consolidation",
+        "npm run check:data-export-canonicalization",
+        "npm run check:delete-account-retention-policy",
+        "npm run check:admin-redaction-drilldown-policy",
+        "npm run check:support-account-safety-consolidation",
+        "npm run check:privacy-data-memory-writeback"
+      ],
+      "related_helpers": [
+        "src/lib/privacy-data/privacy-data-lifecycle-contract.ts",
+        "src/lib/privacy-data/consent-interpreter.ts",
+        "src/lib/privacy-data/data-export-contract.ts",
+        "src/lib/privacy-data/delete-account-retention-policy.ts",
+        "src/lib/privacy-data/admin-redaction-drilldown-policy.ts",
+        "src/lib/privacy-data/support-account-safety-contract.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
+    },
+    {
       "stable_id": "pitfall__stale_lockfile_drift",
       "title": "stale_lockfile_drift",
       "description": "Package manifest changes can drift from tracked lockfiles and break frozen-lockfile or deployment paths.",

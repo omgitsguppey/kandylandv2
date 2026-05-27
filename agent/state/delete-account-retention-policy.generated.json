@@ -1,0 +1,9 @@
+{
+  "reportKey": "delete-account-retention-policy",
+  "generatedAtUtc": "2026-05-27T06:46:52.489Z",
+  "status": "pass",
+  "deleteRetentionStagesMapped": 12,
+  "retentionTargetsMapped": 11,
+  "validationFailures": [],
+  "currentHead": "c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f"
+}

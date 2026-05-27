@@ -1,0 +1,8 @@
+{
+  "reportKey": "admin-redaction-drilldown-policy",
+  "generatedAtUtc": "2026-05-27T06:46:53.916Z",
+  "status": "pass",
+  "adminRedactionRulesAdded": 7,
+  "validationFailures": [],
+  "currentHead": "c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f"
+}

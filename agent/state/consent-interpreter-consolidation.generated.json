@@ -1,0 +1,9 @@
+{
+  "reportKey": "consent-interpreter-consolidation",
+  "generatedAtUtc": "2026-05-27T06:46:49.967Z",
+  "status": "pass",
+  "consentRulesConsolidated": 6,
+  "delegatesTo": "src/lib/privacy/consent-tracking-policy.ts",
+  "validationFailures": [],
+  "currentHead": "c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f"
+}

@@ -1,0 +1,35 @@
+{
+  "reportKey": "privacy-data-lifecycle-gut-consolidation",
+  "generatedAtUtc": "2026-05-27T06:46:31.851Z",
+  "status": "pass",
+  "privacyClassesMapped": 14,
+  "consentRulesConsolidated": 6,
+  "exportSectionsMapped": 15,
+  "deleteRetentionStagesMapped": 12,
+  "adminRedactionRulesAdded": 7,
+  "supportCategoriesMapped": 12,
+  "rawSensitiveLeaksPrevented": [
+    "provider/payment identifiers fingerprinted",
+    "push tokens excluded from exports and admin summaries",
+    "private media URLs and storage paths hidden",
+    "chat content hidden by default",
+    "unknown legacy data marked for review instead of exact export"
+  ],
+  "behavioralDataPoliciesMapped": [
+    "denied consent blocks behavioral journey use",
+    "unknown consent defaults to minimal non-behavioral use",
+    "accepted cookies map through existing consent tracking policy"
+  ],
+  "memoryEntriesAdded": 5,
+  "netAdditions": 1451,
+  "netDeletions": 160,
+  "scoreBefore": 76.61,
+  "scoreAfter": 76.61,
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "When touching export/delete/support routes, import privacy-data contracts instead of creating route-local redaction logic.",
+    "When adding behavioral or journey events, classify privacy, consent, retention, export, and delete policy first."
+  ],
+  "currentHead": "c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f",
+  "validationFailures": []
+}
