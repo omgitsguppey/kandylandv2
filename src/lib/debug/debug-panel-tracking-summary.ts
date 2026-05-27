@@ -6,6 +6,7 @@ import {
   summarizeActionableActivitySignals,
 } from "@/lib/debug/actionable-signal-filter";
 import { buildEventLivenessSummary } from "@/lib/analytics/event-liveness-engine";
+import { buildAnalyticsPanelHydrationReport } from "@/lib/admin-analytics/panel-hydration-resolver";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
 import { buildChatAdminTelemetrySummaryLane } from "@/lib/chat/chat-telemetry-contract";
 import { buildDailyTaskDebugLane } from "@/lib/tasks/daily-task-contract";
@@ -49,6 +50,7 @@ export const DEBUG_TRACKING_SUMMARY_LANE_IDS = [
   "sql_database_parity",
   "event_translation_bridge",
   "event_liveness",
+  "analytics_panel_hydration",
   "person_metrics_hydration",
   "user_management",
   "testing_coverage",
@@ -155,6 +157,7 @@ const TRACKING_GROUPS = [
   "sql_database_parity",
   "event_translation_bridge",
   "event_liveness",
+  "analytics_panel_hydration",
   "person_metrics_hydration",
   "user_management",
   "testing_coverage",
@@ -394,6 +397,19 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     : toNumber(eventLivenessLane.expectedLiveEvents) > 0
       ? "live"
       : "unknown";
+  const analyticsPanelHydration = input.analyticsPanelHydration?.debugLane ?? buildAnalyticsPanelHydrationReport({
+    eventLivenessAudit: eventLiveness,
+    personMetricsHydration: input.personMetricsHydration,
+  }).debugLane;
+  const analyticsPanelHydrationWarnings = toNumber(analyticsPanelHydration.sourceMissing)
+    + toNumber(analyticsPanelHydration.materializerMissing)
+    + toNumber(analyticsPanelHydration.bridgeMissing)
+    + toNumber(analyticsPanelHydration.broken);
+  const analyticsPanelHydrationStatus = analyticsPanelHydrationWarnings > 0
+    ? "degraded"
+    : toNumber(analyticsPanelHydration.hydrated) > 0
+      ? "live"
+      : "source_ready_collecting";
   const personHydration = input.personMetricsHydration?.debugLane ?? {};
   const personHydrationGaps = toNumber(personHydration.gaps);
   const personHydrationMapped = toNumber(personHydration.personMetricsMapped);
@@ -1010,6 +1026,20 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       criticalCount: 0,
       warningCount: eventLivenessWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#event-liveness",
+    }),
+    makeLane({
+      id: "analytics_panel_hydration",
+      label: "Analytics panel hydration",
+      trackingSystem: "admin_analytics_panel_hydration",
+      sourceOwner: "admin_analytics",
+      sourceOfTruth: "src/lib/admin-analytics/panel-hydration-resolver.ts",
+      status: analyticsPanelHydrationStatus,
+      severity: severityFromCounts(0, analyticsPanelHydrationWarnings, analyticsPanelHydrationStatus),
+      scoreImpact: analyticsPanelHydrationWarnings > 0 ? "medium" : "none",
+      primarySignal: `Panels=${toNumber(analyticsPanelHydration.totalPanels)}; hydrated=${toNumber(analyticsPanelHydration.hydrated)}; collecting=${toNumber(analyticsPanelHydration.collecting)}; stale=${toNumber(analyticsPanelHydration.stale)}; sourceMissing=${toNumber(analyticsPanelHydration.sourceMissing)}; materializerMissing=${toNumber(analyticsPanelHydration.materializerMissing)}; bridgeMissing=${toNumber(analyticsPanelHydration.bridgeMissing)}; externalRequired=${toNumber(analyticsPanelHydration.externalRequired)}; broken=${toNumber(analyticsPanelHydration.broken)}.`,
+      criticalCount: 0,
+      warningCount: analyticsPanelHydrationWarnings,
+      drilldownTarget: "/admin/debug?tab=advanced#analytics-panel-hydration",
     }),
     makeLane({
       id: "person_metrics_hydration",

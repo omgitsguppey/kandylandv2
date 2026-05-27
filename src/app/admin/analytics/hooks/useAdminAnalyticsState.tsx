@@ -50,6 +50,7 @@ import {
 } from "@/lib/admin-analytics-return-cadence";
 import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-audience-snapshot";
 import { buildAdminAnalyticsSourceHierarchy } from "@/lib/analytics/admin-analytics-source-hierarchy";
+import { resolveAllPanelHydration } from "@/lib/admin-analytics/panel-hydration-resolver";
 import { buildAdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-commerce-snapshot";
 import { buildAdminAnalyticsContentConversionModel } from "@/lib/admin-analytics-content-conversion";
 import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
@@ -3152,6 +3153,109 @@ const { user } = useAuth();
     notificationFunnelRange,
     notificationFunnelOverride,
   );
+  const panelHydration = useMemo(
+    () => resolveAllPanelHydration({
+      runtimeSignals: [
+        {
+          panelId: "traffic_overview",
+          hasData: historicalHasSignals,
+          sourceLoaded: Boolean(historicalResponse),
+          lastSeenAt: historicalUpdatedAtMs ? new Date(historicalUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "active_users",
+          hasData: liveRealtime.totalActive > 0 || liveRealtime.activeUsers.length > 0,
+          sourceLoaded: Boolean(effectiveLiveResponse),
+          lastSeenAt: liveUpdatedAtMs ? new Date(liveUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "new_users_signups",
+          hasData: historicalOnboardingModel.starts > 0 || authBreakdown.length > 0,
+          sourceLoaded: Boolean(historicalResponse),
+          lastSeenAt: historicalUpdatedAtMs ? new Date(historicalUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "returning_users",
+          hasData: returnCadenceSegments.length > 0,
+          sourceLoaded: Boolean(returnCadenceData ?? historicalResponse),
+          lastSeenAt: historicalUpdatedAtMs ? new Date(historicalUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "journey_funnel",
+          hasData: Object.values(journeyFunnelMetrics).some((value) => Number(value) > 0),
+          sourceLoaded: Boolean(historicalResponse),
+          lastSeenAt: historicalUpdatedAtMs ? new Date(historicalUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "drop_opens",
+          hasData: topDrops.length > 0 || contentConversionItems.length > 0,
+          sourceLoaded: Boolean(historicalResponse),
+          lastSeenAt: historicalUpdatedAtMs ? new Date(historicalUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "watch_time",
+          hasData: viewerDrilldownInsights.length > 0 || watchDepthTagBuckets.length > 0,
+          sourceLoaded: Boolean(viewerDrilldownData ?? historicalResponse),
+          lastSeenAt: viewerDrilldownGeneratedAtMs ? new Date(viewerDrilldownGeneratedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "wallet_opens",
+          hasData: packagePerformanceItems.length > 0 || recentCommerceFeedItems.length > 0,
+          sourceLoaded: Boolean(commerceSnapshotData ?? historicalResponse),
+          lastSeenAt: historicalUpdatedAtMs ? new Date(historicalUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "task_starts",
+          hasData: dailyTaskPipelineItems.length > 0,
+          sourceLoaded: Boolean(dailyTaskPipelineData ?? historicalResponse),
+          lastSeenAt: historicalUpdatedAtMs ? new Date(historicalUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "notification_prompts",
+          hasData: notificationFunnelItems.length > 0 || notificationActionItems.length > 0,
+          sourceLoaded: Boolean(notificationFunnelData ?? historicalResponse),
+          lastSeenAt: historicalUpdatedAtMs ? new Date(historicalUpdatedAtMs).toISOString() : null,
+        },
+        {
+          panelId: "realtime_health",
+          hasData: liveRealtime.feedStatus === "polled" || liveRealtime.feedStatus === "partial",
+          sourceLoaded: Boolean(effectiveLiveResponse),
+          lastSeenAt: liveUpdatedAtMs ? new Date(liveUpdatedAtMs).toISOString() : null,
+          error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null,
+        },
+      ],
+    }),
+    [
+      historicalHasSignals,
+      historicalResponse,
+      historicalUpdatedAtMs,
+      liveRealtime.totalActive,
+      liveRealtime.activeUsers,
+      liveRealtime.feedStatus,
+      liveRealtime.feedDetail,
+      effectiveLiveResponse,
+      liveUpdatedAtMs,
+      historicalOnboardingModel.starts,
+      authBreakdown,
+      returnCadenceSegments,
+      returnCadenceData,
+      journeyFunnelMetrics,
+      topDrops,
+      contentConversionItems,
+      viewerDrilldownInsights,
+      watchDepthTagBuckets,
+      viewerDrilldownData,
+      viewerDrilldownGeneratedAtMs,
+      packagePerformanceItems,
+      recentCommerceFeedItems,
+      commerceSnapshotData,
+      dailyTaskPipelineItems,
+      dailyTaskPipelineData,
+      notificationFunnelItems,
+      notificationActionItems,
+      notificationFunnelData,
+    ],
+  );
 
   const applyViewerFilter = () => {
     setViewerUserFilter(viewerUserDraft.trim());
@@ -3182,7 +3286,7 @@ const { user } = useAuth();
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
     clearAllFilters, clearViewerFilter,
     showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, visibleDegradedCopy,
-    adminAnalyticsSourceHierarchy,
+    adminAnalyticsSourceHierarchy, panelHydration,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals, authOutcomeModel,
     authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,

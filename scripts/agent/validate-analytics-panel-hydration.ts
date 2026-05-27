@@ -1,0 +1,176 @@
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+
+import {
+  buildAnalyticsPanelHydrationReport,
+  validateAnalyticsPanelHydrationReport,
+} from "@/lib/admin-analytics/panel-hydration-resolver";
+import { buildLivePanelEvidenceReport } from "@/lib/release-readiness/live-panel-evidence-resolver";
+
+const ROOT = process.cwd();
+const REPORT_PATH = "agent/state/analytics-panel-hydration.generated.json";
+const DOC_PATH = "docs/agent-truth/analytics-panel-hydration.md";
+
+function run(command: string, args: readonly string[]) {
+  try {
+    return execFileSync(command, args, { cwd: ROOT, encoding: "utf8" }).trim();
+  } catch {
+    return "";
+  }
+}
+
+function readJson(path: string) {
+  const fullPath = join(ROOT, path);
+  if (!existsSync(fullPath)) return null;
+  return JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
+}
+
+function write(path: string, value: string) {
+  const fullPath = join(ROOT, path);
+  mkdirSync(dirname(fullPath), { recursive: true });
+  writeFileSync(fullPath, value, "utf8");
+}
+
+function changedFiles() {
+  const files = new Set<string>();
+  for (const args of [["diff", "--name-only"], ["diff", "--cached", "--name-only"], ["ls-files", "--others", "--exclude-standard"]] as const) {
+    for (const line of run("git", args).split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
+      files.add(line.replace(/\\/gu, "/"));
+    }
+  }
+  return [...files].sort();
+}
+
+function classifyDirtyFile(path: string) {
+  const normalized = path.replace(/\\/gu, "/");
+  if (normalized === "agent/context/optimized-task-context.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === REPORT_PATH) return "analytics_panel_hydration_artifact_expected";
+  if (normalized === DOC_PATH) return "analytics_panel_hydration_artifact_expected";
+  if (normalized === "src/lib/admin-analytics/panel-hydration-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/admin-analytics/panel-hydration-registry.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/admin-analytics/panel-hydration-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/release-readiness/live-panel-evidence-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx") return "real_source_change_needs_review";
+  if (normalized === "src/app/api/admin/debug/route.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "analytics_panel_hydration_artifact_expected";
+  if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
+  if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
+  if (normalized === "CHANGELOG.md" || normalized === "public/kandydrops-release-notes.json" || normalized.startsWith("src/lib/release-notes/")) return "release_artifact_expected";
+  if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
+  if (normalized.startsWith("docs/agent-truth/")) return "stale_generated_artifact_to_regenerate";
+  return "unsafe_unknown";
+}
+
+function scoreDimensions() {
+  const score = readJson("agent/state/public-beta-score.generated.json") ?? {};
+  return {
+    sourceHealth: Number(score.sourceHealthScore ?? 0),
+    runtimeHealth: Number(score.runtimeHealthScore ?? 0),
+    evidenceCompleteness: Number(score.evidenceCompletenessScore ?? 0),
+    freshness: Number(score.freshnessScore ?? 0),
+    costRisk: Number(score.costRiskScore ?? 0),
+    regressionRisk: Number(score.regressionRiskScore ?? 0),
+    overallHealthScore: Number(score.healthScore ?? 0),
+  };
+}
+
+function renderDoc(report: ReturnType<typeof buildAnalyticsPanelHydrationReport>) {
+  const statusRows = report.panels.map((panel) =>
+    `- ${panel.panelId}: ${panel.hydrationStatus}; display=${panel.userSafeDisplayState}; freshness=${panel.freshness}; reason=${panel.reason}`,
+  );
+  const failureRows = report.topPanelHydrationFailures.map((panel) =>
+    `- ${panel.panelLabel}: ${panel.hydrationStatus}; next=${panel.nextExactAction}`,
+  );
+  const evidenceRows = [
+    `- Contributes live evidence: ${report.liveEvidenceContribution.contributes.join(", ") || "none"}`,
+    `- Collecting with source: ${report.liveEvidenceContribution.collecting.join(", ") || "none"}`,
+    `- Blocked: ${report.liveEvidenceContribution.blocked.join(", ") || "none"}`,
+    `- External required: ${report.liveEvidenceContribution.externalRequired.join(", ") || "none"}`,
+  ];
+  return [
+    "# Analytics Panel Hydration",
+    "",
+    `Generated: ${report.generatedAtUtc}`,
+    `Current head: ${report.currentHead}`,
+    "",
+    "## Summary",
+    "",
+    `- Total panels: ${report.totalPanels}`,
+    `- Hydrated: ${report.hydratedPanels}`,
+    `- Collecting: ${report.collectingPanels}`,
+    `- Stale: ${report.stalePanels}`,
+    `- Source missing: ${report.sourceMissingPanels}`,
+    `- Materializer missing: ${report.materializerMissingPanels}`,
+    `- Bridge missing: ${report.bridgeMissingPanels}`,
+    `- External required: ${report.externalRequiredPanels}`,
+    `- Permission blocked: ${report.permissionBlockedPanels}`,
+    `- Broken: ${report.brokenPanels}`,
+    "",
+    "## Contract",
+    "",
+    "- Missing panel data is collecting, source-missing, materializer-missing, bridge-missing, external-required, permission-blocked, or broken. It is not zero.",
+    "- A panel may display zero only when a bounded source loaded and proved zero.",
+    "- Hydrated panel evidence can reduce manual evidence scope; stale, collecting, source-only, or external-required panels cannot clear formal provider/runtime/billing gates.",
+    "- The report uses local source and generated artifacts only. It performs no production reads or provider calls.",
+    "",
+    "## Live Evidence",
+    "",
+    ...evidenceRows,
+    "",
+    "## Top Hydration Failures",
+    "",
+    ...(failureRows.length ? failureRows : ["- none"]),
+    "",
+    "## Panels",
+    "",
+    ...statusRows,
+    "",
+    "## Debug Lane",
+    "",
+    `- ${report.debugLane.label}: total=${report.debugLane.totalPanels}; hydrated=${report.debugLane.hydrated}; collecting=${report.debugLane.collecting}; sourceMissing=${report.debugLane.sourceMissing}; materializerMissing=${report.debugLane.materializerMissing}; bridgeMissing=${report.debugLane.bridgeMissing}; externalRequired=${report.debugLane.externalRequired}; broken=${report.debugLane.broken}`,
+    "",
+    "## Validation Failures",
+    "",
+    ...(report.validationFailures.length ? report.validationFailures.map((failure) => `- ${failure}`) : ["- none"]),
+    "",
+  ].join("\n");
+}
+
+function main() {
+  const generatedAtUtc = new Date().toISOString();
+  const currentHead = run("git", ["rev-parse", "HEAD"]) || "unknown";
+  const dirtyFiles = changedFiles().map((path) => ({ path, classification: classifyDirtyFile(path) }));
+  const finalReleasePacket = readJson("agent/state/final-release-exit-readiness-packet.generated.json");
+  const report = buildAnalyticsPanelHydrationReport({
+    generatedAtUtc,
+    currentHead,
+    scoreDimensions: scoreDimensions(),
+    eventLivenessAudit: readJson("agent/state/event-liveness-audit.generated.json"),
+    personMetricsHydration: readJson("agent/state/person-metrics-hydration.generated.json"),
+    userJourneyBehavioralIntelligence: readJson("agent/state/user-journey-behavioral-intelligence.generated.json"),
+    debugRuntimeEvidence: readJson("agent/state/debug-runtime-evidence.generated.json"),
+    finalReleasePacket,
+    dirtyFiles,
+  });
+  const livePanelEvidence = buildLivePanelEvidenceReport(report);
+  const validationFailures = [
+    ...validateAnalyticsPanelHydrationReport(report),
+    livePanelEvidence.decisions.length === report.totalPanels ? "" : "panel hydration does not feed live evidence resolver.",
+  ].filter(Boolean);
+  const finalReport = { ...report, livePanelEvidence, validationFailures };
+
+  write(REPORT_PATH, `${JSON.stringify(finalReport, null, 2)}\n`);
+  write(DOC_PATH, renderDoc(finalReport));
+
+  if (validationFailures.length > 0) {
+    console.error("analytics-panel-hydration validation failed:");
+    for (const failure of validationFailures) console.error(`- ${failure}`);
+    process.exit(1);
+  }
+  console.log(`analytics-panel-hydration passed. panels=${report.totalPanels} hydrated=${report.hydratedPanels} collecting=${report.collectingPanels} sourceMissing=${report.sourceMissingPanels}`);
+}
+
+main();

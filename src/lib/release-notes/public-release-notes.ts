@@ -1,13 +1,68 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.12",
-  "betaReleaseCounter": 512,
+  "currentVersion": "1.5.13",
+  "betaReleaseCounter": 513,
   "channel": "beta",
   "generatedAt": "2026-05-27T01:00:00.000Z",
   "generatedAtUtc": "2026-05-27T01:00:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.13",
+      "previousVersion": "1.5.12",
+      "betaReleaseCounter": 513,
+      "previousBetaReleaseCounter": 512,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(analytics): diagnose panel hydration",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T01:30:00.000Z",
+      "generatedAt": "2026-05-27T01:30:00.000Z",
+      "committedAtUtc": "2026-05-27T01:30:00.000Z",
+      "generatedAtUtc": "2026-05-27T01:30:00.000Z",
+      "category": "Improved",
+      "title": "Analytics panel hydration diagnostics",
+      "updatedAtUtc": "2026-05-27T01:30:00.000Z",
+      "summary": "Added panel hydration diagnostics so admin analytics can explain collecting, stale, source-missing, materializer-missing, bridge-missing, external-required, or broken states without showing fake zero.",
+      "userFacingTitle": "Analytics panel hydration diagnostics",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added analytics panel hydration diagnostics and live evidence mapping.",
+        "Explained why analytics panels are hydrated, stale, collecting, source-missing, or broken.",
+        "Prevented missing analytics data from displaying as misleading zero."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added panel hydration contracts, registry, resolver, validator, and report artifacts.",
+        "Mapped panel hydration into live evidence decisions and Admin Debug tracking summary.",
+        "Kept source-only analytics evidence separate from live/formal provider proof."
+      ],
+      "affectedSurfaces": [
+        "Admin Analytics",
+        "Admin Debug",
+        "Live evidence gates",
+        "Analytics panel hydration report"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/lib/admin-analytics/panel-hydration-contract.ts",
+        "src/lib/admin-analytics/panel-hydration-registry.ts",
+        "src/lib/admin-analytics/panel-hydration-resolver.ts",
+        "src/lib/release-readiness/live-panel-evidence-resolver.ts"
+      ],
+      "effectiveChangeCount": 9,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.12",
       "previousVersion": "1.5.11",

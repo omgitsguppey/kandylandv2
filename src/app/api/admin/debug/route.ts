@@ -43,6 +43,7 @@ import { buildEventEnvelopeDebugSummary } from "@/lib/server/admin-debug/event-e
 import { buildEventTranslationBridgeReport } from "@/lib/analytics/event-translation-bridge";
 import { buildEventLivenessSummary } from "@/lib/analytics/event-liveness-engine";
 import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
+import { buildAnalyticsPanelHydrationReport } from "@/lib/admin-analytics/panel-hydration-resolver";
 import { buildTelemetryTriggerTestMatrixReport } from "@/lib/testing/telemetry-trigger-test-matrix";
 import { buildUserManagementRefactorReport } from "@/lib/admin/user-management-contract";
 import { buildAuthRuntimeDebugLane } from "@/lib/auth/auth-telemetry-contract";
@@ -6869,6 +6870,10 @@ export async function GET(request: NextRequest) {
             eventTranslationBridge: buildEventTranslationBridgeReport(),
             eventLivenessAudit: buildEventLivenessSummary(),
             personMetricsHydration: buildPersonMetricsHydrationReport(),
+            analyticsPanelHydration: buildAnalyticsPanelHydrationReport({
+                eventLivenessAudit: buildEventLivenessSummary(),
+                personMetricsHydration: buildPersonMetricsHydrationReport(),
+            }),
             userManagementRefactor: buildUserManagementRefactorReport({
                 personMetricsHydration: buildPersonMetricsHydrationReport(),
             }),
@@ -6899,6 +6904,10 @@ export async function GET(request: NextRequest) {
                 eventTranslationBridge: buildEventTranslationBridgeReport(),
                 eventLivenessAudit: buildEventLivenessSummary(),
                 personMetricsHydration: buildPersonMetricsHydrationReport(),
+                analyticsPanelHydration: buildAnalyticsPanelHydrationReport({
+                    eventLivenessAudit: buildEventLivenessSummary(),
+                    personMetricsHydration: buildPersonMetricsHydrationReport(),
+                }),
                 userManagementRefactor: buildUserManagementRefactorReport({
                     personMetricsHydration: buildPersonMetricsHydrationReport(),
                 }),

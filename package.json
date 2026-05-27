@@ -135,6 +135,7 @@
         "check:release-notes-integrity": "tsx scripts/agent/validate-release-notes-integrity.ts",
         "check:final-release-exit-readiness-packet": "tsx scripts/agent/validate-final-release-exit-readiness-packet.ts",
         "check:live-evidence-gate-replacement": "tsx scripts/agent/validate-live-evidence-gate-replacement.ts",
+        "check:analytics-panel-hydration": "tsx scripts/agent/validate-analytics-panel-hydration.ts",
         "check:claim-truth-audit": "tsx scripts/agent/validate-claim-truth-audit.ts",
         "check:validator-authority-audit": "tsx scripts/agent/validate-validator-authority-audit.ts",
         "check:wiring-truth-audit": "tsx scripts/agent/validate-wiring-truth-audit.ts",

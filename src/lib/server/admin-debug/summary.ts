@@ -10,6 +10,7 @@ import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { buildEventTranslationBridgeReport } from "@/lib/analytics/event-translation-bridge";
 import { buildEventLivenessSummary } from "@/lib/analytics/event-liveness-engine";
 import { buildPersonMetricsHydrationReport } from "@/lib/analytics/person-metrics-hydration";
+import { buildAnalyticsPanelHydrationReport } from "@/lib/admin-analytics/panel-hydration-resolver";
 import { buildTelemetryTriggerTestMatrixReport } from "@/lib/testing/telemetry-trigger-test-matrix";
 import { buildDebugPanelTrackingSummary } from "@/lib/debug/debug-panel-tracking-summary";
 import { buildChatGatingDebugLane } from "@/lib/chat/chat-gating-contract";
@@ -177,6 +178,11 @@ export async function buildAdminDebugSummaryPayload(input: {
   const personMetricsHydration = buildPersonMetricsHydrationReport({
     generatedAtUtc: new Date(nowMs).toISOString(),
   });
+  const analyticsPanelHydration = buildAnalyticsPanelHydrationReport({
+    generatedAtUtc: new Date(nowMs).toISOString(),
+    eventLivenessAudit,
+    personMetricsHydration,
+  });
   const telemetryTriggerTestMatrix = buildTelemetryTriggerTestMatrixReport({
     generatedAtUtc: new Date(nowMs).toISOString(),
   });
@@ -207,6 +213,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     eventTranslationBridge,
     eventLivenessAudit,
     personMetricsHydration,
+    analyticsPanelHydration,
     userManagementRefactor,
     telemetryTriggerTestMatrix,
     dailyTasksResetTruth,
@@ -245,6 +252,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     eventTranslationBridge,
     eventLivenessAudit,
     personMetricsHydration,
+    analyticsPanelHydration,
     userManagementRefactor,
     telemetryTriggerTestMatrix,
     chatGatingModeration,
