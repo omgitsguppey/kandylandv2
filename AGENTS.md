@@ -185,6 +185,20 @@ KandyDrops hardening is deterministic first. Agents must score and target the af
 
 KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default.
 
+## Backend Consolidation Rules
+
+Routes must be thin and route business work into canonical service, math, normalizer, ledger, telemetry, and debug owner modules. Business math must not live in route handlers when a canonical math/service owner exists. New backend route/helper work requires a backend route inventory entry with canonical owner, source truth, cost class, telemetry path, debug lane, and validator. New service work requires an owner system and cost class. Admin/debug backend output must be summary-first, with raw detail only behind explicit paged drilldown. Generated artifacts should be compact summaries by default; full detail belongs behind drilldown or derived at runtime. Every prompt must end by searching for duplicate/stale/orphaned logic in the touched backend domain and updating Codex memory with mistakes found.
+
+Required backend memory lessons:
+- Do not add a parallel subsystem when an existing registry/resolver/debug lane already owns the same truth.
+- Generated artifacts should be compact summaries by default; full detail belongs behind drilldown or derived at runtime.
+- Every new backend route/helper must declare canonical owner, source truth, cost class, telemetry path, debug lane, and validator.
+- Every prompt must end by searching for duplicate/stale/orphaned logic in the touched domain.
+- A passing terminal run is not enough if source truth, debug, score, release artifacts, and memory are stale.
+- Never hardcode gap counts or score-impact values to zero when computed gaps exist.
+- Do not use source-only evidence as provider/runtime/admin proof.
+- Cost savings must reduce duplicate work, retries, reads, writes, or exports without reducing canonical fact accuracy.
+
 ## Debug Evidence Pipeline
 
 KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows.

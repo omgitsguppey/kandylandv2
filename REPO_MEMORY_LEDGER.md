@@ -3280,3 +3280,26 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/types/admin-analytics.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - What is now disallowed or deprecated: treating empty `analytics_guest_batches` as proof of zero public traffic, or showing guest/public bounce and engagement as `0` when the anonymous quality lane is unavailable.
+
+### 58. Backend consolidation must reuse canonical owners instead of adding parallel systems
+
+```json
+{
+  "date": "2026-05-27T03:45:00.000Z",
+  "domain": "backend_consolidation",
+  "mistakePattern": "Backend hardening passes kept adding parallel contracts, registries, resolvers, validators, debug lanes, and generated artifacts while old route logic stayed active.",
+  "rootCause": "Prompts were satisfied by adding new audit surface instead of first deriving ownership from current routes, canonical services, cost contracts, telemetry paths, and the debug/control-tower lane.",
+  "doNextTime": "Start with backend route inventory, map every route/helper to canonical owner, source truth, cost class, telemetry path, debug lane, and validator, then consolidate duplicate route math or mark it as explicit drilldown follow-up.",
+  "doNotDo": "Do not add a parallel subsystem when an existing registry/resolver/debug lane already owns the same truth. Generated artifacts should be compact summaries by default; full detail belongs behind drilldown or derived at runtime. Every new backend route/helper must declare canonical owner, source truth, cost class, telemetry path, debug lane, and validator. Every prompt must end by searching for duplicate/stale/orphaned logic in the touched domain. A passing terminal run is not enough if source truth, debug, score, release artifacts, and memory are stale. Never hardcode gap counts or score-impact values to zero when computed gaps exist. Do not use source-only evidence as provider/runtime/admin proof. Cost savings must reduce duplicate work, retries, reads, writes, or exports without reducing canonical fact accuracy.",
+  "affectedFiles": [
+    "src/lib/backend-hardening/backend-route-inventory.ts",
+    "src/lib/backend-hardening/backend-service-ownership.ts",
+    "src/lib/backend-hardening/backend-cost-consolidation.ts",
+    "src/lib/backend-hardening/backend-service-consolidator.ts",
+    "scripts/agent/validate-backend-gut-consolidation.ts",
+    "AGENTS.md",
+    "REPO_MEMORY_LEDGER.md"
+  ],
+  "preventingValidator": "check:backend-gut-consolidation && check:codex-memory-writeback"
+}
+```

@@ -4,19 +4,25 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
-## 1.5.13 - 2026-05-26
+## 1.5.14 - 2026-05-27
+- Backend consolidation
+- Consolidated backend routes and services into canonical owner systems.
+- Reduced duplicate backend logic, raw debug reads, and generated artifact bloat.
+- Added Codex memory writeback so repeated backend mistakes are remembered.
+
+## 1.5.13 - 2026-05-27
 - Analytics hydration consolidation
 - Consolidated analytics panel hydration into existing metrics, liveness, and debug systems.
 - Reduced duplicate hydration registry and oversized generated artifact output.
 - Kept panel-level explanations without creating a parallel analytics subsystem.
 
-## 1.5.12 - 2026-05-26
+## 1.5.12 - 2026-05-27
 - Live evidence gate replacement
 - Replaced broad manual beta gates with live evidence gates where telemetry and admin truth exist.
 - Limited manual visual QA to layout and responsive checks.
 - Separated live product evidence from external provider and billing proof.
 
-## 1.5.11 - 2026-05-26
+## 1.5.11 - 2026-05-27
 - Final beta-exit closure
 - Resolved final security PR blockers and refreshed beta-exit evidence.
 - Classified or deferred remaining PRs for beta-exit hygiene.
@@ -72,8 +78,8 @@ Showing the last 25 public updates in pages of 5.
 - Aligned wallet display labels with ledger source truth.
 
 ## 1.5.2 - 2026-05-26
-- Session journey math
-- Finalized session active time, idle time, bounce, engagement, and journey duration math.
+- App session reliability
+- Improved session activity, idle time, bounce, engagement, and journey duration tracking.
 - Prevented hidden time and unknown closeouts from corrupting session metrics.
 - Preserved guest-to-user session continuity.
 
@@ -148,39 +154,3 @@ Showing the last 25 public updates in pages of 5.
 - Normalized duration math across sessions, watch time, tasks, flows, chat, media, auth, and notifications.
 - Separated active, passive, idle, hidden, and unknown duration buckets.
 - Blocked page-open and legacy unknown durations from becoming exact watch or active time.
-
-## 1.4.89 - 2026-05-26
-- Canonical math authority ledger coverage
-- Added canonical math authority ledger.
-- Inventoried formulas across score, metrics, sessions, watch time, GumDrops, revenue, and legacy recovery.
-- Blocked unowned formulas from silently affecting user/admin metrics.
-
-## 1.4.88 - 2026-05-26
-- Count deduplication normalization
-- Normalized global, user, creator, and legacy count deduplication.
-- Prevented linked guest/user and retry events from inflating metrics.
-- Added count formula references and debug explanations.
-
-## 1.4.87 - 2026-05-26
-- Canonical math authority ledger
-- Added canonical math authority ledger.
-- Inventoried formulas across score, metrics, sessions, watch time, GumDrops, revenue, and legacy recovery.
-- Blocked unowned formulas from silently affecting user/admin metrics.
-
-## 1.4.86 - 2026-05-26
-- Final beta exit gate readiness
-- Locked beta-exit gate readiness with current score, blocker, PR, and evidence state.
-- Classified all remaining formal evidence, freshness, and cost review gaps.
-- Kept operator-final visual review outside Codex score blocking.
-
-## 1.4.85 - 2026-05-26
-- Launch blocker evidence closure
-- Classified remaining launch blockers by formal evidence, source confidence, and stale PR integrity.
-- Closed PR integrity evidence where current repository state supports it.
-- Kept runtime, provider, and admin formal gates honest.
-
-## 1.4.84 - 2026-05-26
-- Cost risk exit pass
-- Refined cost risk exit evidence for Cloud Run, Cloud SQL, Gemini/AI, and route 4xx lanes.
-- Separated external billing review from source cost guards.
-- Kept product runtime unchanged.

@@ -458,6 +458,12 @@ export function detectTranslationGap(input: {
 export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassification {
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
+  if (normalized === "AGENTS.md" || normalized === "REPO_MEMORY_LEDGER.md") return "real_source_change_needs_review";
+  if (/^src\/lib\/backend-hardening\/backend-(route-inventory|service-ownership|service-consolidator|cost-consolidation)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (/^scripts\/agent\/validate-(backend-route-inventory|backend-service-ownership|backend-cost-consolidation|backend-gut-consolidation|codex-memory-writeback)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(backend-route-inventory|backend-service-ownership|backend-cost-consolidation|backend-gut-consolidation|codex-memory-writeback)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(backend-route-inventory|backend-service-ownership|backend-cost-consolidation|backend-gut-consolidation|codex-memory-writeback)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(backend-route-inventory|backend-service-ownership|backend-cost-consolidation|backend-gut-consolidation|codex-memory-writeback)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "agent/state/central-normalizer-spine.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/central-normalizer-spine.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-central-normalizer-spine.ts") return "validator_artifact_expected";

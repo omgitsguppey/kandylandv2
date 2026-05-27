@@ -1,11 +1,86 @@
 {
-  "currentVersion": "1.5.13",
-  "betaReleaseCounter": 513,
+  "currentVersion": "1.5.14",
+  "betaReleaseCounter": 514,
   "channel": "beta",
-  "generatedAt": "2026-05-27T01:00:00.000Z",
-  "generatedAtUtc": "2026-05-27T01:00:00.000Z",
+  "generatedAt": "2026-05-27T03:46:50.662Z",
+  "generatedAtUtc": "2026-05-27T03:46:50.662Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.14",
+      "previousVersion": "1.5.13",
+      "betaReleaseCounter": 514,
+      "previousBetaReleaseCounter": 513,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(backend): gut duplicate systems",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T03:46:50.662Z",
+      "generatedAt": "2026-05-27T03:46:50.662Z",
+      "committedAtUtc": "2026-05-27T03:46:50.662Z",
+      "generatedAtUtc": "2026-05-27T03:46:50.662Z",
+      "category": "Improved",
+      "title": "Backend consolidation",
+      "updatedAtUtc": "2026-05-27T03:46:50.662Z",
+      "summary": "Consolidated backend routes and services into canonical owner systems while keeping generated backend evidence compact.",
+      "userFacingTitle": "Backend consolidation",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Consolidated backend routes and services into canonical owner systems.",
+        "Reduced duplicate backend logic, raw debug reads, and generated artifact bloat.",
+        "Added Codex memory writeback so repeated backend mistakes are remembered."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added source-derived backend route inventory, service ownership, cost consolidation, and memory writeback validators.",
+        "Kept provider/runtime proof separate from source-only backend evidence.",
+        "Classified backend consolidation follow-ups without changing payment runtime or GumDrop math."
+      ],
+      "affectedSurfaces": [
+        "Backend routes",
+        "Backend service ownership",
+        "Admin Debug",
+        "Cost guardrails",
+        "Codex memory writeback"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "AGENTS.md",
+        "CHANGELOG.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/state/backend-cost-consolidation.generated.json",
+        "agent/state/backend-gut-consolidation.generated.json",
+        "agent/state/backend-route-inventory.generated.json",
+        "agent/state/backend-service-ownership.generated.json",
+        "agent/state/codex-memory-writeback.generated.json",
+        "docs/agent-truth/backend-cost-consolidation.md",
+        "docs/agent-truth/backend-gut-consolidation.md",
+        "docs/agent-truth/backend-route-inventory.md",
+        "docs/agent-truth/backend-service-ownership.md",
+        "docs/agent-truth/codex-memory-writeback.md",
+        "package.json",
+        "scripts/agent/validate-backend-cost-consolidation.ts",
+        "scripts/agent/validate-backend-gut-consolidation.ts",
+        "scripts/agent/validate-backend-route-inventory.ts",
+        "scripts/agent/validate-backend-service-ownership.ts",
+        "scripts/agent/validate-codex-memory-writeback.ts",
+        "src/lib/backend-hardening/backend-cost-consolidation.ts",
+        "src/lib/backend-hardening/backend-route-inventory.ts",
+        "src/lib/backend-hardening/backend-service-consolidator.ts",
+        "src/lib/backend-hardening/backend-service-ownership.ts",
+        "tests/unit/backend-cost-consolidation.spec.ts",
+        "tests/unit/backend-gut-consolidation.spec.ts",
+        "tests/unit/backend-route-inventory.spec.ts",
+        "tests/unit/backend-service-ownership.spec.ts",
+        "tests/unit/codex-memory-writeback.spec.ts"
+      ],
+      "effectiveChangeCount": 28,
+      "excludedGeneratedChangeCount": 10,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.13",
       "previousVersion": "1.5.12",
@@ -1489,127 +1564,6 @@
       ],
       "effectiveChangeCount": 23,
       "excludedGeneratedChangeCount": 5,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.89",
-      "previousVersion": "1.4.88",
-      "betaReleaseCounter": 489,
-      "previousBetaReleaseCounter": 488,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(math): add canonical authority ledger",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T06:05:00.000Z",
-      "generatedAt": "2026-05-26T06:05:00.000Z",
-      "committedAtUtc": "2026-05-26T06:05:00.000Z",
-      "generatedAtUtc": "2026-05-26T06:05:00.000Z",
-      "category": "Improved",
-      "title": "Canonical math authority ledger coverage",
-      "updatedAtUtc": "2026-05-26T06:05:00.000Z",
-      "summary": "Added canonical math authority ledger.",
-      "userFacingTitle": "Canonical math authority ledger coverage",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added canonical math authority ledger.",
-        "Inventoried formulas across score, metrics, sessions, watch time, GumDrops, revenue, and legacy recovery.",
-        "Blocked unowned formulas from silently affecting user/admin metrics."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added source-inventory coverage for formula-bearing score, analytics, behavioral, SQL parity, debug, validator, and generated score artifact paths.",
-        "Kept code-organization scoring outside current MathDomain authority as needs_operator_decision instead of silently promoting it.",
-        "Refreshed canonical math authority validator evidence and unit coverage without changing runtime payment, wallet, PayPal, GumDrop, or navigation behavior."
-      ],
-      "affectedSurfaces": [
-        "Math authority ledger",
-        "Formula source inventory",
-        "Public beta score formulas",
-        "Analytics and behavior metric formulas",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/canonical-math-authority-ledger.generated.json",
-        "docs/agent-truth/canonical-math-authority-ledger.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-canonical-math-authority-ledger.ts",
-        "src/lib/math/canonical-math-authority-contract.ts",
-        "src/lib/math/canonical-math-authority-ledger.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/canonical-math-authority-ledger.spec.ts"
-      ],
-      "effectiveChangeCount": 10,
-      "excludedGeneratedChangeCount": 1,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.88",
-      "previousVersion": "1.4.87",
-      "betaReleaseCounter": 488,
-      "previousBetaReleaseCounter": 487,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(math): normalize count dedupe",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T05:35:00.000Z",
-      "generatedAt": "2026-05-26T05:35:00.000Z",
-      "committedAtUtc": "2026-05-26T05:35:00.000Z",
-      "generatedAtUtc": "2026-05-26T05:35:00.000Z",
-      "category": "Improved",
-      "title": "Count deduplication normalization",
-      "updatedAtUtc": "2026-05-26T05:35:00.000Z",
-      "summary": "Normalized global, user, creator, and legacy count deduplication.",
-      "userFacingTitle": "Count deduplication normalization",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Normalized global, user, creator, and legacy count deduplication.",
-        "Prevented linked guest/user and retry events from inflating metrics.",
-        "Added count formula references and debug explanations."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a canonical count deduplication normalizer for eventId, dedupeKey, and timestamp-bucket fallback rules.",
-        "Connected existing global/user dedupe decisions to count formula references and debug explanations without changing payment runtime or GumDrop math.",
-        "Added source-only validator, generated evidence, documentation, and unit coverage for linked identity, legacy, retry, and replay count behavior."
-      ],
-      "affectedSurfaces": [
-        "Analytics count math",
-        "Global and user dedupe summaries",
-        "Creator and legacy count buckets",
-        "Admin Debug count dedupe lane",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/count-deduplication-normalization.generated.json",
-        "docs/agent-truth/count-deduplication-normalization.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-canonical-math-authority-ledger.ts",
-        "scripts/agent/validate-count-deduplication-normalization.ts",
-        "src/lib/analytics/global-user-dedupe-contract.ts",
-        "src/lib/analytics/global-user-dedupe-engine.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/math/canonical-math-authority-contract.ts",
-        "src/lib/math/canonical-math-authority-ledger.ts",
-        "src/lib/math/count-deduplication-normalizer.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/count-deduplication-normalization.spec.ts"
-      ],
-      "effectiveChangeCount": 17,
-      "excludedGeneratedChangeCount": 1,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }
