@@ -336,6 +336,43 @@
       ],
       "severity": "high",
       "broad_work_relevance": false
+    },
+    {
+      "stable_id": "pitfall__config_deployment_readiness_confusion",
+      "title": "config_deployment_readiness_confusion",
+      "description": "Config, deployment, environment, CI, package-script, middleware, Firebase rules, and dependency changes can be mistaken for ordinary source-only cleanup.",
+      "symptom_pattern": "A pass claims readiness after local tests while env contracts, release notes, security/rules validation, PR hygiene, rollback status, current-head score artifacts, or operator evidence remain stale.",
+      "affected_surfaces": [
+        "package.json",
+        ".github/workflows/**",
+        "firebase.json",
+        "firestore.rules",
+        "storage.rules",
+        "next.config.ts",
+        "middleware.ts",
+        ".env.example"
+      ],
+      "prevention_rule": "Do not treat passing source tests as deployment readiness. Do not add package scripts, validators, or generated artifacts without checking for existing scripts that already own the same lane. Every config or deployment change must declare owner, environment, expected command, safety class, cost class, and rollback behavior. Never touch payment runtime, GumDrop math, provider callbacks, Firebase/security rules, middleware, or deployment configs casually. Before editing config, deployment, env, CI, package scripts, middleware, Firebase rules, or dependency tooling, classify the lane and read existing policy. Config and deployment changes are release-risk changes. Dependency PRs are not cleanup. Generated artifacts must be compact by default.",
+      "detection_hint": "Run check:config-env-contract, check:security-rules-inventory, check:package-script-consolidation, check:ci-release-discipline, check:security-header-route-config, check:dependency-toolchain-policy, and check:config-infra-memory-writeback before release closeout.",
+      "related_commands": [
+        "npm run check:config-env-contract",
+        "npm run check:security-rules-inventory",
+        "npm run check:package-script-consolidation",
+        "npm run check:ci-release-discipline",
+        "npm run check:security-header-route-config",
+        "npm run check:dependency-toolchain-policy",
+        "npm run check:config-infra-memory-writeback"
+      ],
+      "related_helpers": [
+        "src/lib/config-hardening/config-env-contract.ts",
+        "src/lib/config-hardening/security-rules-contract.ts",
+        "src/lib/config-hardening/package-script-inventory.ts",
+        "src/lib/config-hardening/ci-release-discipline.ts",
+        "src/lib/config-hardening/security-header-contract.ts",
+        "src/lib/config-hardening/dependency-toolchain-policy.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
     }
   ]
 }

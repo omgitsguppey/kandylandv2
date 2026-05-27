@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.16 - 2026-05-27
+- Config infrastructure policy consolidation
+- Consolidated config, env, CI, release, dependency, and security-rule policy.
+- Added system memory rules for config/deployment risk and dependency hygiene.
+- Reduced duplicate package script and release-gate drift.
+
 ## 1.5.15 - 2026-05-27
 - Frontend client runtime consolidation
 - Consolidated frontend component state, telemetry, and hydration handling.

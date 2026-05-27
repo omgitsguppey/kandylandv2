@@ -1,13 +1,108 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.15",
-  "betaReleaseCounter": 515,
+  "currentVersion": "1.5.16",
+  "betaReleaseCounter": 516,
   "channel": "beta",
-  "generatedAt": "2026-05-27T04:15:38.290Z",
-  "generatedAtUtc": "2026-05-27T04:15:38.290Z",
+  "generatedAt": "2026-05-27T04:37:18.106Z",
+  "generatedAtUtc": "2026-05-27T04:37:18.106Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.16",
+      "previousVersion": "1.5.15",
+      "betaReleaseCounter": 516,
+      "previousBetaReleaseCounter": 515,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(config): consolidate infra policy",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T04:37:18.106Z",
+      "generatedAt": "2026-05-27T04:37:18.106Z",
+      "committedAtUtc": "2026-05-27T04:37:18.106Z",
+      "generatedAtUtc": "2026-05-27T04:37:18.106Z",
+      "category": "Improved",
+      "title": "Config infrastructure policy consolidation",
+      "updatedAtUtc": "2026-05-27T04:37:18.106Z",
+      "summary": "Consolidated config, environment, CI, release, dependency, and security-rule policy into compact source-derived guardrails.",
+      "userFacingTitle": "Config infrastructure policy consolidation",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Consolidated config, env, CI, release, dependency, and security-rule policy.",
+        "Added system memory rules for config/deployment risk and dependency hygiene.",
+        "Reduced duplicate package script and release-gate drift."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added compact config/env, security rules, package script, CI release, security header, dependency, and memory writeback validators.",
+        "Classified duplicate package-script aliases without deleting callers unsafely.",
+        "Kept payment runtime, GumDrop math, provider callbacks, Firebase rules, and middleware behavior unchanged."
+      ],
+      "affectedSurfaces": [
+        "Config policy",
+        "Environment contracts",
+        "Security/rules inventory",
+        "CI and release command discipline",
+        "Dependency hygiene",
+        "System memory writeback"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "AGENTS.md",
+        "CHANGELOG.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/index/known-pitfalls.json",
+        "agent/state/ci-release-discipline.generated.json",
+        "agent/state/config-env-contract.generated.json",
+        "agent/state/config-infra-gut-consolidation.generated.json",
+        "agent/state/config-infra-memory-writeback.generated.json",
+        "agent/state/dependency-toolchain-policy.generated.json",
+        "agent/state/package-script-consolidation.generated.json",
+        "agent/state/security-header-route-config.generated.json",
+        "agent/state/security-rules-inventory.generated.json",
+        "docs/agent-truth/ci-release-discipline.md",
+        "docs/agent-truth/config-env-contract.md",
+        "docs/agent-truth/config-infra-gut-consolidation.md",
+        "docs/agent-truth/config-infra-memory-writeback.md",
+        "docs/agent-truth/dependency-toolchain-policy.md",
+        "docs/agent-truth/package-script-consolidation.md",
+        "docs/agent-truth/security-header-route-config.md",
+        "docs/agent-truth/security-rules-inventory.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-ci-release-discipline.ts",
+        "scripts/agent/validate-config-env-contract.ts",
+        "scripts/agent/validate-config-infra-memory-writeback.ts",
+        "scripts/agent/validate-dependency-toolchain-policy.ts",
+        "scripts/agent/validate-package-script-consolidation.ts",
+        "scripts/agent/validate-security-header-route-config.ts",
+        "scripts/agent/validate-security-rules-inventory.ts",
+        "src/lib/config-hardening/ci-release-discipline.ts",
+        "src/lib/config-hardening/config-env-contract.ts",
+        "src/lib/config-hardening/config-hardening-shared.ts",
+        "src/lib/config-hardening/config-infra-memory-writeback.ts",
+        "src/lib/config-hardening/dependency-toolchain-policy.ts",
+        "src/lib/config-hardening/package-script-inventory.ts",
+        "src/lib/config-hardening/security-header-contract.ts",
+        "src/lib/config-hardening/security-rules-contract.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/ci-release-discipline.spec.ts",
+        "tests/unit/config-env-contract.spec.ts",
+        "tests/unit/config-infra-memory-writeback.spec.ts",
+        "tests/unit/dependency-toolchain-policy.spec.ts",
+        "tests/unit/package-script-consolidation.spec.ts",
+        "tests/unit/security-header-route-config.spec.ts",
+        "tests/unit/security-rules-inventory.spec.ts"
+      ],
+      "effectiveChangeCount": 47,
+      "excludedGeneratedChangeCount": 17,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.15",
       "previousVersion": "1.5.14",
@@ -1523,69 +1618,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 1,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.91",
-      "previousVersion": "1.4.90",
-      "betaReleaseCounter": 491,
-      "previousBetaReleaseCounter": 490,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(integrity): map product body systems",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T06:45:00.000Z",
-      "generatedAt": "2026-05-26T06:45:00.000Z",
-      "committedAtUtc": "2026-05-26T06:45:00.000Z",
-      "generatedAtUtc": "2026-05-26T06:45:00.000Z",
-      "category": "Improved",
-      "title": "Product integrity map",
-      "updatedAtUtc": "2026-05-26T06:45:00.000Z",
-      "summary": "Mapped product features, routes, telemetry, metrics, debug lanes, and score gates into one product integrity map.",
-      "userFacingTitle": "Product integrity map",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Mapped product features, routes, telemetry, metrics, debug lanes, and score gates into body systems.",
-        "Identified orphaned, duplicated, stale, and in-flight limbs.",
-        "Added product body map debug visibility."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added canonical product body system and limb contracts for features, surfaces, routes, telemetry events, materializers, metrics, journey steps, debug lanes, score gates, validators, and artifacts.",
-        "Generated issue-first product body map evidence while classifying open PRs and current dirty files.",
-        "Connected the product body map to Admin Debug without changing payment runtime, GumDrop math, navigation, production reads, provider calls, or deploy state."
-      ],
-      "affectedSurfaces": [
-        "Product body map",
-        "Feature registration registry",
-        "Surface parity registry",
-        "Telemetry catalog",
-        "Admin Debug tracking summary",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/product-body-map.generated.json",
-        "docs/agent-truth/product-body-map.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-product-body-map.ts",
-        "src/lib/debug/debug-panel-tracking-summary.ts",
-        "src/lib/product-integrity/product-body-map.ts",
-        "src/lib/product-integrity/product-body-system-contract.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/product-body-map.spec.ts"
-      ],
-      "effectiveChangeCount": 12,
-      "excludedGeneratedChangeCount": 1,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
     }
   ]
-} satisfies PublicReleaseNotesDocument;
+} as const satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,

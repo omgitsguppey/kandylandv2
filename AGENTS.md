@@ -78,6 +78,17 @@ KandyDrops cost guardrails cover runtime telemetry, PostHog/GA/session replay, c
 - Run `npm run typecheck` when TypeScript changed.
 - Do not run Playwright, Lighthouse, Cypress, full `npm run check`, deploy commands, `gcloud`, Firebase deploys, or paid AI calls for this lane by default.
 
+Config, rules, environment, CI, and deployment rules:
+
+- Do not treat passing source tests as deployment readiness. Deployment readiness requires current-head score artifacts, release notes, env contract validation, security/rules validation, PR hygiene, rollback status, and explicit operator evidence classification.
+- Do not add package scripts, validators, or generated artifacts without checking for existing scripts that already own the same lane. Consolidate aliases and retire stale scripts instead of growing the command surface.
+- Every config or deployment change must declare owner, environment, expected command, safety class, cost class, and rollback behavior. Missing env vars, stale release artifacts, or unclassified open PRs must block release readiness.
+- Never touch payment runtime, GumDrop math, provider callbacks, Firebase/security rules, middleware, or deployment configs casually. Any change in those lanes requires targeted validators and release note classification.
+- Before editing config, deployment, env, CI, package scripts, middleware, Firebase rules, or dependency tooling, classify the lane and read existing policy. Do not add a new check, workflow, or validator if an existing script owns the same exit gate.
+- Config and deployment changes are release-risk changes. They require env contract, security/rules classification, cost class, rollback behavior, and current-head score/release packet refresh.
+- Dependency PRs are not cleanup. Treat them as a separate dependency window unless security-required. Never merge broad dependency bundles as part of beta-exit hardening.
+- Generated artifacts must be compact by default. Do not store thousands of static lines when a summary and drilldown can be derived.
+
 > [!CAUTION]
 > **MANDATORY CONTROL TOWER ROUTING:**
 > Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, you MUST start with /control-tower/00-START-HERE.md.
