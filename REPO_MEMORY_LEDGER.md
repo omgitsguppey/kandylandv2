@@ -3342,3 +3342,25 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   "preventingValidator": "check:frontend-component-consolidation"
 }
 ```
+
+### 60. Deep 4xx mitigation must inspect route behavior, stale clients, and retry loops
+
+```json
+{
+  "date": "2026-05-27T06:20:00.000Z",
+  "domain": "deep_4xx_route_mitigation",
+  "mistakePattern": "4xx fixes can miss real sources when they only search status-code strings and ignore stale links, route params, expired sessions, deleted resources, bots, PWA cache, notification deep links, and client retry loops.",
+  "rootCause": "The API route and client callsite were reviewed separately, so permanent client errors could appear as generic request failed states, retryable failures, diagnostic spam, or silent 404s.",
+  "doNextTime": "Search for 4xx by route behavior, not just status-code strings. Every 4xx must have a root-cause class, retry policy, route/feature owner, safe user copy, diagnostic rollup, and cost classification. Check both sides: the API route and the client surface/link/deep link that calls it.",
+  "doNotDo": "Do not convert expected 4xx into 500s or hide them. Expected 4xx should be cheap, grouped, non-retryable, and user-readable. A route returning 404 for deleted, expired, private, or unavailable content should include a safe reason class and recovery action, not raw missing-data silence.",
+  "affectedFiles": [
+    "src/lib/route-hardening/route-param-availability-map.ts",
+    "src/lib/route-hardening/client-callsite-4xx-map.ts",
+    "src/lib/route-hardening/stale-deeplink-route-alias-policy.ts",
+    "src/lib/route-hardening/bot-crawler-4xx-policy.ts",
+    "src/lib/route-hardening/auth-role-drift-4xx-policy.ts",
+    "src/lib/route-hardening/route-4xx-score-cost-impact.ts"
+  ],
+  "preventingValidator": "check:route-param-availability-map && check:client-callsite-4xx-map && check:deep-4xx-memory-writeback"
+}
+```

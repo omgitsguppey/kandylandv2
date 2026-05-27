@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.21 - 2026-05-27
+- Deep 4xx route mitigation
+- Deepened 4xx mitigation across route params, stale links, bots, auth drift, and client retry loops.
+- Grouped expected 4xx failures without letting them inflate product errors or cost.
+- Added system memory rules for deep 4xx root-cause checks.
+
 ## 1.5.20 - 2026-05-27
 - Safer error handling and wallet truth guardrails
 - Improved handling for invalid, unauthorized, missing, conflicted, or rate-limited requests so the app avoids wasteful retry loops.

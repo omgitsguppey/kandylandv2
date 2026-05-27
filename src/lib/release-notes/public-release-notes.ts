@@ -1,13 +1,72 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.20",
-  "betaReleaseCounter": 520,
+  "currentVersion": "1.5.21",
+  "betaReleaseCounter": 521,
   "channel": "beta",
-  "generatedAt": "2026-05-27T05:58:43.113Z",
-  "generatedAtUtc": "2026-05-27T05:58:43.113Z",
+  "generatedAt": "2026-05-27T06:25:00.000Z",
+  "generatedAtUtc": "2026-05-27T06:25:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.21",
+      "previousVersion": "1.5.20",
+      "betaReleaseCounter": 521,
+      "previousBetaReleaseCounter": 520,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(routes): deepen 4xx mitigation",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T06:25:00.000Z",
+      "generatedAt": "2026-05-27T06:25:00.000Z",
+      "committedAtUtc": "2026-05-27T06:25:00.000Z",
+      "generatedAtUtc": "2026-05-27T06:25:00.000Z",
+      "category": "Fixed",
+      "title": "Deep 4xx route mitigation",
+      "updatedAtUtc": "2026-05-27T06:25:00.000Z",
+      "summary": "Improved stale-link, expired-session, route-parameter, bot, and retry-loop handling so expected client errors stay cheap, grouped, and recoverable.",
+      "userFacingTitle": "More reliable stale-link and sign-in recovery",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Deepened 4xx mitigation across route params, stale links, bots, auth drift, and client retry loops.",
+        "Grouped expected 4xx failures without letting them inflate product errors or cost.",
+        "Added system memory rules for deep 4xx root-cause checks."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Added route parameter and resource availability maps for non-retryable missing, deleted, expired, and private resource behavior.",
+        "Added client callsite, stale deeplink, bot/crawler, auth role drift, and score/cost impact contracts for deep 4xx classification.",
+        "Added compact validators, reports, and memory writeback for the deep 4xx lane."
+      ],
+      "affectedSurfaces": [
+        "Route parameter availability",
+        "Client 4xx callsites",
+        "Stale deeplinks and route aliases",
+        "Bot and crawler 4xx noise",
+        "Auth and role drift 4xx",
+        "4xx score and cost impact"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "AGENTS.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/index/known-pitfalls.json",
+        "src/lib/route-hardening/route-param-availability-map.ts",
+        "src/lib/route-hardening/client-callsite-4xx-map.ts",
+        "src/lib/route-hardening/stale-deeplink-route-alias-policy.ts",
+        "src/lib/route-hardening/bot-crawler-4xx-policy.ts",
+        "src/lib/route-hardening/auth-role-drift-4xx-policy.ts",
+        "src/lib/route-hardening/route-4xx-score-cost-impact.ts",
+        "scripts/agent/deep-4xx-validator-shared.ts",
+        "tests/unit/route-param-availability-map.spec.ts"
+      ],
+      "effectiveChangeCount": 6,
+      "excludedGeneratedChangeCount": 16,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.20",
       "previousVersion": "1.5.19",
@@ -1597,63 +1656,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/count-deduplication-normalization.spec.ts"
       ],
       "effectiveChangeCount": 12,
-      "excludedGeneratedChangeCount": 2,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.96",
-      "previousVersion": "1.4.95",
-      "betaReleaseCounter": 496,
-      "previousBetaReleaseCounter": 495,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(math): add canonical authority ledger",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T08:30:00.000Z",
-      "generatedAt": "2026-05-26T08:30:00.000Z",
-      "committedAtUtc": "2026-05-26T08:30:00.000Z",
-      "generatedAtUtc": "2026-05-26T08:30:00.000Z",
-      "category": "Improved",
-      "title": "Canonical math authority ledger",
-      "updatedAtUtc": "2026-05-26T08:30:00.000Z",
-      "summary": "Added canonical math authority ledger.",
-      "userFacingTitle": "Canonical math authority ledger",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added canonical math authority ledger.",
-        "Inventoried formulas across score, metrics, sessions, watch time, GumDrops, revenue, and legacy recovery.",
-        "Blocked unowned formulas from silently affecting user/admin metrics."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added freshness semantics to the canonical math authority contract so admin-facing formulas declare source freshness alongside source, confidence, and display policy.",
-        "Updated the ledger validator, generated evidence, and unit coverage to fail admin-facing formulas that lack freshness rules.",
-        "Kept payment runtime, GumDrop math, production data, provider calls, and navigation unchanged."
-      ],
-      "affectedSurfaces": [
-        "Canonical math authority ledger",
-        "Math authority validator",
-        "Math authority generated evidence",
-        "Beta score evidence",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/canonical-math-authority-ledger.generated.json",
-        "docs/agent-truth/canonical-math-authority-ledger.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-canonical-math-authority-ledger.ts",
-        "src/lib/math/canonical-math-authority-contract.ts",
-        "src/lib/math/canonical-math-authority-ledger.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/canonical-math-authority-ledger.spec.ts"
-      ],
-      "effectiveChangeCount": 10,
       "excludedGeneratedChangeCount": 2,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"

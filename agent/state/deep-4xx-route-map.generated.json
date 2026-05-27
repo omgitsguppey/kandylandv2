@@ -1,0 +1,30 @@
+{
+  "reportKey": "deep-4xx-route-map",
+  "generatedAtUtc": "2026-05-27T06:27:15.833Z",
+  "status": "pass",
+  "dynamicRoutesAudited": 5,
+  "clientCallsitesAudited": 6,
+  "staleDeepLinksFound": 5,
+  "retryLoopsPrevented": 11,
+  "botNoiseClassesAdded": 7,
+  "authRoleDriftCasesCovered": 8,
+  "unclassified4xxBefore": "behavioral search found broad stale/deeplink/bot/auth classes without a dedicated deep map",
+  "unclassified4xxAfter": 0,
+  "diagnosticSpamRisksFixed": [
+    "client callsites require hourly rollup spam guard",
+    "bot/crawler/static noise is sampled and excluded from product journey errors",
+    "stale route params and unavailable resources are non-retryable with recovery actions"
+  ],
+  "scoreImpact": "Expected classified 4xx no longer penalizes runtime; unclassified retry storms remain cost/evidence-impacting.",
+  "costImpact": "Repeated permanent client errors roll up by fingerprint instead of writing one diagnostic per loop.",
+  "memoryEntriesAdded": 4,
+  "netAdditions": 274,
+  "netDeletions": 198,
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "When touching a high-risk route, import route-4xx-mitigation and map its expected 4xx through this deep policy.",
+    "When touching a client fetch, register expected 4xx handling in client-callsite-4xx-map before adding retries."
+  ],
+  "currentHead": "8cedd1be76a9d43846a5ba9ace354d1b21d3ef48",
+  "validationFailures": []
+}

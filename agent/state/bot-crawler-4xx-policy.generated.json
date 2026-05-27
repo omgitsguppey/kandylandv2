@@ -1,0 +1,10 @@
+{
+  "reportKey": "bot-crawler-4xx-policy",
+  "generatedAtUtc": "2026-05-27T06:24:39.124Z",
+  "status": "pass",
+  "botNoiseClassesAdded": 7,
+  "suspiciousProbeClasses": 3,
+  "productJourneyNoiseBlocked": 7,
+  "validationFailures": [],
+  "currentHead": "8cedd1be76a9d43846a5ba9ace354d1b21d3ef48"
+}

@@ -1,0 +1,17 @@
+{
+  "reportKey": "route-param-availability-map",
+  "generatedAtUtc": "2026-05-27T06:24:39.010Z",
+  "status": "pass",
+  "dynamicRoutesAudited": 5,
+  "routeParamNamesCovered": [
+    "dropId",
+    "messageId",
+    "threadId",
+    "userId",
+    "username"
+  ],
+  "unsafeUnknowns": 0,
+  "summary": "Dynamic routes classify missing params, unavailable resources, private resources, and recovery actions without retrying permanent client failures.",
+  "validationFailures": [],
+  "currentHead": "8cedd1be76a9d43846a5ba9ace354d1b21d3ef48"
+}

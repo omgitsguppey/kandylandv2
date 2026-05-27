@@ -551,6 +551,13 @@ Treasury must separate appropriations, obligations, outlays, receipts, balances,
 Treasury reports must be compact, redacted, reconcilable, and confidence-labeled. Unknown legacy money data must never display as exact revenue, exact balance, or exact entitlement.
 Every finance-like panel or metric must explain whether it is ledger truth, provider truth, operator-confirmed, inferred, pending, reversed, or unknown legacy.
 
+## Deep 4xx Route Behavior Rules
+Search for 4xx by route behavior, not just status-code strings. Many 4xx bugs hide behind stale links, missing route params, expired sessions, deleted resources, bots, notification deep links, PWA cache, and retry loops.
+Every 4xx must have a root-cause class, retry policy, route/feature owner, safe user copy, diagnostic rollup, and cost classification. Do not allow generic request failed copy or retryable permanent client errors.
+When fixing 4xx, check both sides: the API route and the client surface/link/deep link that calls it. Most 4xx storms are frontend stale-state bugs, not backend bugs.
+Do not convert expected 4xx into 500s or hide them. Expected 4xx should be cheap, grouped, non-retryable, and user-readable.
+A route returning 404 for deleted, expired, private, or unavailable content should include a safe reason class and recovery action, not raw missing-data silence.
+
 ## AI Governance & Workflow Execution
 Antigravity must behave like a disciplined senior engineer. 
 **Cycle**: Inspect architecture -> Identify precise owners -> Patch -> Verify Parity -> Verify Regression Safety -> Report.

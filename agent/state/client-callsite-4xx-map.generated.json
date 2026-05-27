@@ -1,0 +1,11 @@
+{
+  "reportKey": "client-callsite-4xx-map",
+  "generatedAtUtc": "2026-05-27T06:24:39.009Z",
+  "status": "pass",
+  "clientCallsitesAudited": 6,
+  "staleStateCallsites": 6,
+  "deepLinkCallsites": 5,
+  "retryLoopsPrevented": 6,
+  "validationFailures": [],
+  "currentHead": "8cedd1be76a9d43846a5ba9ace354d1b21d3ef48"
+}

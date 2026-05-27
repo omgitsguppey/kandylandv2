@@ -1,0 +1,10 @@
+{
+  "reportKey": "stale-deeplink-route-alias-policy",
+  "generatedAtUtc": "2026-05-27T06:24:39.103Z",
+  "status": "pass",
+  "sourcesAudited": 5,
+  "staleDeepLinksFound": 4,
+  "staleAliasesClassified": 1,
+  "validationFailures": [],
+  "currentHead": "8cedd1be76a9d43846a5ba9ace354d1b21d3ef48"
+}

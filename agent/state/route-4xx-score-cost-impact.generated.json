@@ -1,0 +1,10 @@
+{
+  "reportKey": "route-4xx-score-cost-impact",
+  "generatedAtUtc": "2026-05-27T06:24:51.518Z",
+  "status": "pass",
+  "impactClassesAudited": 7,
+  "expectedRuntimePenaltyBlocked": true,
+  "retryStormCostImpact": "high_until_fixed",
+  "validationFailures": [],
+  "currentHead": "8cedd1be76a9d43846a5ba9ace354d1b21d3ef48"
+}

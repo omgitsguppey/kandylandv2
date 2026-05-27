@@ -475,6 +475,44 @@
       ],
       "severity": "high",
       "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__deep_4xx_stale_client_retry_loop",
+      "title": "deep_4xx_stale_client_retry_loop",
+      "description": "4xx route failures can hide behind route params, stale clients, deleted resources, notification deep links, PWA cache, bots, auth expiry, role drift, and client retry loops rather than obvious status-code literals.",
+      "symptom_pattern": "Users or bots trigger repeated validation/auth/permission/not-found/conflict/rate-limit errors that show generic request failed copy, spam diagnostics, inflate product error scores, or leave stale UI controls visible.",
+      "affected_surfaces": [
+        "src/app/**",
+        "src/components/**",
+        "src/hooks/**",
+        "src/context/**",
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/route-hardening/**",
+        "agent/state/*.generated.json",
+        "docs/agent-truth/*.md"
+      ],
+      "prevention_rule": "Search for 4xx by route behavior, not just status-code strings. Many 4xx bugs hide behind stale links, missing route params, expired sessions, deleted resources, bots, notification deep links, PWA cache, and retry loops. Every 4xx must have a root-cause class, retry policy, route/feature owner, safe user copy, diagnostic rollup, and cost classification. When fixing 4xx, check both sides: the API route and the client surface/link/deep link that calls it. Do not convert expected 4xx into 500s or hide them. Expected 4xx should be cheap, grouped, non-retryable, and user-readable. A route returning 404 for deleted, expired, private, or unavailable content should include a safe reason class and recovery action, not raw missing-data silence.",
+      "detection_hint": "Run check:route-param-availability-map, check:client-callsite-4xx-map, check:stale-deeplink-route-alias-policy, check:bot-crawler-4xx-policy, check:auth-role-drift-4xx-policy, check:route-4xx-score-cost-impact, and check:deep-4xx-memory-writeback.",
+      "related_commands": [
+        "npm run check:route-param-availability-map",
+        "npm run check:client-callsite-4xx-map",
+        "npm run check:stale-deeplink-route-alias-policy",
+        "npm run check:bot-crawler-4xx-policy",
+        "npm run check:auth-role-drift-4xx-policy",
+        "npm run check:route-4xx-score-cost-impact",
+        "npm run check:deep-4xx-memory-writeback"
+      ],
+      "related_helpers": [
+        "src/lib/route-hardening/route-param-availability-map.ts",
+        "src/lib/route-hardening/client-callsite-4xx-map.ts",
+        "src/lib/route-hardening/stale-deeplink-route-alias-policy.ts",
+        "src/lib/route-hardening/bot-crawler-4xx-policy.ts",
+        "src/lib/route-hardening/auth-role-drift-4xx-policy.ts",
+        "src/lib/route-hardening/route-4xx-score-cost-impact.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
     }
   ]
 }
