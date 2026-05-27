@@ -1,3 +1,5 @@
+import { generateSecureClientToken } from "@/lib/client-random";
+
 export const DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD = 0.6;
 export const DISCOVERY_IMPRESSION_MIN_VISIBLE_MS = 500;
 
@@ -6,19 +8,7 @@ const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 const PHONE_PATTERN = /(?<!\w)(?:\+?\d[\d\s().-]{7,}\d)(?!\w)/g;
 
 function createRandomToken() {
-  const runtimeCrypto = globalThis.crypto;
-
-  if (typeof runtimeCrypto?.randomUUID === "function") {
-    return runtimeCrypto.randomUUID().replace(/-/g, "").slice(0, 12);
-  }
-
-  if (typeof runtimeCrypto?.getRandomValues === "function") {
-    const buffer = new Uint8Array(6);
-    runtimeCrypto.getRandomValues(buffer);
-    return Array.from(buffer, (value) => value.toString(36).padStart(2, "0")).join("").slice(0, 12);
-  }
-
-  return Math.random().toString(36).slice(2, 14);
+  return generateSecureClientToken(12);
 }
 
 export function createDiscoveryTrackingSessionId(prefix: string) {

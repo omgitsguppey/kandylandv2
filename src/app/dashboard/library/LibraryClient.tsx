@@ -71,18 +71,25 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     const [gridCols, setGridCols] = useState<2 | 3>(2);
 
     const filteredDrops = useMemo(() => {
-        let res = unlockedDrops;
-        if (searchQuery) {
-            const lower = searchQuery.toLowerCase();
-            res = res.filter(d => 
-                d.title.toLowerCase().includes(lower) || 
-                (d.creatorId && d.creatorId.toLowerCase().includes(lower))
-            );
+        const filtered: Drop[] = [];
+        const lowerSearch = searchQuery ? searchQuery.toLowerCase() : "";
+        const filteringCategory = selectedCategory !== "All";
+
+        for (const drop of unlockedDrops) {
+            if (filteringCategory && drop.creatorId !== selectedCategory) {
+                continue;
+            }
+            if (lowerSearch) {
+                const titleMatches = drop.title.toLowerCase().includes(lowerSearch);
+                const creatorMatches = Boolean(drop.creatorId?.toLowerCase().includes(lowerSearch));
+                if (!titleMatches && !creatorMatches) {
+                    continue;
+                }
+            }
+            filtered.push(drop);
         }
-        if (selectedCategory !== "All") {
-            res = res.filter(d => d.creatorId === selectedCategory);
-        }
-        return res;
+
+        return filtered;
     }, [unlockedDrops, searchQuery, selectedCategory]);
 
     const categories = useMemo(() => {

@@ -5,8 +5,8 @@ Validator: `npm run check:formal-evidence-status-ledger`
 
 ## Summary
 
-- Generated: `2026-05-26T21:08:33.961Z`
-- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
+- Generated: `2026-05-27T00:29:28.493Z`
+- Current head: `724eec6ca6984fafca5707d1dd5556f2be9e4ef2`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:formal-evidence-status-ledger`
 ```json
 {
   "reportKey": "formal-evidence-status-ledger",
-  "generatedAtUtc": "2026-05-26T21:08:33.961Z",
-  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
+  "generatedAtUtc": "2026-05-27T00:29:28.493Z",
+  "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
   "scoreDimensions": {
     "sourceHealth": 100,
     "runtimeHealth": 84.2,
@@ -126,12 +126,12 @@ Validator: `npm run check:formal-evidence-status-ledger`
     },
     {
       "category": "PR integrity",
-      "status": "external_review_required",
+      "status": "formal_passed",
       "artifactPath": "agent/state/open-pr-dependency-hygiene.generated.json",
       "owner": "repo maintainer",
-      "blocksBetaExit": true,
+      "blocksBetaExit": false,
       "blocksScoreOnly": false,
-      "nextExactAction": "Review, cherry-pick, defer, or close every classified open PR.",
+      "nextExactAction": "No open PR action remains.",
       "whatItDoesNotProve": "Classifying an open PR does not merge, test, or close it."
     },
     {
@@ -195,16 +195,6 @@ Validator: `npm run check:formal-evidence-status-ledger`
       "blocksScoreOnly": false,
       "nextExactAction": "Complete external billing review for Cloud Run/App Hosting, Cloud SQL/Data Connect, Gemini/Cloud Assist/Vertex, and route 4xx lanes.",
       "whatItDoesNotProve": "Source cost guards do not prove provider billing state."
-    },
-    {
-      "category": "PR integrity",
-      "status": "external_review_required",
-      "artifactPath": "agent/state/open-pr-dependency-hygiene.generated.json",
-      "owner": "repo maintainer",
-      "blocksBetaExit": true,
-      "blocksScoreOnly": false,
-      "nextExactAction": "Review, cherry-pick, defer, or close every classified open PR.",
-      "whatItDoesNotProve": "Classifying an open PR does not merge, test, or close it."
     },
     {
       "category": "operator-final visual QA",

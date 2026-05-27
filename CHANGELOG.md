@@ -4,6 +4,13 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.11 - 2026-05-26
+- Final beta-exit closure
+- Resolved final security PR blockers and refreshed beta-exit evidence.
+- Classified or deferred remaining PRs for beta-exit hygiene.
+- Refreshed current-head score and final operator evidence packet.
+- Kept runtime/provider/admin formal gates honest.
+
 ## 1.5.10 - 2026-05-26
 - Automated truth reconciliation
 - Added automated truth reconciliation to audit claimed readiness, validator authority, wiring completeness, score freshness, cost risk, and manual-QA readiness.

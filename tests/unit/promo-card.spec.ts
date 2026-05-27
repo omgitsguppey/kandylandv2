@@ -12,6 +12,9 @@ describe("getSafeUrl", () => {
   it("blocks protocol-relative open redirect URLs", () => {
     expect(getSafeUrl("https://kandydrops.invalid//evil.com")).toBeUndefined();
     expect(getSafeUrl("https://kandydrops.invalid/\\evil.com")).toBeUndefined();
+    expect(getSafeUrl("//evil.com")).toBeUndefined();
+    expect(getSafeUrl("\\evil.com")).toBeUndefined();
+    expect(getSafeUrl("/\\evil.com")).toBeUndefined();
   });
 
   it("blocks script-bearing and control-character-obfuscated URLs", () => {

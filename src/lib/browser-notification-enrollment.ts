@@ -2,6 +2,7 @@
 
 import type { UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
+import { generateSecureClientId } from "@/lib/client-random";
 import { requestBrowserNotificationAccess } from "@/lib/firebase-messaging";
 import { trackEvent } from "@/lib/telemetry";
 import { trackPushTokenLifecycleEvent } from "@/lib/notifications/push-token-telemetry";
@@ -32,7 +33,7 @@ function getBrowserPushDeviceId() {
   try {
     const existing = window.localStorage.getItem(storageKey);
     if (existing) return resolvePushDeviceId(existing);
-    const generated = `${PUSH_TOKEN_DEVICE_ID_PREFIX}:${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(36).slice(2)}`}`;
+    const generated = `${PUSH_TOKEN_DEVICE_ID_PREFIX}:${generateSecureClientId()}`;
     window.localStorage.setItem(storageKey, generated);
     return resolvePushDeviceId(generated);
   } catch {

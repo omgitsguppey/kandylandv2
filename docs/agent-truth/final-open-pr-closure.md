@@ -1,0 +1,332 @@
+# Final Open PR Closure
+
+Generated: 2026-05-27T00:30:12.090Z
+Current HEAD: 724eec6ca6984fafca5707d1dd5556f2be9e4ef2
+Validation failures: 0
+
+```json
+{
+  "reportKey": "final-open-pr-closure",
+  "generatedAtUtc": "2026-05-27T00:30:12.090Z",
+  "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
+  "openPrsBefore": [
+    {
+      "number": 304,
+      "title": "Sentinel HIGH: Fix open redirect and weak PRNG",
+      "status": "security_patch_equivalent_landed",
+      "dependencyRiskClass": "security_required",
+      "securityRequired": true,
+      "reason": "Ported the current-source equivalent PromoCard redirect-smuggling guard and sensitive PRNG closure without scratch files.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 293,
+      "title": "Sentinel High: Fix insecure Math.random ID generation",
+      "status": "security_patch_equivalent_landed",
+      "dependencyRiskClass": "security_required",
+      "securityRequired": true,
+      "reason": "Replaced sensitive Math.random fallbacks with the existing crypto-backed client random helper.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 303,
+      "title": "Bolt: Consolidate useMemo iterations in LibraryClient",
+      "status": "performance_patch_equivalent_landed",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Ported only the single-pass LibraryClient filtering optimization; left scratch notes out.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 292,
+      "title": "Bolt: Replace array .find() with Map lookup in debug route",
+      "status": "performance_patch_equivalent_landed",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Ported only the task inventory Map lookup and preserved debug source truth.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 291,
+      "title": "Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "status": "accessibility_patch_equivalent_landed",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Ported only aria-busy and decorative loading icon aria-hidden attributes.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 294,
+      "title": "Dependabot PR #294",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "major_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 295,
+      "title": "Dependabot PR #295",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 296,
+      "title": "Dependabot PR #296",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 297,
+      "title": "Dependabot PR #297",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 298,
+      "title": "Dependabot PR #298",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 299,
+      "title": "Dependabot PR #299",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "provider_sdk_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 300,
+      "title": "Governance/product PR #300",
+      "status": "governance_deferred_post_beta",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Governance/product-scope work is deferred until after beta-exit source closure to avoid broad overlap.",
+      "nextWindow": "post_beta_governance_window"
+    },
+    {
+      "number": 301,
+      "title": "Governance/product PR #301",
+      "status": "governance_deferred_post_beta",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Governance/product-scope work is deferred until after beta-exit source closure to avoid broad overlap.",
+      "nextWindow": "post_beta_governance_window"
+    },
+    {
+      "number": 302,
+      "title": "Governance/product PR #302",
+      "status": "governance_deferred_post_beta",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Governance/product-scope work is deferred until after beta-exit source closure to avoid broad overlap.",
+      "nextWindow": "post_beta_governance_window"
+    }
+  ],
+  "handledPrs": [
+    {
+      "number": 304,
+      "title": "Sentinel HIGH: Fix open redirect and weak PRNG",
+      "status": "security_patch_equivalent_landed",
+      "dependencyRiskClass": "security_required",
+      "securityRequired": true,
+      "reason": "Ported the current-source equivalent PromoCard redirect-smuggling guard and sensitive PRNG closure without scratch files.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 293,
+      "title": "Sentinel High: Fix insecure Math.random ID generation",
+      "status": "security_patch_equivalent_landed",
+      "dependencyRiskClass": "security_required",
+      "securityRequired": true,
+      "reason": "Replaced sensitive Math.random fallbacks with the existing crypto-backed client random helper.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 303,
+      "title": "Bolt: Consolidate useMemo iterations in LibraryClient",
+      "status": "performance_patch_equivalent_landed",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Ported only the single-pass LibraryClient filtering optimization; left scratch notes out.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 292,
+      "title": "Bolt: Replace array .find() with Map lookup in debug route",
+      "status": "performance_patch_equivalent_landed",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Ported only the task inventory Map lookup and preserved debug source truth.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 291,
+      "title": "Palette: Add accessible loading states to Creator Experiences Panel buttons",
+      "status": "accessibility_patch_equivalent_landed",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Ported only aria-busy and decorative loading icon aria-hidden attributes.",
+      "nextWindow": "current_beta_exit_closure"
+    },
+    {
+      "number": 294,
+      "title": "Dependabot PR #294",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "major_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 295,
+      "title": "Dependabot PR #295",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 296,
+      "title": "Dependabot PR #296",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 297,
+      "title": "Dependabot PR #297",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 298,
+      "title": "Dependabot PR #298",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 299,
+      "title": "Dependabot PR #299",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "provider_sdk_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 300,
+      "title": "Governance/product PR #300",
+      "status": "governance_deferred_post_beta",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Governance/product-scope work is deferred until after beta-exit source closure to avoid broad overlap.",
+      "nextWindow": "post_beta_governance_window"
+    },
+    {
+      "number": 301,
+      "title": "Governance/product PR #301",
+      "status": "governance_deferred_post_beta",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Governance/product-scope work is deferred until after beta-exit source closure to avoid broad overlap.",
+      "nextWindow": "post_beta_governance_window"
+    },
+    {
+      "number": 302,
+      "title": "Governance/product PR #302",
+      "status": "governance_deferred_post_beta",
+      "dependencyRiskClass": "not_dependency",
+      "securityRequired": false,
+      "reason": "Governance/product-scope work is deferred until after beta-exit source closure to avoid broad overlap.",
+      "nextWindow": "post_beta_governance_window"
+    }
+  ],
+  "securityPrsResolved": true,
+  "performancePrsResolved": true,
+  "accessibilityPrsResolved": true,
+  "dependencyPrsDeferred": [
+    {
+      "number": 294,
+      "title": "Dependabot PR #294",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "major_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 295,
+      "title": "Dependabot PR #295",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 296,
+      "title": "Dependabot PR #296",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 297,
+      "title": "Dependabot PR #297",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 298,
+      "title": "Dependabot PR #298",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "test_tooling_or_minor_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    },
+    {
+      "number": 299,
+      "title": "Dependabot PR #299",
+      "status": "dependency_deferred_post_beta",
+      "dependencyRiskClass": "provider_sdk_risk",
+      "securityRequired": false,
+      "reason": "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
+      "nextWindow": "post_beta_dependency_window"
+    }
+  ],
+  "openPrsAfter": [],
+  "blockingOpenPrCount": 0,
+  "unclassifiedOpenPrCount": 0,
+  "validationFailures": []
+}
+```

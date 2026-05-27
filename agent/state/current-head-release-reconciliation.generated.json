@@ -1,9 +1,9 @@
 {
   "reportKey": "current-head-release-reconciliation",
-  "generatedAtUtc": "2026-05-26T21:08:26.734Z",
-  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
-  "publicBetaScoreCurrentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
-  "currentBetaExitStatusCurrentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
+  "generatedAtUtc": "2026-05-27T00:29:28.233Z",
+  "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
+  "publicBetaScoreCurrentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
+  "currentBetaExitStatusCurrentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
   "scoreBefore": 85.34,
   "scoreAfter": 85.34,
   "scoreDimensions": {
@@ -19,20 +19,20 @@
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
       "reportKey": "",
-      "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
-      "generatedAtUtc": "2026-05-26T17:21:33.575Z",
-      "status": "same_commit_snapshot",
+      "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
+      "generatedAtUtc": "2026-05-27T00:24:35.219Z",
+      "status": "current",
       "affectsReadiness": true,
-      "nextExactAction": "agent/state/public-beta-score.generated.json is a same commit generated artifact snapshot."
+      "nextExactAction": "agent/state/public-beta-score.generated.json was generated for the current code version."
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
-      "currentHead": "5f7c45eaaa46bee98843e0c9b1a371010eaf2cb6",
-      "generatedAtUtc": "2026-05-26T17:18:08.870Z",
-      "status": "same_commit_snapshot",
+      "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
+      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
+      "status": "current",
       "affectsReadiness": true,
-      "nextExactAction": "agent/state/current-beta-exit-status.generated.json is a same commit generated artifact snapshot."
+      "nextExactAction": "agent/state/current-beta-exit-status.generated.json was generated for the current code version."
     },
     {
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",

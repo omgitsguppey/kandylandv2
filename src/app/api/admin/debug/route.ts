@@ -4207,6 +4207,7 @@ export async function GET(request: NextRequest) {
         });
 
         const taskInventory = buildDailyTaskInventory();
+        const taskInventoryById = new Map<string, typeof taskInventory[number]>(taskInventory.map((entry) => [entry.taskId, entry]));
         const taskInventorySummary = summarizeDailyTaskInventory(taskInventory);
 
         const taskEventsForAttribution = taskEventsSnapshot.docs.map((doc) => {
@@ -5263,7 +5264,7 @@ export async function GET(request: NextRequest) {
             const reason = classifyRuntimeUnsupportedReason(record);
             const source = sourceLabelForRuntimeDriftKind(record.kind);
             const taskDefinition = record.taskId ? taskDefinitionsById.get(record.taskId) : undefined;
-            const inventoryEntry = record.taskId ? taskInventory.find((entry) => entry.taskId === record.taskId) : undefined;
+            const inventoryEntry = record.taskId ? taskInventoryById.get(record.taskId) : undefined;
             const activityScope: RuntimeUnsupportedGroup["activityScope"] = typeof record.timestamp === "number" && record.timestamp >= currentDailyTaskWindow.windowStartMs
                 ? "active"
                 : "historical";

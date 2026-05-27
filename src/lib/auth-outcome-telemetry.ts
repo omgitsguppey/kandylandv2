@@ -1,4 +1,5 @@
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
+import { generateSecureClientToken } from "@/lib/client-random";
 import { trackEvent } from "@/lib/telemetry";
 
 export type AuthOutcomeMethod =
@@ -57,9 +58,7 @@ export function createAuthAttemptTelemetryContext(input: {
   const identity = getClientAnalyticsIdentitySnapshot();
   const route = input.route || (typeof window !== "undefined" ? window.location.pathname : "/auth");
   return {
-    authAttemptId: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-      ? crypto.randomUUID()
-      : `auth_attempt_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
+    authAttemptId: `auth_attempt_${Date.now()}_${generateSecureClientToken(8)}`,
     method: input.method,
     startedAtUtc: nowUtc(),
     route,

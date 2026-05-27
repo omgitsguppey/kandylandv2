@@ -1,11 +1,65 @@
 {
-  "currentVersion": "1.5.10",
-  "betaReleaseCounter": 510,
+  "currentVersion": "1.5.11",
+  "betaReleaseCounter": 511,
   "channel": "beta",
-  "generatedAt": "2026-05-26T17:20:00.000Z",
-  "generatedAtUtc": "2026-05-26T17:20:00.000Z",
+  "generatedAt": "2026-05-27T00:30:00.000Z",
+  "generatedAtUtc": "2026-05-27T00:30:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.11",
+      "previousVersion": "1.5.10",
+      "betaReleaseCounter": 511,
+      "previousBetaReleaseCounter": 510,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(beta): close final exit blockers",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T00:30:00.000Z",
+      "generatedAt": "2026-05-27T00:30:00.000Z",
+      "committedAtUtc": "2026-05-27T00:30:00.000Z",
+      "generatedAtUtc": "2026-05-27T00:30:00.000Z",
+      "category": "Improved",
+      "title": "Final beta-exit closure",
+      "updatedAtUtc": "2026-05-27T00:30:00.000Z",
+      "summary": "Resolved final source-side security PR blockers, classified remaining PRs, and refreshed beta-exit evidence without claiming missing formal proof.",
+      "userFacingTitle": "Final beta-exit closure",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Resolved final security PR blockers and refreshed beta-exit evidence.",
+        "Classified or deferred remaining PRs for beta-exit hygiene.",
+        "Refreshed current-head score and final operator evidence packet.",
+        "Kept runtime/provider/admin formal gates honest."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Ported source-equivalent security, performance, and accessibility PR fixes without scratch files.",
+        "Closed or deferred open PRs with explicit beta-exit classifications.",
+        "Kept provider/runtime/admin/operator evidence gates formal-required until human artifacts are attached."
+      ],
+      "affectedSurfaces": [
+        "Security PR closure",
+        "Open PR closure",
+        "Final operator evidence packet",
+        "Current-head score refresh",
+        "Release readiness packet"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/final-open-pr-closure.generated.json",
+        "agent/state/final-operator-evidence-needed.generated.json",
+        "agent/state/security-prng-redirect-closure.generated.json",
+        "scripts/agent/validate-security-prng-redirect-closure.ts",
+        "src/lib/release-readiness/final-beta-exit-closure.ts"
+      ],
+      "effectiveChangeCount": 6,
+      "excludedGeneratedChangeCount": 8,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.10",
       "previousVersion": "1.5.9",
@@ -1507,147 +1561,6 @@
       ],
       "effectiveChangeCount": 12,
       "excludedGeneratedChangeCount": 1,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.86",
-      "previousVersion": "1.4.85",
-      "betaReleaseCounter": 486,
-      "previousBetaReleaseCounter": 485,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): lock exit gate readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T04:55:43.000Z",
-      "generatedAt": "2026-05-26T04:55:43.000Z",
-      "committedAtUtc": "2026-05-26T04:55:43.000Z",
-      "generatedAtUtc": "2026-05-26T04:55:43.000Z",
-      "category": "Improved",
-      "title": "Final beta exit gate readiness",
-      "updatedAtUtc": "2026-05-26T04:55:43.000Z",
-      "summary": "Locked beta-exit gate readiness with current score, blocker, PR, and evidence state.",
-      "userFacingTitle": "Final beta exit gate readiness",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked beta-exit gate readiness with current score, blocker, PR, and evidence state.",
-        "Classified all remaining formal evidence, freshness, and cost review gaps.",
-        "Kept operator-final visual review outside Codex score blocking."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a final beta-exit gate readiness validator and artifact that refuses stale score heads, unclassified PRs, unclassified stale artifacts, and unsafe dirty files.",
-        "Preserved formal provider smoke, deployed runtime smoke, production admin truth sample, external billing, and operator visual review as separate gates.",
-        "Refreshed current score/status artifacts from source-only validators without production reads, provider calls, deploys, payment changes, or GumDrop math changes."
-      ],
-      "affectedSurfaces": [
-        "Public beta score",
-        "Beta exit gate readiness",
-        "Launch blocker classification",
-        "PR integrity evidence",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/auth-readiness-lock.generated.json",
-        "agent/state/chat-functionality-score-lock.generated.json",
-        "agent/state/cost-risk-exit-pass.generated.json",
-        "agent/state/creator-monetization-readiness-lock.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/daily-task-debug-score-lock.generated.json",
-        "agent/state/final-beta-exit-gate-readiness.generated.json",
-        "agent/state/final-parity-telemetry-lock.generated.json",
-        "agent/state/freshness-window-repair.generated.json",
-        "agent/state/launch-blocker-evidence-closure.generated.json",
-        "agent/state/media-discovery-score-lock.generated.json",
-        "agent/state/notification-pwa-score-lock.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/sql-database-parity-cost-lock.generated.json",
-        "agent/state/targeted-behavior-evidence-repair.generated.json",
-        "docs/agent-truth/auth-readiness-lock.md",
-        "docs/agent-truth/chat-functionality-score-lock.md",
-        "docs/agent-truth/cost-risk-exit-pass.md",
-        "docs/agent-truth/creator-monetization-readiness-lock.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/daily-task-debug-score-lock.md",
-        "docs/agent-truth/final-beta-exit-gate-readiness.md",
-        "docs/agent-truth/final-parity-telemetry-lock.md",
-        "docs/agent-truth/freshness-window-repair.md",
-        "docs/agent-truth/launch-blocker-evidence-closure.md",
-        "docs/agent-truth/media-discovery-score-lock.md",
-        "docs/agent-truth/notification-pwa-score-lock.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/sql-database-parity-cost-lock.md",
-        "docs/agent-truth/targeted-behavior-evidence-repair.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-beta-exit-gate-readiness.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/final-beta-exit-gate-readiness.spec.ts"
-      ],
-      "effectiveChangeCount": 38,
-      "excludedGeneratedChangeCount": 31,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.4.85",
-      "previousVersion": "1.4.84",
-      "betaReleaseCounter": 485,
-      "previousBetaReleaseCounter": 484,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "docs(beta): classify launch blockers",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-26T04:41:10.000Z",
-      "generatedAt": "2026-05-26T04:41:10.000Z",
-      "committedAtUtc": "2026-05-26T04:41:10.000Z",
-      "generatedAtUtc": "2026-05-26T04:41:10.000Z",
-      "category": "Improved",
-      "title": "Launch blocker evidence closure",
-      "updatedAtUtc": "2026-05-26T04:41:10.000Z",
-      "summary": "Classified remaining launch blockers by formal evidence, source confidence, and stale PR integrity.",
-      "userFacingTitle": "Launch blocker evidence closure",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Classified remaining launch blockers by formal evidence, source confidence, and stale PR integrity.",
-        "Closed PR integrity evidence where current repository state supports it.",
-        "Kept runtime, provider, and admin formal gates honest."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Added a source-only launch blocker closure validator and artifact for runtime/provider smoke, admin truth samples, and PR integrity.",
-        "Classified current open PRs without treating them as merged, closed, or production-ready.",
-        "Preserved formal provider smoke, deployed runtime smoke, and production admin truth sample gates until real artifacts exist."
-      ],
-      "affectedSurfaces": [
-        "Public beta launch evidence",
-        "Runtime/provider smoke classification",
-        "Admin truth sample classification",
-        "PR integrity evidence",
-        "Release notes"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/launch-blocker-evidence-closure.generated.json",
-        "docs/agent-truth/launch-blocker-evidence-closure.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-launch-blocker-evidence-closure.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/launch-blocker-evidence-closure.spec.ts"
-      ],
-      "effectiveChangeCount": 9,
-      "excludedGeneratedChangeCount": 2,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

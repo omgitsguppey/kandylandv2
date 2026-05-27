@@ -22,6 +22,9 @@ export function getSafeUrl(url: string | undefined): string | undefined {
     if (/^(javascript|data|vbscript):/i.test(normalizedSchemeCheck)) {
         return undefined;
     }
+    if (trimmedUrl.startsWith("\\") || trimmedUrl.startsWith("//") || trimmedUrl.startsWith("/\\")) {
+        return undefined;
+    }
 
     try {
         const parsed = new URL(trimmedUrl, PROMO_CARD_URL_BASE);
@@ -35,6 +38,8 @@ export function getSafeUrl(url: string | undefined): string | undefined {
                 || parsed.pathname.startsWith("/\\")
                 || parsed.pathname.startsWith("\\")
                 || trimmedUrl.startsWith("\\")
+                || trimmedUrl.startsWith("//")
+                || trimmedUrl.startsWith("/\\")
             ) {
                 return undefined;
             }
