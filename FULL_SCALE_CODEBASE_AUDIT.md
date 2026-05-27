@@ -13887,3 +13887,9 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+## [2024-05-27 #166] PRE: Replace console.warn in creator settings API
+- Scope: `src/app/api/creator/settings/route.ts`
+- Action: Replace `console.warn` with `recordRouteWarning` to prevent sensitive error leakage in standard outputs.
+
+## [2024-05-27 #166] POST: Replace console.warn in creator settings API
+- Verification: Replaced 4 instances of `console.warn` with `recordRouteWarning(..., { channel: "runtime" })`. Typecheck passed successfully.

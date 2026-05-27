@@ -1,3 +1,4 @@
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { NextRequest, NextResponse } from "next/server";
 import { AggregateField } from "firebase-admin/firestore";
 
@@ -143,7 +144,7 @@ async function readCreatorFanCountSource(creatorId: string, userData: Record<str
             fanCountSource: "relationship_count",
         };
     } catch (relationshipError) {
-        console.warn("[creator/settings] creator_relationships fan source unavailable", relationshipError);
+        recordRouteWarning("creator/settings", "creator_relationships fan source unavailable", relationshipError, { channel: "runtime" });
     }
 
     const profileFollowerCount = userData.followerCount;
@@ -173,7 +174,7 @@ async function readCreatorFanCountSource(creatorId: string, userData: Record<str
             fanCountSource: "settings_snapshot",
         };
     } catch (opsError) {
-        console.warn("[creator/settings] creator_relationships_ops fan fallback unavailable", opsError);
+        recordRouteWarning("creator/settings", "creator_relationships_ops fan fallback unavailable", opsError, { channel: "runtime" });
     }
 
     return {
@@ -242,7 +243,7 @@ async function readCreatorDashboardDropCounts(creatorId: string): Promise<{
             contentCountIncludes: contentCountIncludes.length > 0 ? contentCountIncludes : ["active"],
         };
     } catch (error) {
-        console.warn("[creator/settings] drops dashboard scope source unavailable", error);
+        recordRouteWarning("creator/settings", "drops dashboard scope source unavailable", error, { channel: "runtime" });
         return {
             state: "unavailable",
             contentCount: 0,
@@ -271,7 +272,7 @@ async function readCreatorSettingsSource<T>(
             collection,
         };
     } catch (error) {
-        console.warn(`[creator/settings] ${name} source unavailable`, error);
+        recordRouteWarning("creator/settings", `${name} source unavailable`, error, { channel: "runtime" });
         return {
             state: unavailableState,
             value: fallback,

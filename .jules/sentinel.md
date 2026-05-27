@@ -30,3 +30,7 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+## 2024-05-27 - [Console Leak Prevention]
+**Vulnerability:** Leaking sensitive application state, internal routing logic, or unhandled promise rejection data into standard stdout/stderr logs using `console.warn` or `console.error` in production API routes.
+**Learning:** Even internal API route errors contain sensitive environment contexts that shouldn't be exposed globally. Standard outputs lack structured security filters.
+**Prevention:** Always use the centralized `recordRouteWarning` (or equivalent `route-diagnostics` logging methods) to ensure errors are sanitized, categorized by channel (e.g., `runtime`, `auth`), and safely logged without leaking internal stack traces or database schema specifics to unmonitored standard output streams.
