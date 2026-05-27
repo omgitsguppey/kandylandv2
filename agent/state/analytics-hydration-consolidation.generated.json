@@ -1,0 +1,98 @@
+{
+  "reportKey": "analytics-hydration-consolidation",
+  "generatedAtUtc": "2026-05-27T03:00:34.217Z",
+  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+  "filesAudited": [
+    "src/lib/admin-analytics/panel-hydration-contract.ts",
+    "src/lib/admin-analytics/panel-hydration-registry.ts",
+    "src/lib/admin-analytics/panel-hydration-resolver.ts",
+    "src/lib/analytics/person-metrics-hydration.ts",
+    "src/lib/analytics/event-liveness-engine.ts",
+    "src/lib/debug/debug-panel-tracking-summary.ts",
+    "src/lib/product-integrity/interpretive-brain.ts",
+    "src/lib/parity/surface-parity-registry.ts",
+    "src/lib/release-readiness/live-panel-evidence-resolver.ts",
+    "agent/state/analytics-panel-hydration.generated.json"
+  ],
+  "filesDeleted": [],
+  "filesShrunk": [
+    "src/lib/admin-analytics/panel-hydration-registry.ts",
+    "agent/state/analytics-panel-hydration.generated.json"
+  ],
+  "duplicateLogicRemoved": [
+    "Static panel expectedEvents arrays",
+    "Static panel materializer duplication",
+    "Full generated panel dump in default artifact"
+  ],
+  "registryLinesBefore": 620,
+  "registryLinesAfter": 135,
+  "generatedArtifactLinesBefore": 2575,
+  "generatedArtifactLinesAfter": 491,
+  "netAdditions": 2641,
+  "netDeletions": 6178,
+  "delegatedToPersonMetrics": true,
+  "delegatedToEventLiveness": true,
+  "delegatedToDebugBrain": true,
+  "panelsStillCovered": 41,
+  "topFailingPanelsStillReported": [
+    {
+      "panelId": "new_users_signups",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/lib/auth/auth-telemetry-contract.ts so New users/signups can hydrate."
+    },
+    {
+      "panelId": "returning_users",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/app/api/behavior so Returning users can hydrate."
+    },
+    {
+      "panelId": "guest_to_user_handoff",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate."
+    },
+    {
+      "panelId": "creator_profile_views",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/app/api/behavior so Creator profile views can hydrate."
+    },
+    {
+      "panelId": "creator_follows",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/lib/discovery/creator-relationship-telemetry.ts so Creator follows can hydrate."
+    },
+    {
+      "panelId": "drop_opens",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/app/api/behavior so Drop opens can hydrate."
+    },
+    {
+      "panelId": "unlocks",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate."
+    },
+    {
+      "panelId": "unwraps",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/app/api/behavior so Unwraps can hydrate."
+    },
+    {
+      "panelId": "watch_time",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/lib/analytics/drop-watch-time-contract.ts so Watch time can hydrate."
+    },
+    {
+      "panelId": "completion_rate",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/lib/math/drop-watch-unlock-math.ts so Completion rate can hydrate."
+    }
+  ],
+  "scoreBefore": 85.34,
+  "scoreAfter": 85.34,
+  "remainingGaps": [],
+  "nextExactSteps": [
+    "Keep panel hydration as adapter-only status mapping.",
+    "Add new analytics panels by first registering person metric, feature, surface parity, or event liveness source truth.",
+    "Keep generated artifact compact; use runtime drilldown for full per-panel records."
+  ],
+  "validationFailures": []
+}

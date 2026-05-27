@@ -397,10 +397,14 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
     : toNumber(eventLivenessLane.expectedLiveEvents) > 0
       ? "live"
       : "unknown";
-  const analyticsPanelHydration = input.analyticsPanelHydration?.debugLane ?? buildAnalyticsPanelHydrationReport({
+  const analyticsPanelHydrationReport = input.analyticsPanelHydration ?? buildAnalyticsPanelHydrationReport({
     eventLivenessAudit: eventLiveness,
     personMetricsHydration: input.personMetricsHydration,
-  }).debugLane;
+  });
+  const analyticsPanelHydration = analyticsPanelHydrationReport.debugLane ?? {};
+  const analyticsPanelHydrationTopNextActions = (analyticsPanelHydration.topNextActions ?? [])
+    .slice(0, 10)
+    .join(" | ");
   const analyticsPanelHydrationWarnings = toNumber(analyticsPanelHydration.sourceMissing)
     + toNumber(analyticsPanelHydration.materializerMissing)
     + toNumber(analyticsPanelHydration.bridgeMissing)
@@ -1036,7 +1040,7 @@ export function buildDebugPanelTrackingSummary(input: SummaryInput = {}): DebugT
       status: analyticsPanelHydrationStatus,
       severity: severityFromCounts(0, analyticsPanelHydrationWarnings, analyticsPanelHydrationStatus),
       scoreImpact: analyticsPanelHydrationWarnings > 0 ? "medium" : "none",
-      primarySignal: `Panels=${toNumber(analyticsPanelHydration.totalPanels)}; hydrated=${toNumber(analyticsPanelHydration.hydrated)}; collecting=${toNumber(analyticsPanelHydration.collecting)}; stale=${toNumber(analyticsPanelHydration.stale)}; sourceMissing=${toNumber(analyticsPanelHydration.sourceMissing)}; materializerMissing=${toNumber(analyticsPanelHydration.materializerMissing)}; bridgeMissing=${toNumber(analyticsPanelHydration.bridgeMissing)}; externalRequired=${toNumber(analyticsPanelHydration.externalRequired)}; broken=${toNumber(analyticsPanelHydration.broken)}.`,
+      primarySignal: `Panels=${toNumber(analyticsPanelHydration.totalPanels)}; hydrated=${toNumber(analyticsPanelHydration.hydrated)}; collecting=${toNumber(analyticsPanelHydration.collecting)}; stale=${toNumber(analyticsPanelHydration.stale)}; sourceMissing=${toNumber(analyticsPanelHydration.sourceMissing)}; materializerMissing=${toNumber(analyticsPanelHydration.materializerMissing)}; bridgeMissing=${toNumber(analyticsPanelHydration.bridgeMissing)}; externalRequired=${toNumber(analyticsPanelHydration.externalRequired)}; broken=${toNumber(analyticsPanelHydration.broken)}; topNextActions=${analyticsPanelHydrationTopNextActions || "none"}.`,
       criticalCount: 0,
       warningCount: analyticsPanelHydrationWarnings,
       drilldownTarget: "/admin/debug?tab=advanced#analytics-panel-hydration",

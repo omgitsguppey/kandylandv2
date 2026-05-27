@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-05-27T01:56:07.083Z",
-  "currentHead": "8f23958018f38ac40561b5c1c76baaaf92f5673e",
+  "generatedAtUtc": "2026-05-27T02:53:36.720Z",
+  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -15,10 +15,10 @@
     "overallHealthScore": 85.34
   },
   "totalPanels": 41,
-  "hydratedPanels": 0,
+  "hydratedPanels": 9,
   "stalePanels": 0,
-  "collectingPanels": 17,
-  "sourceMissingPanels": 21,
+  "collectingPanels": 2,
+  "sourceMissingPanels": 27,
   "materializerMissingPanels": 0,
   "bridgeMissingPanels": 0,
   "externalRequiredPanels": 3,
@@ -34,25 +34,25 @@
     "users": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 1,
-      "gaps": 2
+      "collecting": 0,
+      "gaps": 3
     },
     "auth": {
       "total": 3,
-      "hydrated": 0,
-      "collecting": 2,
+      "hydrated": 2,
+      "collecting": 0,
       "gaps": 1
     },
     "creators": {
       "total": 3,
-      "hydrated": 0,
-      "collecting": 2,
-      "gaps": 1
+      "hydrated": 1,
+      "collecting": 0,
+      "gaps": 2
     },
     "drops": {
       "total": 2,
-      "hydrated": 0,
-      "collecting": 1,
+      "hydrated": 1,
+      "collecting": 0,
       "gaps": 1
     },
     "unlocks": {
@@ -63,8 +63,8 @@
     },
     "watch": {
       "total": 2,
-      "hydrated": 0,
-      "collecting": 2,
+      "hydrated": 2,
+      "collecting": 0,
       "gaps": 0
     },
     "wallet": {
@@ -94,31 +94,31 @@
     "chat": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 1,
-      "gaps": 2
+      "collecting": 0,
+      "gaps": 3
     },
     "notifications": {
       "total": 3,
       "hydrated": 0,
-      "collecting": 2,
-      "gaps": 1
+      "collecting": 0,
+      "gaps": 3
     },
     "media": {
       "total": 1,
       "hydrated": 0,
-      "collecting": 1,
-      "gaps": 0
+      "collecting": 0,
+      "gaps": 1
     },
     "search": {
       "total": 2,
-      "hydrated": 0,
-      "collecting": 2,
+      "hydrated": 2,
+      "collecting": 0,
       "gaps": 0
     },
     "support": {
       "total": 1,
-      "hydrated": 0,
-      "collecting": 1,
+      "hydrated": 1,
+      "collecting": 0,
       "gaps": 0
     },
     "errors": {
@@ -146,1866 +146,133 @@
       "gaps": 1
     }
   },
-  "panels": [
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "traffic_overview",
-      "panelLabel": "Traffic overview",
-      "panelGroup": "traffic",
-      "sourceType": "admin_summary",
-      "expectedSource": "admin analytics historical snapshot totals",
-      "expectedEvents": [
-        "page_viewed",
-        "semantic_page_viewed"
-      ],
-      "personMetricIds": [
-        "visits",
-        "page_views"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/app/api/admin/analytics/historical/route.ts",
-      "materializerPath": "analytics_admin_metric_snapshots",
-      "debugLane": "admin_analytics_overview",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Traffic overview has no safe recent source connected for admin analytics historical snapshot totals.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "active_users",
-      "panelLabel": "Active users",
-      "panelGroup": "users",
-      "sourceType": "admin_summary",
-      "expectedSource": "snapshot-first realtime active users",
-      "expectedEvents": [
-        "session_activity_tick",
-        "auth_session_established"
-      ],
-      "personMetricIds": [
-        "sessions"
-      ],
-      "expectedRecentWindow": "1h",
-      "sourcePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "materializerPath": "analytics_admin_metric_snapshots:realtime",
-      "debugLane": "runtime_debug_evidence",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/app/api/admin/analytics/realtime/route.ts so Active users can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Active users has no safe recent source connected for snapshot-first realtime active users.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "evidenceCompleteness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "new_users_signups",
-      "panelLabel": "New users/signups",
-      "panelGroup": "auth",
-      "sourceType": "person_metric",
-      "expectedSource": "auth runtime event facts and person metrics",
-      "expectedEvents": [
-        "auth_sign_up_success",
-        "auth_email_signup_completed"
-      ],
-      "personMetricIds": [
-        "auth_runtime_events"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/auth/auth-telemetry-contract.ts",
-      "materializerPath": "person_metrics.auth_runtime_events",
-      "debugLane": "auth_runtime",
-      "expectedDaily": true,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep auth runtime event facts and person metrics connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "New users/signups has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "returning_users",
-      "panelLabel": "Returning users",
-      "panelGroup": "users",
-      "sourceType": "person_metric",
-      "expectedSource": "sessions and active-days person metrics",
-      "expectedEvents": [
-        "auth_session_restored",
-        "session_started"
-      ],
-      "personMetricIds": [
-        "sessions",
-        "active_days"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.sessions",
-      "debugLane": "person_metrics_hydration",
-      "expectedDaily": true,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep sessions and active-days person metrics connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Returning users has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "guest_to_user_handoff",
-      "panelLabel": "Guest-to-user handoff",
-      "panelGroup": "users",
-      "sourceType": "global_metric",
-      "expectedSource": "identity handoff and global-user dedupe summaries",
-      "expectedEvents": [
-        "auth_session_established",
-        "auth_sign_up_success"
-      ],
-      "personMetricIds": [
-        "sessions",
-        "auth_runtime_events"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/identity-handoff-engine.ts",
-      "materializerPath": "person_metrics.sessions",
-      "debugLane": "identity_handoff",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Guest-to-user handoff has no safe recent source connected for identity handoff and global-user dedupe summaries.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "creator_count",
-      "panelLabel": "Creator count",
-      "panelGroup": "creators",
-      "sourceType": "admin_summary",
-      "expectedSource": "admin creator/user truth summary",
-      "expectedEvents": [
-        "creator_dashboard_viewed",
-        "creator_settings_updated"
-      ],
-      "personMetricIds": [
-        "settings_actions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/admin/user-management-contract.ts",
-      "materializerPath": "admin_user_truth_snapshot",
-      "debugLane": "user_management",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep admin creator/user truth summary connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Creator count has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "creator_profile_views",
-      "panelLabel": "Creator profile views",
-      "panelGroup": "creators",
-      "sourceType": "person_metric",
-      "expectedSource": "creator profile event facts",
-      "expectedEvents": [
-        "creator_profile_viewed"
-      ],
-      "personMetricIds": [
-        "creator_profile_views"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.creator_profile_views",
-      "debugLane": "person_metrics_hydration",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Creator profile views can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Creator profile views has no safe recent source connected for creator profile event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "creator_follows",
-      "panelLabel": "Creator follows",
-      "panelGroup": "creators",
-      "sourceType": "person_metric",
-      "expectedSource": "creator relationship event facts",
-      "expectedEvents": [
-        "creator_followed",
-        "creator_follow_succeeded"
-      ],
-      "personMetricIds": [
-        "follows"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/discovery/creator-relationship-telemetry.ts",
-      "materializerPath": "person_metrics.follows",
-      "debugLane": "creator_relationships",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep creator relationship event facts connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Creator follows has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "drops_live",
-      "panelLabel": "Drops live",
-      "panelGroup": "drops",
-      "sourceType": "admin_summary",
-      "expectedSource": "admin drop inventory summary",
-      "expectedEvents": [
-        "admin_creator_drop_reviewed",
-        "creator_drop_submitted"
-      ],
-      "personMetricIds": [
-        "creator_drop_manager_actions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/app/api/admin/overview/route.ts",
-      "materializerPath": "admin_overview.platformPulse",
-      "debugLane": "admin_overview",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep admin drop inventory summary connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Drops live has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "drop_opens",
-      "panelLabel": "Drop opens",
-      "panelGroup": "drops",
-      "sourceType": "person_metric",
-      "expectedSource": "drop open event facts",
-      "expectedEvents": [
-        "drop_preview_opened",
-        "drop_preview_page_viewed"
-      ],
-      "personMetricIds": [
-        "drop_opens"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.drop_opens",
-      "debugLane": "person_metrics_hydration",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Drop opens can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Drop opens has no safe recent source connected for drop open event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "evidenceCompleteness": 2
-      },
-      "costClass": "summary_first",
-      "panelId": "unlocks",
-      "panelLabel": "Unlocks",
-      "panelGroup": "unlocks",
-      "sourceType": "ledger_summary",
-      "expectedSource": "server unlock entitlement facts",
-      "expectedEvents": [
-        "drop_unlocked",
-        "unlock_drop_success",
-        "entitlement_granted"
-      ],
-      "personMetricIds": [
-        "drop_unlocks"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/app/api/drops/unlock/route.ts",
-      "materializerPath": "person_metrics.drop_unlocks",
-      "debugLane": "drop_watch_time",
-      "expectedDaily": false,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Unlocks has no safe recent source connected for server unlock entitlement facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "evidenceCompleteness": 2
-      },
-      "costClass": "summary_first",
-      "panelId": "unwraps",
-      "panelLabel": "Unwraps",
-      "panelGroup": "unlocks",
-      "sourceType": "event_fact",
-      "expectedSource": "payload reveal or consumed drop facts",
-      "expectedEvents": [
-        "drop_unwrapped",
-        "creator_drop_unwrapped"
-      ],
-      "personMetricIds": [
-        "unwraps"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.unwraps",
-      "debugLane": "drop_watch_time",
-      "expectedDaily": false,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Unwraps can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Unwraps has no safe recent source connected for payload reveal or consumed drop facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 2,
-        "evidenceCompleteness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "watch_time",
-      "panelLabel": "Watch time",
-      "panelGroup": "watch",
-      "sourceType": "journey_summary",
-      "expectedSource": "runtime watch sessions and watch capture summaries",
-      "expectedEvents": [
-        "watch_session_started",
-        "watch_session_progress",
-        "watch_session_ended"
-      ],
-      "personMetricIds": [
-        "runtime_watch_sessions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/drop-watch-time-contract.ts",
-      "materializerPath": "person_metrics.runtime_watch_sessions",
-      "debugLane": "drop_watch_time",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep runtime watch sessions and watch capture summaries connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Watch time has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 2
-      },
-      "costClass": "summary_first",
-      "panelId": "completion_rate",
-      "panelLabel": "Completion rate",
-      "panelGroup": "watch",
-      "sourceType": "journey_summary",
-      "expectedSource": "normalized watch completion summaries",
-      "expectedEvents": [
-        "drop_watch_completed",
-        "watch_session_ended"
-      ],
-      "personMetricIds": [
-        "runtime_watch_sessions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/math/drop-watch-unlock-math.ts",
-      "materializerPath": "person_metrics.runtime_watch_sessions",
-      "debugLane": "drop_watch_time",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep normalized watch completion summaries connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Completion rate has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "wallet_opens",
-      "panelLabel": "Wallet opens",
-      "panelGroup": "wallet",
-      "sourceType": "person_metric",
-      "expectedSource": "wallet UI event facts",
-      "expectedEvents": [
-        "wallet_opened"
-      ],
-      "personMetricIds": [
-        "wallet_opens"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.wallet_opens",
-      "debugLane": "wallet_funnel",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Wallet opens can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Wallet opens has no safe recent source connected for wallet UI event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "package_selections",
-      "panelLabel": "Package selections",
-      "panelGroup": "wallet",
-      "sourceType": "person_metric",
-      "expectedSource": "wallet package selector event facts",
-      "expectedEvents": [
-        "purchase_package_selected"
-      ],
-      "personMetricIds": [
-        "package_selections"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.package_selections",
-      "debugLane": "wallet_funnel",
-      "expectedDaily": false,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Package selections can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Package selections has no safe recent source connected for wallet package selector event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "checkout_starts",
-      "panelLabel": "Checkout starts",
-      "panelGroup": "payments",
-      "sourceType": "person_metric",
-      "expectedSource": "checkout intent telemetry",
-      "expectedEvents": [
-        "begin_checkout"
-      ],
-      "personMetricIds": [
-        "checkout_starts"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.checkout_starts",
-      "debugLane": "wallet_funnel",
-      "expectedDaily": false,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Checkout starts can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Checkout starts has no safe recent source connected for checkout intent telemetry.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_external_required",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "evidenceCompleteness": 2
-      },
-      "costClass": "external_review",
-      "panelId": "payment_approvals",
-      "panelLabel": "Payment approvals",
-      "panelGroup": "payments",
-      "sourceType": "external_required",
-      "expectedSource": "server purchase verification plus external provider proof",
-      "expectedEvents": [
-        "server_purchase_verified",
-        "paypal_capture_completed",
-        "gumdrops_purchase_completed"
-      ],
-      "personMetricIds": [
-        "payment_approvals"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.payment_approvals",
-      "debugLane": "wallet_funnel",
-      "expectedDaily": false,
-      "hydrationStatus": "external_required",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Attach redacted external evidence for server purchase verification plus external provider proof; do not use screenshots as backend proof.",
-      "userSafeDisplayState": "show_external_required",
-      "reason": "Payment approvals requires external/provider or billing evidence and cannot be proven by screenshots.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "external_or_manual"
-    },
-    {
-      "fallbackDisplayState": "show_external_required",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "external_review",
-      "panelId": "payment_failures",
-      "panelLabel": "Payment failures",
-      "panelGroup": "payments",
-      "sourceType": "external_required",
-      "expectedSource": "payment failure event facts plus provider proof when needed",
-      "expectedEvents": [
-        "gumdrops_purchase_failed",
-        "paypal_capture_failed",
-        "payment_failed"
-      ],
-      "personMetricIds": [
-        "payment_failures"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.payment_failures",
-      "debugLane": "wallet_funnel",
-      "expectedDaily": false,
-      "hydrationStatus": "external_required",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Attach redacted external evidence for payment failure event facts plus provider proof when needed; do not use screenshots as backend proof.",
-      "userSafeDisplayState": "show_external_required",
-      "reason": "Payment failures requires external/provider or billing evidence and cannot be proven by screenshots.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "external_or_manual"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "gumdrop_balances",
-      "panelLabel": "GumDrop balances",
-      "panelGroup": "gumdrops",
-      "sourceType": "ledger_summary",
-      "expectedSource": "source-of-funds wallet ledger summary",
-      "expectedEvents": [
-        "daily_task_reward_granted",
-        "server_purchase_verified"
-      ],
-      "personMetricIds": [
-        "payment_approvals",
-        "daily_task_rewards_granted"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/math/gumdrop-ledger-math.ts",
-      "materializerPath": "wallet_source_ledger",
-      "debugLane": "daily_task_reward_ledger",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/math/gumdrop-ledger-math.ts so GumDrop balances can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "GumDrop balances has no safe recent source connected for source-of-funds wallet ledger summary.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "reward_gd_grants",
-      "panelLabel": "Reward GD grants",
-      "panelGroup": "gumdrops",
-      "sourceType": "ledger_summary",
-      "expectedSource": "daily task reward ledger",
-      "expectedEvents": [
-        "daily_task_reward_granted"
-      ],
-      "personMetricIds": [
-        "daily_task_rewards_granted"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/tasks/daily-task-reward-ledger.ts",
-      "materializerPath": "person_metrics.daily_task_rewards_granted",
-      "debugLane": "daily_task_reward_ledger",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/tasks/daily-task-reward-ledger.ts so Reward GD grants can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Reward GD grants has no safe recent source connected for daily task reward ledger.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "task_starts",
-      "panelLabel": "Task starts",
-      "panelGroup": "tasks",
-      "sourceType": "person_metric",
-      "expectedSource": "daily task lifecycle event facts",
-      "expectedEvents": [
-        "daily_task_started"
-      ],
-      "personMetricIds": [
-        "daily_task_starts"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/tasks/daily-task-telemetry.ts",
-      "materializerPath": "person_metrics.daily_task_starts",
-      "debugLane": "daily_task_lifecycle",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/tasks/daily-task-telemetry.ts so Task starts can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Task starts has no safe recent source connected for daily task lifecycle event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "task_completions",
-      "panelLabel": "Task completions",
-      "panelGroup": "tasks",
-      "sourceType": "person_metric",
-      "expectedSource": "daily task completion facts",
-      "expectedEvents": [
-        "daily_task_completed",
-        "task_completed",
-        "daily_checkin_claimed"
-      ],
-      "personMetricIds": [
-        "daily_task_completions"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/tasks/daily-task-telemetry.ts",
-      "materializerPath": "person_metrics.daily_task_completions",
-      "debugLane": "daily_task_lifecycle",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/tasks/daily-task-telemetry.ts so Task completions can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Task completions has no safe recent source connected for daily task completion facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "task_rewards",
-      "panelLabel": "Task rewards",
-      "panelGroup": "tasks",
-      "sourceType": "ledger_summary",
-      "expectedSource": "server reward truth and reward receipt events",
-      "expectedEvents": [
-        "daily_task_reward_granted",
-        "daily_task_claimed"
-      ],
-      "personMetricIds": [
-        "daily_task_rewards_granted"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/tasks/daily-task-reward-ledger.ts",
-      "materializerPath": "person_metrics.daily_task_rewards_granted",
-      "debugLane": "daily_task_reward_ledger",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/tasks/daily-task-reward-ledger.ts so Task rewards can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Task rewards has no safe recent source connected for server reward truth and reward receipt events.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "chat_opens",
-      "panelLabel": "Chat opens",
-      "panelGroup": "chat",
-      "sourceType": "person_metric",
-      "expectedSource": "chat open/thread event facts",
-      "expectedEvents": [
-        "chat_surface_viewed",
-        "chat_thread_opened"
-      ],
-      "personMetricIds": [
-        "chat_actions"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/chat/chat-telemetry-contract.ts",
-      "materializerPath": "person_metrics.chat_actions",
-      "debugLane": "chat_telemetry_admin_truth",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/chat/chat-telemetry-contract.ts so Chat opens can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Chat opens has no safe recent source connected for chat open/thread event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "chat_messages",
-      "panelLabel": "Chat messages",
-      "panelGroup": "chat",
-      "sourceType": "person_metric",
-      "expectedSource": "redacted chat message event facts",
-      "expectedEvents": [
-        "chat_message_send_attempted",
-        "chat_message_sent"
-      ],
-      "personMetricIds": [
-        "chat_actions"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/chat/chat-telemetry-contract.ts",
-      "materializerPath": "person_metrics.chat_actions",
-      "debugLane": "chat_telemetry_admin_truth",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/chat/chat-telemetry-contract.ts so Chat messages can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Chat messages has no safe recent source connected for redacted chat message event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "chat_blocks_errors",
-      "panelLabel": "Chat blocks/errors",
-      "panelGroup": "chat",
-      "sourceType": "debug_runtime_evidence",
-      "expectedSource": "chat moderation/block/error summaries without raw transcripts",
-      "expectedEvents": [
-        "chat_message_blocked",
-        "chat_message_failed",
-        "chat_moderation_blocked"
-      ],
-      "personMetricIds": [
-        "chat_actions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/chat/chat-gating-contract.ts",
-      "materializerPath": "person_metrics.chat_actions",
-      "debugLane": "chat_gating_moderation",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep chat moderation/block/error summaries without raw transcripts connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Chat blocks/errors has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "notification_prompts",
-      "panelLabel": "Notification prompts",
-      "panelGroup": "notifications",
-      "sourceType": "person_metric",
-      "expectedSource": "notification permission lifecycle summaries",
-      "expectedEvents": [
-        "notification_prompt_banner_viewed",
-        "notification_prompt_viewed"
-      ],
-      "personMetricIds": [
-        "notification_interactions"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/notifications/notification-permission-contract.ts",
-      "materializerPath": "person_metrics.notification_interactions",
-      "debugLane": "notification_permission",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/notifications/notification-permission-contract.ts so Notification prompts can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Notification prompts has no safe recent source connected for notification permission lifecycle summaries.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "notification_tokens",
-      "panelLabel": "Notification tokens",
-      "panelGroup": "notifications",
-      "sourceType": "debug_runtime_evidence",
-      "expectedSource": "push token summary with tokens redacted",
-      "expectedEvents": [
-        "push_token_registered",
-        "push_token_registration_failed"
-      ],
-      "personMetricIds": [
-        "notification_interactions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/notifications/push-token-contract.ts",
-      "materializerPath": "person_metrics.notification_interactions",
-      "debugLane": "push_token_health",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep push token summary with tokens redacted connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Notification tokens has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "notification_intents",
-      "panelLabel": "Notification intents",
-      "panelGroup": "notifications",
-      "sourceType": "debug_runtime_evidence",
-      "expectedSource": "notification intent evaluation summaries",
-      "expectedEvents": [
-        "notification_intent_evaluated",
-        "notification_targeting_blocked"
-      ],
-      "personMetricIds": [
-        "notification_interactions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/notifications/notification-intent-contract.ts",
-      "materializerPath": "person_metrics.notification_interactions",
-      "debugLane": "notification_targeting",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep notification intent evaluation summaries connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Notification intents has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "auth_attempts_failures",
-      "panelLabel": "Auth attempts/failures",
-      "panelGroup": "auth",
-      "sourceType": "person_metric",
-      "expectedSource": "auth runtime telemetry summaries",
-      "expectedEvents": [
-        "auth_sign_in_attempted",
-        "auth_sign_in_failed",
-        "auth_sign_up_failed"
-      ],
-      "personMetricIds": [
-        "auth_runtime_events"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/auth/auth-telemetry-contract.ts",
-      "materializerPath": "person_metrics.auth_runtime_events",
-      "debugLane": "auth_runtime",
-      "expectedDaily": true,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep auth runtime telemetry summaries connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Auth attempts/failures has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "session_restores",
-      "panelLabel": "Session restores",
-      "panelGroup": "auth",
-      "sourceType": "person_metric",
-      "expectedSource": "auth persistence/session restore summaries",
-      "expectedEvents": [
-        "auth_session_restored",
-        "auth_session_established"
-      ],
-      "personMetricIds": [
-        "auth_runtime_events",
-        "sessions"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/auth/auth-session-stability.ts",
-      "materializerPath": "person_metrics.auth_runtime_events",
-      "debugLane": "auth_persistence",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/auth/auth-session-stability.ts so Session restores can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Session restores has no safe recent source connected for auth persistence/session restore summaries.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "media_uploads_access_blocks",
-      "panelLabel": "Media uploads/access blocks",
-      "panelGroup": "media",
-      "sourceType": "debug_runtime_evidence",
-      "expectedSource": "media upload/access summaries without private URLs",
-      "expectedEvents": [
-        "media_upload_prepare_completed",
-        "media_access_blocked",
-        "media_access_failed"
-      ],
-      "personMetricIds": [
-        "chat_actions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/media/media-upload-contract.ts",
-      "materializerPath": "person_metrics.chat_actions",
-      "debugLane": "runtime_debug_evidence",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep media upload/access summaries without private URLs connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Media uploads/access blocks has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "search_queries",
-      "panelLabel": "Search queries",
-      "panelGroup": "search",
-      "sourceType": "person_metric",
-      "expectedSource": "redacted search/discovery event facts",
-      "expectedEvents": [
-        "search_submitted",
-        "search_query_submitted",
-        "drops_searched"
-      ],
-      "personMetricIds": [
-        "search_discovery_actions"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.search_discovery_actions",
-      "debugLane": "person_metrics_hydration",
-      "expectedDaily": true,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep redacted search/discovery event facts connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Search queries has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "search_zero_results_clicks",
-      "panelLabel": "Search zero results/clicks",
-      "panelGroup": "search",
-      "sourceType": "person_metric",
-      "expectedSource": "redacted search result outcome facts",
-      "expectedEvents": [
-        "search_zero_results",
-        "search_result_clicked"
-      ],
-      "personMetricIds": [
-        "search_discovery_actions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.search_discovery_actions",
-      "debugLane": "person_metrics_hydration",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep redacted search result outcome facts connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Search zero results/clicks has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "support_account_actions",
-      "panelLabel": "Support/report issue/delete/data export",
-      "panelGroup": "support",
-      "sourceType": "person_metric",
-      "expectedSource": "support and account action telemetry",
-      "expectedEvents": [
-        "support_ticket_created",
-        "account_delete_request_submitted",
-        "data_export_requested"
-      ],
-      "personMetricIds": [
-        "support_account_actions"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.support_account_actions",
-      "debugLane": "person_metrics_hydration",
-      "expectedDaily": false,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep support and account action telemetry connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Support/report issue/delete/data export has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 2,
-        "costRisk": 1
-      },
-      "costClass": "route_sample",
-      "panelId": "error_rate_4xx",
-      "panelLabel": "Error rate/4xx",
-      "panelGroup": "errors",
-      "sourceType": "route_runtime_sample",
-      "expectedSource": "route runtime health and 4xx rollups",
-      "expectedEvents": [],
-      "personMetricIds": [],
-      "expectedRecentWindow": "1h",
-      "sourcePath": "src/lib/server/route-runtime-health.ts",
-      "materializerPath": "route_runtime_health_summary",
-      "debugLane": "runtime_debug_evidence",
-      "expectedDaily": true,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep route runtime health and 4xx rollups connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Error rate/4xx has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    },
-    {
-      "fallbackDisplayState": "show_external_required",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "costRisk": 4
-      },
-      "costClass": "external_review",
-      "panelId": "cost_risk",
-      "panelLabel": "Cost risk",
-      "panelGroup": "cost",
-      "sourceType": "external_required",
-      "expectedSource": "cost guard summaries plus external billing review",
-      "expectedEvents": [],
-      "personMetricIds": [],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/math/cost-export-parity-math.ts",
-      "materializerPath": "cost_guard_summary",
-      "debugLane": "cost_4xx",
-      "expectedDaily": true,
-      "hydrationStatus": "external_required",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Attach redacted external evidence for cost guard summaries plus external billing review; do not use screenshots as backend proof.",
-      "userSafeDisplayState": "show_external_required",
-      "reason": "Cost risk requires external/provider or billing evidence and cannot be proven by screenshots.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "external_or_manual"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "journey_funnel",
-      "panelLabel": "Journey funnel",
-      "panelGroup": "journeys",
-      "sourceType": "journey_summary",
-      "expectedSource": "user journey behavioral intelligence summary",
-      "expectedEvents": [
-        "auth_modal_opened",
-        "drop_preview_opened",
-        "begin_checkout",
-        "gumdrops_purchase_completed"
-      ],
-      "personMetricIds": [
-        "sessions",
-        "drop_opens",
-        "checkout_starts",
-        "payment_approvals"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/admin-analytics-journey-funnel.ts",
-      "materializerPath": "user_journey_summary",
-      "debugLane": "user_journey",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/admin-analytics-journey-funnel.ts so Journey funnel can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Journey funnel has no safe recent source connected for user journey behavioral intelligence summary.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "freshness": 2
-      },
-      "costClass": "route_sample",
-      "panelId": "realtime_health",
-      "panelLabel": "Realtime health",
-      "panelGroup": "realtime",
-      "sourceType": "route_runtime_sample",
-      "expectedSource": "snapshot-first realtime route and debug evidence",
-      "expectedEvents": [
-        "session_activity_tick",
-        "page_viewed"
-      ],
-      "personMetricIds": [
-        "sessions",
-        "page_views"
-      ],
-      "expectedRecentWindow": "1h",
-      "sourcePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "materializerPath": "analytics_admin_metric_snapshots:realtime",
-      "debugLane": "runtime_debug_evidence",
-      "expectedDaily": true,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/app/api/admin/analytics/realtime/route.ts so Realtime health can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Realtime health has no safe recent source connected for snapshot-first realtime route and debug evidence.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "regressionRisk": 1
-      },
-      "costClass": "debug_only",
-      "panelId": "debug_backlog",
-      "panelLabel": "Debug backlog",
-      "panelGroup": "errors",
-      "sourceType": "debug_runtime_evidence",
-      "expectedSource": "debug backlog summary",
-      "expectedEvents": [],
-      "personMetricIds": [],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/debug/debug-backlog-builder.ts",
-      "materializerPath": "debug_backlog_summary",
-      "debugLane": "open_p1_p2_backlog",
-      "expectedDaily": true,
-      "hydrationStatus": "collecting",
-      "confidence": "inferred",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Keep debug backlog summary connected; display collecting until the source has recent activity or proven zero.",
-      "userSafeDisplayState": "show_collecting",
-      "reason": "Debug backlog has a connected source and is collecting; do not display zero until a bounded source proves zero.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "source_exists_collecting"
-    }
-  ],
+  "panelStatus": {
+    "traffic_overview": "source_missing",
+    "active_users": "source_missing",
+    "new_users_signups": "hydrated",
+    "returning_users": "source_missing",
+    "guest_to_user_handoff": "source_missing",
+    "creator_count": "source_missing",
+    "creator_profile_views": "source_missing",
+    "creator_follows": "hydrated",
+    "drops_live": "hydrated",
+    "drop_opens": "source_missing",
+    "unlocks": "source_missing",
+    "unwraps": "source_missing",
+    "watch_time": "hydrated",
+    "completion_rate": "hydrated",
+    "wallet_opens": "source_missing",
+    "package_selections": "source_missing",
+    "checkout_starts": "source_missing",
+    "payment_approvals": "external_required",
+    "payment_failures": "external_required",
+    "gumdrop_balances": "source_missing",
+    "reward_gd_grants": "source_missing",
+    "task_starts": "source_missing",
+    "task_completions": "source_missing",
+    "task_rewards": "source_missing",
+    "chat_opens": "source_missing",
+    "chat_messages": "source_missing",
+    "chat_blocks_errors": "source_missing",
+    "notification_prompts": "source_missing",
+    "notification_tokens": "source_missing",
+    "notification_intents": "source_missing",
+    "auth_attempts_failures": "hydrated",
+    "session_restores": "source_missing",
+    "media_uploads_access_blocks": "source_missing",
+    "search_queries": "hydrated",
+    "search_zero_results_clicks": "hydrated",
+    "support_account_actions": "hydrated",
+    "error_rate_4xx": "collecting",
+    "cost_risk": "external_required",
+    "journey_funnel": "source_missing",
+    "realtime_health": "source_missing",
+    "debug_backlog": "collecting"
+  },
   "topPanelHydrationFailures": [
     {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
       "panelId": "traffic_overview",
       "panelLabel": "Traffic overview",
-      "panelGroup": "traffic",
-      "sourceType": "admin_summary",
-      "expectedSource": "admin analytics historical snapshot totals",
-      "expectedEvents": [
-        "page_viewed",
-        "semantic_page_viewed"
-      ],
-      "personMetricIds": [
-        "visits",
-        "page_views"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/app/api/admin/analytics/historical/route.ts",
-      "materializerPath": "analytics_admin_metric_snapshots",
-      "debugLane": "admin_analytics_overview",
-      "expectedDaily": true,
       "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Traffic overview has no safe recent source connected for admin analytics historical snapshot totals.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
+      "nextExactAction": "Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate."
     },
     {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
       "panelId": "active_users",
       "panelLabel": "Active users",
-      "panelGroup": "users",
-      "sourceType": "admin_summary",
-      "expectedSource": "snapshot-first realtime active users",
-      "expectedEvents": [
-        "session_activity_tick",
-        "auth_session_established"
-      ],
-      "personMetricIds": [
-        "sessions"
-      ],
-      "expectedRecentWindow": "1h",
-      "sourcePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "materializerPath": "analytics_admin_metric_snapshots:realtime",
-      "debugLane": "runtime_debug_evidence",
-      "expectedDaily": true,
       "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/app/api/admin/analytics/realtime/route.ts so Active users can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Active users has no safe recent source connected for snapshot-first realtime active users.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
+      "nextExactAction": "Repair src/app/api/admin/analytics/realtime/route.ts so Active users can hydrate."
     },
     {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
+      "panelId": "returning_users",
+      "panelLabel": "Returning users",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/app/api/behavior so Returning users can hydrate."
+    },
+    {
       "panelId": "guest_to_user_handoff",
       "panelLabel": "Guest-to-user handoff",
-      "panelGroup": "users",
-      "sourceType": "global_metric",
-      "expectedSource": "identity handoff and global-user dedupe summaries",
-      "expectedEvents": [
-        "auth_session_established",
-        "auth_sign_up_success"
-      ],
-      "personMetricIds": [
-        "sessions",
-        "auth_runtime_events"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/identity-handoff-engine.ts",
-      "materializerPath": "person_metrics.sessions",
-      "debugLane": "identity_handoff",
-      "expectedDaily": true,
       "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Guest-to-user handoff has no safe recent source connected for identity handoff and global-user dedupe summaries.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
+      "nextExactAction": "Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate."
     },
     {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
+      "panelId": "creator_count",
+      "panelLabel": "Creator count",
+      "hydrationStatus": "source_missing",
+      "nextExactAction": "Repair src/lib/admin/user-management-contract.ts so Creator count can hydrate."
+    },
+    {
       "panelId": "creator_profile_views",
       "panelLabel": "Creator profile views",
-      "panelGroup": "creators",
-      "sourceType": "person_metric",
-      "expectedSource": "creator profile event facts",
-      "expectedEvents": [
-        "creator_profile_viewed"
-      ],
-      "personMetricIds": [
-        "creator_profile_views"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.creator_profile_views",
-      "debugLane": "person_metrics_hydration",
-      "expectedDaily": true,
       "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Creator profile views can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Creator profile views has no safe recent source connected for creator profile event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
+      "nextExactAction": "Repair src/app/api/behavior so Creator profile views can hydrate."
     },
     {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
       "panelId": "drop_opens",
       "panelLabel": "Drop opens",
-      "panelGroup": "drops",
-      "sourceType": "person_metric",
-      "expectedSource": "drop open event facts",
-      "expectedEvents": [
-        "drop_preview_opened",
-        "drop_preview_page_viewed"
-      ],
-      "personMetricIds": [
-        "drop_opens"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.drop_opens",
-      "debugLane": "person_metrics_hydration",
-      "expectedDaily": true,
       "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Drop opens can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Drop opens has no safe recent source connected for drop open event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
+      "nextExactAction": "Repair src/app/api/behavior so Drop opens can hydrate."
     },
     {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "evidenceCompleteness": 2
-      },
-      "costClass": "summary_first",
       "panelId": "unlocks",
       "panelLabel": "Unlocks",
-      "panelGroup": "unlocks",
-      "sourceType": "ledger_summary",
-      "expectedSource": "server unlock entitlement facts",
-      "expectedEvents": [
-        "drop_unlocked",
-        "unlock_drop_success",
-        "entitlement_granted"
-      ],
-      "personMetricIds": [
-        "drop_unlocks"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/app/api/drops/unlock/route.ts",
-      "materializerPath": "person_metrics.drop_unlocks",
-      "debugLane": "drop_watch_time",
-      "expectedDaily": false,
       "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Unlocks has no safe recent source connected for server unlock entitlement facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
+      "nextExactAction": "Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate."
     },
     {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "runtimeHealth": 1,
-        "evidenceCompleteness": 2
-      },
-      "costClass": "summary_first",
       "panelId": "unwraps",
       "panelLabel": "Unwraps",
-      "panelGroup": "unlocks",
-      "sourceType": "event_fact",
-      "expectedSource": "payload reveal or consumed drop facts",
-      "expectedEvents": [
-        "drop_unwrapped",
-        "creator_drop_unwrapped"
-      ],
-      "personMetricIds": [
-        "unwraps"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.unwraps",
-      "debugLane": "drop_watch_time",
-      "expectedDaily": false,
       "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Unwraps can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Unwraps has no safe recent source connected for payload reveal or consumed drop facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
+      "nextExactAction": "Repair src/app/api/behavior so Unwraps can hydrate."
     },
     {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
       "panelId": "wallet_opens",
       "panelLabel": "Wallet opens",
-      "panelGroup": "wallet",
-      "sourceType": "person_metric",
-      "expectedSource": "wallet UI event facts",
-      "expectedEvents": [
-        "wallet_opened"
-      ],
-      "personMetricIds": [
-        "wallet_opens"
-      ],
-      "expectedRecentWindow": "24h",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.wallet_opens",
-      "debugLane": "wallet_funnel",
-      "expectedDaily": true,
       "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Wallet opens can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Wallet opens has no safe recent source connected for wallet UI event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "package_selections",
-      "panelLabel": "Package selections",
-      "panelGroup": "wallet",
-      "sourceType": "person_metric",
-      "expectedSource": "wallet package selector event facts",
-      "expectedEvents": [
-        "purchase_package_selected"
-      ],
-      "personMetricIds": [
-        "package_selections"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.package_selections",
-      "debugLane": "wallet_funnel",
-      "expectedDaily": false,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Package selections can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Package selections has no safe recent source connected for wallet package selector event facts.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
-    },
-    {
-      "fallbackDisplayState": "show_collecting",
-      "privacyRedactionRule": "safe summary only: no raw PII, provider IDs, private chat content, private media URLs, push tokens, storage paths, or access tokens",
-      "provenZeroRequiredForZero": true,
-      "scoreImpact": {
-        "evidenceCompleteness": 1,
-        "freshness": 1
-      },
-      "costClass": "summary_first",
-      "panelId": "checkout_starts",
-      "panelLabel": "Checkout starts",
-      "panelGroup": "payments",
-      "sourceType": "person_metric",
-      "expectedSource": "checkout intent telemetry",
-      "expectedEvents": [
-        "begin_checkout"
-      ],
-      "personMetricIds": [
-        "checkout_starts"
-      ],
-      "expectedRecentWindow": "7d",
-      "sourcePath": "src/lib/analytics/person-metrics-contract.ts",
-      "materializerPath": "person_metrics.checkout_starts",
-      "debugLane": "wallet_funnel",
-      "expectedDaily": false,
-      "hydrationStatus": "source_missing",
-      "confidence": "unknown",
-      "freshness": "unknown",
-      "lastSeenAt": null,
-      "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Checkout starts can hydrate.",
-      "userSafeDisplayState": "show_not_connected",
-      "reason": "Checkout starts has no safe recent source connected for checkout intent telemetry.",
-      "canDisplayZero": false,
-      "liveEvidenceContribution": "actionable_gap"
+      "nextExactAction": "Repair src/app/api/wallet so Wallet opens can hydrate."
     }
   ],
   "liveEvidenceContribution": {
-    "contributes": [],
-    "collecting": [
+    "contributes": [
       "new_users_signups",
-      "returning_users",
-      "creator_count",
       "creator_follows",
       "drops_live",
       "watch_time",
       "completion_rate",
-      "chat_blocks_errors",
-      "notification_tokens",
-      "notification_intents",
       "auth_attempts_failures",
-      "media_uploads_access_blocks",
       "search_queries",
       "search_zero_results_clicks",
-      "support_account_actions",
+      "support_account_actions"
+    ],
+    "collecting": [
       "error_rate_4xx",
       "debug_backlog"
     ],
     "blocked": [
       "traffic_overview",
       "active_users",
+      "returning_users",
       "guest_to_user_handoff",
+      "creator_count",
       "creator_profile_views",
       "drop_opens",
       "unlocks",
@@ -2020,8 +287,12 @@
       "task_rewards",
       "chat_opens",
       "chat_messages",
+      "chat_blocks_errors",
       "notification_prompts",
+      "notification_tokens",
+      "notification_intents",
       "session_restores",
+      "media_uploads_access_blocks",
       "journey_funnel",
       "realtime_health"
     ],
@@ -2031,13 +302,46 @@
       "cost_risk"
     ]
   },
+  "livePanelEvidenceSummary": {
+    "liveEvidencePanelIds": [
+      "new_users_signups",
+      "creator_follows",
+      "drops_live",
+      "watch_time",
+      "completion_rate",
+      "auth_attempts_failures",
+      "search_queries",
+      "search_zero_results_clicks",
+      "support_account_actions"
+    ],
+    "externalRequiredPanelIds": [
+      "payment_approvals",
+      "payment_failures",
+      "cost_risk"
+    ],
+    "blockedPanelIds": [
+      "traffic_overview",
+      "active_users",
+      "returning_users",
+      "guest_to_user_handoff",
+      "creator_count",
+      "creator_profile_views",
+      "drop_opens",
+      "unlocks",
+      "unwraps",
+      "wallet_opens"
+    ],
+    "blockedPanelCount": 27
+  },
   "betaGateImpact": {
     "betaExitReadyBefore": false,
     "betaExitReadyAfter": false,
     "remainingBlockers": [
       "traffic_overview: panel hydration gap",
       "active_users: panel hydration gap",
+      "returning_users: panel hydration gap",
       "guest_to_user_handoff: panel hydration gap",
+      "creator_count: panel hydration gap",
       "creator_profile_views: panel hydration gap",
       "drop_opens: panel hydration gap",
       "unlocks: panel hydration gap",
@@ -2052,8 +356,12 @@
       "task_rewards: panel hydration gap",
       "chat_opens: panel hydration gap",
       "chat_messages: panel hydration gap",
+      "chat_blocks_errors: panel hydration gap",
       "notification_prompts: panel hydration gap",
+      "notification_tokens: panel hydration gap",
+      "notification_intents: panel hydration gap",
       "session_restores: panel hydration gap",
+      "media_uploads_access_blocks: panel hydration gap",
       "journey_funnel: panel hydration gap",
       "realtime_health: panel hydration gap",
       "payment_approvals: external evidence required",
@@ -2064,10 +372,10 @@
   "debugLane": {
     "label": "Analytics panel hydration",
     "totalPanels": 41,
-    "hydrated": 0,
+    "hydrated": 9,
     "stale": 0,
-    "collecting": 17,
-    "sourceMissing": 21,
+    "collecting": 2,
+    "sourceMissing": 27,
     "materializerMissing": 0,
     "bridgeMissing": 0,
     "externalRequired": 3,
@@ -2076,14 +384,14 @@
     "topNextActions": [
       "Traffic overview: Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate.",
       "Active users: Repair src/app/api/admin/analytics/realtime/route.ts so Active users can hydrate.",
+      "Returning users: Repair src/app/api/behavior so Returning users can hydrate.",
       "Guest-to-user handoff: Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate.",
-      "Creator profile views: Repair src/lib/analytics/person-metrics-contract.ts so Creator profile views can hydrate.",
-      "Drop opens: Repair src/lib/analytics/person-metrics-contract.ts so Drop opens can hydrate.",
+      "Creator count: Repair src/lib/admin/user-management-contract.ts so Creator count can hydrate.",
+      "Creator profile views: Repair src/app/api/behavior so Creator profile views can hydrate.",
+      "Drop opens: Repair src/app/api/behavior so Drop opens can hydrate.",
       "Unlocks: Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate.",
-      "Unwraps: Repair src/lib/analytics/person-metrics-contract.ts so Unwraps can hydrate.",
-      "Wallet opens: Repair src/lib/analytics/person-metrics-contract.ts so Wallet opens can hydrate.",
-      "Package selections: Repair src/lib/analytics/person-metrics-contract.ts so Package selections can hydrate.",
-      "Checkout starts: Repair src/lib/analytics/person-metrics-contract.ts so Checkout starts can hydrate."
+      "Unwraps: Repair src/app/api/behavior so Unwraps can hydrate.",
+      "Wallet opens: Repair src/app/api/wallet so Wallet opens can hydrate."
     ]
   },
   "dirtyFiles": [
@@ -2092,12 +400,28 @@
       "classification": "release_artifact_expected"
     },
     {
+      "path": "agent/context/optimized-task-context.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "analytics_panel_hydration_artifact_expected"
     },
     {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/analytics-panel-hydration.md",
@@ -2112,15 +436,15 @@
       "classification": "release_artifact_expected"
     },
     {
+      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
       "path": "scripts/agent/validate-analytics-panel-hydration.ts",
       "classification": "analytics_panel_hydration_artifact_expected"
     },
     {
       "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/app/api/admin/debug/route.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -2144,16 +468,12 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "src/lib/release-readiness/live-panel-evidence-resolver.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/server/admin-debug/summary.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "tests/unit/analytics-hydration-consolidation.spec.ts",
+      "classification": "test_artifact_expected"
     },
     {
       "path": "tests/unit/analytics-panel-hydration.spec.ts",
@@ -2166,410 +486,5 @@
     "Keep payment/provider and billing proof external with redacted evidence.",
     "Expose this hydration lane in Admin Debug tracking summary."
   ],
-  "validationFailures": [],
-  "livePanelEvidence": {
-    "reportKey": "live-panel-evidence",
-    "generatedAtUtc": "2026-05-27T01:56:07.083Z",
-    "currentHead": "8f23958018f38ac40561b5c1c76baaaf92f5673e",
-    "decisions": [
-      {
-        "panelId": "traffic_overview",
-        "panelLabel": "Traffic overview",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Traffic overview has no safe recent source connected for admin analytics historical snapshot totals.",
-        "nextExactAction": "Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate."
-      },
-      {
-        "panelId": "active_users",
-        "panelLabel": "Active users",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Active users has no safe recent source connected for snapshot-first realtime active users.",
-        "nextExactAction": "Repair src/app/api/admin/analytics/realtime/route.ts so Active users can hydrate."
-      },
-      {
-        "panelId": "new_users_signups",
-        "panelLabel": "New users/signups",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "New users/signups has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep auth runtime event facts and person metrics connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "returning_users",
-        "panelLabel": "Returning users",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Returning users has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep sessions and active-days person metrics connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "guest_to_user_handoff",
-        "panelLabel": "Guest-to-user handoff",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Guest-to-user handoff has no safe recent source connected for identity handoff and global-user dedupe summaries.",
-        "nextExactAction": "Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate."
-      },
-      {
-        "panelId": "creator_count",
-        "panelLabel": "Creator count",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Creator count has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep admin creator/user truth summary connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "creator_profile_views",
-        "panelLabel": "Creator profile views",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Creator profile views has no safe recent source connected for creator profile event facts.",
-        "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Creator profile views can hydrate."
-      },
-      {
-        "panelId": "creator_follows",
-        "panelLabel": "Creator follows",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Creator follows has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep creator relationship event facts connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "drops_live",
-        "panelLabel": "Drops live",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Drops live has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep admin drop inventory summary connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "drop_opens",
-        "panelLabel": "Drop opens",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Drop opens has no safe recent source connected for drop open event facts.",
-        "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Drop opens can hydrate."
-      },
-      {
-        "panelId": "unlocks",
-        "panelLabel": "Unlocks",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Unlocks has no safe recent source connected for server unlock entitlement facts.",
-        "nextExactAction": "Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate."
-      },
-      {
-        "panelId": "unwraps",
-        "panelLabel": "Unwraps",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Unwraps has no safe recent source connected for payload reveal or consumed drop facts.",
-        "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Unwraps can hydrate."
-      },
-      {
-        "panelId": "watch_time",
-        "panelLabel": "Watch time",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Watch time has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep runtime watch sessions and watch capture summaries connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "completion_rate",
-        "panelLabel": "Completion rate",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Completion rate has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep normalized watch completion summaries connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "wallet_opens",
-        "panelLabel": "Wallet opens",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Wallet opens has no safe recent source connected for wallet UI event facts.",
-        "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Wallet opens can hydrate."
-      },
-      {
-        "panelId": "package_selections",
-        "panelLabel": "Package selections",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Package selections has no safe recent source connected for wallet package selector event facts.",
-        "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Package selections can hydrate."
-      },
-      {
-        "panelId": "checkout_starts",
-        "panelLabel": "Checkout starts",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Checkout starts has no safe recent source connected for checkout intent telemetry.",
-        "nextExactAction": "Repair src/lib/analytics/person-metrics-contract.ts so Checkout starts can hydrate."
-      },
-      {
-        "panelId": "payment_approvals",
-        "panelLabel": "Payment approvals",
-        "status": "external_required",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "external_required",
-        "reason": "Payment approvals requires external/provider or billing evidence and cannot be proven by screenshots.",
-        "nextExactAction": "Attach redacted external evidence for server purchase verification plus external provider proof; do not use screenshots as backend proof."
-      },
-      {
-        "panelId": "payment_failures",
-        "panelLabel": "Payment failures",
-        "status": "external_required",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "external_required",
-        "reason": "Payment failures requires external/provider or billing evidence and cannot be proven by screenshots.",
-        "nextExactAction": "Attach redacted external evidence for payment failure event facts plus provider proof when needed; do not use screenshots as backend proof."
-      },
-      {
-        "panelId": "gumdrop_balances",
-        "panelLabel": "GumDrop balances",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "GumDrop balances has no safe recent source connected for source-of-funds wallet ledger summary.",
-        "nextExactAction": "Repair src/lib/math/gumdrop-ledger-math.ts so GumDrop balances can hydrate."
-      },
-      {
-        "panelId": "reward_gd_grants",
-        "panelLabel": "Reward GD grants",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Reward GD grants has no safe recent source connected for daily task reward ledger.",
-        "nextExactAction": "Repair src/lib/tasks/daily-task-reward-ledger.ts so Reward GD grants can hydrate."
-      },
-      {
-        "panelId": "task_starts",
-        "panelLabel": "Task starts",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Task starts has no safe recent source connected for daily task lifecycle event facts.",
-        "nextExactAction": "Repair src/lib/tasks/daily-task-telemetry.ts so Task starts can hydrate."
-      },
-      {
-        "panelId": "task_completions",
-        "panelLabel": "Task completions",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Task completions has no safe recent source connected for daily task completion facts.",
-        "nextExactAction": "Repair src/lib/tasks/daily-task-telemetry.ts so Task completions can hydrate."
-      },
-      {
-        "panelId": "task_rewards",
-        "panelLabel": "Task rewards",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Task rewards has no safe recent source connected for server reward truth and reward receipt events.",
-        "nextExactAction": "Repair src/lib/tasks/daily-task-reward-ledger.ts so Task rewards can hydrate."
-      },
-      {
-        "panelId": "chat_opens",
-        "panelLabel": "Chat opens",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Chat opens has no safe recent source connected for chat open/thread event facts.",
-        "nextExactAction": "Repair src/lib/chat/chat-telemetry-contract.ts so Chat opens can hydrate."
-      },
-      {
-        "panelId": "chat_messages",
-        "panelLabel": "Chat messages",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Chat messages has no safe recent source connected for redacted chat message event facts.",
-        "nextExactAction": "Repair src/lib/chat/chat-telemetry-contract.ts so Chat messages can hydrate."
-      },
-      {
-        "panelId": "chat_blocks_errors",
-        "panelLabel": "Chat blocks/errors",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Chat blocks/errors has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep chat moderation/block/error summaries without raw transcripts connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "notification_prompts",
-        "panelLabel": "Notification prompts",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Notification prompts has no safe recent source connected for notification permission lifecycle summaries.",
-        "nextExactAction": "Repair src/lib/notifications/notification-permission-contract.ts so Notification prompts can hydrate."
-      },
-      {
-        "panelId": "notification_tokens",
-        "panelLabel": "Notification tokens",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Notification tokens has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep push token summary with tokens redacted connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "notification_intents",
-        "panelLabel": "Notification intents",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Notification intents has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep notification intent evaluation summaries connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "auth_attempts_failures",
-        "panelLabel": "Auth attempts/failures",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Auth attempts/failures has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep auth runtime telemetry summaries connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "session_restores",
-        "panelLabel": "Session restores",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Session restores has no safe recent source connected for auth persistence/session restore summaries.",
-        "nextExactAction": "Repair src/lib/auth/auth-session-stability.ts so Session restores can hydrate."
-      },
-      {
-        "panelId": "media_uploads_access_blocks",
-        "panelLabel": "Media uploads/access blocks",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Media uploads/access blocks has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep media upload/access summaries without private URLs connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "search_queries",
-        "panelLabel": "Search queries",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Search queries has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep redacted search/discovery event facts connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "search_zero_results_clicks",
-        "panelLabel": "Search zero results/clicks",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Search zero results/clicks has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep redacted search result outcome facts connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "support_account_actions",
-        "panelLabel": "Support/report issue/delete/data export",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Support/report issue/delete/data export has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep support and account action telemetry connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "error_rate_4xx",
-        "panelLabel": "Error rate/4xx",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Error rate/4xx has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep route runtime health and 4xx rollups connected; display collecting until the source has recent activity or proven zero."
-      },
-      {
-        "panelId": "cost_risk",
-        "panelLabel": "Cost risk",
-        "status": "external_required",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "external_required",
-        "reason": "Cost risk requires external/provider or billing evidence and cannot be proven by screenshots.",
-        "nextExactAction": "Attach redacted external evidence for cost guard summaries plus external billing review; do not use screenshots as backend proof."
-      },
-      {
-        "panelId": "journey_funnel",
-        "panelLabel": "Journey funnel",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Journey funnel has no safe recent source connected for user journey behavioral intelligence summary.",
-        "nextExactAction": "Repair src/lib/admin-analytics-journey-funnel.ts so Journey funnel can hydrate."
-      },
-      {
-        "panelId": "realtime_health",
-        "panelLabel": "Realtime health",
-        "status": "source_missing_actionable",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "blocks_until_hydrated",
-        "reason": "Realtime health has no safe recent source connected for snapshot-first realtime route and debug evidence.",
-        "nextExactAction": "Repair src/app/api/admin/analytics/realtime/route.ts so Realtime health can hydrate."
-      },
-      {
-        "panelId": "debug_backlog",
-        "panelLabel": "Debug backlog",
-        "status": "source_exists_collecting",
-        "clearsLiveProductEvidence": false,
-        "betaExitImpact": "source_exists_but_not_recent",
-        "reason": "Debug backlog has a source path but no recent clearing activity or proven zero.",
-        "nextExactAction": "Keep debug backlog summary connected; display collecting until the source has recent activity or proven zero."
-      }
-    ],
-    "liveEvidencePanelIds": [],
-    "externalRequiredPanelIds": [
-      "payment_approvals",
-      "payment_failures",
-      "cost_risk"
-    ],
-    "blockedPanelIds": [
-      "traffic_overview",
-      "active_users",
-      "guest_to_user_handoff",
-      "creator_profile_views",
-      "drop_opens",
-      "unlocks",
-      "unwraps",
-      "wallet_opens",
-      "package_selections",
-      "checkout_starts",
-      "gumdrop_balances",
-      "reward_gd_grants",
-      "task_starts",
-      "task_completions",
-      "task_rewards",
-      "chat_opens",
-      "chat_messages",
-      "notification_prompts",
-      "session_restores",
-      "journey_funnel",
-      "realtime_health"
-    ]
-  }
+  "validationFailures": []
 }

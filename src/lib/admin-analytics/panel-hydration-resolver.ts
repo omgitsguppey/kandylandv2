@@ -1,4 +1,6 @@
 import { ADMIN_ANALYTICS_PANEL_HYDRATION_REGISTRY } from "./panel-hydration-registry";
+import type { EventLivenessStatus } from "@/lib/analytics/event-liveness-contract";
+import type { PersonMetricHydrationStatus } from "@/lib/analytics/person-metrics-hydration";
 import type {
   AdminAnalyticsPanelFreshness,
   AdminAnalyticsPanelHydrationRecord,
@@ -45,10 +47,6 @@ function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
 }
 
-function numberValue(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
-}
-
 function runtimeSignalMap(signals: readonly AdminAnalyticsPanelRuntimeSignal[] = []) {
   return new Map(signals.map((signal) => [signal.panelId, signal]));
 }
@@ -57,19 +55,16 @@ function eventClassifications(eventLivenessAudit?: JsonRecord | null) {
   return asArray(eventLivenessAudit?.classifications).map(asRecord);
 }
 
-function eventStatusFor(panel: { expectedEvents: string[] }, eventLivenessAudit?: JsonRecord | null) {
+function eventStatusFor(panel: { expectedEvents: string[] }, eventLivenessAudit?: JsonRecord | null): EventLivenessStatus | null {
   const events = eventClassifications(eventLivenessAudit).filter((entry) =>
     panel.expectedEvents.includes(String(entry.eventName ?? "")),
   );
   if (events.length === 0) return null;
-  if (events.some((entry) => entry.livenessStatus === "observed_recently")) return "observed_recently";
-  if (events.some((entry) => entry.livenessStatus === "observed_stale")) return "observed_stale";
-  if (events.some((entry) => entry.livenessStatus === "materializer_missing")) return "materializer_missing";
-  if (events.some((entry) => entry.livenessStatus === "translation_missing")) return "translation_missing";
-  if (events.some((entry) => entry.livenessStatus === "hydration_missing")) return "hydration_missing";
-  if (events.some((entry) => entry.livenessStatus === "source_missing")) return "source_missing";
+  for (const status of ["observed_recently", "observed_stale", "materializer_missing", "translation_missing", "hydration_missing", "source_missing"] as const) {
+    if (events.some((entry) => entry.livenessStatus === status)) return status;
+  }
   if (events.every((entry) => entry.livenessStatus === "not_observed_and_not_expected")) return "not_observed_and_not_expected";
-  return String(events[0]?.livenessStatus ?? "unknown");
+  return events[0]?.livenessStatus as EventLivenessStatus | null;
 }
 
 function lastSeenFor(panel: { expectedEvents: string[] }, eventLivenessAudit?: JsonRecord | null) {
@@ -81,15 +76,39 @@ function lastSeenFor(panel: { expectedEvents: string[] }, eventLivenessAudit?: J
   return seen[0] ?? null;
 }
 
-function metricStatusFor(panel: { personMetricIds: string[] }, personMetricsHydration?: JsonRecord | null) {
+function metricStatusFor(panel: { personMetricIds: string[] }, personMetricsHydration?: JsonRecord | null): PersonMetricHydrationStatus["state"] | "bridge_missing" | "source_missing" | null {
   const metricStatus = asRecord(personMetricsHydration?.metricStatus);
-  const metrics = panel.personMetricIds.map((metricId) => asRecord(metricStatus[metricId])).filter((metric) => Object.keys(metric).length > 0);
+  const metrics = panel.personMetricIds
+    .map((metricId) => asRecord(metricStatus[metricId]) as Partial<PersonMetricHydrationStatus>)
+    .filter((metric) => Object.keys(metric).length > 0);
   if (metrics.length === 0) return null;
-  if (metrics.some((metric) => numberValue(metric.count) > 0 || metric.provenZero === true)) return "hydrated";
+  if (metrics.some((metric) => metric.state === "hydrated")) return "hydrated";
   if (metrics.some((metric) => stringValue(metric.missingBridge))) return "bridge_missing";
   if (metrics.some((metric) => stringValue(metric.missingProducer))) return "source_missing";
   if (metrics.some((metric) => metric.state === "collecting")) return "collecting";
-  return String(metrics[0]?.state ?? "unknown");
+  return null;
+}
+
+function statusFromDelegatedSources(input: {
+  statusFromRuntime: AdminAnalyticsPanelHydrationStatus | null;
+  statusFromEvent: EventLivenessStatus | null;
+  statusFromMetric: ReturnType<typeof metricStatusFor>;
+  sourceType: string;
+  expectedDaily: boolean;
+}): AdminAnalyticsPanelHydrationStatus {
+  if (input.sourceType === "external_required") return "external_required";
+  if (input.statusFromRuntime) return input.statusFromRuntime;
+  if (input.statusFromEvent === "observed_recently") return "hydrated";
+  if (input.statusFromEvent === "observed_stale") return "stale";
+  if (input.statusFromEvent === "materializer_missing") return "materializer_missing";
+  if (input.statusFromEvent === "translation_missing" || input.statusFromEvent === "hydration_missing") return "bridge_missing";
+  if (input.statusFromEvent === "source_missing") return "source_missing";
+  if (input.statusFromMetric === "hydrated") return "hydrated";
+  if (input.statusFromMetric === "bridge_missing") return "bridge_missing";
+  if (input.statusFromMetric === "source_missing") return input.expectedDaily ? "source_missing" : "collecting";
+  if (input.statusFromMetric === "collecting") return "collecting";
+  if (input.sourceType === "route_runtime_sample" || input.sourceType === "debug_runtime_evidence" || input.sourceType === "admin_summary") return "collecting";
+  return "source_missing";
 }
 
 function runtimeStatus(signal?: AdminAnalyticsPanelRuntimeSignal): AdminAnalyticsPanelHydrationStatus | null {
@@ -187,22 +206,13 @@ export function resolvePanelHydration(input: ResolveAnalyticsPanelHydrationInput
   const statusFromRuntime = runtimeStatus(signal);
   const statusFromEvent = eventStatusFor(panel, input.eventLivenessAudit);
   const statusFromMetric = metricStatusFor(panel, input.personMetricsHydration);
-  let hydrationStatus: AdminAnalyticsPanelHydrationStatus;
-
-  if (panel.sourceType === "external_required") hydrationStatus = "external_required";
-  else if (statusFromRuntime) hydrationStatus = statusFromRuntime;
-  else if (statusFromEvent === "observed_recently") hydrationStatus = "hydrated";
-  else if (statusFromEvent === "observed_stale") hydrationStatus = "stale";
-  else if (statusFromEvent === "materializer_missing") hydrationStatus = "materializer_missing";
-  else if (statusFromEvent === "translation_missing") hydrationStatus = "bridge_missing";
-  else if (statusFromEvent === "hydration_missing") hydrationStatus = "bridge_missing";
-  else if (statusFromEvent === "source_missing") hydrationStatus = "source_missing";
-  else if (statusFromMetric === "hydrated") hydrationStatus = input.personMetricsHydration?.liveMaterializedSummary === true ? "hydrated" : "collecting";
-  else if (statusFromMetric === "bridge_missing") hydrationStatus = "bridge_missing";
-  else if (statusFromMetric === "source_missing") hydrationStatus = panel.expectedDaily ? "source_missing" : "collecting";
-  else if (panel.sourceType === "route_runtime_sample" || panel.sourceType === "debug_runtime_evidence" || panel.sourceType === "admin_summary") hydrationStatus = "collecting";
-  else if (statusFromMetric === "collecting") hydrationStatus = "collecting";
-  else hydrationStatus = "source_missing";
+  const hydrationStatus = statusFromDelegatedSources({
+    statusFromRuntime,
+    statusFromEvent,
+    statusFromMetric,
+    sourceType: panel.sourceType,
+    expectedDaily: panel.expectedDaily,
+  });
 
   const lastSeenAt = signal?.lastSeenAt ?? lastSeenFor(panel, input.eventLivenessAudit);
   const freshness = classifyPanelStaleness({ status: hydrationStatus, lastSeenAt });
@@ -288,6 +298,7 @@ export function buildAnalyticsPanelHydrationDebugLane(panels: readonly AdminAnal
 
 export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelHydrationInput = {}): AnalyticsPanelHydrationReport {
   const panels = resolveAllPanelHydration(input);
+  const panelStatus = Object.fromEntries(panels.map((panel) => [panel.panelId, panel]));
   const count = (status: AdminAnalyticsPanelHydrationStatus) => panels.filter((panel) => panel.hydrationStatus === status).length;
   const groups = panels.reduce<AnalyticsPanelHydrationReport["panelsByGroup"]>((output, panel) => {
     const existing = output[panel.panelGroup] ?? { total: 0, hydrated: 0, collecting: 0, gaps: 0 };
@@ -332,7 +343,7 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
     permissionBlockedPanels: count("permission_blocked") + count("hidden_by_role"),
     brokenPanels: count("broken"),
     panelsByGroup: groups,
-    panels,
+    panelStatus,
     topPanelHydrationFailures,
     liveEvidenceContribution,
     betaGateImpact: {
@@ -357,20 +368,22 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
 export function validateAnalyticsPanelHydrationReport(report: AnalyticsPanelHydrationReport) {
   const failures: string[] = [];
   const registryIds = new Set(ADMIN_ANALYTICS_PANEL_HYDRATION_REGISTRY.map((panel) => panel.panelId));
+  const panels = Object.values(report.panelStatus ?? {});
   if (report.totalPanels !== registryIds.size) failures.push("admin analytics panel lacks hydration registry entry.");
-  if (report.panels.some((panel) => !panel.provenZeroRequiredForZero || (panel.canDisplayZero && panel.hydrationStatus !== "hydrated"))) {
+  if (panels.length !== report.totalPanels) failures.push("compact panel status lookup is incomplete.");
+  if (panels.some((panel) => !panel.provenZeroRequiredForZero || (panel.canDisplayZero && panel.hydrationStatus !== "hydrated"))) {
     failures.push("panel can display zero without provenZero.");
   }
-  if (report.panels.some((panel) => !panel.reason || !panel.nextExactAction)) failures.push("empty panel lacks explanation.");
-  if (report.panels.some((panel) => panel.hydrationStatus === "stale" && panel.freshness !== "stale")) failures.push("stale panel lacks freshness reason.");
-  if (report.panels.some((panel) => panel.hydrationStatus === "collecting" && panel.reason.includes("no safe recent source"))) {
+  if (panels.some((panel) => !panel.reason || !panel.nextExactAction)) failures.push("empty panel lacks explanation.");
+  if (panels.some((panel) => panel.hydrationStatus === "stale" && panel.freshness !== "stale")) failures.push("stale panel lacks freshness reason.");
+  if (panels.some((panel) => panel.hydrationStatus === "collecting" && panel.reason.includes("no safe recent source"))) {
     failures.push("source-missing panel is labeled collecting.");
   }
   if (report.materializerMissingPanels > 0 && report.debugLane.materializerMissing === 0) failures.push("materializer-missing panel is hidden.");
   if (report.debugLane.label !== "Analytics panel hydration" || report.debugLane.totalPanels !== report.totalPanels) failures.push("panel hydration does not feed debug lane.");
   if (!report.liveEvidenceContribution || !Array.isArray(report.liveEvidenceContribution.blocked)) failures.push("panel hydration does not feed live evidence resolver.");
   const sensitivePattern = /@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|provider(Order|Payment|Capture)Id|chatMessage|privateMediaUrl|storagePath|pushToken|accessToken/iu;
-  if (sensitivePattern.test(JSON.stringify(report.panels))) failures.push("raw sensitive data can appear in hydration debug.");
+  if (sensitivePattern.test(JSON.stringify(panels))) failures.push("raw sensitive data can appear in hydration debug.");
   if (report.productionReadsPerformed || report.providerCallsPerformed) failures.push("broad production reads are introduced.");
   for (const dimension of ["sourceHealth", "runtimeHealth", "evidenceCompleteness", "freshness", "costRisk", "regressionRisk"]) {
     if (typeof report.scoreDimensions[dimension] !== "number") failures.push("score dimensions missing.");

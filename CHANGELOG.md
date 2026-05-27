@@ -5,10 +5,10 @@ What's new in KandyDrops Beta (latest first).
 Showing the last 25 public updates in pages of 5.
 
 ## 1.5.13 - 2026-05-26
-- Analytics panel hydration diagnostics
-- Added analytics panel hydration diagnostics and live evidence mapping.
-- Explained why analytics panels are hydrated, stale, collecting, source-missing, or broken.
-- Prevented missing analytics data from displaying as misleading zero.
+- Analytics hydration consolidation
+- Consolidated analytics panel hydration into existing metrics, liveness, and debug systems.
+- Reduced duplicate hydration registry and oversized generated artifact output.
+- Kept panel-level explanations without creating a parallel analytics subsystem.
 
 ## 1.5.12 - 2026-05-26
 - Live evidence gate replacement

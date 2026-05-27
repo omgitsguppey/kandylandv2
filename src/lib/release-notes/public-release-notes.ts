@@ -24,20 +24,20 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "committedAtUtc": "2026-05-27T01:30:00.000Z",
       "generatedAtUtc": "2026-05-27T01:30:00.000Z",
       "category": "Improved",
-      "title": "Analytics panel hydration diagnostics",
+      "title": "Analytics hydration consolidation",
       "updatedAtUtc": "2026-05-27T01:30:00.000Z",
-      "summary": "Added panel hydration diagnostics so admin analytics can explain collecting, stale, source-missing, materializer-missing, bridge-missing, external-required, or broken states without showing fake zero.",
-      "userFacingTitle": "Analytics panel hydration diagnostics",
+      "summary": "Consolidated analytics panel hydration into existing metrics, liveness, and debug systems without creating a parallel analytics subsystem.",
+      "userFacingTitle": "Analytics hydration consolidation",
       "surfaceCategory": "App experience",
       "bullets": [
-        "Added analytics panel hydration diagnostics and live evidence mapping.",
-        "Explained why analytics panels are hydrated, stale, collecting, source-missing, or broken.",
-        "Prevented missing analytics data from displaying as misleading zero."
+        "Consolidated analytics panel hydration into existing metrics, liveness, and debug systems.",
+        "Reduced duplicate hydration registry and oversized generated artifact output.",
+        "Kept panel-level explanations without creating a parallel analytics subsystem."
       ],
       "audience": "all",
       "technicalDetails": [
-        "Added panel hydration contracts, registry, resolver, validator, and report artifacts.",
-        "Mapped panel hydration into live evidence decisions and Admin Debug tracking summary.",
+        "Collapsed panel hydration registry derivation into existing source registries.",
+        "Mapped panel hydration through person-metrics, event-liveness, and Admin Debug tracking summary.",
         "Kept source-only analytics evidence separate from live/formal provider proof."
       ],
       "affectedSurfaces": [

@@ -3,15 +3,15 @@
 Artifact: `agent/state/current-beta-exit-status.generated.json`
 
 - Generated: `2026-05-27T01:04:47.686Z`
-- Current head: `7747ca78ac19f78c396f9c5c50301347ce492a45`
+- Current head: `dd4b37320ddd4e920d6633c91d90b01243089231`
 
 ```json
 {
   "generatedAtUtc": "2026-05-27T01:04:47.686Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
   "summary": {
-    "betaVersion": "1.5.12",
+    "betaVersion": "1.5.13",
     "betaScore": 85.34,
     "betaStatus": "Runtime unverified",
     "scoreVersion": "beta_health_v2",

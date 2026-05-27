@@ -141,7 +141,7 @@ export type AnalyticsPanelHydrationReport = {
     collecting: number;
     gaps: number;
   }>;
-  panels: AdminAnalyticsPanelHydrationRecord[];
+  panelStatus: Record<string, AdminAnalyticsPanelHydrationRecord>;
   topPanelHydrationFailures: AdminAnalyticsPanelHydrationRecord[];
   liveEvidenceContribution: {
     contributes: string[];

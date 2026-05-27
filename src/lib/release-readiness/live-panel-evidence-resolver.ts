@@ -138,7 +138,7 @@ export function mapPanelHydrationToLiveEvidence(panel: AdminAnalyticsPanelHydrat
 }
 
 export function buildLivePanelEvidenceReport(panelHydration: AnalyticsPanelHydrationReport): LivePanelEvidenceReport {
-  const decisions = panelHydration.panels.map(mapPanelHydrationToLiveEvidence);
+  const decisions = Object.values(panelHydration.panelStatus).map(mapPanelHydrationToLiveEvidence);
   return {
     reportKey: "live-panel-evidence",
     generatedAtUtc: panelHydration.generatedAtUtc,

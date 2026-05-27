@@ -56,7 +56,13 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "analytics_panel_hydration_artifact_expected";
+  if (normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
+  if (normalized === "tests/unit/analytics-hydration-consolidation.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/analytics-hydration-consolidation.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/analytics-hydration-consolidation-audit.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/analytics-hydration-consolidation.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/analytics-hydration-consolidation-audit.md") return "documentation_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "real_source_change_needs_review";
   if (normalized === "CHANGELOG.md" || normalized === "public/kandydrops-release-notes.json" || normalized.startsWith("src/lib/release-notes/")) return "release_artifact_expected";
   if (normalized.startsWith("agent/state/") && normalized.endsWith(".generated.json")) return "stale_generated_artifact_to_regenerate";
@@ -78,9 +84,6 @@ function scoreDimensions() {
 }
 
 function renderDoc(report: ReturnType<typeof buildAnalyticsPanelHydrationReport>) {
-  const statusRows = report.panels.map((panel) =>
-    `- ${panel.panelId}: ${panel.hydrationStatus}; display=${panel.userSafeDisplayState}; freshness=${panel.freshness}; reason=${panel.reason}`,
-  );
   const failureRows = report.topPanelHydrationFailures.map((panel) =>
     `- ${panel.panelLabel}: ${panel.hydrationStatus}; next=${panel.nextExactAction}`,
   );
@@ -124,10 +127,6 @@ function renderDoc(report: ReturnType<typeof buildAnalyticsPanelHydrationReport>
     "",
     ...(failureRows.length ? failureRows : ["- none"]),
     "",
-    "## Panels",
-    "",
-    ...statusRows,
-    "",
     "## Debug Lane",
     "",
     `- ${report.debugLane.label}: total=${report.debugLane.totalPanels}; hydrated=${report.debugLane.hydrated}; collecting=${report.debugLane.collecting}; sourceMissing=${report.debugLane.sourceMissing}; materializerMissing=${report.debugLane.materializerMissing}; bridgeMissing=${report.debugLane.bridgeMissing}; externalRequired=${report.debugLane.externalRequired}; broken=${report.debugLane.broken}`,
@@ -137,6 +136,52 @@ function renderDoc(report: ReturnType<typeof buildAnalyticsPanelHydrationReport>
     ...(report.validationFailures.length ? report.validationFailures.map((failure) => `- ${failure}`) : ["- none"]),
     "",
   ].join("\n");
+}
+
+function compactReport(
+  report: ReturnType<typeof buildAnalyticsPanelHydrationReport>,
+  livePanelEvidence: ReturnType<typeof buildLivePanelEvidenceReport>,
+  validationFailures: string[],
+) {
+  return {
+    reportKey: report.reportKey,
+    generatedAtUtc: report.generatedAtUtc,
+    currentHead: report.currentHead,
+    productionReadsPerformed: report.productionReadsPerformed,
+    providerCallsPerformed: report.providerCallsPerformed,
+    rawSensitiveDataAllowed: report.rawSensitiveDataAllowed,
+    scoreDimensions: report.scoreDimensions,
+    totalPanels: report.totalPanels,
+    hydratedPanels: report.hydratedPanels,
+    stalePanels: report.stalePanels,
+    collectingPanels: report.collectingPanels,
+    sourceMissingPanels: report.sourceMissingPanels,
+    materializerMissingPanels: report.materializerMissingPanels,
+    bridgeMissingPanels: report.bridgeMissingPanels,
+    externalRequiredPanels: report.externalRequiredPanels,
+    permissionBlockedPanels: report.permissionBlockedPanels,
+    brokenPanels: report.brokenPanels,
+    panelsByGroup: report.panelsByGroup,
+    panelStatus: Object.fromEntries(Object.values(report.panelStatus).map((panel) => [panel.panelId, panel.hydrationStatus])),
+    topPanelHydrationFailures: report.topPanelHydrationFailures.map((panel) => ({
+      panelId: panel.panelId,
+      panelLabel: panel.panelLabel,
+      hydrationStatus: panel.hydrationStatus,
+      nextExactAction: panel.nextExactAction,
+    })),
+    liveEvidenceContribution: report.liveEvidenceContribution,
+    livePanelEvidenceSummary: {
+      liveEvidencePanelIds: livePanelEvidence.liveEvidencePanelIds,
+      externalRequiredPanelIds: livePanelEvidence.externalRequiredPanelIds,
+      blockedPanelIds: livePanelEvidence.blockedPanelIds.slice(0, 10),
+      blockedPanelCount: livePanelEvidence.blockedPanelIds.length,
+    },
+    betaGateImpact: report.betaGateImpact,
+    debugLane: report.debugLane,
+    dirtyFiles: report.dirtyFiles,
+    nextExactSteps: report.nextExactSteps,
+    validationFailures,
+  };
 }
 
 function main() {
@@ -160,9 +205,9 @@ function main() {
     ...validateAnalyticsPanelHydrationReport(report),
     livePanelEvidence.decisions.length === report.totalPanels ? "" : "panel hydration does not feed live evidence resolver.",
   ].filter(Boolean);
-  const finalReport = { ...report, livePanelEvidence, validationFailures };
+  const finalReport = { ...report, validationFailures };
 
-  write(REPORT_PATH, `${JSON.stringify(finalReport, null, 2)}\n`);
+  write(REPORT_PATH, `${JSON.stringify(compactReport(report, livePanelEvidence, validationFailures), null, 2)}\n`);
   write(DOC_PATH, renderDoc(finalReport));
 
   if (validationFailures.length > 0) {

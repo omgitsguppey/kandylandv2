@@ -1,15 +1,21 @@
 # Live Evidence Gate Replacement
 
 Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
+Validator: `npm run check:live-evidence-gate-replacement`
 
-- Generated: `2026-05-27T01:04:13.885Z`
-- Current head: `7747ca78ac19f78c396f9c5c50301347ce492a45`
+## Summary
+
+- Generated: `2026-05-27T02:55:53.333Z`
+- Current head: `dd4b37320ddd4e920d6633c91d90b01243089231`
+- Status: `pass`
+
+## Report
 
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-05-27T01:04:13.885Z",
-  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+  "generatedAtUtc": "2026-05-27T02:55:53.333Z",
+  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
   "broadManualGatesBefore": [
     "operator-final visual QA",
     "manual production smoke",
@@ -98,16 +104,16 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -151,8 +157,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -187,8 +193,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -203,8 +209,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -240,16 +246,16 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -292,8 +298,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -328,8 +334,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
@@ -371,8 +377,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -414,16 +420,16 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -457,8 +463,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
@@ -543,16 +549,16 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -718,16 +724,16 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -763,8 +769,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -779,8 +785,8 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -816,16 +822,16 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -860,16 +866,16 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -903,16 +909,16 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a74f489c81e605f1c9a280f28726d352fcb54dee",
-          "generatedAtUtc": "2026-05-26T08:13:08.353Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:30.064Z"
+          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
         }
       ],
       "freshnessWindowHours": 24,
@@ -957,3 +963,11 @@ Artifact: `agent/state/live-evidence-gate-replacement.generated.json`
   "validationFailures": []
 }
 ```
+
+## Evidence Boundary
+
+This source-generated packet does not prove deployed runtime, provider, billing, production admin truth, or operator-final visual QA unless the report explicitly includes a formal artifact for that category.
+
+## Validation
+
+- Pass.

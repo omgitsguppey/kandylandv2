@@ -1,8 +1,8 @@
 {
   "reportKey": "event-liveness-audit",
   "version": "2026.05.event-liveness.1",
-  "generatedAtUtc": "2026-05-27T00:55:30.064Z",
-  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+  "generatedAtUtc": "2026-05-27T02:55:29.149Z",
+  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
   "expectedDailyVisitorsBaseline": 100,
   "rawQuietFutureCount": 416,
   "trueFutureOnlyQuietCount": 389,
@@ -1702,28 +1702,36 @@
       "classification": "unrelated_agent_context_file_to_ignore"
     },
     {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/final-release-exit-readiness-packet.generated.json",
+      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "path": "agent/state/analytics-hydration-consolidation.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/event-liveness-audit.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/final-release-exit-readiness-packet.md",
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
       "classification": "unsafe_unknown"
     },
     {
-      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
       "classification": "unsafe_unknown"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "package.json",
@@ -1734,82 +1742,68 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-live-evidence-gate-replacement.ts",
+      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
       "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-registry.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/release-notes/public-release-notes.ts",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-readiness/final-release-readiness.ts",
+      "path": "src/lib/release-readiness/live-panel-evidence-resolver.ts",
       "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/release-readiness/live-evidence-gate-contract.ts",
+      "path": "tests/unit/analytics-hydration-consolidation.spec.ts",
       "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/final-release-exit-readiness-packet.spec.ts",
-      "classification": "unsafe_unknown"
-    },
-    {
-      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
+      "path": "tests/unit/analytics-panel-hydration.spec.ts",
       "classification": "unsafe_unknown"
     }
   ],
   "remainingReferences": [
     {
-      "reference": "agent\\state\\debug-backlog-engine.generated.json:69:    \"quietFutureActivity\": 0,",
-      "path": "agent/state/debug-backlog-engine.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "agent\\state\\debug-backlog-engine.generated.json:90:    \"quietFutureActivityCount\": 0,",
-      "path": "agent/state/debug-backlog-engine.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "agent\\state\\debug-cockpit-batch31-task-guidance-parity.generated.json:10:  \"guidanceStatusAfter\": \"source_ready_waiting_for_activity\",",
-      "path": "agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "agent\\state\\debug-signal-grouping.generated.json:86:  \"quietFutureActivityRawCount\": 416,",
-      "path": "agent/state/debug-signal-grouping.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "agent\\state\\debug-signal-grouping.generated.json:87:  \"quietFutureActivityGroupCount\": 1,",
-      "path": "agent/state/debug-signal-grouping.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "agent\\state\\debug-signal-actionability.generated.json:142:    \"quietFutureActivity\": 0,",
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "agent\\state\\debug-signal-actionability.generated.json:163:    \"quietFutureActivityCount\": 0,",
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "agent\\state\\debug-signal-actionability.generated.json:1019:    \"quietFutureActivityDefaultVisible\": false",
-      "path": "agent/state/debug-signal-actionability.generated.json",
-      "classification": "quiet_catalog_only"
-    },
-    {
       "reference": "tests\\unit\\debug-cockpit-batch31-task-guidance-parity.spec.ts:18:    expect(report.guidanceStatusAfter).toBe(\"source_ready_waiting_for_activity\");",
       "path": "tests/unit/debug-cockpit-batch31-task-guidance-parity.spec.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "tests\\unit\\debug-signal-actionability.spec.ts:141:    expect(summary.quietFutureActivity).toBe(1);",
+      "path": "tests/unit/debug-signal-actionability.spec.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "tests\\unit\\debug-signal-grouping.spec.ts:72:    expect(summary.quietFutureActivityGroupCount).toBe(1);",
+      "path": "tests/unit/debug-signal-grouping.spec.ts",
       "classification": "quiet_catalog_only"
     },
     {
@@ -1835,16 +1829,6 @@
     {
       "reference": "src\\lib\\tasks\\task-guidance-history-recovery.ts:34:      ? \"source_ready_waiting_for_activity\"",
       "path": "src/lib/tasks/task-guidance-history-recovery.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "tests\\unit\\debug-signal-actionability.spec.ts:141:    expect(summary.quietFutureActivity).toBe(1);",
-      "path": "tests/unit/debug-signal-actionability.spec.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "tests\\unit\\debug-signal-grouping.spec.ts:72:    expect(summary.quietFutureActivityGroupCount).toBe(1);",
-      "path": "tests/unit/debug-signal-grouping.spec.ts",
       "classification": "quiet_catalog_only"
     },
     {
@@ -1903,13 +1887,58 @@
       "classification": "quiet_catalog_only"
     },
     {
+      "reference": "tests\\unit\\non-event-score-policy.spec.ts:78:    expect(summary.quietFutureActivityCount).toBe(416);",
+      "path": "tests/unit/non-event-score-policy.spec.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "agent\\state\\debug-backlog-engine.generated.json:69:    \"quietFutureActivity\": 0,",
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "agent\\state\\debug-backlog-engine.generated.json:90:    \"quietFutureActivityCount\": 0,",
+      "path": "agent/state/debug-backlog-engine.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "agent\\state\\debug-signal-grouping.generated.json:86:  \"quietFutureActivityRawCount\": 416,",
+      "path": "agent/state/debug-signal-grouping.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "agent\\state\\debug-signal-grouping.generated.json:87:  \"quietFutureActivityGroupCount\": 1,",
+      "path": "agent/state/debug-signal-grouping.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "agent\\state\\debug-signal-actionability.generated.json:142:    \"quietFutureActivity\": 0,",
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "agent\\state\\debug-signal-actionability.generated.json:163:    \"quietFutureActivityCount\": 0,",
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "agent\\state\\debug-signal-actionability.generated.json:1019:    \"quietFutureActivityDefaultVisible\": false",
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "agent\\state\\debug-cockpit-batch31-task-guidance-parity.generated.json:10:  \"guidanceStatusAfter\": \"source_ready_waiting_for_activity\",",
+      "path": "agent/state/debug-cockpit-batch31-task-guidance-parity.generated.json",
+      "classification": "quiet_catalog_only"
+    },
+    {
       "reference": "agent\\state\\final-signal-zero-lock.generated.json:74:  \"quietFutureActivityCount\": 416,",
       "path": "agent/state/final-signal-zero-lock.generated.json",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "tests\\unit\\non-event-score-policy.spec.ts:78:    expect(summary.quietFutureActivityCount).toBe(416);",
-      "path": "tests/unit/non-event-score-policy.spec.ts",
+      "reference": "agent\\state\\future-activity-signal-reclassification.generated.json:86:    \"quietFutureActivityCount\": 416,",
+      "path": "agent/state/future-activity-signal-reclassification.generated.json",
       "classification": "quiet_catalog_only"
     },
     {
@@ -1923,13 +1952,588 @@
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "agent\\state\\future-activity-signal-reclassification.generated.json:86:    \"quietFutureActivityCount\": 416,",
-      "path": "agent/state/future-activity-signal-reclassification.generated.json",
+      "reference": "agent\\state\\non-event-score-policy.generated.json:91:  \"quietFutureActivityCount\": 416,",
+      "path": "agent/state/non-event-score-policy.generated.json",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "agent\\state\\non-event-score-policy.generated.json:91:  \"quietFutureActivityCount\": 416,",
-      "path": "agent/state/non-event-score-policy.generated.json",
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1779:      \"reference\": \"agent\\\\state\\\\debug-backlog-engine.generated.json:69:    \\\"quietFutureActivity\\\": 0,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1784:      \"reference\": \"agent\\\\state\\\\debug-backlog-engine.generated.json:90:    \\\"quietFutureActivityCount\\\": 0,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1789:      \"reference\": \"agent\\\\state\\\\debug-cockpit-batch31-task-guidance-parity.generated.json:10:  \\\"guidanceStatusAfter\\\": \\\"source_ready_waiting_for_activity\\\",\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1794:      \"reference\": \"agent\\\\state\\\\debug-signal-grouping.generated.json:86:  \\\"quietFutureActivityRawCount\\\": 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1799:      \"reference\": \"agent\\\\state\\\\debug-signal-grouping.generated.json:87:  \\\"quietFutureActivityGroupCount\\\": 1,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1804:      \"reference\": \"agent\\\\state\\\\debug-signal-actionability.generated.json:142:    \\\"quietFutureActivity\\\": 0,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1809:      \"reference\": \"agent\\\\state\\\\debug-signal-actionability.generated.json:163:    \\\"quietFutureActivityCount\\\": 0,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1814:      \"reference\": \"agent\\\\state\\\\debug-signal-actionability.generated.json:1019:    \\\"quietFutureActivityDefaultVisible\\\": false\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1819:      \"reference\": \"tests\\\\unit\\\\debug-cockpit-batch31-task-guidance-parity.spec.ts:18:    expect(report.guidanceStatusAfter).toBe(\\\"source_ready_waiting_for_activity\\\");\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1824:      \"reference\": \"src\\\\lib\\\\tasks\\\\task-guidance-telemetry-contract.ts:17:  | \\\"source_ready_waiting_for_activity\\\"\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1829:      \"reference\": \"src\\\\lib\\\\tasks\\\\task-guidance-telemetry-contract.ts:203:          ? \\\"source_ready_waiting_for_activity\\\"\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1834:      \"reference\": \"src\\\\lib\\\\tasks\\\\task-guidance-telemetry-contract.ts:246:      : blockedReason === \\\"source_ready_waiting_for_activity\\\"\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1839:      \"reference\": \"src\\\\lib\\\\tasks\\\\task-guidance-history-recovery.ts:9:  status: \\\"legacy_alias_candidate\\\" | \\\"instrumentation_gap\\\" | \\\"source_ready_waiting_for_activity\\\";\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1844:      \"reference\": \"src\\\\lib\\\\tasks\\\\task-guidance-history-recovery.ts:34:      ? \\\"source_ready_waiting_for_activity\\\"\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1849:      \"reference\": \"tests\\\\unit\\\\debug-signal-actionability.spec.ts:141:    expect(summary.quietFutureActivity).toBe(1);\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1854:      \"reference\": \"tests\\\\unit\\\\debug-signal-grouping.spec.ts:72:    expect(summary.quietFutureActivityGroupCount).toBe(1);\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1859:      \"reference\": \"tests\\\\unit\\\\event-liveness-audit.spec.ts:25:    expect(result.livenessStatus).not.toBe(\\\"future_only_quiet\\\");\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1864:      \"reference\": \"tests\\\\unit\\\\final-signal-zero-lock.spec.ts:17:  quietFutureActivityCount: 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1869:      \"reference\": \"tests\\\\unit\\\\final-signal-zero-lock.spec.ts:57:      quietFutureActivityCount: 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1874:      \"reference\": \"tests\\\\unit\\\\final-signal-zero-lock.spec.ts:66:    quietFutureActivityRawCount: 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1879:      \"reference\": \"tests\\\\unit\\\\final-signal-zero-lock.spec.ts:97:    quietFutureActivityCount: 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1884:      \"reference\": \"tests\\\\unit\\\\final-signal-zero-lock.spec.ts:121:    expect(report.quietFutureActivityCount).toBe(416);\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1889:      \"reference\": \"tests\\\\unit\\\\final-signal-zero-lock.spec.ts:145:            quietFutureActivityCount: 415,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1894:      \"reference\": \"tests\\\\unit\\\\future-activity-signal-reclassification.spec.ts:57:    expect(summary.quietFutureActivityCount).toBe(1);\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1899:      \"reference\": \"tests\\\\unit\\\\future-activity-signal-reclassification.spec.ts:109:      quietFutureActivityCount: 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1904:      \"reference\": \"tests\\\\unit\\\\future-activity-signal-reclassification.spec.ts:115:      quietFutureActivityCount: 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1909:      \"reference\": \"tests\\\\unit\\\\future-activity-signal-reclassification.spec.ts:152:      quietFutureActivityCount: 1,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1914:      \"reference\": \"agent\\\\state\\\\final-signal-zero-lock.generated.json:74:  \\\"quietFutureActivityCount\\\": 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1919:      \"reference\": \"tests\\\\unit\\\\non-event-score-policy.spec.ts:78:    expect(summary.quietFutureActivityCount).toBe(416);\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1924:      \"reference\": \"agent\\\\state\\\\final-testing-tracking-telemetry-lock.generated.json:82:    \\\"quietFutureActivityCount\\\": 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1929:      \"reference\": \"agent\\\\state\\\\final-testing-tracking-telemetry-lock.generated.json:89:    \\\"quietFutureActivityCount\\\": 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1934:      \"reference\": \"agent\\\\state\\\\future-activity-signal-reclassification.generated.json:86:    \\\"quietFutureActivityCount\\\": 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1939:      \"reference\": \"agent\\\\state\\\\non-event-score-policy.generated.json:91:  \\\"quietFutureActivityCount\\\": 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1944:      \"reference\": \"agent\\\\state\\\\public-beta-score.generated.json:13:  \\\"quietFutureActivityCount\\\": 416,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1949:      \"reference\": \"agent\\\\state\\\\public-beta-score.generated.json:157:    \\\"quietFutureActivityCount=416\\\",\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1954:      \"reference\": \"scripts\\\\agent\\\\validate-telemetry-trigger-test-matrix.ts:84:    if (/waiting on activity|source_ready_waiting_for_activity/iu.test(source) && /telemetry|metrics|activity|trigger/iu.test(path)) {\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1959:      \"reference\": \"scripts\\\\agent\\\\validate-debug-backlog-engine.ts:215:    `- Quiet future activity: ${report.summary.quietFutureActivity}`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1964:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-grouping.ts:58:  quietFutureActivityRawCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1969:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-grouping.ts:59:  quietFutureActivityGroupCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1974:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-grouping.ts:285:  const quietFutureActivityRawCount = signals.filter((signal) => signal.actionability === \\\"quiet_future_activity\\\").length;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1979:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-grouping.ts:307:    quietFutureActivityRawCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1984:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-grouping.ts:308:    quietFutureActivityGroupCount: summary.quietFutureActivityGroupCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1989:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-grouping.ts:333:  if (report.quietFutureActivityRawCount > 0 && report.quietFutureActivityGroupCount !== 1) {\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1994:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-grouping.ts:393:    `- Quiet future activity raw/grouped: ${report.quietFutureActivityRawCount}/${report.quietFutureActivityGroupCount}`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:1999:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-grouping.ts:429:    `Debug signal grouping passed: raw=${report.rawSignalCount}, groups=${report.groupedSignalCount}, quietFuture=${report.quietFutureActivityRawCount}/${report.quietFutureActivityGroupCount}, p1p2=${report.rawP1P2SignalCount}/${report.p1P2GroupCount}.`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2004:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-actionability.ts:61:    quietFutureActivityDefaultVisible: false;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2009:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-actionability.ts:295:      quietFutureActivityDefaultVisible: false,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2014:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-actionability.ts:370:  if (report.defaultDebugPanel.quietFutureActivityDefaultVisible !== false) {\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2019:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-actionability.ts:420:    `- Quiet future activity: ${report.actionabilitySummary.quietFutureActivityCount}`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2024:      \"reference\": \"scripts\\\\agent\\\\validate-debug-signal-actionability.ts:461:    `Debug signal actionability passed: visible=${report.actionabilitySummary.defaultVisibleCount}, hidden=${report.actionabilitySummary.hiddenByDefaultCount}, quietFuture=${report.actionabilitySummary.quietFutureActivityCount}, duplicates=${report.actionabilitySummary.duplicateSignalCount}.`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2029:      \"reference\": \"scripts\\\\agent\\\\validate-future-activity-signal-reclassification.ts:170:  if (/source_ready_waiting_for_activity|waiting-on-activity-old|debug-noise-old/iu.test(normalized)) return \\\"stale_activity_signal_logic_to_remove\\\";\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2034:      \"reference\": \"scripts\\\\agent\\\\validate-future-activity-signal-reclassification.ts:231:    if (!/futureActivityPending|source_ready_waiting_for_activity|waitingOnActivityLanes|waiting on activity|activity pending|future activity/iu.test(source)) return [];\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2039:      \"reference\": \"scripts\\\\agent\\\\validate-future-activity-signal-reclassification.ts:235:    if (/futureActivityCatalog|quietFutureActivity|quiet future/iu.test(source)) {\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2044:      \"reference\": \"scripts\\\\agent\\\\validate-future-activity-signal-reclassification.ts:356:    `- Quiet future activity: ${report.activitySignalSummary.quietFutureActivityCount}`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2049:      \"reference\": \"scripts\\\\agent\\\\validate-future-activity-signal-reclassification.ts:397:      `quietFuture=${report.activitySignalSummary.quietFutureActivityCount}, broken=${report.activitySignalSummary.brokenActivityPathCount}, ` +\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2054:      \"reference\": \"scripts\\\\agent\\\\validate-event-translation-bridge.ts:55:  const oldLogicPattern = /source_ready_waiting_for_activity|stale_metric_bridge|orphaned activity|materializer missing as healthy|unknown activity accepted/iu;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2059:      \"reference\": \"scripts\\\\agent\\\\validate-non-event-score-policy.ts:155:    /activity missing|waiting on activity|futureActivityPending.*penalt/iu.test(fragment)\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2064:      \"reference\": \"scripts\\\\agent\\\\validate-non-event-score-policy.ts:173:  writeFileSync(fullPath, `# Non-Event Score Policy\\\\n\\\\nGenerated: ${report.generatedAtUtc}\\\\n\\\\nFuture activity placeholders are non-events. They stay visible only in quiet catalogs and do not reduce beta score.\\\\n\\\\n## Counts\\\\n\\\\n- Quiet future activity: ${report.quietFutureActivityCount}\\\\n- Actionable signal groups: ${report.actionableSignalGroupCount}\\\\n- Score-drag signal groups: ${report.scoreDragSignalGroupCount}\\\\n- Non-event score penalties: ${report.nonEventScorePenaltyCount}\\\\n\\\\n## Score Dimensions\\\\n\\\\n| Dimension | Before | After | Status | Blocker type | Next action |\\\\n| --- | ---: | ---: | --- | --- | --- |\\\\n${metricRows}\\\\n\\\\n## Remaining Gaps\\\\n\\\\n${Array.isArray(report.remainingGaps) && report.remainingGaps.length > 0 ? report.remainingGaps.map((gap) => `- ${gap}`).join(\\\"\\\\n\\\") : \\\"- None for non-event scoring.\\\"}\\\\n`, \\\"utf8\\\");\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2069:      \"reference\": \"scripts\\\\agent\\\\validate-non-event-score-policy.ts:209:  if (!readBoolean(score?.quietFutureActivityCount === policySummary.quietFutureActivityCount)) failures.push(\\\"public beta score report lacks quietFutureActivityCount from grouped signals.\\\");\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2074:      \"reference\": \"scripts\\\\agent\\\\validate-non-event-score-policy.ts:231:    quietFutureActivityCount: policySummary.quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2079:      \"reference\": \"scripts\\\\agent\\\\validate-non-event-score-policy.ts:253:  console.log(`Non-event score policy validated: ${policySummary.quietFutureActivityCount} quiet future activity signal(s), ${policySummary.nonEventScorePenaltyCount} non-event score penalties.`);\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2084:      \"reference\": \"scripts\\\\agent\\\\validate-event-liveness-audit.ts:133:    \\\"quietFutureActivity|futureActivityPending|source_ready_waiting_for_activity|not_observed_but_expected|future_only_quiet\\\",\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2089:      \"reference\": \"scripts\\\\agent\\\\validate-event-liveness-audit.ts:144:    const classification = /event-liveness/iu.test(path) || text.includes(\\\"not_observed_but_expected\\\")\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2094:      \"reference\": \"scripts\\\\agent\\\\validate-event-liveness-audit.ts:254:  const rawQuietFutureCount = readNumber(finalActivity.rawFutureActivityCount, readNumber(finalActivity.quietFutureActivityCount, readNumber(publicScore.quietFutureActivityCount, 416)));\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2099:      \"reference\": \"scripts\\\\agent\\\\validate-event-liveness-audit.ts:270:  if (summary.classifications.some((event) => event.expectedTrafficClass === \\\"high_daily\\\" && event.visibilityStatus !== \\\"admin_only\\\" && event.livenessStatus === \\\"future_only_quiet\\\")) {\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2104:      \"reference\": \"scripts\\\\agent\\\\validate-event-liveness-audit.ts:271:    validationFailures.push(\\\"high_daily visible events can be future_only_quiet.\\\");\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2109:      \"reference\": \"scripts\\\\agent\\\\validate-final-signal-zero-lock.ts:40:  quietFutureActivityCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2114:      \"reference\": \"scripts\\\\agent\\\\validate-final-signal-zero-lock.ts:200:    \\\"futureActivityPending|source_ready_waiting_for_activity|waitingOnActivityLanes|falseWaitingCount|scoreDragLanes|nonEventScorePenalty|rawSignalCount\\\",\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2119:      \"reference\": \"scripts\\\\agent\\\\validate-final-signal-zero-lock.ts:250:  const rawFutureActivityCount = readNumber(activitySummary.totalSignalCount, readNumber(grouping.quietFutureActivityRawCount, readNumber(score.quietFutureActivityCount)));\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2124:      \"reference\": \"scripts\\\\agent\\\\validate-final-signal-zero-lock.ts:251:  const quietFutureActivityCount = readNumber(activitySummary.quietFutureActivityCount, readNumber(nonEvent.quietFutureActivityCount, readNumber(score.quietFutureActivityCount)));\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2129:      \"reference\": \"scripts\\\\agent\\\\validate-final-signal-zero-lock.ts:260:    quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2134:      \"reference\": \"scripts\\\\agent\\\\validate-final-signal-zero-lock.ts:324:  if (report.rawFutureActivityCount > 0 && report.quietFutureActivityCount === 0) {\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2139:      \"reference\": \"scripts\\\\agent\\\\validate-final-signal-zero-lock.ts:341:  const doc = `# Final Signal Zero Lock\\\\n\\\\nGenerated: ${report.generatedAtUtc}\\\\n\\\\n## Signal Counts\\\\n\\\\n- Raw future activity: ${report.rawFutureActivityCount}\\\\n- Quiet future activity: ${report.quietFutureActivityCount}\\\\n- Actionable future activity: ${report.actionableFutureActivityCount}\\\\n- False waiting count: ${report.falseWaitingCount}\\\\n- Score-drag activity count: ${report.scoreDragActivityCount}\\\\n- Non-event score penalties: ${report.nonEventScorePenaltyCount}\\\\n\\\\n## Score Dimensions\\\\n\\\\n| Dimension | Before | After | Status | Next action |\\\\n| --- | ---: | ---: | --- | --- |\\\\n${rows}\\\\n\\\\n## Remaining Formal Gates\\\\n\\\\n${report.remainingFormalGates.length > 0 ? report.remainingFormalGates.map((gate) => `- ${gate}`).join(\\\"\\\\n\\\") : \\\"- None.\\\"}\\\\n\\\\n## Next Exact Steps\\\\n\\\\n${report.nextExactSteps.map((step) => `- ${step}`).join(\\\"\\\\n\\\")}\\\\n`;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2144:      \"reference\": \"scripts\\\\agent\\\\validate-final-signal-zero-lock.ts:367:  console.log(`Final signal zero lock passed: rawFuture=${report.rawFutureActivityCount}, quietFuture=${report.quietFutureActivityCount}, actionableFuture=${report.actionableFutureActivityCount}, scoreDrag=${report.scoreDragActivityCount}, nonEventPenalties=${report.nonEventScorePenaltyCount}.`);\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2149:      \"reference\": \"scripts\\\\agent\\\\validate-final-testing-tracking-telemetry-lock.ts:63:    quietFutureActivityCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2154:      \"reference\": \"scripts\\\\agent\\\\validate-final-testing-tracking-telemetry-lock.ts:70:    | \\\"quietFutureActivityCount\\\"\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2159:      \"reference\": \"scripts\\\\agent\\\\validate-final-testing-tracking-telemetry-lock.ts:299:    quietFutureActivityCount: activitySignalSummary.quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2164:      \"reference\": \"scripts\\\\agent\\\\validate-final-testing-tracking-telemetry-lock.ts:310:    quietFutureActivityCount: summary.quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2169:      \"reference\": \"scripts\\\\agent\\\\validate-final-testing-tracking-telemetry-lock.ts:338:    if (!/source_ready_waiting_for_activity|duplicated_person_metric|stale_user_metric|duplicate validator|unknown activity|orphan metric/iu.test(source)) return [];\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2174:      \"reference\": \"scripts\\\\agent\\\\validate-final-testing-tracking-telemetry-lock.ts:453:    `- Quiet future activity count: ${report.activitySignalSummary.quietFutureActivityCount}`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2179:      \"reference\": \"scripts\\\\agent\\\\validate-final-testing-tracking-telemetry-lock.ts:489:      `source=${report.metrics.sourceHealth.after}, actionableActivitySignals=${report.activitySignalSummary.actionableActivitySignalCount}, quietFuture=${report.activitySignalSummary.quietFutureActivityCount}.`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2184:      \"reference\": \"src\\\\lib\\\\agent-score\\\\core.ts:250:  quietFutureActivityCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2189:      \"reference\": \"src\\\\lib\\\\agent-score\\\\core.ts:1552:    `quietFutureActivityCount=${nonEventScorePolicy.quietFutureActivityCount}`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2194:      \"reference\": \"src\\\\lib\\\\agent-score\\\\core.ts:1590:    quietFutureActivityCount: nonEventScorePolicy.quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2199:      \"reference\": \"src\\\\lib\\\\agent-score\\\\non-event-score-policy.ts:61:  quietFutureActivityCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2204:      \"reference\": \"src\\\\lib\\\\agent-score\\\\non-event-score-policy.ts:250:  const quietFutureActivityCount = groups\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2209:      \"reference\": \"src\\\\lib\\\\agent-score\\\\non-event-score-policy.ts:267:    quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2214:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-engine.ts:162:    case \\\"not_observed_but_expected\\\":\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2219:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-engine.ts:174:    case \\\"future_only_quiet\\\":\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2224:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-engine.ts:184:  if (status === \\\"future_only_quiet\\\") return `${eventName} is not expected to produce real activity yet.`;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2229:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-engine.ts:193:  if (status === \\\"observed_stale\\\" || status === \\\"not_observed_but_expected\\\") return cloneImpact({ runtimeHealth: 2, evidenceCompleteness: 2, freshness: 2, regressionRisk: 1 });\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2234:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-engine.ts:199:  if (expectedTrafficClass === \\\"future_only\\\") return \\\"future_only_quiet\\\";\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2239:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-engine.ts:225:  const defaultVisible = scoreDrag || livenessStatus === \\\"source_missing\\\" || livenessStatus === \\\"observed_stale\\\" || livenessStatus === \\\"not_observed_but_expected\\\";\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2244:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-engine.ts:250:    || classification.livenessStatus === \\\"not_observed_but_expected\\\";\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2249:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-engine.ts:255:  if (classification.livenessStatus === \\\"future_only_quiet\\\") return `${classification.eventName} is future-only and remains in the quiet catalog.`;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2254:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-contract.ts:29:  | \\\"not_observed_but_expected\\\"\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2259:      \"reference\": \"src\\\\lib\\\\analytics\\\\event-liveness-contract.ts:36:  | \\\"future_only_quiet\\\";\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2264:      \"reference\": \"src\\\\lib\\\\debug\\\\actionable-signal-filter.ts:10:  quietFutureActivityCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2269:      \"reference\": \"src\\\\lib\\\\debug\\\\actionable-signal-filter.ts:55:    quietFutureActivityCount: quietFutureCatalog.length,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2274:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-backlog-contract.ts:116:  quietFutureActivity: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2279:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-backlog-builder.ts:642:    quietFutureActivity: actionability.quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2284:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-signal-grouping.ts:62:  quietFutureActivityGroupCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2289:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-signal-grouping.ts:287:    quietFutureActivityGroupCount: groups.filter((group) => group.actionability === \\\"quiet_future_activity\\\").length,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2294:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-signal-actionability.ts:57:  quietFutureActivityCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2299:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-signal-actionability.ts:130:function quietFutureActivity(input: DebugSignalActionabilityInput) {\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2304:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-signal-actionability.ts:151:  if (quietFutureActivity(input)) return \\\"quiet_future_activity\\\";\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2309:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-signal-actionability.ts:286:    quietFutureActivityCount: collapsed.filter((signal) => signal.actionability === \\\"quiet_future_activity\\\").length,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2314:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-panel-tracking-summary.ts:124:    quietFutureActivityCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2319:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-panel-tracking-summary.ts:384:    rawQuietFutureCount: activitySignalSummary.quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2324:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-panel-tracking-summary.ts:993:      primarySignal: `Producers ${eventBridgeConnected}/${toNumber(eventBridge.producersRegistered)} connected; envelopes=${eventBridgeTranslated}; materializers=${toNumber(eventBridge.materializersMapped)}; person metrics=${toNumber(eventBridge.personMetricsMapped)}; gaps=${eventBridgeGaps}; actionable activity signals=${eventBridgeActionableSignals}; quiet future catalog=${activitySignalSummary.quietFutureActivityCount}.`,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2329:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-panel-tracking-summary.ts:1450:      quietFutureActivityCount: activitySignalSummary.quietFutureActivityCount,\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2334:      \"reference\": \"src\\\\lib\\\\debug\\\\debug-cockpit-batch31-task-guidance-parity.ts:60:    : \\\"source_ready_waiting_for_activity\\\";\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2339:      \"reference\": \"src\\\\app\\\\admin\\\\debug\\\\components\\\\DebugTrackingSummaryPanel.tsx:31:        quietFutureActivityCount: number;\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2344:      \"reference\": \"src\\\\app\\\\admin\\\\debug\\\\components\\\\DebugTrackingSummaryPanel.tsx:165:                            data-admin-debug-quiet-future-activity-count={String(futureCatalog.quietFutureActivityCount)}\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "docs\\agent-truth\\event-liveness-audit.md:2349:      \"reference\": \"src\\\\app\\\\admin\\\\debug\\\\components\\\\DebugTrackingSummaryPanel.tsx:170:                                <Pill label=\\\"Quiet\\\" value={futureCatalog.quietFutureActivityCount} tone=\\\"neutral\\\" truthState=\\\"cached\\\" />\",",
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "scripts\\agent\\validate-telemetry-trigger-test-matrix.ts:84:    if (/waiting on activity|source_ready_waiting_for_activity/iu.test(source) && /telemetry|metrics|activity|trigger/iu.test(path)) {",
+      "path": "scripts/agent/validate-telemetry-trigger-test-matrix.ts",
       "classification": "quiet_catalog_only"
     },
     {
@@ -1943,14 +2547,64 @@
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-telemetry-trigger-test-matrix.ts:84:    if (/waiting on activity|source_ready_waiting_for_activity/iu.test(source) && /telemetry|metrics|activity|trigger/iu.test(path)) {",
-      "path": "scripts/agent/validate-telemetry-trigger-test-matrix.ts",
+      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:155:    /activity missing|waiting on activity|futureActivityPending.*penalt/iu.test(fragment)",
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:173:  writeFileSync(fullPath, `# Non-Event Score Policy\\n\\nGenerated: ${report.generatedAtUtc}\\n\\nFuture activity placeholders are non-events. They stay visible only in quiet catalogs and do not reduce beta score.\\n\\n## Counts\\n\\n- Quiet future activity: ${report.quietFutureActivityCount}\\n- Actionable signal groups: ${report.actionableSignalGroupCount}\\n- Score-drag signal groups: ${report.scoreDragSignalGroupCount}\\n- Non-event score penalties: ${report.nonEventScorePenaltyCount}\\n\\n## Score Dimensions\\n\\n| Dimension | Before | After | Status | Blocker type | Next action |\\n| --- | ---: | ---: | --- | --- | --- |\\n${metricRows}\\n\\n## Remaining Gaps\\n\\n${Array.isArray(report.remainingGaps) && report.remainingGaps.length > 0 ? report.remainingGaps.map((gap) => `- ${gap}`).join(\"\\n\") : \"- None for non-event scoring.\"}\\n`, \"utf8\");",
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:209:  if (!readBoolean(score?.quietFutureActivityCount === policySummary.quietFutureActivityCount)) failures.push(\"public beta score report lacks quietFutureActivityCount from grouped signals.\");",
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:231:    quietFutureActivityCount: policySummary.quietFutureActivityCount,",
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:253:  console.log(`Non-event score policy validated: ${policySummary.quietFutureActivityCount} quiet future activity signal(s), ${policySummary.nonEventScorePenaltyCount} non-event score penalties.`);",
+      "path": "scripts/agent/validate-non-event-score-policy.ts",
       "classification": "quiet_catalog_only"
     },
     {
       "reference": "scripts\\agent\\validate-debug-backlog-engine.ts:215:    `- Quiet future activity: ${report.summary.quietFutureActivity}`,",
       "path": "scripts/agent/validate-debug-backlog-engine.ts",
       "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "scripts\\agent\\validate-event-translation-bridge.ts:55:  const oldLogicPattern = /source_ready_waiting_for_activity|stale_metric_bridge|orphaned activity|materializer missing as healthy|unknown activity accepted/iu;",
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:133:    \"quietFutureActivity|futureActivityPending|source_ready_waiting_for_activity|not_observed_but_expected|future_only_quiet\",",
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:144:    const classification = /event-liveness/iu.test(path) || text.includes(\"not_observed_but_expected\")",
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:254:  const rawQuietFutureCount = readNumber(finalActivity.rawFutureActivityCount, readNumber(finalActivity.quietFutureActivityCount, readNumber(publicScore.quietFutureActivityCount, 416)));",
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:270:  if (summary.classifications.some((event) => event.expectedTrafficClass === \"high_daily\" && event.visibilityStatus !== \"admin_only\" && event.livenessStatus === \"future_only_quiet\")) {",
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "liveness_engine_required"
+    },
+    {
+      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:271:    validationFailures.push(\"high_daily visible events can be future_only_quiet.\");",
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "liveness_engine_required"
     },
     {
       "reference": "scripts\\agent\\validate-debug-signal-grouping.ts:58:  quietFutureActivityRawCount: number;",
@@ -2043,59 +2697,39 @@
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-event-translation-bridge.ts:55:  const oldLogicPattern = /source_ready_waiting_for_activity|stale_metric_bridge|orphaned activity|materializer missing as healthy|unknown activity accepted/iu;",
-      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:63:    quietFutureActivityCount: number;",
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:155:    /activity missing|waiting on activity|futureActivityPending.*penalt/iu.test(fragment)",
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:70:    | \"quietFutureActivityCount\"",
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:173:  writeFileSync(fullPath, `# Non-Event Score Policy\\n\\nGenerated: ${report.generatedAtUtc}\\n\\nFuture activity placeholders are non-events. They stay visible only in quiet catalogs and do not reduce beta score.\\n\\n## Counts\\n\\n- Quiet future activity: ${report.quietFutureActivityCount}\\n- Actionable signal groups: ${report.actionableSignalGroupCount}\\n- Score-drag signal groups: ${report.scoreDragSignalGroupCount}\\n- Non-event score penalties: ${report.nonEventScorePenaltyCount}\\n\\n## Score Dimensions\\n\\n| Dimension | Before | After | Status | Blocker type | Next action |\\n| --- | ---: | ---: | --- | --- | --- |\\n${metricRows}\\n\\n## Remaining Gaps\\n\\n${Array.isArray(report.remainingGaps) && report.remainingGaps.length > 0 ? report.remainingGaps.map((gap) => `- ${gap}`).join(\"\\n\") : \"- None for non-event scoring.\"}\\n`, \"utf8\");",
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:299:    quietFutureActivityCount: activitySignalSummary.quietFutureActivityCount,",
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:209:  if (!readBoolean(score?.quietFutureActivityCount === policySummary.quietFutureActivityCount)) failures.push(\"public beta score report lacks quietFutureActivityCount from grouped signals.\");",
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:310:    quietFutureActivityCount: summary.quietFutureActivityCount,",
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:231:    quietFutureActivityCount: policySummary.quietFutureActivityCount,",
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:338:    if (!/source_ready_waiting_for_activity|duplicated_person_metric|stale_user_metric|duplicate validator|unknown activity|orphan metric/iu.test(source)) return [];",
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-non-event-score-policy.ts:253:  console.log(`Non-event score policy validated: ${policySummary.quietFutureActivityCount} quiet future activity signal(s), ${policySummary.nonEventScorePenaltyCount} non-event score penalties.`);",
-      "path": "scripts/agent/validate-non-event-score-policy.ts",
+      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:453:    `- Quiet future activity count: ${report.activitySignalSummary.quietFutureActivityCount}`,",
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:133:    \"quietFutureActivity|futureActivityPending|source_ready_waiting_for_activity|not_observed_but_expected|future_only_quiet\",",
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
-      "classification": "liveness_engine_required"
-    },
-    {
-      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:144:    const classification = /event-liveness/iu.test(path) || text.includes(\"not_observed_but_expected\")",
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
-      "classification": "liveness_engine_required"
-    },
-    {
-      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:254:  const rawQuietFutureCount = readNumber(finalActivity.rawFutureActivityCount, readNumber(finalActivity.quietFutureActivityCount, readNumber(publicScore.quietFutureActivityCount, 416)));",
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
-      "classification": "liveness_engine_required"
-    },
-    {
-      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:270:  if (summary.classifications.some((event) => event.expectedTrafficClass === \"high_daily\" && event.visibilityStatus !== \"admin_only\" && event.livenessStatus === \"future_only_quiet\")) {",
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
-      "classification": "liveness_engine_required"
-    },
-    {
-      "reference": "scripts\\agent\\validate-event-liveness-audit.ts:271:    validationFailures.push(\"high_daily visible events can be future_only_quiet.\");",
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
-      "classification": "liveness_engine_required"
+      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:489:      `source=${report.metrics.sourceHealth.after}, actionableActivitySignals=${report.activitySignalSummary.actionableActivitySignalCount}, quietFuture=${report.activitySignalSummary.quietFutureActivityCount}.`,",
+      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "classification": "quiet_catalog_only"
     },
     {
       "reference": "scripts\\agent\\validate-final-signal-zero-lock.ts:40:  quietFutureActivityCount: number;",
@@ -2138,38 +2772,18 @@
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:63:    quietFutureActivityCount: number;",
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "reference": "src\\lib\\agent-score\\non-event-score-policy.ts:61:  quietFutureActivityCount: number;",
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:70:    | \"quietFutureActivityCount\"",
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "reference": "src\\lib\\agent-score\\non-event-score-policy.ts:250:  const quietFutureActivityCount = groups",
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:299:    quietFutureActivityCount: activitySignalSummary.quietFutureActivityCount,",
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:310:    quietFutureActivityCount: summary.quietFutureActivityCount,",
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:338:    if (!/source_ready_waiting_for_activity|duplicated_person_metric|stale_user_metric|duplicate validator|unknown activity|orphan metric/iu.test(source)) return [];",
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:453:    `- Quiet future activity count: ${report.activitySignalSummary.quietFutureActivityCount}`,",
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "scripts\\agent\\validate-final-testing-tracking-telemetry-lock.ts:489:      `source=${report.metrics.sourceHealth.after}, actionableActivitySignals=${report.activitySignalSummary.actionableActivitySignalCount}, quietFuture=${report.activitySignalSummary.quietFutureActivityCount}.`,",
-      "path": "scripts/agent/validate-final-testing-tracking-telemetry-lock.ts",
+      "reference": "src\\lib\\agent-score\\non-event-score-policy.ts:267:    quietFutureActivityCount,",
+      "path": "src/lib/agent-score/non-event-score-policy.ts",
       "classification": "quiet_catalog_only"
     },
     {
@@ -2188,18 +2802,78 @@
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "src\\lib\\agent-score\\non-event-score-policy.ts:61:  quietFutureActivityCount: number;",
-      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "reference": "src\\lib\\debug\\actionable-signal-filter.ts:10:  quietFutureActivityCount: number;",
+      "path": "src/lib/debug/actionable-signal-filter.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "src\\lib\\agent-score\\non-event-score-policy.ts:250:  const quietFutureActivityCount = groups",
-      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "reference": "src\\lib\\debug\\actionable-signal-filter.ts:55:    quietFutureActivityCount: quietFutureCatalog.length,",
+      "path": "src/lib/debug/actionable-signal-filter.ts",
       "classification": "quiet_catalog_only"
     },
     {
-      "reference": "src\\lib\\agent-score\\non-event-score-policy.ts:267:    quietFutureActivityCount,",
-      "path": "src/lib/agent-score/non-event-score-policy.ts",
+      "reference": "src\\lib\\debug\\debug-signal-grouping.ts:62:  quietFutureActivityGroupCount: number;",
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-signal-grouping.ts:287:    quietFutureActivityGroupCount: groups.filter((group) => group.actionability === \"quiet_future_activity\").length,",
+      "path": "src/lib/debug/debug-signal-grouping.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-signal-actionability.ts:57:  quietFutureActivityCount: number;",
+      "path": "src/lib/debug/debug-signal-actionability.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-signal-actionability.ts:130:function quietFutureActivity(input: DebugSignalActionabilityInput) {",
+      "path": "src/lib/debug/debug-signal-actionability.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-signal-actionability.ts:151:  if (quietFutureActivity(input)) return \"quiet_future_activity\";",
+      "path": "src/lib/debug/debug-signal-actionability.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-signal-actionability.ts:286:    quietFutureActivityCount: collapsed.filter((signal) => signal.actionability === \"quiet_future_activity\").length,",
+      "path": "src/lib/debug/debug-signal-actionability.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-panel-tracking-summary.ts:126:    quietFutureActivityCount: number;",
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-panel-tracking-summary.ts:387:    rawQuietFutureCount: activitySignalSummary.quietFutureActivityCount,",
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-panel-tracking-summary.ts:1013:      primarySignal: `Producers ${eventBridgeConnected}/${toNumber(eventBridge.producersRegistered)} connected; envelopes=${eventBridgeTranslated}; materializers=${toNumber(eventBridge.materializersMapped)}; person metrics=${toNumber(eventBridge.personMetricsMapped)}; gaps=${eventBridgeGaps}; actionable activity signals=${eventBridgeActionableSignals}; quiet future catalog=${activitySignalSummary.quietFutureActivityCount}.`,",
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-panel-tracking-summary.ts:1484:      quietFutureActivityCount: activitySignalSummary.quietFutureActivityCount,",
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-backlog-contract.ts:116:  quietFutureActivity: number;",
+      "path": "src/lib/debug/debug-backlog-contract.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-cockpit-batch31-task-guidance-parity.ts:60:    : \"source_ready_waiting_for_activity\";",
+      "path": "src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts",
+      "classification": "quiet_catalog_only"
+    },
+    {
+      "reference": "src\\lib\\debug\\debug-backlog-builder.ts:642:    quietFutureActivity: actionability.quietFutureActivityCount,",
+      "path": "src/lib/debug/debug-backlog-builder.ts",
       "classification": "quiet_catalog_only"
     },
     {
@@ -2251,81 +2925,6 @@
       "reference": "src\\lib\\analytics\\event-liveness-contract.ts:36:  | \"future_only_quiet\";",
       "path": "src/lib/analytics/event-liveness-contract.ts",
       "classification": "liveness_engine_required"
-    },
-    {
-      "reference": "src\\lib\\debug\\actionable-signal-filter.ts:10:  quietFutureActivityCount: number;",
-      "path": "src/lib/debug/actionable-signal-filter.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\actionable-signal-filter.ts:55:    quietFutureActivityCount: quietFutureCatalog.length,",
-      "path": "src/lib/debug/actionable-signal-filter.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-backlog-contract.ts:116:  quietFutureActivity: number;",
-      "path": "src/lib/debug/debug-backlog-contract.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-backlog-builder.ts:642:    quietFutureActivity: actionability.quietFutureActivityCount,",
-      "path": "src/lib/debug/debug-backlog-builder.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-signal-grouping.ts:62:  quietFutureActivityGroupCount: number;",
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-signal-grouping.ts:287:    quietFutureActivityGroupCount: groups.filter((group) => group.actionability === \"quiet_future_activity\").length,",
-      "path": "src/lib/debug/debug-signal-grouping.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-signal-actionability.ts:57:  quietFutureActivityCount: number;",
-      "path": "src/lib/debug/debug-signal-actionability.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-signal-actionability.ts:130:function quietFutureActivity(input: DebugSignalActionabilityInput) {",
-      "path": "src/lib/debug/debug-signal-actionability.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-signal-actionability.ts:151:  if (quietFutureActivity(input)) return \"quiet_future_activity\";",
-      "path": "src/lib/debug/debug-signal-actionability.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-signal-actionability.ts:286:    quietFutureActivityCount: collapsed.filter((signal) => signal.actionability === \"quiet_future_activity\").length,",
-      "path": "src/lib/debug/debug-signal-actionability.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-panel-tracking-summary.ts:124:    quietFutureActivityCount: number;",
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-panel-tracking-summary.ts:384:    rawQuietFutureCount: activitySignalSummary.quietFutureActivityCount,",
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-panel-tracking-summary.ts:993:      primarySignal: `Producers ${eventBridgeConnected}/${toNumber(eventBridge.producersRegistered)} connected; envelopes=${eventBridgeTranslated}; materializers=${toNumber(eventBridge.materializersMapped)}; person metrics=${toNumber(eventBridge.personMetricsMapped)}; gaps=${eventBridgeGaps}; actionable activity signals=${eventBridgeActionableSignals}; quiet future catalog=${activitySignalSummary.quietFutureActivityCount}.`,",
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-panel-tracking-summary.ts:1450:      quietFutureActivityCount: activitySignalSummary.quietFutureActivityCount,",
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "quiet_catalog_only"
-    },
-    {
-      "reference": "src\\lib\\debug\\debug-cockpit-batch31-task-guidance-parity.ts:60:    : \"source_ready_waiting_for_activity\";",
-      "path": "src/lib/debug/debug-cockpit-batch31-task-guidance-parity.ts",
-      "classification": "quiet_catalog_only"
     },
     {
       "reference": "src\\app\\admin\\debug\\components\\DebugTrackingSummaryPanel.tsx:31:        quietFutureActivityCount: number;",

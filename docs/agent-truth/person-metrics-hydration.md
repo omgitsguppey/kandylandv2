@@ -1,8 +1,8 @@
 # Person Metrics Hydration
 
-Generated: 2026-05-26T08:13:08.353Z
+Generated: 2026-05-27T02:55:18.409Z
 Status: pass
-Current head: a74f489c81e605f1c9a280f28726d352fcb54dee
+Current head: dd4b37320ddd4e920d6633c91d90b01243089231
 
 ## Contract
 
@@ -14,10 +14,10 @@ Current head: a74f489c81e605f1c9a280f28726d352fcb54dee
 
 ## Debug Lane
 
-- Producers registered: 258
-- Producers connected: 36
-- Event envelopes hydrated: 49
-- Person metrics mapped: 36
+- Producers registered: 260
+- Producers connected: 37
+- Event envelopes hydrated: 105
+- Person metrics mapped: 37
 - Low-confidence metrics: 0
 - Gaps: 0
 
@@ -30,6 +30,7 @@ Current head: a74f489c81e605f1c9a280f28726d352fcb54dee
 - creator_profile_views: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - search_discovery_actions: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - drop_opens: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
+- drop_unlocks: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - unwraps: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - wallet_opens: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
 - wallet_closes: state=hydrated; count=1; confidence=exact; provenZero=false; missing=none
@@ -73,49 +74,28 @@ Current head: a74f489c81e605f1c9a280f28726d352fcb54dee
 
 - CHANGELOG.md: release_artifact_expected
 - agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
-- agent/state/body-system-wiring-repair.generated.json: current_generated_artifact_to_commit
-- agent/state/central-normalizer-spine.generated.json: current_generated_artifact_to_commit
-- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/debug-backlog-engine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
-- agent/state/final-product-integrity-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/interpretive-brain-debug-triage.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-hydration-consolidation-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/analytics-hydration-consolidation.generated.json: current_generated_artifact_to_commit
+- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: current_generated_artifact_to_commit
-- agent/state/product-body-map.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/sql-database-parity-cost-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/surface-parity-doctrine.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/surface-telemetry-parity.generated.json: current_generated_artifact_to_commit
-- agent/state/user-journey-behavioral-intelligence.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/body-system-wiring-repair.md: documentation_artifact_expected
-- docs/agent-truth/central-normalizer-spine.md: documentation_artifact_expected
-- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/debug-backlog-engine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/final-product-integrity-lock.md: documentation_artifact_expected
-- docs/agent-truth/interpretive-brain-debug-triage.md: documentation_artifact_expected
-- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-hydration-consolidation-audit.md: documentation_artifact_expected
+- docs/agent-truth/analytics-hydration-consolidation.md: documentation_artifact_expected
+- docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- docs/agent-truth/product-body-map.md: documentation_artifact_expected
-- docs/agent-truth/sql-database-parity-cost-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/surface-parity-doctrine.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/surface-telemetry-parity.md: documentation_artifact_expected
-- docs/agent-truth/user-journey-behavioral-intelligence.md: documentation_artifact_expected
 - package.json: real_source_change_needs_review
 - public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-final-product-integrity-lock.ts: validator_artifact_expected
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- scripts/agent/validate-analytics-hydration-consolidation.ts: validator_artifact_expected
+- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx: real_source_change_needs_review
+- src/lib/admin-analytics/panel-hydration-contract.ts: real_source_change_needs_review
+- src/lib/admin-analytics/panel-hydration-registry.ts: real_source_change_needs_review
+- src/lib/admin-analytics/panel-hydration-resolver.ts: real_source_change_needs_review
 - src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/product-integrity/body-system-wiring-repair.ts: real_source_change_needs_review
-- src/lib/product-integrity/central-normalizer.ts: real_source_change_needs_review
-- src/lib/product-integrity/final-product-integrity-lock.ts: real_source_change_needs_review
-- src/lib/product-integrity/interpretive-brain.ts: real_source_change_needs_review
-- src/lib/product-integrity/product-body-map.ts: real_source_change_needs_review
+- src/lib/debug/debug-panel-tracking-summary.ts: real_source_change_needs_review
 - src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/final-product-integrity-lock.spec.ts: test_artifact_expected
+- src/lib/release-readiness/live-panel-evidence-resolver.ts: real_source_change_needs_review
+- tests/unit/analytics-hydration-consolidation.spec.ts: test_artifact_expected
+- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
 
 ## Active Old Logic
 

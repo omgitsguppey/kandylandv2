@@ -1,0 +1,100 @@
+{
+  "reportKey": "analytics-hydration-consolidation-audit",
+  "generatedAtUtc": "2026-05-27T03:00:34.217Z",
+  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+  "filesAudited": [
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
+      "classification": "canonical_keep",
+      "reason": "Thin status/display/report adapter types."
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-registry.ts",
+      "classification": "merge_into_person_metrics",
+      "reason": "Derives events, materializers, and debug owners from person metrics, feature, surface parity, and event liveness registries."
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
+      "classification": "merge_into_event_liveness",
+      "reason": "Delegates source/liveness state to event liveness and person metrics, then adapts display status."
+    },
+    {
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "canonical_keep",
+      "reason": "Owns person metric counts, confidence, provenZero, missingProducer, and missingBridge truth."
+    },
+    {
+      "path": "src/lib/analytics/event-liveness-engine.ts",
+      "classification": "canonical_keep",
+      "reason": "Owns recent/stale/source/materializer/translation/hydration liveness classification."
+    },
+    {
+      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "classification": "merge_into_debug_tracking_summary",
+      "reason": "Owns default debug summary lane; panel hydration is one summarized lane only."
+    },
+    {
+      "path": "src/lib/product-integrity/interpretive-brain.ts",
+      "classification": "merge_into_interpretive_brain",
+      "reason": "Owns root-cause/top-action prioritization instead of panel hydration creating a debug brain."
+    },
+    {
+      "path": "src/lib/parity/surface-parity-registry.ts",
+      "classification": "merge_into_surface_parity",
+      "reason": "Owns major surface/debug lane mapping reused by panel derivation."
+    },
+    {
+      "path": "src/lib/release-readiness/live-panel-evidence-resolver.ts",
+      "classification": "canonical_keep",
+      "reason": "Maps compact panel statuses into release evidence decisions."
+    },
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "generated_artifact_too_verbose",
+      "reason": "Must remain compact summary plus per-panel lookup, not full static registry dump."
+    }
+  ],
+  "symbolsAudited": [
+    {
+      "symbol": "AdminAnalyticsPanelHydrationStatus",
+      "classification": "canonical_keep"
+    },
+    {
+      "symbol": "derivePanelFromPersonMetric",
+      "classification": "merge_into_person_metrics"
+    },
+    {
+      "symbol": "ADMIN_ANALYTICS_PANEL_HYDRATION_REGISTRY",
+      "classification": "duplicate_registry_to_collapse"
+    },
+    {
+      "symbol": "resolvePanelHydration",
+      "classification": "canonical_keep"
+    },
+    {
+      "symbol": "statusFromDelegatedSources",
+      "classification": "merge_into_event_liveness"
+    },
+    {
+      "symbol": "buildAnalyticsPanelHydrationDebugLane",
+      "classification": "merge_into_debug_tracking_summary"
+    },
+    {
+      "symbol": "buildAnalyticsPanelHydrationReport",
+      "classification": "canonical_keep"
+    },
+    {
+      "symbol": "panelStatus",
+      "classification": "compact_artifact"
+    },
+    {
+      "symbol": "topPanelHydrationFailures",
+      "classification": "drilldown_only"
+    },
+    {
+      "symbol": "buildLivePanelEvidenceReport",
+      "classification": "canonical_keep"
+    }
+  ],
+  "validationFailures": []
+}

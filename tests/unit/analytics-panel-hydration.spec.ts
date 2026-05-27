@@ -57,9 +57,9 @@ describe("analytics panel hydration", () => {
       ],
     });
 
-    const traffic = report.panels.find((panel) => panel.panelId === "traffic_overview");
+    const traffic = report.panelStatus.traffic_overview;
     expect(traffic?.hydrationStatus).toBe("hydrated");
-    expect(report.panels.some((panel) => panel.canDisplayZero && panel.hydrationStatus !== "hydrated")).toBe(false);
+    expect(Object.values(report.panelStatus).some((panel) => panel.canDisplayZero && panel.hydrationStatus !== "hydrated")).toBe(false);
     expect(validateAnalyticsPanelHydrationReport(report)).toEqual([]);
   });
 
