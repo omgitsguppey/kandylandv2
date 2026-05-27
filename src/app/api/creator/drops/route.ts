@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
+import {
+    buildCreatorDrop4xxPayload,
+    getCreatorDrop4xxPolicy,
+    type CreatorDrop4xxClass,
+} from "@/lib/creator-drops/creator-drop-4xx-policy";
 import { isCreatorRole } from "@/lib/creator-experiences";
 import { resolveCreatorDropMetrics } from "@/lib/drops/drop-metrics-resolver";
 import { buildCreatorPendingDropPayload, sanitizeCreatorDropSubmission } from "@/lib/drops/drop-submission-contract";
@@ -22,11 +27,53 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const CREATOR_DROP_LIST_LIMIT = 100;
 const MAX_CREATOR_DROP_BODY_BYTES = 80_000;
+const CREATOR_DROP_422 = { status: 422 } as const;
+
+class CreatorDropRouteError extends Error {
+    errorClass: CreatorDrop4xxClass;
+    details: string[];
+
+    constructor(errorClass: CreatorDrop4xxClass, message?: string, details: string[] = []) {
+        super(message || getCreatorDrop4xxPolicy(errorClass).safeCreatorCopy);
+        this.name = "CreatorDropRouteError";
+        this.errorClass = errorClass;
+        this.details = details;
+    }
+}
+
+function isCreatorDropRouteError(error: unknown): error is CreatorDropRouteError {
+    return error instanceof CreatorDropRouteError;
+}
+
+function creatorDrop4xxResponse(
+    errorClass: CreatorDrop4xxClass,
+    options: { details?: string[]; overrideCopy?: string; statusCode?: number } = {},
+) {
+    const policy = getCreatorDrop4xxPolicy(errorClass);
+    return NextResponse.json(
+        buildCreatorDrop4xxPayload(errorClass, {
+            details: options.details,
+            overrideCopy: options.overrideCopy,
+        }),
+        { status: options.statusCode ?? policy.statusCode },
+    );
+}
+
+function classifyCreatorPublishValidation(errors: string[]): CreatorDrop4xxClass {
+    const combined = errors.join(" ").toLowerCase();
+    if (combined.includes("cover") || combined.includes("content asset") || combined.includes("media")) {
+        return "media_required";
+    }
+    if (combined.includes("expiration") || combined.includes("start time")) {
+        return "invalid_creator_drop_payload";
+    }
+    return "invalid_creator_drop_payload";
+}
 
 function assertBoundedBody(request: NextRequest) {
     const contentLength = Number(request.headers.get("content-length") || "0");
     if (Number.isFinite(contentLength) && contentLength > MAX_CREATOR_DROP_BODY_BYTES) {
-        throw new Error("Drop submission is too large.");
+        throw new CreatorDropRouteError("invalid_creator_drop_payload", "Drop submission is too large.");
     }
 }
 
@@ -99,19 +146,19 @@ async function requireCreator(uid: string) {
 
     const userSnap = await adminDb.collection("users").doc(uid).get();
     if (!userSnap.exists) {
-        throw new Error("Creator not found");
+        throw new CreatorDropRouteError("creator_not_configured");
     }
 
     const data = userSnap.data() as Record<string, unknown>;
     if (!isCreatorRole(data.role)) {
-        throw new Error("Creator access required");
+        throw new CreatorDropRouteError("creator_not_configured");
     }
 
     const creatorRestrictions = data.creatorRestrictions && typeof data.creatorRestrictions === "object"
         ? data.creatorRestrictions as Record<string, unknown>
         : {};
     if (creatorRestrictions.dropSubmissionsRestricted === true) {
-        throw new Error("Drop submissions are restricted for this creator.");
+        throw new CreatorDropRouteError("creator_permission_denied", "Drop submissions are restricted for this creator.");
     }
 
     return data;
@@ -172,6 +219,12 @@ async function GET_handler(request: NextRequest) {
             sourceTruth: "creator_owned_or_assigned_only",
         });
     } catch (error) {
+        if (isCreatorDropRouteError(error)) {
+            return creatorDrop4xxResponse(error.errorClass, {
+                details: error.details,
+                overrideCopy: error.message,
+            });
+        }
         return handleApiError(error, "Creator.Drops.GET");
     }
 }
@@ -194,26 +247,33 @@ async function POST_handler(request: NextRequest) {
         const body = await request.json() as { dropData?: Record<string, unknown> };
         const dropData = body.dropData;
         if (!dropData) {
-            return NextResponse.json({ error: "Missing drop data" }, { status: 400 });
+            return NextResponse.json(buildCreatorDrop4xxPayload("invalid_creator_drop_payload"), CREATOR_DROP_422);
         }
 
         let pendingPayload: Record<string, unknown>;
         try {
             pendingPayload = buildCreatorPendingDropPayload(dropData, caller.uid, caller.uid);
         } catch (validationError) {
-            return NextResponse.json({
-                error: validationError instanceof Error ? validationError.message : "Creator drop submission contains unsafe fields.",
-            }, { status: 400 });
+            return NextResponse.json(
+                buildCreatorDrop4xxPayload("invalid_creator_drop_payload", {
+                    overrideCopy: validationError instanceof Error ? validationError.message : undefined,
+                }),
+                CREATOR_DROP_422,
+            );
         }
         const publishValidation = validateDropPublishState(pendingPayload, {
             creatorIdOverride: caller.uid,
             requireCreator: true,
         });
         if (!publishValidation.ok) {
-            return NextResponse.json({
-                error: "Invalid drop publish state",
-                details: publishValidation.errors,
-            }, { status: 400 });
+            const errorClass = classifyCreatorPublishValidation(publishValidation.errors);
+            return NextResponse.json(
+                buildCreatorDrop4xxPayload(errorClass, {
+                    details: publishValidation.errors,
+                    overrideCopy: "Some required drop details are missing or invalid.",
+                }),
+                CREATOR_DROP_422,
+            );
         }
 
         const now = Date.now();
@@ -243,6 +303,12 @@ async function POST_handler(request: NextRequest) {
             adminApprovalRequired: true,
         });
     } catch (error) {
+        if (isCreatorDropRouteError(error)) {
+            return creatorDrop4xxResponse(error.errorClass, {
+                details: error.details,
+                overrideCopy: error.message,
+            });
+        }
         return handleApiError(error, "Creator.Drops.POST");
     }
 }
@@ -263,35 +329,45 @@ async function PUT_handler(request: NextRequest) {
         assertBoundedBody(request);
         await requireCreator(caller.uid);
         const { dropId, dropData } = await request.json() as { dropId?: string; dropData?: Record<string, unknown> };
-        if (!dropId || !dropData) {
-            return NextResponse.json({ error: "Missing dropId or drop data" }, { status: 400 });
+        if (!dropId) {
+            return NextResponse.json(buildCreatorDrop4xxPayload("missing_creator_drop_id"), CREATOR_DROP_422);
+        }
+        if (!dropData) {
+            return NextResponse.json(buildCreatorDrop4xxPayload("invalid_creator_drop_payload"), CREATOR_DROP_422);
         }
 
         const dropRef = adminDb.collection("drops").doc(dropId);
         const dropSnap = await dropRef.get();
         if (!dropSnap.exists) {
-            return buildNotFoundResponse("drop", "Drop not found");
+            return creatorDrop4xxResponse("stale_creator_draft");
         }
 
         const existingDrop = normalizeDropRecord(dropSnap.data(), dropId);
         if (existingDrop.submittedByCreatorId !== caller.uid && existingDrop.creatorId !== caller.uid) {
-            return NextResponse.json({ error: "You can only edit your own submitted drops." }, { status: 403 });
+            return creatorDrop4xxResponse("creator_permission_denied", {
+                overrideCopy: "You can only edit your own submitted drops.",
+            });
         }
 
         const existingReviewStatus = typeof (dropSnap.data() as Record<string, unknown>).reviewStatus === "string"
             ? (dropSnap.data() as Record<string, unknown>).reviewStatus
             : "";
         if (existingDrop.approvalStatus === "approved" || existingReviewStatus === "approved") {
-            return NextResponse.json({ error: "Approved drops require admin review before creator edits can go live." }, { status: 409 });
+            return creatorDrop4xxResponse("approval_required", {
+                overrideCopy: "Approved drops require admin review before creator edits can go live.",
+            });
         }
 
         let sanitized: Record<string, unknown>;
         try {
             sanitized = sanitizeCreatorDropSubmission(dropData, caller.uid, caller.uid);
         } catch (validationError) {
-            return NextResponse.json({
-                error: validationError instanceof Error ? validationError.message : "Creator drop submission contains unsafe fields.",
-            }, { status: 400 });
+            return NextResponse.json(
+                buildCreatorDrop4xxPayload("invalid_creator_drop_payload", {
+                    overrideCopy: validationError instanceof Error ? validationError.message : undefined,
+                }),
+                CREATOR_DROP_422,
+            );
         }
         const publishValidation = validateDropPublishState(sanitized, {
             existingDrop,
@@ -299,10 +375,14 @@ async function PUT_handler(request: NextRequest) {
             requireCreator: true,
         });
         if (!publishValidation.ok) {
-            return NextResponse.json({
-                error: "Invalid drop publish state",
-                details: publishValidation.errors,
-            }, { status: 400 });
+            const errorClass = classifyCreatorPublishValidation(publishValidation.errors);
+            return NextResponse.json(
+                buildCreatorDrop4xxPayload(errorClass, {
+                    details: publishValidation.errors,
+                    overrideCopy: "Some required drop details are missing or invalid.",
+                }),
+                CREATOR_DROP_422,
+            );
         }
 
         const now = Date.now();
@@ -332,6 +412,12 @@ async function PUT_handler(request: NextRequest) {
             lifecycleStatus: status,
         });
     } catch (error) {
+        if (isCreatorDropRouteError(error)) {
+            return creatorDrop4xxResponse(error.errorClass, {
+                details: error.details,
+                overrideCopy: error.message,
+            });
+        }
         return handleApiError(error, "Creator.Drops.PUT");
     }
 }

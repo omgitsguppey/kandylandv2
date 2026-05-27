@@ -21,6 +21,7 @@ import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { useAdminDropsFeed } from "@/hooks/useAdminDropsFeed";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useNow } from "@/hooks/useNow";
+import { trackEvent } from "@/lib/telemetry";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
 interface DropNotificationDraft {
@@ -40,6 +41,7 @@ interface CreatorOption {
 
 type DropStatusFilter = "all" | "queued" | "live" | "scheduled" | "pending_review" | "rejected" | "ended";
 type DropSortMode = "last-active" | "newest" | "oldest" | "last-queued" | "alphabetical";
+type CreatorDropReviewDecision = "approved" | "rejected" | "needs_changes";
 
 type DropCardViewModel = {
     drop: Drop;
@@ -437,6 +439,22 @@ export default function AdminDropsPage() {
         [filteredDrops, selectedDropIds],
     );
 
+    const pendingCreatorSubmissionCount = useMemo(
+        () => dropViewModels.filter((item) => item.drop.approvalStatus === "pending_review").length,
+        [dropViewModels],
+    );
+
+    useEffect(() => {
+        if (pendingCreatorSubmissionCount <= 0) {
+            return;
+        }
+
+        trackEvent("admin_creator_drop_review_viewed", {
+            surface: "admin_drops",
+            pending_creator_submissions: pendingCreatorSubmissionCount,
+        });
+    }, [pendingCreatorSubmissionCount]);
+
     const handleDelete = useCallback(async (id: string) => {
         if (!confirm("Are you sure you want to delete this drop? This cannot be undone.")) {
             return;
@@ -468,17 +486,23 @@ export default function AdminDropsPage() {
         }
     }, []);
 
-    const handleReviewSubmission = useCallback(async (dropId: string, approvalStatus: "approved" | "rejected") => {
+    const handleReviewSubmission = useCallback(async (dropId: string, approvalStatus: CreatorDropReviewDecision) => {
         try {
             setReviewingDropId(dropId);
+            const dropData = approvalStatus === "needs_changes"
+                ? {
+                    reviewStatus: "needs_changes",
+                    approvalReviewedAt: Date.now(),
+                }
+                : {
+                    approvalStatus,
+                    approvalReviewedAt: Date.now(),
+                };
             const response = await authFetch("/api/admin/drops", {
                 method: "PUT",
                 body: JSON.stringify({
                     dropId,
-                    dropData: {
-                        approvalStatus,
-                        approvalReviewedAt: Date.now(),
-                    },
+                    dropData,
                 }),
             });
             const result = await response.json();
@@ -487,7 +511,13 @@ export default function AdminDropsPage() {
             }
 
             dispatchAdminOverviewSync();
-            toast.success(approvalStatus === "approved" ? "Creator drop approved" : "Creator drop rejected");
+            toast.success(
+                approvalStatus === "approved"
+                    ? "Creator drop approved"
+                    : approvalStatus === "rejected"
+                        ? "Creator drop rejected"
+                        : "Creator drop marked as needs changes",
+            );
         } catch (error: any) {
             reportClientIssue({
                 channel: "network",
@@ -902,6 +932,12 @@ export default function AdminDropsPage() {
                                                         tone="danger"
                                                         disabled={reviewingDropId === drop.id}
                                                     />
+                                                    <IconChipButton
+                                                        label="Request changes"
+                                                        onClick={() => void handleReviewSubmission(drop.id, "needs_changes")}
+                                                        icon={Edit}
+                                                        disabled={reviewingDropId === drop.id}
+                                                    />
                                                 </>
                                             ) : null}
                                             <IconChipButton
@@ -1079,6 +1115,12 @@ export default function AdminDropsPage() {
                                                                 onClick={() => void handleReviewSubmission(drop.id, "rejected")}
                                                                 icon={X}
                                                                 tone="danger"
+                                                                disabled={reviewingDropId === drop.id}
+                                                            />
+                                                            <IconChipButton
+                                                                label="Request changes"
+                                                                onClick={() => void handleReviewSubmission(drop.id, "needs_changes")}
+                                                                icon={Edit}
                                                                 disabled={reviewingDropId === drop.id}
                                                             />
                                                         </>

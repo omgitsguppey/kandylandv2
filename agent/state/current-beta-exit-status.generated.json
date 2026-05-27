@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-27T06:26:38.934Z",
+  "generatedAtUtc": "2026-05-27T12:00:00.000Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "8cedd1be76a9d43846a5ba9ace354d1b21d3ef48",
+  "currentHead": "4ea7fddfa516daeedc01b8e06d7d2437e2acf404",
   "summary": {
-    "betaVersion": "1.5.21",
+    "betaVersion": "1.5.23",
     "betaScore": 76.61,
     "betaStatus": "Stale evidence",
     "scoreVersion": "beta_health_v2",

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
+import { buildCreatorDrop4xxPayload } from "@/lib/creator-drops/creator-drop-4xx-policy";
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
 import { sanitizeAdminDropPayload } from "@/lib/drops/drop-submission-contract";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
@@ -122,7 +123,26 @@ async function PUT_handler(request: NextRequest) {
         }
 
         const existingDrop = normalizeDropRecord(existingDropSnap.data(), dropId);
-        if (shouldValidateDropPublishPayload(dropData)) {
+        if (dropData.approvalStatus === "approved") {
+            const nextApprovedDrop = {
+                ...existingDrop,
+                ...dropData,
+                approvalStatus: "approved",
+                reviewStatus: "approved",
+                publicDiscovery: true,
+                rotationEligibility: true,
+            };
+            const publishValidation = validateDropPublishState(nextApprovedDrop, { existingDrop });
+            if (!publishValidation.ok) {
+                return NextResponse.json(
+                    buildCreatorDrop4xxPayload("media_required", {
+                        details: publishValidation.errors,
+                        overrideCopy: "Creator drop needs required fields and media before approval.",
+                    }),
+                    { status: 422 },
+                );
+            }
+        } else if (shouldValidateDropPublishPayload(dropData)) {
             const publishValidation = validateDropPublishState(dropData, { existingDrop });
             if (!publishValidation.ok) {
                 return NextResponse.json({
@@ -168,7 +188,12 @@ async function PUT_handler(request: NextRequest) {
             || dropData.approvalStatus === "rejected"
             || dropData.reviewStatus === "needs_changes"
         ) {
-            await trackServerEvent("admin_creator_drop_reviewed", {
+            const specificReviewEvent = dropData.approvalStatus === "approved"
+                ? "admin_creator_drop_approved"
+                : dropData.approvalStatus === "rejected"
+                    ? "admin_creator_drop_rejected"
+                    : "admin_creator_drop_needs_changes";
+            const reviewPayload = {
                 actorType: "admin",
                 actor_type: "admin",
                 actorAdminId: caller?.uid || "admin",
@@ -185,6 +210,10 @@ async function PUT_handler(request: NextRequest) {
                 source_truth: "admin_drop_review",
                 pagePath: "/admin/drops",
                 page_path: "/admin/drops",
+            };
+            await trackServerEvent(specificReviewEvent, reviewPayload, caller?.uid);
+            await trackServerEvent("admin_creator_drop_reviewed", {
+                ...reviewPayload,
             }, caller?.uid);
         }
 

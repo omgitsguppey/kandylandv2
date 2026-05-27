@@ -1,0 +1,118 @@
+{
+  "reportKey": "creator-drop-approval-repair",
+  "generatedAtUtc": "2026-05-27T07:19:16.343Z",
+  "currentHead": "4ea7fddfa516daeedc01b8e06d7d2437e2acf404",
+  "status": "pass",
+  "submitFlowStatus": "fixed",
+  "adminApprovalStatus": "fixed",
+  "creatorStatusParity": "fixed",
+  "userVisibilityGuard": "guarded",
+  "creatorFeatureParity": "mapped",
+  "creator4xxClassesCovered": 13,
+  "workflowStatusesRepresented": [
+    "draft",
+    "submitted",
+    "pending_review",
+    "approved",
+    "rejected",
+    "needs_changes",
+    "expired"
+  ],
+  "liveEvidenceStatus": "connected",
+  "analyticsPanelHydrationStatus": "event_registered_for_hydration_explanation",
+  "memoryEntriesAdded": 5,
+  "netAdditions": 1412,
+  "netDeletions": 412,
+  "scoreBefore": 76.61,
+  "scoreAfter": 76.61,
+  "netAdditionsJustification": "This focused repair adds canonical contracts, validators, tests, and compact generated evidence to prevent creator workflow regressions.",
+  "findings": [
+    {
+      "id": "workflow-states-covered",
+      "status": "pass",
+      "summary": "Creator drop workflow states include creator/admin/user approval lifecycle."
+    },
+    {
+      "id": "submission-hidden-until-approval",
+      "status": "pass",
+      "summary": "Creator submissions stay hidden from users until admin review."
+    },
+    {
+      "id": "admin-approval-enables-rotation-only-after-validation",
+      "status": "pass",
+      "summary": "Admin approval validates full publish readiness before public rotation."
+    },
+    {
+      "id": "admin-needs-changes-action",
+      "status": "pass",
+      "summary": "Admin drops queue can request changes."
+    },
+    {
+      "id": "creator-status-parity",
+      "status": "pass",
+      "summary": "Creator manager exposes submitted, pending, approved, rejected, needs_changes, and expired statuses."
+    },
+    {
+      "id": "creator-4xx-typed",
+      "status": "pass",
+      "summary": "Creator drop route returns typed non-retryable 4xx payloads."
+    },
+    {
+      "id": "modal-error-recovery",
+      "status": "pass",
+      "summary": "Creator submit modal surfaces safe recovery copy and tracks attempts/success/failure."
+    },
+    {
+      "id": "4xx-policy-complete",
+      "status": "pass",
+      "summary": "Creator drop 4xx policy covers expected permanent client errors."
+    },
+    {
+      "id": "creator-feature-parity-sweep",
+      "status": "pass",
+      "summary": "Focused creator features are mapped to source truth, consumers, telemetry, debug, and 4xx policy."
+    },
+    {
+      "id": "live-evidence-events",
+      "status": "pass",
+      "summary": "Creator drop workflow events are registered in the telemetry catalog."
+    },
+    {
+      "id": "memory-writeback",
+      "status": "pass",
+      "summary": "Repo memory records creator workflow chain repair rules."
+    }
+  ],
+  "summary": {
+    "submitFlowStatus": "fixed",
+    "adminApprovalStatus": "fixed",
+    "creatorStatusParity": "fixed",
+    "userVisibilityGuard": "guarded",
+    "creatorFeatureParity": "mapped",
+    "creator4xxClassesCovered": 13,
+    "workflowStatusesRepresented": [
+      "draft",
+      "submitted",
+      "pending_review",
+      "approved",
+      "rejected",
+      "needs_changes",
+      "expired"
+    ],
+    "liveEvidenceStatus": "connected",
+    "analyticsPanelHydrationStatus": "event_registered_for_hydration_explanation",
+    "memoryEntriesAdded": 5,
+    "netAdditions": 1412,
+    "netDeletions": 412,
+    "scoreBefore": 76.61,
+    "scoreAfter": 76.61,
+    "netAdditionsJustification": "This focused repair adds canonical contracts, validators, tests, and compact generated evidence to prevent creator workflow regressions."
+  },
+  "validationFailures": [],
+  "remainingGaps": [
+    "Manual deployed QA is still needed to prove a real creator can submit and an admin can approve in production-like runtime."
+  ],
+  "nextExactSteps": [
+    "After deploy, submit a test creator drop, confirm pending admin queue visibility, approve it, and confirm public discovery only after approval."
+  ]
+}

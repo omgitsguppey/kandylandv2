@@ -17,6 +17,39 @@
   ],
   "pitfalls": [
     {
+      "stable_id": "pitfall__creator_drop_workflow_chain_fix",
+      "title": "creator_drop_workflow_chain_fix",
+      "description": "Creator drop bugs can look like a broken button while the real failure is in form validation, route permissions, stored status, admin queue review, public visibility, telemetry, debug, or 4xx handling.",
+      "symptom_pattern": "A creator submits a drop and sees silent failure, hidden pending state, generic request failure, missing admin queue entry, or a user-visible unapproved submission.",
+      "affected_surfaces": [
+        "src/components/Creators/CreatorDropManager.tsx",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/app/api/creator/drops/route.ts",
+        "src/app/api/admin/drops/route.ts",
+        "src/app/admin/drops/page.tsx",
+        "src/lib/creator-drops/**",
+        "src/lib/creator-features/**"
+      ],
+      "prevention_rule": "When a creator feature is reported broken, inspect the entire workflow chain from creator UI to backend action, permission check, stored status, admin queue, approval decision, user visibility, telemetry, debug, and 4xx handling. Do not fix only the visible button. Creator-submitted drops must remain creator-visible but user-hidden until admin approval. Do not allow creator submissions to enter user-facing rotation without approval. Every creator workflow must expose creator-facing status and admin-facing status. Creator feature 4xx errors need user-readable recovery states. Reuse and consolidate instead of adding parallel creator systems.",
+      "detection_hint": "Run check:creator-drop-workflow-contract, check:creator-drop-submit-repair, check:creator-drop-admin-approval-parity, check:creator-drop-4xx-policy, check:creator-feature-parity-map, check:creator-drop-live-evidence, and check:creator-drop-memory-writeback.",
+      "related_commands": [
+        "npm run check:creator-drop-workflow-contract",
+        "npm run check:creator-drop-submit-repair",
+        "npm run check:creator-drop-admin-approval-parity",
+        "npm run check:creator-drop-4xx-policy",
+        "npm run check:creator-feature-parity-map",
+        "npm run check:creator-drop-live-evidence",
+        "npm run check:creator-drop-memory-writeback"
+      ],
+      "related_helpers": [
+        "src/lib/creator-drops/creator-drop-workflow-contract.ts",
+        "src/lib/creator-drops/creator-drop-4xx-policy.ts",
+        "src/lib/creator-features/creator-feature-parity-map.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
+    },
+    {
       "stable_id": "pitfall__privacy_data_lifecycle_drift",
       "title": "privacy_data_lifecycle_drift",
       "description": "Telemetry, behavioral intelligence, admin debug, chat, media, notification, support, export, or delete-account code can drift into one-off privacy and redaction logic.",

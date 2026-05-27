@@ -14,7 +14,7 @@ import { trackEvent } from "@/lib/telemetry";
 import { getMobileModuleClassNames } from "@/lib/ui/mobile-scale-contract";
 import { createStaleRequestGuard, getMobileSkeletonClass, getModuleLoadingState } from "@/lib/ui/loading-state-contract";
 
-type CreatorDropReviewStatus = "draft" | "pending_admin_approval" | "approved" | "needs_changes" | "rejected";
+type CreatorDropReviewStatus = "draft" | "submitted" | "pending_review" | "approved" | "needs_changes" | "rejected" | "expired";
 type CreatorDropFilter = "all" | CreatorDropReviewStatus;
 
 type CreatorDropRow = {
@@ -48,18 +48,22 @@ const REVIEW_TABS: Array<{
 }> = [
     { id: "all", label: "All", icon: Package },
     { id: "draft", label: "Drafts", icon: Package },
-    { id: "pending_admin_approval", label: "Pending", icon: Clock3 },
+    { id: "submitted", label: "Submitted", icon: Clock3 },
+    { id: "pending_review", label: "Pending", icon: Clock3 },
     { id: "approved", label: "Approved", icon: CheckCircle2 },
     { id: "needs_changes", label: "Needs changes", icon: AlertCircle },
     { id: "rejected", label: "Rejected", icon: XCircle },
+    { id: "expired", label: "Expired", icon: XCircle },
 ];
 
 const REVIEW_STATUS_LABELS: Record<CreatorDropReviewStatus, string> = {
     draft: "Draft",
-    pending_admin_approval: "Waiting on admin review",
+    submitted: "Submitted",
+    pending_review: "Waiting on admin review",
     approved: "Approved",
     needs_changes: "Needs changes",
     rejected: "Not approved",
+    expired: "Expired",
 };
 
 const creatorManagerModuleClassName = getMobileModuleClassNames("creator", "manager");
@@ -69,8 +73,10 @@ function classifyDrop(drop: CreatorDropRow): CreatorDropReviewStatus {
     const status = drop.statusResolution ?? resolveDropStatus(drop);
     if (status.creatorStatusKey === "needs_changes") return "needs_changes";
     if (status.creatorStatusKey === "rejected") return "rejected";
-    if (status.creatorStatusKey === "approved_live" || status.creatorStatusKey === "admin_created" || status.creatorStatusKey === "expired") return "approved";
-    if (status.creatorStatusKey === "pending_review" || status.creatorStatusKey === "creator_submitted") return "pending_admin_approval";
+    if (status.creatorStatusKey === "expired") return "expired";
+    if (status.creatorStatusKey === "approved_live" || status.creatorStatusKey === "admin_created") return "approved";
+    if (status.creatorStatusKey === "pending_review") return "pending_review";
+    if (status.creatorStatusKey === "creator_submitted") return "submitted";
     return "draft";
 }
 
@@ -108,7 +114,23 @@ export function CreatorDropManager() {
             if (!dropLoadGuardRef.current.isFresh(requestId)) {
                 return;
             }
-            setDrops(Array.isArray(result.drops) ? result.drops : []);
+            const loadedDrops = Array.isArray(result.drops) ? result.drops : [];
+            setDrops(loadedDrops);
+            const pendingReviewCount = loadedDrops.filter((drop) => classifyDrop(drop) === "pending_review").length;
+            if (pendingReviewCount > 0) {
+                trackEvent("creator_drop_pending_review_viewed", {
+                    source_component: "CreatorDropManager",
+                    surface: "creator_submission",
+                    pending_review_count: pendingReviewCount,
+                });
+            }
+            if (loadedDrops.length > 0) {
+                trackEvent("creator_drop_status_viewed", {
+                    source_component: "CreatorDropManager",
+                    surface: "creator_submission",
+                    drop_count: loadedDrops.length,
+                });
+            }
         } catch (error) {
             if (dropLoadGuardRef.current.isFresh(requestId)) {
                 toast.error(error instanceof Error ? error.message : "Unable to load creator drops.");
@@ -132,6 +154,11 @@ export function CreatorDropManager() {
             surface: "creator_submission",
             ui_density: "mobile_compact",
         });
+        trackEvent("creator_drop_manager_viewed", {
+            source_component: "CreatorDropManager",
+            surface: "creator_submission",
+            ui_density: "mobile_compact",
+        });
     }, []);
 
     const tabCounts = useMemo(() => {
@@ -141,10 +168,12 @@ export function CreatorDropManager() {
         }, {
             all: 0,
             draft: 0,
-            pending_admin_approval: 0,
+            submitted: 0,
+            pending_review: 0,
             approved: 0,
             needs_changes: 0,
             rejected: 0,
+            expired: 0,
         });
     }, [drops]);
 

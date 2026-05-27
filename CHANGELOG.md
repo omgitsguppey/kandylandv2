@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.23 - 2026-05-27
+- Creator drop approval repair
+- Repaired creator drop submission, admin approval parity, creator status visibility, and creator 4xx handling.
+- Connected creator drop workflow to telemetry, analytics hydration, live evidence, and debug.
+- Added system memory rules for creator workflow chain fixes.
+
 ## 1.5.22 - 2026-05-27
 - Privacy data lifecycle consolidation
 - Consolidated privacy, consent, data export, delete retention, admin redaction, and support account safety policy.

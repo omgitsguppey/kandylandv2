@@ -16,6 +16,18 @@ Doctrine retrieval is an optimization problem. Agents must load the smallest suf
 
 Current Phase 1 operator doctrine lives at `docs/agent-truth/current-operator-doctrine.md` and wins over older stale docs when they conflict. Future agents must close full source-to-UI loops instead of backend-only or UI-only patches, trace existing measurement paths before adding metrics/events/snapshots, demote stale generated reports to evidence unless fresh and explicitly consumed, and keep missing data distinct from zero. Release-note-only commits must use `[skip release-notes]` and must not create another Beta badge commit. GitHub hosted-runner billing lock is external infrastructure status, not app failure; Firebase App Hosting rollout status and local validators are separate.
 
+## Creator Drop Workflow Memory
+
+When a creator feature is reported broken, inspect the entire workflow chain from creator UI to backend action, permission check, stored status, admin queue, approval decision, user visibility, telemetry, debug, and 4xx handling. Do not fix only the visible button.
+
+Creator-submitted drops must remain creator-visible but user-hidden until admin approval. Do not allow creator submissions to enter user-facing rotation without approval.
+
+Every creator workflow must expose creator-facing status and admin-facing status. Silent success, silent failure, and hidden pending states are product bugs.
+
+Creator feature 4xx errors need user-readable recovery states. Validation errors, permission denials, missing creator settings, stale draft IDs, and admin approval conflicts must be non-retryable and diagnostic-safe.
+
+Before adding a new creator route or component, search for existing creator settings, creator drop manager, admin drops, drop approval, and creator monetization contracts. Reuse and consolidate instead of adding parallel creator systems.
+
 ## Surface Doctrine Routing
 
 Before editing UI, copy, telemetry, state, admin truth, or server/backend truth, read `agent/context/surface-doctrine-map.json` and `docs/doctrine/03-surface-hierarchy.md`. Resolve exactly one primary surface first, then load the matching doctrine:

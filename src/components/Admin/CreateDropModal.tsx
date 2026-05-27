@@ -261,6 +261,24 @@ export interface CreateDropModalProps {
     onSubmitFailure?: (message: string) => void;
 }
 
+type DropSaveApiResult = {
+    error?: string;
+    id?: string;
+    errorClass?: string;
+    recoveryAction?: string;
+    details?: string[];
+};
+
+function buildDropSaveErrorMessage(result: DropSaveApiResult, fallback: string) {
+    const base = typeof result.error === "string" && result.error.trim().length > 0
+        ? result.error.trim()
+        : fallback;
+    const recoveryAction = typeof result.recoveryAction === "string" && result.recoveryAction.trim().length > 0
+        ? result.recoveryAction.trim()
+        : "";
+    return recoveryAction ? `${base} ${recoveryAction}` : base;
+}
+
 export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSuccess, mode = "admin", creatorIdOverride = null, onSubmitFailure }: CreateDropModalProps) {
     const isEditMode = !!dropId;
     const [fetching, setFetching] = useState(isEditMode);
@@ -676,14 +694,21 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             dropData.mediaCounts = summarizeMediaCounts(contentAssets, data.fileMetadata?.type);
 
             let persistedDropId = dropId || null;
+            if (mode === "creator") {
+                trackEvent("creator_drop_submit_attempted", {
+                    source_component: "CreateDropModal",
+                    surface: "creator_submission",
+                    is_edit_mode: isEditMode,
+                });
+            }
 
             if (isEditMode) {
                 const response = await authFetch(mode === "creator" ? "/api/creator/drops" : "/api/admin/drops", {
                     method: "PUT",
                     body: JSON.stringify({ dropId, dropData }),
                 });
-                const result = await response.json() as { error?: string };
-                if (!response.ok) throw new Error(result.error);
+                const result = await response.json() as DropSaveApiResult;
+                if (!response.ok) throw new Error(buildDropSaveErrorMessage(result, "Failed to update drop."));
                 toast.success(mode === "creator" ? "Drop submission updated successfully" : "Drop updated successfully");
             } else {
                 const response = await authFetch(mode === "creator" ? "/api/creator/drops" : "/api/admin/drops", {
@@ -695,10 +720,19 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         },
                     }),
                 });
-                const result = await response.json() as { error?: string; id?: string };
-                if (!response.ok) throw new Error(result.error);
+                const result = await response.json() as DropSaveApiResult;
+                if (!response.ok) throw new Error(buildDropSaveErrorMessage(result, "Failed to save drop."));
                 persistedDropId = typeof result.id === "string" ? result.id : null;
                 toast.success(mode === "creator" ? "Drop submitted for admin approval" : "Drop created successfully");
+            }
+
+            if (mode === "creator") {
+                trackEvent("creator_drop_submit_succeeded", {
+                    source_component: "CreateDropModal",
+                    surface: "creator_submission",
+                    drop_id: persistedDropId || undefined,
+                    is_edit_mode: isEditMode,
+                });
             }
 
             if (mode === "admin" && selectedAiCoverJobId && persistedDropId) {

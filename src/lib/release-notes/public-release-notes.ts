@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.22",
-  "betaReleaseCounter": 522,
+  "currentVersion": "1.5.23",
+  "betaReleaseCounter": 523,
   "channel": "beta",
   "generatedAt": "2026-05-27T12:00:00.000Z",
   "generatedAtUtc": "2026-05-27T12:00:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.23",
+      "previousVersion": "1.5.22",
+      "betaReleaseCounter": 523,
+      "previousBetaReleaseCounter": 522,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(creator): repair drop approvals",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-27T12:00:00.000Z",
+      "generatedAt": "2026-05-27T12:00:00.000Z",
+      "committedAtUtc": "2026-05-27T12:00:00.000Z",
+      "generatedAtUtc": "2026-05-27T12:00:00.000Z",
+      "category": "Fixed",
+      "title": "Creator drop approval repair",
+      "updatedAtUtc": "2026-05-27T12:00:00.000Z",
+      "summary": "Repaired creator drop submission and admin approval parity so creator submissions stay visible to creators, reviewable by admins, hidden from users until approval, and recoverable on expected 4xx errors.",
+      "userFacingTitle": "More reliable creator drop submissions",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Repaired creator drop submission, admin approval parity, creator status visibility, and creator 4xx handling.",
+        "Connected creator drop workflow to telemetry, analytics hydration, live evidence, and debug.",
+        "Added system memory rules for creator workflow chain fixes."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Added creator drop workflow and 4xx policy contracts for pending review, needs changes, approval, rejection, and expired states.",
+        "Validated admin approval against full publish readiness before public discovery and rotation are enabled.",
+        "Added focused validators, artifacts, and memory writeback for creator workflow chain repairs."
+      ],
+      "affectedSurfaces": [
+        "Creator drop manager",
+        "Creator drop submission API",
+        "Admin drops review queue",
+        "Creator drop 4xx recovery",
+        "Creator workflow telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/components/Creators/CreatorDropManager.tsx",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/app/api/creator/drops/route.ts",
+        "src/app/api/admin/drops/route.ts",
+        "src/app/admin/drops/page.tsx",
+        "src/lib/creator-drops/creator-drop-workflow-contract.ts",
+        "src/lib/creator-drops/creator-drop-4xx-policy.ts",
+        "src/lib/creator-features/creator-feature-parity-map.ts",
+        "scripts/agent/validate-creator-drop-approval-shared.ts",
+        "tests/unit/creator-drop-workflow-contract.spec.ts"
+      ],
+      "effectiveChangeCount": 7,
+      "excludedGeneratedChangeCount": 16,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.22",
       "previousVersion": "1.5.21",
