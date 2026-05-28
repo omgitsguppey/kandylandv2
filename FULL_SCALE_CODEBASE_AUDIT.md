@@ -13887,3 +13887,50 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-05-28] Blocked Deliverable: Monolith File + Responsibility Boundary Audit
+
+**Candidate Files:**
+- `src/app/api/admin/debug/route.ts` (7016 lines)
+- `src/components/Chat/ChatExperience.tsx` (4218 lines)
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (3326 lines)
+- `src/app/api/admin/users/route.ts` (3163 lines)
+- `src/lib/server/ai-drop-covers.ts` (2873 lines)
+- `src/app/api/admin/analytics/historical/route.ts` (2154 lines)
+- `src/lib/server/admin-analytics-historical-validation.ts` (2107 lines)
+
+**Classification Labels:**
+- `src/app/api/admin/debug/route.ts`: God-file risk, Mixed responsibility drift
+- `src/components/Chat/ChatExperience.tsx`: God-file risk, Needs split for stability
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: God-file risk, Mixed responsibility drift
+- `src/app/api/admin/users/route.ts`: God-file risk
+- `src/lib/server/ai-drop-covers.ts`: God-file risk, Mixed responsibility drift
+- `src/app/api/admin/analytics/historical/route.ts`: Oversized but tolerable, Needs split for stability
+- `src/lib/server/admin-analytics-historical-validation.ts`: Oversized but tolerable, Mixed responsibility drift
+
+**Blocker Identification:**
+Automated refactoring of large monolithic files (>2000 lines) is too risky. Splitting these files requires deep, manual structural evaluation to preserve core product behaviors, protected payment logic, and UI view state correctly. An automated script could inadvertently alter product behavior, miswire runtime logic, or drop critical telemetry context.
+
+**Affected Files/Components:**
+- **Debug Routing / Endpoints:** `src/app/api/admin/debug/route.ts`
+- **Chat Core Surface:** `src/components/Chat/ChatExperience.tsx`
+- **Analytics Client Hooks:** `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+- **User Admin APIs:** `src/app/api/admin/users/route.ts`
+- **AI Backend / Cover Generation:** `src/lib/server/ai-drop-covers.ts`
+- **Analytics Data Endpoints:** `src/app/api/admin/analytics/historical/route.ts`, `src/lib/server/admin-analytics-historical-validation.ts`
+
+**Codex Prompt:**
+```text
+Context: We need to decompose several god-files (>2000 lines) in the KandyDrops repository that are mixing view rendering, fetch logic, orchestration, and telemetry without changing product behavior.
+
+Goal: Decompose the following files to reduce risk and clarify responsibility boundaries:
+- `src/components/Chat/ChatExperience.tsx` (Target: separate view rendering, hook orchestration, modal state, and realtime listeners)
+- `src/app/api/admin/debug/route.ts` (Target: break out independent debug tools into separate sub-routes or lib controllers)
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (Target: split into composable domain hooks for commerce, traffic, audience)
+
+Constraints:
+1. Do NOT change core product behavior.
+2. Target ~300 lines for normal UI files and ~500 lines for orchestration files where reasonable.
+3. Preserve all telemetry, Firebase fallback logic, and error handling.
+4. Update imports across the codebase safely.
+```
