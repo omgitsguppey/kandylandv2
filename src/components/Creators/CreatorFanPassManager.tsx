@@ -163,9 +163,10 @@ export function CreatorFanPassManager({
           type="button"
           onClick={() => void loadSubscribers()}
           disabled={!canLoadSubscribers || loading}
+          aria-busy={loading}
           className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />}
           Refresh
         </button>
       </div>

@@ -12,3 +12,6 @@
 ## 2024-05-09 - Added aria-busy to Button component
 **Learning:** The core Button component visually indicated loading states with a spinner, but did not properly announce this asynchronous loading state to screen readers.
 **Action:** Always apply the `aria-busy={isLoading}` attribute to interactive elements like buttons when they enter a loading state to ensure screen readers are informed of the asynchronous process.
+## 2026-04-21 - Added aria-hidden to decorative loading spinners
+**Learning:** Found several creator management components where a button's `aria-busy` state correctly conveyed loading, but the enclosed `<Loader2>` SVG lacked `aria-hidden="true"`. This caused screen readers to redundantly announce the spinner icon alongside the loading state.
+**Action:** Always apply `aria-hidden="true"` to decorative loading icons (like `<Loader2 />`) when the parent button already manages the loading announcement via `aria-busy={true}` to prevent duplicate or confusing announcements.

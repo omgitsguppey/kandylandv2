@@ -13887,3 +13887,4 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+## [2026-04-21 #palette-accessibility] POST: Added `aria-busy` and `aria-hidden` to loading spinners in creator dashboard components (`CreatorBookingsManager.tsx`, `CreatorBroadcastManager.tsx`, `CreatorFanPassManager.tsx`, `CreatorRequestsManager.tsx`).

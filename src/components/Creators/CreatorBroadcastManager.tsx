@@ -316,9 +316,10 @@ export function CreatorBroadcastManager({
               type="button"
               onClick={() => void handleSend()}
               disabled={sending || !canSendBroadcast || message.trim().length < 4}
+              aria-busy={sending}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-purple px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
               Create broadcast
             </button>
           </div>
