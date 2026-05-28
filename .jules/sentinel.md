@@ -30,3 +30,7 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+## 2024-05-28 - [High] Fix Open Redirect in Drop Action URLs
+**Vulnerability:** Open redirect / SSRF bypass in \`isSafeDropActionUrl\`. Node.js \`URL\` constructor resolves paths like \`//evil.com\`, \`/\\evil.com\`, and \`\\\\evil.com\` as relative paths when given a base URL, bypassing origin checks. Browsers then normalize these into protocol-relative cross-domain redirects.
+**Learning:** Node.js URL parser and browser URL parsers handle backslashes and protocol-relative inputs differently. When relying on Node's \`URL\` for server-side validation of URLs that will be rendered in a browser, explicitly rejecting inputs that begin with \`//\`, \`/\\\`, or \`\\\\\` is necessary.
+**Prevention:** Always explicitly check for and reject protocol-relative and backslash-prefixed paths before passing untrusted input to the \`URL\` constructor for origin validation.

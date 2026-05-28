@@ -106,12 +106,17 @@ function isHttpUrl(value: string) {
 }
 
 function isSafeDropActionUrl(value: string) {
-    if (!value.trim()) {
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return false;
+    }
+
+    if (trimmed.startsWith("//") || trimmed.startsWith("\\") || trimmed.startsWith("/\\")) {
         return false;
     }
 
     try {
-        const parsed = new URL(value, DROP_ACTION_URL_BASE);
+        const parsed = new URL(trimmed, DROP_ACTION_URL_BASE);
         if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
             return false;
         }
