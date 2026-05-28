@@ -13887,3 +13887,19 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+### 2026-06-03 - Audit package metadata and source-of-funds truth
+
+Scope:
+- `src/components/PurchaseModal.tsx`
+
+Problem fixed:
+- The UI in `PurchaseModal` incorrectly combined `baseAmount` and `bonus` into a single `amount` when displaying the total, but labeled it "Paid GD", which constitutes a visible value claim mismatch and misrepresents bonus drops as purchased.
+
+Hardening applied:
+- `PurchaseModal.tsx`'s `PurchasePackageRow` was updated to retrieve `baseAmount` and `hasBonus` / `bonus` via `getBundlePresentation`.
+- It now displays the `baseAmount` next to the "Paid GD" label and renders a distinct UI pill for "+X bonus" when a bonus exists, strictly separating the purchased value from the bonus value.
+
+Verification:
+- Checked UI rendering logic for separation of funds.
+- Checked economics tests.

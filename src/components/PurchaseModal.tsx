@@ -15,7 +15,7 @@ import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { useUI } from "@/context/UIContext";
 import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
-import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
+import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
@@ -127,8 +127,13 @@ function PurchasePackageRow({
       </div>
       <div className="min-w-0" data-purchase-row-zone="copy">
         <div className="flex min-w-0 items-baseline gap-1.5">
-          <span className="truncate text-[14px] font-bold leading-none text-white">{amount.toLocaleString()}</span>
+          <span className="truncate text-[14px] font-bold leading-none text-white">{getBundlePresentation(amount).baseAmount.toLocaleString()}</span>
           <span className="shrink-0 text-[9px] font-bold leading-none text-gray-500">Paid GD</span>
+          {getBundlePresentation(amount).hasBonus && (
+            <span className="shrink-0 rounded-full bg-brand-purple/20 px-1.5 py-[1px] text-[8.5px] font-bold leading-none text-brand-purple">
+              +{getBundlePresentation(amount).bonus} bonus
+            </span>
+          )}
         </div>
         <p className="mt-0.5 truncate text-[10.5px] font-medium leading-tight text-gray-400">{label}</p>
       </div>
