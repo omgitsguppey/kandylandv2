@@ -1,7 +1,7 @@
 {
   "reportKey": "identity-chain-contract",
-  "generatedAtUtc": "2026-05-29T03:02:53.605Z",
-  "currentHead": "97bbde3a34137099eb680f03eec6b1c45f1f8489",
+  "generatedAtUtc": "2026-05-29T03:07:18.623Z",
+  "currentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
   "status": "pass",
   "identityChainStatus": "canonical_identity_chain_registered",
   "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",

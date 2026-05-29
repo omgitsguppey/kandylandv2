@@ -1,7 +1,7 @@
 # Guest User Handoff Repair
 
 - Status: pass
-- Current head: 97bbde3a34137099eb680f03eec6b1c45f1f8489
+- Current head: 74c04caadffa3080b2f979f7649026b17aafdbdf
 - Guest-to-user handoff: continuity_preserved_duplicate_suppressed
 - Individual metric hydration: classified
 - Global vs user mismatches surfaced: 3

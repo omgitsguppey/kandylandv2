@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-29T03:00:55.954Z
+Generated: 2026-05-29T11:40:19.787Z
 Status: pass
-Current head: 97bbde3a34137099eb680f03eec6b1c45f1f8489
+Current head: 74c04caadffa3080b2f979f7649026b17aafdbdf
 
 ## Contract
 
@@ -54,20 +54,32 @@ Current head: 97bbde3a34137099eb680f03eec6b1c45f1f8489
 ## Dirty Files
 
 - agent/index/known-pitfalls.json: real_source_change_needs_review
+- agent/state/analytic-algorithm-truth-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/guest-user-handoff-repair.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-chain-contract.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-classified-mismatch-cleanup.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/identity-handoff-4xx-policy.generated.json: current_generated_artifact_to_commit
 - agent/state/identity-handoff-analytics-truth.generated.json: current_generated_artifact_to_commit
 - agent/state/identity-mismatch-closure.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-tracking-memory-writeback.generated.json: current_generated_artifact_to_commit
 - agent/state/individual-user-metric-truth.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/release-notes-integrity.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/user-tracking-live-evidence.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/analytic-algorithm-truth-audit.md: documentation_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/guest-user-handoff-repair.md: documentation_artifact_expected
+- docs/agent-truth/identity-chain-contract.md: documentation_artifact_expected
+- docs/agent-truth/identity-classified-mismatch-cleanup.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/identity-handoff-4xx-policy.md: documentation_artifact_expected
 - docs/agent-truth/identity-handoff-analytics-truth.md: documentation_artifact_expected
 - docs/agent-truth/identity-mismatch-closure.md: documentation_artifact_expected
+- docs/agent-truth/identity-tracking-memory-writeback.md: documentation_artifact_expected
 - docs/agent-truth/individual-user-metric-truth.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/release-notes-integrity.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/user-tracking-live-evidence.md: documentation_artifact_expected
-- scripts/agent/validate-identity-mismatch-closure.ts: validator_artifact_expected
-- scripts/agent/validate-identity-tracking-shared.ts: validator_artifact_expected
-- src/lib/identity-truth/individual-user-metric-truth.ts: real_source_change_needs_review
-- tests/unit/identity-mismatch-closure.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

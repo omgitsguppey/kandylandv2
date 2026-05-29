@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-29T03:00:55.954Z",
-  "currentHead": "97bbde3a34137099eb680f03eec6b1c45f1f8489",
+  "generatedAtUtc": "2026-05-29T11:40:19.787Z",
+  "currentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -5395,11 +5395,39 @@
       "classification": "real_source_change_needs_review"
     },
     {
+      "path": "agent/state/analytic-algorithm-truth-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/guest-user-handoff-repair.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/identity-chain-contract.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/identity-classified-mismatch-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/identity-handoff-4xx-policy.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/identity-handoff-analytics-truth.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/identity-mismatch-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/identity-tracking-memory-writeback.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -5411,8 +5439,36 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/release-notes-integrity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/user-tracking-live-evidence.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/analytic-algorithm-truth-audit.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/guest-user-handoff-repair.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/identity-chain-contract.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/identity-classified-mismatch-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/identity-handoff-4xx-policy.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/identity-handoff-analytics-truth.md",
@@ -5420,6 +5476,10 @@
     },
     {
       "path": "docs/agent-truth/identity-mismatch-closure.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/identity-tracking-memory-writeback.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -5431,24 +5491,12 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/release-notes-integrity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/user-tracking-live-evidence.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-identity-mismatch-closure.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-identity-tracking-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/identity-truth/individual-user-metric-truth.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/identity-mismatch-closure.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
   "validationFailures": [],

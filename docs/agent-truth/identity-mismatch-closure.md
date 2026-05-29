@@ -1,7 +1,7 @@
 # Identity Mismatch Closure
 
 - Status: classified
-- Current head: 3962eae483605a9a0b4dffd9957dd361881eda91
+- Current head: 74c04caadffa3080b2f979f7649026b17aafdbdf
 - Guest-to-user handoff: continuity_preserved_duplicate_suppressed
 - Individual metric hydration: classified
 - Global vs user mismatches surfaced: 3
