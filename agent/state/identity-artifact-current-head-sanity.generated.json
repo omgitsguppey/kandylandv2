@@ -1,0 +1,19 @@
+{
+  "reportKey": "identity-artifact-current-head-sanity",
+  "generatedAtUtc": "2026-05-29T19:14:30.000Z",
+  "currentHead": "b6bf0fd44f1eb760f3b8ea0d4330d20cc356baff",
+  "status": "pass",
+  "productionReadsRequired": false,
+  "legacyMutationAllowed": false,
+  "fakeActivityUsed": false,
+  "totalMismatchCount": 3,
+  "activeMismatchCount": 0,
+  "classifiedNonBlockingCount": 3,
+  "expectedNoUserMappingCount": 3,
+  "scoreDragCount": 0,
+  "individualMetricHydrationStatus": "classified",
+  "releaseNotePolicy": {
+    "truncationCompliant": true,
+    "sameCommitOnly": true
+  }
+}
