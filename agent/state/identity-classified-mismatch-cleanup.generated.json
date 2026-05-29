@@ -1,13 +1,13 @@
 {
-  "generatedAtUtc": "2026-05-29T02:37:00.000Z",
+  "generatedAtUtc": "2026-05-29T03:03:22.566Z",
   "currentHead": "3962eae483605a9a0b4dffd9957dd361881eda91",
-  "individualMetricHydrationStatus": "classified",
-  "globalVsUserMismatchCount": 3,
-  "activeGlobalVsUserMismatchCount": 0,
-  "classifiedNonBlockingMismatchCount": 3,
+  "totalMismatchCount": 3,
+  "activeMismatchCount": 0,
+  "classifiedNonBlockingCount": 3,
   "expectedNoUserMappingCount": 3,
   "missingIdentityLinkCount": 1,
-  "unsafeUnknownMismatchCount": 0,
+  "unsafeUnknownCount": 0,
+  "scoreDragCount": 0,
   "mismatches": [
     {
       "mismatchId": "mismatch_visits_global_only",
@@ -55,6 +55,7 @@
       "nextAction": "do not synthesize identity; wait for real linked/user activity or require real guestId if product decides"
     }
   ],
+  "releaseNoteStatus": "same_commit_release_notes",
   "remainingGaps": [
     {
       "gapId": "identity_link_missing",
@@ -62,5 +63,12 @@
       "explanation": "Client-side page views without an initialized guest ID or blocked by local cookie/privacy consent block user-level link mapping.",
       "nextAction": "Preserve journey continuity at the first identified auth/link transition without speculative guest ID backfilling."
     }
+  ],
+  "validationStatus": "pass",
+  "validationFailures": [],
+  "nextExactSteps": [
+    "Future identity mismatches must be classified before closing.",
+    "Validators must fail if classified mismatches have scoreDrag or activeBug true.",
+    "Reports must always show active vs classified breakdown, never total alone."
   ]
 }

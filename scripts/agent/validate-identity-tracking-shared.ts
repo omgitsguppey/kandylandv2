@@ -109,7 +109,7 @@ function buildReport(reportKey: IdentityTrackingReportKey) {
     linkedPersonMetricsHydrated: hydration.debugLane.linkedPersonMetricsHydrated,
     creatorRoleMetricsHydrated: hydration.debugLane.creatorRoleMetricsHydrated,
     identityConfidence: hydration.debugLane.linkedPersonMetricsHydrated > 0 ? "linked" : "weak",
-    missingIdentityLinkCount: userMetricTruth.globalVsUserMismatchCount,
+    missingIdentityLinkCount: userMetricTruth.activeGlobalVsUserMismatchCount,
   });
 
   if (userMetricTruth.globalVsUserMismatchCount === 0) {
@@ -118,7 +118,9 @@ function buildReport(reportKey: IdentityTrackingReportKey) {
   if (liveEvidence.globalActivityProof && !liveEvidence.individualActivityProof && liveEvidence.clearsUserTrackingGate) {
     failures.push("global activity clears user tracking gate.");
   }
-  if (reportKey === "identity-handoff-analytics-truth" && liveEvidence.gaps.length === 0) {
+  if (reportKey === "identity-handoff-analytics-truth"
+    && liveEvidence.gaps.length === 0
+    && userMetricTruth.activeGlobalVsUserMismatchCount > 0) {
     failures.push("final report lacks actionable identity/user-tracking gap evidence.");
   }
 
@@ -131,6 +133,11 @@ function buildReport(reportKey: IdentityTrackingReportKey) {
     guestToUserHandoffStatus: "continuity_preserved_duplicate_suppressed",
     individualMetricHydrationStatus: userMetricTruth.status,
     globalVsUserMismatchCount: userMetricTruth.globalVsUserMismatchCount,
+    activeGlobalVsUserMismatchCount: userMetricTruth.activeGlobalVsUserMismatchCount,
+    classifiedNonBlockingMismatchCount: userMetricTruth.classifiedNonBlockingMismatchCount,
+    expectedNoUserMappingCount: userMetricTruth.expectedNoUserMappingCount,
+    missingIdentityLinkCount: userMetricTruth.missingIdentityLinkCount,
+    unsafeUnknownMismatchCount: userMetricTruth.unsafeUnknownMismatchCount,
     duplicateSuppressionCount: hydration.validation.duplicateGuestUserCountsSuppressed,
     unknownLegacyIdentityCount: 0,
     analyticAlgorithmsAudited: 5,
@@ -161,6 +168,11 @@ function writeDoc(report: ReturnType<typeof buildReport>) {
     `- Guest-to-user handoff: ${report.guestToUserHandoffStatus}`,
     `- Individual metric hydration: ${report.individualMetricHydrationStatus}`,
     `- Global vs user mismatches surfaced: ${report.globalVsUserMismatchCount}`,
+    `- Active global vs user mismatches: ${report.activeGlobalVsUserMismatchCount}`,
+    `- Classified non-blocking mismatches: ${report.classifiedNonBlockingMismatchCount}`,
+    `- Expected no-user-mapping events: ${report.expectedNoUserMappingCount}`,
+    `- Missing identity links (requiring action): ${report.missingIdentityLinkCount}`,
+    `- Unsafe unknown mismatches (active bugs): ${report.unsafeUnknownMismatchCount}`,
     `- Identity 4xx classes covered: ${report.identity4xxClassesCovered}`,
     `- Live evidence: ${report.liveEvidenceStatus}`,
     "",

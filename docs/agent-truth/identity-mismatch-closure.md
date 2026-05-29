@@ -5,51 +5,34 @@
 - Guest-to-user handoff: continuity_preserved_duplicate_suppressed
 - Individual metric hydration: classified
 - Global vs user mismatches surfaced: 3
+- Active global vs user mismatches: 0
+- Classified non-blocking mismatches: 3
+- Expected no-user-mapping events: 3
+- Missing identity links (requiring action): 1
+- Unsafe unknown mismatches (active bugs): 0
 - Identity 4xx classes covered: 14
 - Live evidence: verified
 
-This document closes and classifies the 3 expected global-only mismatches and the remaining `identity_link_missing` gap surfaced during the in-flight identity analytics pass.
+This document closes and classifies the 3 expected global-only mismatches and the remaining `identity_link_missing` gap surfaced during the in-flight identity analytics pass. These classified, expected mismatches do not represent active bugs and have 0 score drag.
 
 ## Identified Mismatches
 
-### 1. visits
-- **Mismatch ID**: `mismatch_visits_global_only`
-- **Metric affected**: `visits`
-- **Global source exists**: yes
-- **User source exists**: no
-- **Link source exists**: no
-- **Reason**: `expected_no_user_mapping`
-- **Action**: `classified_non_blocking`
-- **Score impact**: 0
-- **Panel impact**: visits panel displays collecting/bridge_missing instead of fake zero when user identity is missing.
-- **Explanation**: Guest activity without guestId (due to cookie blocks, bots, or initialization latency) naturally has global page views but no user-scoped identity link.
-- **Next action**: Keep global activity separate from user-level tracking proof.
+| Mismatch ID | Event / Metric | Reason | Action | Active Bug | Score Drag | User Visible Impact | Next Action |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `mismatch_visits_global_only` | `visits` (eventName: `semantic_page_viewed`) | `expected_no_user_mapping` | `classified_non_blocking` | false | false | visits panel displays collecting/bridge_missing instead of fake zero | do not synthesize identity; wait for real activity |
+| `mismatch_active_days_global_only` | `active_days` (eventName: `semantic_page_viewed`) | `expected_no_user_mapping` | `classified_non_blocking` | false | false | active days panel displays collecting/bridge_missing instead of fake zero | do not synthesize identity; wait for real activity |
+| `mismatch_page_views_global_only` | `page_views` (eventName: `semantic_page_viewed`) | `expected_no_user_mapping` | `classified_non_blocking` | false | false | page views panel displays collecting/bridge_missing instead of fake zero | do not synthesize identity; wait for real activity |
 
-### 2. active_days
-- **Mismatch ID**: `mismatch_active_days_global_only`
-- **Metric affected**: `active_days`
-- **Global source exists**: yes
-- **User source exists**: no
-- **Link source exists**: no
-- **Reason**: `expected_no_user_mapping`
-- **Action**: `classified_non_blocking`
-- **Score impact**: 0
-- **Panel impact**: active days panel displays collecting/bridge_missing instead of fake zero when user identity is missing.
-- **Explanation**: Guest activity without guestId naturally has global page views but no user-scoped identity link.
-- **Next action**: Keep global activity separate from user-level tracking proof.
+### Detailed Explanations
 
-### 3. page_views
-- **Mismatch ID**: `mismatch_page_views_global_only`
-- **Metric affected**: `page_views`
-- **Global source exists**: yes
-- **User source exists**: no
-- **Link source exists**: no
-- **Reason**: `expected_no_user_mapping`
-- **Action**: `classified_non_blocking`
-- **Score impact**: 0
-- **Panel impact**: page views panel displays collecting/bridge_missing instead of fake zero when user identity is missing.
-- **Explanation**: Guest activity without guestId naturally has global page views but no user-scoped identity link.
-- **Next action**: Keep global activity separate from user-level tracking proof.
+1. **Visits**
+   - **Explanation**: Guest activity without guestId (due to cookie blocks, bots, or initialization latency) naturally has global page views but no user-scoped identity link.
+
+2. **Active Days**
+   - **Explanation**: Guest activity without guestId naturally has global page views but no user-scoped identity link.
+
+3. **Page Views**
+   - **Explanation**: Guest activity without guestId naturally has global page views but no user-scoped identity link.
 
 ## Remaining Gaps
 

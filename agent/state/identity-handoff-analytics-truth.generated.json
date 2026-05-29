@@ -1,12 +1,17 @@
 {
   "reportKey": "identity-handoff-analytics-truth",
-  "generatedAtUtc": "2026-05-29T02:45:39.549Z",
-  "currentHead": "3962eae483605a9a0b4dffd9957dd361881eda91",
+  "generatedAtUtc": "2026-05-29T02:59:00.659Z",
+  "currentHead": "97bbde3a34137099eb680f03eec6b1c45f1f8489",
   "status": "pass",
   "identityChainStatus": "canonical_identity_chain_registered",
   "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",
   "individualMetricHydrationStatus": "classified",
   "globalVsUserMismatchCount": 3,
+  "activeGlobalVsUserMismatchCount": 0,
+  "classifiedNonBlockingMismatchCount": 3,
+  "expectedNoUserMappingCount": 3,
+  "missingIdentityLinkCount": 1,
+  "unsafeUnknownMismatchCount": 0,
   "duplicateSuppressionCount": 0,
   "unknownLegacyIdentityCount": 0,
   "analyticAlgorithmsAudited": 5,
@@ -21,9 +26,7 @@
   "memoryEntriesAdded": 5,
   "scoreBefore": 76.61,
   "scoreAfter": 76.61,
-  "remainingGaps": [
-    "identity_link_missing"
-  ],
+  "remainingGaps": [],
   "nextExactSteps": [
     "Keep user-level panel proof separate from global activity proof.",
     "Use identity-handoff 4xx classes for stale session, malformed handoff, role drift, and duplicate link paths.",

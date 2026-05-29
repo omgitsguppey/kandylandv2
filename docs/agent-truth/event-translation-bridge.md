@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-29T02:45:45.897Z
+Generated: 2026-05-29T03:00:55.954Z
 Status: pass
-Current head: 3962eae483605a9a0b4dffd9957dd361881eda91
+Current head: 97bbde3a34137099eb680f03eec6b1c45f1f8489
 
 ## Contract
 
@@ -54,29 +54,20 @@ Current head: 3962eae483605a9a0b4dffd9957dd361881eda91
 ## Dirty Files
 
 - agent/index/known-pitfalls.json: real_source_change_needs_review
-- agent/state/analytic-algorithm-truth-audit.generated.json: current_generated_artifact_to_commit
-- agent/state/creator-drop-approval-repair.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
-- agent/state/final-release-exit-readiness-packet.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/guest-user-handoff-repair.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-chain-contract.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-handoff-4xx-policy.generated.json: current_generated_artifact_to_commit
 - agent/state/identity-handoff-analytics-truth.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-tracking-memory-writeback.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-mismatch-closure.generated.json: current_generated_artifact_to_commit
 - agent/state/individual-user-metric-truth.generated.json: current_generated_artifact_to_commit
-- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/user-tracking-live-evidence.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytic-algorithm-truth-audit.md: documentation_artifact_expected
-- docs/agent-truth/creator-drop-approval-repair.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/feature-registration-gate.md: documentation_artifact_expected
-- docs/agent-truth/final-release-exit-readiness-packet.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/guest-user-handoff-repair.md: documentation_artifact_expected
-- docs/agent-truth/identity-chain-contract.md: documentation_artifact_expected
-- docs/agent-truth/identity-handoff-4xx-policy.md: documentation_artifact_expected
 - docs/agent-truth/identity-handoff-analytics-truth.md: documentation_artifact_expected
-- docs/agent-truth/identity-tracking-memory-writeback.md: documentation_artifact_expected
+- docs/agent-truth/identity-mismatch-closure.md: documentation_artifact_expected
 - docs/agent-truth/individual-user-metric-truth.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/user-tracking-live-evidence.md: documentation_artifact_expected
+- scripts/agent/validate-identity-mismatch-closure.ts: validator_artifact_expected
+- scripts/agent/validate-identity-tracking-shared.ts: validator_artifact_expected
+- src/lib/identity-truth/individual-user-metric-truth.ts: real_source_change_needs_review
+- tests/unit/identity-mismatch-closure.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

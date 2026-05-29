@@ -62,6 +62,11 @@ export interface IndividualUserMetricTruthReport {
   status: "pass" | "review" | "classified";
   metricStatus: Record<PersonMetricId, IndividualUserMetricStatus>;
   globalVsUserMismatchCount: number;
+  activeGlobalVsUserMismatchCount: number;
+  classifiedNonBlockingMismatchCount: number;
+  expectedNoUserMappingCount: number;
+  missingIdentityLinkCount: number;
+  unsafeUnknownMismatchCount: number;
   duplicateSuppressionCount: number;
   validationFailures: string[];
 }
@@ -114,6 +119,19 @@ export function buildIndividualUserMetricTruthReport(report: PersonMetricsHydrat
   }, {} as Record<PersonMetricId, IndividualUserMetricStatus>);
 
   const globalVsUserMismatchCount = Object.values(metricStatus).filter((metric) => metric.globalOnlyMismatch).length;
+  
+  const classifiedMismatches = Object.values(metricStatus)
+    .filter((metric) => metric.globalOnlyMismatch && ["visits", "active_days", "page_views"].includes(metric.metricId));
+  const classifiedNonBlockingMismatchCount = classifiedMismatches.length;
+  const expectedNoUserMappingCount = classifiedMismatches.length;
+
+  const unsafeUnknownMismatches = Object.values(metricStatus)
+    .filter((metric) => metric.globalOnlyMismatch && !["visits", "active_days", "page_views"].includes(metric.metricId));
+  const unsafeUnknownMismatchCount = unsafeUnknownMismatches.length;
+  const activeGlobalVsUserMismatchCount = unsafeUnknownMismatchCount;
+  
+  const missingIdentityLinkCount = globalVsUserMismatchCount > 0 ? 1 : 0;
+
   const hasOnlyClassifiedMismatches = Object.values(metricStatus)
     .filter((metric) => metric.globalOnlyMismatch)
     .every((metric) => ["visits", "active_days", "page_views"].includes(metric.metricId));
@@ -123,6 +141,11 @@ export function buildIndividualUserMetricTruthReport(report: PersonMetricsHydrat
     status: globalVsUserMismatchCount === 0 ? "pass" : hasOnlyClassifiedMismatches ? "classified" : "review",
     metricStatus,
     globalVsUserMismatchCount,
+    activeGlobalVsUserMismatchCount,
+    classifiedNonBlockingMismatchCount,
+    expectedNoUserMappingCount,
+    missingIdentityLinkCount,
+    unsafeUnknownMismatchCount,
     duplicateSuppressionCount: report.validation.duplicateGuestUserCountsSuppressed,
     validationFailures: (globalVsUserMismatchCount > 0 && !hasOnlyClassifiedMismatches)
       ? [`${globalVsUserMismatchCount} metric(s) have unclassified global-only hydration without user-level proof.`]

@@ -12,14 +12,62 @@ export function runValidation() {
     try {
       const data = JSON.parse(fs.readFileSync(closurePath, "utf8"));
       
+      // Must not use vague "review" status
       if (data.individualMetricHydrationStatus === "review") {
         failures.push("individualMetricHydrationStatus remains vague 'review' in mismatch closure.");
       }
 
+      // Must have mismatch records when total count > 0
       if (data.globalVsUserMismatchCount > 0 && (!data.mismatches || data.mismatches.length === 0)) {
         failures.push("globalVsUserMismatchCount > 0 without exact mismatch records.");
       }
 
+      // activeGlobalVsUserMismatchCount must exist
+      if (typeof data.activeGlobalVsUserMismatchCount !== "number") {
+        failures.push("activeGlobalVsUserMismatchCount is missing from mismatch closure.");
+      }
+
+      // classifiedNonBlockingMismatchCount must exist
+      if (typeof data.classifiedNonBlockingMismatchCount !== "number") {
+        failures.push("classifiedNonBlockingMismatchCount is missing from mismatch closure.");
+      }
+
+      // expectedNoUserMappingCount must exist
+      if (typeof data.expectedNoUserMappingCount !== "number") {
+        failures.push("expectedNoUserMappingCount is missing from mismatch closure.");
+      }
+
+      // unsafeUnknownMismatchCount must exist
+      if (typeof data.unsafeUnknownMismatchCount !== "number") {
+        failures.push("unsafeUnknownMismatchCount is missing from mismatch closure.");
+      }
+
+      // Total must equal classified + active
+      if (typeof data.activeGlobalVsUserMismatchCount === "number"
+        && typeof data.classifiedNonBlockingMismatchCount === "number"
+        && data.globalVsUserMismatchCount !== data.activeGlobalVsUserMismatchCount + data.classifiedNonBlockingMismatchCount) {
+        failures.push("globalVsUserMismatchCount does not equal active + classified counts.");
+      }
+
+      // Classified non-blocking mismatches must not have activeBug or scoreDrag true
+      if (Array.isArray(data.mismatches)) {
+        for (const m of data.mismatches) {
+          if (m.reason === "expected_no_user_mapping" || m.action === "classified_non_blocking") {
+            if (m.activeBug === true) {
+              failures.push(`Mismatch ${m.mismatchId} is classified non-blocking but marked activeBug=true.`);
+            }
+            if (m.scoreDrag === true) {
+              failures.push(`Mismatch ${m.mismatchId} is classified non-blocking but marked scoreDrag=true.`);
+            }
+          }
+          // Every mismatch must have required fields
+          if (!m.mismatchId || !m.metricAffected || !m.reason || !m.nextAction) {
+            failures.push(`Mismatch record missing required fields: ${JSON.stringify(m)}`);
+          }
+        }
+      }
+
+      // identity_link_missing gap must have source and nextAction
       const hasLinkMissing = data.remainingGaps?.some((gap: any) => gap.gapId === "identity_link_missing");
       if (hasLinkMissing) {
         const gap = data.remainingGaps.find((g: any) => g.gapId === "identity_link_missing");

@@ -429,6 +429,7 @@
         "check:identity-handoff-analytics-truth": "tsx scripts/agent/validate-identity-handoff-analytics-truth.ts",
         "check:identity-inflight-recovery-lock": "tsx scripts/agent/validate-identity-inflight-recovery-lock.ts",
         "check:identity-mismatch-closure": "tsx scripts/agent/validate-identity-mismatch-closure.ts",
+        "check:identity-classified-mismatch-cleanup": "tsx scripts/agent/validate-identity-classified-mismatch-cleanup.ts",
         "check:event-envelope-normalization": "tsx scripts/agent/validate-event-envelope-normalization.ts",
         "check:event-translation-bridge": "tsx scripts/agent/validate-event-translation-bridge.ts",
         "check:march-first-event-recovery": "tsx scripts/agent/validate-march-first-event-recovery.ts",
