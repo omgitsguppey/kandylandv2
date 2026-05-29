@@ -1,11 +1,12 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
+// same-commit trigger comment
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
   "currentVersion": "1.5.23",
   "betaReleaseCounter": 523,
   "channel": "beta",
-  "generatedAt": "2026-05-29T02:19:07.000Z",
-  "generatedAtUtc": "2026-05-29T02:19:07.000Z",
+  "generatedAt": "2026-05-29T02:19:07.001Z",
+  "generatedAtUtc": "2026-05-29T02:19:07.001Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
     {

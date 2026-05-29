@@ -1,0 +1,55 @@
+{
+  "generatedAtUtc": "2026-05-29T02:37:00.000Z",
+  "currentHead": "3962eae483605a9a0b4dffd9957dd361881eda91",
+  "individualMetricHydrationStatus": "classified",
+  "globalVsUserMismatchCount": 3,
+  "mismatches": [
+    {
+      "mismatchId": "mismatch_visits_global_only",
+      "metricAffected": "visits",
+      "globalSourceExists": "yes",
+      "userSourceExists": "no",
+      "linkSourceExists": "no",
+      "reason": "expected_no_user_mapping",
+      "action": "classified_non_blocking",
+      "scoreImpact": 0,
+      "panelImpact": "visits panel displays collecting/bridge_missing instead of fake zero when user identity is missing",
+      "explanation": "Guest activity without guestId (due to cookie blocks, bots, or initialization latency) naturally has global page views but no user-scoped identity link.",
+      "nextAction": "Keep global activity separate from user-level tracking proof."
+    },
+    {
+      "mismatchId": "mismatch_active_days_global_only",
+      "metricAffected": "active_days",
+      "globalSourceExists": "yes",
+      "userSourceExists": "no",
+      "linkSourceExists": "no",
+      "reason": "expected_no_user_mapping",
+      "action": "classified_non_blocking",
+      "scoreImpact": 0,
+      "panelImpact": "active days panel displays collecting/bridge_missing instead of fake zero when user identity is missing",
+      "explanation": "Guest activity without guestId naturally has global page views but no user-scoped identity link.",
+      "nextAction": "Keep global activity separate from user-level tracking proof."
+    },
+    {
+      "mismatchId": "mismatch_page_views_global_only",
+      "metricAffected": "page_views",
+      "globalSourceExists": "yes",
+      "userSourceExists": "no",
+      "linkSourceExists": "no",
+      "reason": "expected_no_user_mapping",
+      "action": "classified_non_blocking",
+      "scoreImpact": 0,
+      "panelImpact": "page views panel displays collecting/bridge_missing instead of fake zero when user identity is missing",
+      "explanation": "Guest activity without guestId naturally has global page views but no user-scoped identity link.",
+      "nextAction": "Keep global activity separate from user-level tracking proof."
+    }
+  ],
+  "remainingGaps": [
+    {
+      "gapId": "identity_link_missing",
+      "source": "client_session_without_guest_id",
+      "explanation": "Client-side page views without an initialized guest ID or blocked by local cookie/privacy consent block user-level link mapping.",
+      "nextAction": "Preserve journey continuity at the first identified auth/link transition without speculative guest ID backfilling."
+    }
+  ]
+}

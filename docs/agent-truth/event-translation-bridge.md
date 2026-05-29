@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-27T04:17:23.268Z
+Generated: 2026-05-29T02:45:45.897Z
 Status: pass
-Current head: e6ca135231406a07d92742aadf4d535279dc9961
+Current head: 3962eae483605a9a0b4dffd9957dd361881eda91
 
 ## Contract
 
@@ -12,10 +12,10 @@ Current head: e6ca135231406a07d92742aadf4d535279dc9961
 
 ## Debug Lane
 
-- Producers registered: 749
-- Producers connected: 749
-- Event envelopes translated: 749
-- Materializers mapped: 749
+- Producers registered: 762
+- Producers connected: 762
+- Event envelopes translated: 762
+- Materializers mapped: 762
 - Person metrics mapped: 208
 - Gaps: 0
 
@@ -53,49 +53,30 @@ Current head: e6ca135231406a07d92742aadf4d535279dc9961
 
 ## Dirty Files
 
-- AGENTS.md: real_source_change_needs_review
-- CHANGELOG.md: release_artifact_expected
-- REPO_MEMORY_LEDGER.md: real_source_change_needs_review
 - agent/index/known-pitfalls.json: real_source_change_needs_review
-- agent/state/client-state-ownership.generated.json: current_generated_artifact_to_commit
-- agent/state/codex-frontend-memory-writeback.generated.json: current_generated_artifact_to_commit
-- agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/frontend-component-consolidation.generated.json: current_generated_artifact_to_commit
-- agent/state/frontend-gut-consolidation.generated.json: current_generated_artifact_to_commit
-- agent/state/frontend-telemetry-consolidation.generated.json: current_generated_artifact_to_commit
-- agent/state/hydration-race-cleanup.generated.json: current_generated_artifact_to_commit
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytic-algorithm-truth-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-drop-approval-repair.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/feature-registration-gate.generated.json: current_generated_artifact_to_commit
+- agent/state/final-release-exit-readiness-packet.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/guest-user-handoff-repair.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-chain-contract.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-handoff-4xx-policy.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-handoff-analytics-truth.generated.json: current_generated_artifact_to_commit
+- agent/state/identity-tracking-memory-writeback.generated.json: current_generated_artifact_to_commit
+- agent/state/individual-user-metric-truth.generated.json: current_generated_artifact_to_commit
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/client-state-ownership.md: documentation_artifact_expected
-- docs/agent-truth/codex-frontend-memory-writeback.md: documentation_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/frontend-component-consolidation.md: documentation_artifact_expected
-- docs/agent-truth/frontend-gut-consolidation.md: documentation_artifact_expected
-- docs/agent-truth/frontend-telemetry-consolidation.md: documentation_artifact_expected
-- docs/agent-truth/hydration-race-cleanup.md: documentation_artifact_expected
-- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- package.json: real_source_change_needs_review
-- public/kandydrops-release-notes.json: release_artifact_expected
-- scripts/agent/validate-client-state-ownership.ts: validator_artifact_expected
-- scripts/agent/validate-codex-frontend-memory-writeback.ts: validator_artifact_expected
-- scripts/agent/validate-frontend-component-consolidation.ts: validator_artifact_expected
-- scripts/agent/validate-frontend-telemetry-consolidation.ts: validator_artifact_expected
-- scripts/agent/validate-hydration-race-cleanup.ts: validator_artifact_expected
-- src/components/Support/SupportInbox.tsx: real_source_change_needs_review
-- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/frontend-hardening/client-state-ownership.ts: real_source_change_needs_review
-- src/lib/frontend-hardening/component-bloat-audit.ts: real_source_change_needs_review
-- src/lib/frontend-hardening/frontend-surface-inventory.ts: real_source_change_needs_review
-- src/lib/frontend-hardening/frontend-telemetry-usage.ts: real_source_change_needs_review
-- src/lib/frontend-hardening/hydration-race-guard.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/client-state-ownership.spec.ts: test_artifact_expected
-- tests/unit/codex-frontend-memory-writeback.spec.ts: test_artifact_expected
-- tests/unit/frontend-component-consolidation.spec.ts: test_artifact_expected
-- tests/unit/frontend-telemetry-consolidation.spec.ts: test_artifact_expected
-- tests/unit/hydration-race-cleanup.spec.ts: test_artifact_expected
+- agent/state/user-tracking-live-evidence.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/analytic-algorithm-truth-audit.md: documentation_artifact_expected
+- docs/agent-truth/creator-drop-approval-repair.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/feature-registration-gate.md: documentation_artifact_expected
+- docs/agent-truth/final-release-exit-readiness-packet.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/guest-user-handoff-repair.md: documentation_artifact_expected
+- docs/agent-truth/identity-chain-contract.md: documentation_artifact_expected
+- docs/agent-truth/identity-handoff-4xx-policy.md: documentation_artifact_expected
+- docs/agent-truth/identity-handoff-analytics-truth.md: documentation_artifact_expected
+- docs/agent-truth/identity-tracking-memory-writeback.md: documentation_artifact_expected
+- docs/agent-truth/individual-user-metric-truth.md: documentation_artifact_expected
+- docs/agent-truth/user-tracking-live-evidence.md: documentation_artifact_expected
 
 ## Validation Failures
 

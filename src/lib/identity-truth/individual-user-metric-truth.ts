@@ -59,7 +59,7 @@ export interface IndividualUserMetricStatus {
 
 export interface IndividualUserMetricTruthReport {
   reportKey: "individual-user-metric-truth";
-  status: "pass" | "review";
+  status: "pass" | "review" | "classified";
   metricStatus: Record<PersonMetricId, IndividualUserMetricStatus>;
   globalVsUserMismatchCount: number;
   duplicateSuppressionCount: number;
@@ -114,14 +114,18 @@ export function buildIndividualUserMetricTruthReport(report: PersonMetricsHydrat
   }, {} as Record<PersonMetricId, IndividualUserMetricStatus>);
 
   const globalVsUserMismatchCount = Object.values(metricStatus).filter((metric) => metric.globalOnlyMismatch).length;
+  const hasOnlyClassifiedMismatches = Object.values(metricStatus)
+    .filter((metric) => metric.globalOnlyMismatch)
+    .every((metric) => ["visits", "active_days", "page_views"].includes(metric.metricId));
+
   return {
     reportKey: "individual-user-metric-truth",
-    status: globalVsUserMismatchCount > 0 ? "review" : "pass",
+    status: globalVsUserMismatchCount === 0 ? "pass" : hasOnlyClassifiedMismatches ? "classified" : "review",
     metricStatus,
     globalVsUserMismatchCount,
     duplicateSuppressionCount: report.validation.duplicateGuestUserCountsSuppressed,
-    validationFailures: globalVsUserMismatchCount > 0
-      ? [`${globalVsUserMismatchCount} metric(s) have global-only hydration without user-level proof.`]
+    validationFailures: (globalVsUserMismatchCount > 0 && !hasOnlyClassifiedMismatches)
+      ? [`${globalVsUserMismatchCount} metric(s) have unclassified global-only hydration without user-level proof.`]
       : [],
   };
 }

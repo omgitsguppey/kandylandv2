@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-05-29T02:30:00.000Z",
-  "currentHead": "5ea79dc4f3c330bd84e96dfbddbc709cc41f87b1",
+  "generatedAtUtc": "2026-05-29T02:37:00.000Z",
+  "currentHead": "3962eae483605a9a0b4dffd9957dd361881eda91",
   "inflightFilesFound": [
     "agent/state/analytic-algorithm-truth-audit.generated.json",
     "agent/state/guest-user-handoff-repair.generated.json",
@@ -97,7 +97,8 @@
     "check:user-tracking-live-evidence",
     "check:identity-tracking-memory-writeback",
     "check:identity-handoff-analytics-truth",
-    "check:identity-inflight-recovery-lock"
+    "check:identity-inflight-recovery-lock",
+    "check:identity-mismatch-closure"
   ],
   "validatorsRun": [
     "scripts/agent/validate-analytic-algorithm-truth-audit.ts",
@@ -109,7 +110,8 @@
     "scripts/agent/validate-identity-tracking-shared.ts",
     "scripts/agent/validate-individual-user-metric-truth.ts",
     "scripts/agent/validate-user-tracking-live-evidence.ts",
-    "scripts/agent/validate-identity-inflight-recovery-lock.ts"
+    "scripts/agent/validate-identity-inflight-recovery-lock.ts",
+    "scripts/agent/validate-identity-mismatch-closure.ts"
   ],
   "testsRun": [
     "tests/unit/analytic-algorithm-truth-audit.spec.ts",
@@ -119,7 +121,8 @@
     "tests/unit/identity-tracking-memory-writeback.spec.ts",
     "tests/unit/individual-user-metric-truth.spec.ts",
     "tests/unit/user-tracking-live-evidence.spec.ts",
-    "tests/unit/identity-inflight-recovery-lock.spec.ts"
+    "tests/unit/identity-inflight-recovery-lock.spec.ts",
+    "tests/unit/identity-mismatch-closure.spec.ts"
   ],
   "remainingUntrackedIdentityFiles": [],
   "nextExactSteps": [

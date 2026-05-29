@@ -9,6 +9,7 @@ import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildIdentity4xxResponse } from "@/lib/identity-truth/identity-handoff-4xx-policy";
 
 async function POST_handler(request: NextRequest) {
   try {
@@ -22,7 +23,11 @@ async function POST_handler(request: NextRequest) {
 
     const userId = caller?.uid ?? "";
     if (!userId) {
-      return NextResponse.json({ error: "Not authenticated", errorCode: "not_authenticated" }, { status: 401 });
+      const payload = buildIdentity4xxResponse("missing_user_id", {
+        route: "auth/navigation-session",
+        actorKind: "signed_in_user",
+      });
+      return NextResponse.json(payload, { status: payload.statusCode });
     }
 
     // cost-bound: single Firestore document read scoped to authenticated navigation session; not a collection scan.

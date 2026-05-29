@@ -459,6 +459,12 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "AGENTS.md" || normalized === "REPO_MEMORY_LEDGER.md" || normalized === "agent/index/known-pitfalls.json") return "real_source_change_needs_review";
+  if (/^src\/lib\/identity-truth\/.+\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/app/api/auth/navigation-session/route.ts") return "real_source_change_needs_review";
+  if (/^scripts\/agent\/validate-(identity-chain-contract|guest-user-handoff-repair|individual-user-metric-truth|analytic-algorithm-truth-audit|identity-handoff-4xx-policy|user-tracking-live-evidence|identity-tracking-memory-writeback|identity-handoff-analytics-truth|identity-tracking-shared|identity-mismatch-closure)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(identity-chain-contract|guest-user-handoff-repair|individual-user-metric-truth|analytic-algorithm-truth-audit|identity-handoff-4xx-policy|user-tracking-live-evidence|identity-tracking-memory-writeback|identity-mismatch-closure)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
+  if (/^agent\/state\/(identity-chain-contract|guest-user-handoff-repair|individual-user-metric-truth|analytic-algorithm-truth-audit|identity-handoff-4xx-policy|user-tracking-live-evidence|identity-tracking-memory-writeback|identity-handoff-analytics-truth|identity-mismatch-closure)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/(identity-chain-contract|guest-user-handoff-repair|individual-user-metric-truth|analytic-algorithm-truth-audit|identity-handoff-4xx-policy|user-tracking-live-evidence|identity-tracking-memory-writeback|identity-handoff-analytics-truth|identity-mismatch-closure)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "src/components/Support/SupportInbox.tsx") return "real_source_change_needs_review";
   if (/^src\/lib\/frontend-hardening\/.+\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (/^scripts\/agent\/validate-(frontend-component-consolidation|client-state-ownership|hydration-race-cleanup|frontend-telemetry-consolidation|codex-frontend-memory-writeback)\.ts$/u.test(normalized)) return "validator_artifact_expected";

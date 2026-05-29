@@ -3384,3 +3384,25 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   "preventingValidator": "check:route-param-availability-map && check:client-callsite-4xx-map && check:deep-4xx-memory-writeback"
 }
 ```
+
+### 61. Identity analytics mismatch closure must classify mismatches and keep global separate from user proof
+
+```json
+{
+  "date": "2026-05-29T02:42:00.000Z",
+  "domain": "identity_analytics_mismatch_closure",
+  "mistakePattern": "Do not treat unclassified global-only metrics as generic review issues. Distinguish guest activity without guestId from identified user/guest proof.",
+  "rootCause": "Mock guest page views (semantic_page_viewed) lacking a guestId naturally increased global counters while user-level metrics remained zero, causing unclassified mismatches.",
+  "doNextTime": "Classify expected mismatches as expected_no_user_mapping and classified_non_blocking instead of letting them trigger vague review warnings. Maintain distinct global vs user-level proof.",
+  "doNotDo": "Do not fake user tracking or backfill speculative guest IDs. Zero must only show under provenZero conditions.",
+  "affectedFiles": [
+    "src/lib/identity-truth/individual-user-metric-truth.ts",
+    "agent/state/identity-mismatch-closure.generated.json",
+    "docs/agent-truth/identity-mismatch-closure.md",
+    "scripts/agent/validate-identity-mismatch-closure.ts",
+    "tests/unit/identity-mismatch-closure.spec.ts"
+  ],
+  "preventingValidator": "check:identity-mismatch-closure"
+}
+```
+

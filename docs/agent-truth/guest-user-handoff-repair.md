@@ -1,9 +1,9 @@
 # Guest User Handoff Repair
 
 - Status: pass
-- Current head: 5ea79dc4f3c330bd84e96dfbddbc709cc41f87b1
+- Current head: 3962eae483605a9a0b4dffd9957dd361881eda91
 - Guest-to-user handoff: continuity_preserved_duplicate_suppressed
-- Individual metric hydration: review
+- Individual metric hydration: classified
 - Global vs user mismatches surfaced: 3
 - Identity 4xx classes covered: 14
 - Live evidence: verified
