@@ -1,0 +1,33 @@
+{
+  "reportKey": "analytic-algorithm-truth-audit",
+  "generatedAtUtc": "2026-05-29T02:30:04.772Z",
+  "currentHead": "5ea79dc4f3c330bd84e96dfbddbc709cc41f87b1",
+  "status": "pass",
+  "identityChainStatus": "canonical_identity_chain_registered",
+  "guestToUserHandoffStatus": "continuity_preserved_duplicate_suppressed",
+  "individualMetricHydrationStatus": "review",
+  "globalVsUserMismatchCount": 3,
+  "duplicateSuppressionCount": 0,
+  "unknownLegacyIdentityCount": 0,
+  "analyticAlgorithmsAudited": 5,
+  "identity4xxClassesCovered": 14,
+  "liveEvidenceStatus": "verified",
+  "panelsAffected": [
+    "guest_to_user_handoff",
+    "user_management",
+    "admin_debug",
+    "person_metrics"
+  ],
+  "memoryEntriesAdded": 5,
+  "scoreBefore": 76.61,
+  "scoreAfter": 76.61,
+  "remainingGaps": [
+    "identity_link_missing"
+  ],
+  "nextExactSteps": [
+    "Keep user-level panel proof separate from global activity proof.",
+    "Use identity-handoff 4xx classes for stale session, malformed handoff, role drift, and duplicate link paths.",
+    "Do not display zero individual user metrics without provenZero."
+  ],
+  "validationFailures": []
+}

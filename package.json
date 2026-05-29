@@ -427,6 +427,7 @@
         "check:user-tracking-live-evidence": "tsx scripts/agent/validate-user-tracking-live-evidence.ts",
         "check:identity-tracking-memory-writeback": "tsx scripts/agent/validate-identity-tracking-memory-writeback.ts",
         "check:identity-handoff-analytics-truth": "tsx scripts/agent/validate-identity-handoff-analytics-truth.ts",
+        "check:identity-inflight-recovery-lock": "tsx scripts/agent/validate-identity-inflight-recovery-lock.ts",
         "check:event-envelope-normalization": "tsx scripts/agent/validate-event-envelope-normalization.ts",
         "check:event-translation-bridge": "tsx scripts/agent/validate-event-translation-bridge.ts",
         "check:march-first-event-recovery": "tsx scripts/agent/validate-march-first-event-recovery.ts",

@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-28 Identity inflight recovery and lock memory
+
+When untracked/in-flight identity analytics files are discovered during agent takeover, execute a complete recovery and lock pass. The recovery pass audits, validates, and locks the complete and production-safe identity tracking system. This system separates global and individual user metric truths, ensures guest-to-user handoff continuity, mitigates route 4xx retry storms during auth transitions, and enforces proven-zero conditions. The system is verified by 10 validator scripts and 8 unit test suites. The recovery lock consists of the lock file `agent/state/identity-inflight-recovery-lock.generated.json`, the documentation `docs/agent-truth/identity-inflight-recovery-lock.md`, the validator script `scripts/agent/validate-identity-inflight-recovery-lock.ts`, and the spec file `tests/unit/identity-inflight-recovery-lock.spec.ts`. The recovery lock is validated sitewide via `check:identity-inflight-recovery-lock`.
+
 ## 2026-05-28 Antigravity takeover safety and guardrails memory
 
 When individual developer/agent onboarding and takeover occurs, produce a self-knowledge audit of what is known, what is unknown, in-flight lanes, and dirty files before modifying product code. Capability policy enforces that agents do not deploy, mutate production, call third-party providers, change GumDrop prices/math, or clear formal gates via source-only tests. Addition bloat guard enforces strict budget ratios, resolver uniqueness, and validator quality controls. `check:antigravity-agent-self-knowledge`, `check:antigravity-capability-policy`, `check:addition-bloat-guard`, `check:agent-takeover-safety-check`, and `check:antigravity-output-audit` validate the lane.
