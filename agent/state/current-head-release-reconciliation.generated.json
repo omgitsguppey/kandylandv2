@@ -1,38 +1,38 @@
 {
   "reportKey": "current-head-release-reconciliation",
-  "generatedAtUtc": "2026-05-27T00:29:28.233Z",
-  "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-  "publicBetaScoreCurrentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-  "currentBetaExitStatusCurrentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-  "scoreBefore": 85.34,
-  "scoreAfter": 85.34,
+  "generatedAtUtc": "2026-05-29T17:21:06.618Z",
+  "currentHead": "f08ba9f972e549d051481cd3df0b36a5180771ad",
+  "publicBetaScoreCurrentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
+  "currentBetaExitStatusCurrentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
+  "scoreBefore": 76.61,
+  "scoreAfter": 76.61,
   "scoreDimensions": {
-    "sourceHealth": 100,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "evidenceCompleteness": 69.6,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "overallHealthScore": 76.61
   },
   "artifacts": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
       "reportKey": "",
-      "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-      "generatedAtUtc": "2026-05-27T00:24:35.219Z",
-      "status": "current",
+      "currentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
+      "generatedAtUtc": "2026-05-29T11:40:35.942Z",
+      "status": "same_commit_snapshot",
       "affectsReadiness": true,
-      "nextExactAction": "agent/state/public-beta-score.generated.json was generated for the current code version."
+      "nextExactAction": "agent/state/public-beta-score.generated.json is a same commit generated artifact snapshot."
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "reportKey": "current-beta-exit-status",
-      "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-      "generatedAtUtc": "2026-05-27T00:27:28.985Z",
-      "status": "current",
+      "currentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
+      "generatedAtUtc": "2026-05-29T02:40:00.000Z",
+      "status": "same_commit_snapshot",
       "affectsReadiness": true,
-      "nextExactAction": "agent/state/current-beta-exit-status.generated.json was generated for the current code version."
+      "nextExactAction": "agent/state/current-beta-exit-status.generated.json is a same commit generated artifact snapshot."
     },
     {
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
@@ -55,11 +55,11 @@
     {
       "artifactPath": "agent/state/final-math-normalization-lock.generated.json",
       "reportKey": "final-math-normalization-lock",
-      "currentHead": "a996b197",
-      "generatedAtUtc": "2026-05-26T12:01:44.102Z",
-      "status": "head_mismatch",
+      "currentHead": "eb93068b",
+      "generatedAtUtc": "2026-05-27T05:21:28.560Z",
+      "status": "current_by_impact",
       "affectsReadiness": false,
-      "nextExactAction": "Refresh agent/state/final-math-normalization-lock.generated.json with its owning check before it can affect readiness."
+      "nextExactAction": "agent/state/final-math-normalization-lock.generated.json is older than HEAD but no owned source inputs changed."
     },
     {
       "artifactPath": "agent/state/mega-legacy-pipeline-hardening.generated.json",

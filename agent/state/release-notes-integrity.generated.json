@@ -1,8 +1,8 @@
 {
   "reportKey": "release-notes-integrity",
-  "generatedAtUtc": "2026-05-27T00:29:46.060Z",
-  "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-  "currentVersion": "1.5.11",
+  "generatedAtUtc": "2026-05-29T17:22:39.301Z",
+  "currentHead": "f08ba9f972e549d051481cd3df0b36a5180771ad",
+  "currentVersion": "1.5.23",
   "publicReleaseJsonValid": true,
   "claimsBetaExit": false,
   "claimsProviderRuntimeProof": false,

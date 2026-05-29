@@ -2208,7 +2208,7 @@ function classifyTaskReceiptLane(
 }
 
 function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unknown> | null {
-    const filePath = path.join(process.cwd(), "agent", "state", fileName);
+    const filePath = path.join(/*turbopackIgnore: true*/ process.cwd(), "agent", "state", fileName);
     if (!fs.existsSync(filePath)) {
         return null;
     }
@@ -2224,7 +2224,7 @@ function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unkno
 }
 
 function readRepoSourceFile(relativePath: string) {
-    const filePath = path.join(process.cwd(), relativePath);
+    const filePath = path.join(/*turbopackIgnore: true*/ process.cwd(), relativePath);
     if (!fs.existsSync(filePath)) {
         return "";
     }
