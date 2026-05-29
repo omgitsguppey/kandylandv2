@@ -698,7 +698,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "audience": "all",
       "technicalDetails": [
         "Added source-derived backend route inventory, service ownership, cost consolidation, and memory writeback validators.",
-        "Kept provider/runtime proof separate from source-only backend evidence.",
+        "Kept provider/runtime evidence separate from source-only backend evidence.",
         "Classified backend consolidation follow-ups without changing payment runtime or GumDrop math."
       ],
       "affectedSurfaces": [
@@ -774,7 +774,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "technicalDetails": [
         "Collapsed panel hydration registry derivation into existing source registries.",
         "Mapped panel hydration through person-metrics, event-liveness, and Admin Debug tracking summary.",
-        "Kept source-only analytics evidence separate from live/formal provider proof."
+        "Kept source-only analytics evidence separate from live/formal provider evidence."
       ],
       "affectedSurfaces": [
         "Admin Analytics",
@@ -829,7 +829,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "technicalDetails": [
         "Added a live evidence gate replacement contract and resolver for product systems.",
         "Classified missing recent live evidence as source_missing instead of broad manual smoke.",
-        "Kept provider proof, billing review, and visual QA separate from source-only evidence."
+        "Kept provider evidence, billing review, and visual QA separate from source-only evidence."
       ],
       "affectedSurfaces": [
         "Release readiness packet",
