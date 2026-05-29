@@ -1,0 +1,21 @@
+{
+  "generatedAtUtc": "2026-05-28T20:50:00.000Z",
+  "takeoverStatus": "verified_safe",
+  "checks": {
+    "latestCommitIdentified": "cfd39b411b08374c8a698bb07bb42f473ebba278",
+    "activePromptLane": "onboarding_and_safety_guardrails",
+    "noOverlapWithInFlightWork": true,
+    "noStaleArtifactTreatedAsCurrent": true,
+    "noBroadDependencyPrMerged": true,
+    "noPaymentRuntimeViolations": true,
+    "repoMemoryUpdated": true,
+    "releaseNotesUpdatedIfSourceChanged": true,
+    "scoreCurrentHeadClassified": true
+  },
+  "verifications": [
+    "latestHead verified against cfd39b4",
+    "stale readiness and exit artifacts classified as stale (older than 24h freshness window)",
+    "no touch domains declared: PayPal, GumDrop math, wallets, payments, layout navigation",
+    "same-commit release notes are structured for the takeover guardrails commit"
+  ]
+}

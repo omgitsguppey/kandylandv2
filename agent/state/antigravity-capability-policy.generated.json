@@ -1,0 +1,23 @@
+{
+  "generatedAtUtc": "2026-05-28T20:44:00.000Z",
+  "policyName": "antigravity-capability-policy",
+  "allowedCapabilities": {
+    "localSourceSafeChecks": true,
+    "browserVisualLayoutQA": true,
+    "asyncMultiAgentWork": true
+  },
+  "forbiddenCapabilities": {
+    "deploy": false,
+    "providerCalls": false,
+    "productionMutation": false,
+    "productionCreatorDropApproval": false,
+    "paymentGumDropMathChanges": false,
+    "sourceOnlyClearingFormalGates": false
+  },
+  "constraints": {
+    "multiAgentNoOverlapRule": true,
+    "requireCompactMemoryBeforeBroadGrep": true,
+    "requireMemoryWritebackAfterTask": true
+  },
+  "status": "active_enforced"
+}

@@ -1,0 +1,55 @@
+{
+  "generatedAtUtc": "2026-05-28T20:47:00.000Z",
+  "taskKey": "antigravity-takeover-guardrails",
+  "isGutConsolidationTask": false,
+  "netAdditions": 650,
+  "netDeletions": 10,
+  "justificationForNetAdditions": "Adding new agent-governance policy contracts, state trackers, TypeScript validators, unit tests, and release note documentation files to establish takeover safety gates.",
+  "generatedArtifactLinesCount": {
+    "agent/state/antigravity-takeover-guardrails.generated.json": 35
+  },
+  "generatedArtifactJustifications": {},
+  "newResolversCreated": [],
+  "newResolverJustifications": {},
+  "newValidatorsCreated": [
+    {
+      "name": "check:antigravity-agent-self-knowledge",
+      "owner": "Antigravity",
+      "packageScript": "npm run check:antigravity-agent-self-knowledge",
+      "hasUnitTest": true,
+      "hasRetirementRule": true
+    },
+    {
+      "name": "check:antigravity-capability-policy",
+      "owner": "Antigravity",
+      "packageScript": "npm run check:antigravity-capability-policy",
+      "hasUnitTest": true,
+      "hasRetirementRule": true
+    },
+    {
+      "name": "check:addition-bloat-guard",
+      "owner": "Antigravity",
+      "packageScript": "npm run check:addition-bloat-guard",
+      "hasUnitTest": true,
+      "hasRetirementRule": true
+    },
+    {
+      "name": "check:agent-takeover-safety-check",
+      "owner": "Antigravity",
+      "packageScript": "npm run check:agent-takeover-safety-check",
+      "hasUnitTest": true,
+      "hasRetirementRule": true
+    }
+  ],
+  "newMemoryRules": [
+    {
+      "rule": "Produce a self-knowledge audit upon taking over from another agent.",
+      "associatedMistakePattern": "New agent acts on stale assumptions from old/retired artifacts."
+    },
+    {
+      "rule": "Bias toward consolidation over additions. Justify any net additions.",
+      "associatedMistakePattern": "Adding large parallel systems that duplicate existing logic."
+    }
+  ],
+  "status": "passed"
+}

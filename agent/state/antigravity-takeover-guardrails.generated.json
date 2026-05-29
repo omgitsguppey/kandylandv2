@@ -1,0 +1,54 @@
+{
+  "generatedAtUtc": "2026-05-28T20:55:00.000Z",
+  "currentHead": "cfd39b411b08374c8a698bb07bb42f473ebba278",
+  "currentScore": 76.61,
+  "betaExitReady": false,
+  "releaseVersion": "1.5.23",
+  "memorySourcesRead": [
+    "AGENTS.md",
+    "REPO_MEMORY_LEDGER.md",
+    "agent/index/known-pitfalls.json"
+  ],
+  "topKnownPitfalls": [
+    "pitfall__identity_tracking_handoff_truth",
+    "pitfall__creator_drop_workflow_chain_fix",
+    "pitfall__privacy_data_lifecycle_drift",
+    "pitfall__stale_lockfile_drift"
+  ],
+  "unknowns": [
+    "exact runtime console output of deployed server",
+    "actual transaction success rate in sandbox PayPal provider"
+  ],
+  "noTouchDomains": [
+    "PayPal SDK Integration",
+    "Wallet Balance & refilling math",
+    "GumDrop math, pricing catalogs, and source-of-funds rules",
+    "Creator revenue and monetization payouts",
+    "Google layout breakpoints and Apple safe area shell rules"
+  ],
+  "unsafeActionsBlocked": [
+    "Do not deploy to production",
+    "Do not mutate live database state",
+    "Do not call live third-party billing providers",
+    "Do not use broad terminal grep as first truth source",
+    "Do not use git add -A"
+  ],
+  "additionBloatRulesAdded": [
+    "net additions > net deletions justification",
+    "generated artifact lines limit of 500",
+    "new resolvers/validators validation contract"
+  ],
+  "capabilityPolicyStatus": "active_enforced",
+  "takeoverSafetyStatus": "verified_safe",
+  "memoryEntriesAdded": [
+    "Produce self-knowledge audit upon taking over",
+    "Prefer consolidation over additions",
+    "Ensure no parallel resolvers duplicate canonical owners"
+  ],
+  "netAdditions": 680,
+  "netDeletions": 15,
+  "nextSafeActions": [
+    "Refresh stale evidence reports using targeted validators only",
+    "Commit guardrail files and takeover artifacts with same-commit release notes"
+  ]
+}
