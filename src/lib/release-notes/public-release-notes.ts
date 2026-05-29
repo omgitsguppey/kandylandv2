@@ -4,8 +4,8 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
   "currentVersion": "1.5.23",
   "betaReleaseCounter": 523,
   "channel": "beta",
-  "generatedAt": "2026-05-27T12:00:00.000Z",
-  "generatedAtUtc": "2026-05-27T12:00:00.000Z",
+  "generatedAt": "2026-05-29T02:19:07.000Z",
+  "generatedAtUtc": "2026-05-29T02:19:07.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
     {
@@ -19,13 +19,13 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "commitShas": [
         "pending-same-commit"
       ],
-      "committedAt": "2026-05-27T12:00:00.000Z",
-      "generatedAt": "2026-05-27T12:00:00.000Z",
-      "committedAtUtc": "2026-05-27T12:00:00.000Z",
-      "generatedAtUtc": "2026-05-27T12:00:00.000Z",
+      "committedAt": "2026-05-29T02:19:07.000Z",
+      "generatedAt": "2026-05-29T02:19:07.000Z",
+      "committedAtUtc": "2026-05-29T02:19:07.000Z",
+      "generatedAtUtc": "2026-05-29T02:19:07.000Z",
       "category": "Fixed",
       "title": "Creator drop approval repair",
-      "updatedAtUtc": "2026-05-27T12:00:00.000Z",
+      "updatedAtUtc": "2026-05-29T02:19:07.000Z",
       "summary": "Repaired creator drop submission and admin approval parity so creator submissions stay visible to creators, reviewable by admins, hidden from users until approval, and recoverable on expected 4xx errors.",
       "userFacingTitle": "More reliable creator drop submissions",
       "surfaceCategory": "Creator tools",

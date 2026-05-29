@@ -1,4 +1,12 @@
-﻿# Agent Instructions
+# Agent Instructions
+
+## Antigravity 2.0 Onboarding & Safety Guardrails
+
+Before starting new agent tasks or taking over, verify the safety check, self-knowledge audit, capability policy, and addition bloat parameters. Antigravity must never run deploys, hit live billing/PayPal APIs, mutate production databases, or bypass formal evidence gates via source-only tests. Net additions budget must remain constrained and justified, and new resolvers must prove unique ownership. Memory writeback and release note synchronizations are mandatory.
+
+## Identity Tracking And Handoff Truth
+
+When individual user analytics are wrong, inspect the full identity chain: guest id creation, session id, event envelope actor, auth state, identity link, signed-in user id, linked person id, person metric hydration, journey attribution, debug lane, and panel display. Do not fix only global metrics. Global metrics proving activity does not prove user-level metrics. Every event must declare whether it counts globally, for guest, for signed-in user, for linked person, for creator role, or not at all. Guest-to-user handoff must preserve journey continuity without double-counting. Linked guest and signed-in events representing the same action should count once globally and once for the linked person. Missing individual user data is not zero. Show collecting, source_missing, bridge_missing, materializer_missing, or permission_blocked unless a bounded source window proves zero. Identity/session 4xx errors are not generic failures. Expired session, missing guest id, stale user id, role drift, identity link conflict, and malformed handoff payload must be classified, non-retryable where appropriate, and debug-visible. Before adding identity or analytics fixes, reuse `src/lib/analytics/identity-handoff-*`, `src/lib/analytics/person-metrics-*`, and `src/lib/identity-truth/*` instead of adding a parallel tracking system.
 
 ## Doctrine Hierarchy Fast Path
 

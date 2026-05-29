@@ -202,6 +202,7 @@
         "check:antigravity-capability-policy": "tsx scripts/agent/validate-antigravity-capability-policy.ts",
         "check:addition-bloat-guard": "tsx scripts/agent/validate-addition-bloat-guard.ts",
         "check:agent-takeover-safety-check": "tsx scripts/agent/validate-agent-takeover-safety-check.ts",
+        "check:antigravity-output-audit": "tsx scripts/agent/validate-antigravity-output-audit.ts",
         "check:automated-truth-reconciliation": "tsx scripts/agent/validate-automated-truth-reconciliation.ts",
         "check:security-prng-redirect-closure": "tsx scripts/agent/validate-security-prng-redirect-closure.ts",
         "check:final-open-pr-closure": "tsx scripts/agent/validate-final-open-pr-closure.ts",

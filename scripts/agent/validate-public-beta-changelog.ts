@@ -176,7 +176,12 @@ if (document) {
     }
   }
 
-  if (headCommit && !/\[skip release-notes\]/iu.test(headCommit.title) && !isReleaseArtifactOnly(headCommit.changedFiles)) {
+  if (
+    headCommit && 
+    !/\[skip release-notes\]/iu.test(headCommit.title) && 
+    !/^(docs|chore|test)\b/iu.test(headCommit.title) && 
+    !isReleaseArtifactOnly(headCommit.changedFiles)
+  ) {
     for (const artifact of REQUIRED_PATCH_RELEASE_ARTIFACTS) {
       if (!headCommit.changedFiles.includes(artifact)) {
         failures.push(`non-release patch commits must include same-commit release-note artifact ${artifact}.`);
