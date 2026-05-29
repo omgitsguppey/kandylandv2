@@ -1,5 +1,22 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-29 #security] PRE/POST: Fix insecure error logging exposing stack traces in API routes
+Scope started:
+- Sentinel security patch to replace insecure console.error and console.warn calls in src/app/api/creator/settings/route.ts and src/app/api/admin/debug/route.ts with structured recordRouteWarning calls.
+- This prevents sensitive system details or stack traces from leaking via stdout.
+
+
+
+Scope completed:
+- Replaced 4 insecure `console.warn` calls in `src/app/api/creator/settings/route.ts` with `recordRouteWarning` from `@/lib/server/route-diagnostics`.
+- Replaced 1 insecure `console.error` call in `src/app/api/admin/debug/route.ts` with `recordRouteWarning` from `@/lib/server/route-diagnostics`.
+- Both endpoints now use secure, structured logging that does not leak internal error objects and stack traces to standard output.
+
+Verification:
+- `pnpm run typecheck` passed, confirming types and syntax.
+- `npx vitest run tests/unit/` verified functionality with acceptable baseline status.
+
+
 ## [2026-05-14 #173] Repo Doctrine Reset + Source-of-Truth Cleanup
 
 Scope started:
