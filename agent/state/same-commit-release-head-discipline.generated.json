@@ -1,0 +1,26 @@
+{
+  "reportKey": "same-commit-release-head-discipline",
+  "generatedAtUtc": "2026-05-30T23:35:07.256Z",
+  "currentHead": "eb7548a3e92576d0d092af97251321c369436458",
+  "changedFiles": [
+    "agent/state/same-commit-release-head-discipline.generated.json",
+    "docs/agent-truth/same-commit-release-head-discipline.md",
+    "scripts/agent/validate-same-commit-release-head-discipline.ts",
+    "tests/unit/same-commit-release-head-discipline.spec.ts"
+  ],
+  "buildDeployScriptChanged": false,
+  "releaseArtifactsChanged": [],
+  "requiredReleaseArtifacts": [
+    "CHANGELOG.md",
+    "public/kandydrops-release-notes.json",
+    "src/lib/release-notes/public-release-notes.ts",
+    "src/lib/release-notes/release-version-contract.ts"
+  ],
+  "latestVisibleBetaNoteFresh": true,
+  "latestVisibleBetaNoteTitle": "Deployment build stability",
+  "releaseNotesAndFallbackAgree": true,
+  "staleCurrentHeadArtifacts": [],
+  "deployTriageSafe": false,
+  "releaseNotesPass": true,
+  "validationFailures": []
+}

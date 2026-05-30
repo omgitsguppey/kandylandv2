@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "next build",
+        "build": "node --max-old-space-size=4096 ./node_modules/next/dist/bin/next build",
         "start": "next start",
         "lint": "eslint",
         "typecheck": "tsc --noEmit --pretty",
@@ -133,6 +133,7 @@
         "check:operator-final-qa-packet": "tsx scripts/agent/validate-operator-final-qa-packet.ts",
         "check:release-rollback-incident-readiness": "tsx scripts/agent/validate-release-rollback-incident-readiness.ts",
         "check:release-notes-integrity": "tsx scripts/agent/validate-release-notes-integrity.ts",
+        "check:same-commit-release-head-discipline": "tsx scripts/agent/validate-same-commit-release-head-discipline.ts",
         "check:final-release-exit-readiness-packet": "tsx scripts/agent/validate-final-release-exit-readiness-packet.ts",
         "check:live-evidence-gate-replacement": "tsx scripts/agent/validate-live-evidence-gate-replacement.ts",
         "check:analytics-panel-hydration": "tsx scripts/agent/validate-analytics-panel-hydration.ts",

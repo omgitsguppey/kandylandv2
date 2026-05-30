@@ -2,13 +2,65 @@ import type { PublicReleaseNotesDocument } from "./release-version-contract";
 // same-commit trigger comment
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.23",
-  "betaReleaseCounter": 523,
+  "currentVersion": "1.5.24",
+  "betaReleaseCounter": 524,
   "channel": "beta",
-  "generatedAt": "2026-05-29T02:19:07.001Z",
-  "generatedAtUtc": "2026-05-29T02:19:07.001Z",
+  "generatedAt": "2026-05-30T23:23:00.001Z",
+  "generatedAtUtc": "2026-05-30T23:23:00.001Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.24",
+      "previousVersion": "1.5.23",
+      "betaReleaseCounter": 524,
+      "previousBetaReleaseCounter": 523,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(deploy): keep release freshness with build",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-30T23:23:00.000Z",
+      "generatedAt": "2026-05-30T23:23:00.000Z",
+      "committedAtUtc": "2026-05-30T23:23:00.000Z",
+      "generatedAtUtc": "2026-05-30T23:23:00.000Z",
+      "category": "Fixed",
+      "title": "Deployment build stability",
+      "updatedAtUtc": "2026-05-30T23:23:00.000Z",
+      "summary": "Improved internal beta reliability by raising the production Next build heap while keeping runtime behavior unchanged.",
+      "userFacingTitle": "More reliable Beta deployment builds",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Raised the production Next build Node heap to prevent OOM during TypeScript/build phase.",
+        "Kept runtime behavior unchanged.",
+        "Refreshed release-note freshness for deployment gates."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Changed the package build script from next build to node --max-old-space-size=4096 ./node_modules/next/dist/bin/next build.",
+        "Added a same-commit release/head discipline validator for build and deploy script changes.",
+        "Kept product runtime, payment, wallet, PayPal, GumDrop, and auth source files unchanged."
+      ],
+      "affectedSurfaces": [
+        "Deployment build",
+        "Release notes freshness",
+        "Deploy gate validation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "package.json",
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "scripts/agent/validate-same-commit-release-head-discipline.ts",
+        "tests/unit/same-commit-release-head-discipline.spec.ts"
+      ],
+      "effectiveChangeCount": 3,
+      "excludedGeneratedChangeCount": 2,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.23",
       "previousVersion": "1.5.22",

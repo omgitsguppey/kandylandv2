@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.24 - 2026-05-30
+- Deployment build stability
+- Raised the production Next build Node heap to prevent OOM during TypeScript/build phase.
+- Kept runtime behavior unchanged.
+- Refreshed release-note freshness for deployment gates.
+
 ## 1.5.23 - 2026-05-29
 - Creator drop approval repair
 - Repaired creator drop submission, admin approval parity, creator status visibility, and creator 4xx handling.
