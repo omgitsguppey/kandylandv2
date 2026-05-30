@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-22T23:41:10.853Z",
+  "generatedAtUtc": "2026-05-30T05:27:38.509Z",
   "reportKey": "final-user-tracking-handoff-lock",
-  "currentHead": "b5d1e441fc59f0cf01b2fa0b96b88f82242d9100",
-  "status": "pass",
+  "currentHead": "f08ba9f972e549d051481cd3df0b36a5180771ad",
+  "status": "fail",
   "guestTrackingStatus": "pass",
   "signupHandoffStatus": "pass",
   "loggedInTrackingStatus": "pass",
-  "linkedPersonMetricsStatus": "pass",
+  "linkedPersonMetricsStatus": "fail",
   "consentModeStatus": "pass",
   "eventEnvelopeStatus": "pass",
   "legacyRecoveryStatus": "pass",
@@ -14,8 +14,8 @@
   "futureFeatureTelemetryStatus": "pass",
   "duplicateDebugLaneCount": 0,
   "orphanMetricCount": 0,
-  "scoreBefore": 55.56,
-  "scoreAfter": 55.56,
+  "scoreBefore": 76.61,
+  "scoreAfter": 76.61,
   "remainingGaps": [
     "Runtime/provider smoke: Runtime unverified",
     "Admin truth/sample evidence: Ready with smoke required",
@@ -33,22 +33,28 @@
     "chatNavTouched": false
   },
   "changedFiles": [
-    "CHANGELOG.md",
-    "agent/state/current-beta-exit-status.generated.json",
-    "agent/state/final-user-tracking-handoff-lock.generated.json",
-    "agent/state/new-additions-score-coverage.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "docs/agent-truth/current-beta-exit-status.md",
-    "docs/agent-truth/final-user-tracking-handoff-lock.md",
-    "docs/agent-truth/new-additions-score-coverage.md",
-    "package.json",
-    "public/kandydrops-release-notes.json",
-    "scripts/agent/validate-final-user-tracking-handoff-lock.ts",
-    "scripts/agent/validate-new-additions-score-coverage.ts",
-    "src/app/api/admin/debug/route.ts",
-    "src/lib/release-notes/public-release-notes.ts",
-    "src/lib/release-notes/release-version-contract.ts",
-    "tests/unit/final-user-tracking-handoff-lock.spec.ts"
+    "agent/state/account-settings-delete-flow.generated.json",
+    "agent/state/creator-landing-dashboard-mobile.generated.json",
+    "agent/state/creator-settings-source-health.generated.json",
+    "agent/state/creator-surface-routing.generated.json",
+    "agent/state/notification-permission-lifecycle.generated.json",
+    "agent/state/settings-connection-parity.generated.json",
+    "agent/state/settings-debug-validator-authority.generated.json",
+    "agent/state/settings-route-alias-cleanup.generated.json",
+    "agent/state/support-policy-surface-cleanup.generated.json",
+    "agent/state/user-profile-api-contract.generated.json",
+    "docs/agent-truth/account-settings-delete-flow.md",
+    "docs/agent-truth/creator-settings-source-health.md",
+    "docs/agent-truth/notification-permission-lifecycle.md",
+    "docs/agent-truth/settings-connection-parity.md",
+    "docs/agent-truth/settings-debug-validator-authority.md",
+    "docs/agent-truth/settings-route-alias-cleanup.md",
+    "docs/agent-truth/support-policy-surface-cleanup.md",
+    "docs/agent-truth/user-profile-api-contract.md",
+    "pnpm-lock.yaml",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/components/Dashboard/RecentActivityFeed.tsx",
+    "src/hooks/useNotifications.ts"
   ],
   "checks": {
     "guestSignupLoginPathPresent": true,
@@ -56,7 +62,7 @@
     "signupHandoffHasDeterministicLinkCandidate": true,
     "loggedInTrackingPreservesLinkedGuest": true,
     "linkedEventsCarryLinkAndDoNotDoubleCount": true,
-    "userLevelMetricsPresent": true,
+    "userLevelMetricsPresent": false,
     "consentModeEnforced": true,
     "eventEnvelopeCanonicalAndIdentityAware": true,
     "legacyRecoveryDryRunOnly": true,
@@ -68,5 +74,8 @@
     "paymentGumdropMathUntouched": true,
     "nextExactStepsPresent": true
   },
-  "validationFailures": []
+  "validationFailures": [
+    "userLevelMetricsPresent failed.",
+    "person metric: unwraps lacks server unlock source."
+  ]
 }

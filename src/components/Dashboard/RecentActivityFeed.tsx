@@ -440,6 +440,8 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
         let cancelled = false;
         let unsubscribeUserRuntime: (() => void) | undefined;
         let sawUserRuntimeSnapshot = false;
+        let lastActivityVersion: number | undefined;
+        let lastTasksVersion: number | undefined;
 
         async function refreshActivity(view: ActivityView) {
             const inFlightRef = view === "summary" ? summaryInFlightRef : historyInFlightRef;
@@ -508,13 +510,22 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                         doc(db, USER_RUNTIME_COLLECTION, user.uid),
                         (snapshot: import("firebase/firestore").DocumentSnapshot) => {
                             if (cancelled) return;
+                            const data = snapshot.data() as { activityVersion?: number; tasksVersion?: number } | undefined;
+
                             if (!sawUserRuntimeSnapshot) {
                                 sawUserRuntimeSnapshot = true;
+                                lastActivityVersion = data?.activityVersion;
+                                lastTasksVersion = data?.tasksVersion;
                                 return;
                             }
 
-                            const data = snapshot.data() as { activityVersion?: number; tasksVersion?: number } | undefined;
-                            if (typeof data?.activityVersion === "number" || typeof data?.tasksVersion === "number") {
+                            const activityChanged = typeof data?.activityVersion === "number" && data.activityVersion !== lastActivityVersion;
+                            const tasksChanged = typeof data?.tasksVersion === "number" && data.tasksVersion !== lastTasksVersion;
+
+                            if (activityChanged || tasksChanged) {
+                                if (activityChanged) lastActivityVersion = data.activityVersion;
+                                if (tasksChanged) lastTasksVersion = data.tasksVersion;
+
                                 void refreshActivity("summary");
                                 if (expandedRef.current || historyLoadedRef.current) {
                                     void refreshActivity("history");
@@ -634,10 +645,17 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
         setCurrentPage(1);
     }, [searchValue]);
 
-        const scopedHistoryActivities = useMemo(
-        () => (loadedForUserId === userId ? (historyActivities.length ? historyActivities : summaryActivity ? [summaryActivity] : []) : []),
-        [historyActivities, loadedForUserId, userId, summaryActivity],
-    );
+        const scopedHistoryActivities = useMemo(() => {
+        if (loadedForUserId !== userId) return [];
+        if (!historyActivities.length) return summaryActivity ? [summaryActivity] : [];
+        if (summaryActivity) {
+            const hasSummaryItem = historyActivities.some(item => item.id === summaryActivity.id);
+            if (!hasSummaryItem) {
+                return [summaryActivity, ...historyActivities].sort((a, b) => b.timestamp - a.timestamp);
+            }
+        }
+        return historyActivities;
+    }, [historyActivities, loadedForUserId, userId, summaryActivity]);
     const summary = useMemo(
         () => (loadedForUserId === userId ? summaryActivity : null),
         [loadedForUserId, summaryActivity, userId],

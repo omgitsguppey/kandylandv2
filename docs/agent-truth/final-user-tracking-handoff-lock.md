@@ -1,15 +1,15 @@
 # Final User Tracking Handoff Lock
 
-Generated: 2026-05-22T23:41:10.853Z
-Status: pass
-Current head: b5d1e441fc59f0cf01b2fa0b96b88f82242d9100
+Generated: 2026-05-30T05:27:38.509Z
+Status: fail
+Current head: f08ba9f972e549d051481cd3df0b36a5180771ad
 
 ## Lock Status
 
 - Guest tracking: pass
 - Signup handoff: pass
 - Logged-in tracking: pass
-- Linked person metrics: pass
+- Linked person metrics: fail
 - Consent mode: pass
 - Event envelope: pass
 - Legacy recovery: pass
@@ -20,8 +20,8 @@ Current head: b5d1e441fc59f0cf01b2fa0b96b88f82242d9100
 
 - Duplicate debug lanes: 0
 - Ownerless orphan metrics: 0
-- Score before: 55.56
-- Score after: 55.56
+- Score before: 76.61
+- Score after: 76.61
 
 ## Contract
 
@@ -51,7 +51,7 @@ Current head: b5d1e441fc59f0cf01b2fa0b96b88f82242d9100
 - pass: signupHandoffHasDeterministicLinkCandidate
 - pass: loggedInTrackingPreservesLinkedGuest
 - pass: linkedEventsCarryLinkAndDoNotDoubleCount
-- pass: userLevelMetricsPresent
+- fail: userLevelMetricsPresent
 - pass: consentModeEnforced
 - pass: eventEnvelopeCanonicalAndIdentityAware
 - pass: legacyRecoveryDryRunOnly
@@ -65,23 +65,30 @@ Current head: b5d1e441fc59f0cf01b2fa0b96b88f82242d9100
 
 ## Changed Files
 
-- CHANGELOG.md
-- agent/state/current-beta-exit-status.generated.json
-- agent/state/final-user-tracking-handoff-lock.generated.json
-- agent/state/new-additions-score-coverage.generated.json
-- agent/state/public-beta-score.generated.json
-- docs/agent-truth/current-beta-exit-status.md
-- docs/agent-truth/final-user-tracking-handoff-lock.md
-- docs/agent-truth/new-additions-score-coverage.md
-- package.json
-- public/kandydrops-release-notes.json
-- scripts/agent/validate-final-user-tracking-handoff-lock.ts
-- scripts/agent/validate-new-additions-score-coverage.ts
-- src/app/api/admin/debug/route.ts
-- src/lib/release-notes/public-release-notes.ts
-- src/lib/release-notes/release-version-contract.ts
-- tests/unit/final-user-tracking-handoff-lock.spec.ts
+- agent/state/account-settings-delete-flow.generated.json
+- agent/state/creator-landing-dashboard-mobile.generated.json
+- agent/state/creator-settings-source-health.generated.json
+- agent/state/creator-surface-routing.generated.json
+- agent/state/notification-permission-lifecycle.generated.json
+- agent/state/settings-connection-parity.generated.json
+- agent/state/settings-debug-validator-authority.generated.json
+- agent/state/settings-route-alias-cleanup.generated.json
+- agent/state/support-policy-surface-cleanup.generated.json
+- agent/state/user-profile-api-contract.generated.json
+- docs/agent-truth/account-settings-delete-flow.md
+- docs/agent-truth/creator-settings-source-health.md
+- docs/agent-truth/notification-permission-lifecycle.md
+- docs/agent-truth/settings-connection-parity.md
+- docs/agent-truth/settings-debug-validator-authority.md
+- docs/agent-truth/settings-route-alias-cleanup.md
+- docs/agent-truth/support-policy-surface-cleanup.md
+- docs/agent-truth/user-profile-api-contract.md
+- pnpm-lock.yaml
+- src/app/creators/[username]/CreatorProfileClient.tsx
+- src/components/Dashboard/RecentActivityFeed.tsx
+- src/hooks/useNotifications.ts
 
 ## Validation Failures
 
-- none
+- userLevelMetricsPresent failed.
+- person metric: unwraps lacks server unlock source.

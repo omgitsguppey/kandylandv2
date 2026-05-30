@@ -1,8 +1,8 @@
 # Settings Route Alias Cleanup
 
-Generated: 2026-05-23T01:14:18.735Z
+Generated: 2026-05-30T05:27:13.959Z
 Status: pass
-Head: 17353b5ca414da32c9fa3bca2abc005fe483aa2c
+Head: f08ba9f972e549d051481cd3df0b36a5180771ad
 
 ## Canonical Route Table
 

@@ -123,6 +123,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
 
         let unsubscribeUserRuntime: (() => void) | undefined;
         let sawUserRuntimeSnapshot = false;
+        let lastNotificationsVersion: number | undefined;
 
         const subscribeToUserRuntime = async () => {
             try {
@@ -140,13 +141,16 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                         doc(db, USER_RUNTIME_COLLECTION, currentUserId),
                         (snapshot: import("firebase/firestore").DocumentSnapshot) => {
                             if (cancelled) return;
+                            const data = snapshot.data() as { notificationsVersion?: number } | undefined;
+
                             if (!sawUserRuntimeSnapshot) {
                                 sawUserRuntimeSnapshot = true;
+                                lastNotificationsVersion = data?.notificationsVersion;
                                 return;
                             }
 
-                            const data = snapshot.data() as { notificationsVersion?: number } | undefined;
-                            if (typeof data?.notificationsVersion === "number") {
+                            if (typeof data?.notificationsVersion === "number" && data.notificationsVersion !== lastNotificationsVersion) {
+                                lastNotificationsVersion = data.notificationsVersion;
                                 refreshOnDemand();
                             }
                         },

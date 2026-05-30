@@ -30,6 +30,7 @@ import {
 import type { CreatorProfileTimelineItem } from "@/lib/creator-profile/timeline-contract";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
+import { dispatchActivitySync } from "@/lib/activity-sync";
 import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
 import { cn } from "@/lib/utils";
 import { Drop, UserProfile } from "@/types/db";
@@ -561,6 +562,8 @@ export default function CreatorProfileClient() {
                 };
             });
 
+            dispatchActivitySync();
+
             if (nextFollowing) {
                 await refreshCreatorBroadcasts(creator.uid);
                 trackEvent("creator_followed", {
@@ -685,6 +688,7 @@ export default function CreatorProfileClient() {
             }
 
             const nextNotificationsEnabled = result.relationship?.notificationsEnabled === true;
+            dispatchActivitySync();
             setNotificationsEnabled(nextNotificationsEnabled);
             setUserProfile((currentProfile) => {
                 if (!currentProfile) {

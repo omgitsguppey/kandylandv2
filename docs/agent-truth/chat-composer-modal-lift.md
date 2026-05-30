@@ -1,8 +1,8 @@
 # Chat Composer Modal Lift
 
-Generated: 2026-05-22T23:53:34.527Z
+Generated: 2026-05-30T05:27:52.277Z
 Status: pass
-Current head: 58929a769685124b73004b07f1795ec1dd0dd45f
+Current head: f08ba9f972e549d051481cd3df0b36a5180771ad
 
 ## Contract
 
@@ -30,16 +30,30 @@ Current head: 58929a769685124b73004b07f1795ec1dd0dd45f
 
 ## Changed Files
 
-- CHANGELOG.md
-- agent/state/chat-composer-modal-lift.generated.json
-- docs/agent-truth/chat-composer-modal-lift.md
-- package.json
-- public/kandydrops-release-notes.json
-- scripts/agent/validate-chat-composer-modal-lift.ts
-- src/components/Chat/ChatExperience.tsx
-- src/lib/release-notes/public-release-notes.ts
-- src/lib/release-notes/release-version-contract.ts
-- tests/unit/chat-composer-modal-lift.spec.ts
+- agent/state/account-settings-delete-flow.generated.json
+- agent/state/creator-landing-dashboard-mobile.generated.json
+- agent/state/creator-settings-source-health.generated.json
+- agent/state/creator-surface-routing.generated.json
+- agent/state/final-user-tracking-handoff-lock.generated.json
+- agent/state/notification-permission-lifecycle.generated.json
+- agent/state/settings-connection-parity.generated.json
+- agent/state/settings-debug-validator-authority.generated.json
+- agent/state/settings-route-alias-cleanup.generated.json
+- agent/state/support-policy-surface-cleanup.generated.json
+- agent/state/user-profile-api-contract.generated.json
+- docs/agent-truth/account-settings-delete-flow.md
+- docs/agent-truth/creator-settings-source-health.md
+- docs/agent-truth/final-user-tracking-handoff-lock.md
+- docs/agent-truth/notification-permission-lifecycle.md
+- docs/agent-truth/settings-connection-parity.md
+- docs/agent-truth/settings-debug-validator-authority.md
+- docs/agent-truth/settings-route-alias-cleanup.md
+- docs/agent-truth/support-policy-surface-cleanup.md
+- docs/agent-truth/user-profile-api-contract.md
+- pnpm-lock.yaml
+- src/app/creators/[username]/CreatorProfileClient.tsx
+- src/components/Dashboard/RecentActivityFeed.tsx
+- src/hooks/useNotifications.ts
 
 ## Validation Failures
 
