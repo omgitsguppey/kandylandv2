@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T16:49:04.693Z",
+  "generatedAtUtc": "2026-05-31T19:57:00.647Z",
   "reportKey": "cost-owner-review-source-closure",
-  "currentHead": "3878a581193dd171f69e3c0b63073ac738c14152",
+  "currentHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -79,7 +79,7 @@
       "id": "route4xx",
       "label": "Route 4xx",
       "owner": "server-routing",
-      "status": "source_guarded_external_review_remaining",
+      "status": "source_ready_retry_storm_guarded",
       "sourceGuarded": true,
       "externalBillingReviewed": false,
       "externalReviewRequired": false,
@@ -104,7 +104,7 @@
       "id": "bigQuery",
       "label": "BigQuery",
       "owner": "analytics-export",
-      "status": "source_guarded_external_review_remaining",
+      "status": "source_ready_batched_or_cached",
       "sourceGuarded": true,
       "externalBillingReviewed": false,
       "externalReviewRequired": true,
@@ -128,7 +128,7 @@
       "id": "analyticsIngestRetryStorms",
       "label": "Analytics ingest/retry storms",
       "owner": "analytics-runtime",
-      "status": "source_guarded_external_review_remaining",
+      "status": "source_ready_retry_storm_guarded",
       "sourceGuarded": true,
       "externalBillingReviewed": false,
       "externalReviewRequired": false,
@@ -148,7 +148,7 @@
       "id": "scheduledRuntimeJobs",
       "label": "Scheduled/runtime job scan cost",
       "owner": "runtime-jobs",
-      "status": "source_guarded_external_review_remaining",
+      "status": "source_ready_batched_or_cached",
       "sourceGuarded": true,
       "externalBillingReviewed": false,
       "externalReviewRequired": true,
@@ -236,7 +236,7 @@
       "blocksBetaExit": false
     },
     "route4xxReadiness": {
-      "status": "source_guarded_external_review_remaining",
+      "status": "source_ready_retry_storm_guarded",
       "detail": "Latest diagnostics classify 4xx/retry paths source-side and avoid generic retry-storm owner review.",
       "evidence": [
         "artifactPath=agent/state/final-cost-audit-lock.generated.json",
@@ -253,8 +253,8 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 71,
-  "costRiskScoreExplanation": "Cost risk score 71 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.",
+  "costRiskScore": 80.5,
+  "costRiskScoreExplanation": "Cost risk score 80.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.",
   "sourceGuardedLaneCount": 7,
   "externalBillingReview": {
     "reviewed": false,
@@ -271,7 +271,7 @@
   "route4xxUsesLatestDiagnostics": true,
   "scoreInputImpact": {
     "previousGenericOwnerReviewScore": 40,
-    "refinedSourceScore": 71,
+    "refinedSourceScore": 80.5,
     "externalProofClaimed": false
   },
   "openPrs": [

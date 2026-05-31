@@ -1,14 +1,14 @@
 # Cost Risk Owner-Review Closure
 
-Generated: 2026-05-26T04:39:22.490Z
+Generated: 2026-05-31T19:39:30.584Z
 
-Current head: d1f8e2fb4435ad131c8fc7cc85debe027a31346a
+Current head: 9f108d980471030fe6e4e319ceac44e291b3a08e
 
 Status: pass
 
 ## Summary
 
-- Cost risk score: 80.5 -> 80.5
+- Cost risk score: 42 -> 80.5
 - Source guarded lanes: 7
 - External billing reviewed: false
 - External billing remaining: cloudRun, cloudSqlDataConnect, geminiCloudAssistVertex, bigQuery, scheduledRuntimeJobs
@@ -18,13 +18,13 @@ Status: pass
 
 | Dimension | Before | After |
 | --- | ---: | ---: |
-| sourceHealth | 100 | 100 |
+| sourceHealth | 91.7 | 91.7 |
 | runtimeHealth | 84.2 | 84.2 |
-| evidenceCompleteness | 84.6 | 84.6 |
-| freshness | 83.75 | 83.75 |
-| costRisk | 80.5 | 80.5 |
+| evidenceCompleteness | 69.6 | 69.6 |
+| freshness | 67.5 | 67.5 |
+| costRisk | 42 | 80.5 |
 | regressionRisk | 86 | 86 |
-| overallHealthScore | 87.97 | 87.97 |
+| overallHealthScore | 76.61 | 82.11 |
 
 ## Cost Lanes
 
@@ -41,21 +41,32 @@ Status: pass
 
 ## Dirty File Classification
 
-- M agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
--  M agent/state/admin-truth-source-sample.generated.json: real_source_change_needs_review
--  M agent/state/formal-evidence-bridge.generated.json: real_source_change_needs_review
+- M CHANGELOG.md: release_artifact_expected
+-  M agent/state/admin-hot-cache-cost-estimate.generated.json: real_source_change_needs_review
+-  M agent/state/analytics-cost-runtime-inventory.generated.json: real_source_change_needs_review
+-  M agent/state/cloud-sql-gemini-cost-guards.generated.json: real_source_change_needs_review
+-  M agent/state/cost-owner-review-source-closure.generated.json: real_source_change_needs_review
+-  M agent/state/cost-risk-exit-pass.generated.json: real_source_change_needs_review
+-  M agent/state/cost-risk-owner-review-closure.generated.json: current_generated_artifact_to_commit
+-  M agent/state/current-beta-exit-status.generated.json: real_source_change_needs_review
+-  M agent/state/overnight-beta-readiness-lock.generated.json: real_source_change_needs_review
 -  M agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
 -  M agent/state/score-80-cost-readiness.generated.json: stale_generated_artifact_to_regenerate
--  M agent/state/source-backed-runtime-confidence.generated.json: real_source_change_needs_review
--  M docs/agent-truth/admin-truth-source-sample.md: real_source_change_needs_review
--  M docs/agent-truth/formal-evidence-bridge.md: real_source_change_needs_review
+-  M docs/agent-truth/admin-hot-cache-cost-estimate.md: real_source_change_needs_review
+-  M docs/agent-truth/analytics-cost-runtime-inventory.md: real_source_change_needs_review
+-  M docs/agent-truth/cloud-sql-gemini-cost-guards.md: real_source_change_needs_review
+-  M docs/agent-truth/cost-owner-review-source-closure.md: real_source_change_needs_review
+-  M docs/agent-truth/cost-risk-exit-pass.md: real_source_change_needs_review
+-  M docs/agent-truth/cost-risk-owner-review-closure.md: release_artifact_expected
+-  M docs/agent-truth/current-beta-exit-status.md: real_source_change_needs_review
+-  M docs/agent-truth/overnight-beta-readiness-lock.md: real_source_change_needs_review
 -  M docs/agent-truth/score-80-cost-readiness.md: real_source_change_needs_review
--  M docs/agent-truth/source-backed-runtime-confidence.md: real_source_change_needs_review
--  M package.json: real_source_change_needs_review
-- ?? agent/state/launch-blocker-evidence-closure.generated.json: real_source_change_needs_review
-- ?? docs/agent-truth/launch-blocker-evidence-closure.md: real_source_change_needs_review
-- ?? scripts/agent/validate-launch-blocker-evidence-closure.ts: real_source_change_needs_review
-- ?? tests/unit/launch-blocker-evidence-closure.spec.ts: real_source_change_needs_review
+-  M public/kandydrops-release-notes.json: release_artifact_expected
+-  M scripts/agent/validate-cost-owner-review-source-closure.ts: real_source_change_needs_review
+-  M scripts/agent/validate-cost-risk-exit-pass.ts: real_source_change_needs_review
+-  M scripts/agent/validate-score-80-cost-readiness.ts: real_source_change_needs_review
+-  M src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+-  M src/lib/release-notes/release-version-contract.ts: release_artifact_expected
 
 ## Boundary
 

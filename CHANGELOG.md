@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.27 - 2026-05-31
+- Cost risk truth cleanup
+- Reconnected beta cost scoring to current source cost guard artifacts.
+- Kept Cloud Run, Cloud SQL/Data Connect, Gemini/Vertex, and billing proof as owner-review requirements.
+- Preserved the rule that source cost guards do not prove external billing savings.
+
 ## 1.5.26 - 2026-05-31
 - Analytics panel truth cleanup
 - Reconnected admin analytics panel hydration to canonical event and person metric sources.

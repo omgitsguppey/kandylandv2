@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T04:49:08.341Z",
+  "generatedAtUtc": "2026-05-31T19:57:02.617Z",
   "reportKey": "cost-risk-exit-pass",
-  "currentHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
+  "currentHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -152,14 +152,14 @@
     }
   },
   "costRisk": {
-    "before": 80.5,
+    "before": 42,
     "after": 80.5,
     "target": 80
   },
   "scoreDimensions": {
     "sourceHealth": {
-      "before": 100,
-      "after": 100,
+      "before": 91.7,
+      "after": 91.7,
       "target": 80
     },
     "runtimeHealth": {
@@ -168,17 +168,17 @@
       "target": 80
     },
     "evidenceCompleteness": {
-      "before": 84.6,
-      "after": 84.6,
+      "before": 69.6,
+      "after": 69.6,
       "target": 80
     },
     "freshness": {
-      "before": 91.88,
-      "after": 91.88,
+      "before": 67.5,
+      "after": 67.5,
       "target": 80
     },
     "costRisk": {
-      "before": 80.5,
+      "before": 42,
       "after": 80.5,
       "target": 80
     },
@@ -188,8 +188,8 @@
       "target": 80
     },
     "overallHealthScore": {
-      "before": 89.19,
-      "after": 89.19,
+      "before": 76.61,
+      "after": 80.46,
       "target": 80
     }
   },
@@ -216,24 +216,100 @@
   ],
   "dirtyFiles": [
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/freshness-window-repair.generated.json",
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/targeted-behavior-evidence-repair.generated.json",
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/freshness-window-repair.md",
+      "path": "agent/state/cost-owner-review-source-closure.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/targeted-behavior-evidence-repair.md",
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-owner-review-source-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-cost-owner-review-source-closure.ts",
+      "classification": "cost_evidence_validator"
+    },
+    {
+      "path": "scripts/agent/validate-cost-risk-exit-pass.ts",
+      "classification": "cost_evidence_validator"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-cost-readiness.ts",
+      "classification": "score_model_evidence_supported"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
     }
   ],
   "staleLogicClassification": [
@@ -254,8 +330,8 @@
     }
   ],
   "evidence": [
-    "currentHead=a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
-    "costRiskBefore=80.5",
+    "currentHead=9f108d980471030fe6e4e319ceac44e291b3a08e",
+    "costRiskBefore=42",
     "costRiskAfter=80.5",
     "sourceGuardedLaneCount=4",
     "externalBillingReviewed=false",

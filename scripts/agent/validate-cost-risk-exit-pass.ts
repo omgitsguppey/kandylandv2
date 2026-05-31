@@ -181,7 +181,10 @@ export function classifyCostRiskExitPassDirtyFile(filePath: string): CostRiskExi
     return "current_generated_artifact_to_commit";
   }
   if (normalized === COST_RISK_EXIT_PASS_DOC_PATH) return "current_generated_artifact_to_commit";
-  if (normalized === "scripts/agent/validate-cost-risk-exit-pass.ts") return "cost_evidence_validator";
+  if (
+    normalized === "scripts/agent/validate-cost-risk-exit-pass.ts"
+    || normalized === "scripts/agent/validate-cost-owner-review-source-closure.ts"
+  ) return "cost_evidence_validator";
   if (normalized === "tests/unit/cost-risk-exit-pass.spec.ts") return "cost_evidence_test";
   if (
     normalized === "scripts/agent/validate-launch-blocker-evidence-closure.ts"

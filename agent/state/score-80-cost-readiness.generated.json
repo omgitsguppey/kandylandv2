@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-26T04:39:57.915Z",
+  "generatedAtUtc": "2026-05-31T19:57:00.736Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
-  "sourceCommit": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
+  "currentHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
+  "sourceCommit": "9f108d980471030fe6e4e319ceac44e291b3a08e",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
@@ -15,7 +15,7 @@
     "route4xxSourceReady": true,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 5
+    "p2Count": 3
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
@@ -94,14 +94,12 @@
     "globalCostClean=true",
     "finalCostCurrent=false",
     "telemetryCurrent=false",
-    "costOwnerReviewSourceClosureCurrent=false",
+    "costOwnerReviewSourceClosureCurrent=true",
     "costRiskOwnerReviewClosureCurrent=true",
     "costRiskExitPassCurrent=true"
   ],
   "staleArtifacts": [
     "agent/state/final-cost-audit-lock.generated.json",
-    "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-    "agent/state/analytics-cost-runtime-inventory.generated.json",
     "agent/state/final-telemetry-closure-lock.generated.json",
     "agent/state/creator-dashboard-error-cost-inventory.generated.json"
   ],
@@ -134,31 +132,31 @@
     },
     {
       "command": "npm run check:cost-owner-review-source-closure",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cost-owner-review-source-closure.generated.json",
-      "detail": "Cost owner-review source closure is missing or stale."
+      "detail": "Current cost owner-review source closure is available."
     },
     {
       "command": "npm run check:cloud-sql-gemini-cost-guards",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
-      "detail": "Cloud SQL/Gemini guard report is missing or stale."
+      "detail": "Current Cloud SQL/Gemini guard report is available."
     },
     {
       "command": "npm run check:global-cost-surfaces",
-      "status": "missing_script",
+      "status": "pass",
       "artifactPath": "agent/state/global-cost-surfaces.generated.json",
-      "detail": "Package script is not present; existing global-cost source report is treated as supporting source context only."
+      "detail": "Global cost source surfaces are clean supporting context; this is not external billing proof."
     },
     {
       "command": "npm run check:billing-spike-radar",
-      "status": "missing_script",
+      "status": "pass",
       "artifactPath": "agent/state/billing-spike-radar.generated.json",
-      "detail": "Package script is not present; billing spike radar remains supporting watchlist context only."
+      "detail": "Billing spike radar is supporting watchlist context; warnings do not become external billing proof."
     },
     {
       "command": "npm run check:analytics-cost-runtime-inventory",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/analytics-cost-runtime-inventory.generated.json",
       "detail": "Analytics cost runtime inventory refresh is tracked separately from external billing proof."
     }

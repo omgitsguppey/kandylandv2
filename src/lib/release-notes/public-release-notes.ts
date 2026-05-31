@@ -2,13 +2,68 @@ import type { PublicReleaseNotesDocument } from "./release-version-contract";
 // same-commit trigger comment
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.26",
-  "betaReleaseCounter": 526,
+  "currentVersion": "1.5.27",
+  "betaReleaseCounter": 527,
   "channel": "beta",
-  "generatedAt": "2026-05-31T04:05:00.001Z",
-  "generatedAtUtc": "2026-05-31T04:05:00.001Z",
+  "generatedAt": "2026-05-31T19:35:00.001Z",
+  "generatedAtUtc": "2026-05-31T19:35:00.001Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.27",
+      "previousVersion": "1.5.26",
+      "betaReleaseCounter": 527,
+      "previousBetaReleaseCounter": 526,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "refactor(beta): consolidate cost risk truth",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-31T19:35:00.000Z",
+      "generatedAt": "2026-05-31T19:35:00.000Z",
+      "committedAtUtc": "2026-05-31T19:35:00.000Z",
+      "generatedAtUtc": "2026-05-31T19:35:00.000Z",
+      "category": "Internal Reliability",
+      "title": "Cost risk truth cleanup",
+      "updatedAtUtc": "2026-05-31T19:35:00.000Z",
+      "summary": "Reconnected beta cost scoring to current source cost guard artifacts while keeping external billing proof as owner-review evidence.",
+      "userFacingTitle": "Clearer Beta cost readiness",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Updated Beta cost readiness so current source cost guard checks are counted accurately.",
+        "Kept Cloud Run, Cloud SQL/Data Connect, Gemini/Vertex, and billing proof as owner-review requirements.",
+        "Preserved the rule that source cost guards do not prove external billing savings."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Reconnected score-80 cost readiness to current cost risk exit and owner-review source closure artifacts.",
+        "Classified Data Connect mirror tables as source guarded but still requiring provider billing review.",
+        "Did not change payment, wallet, PayPal, GumDrop math, pricing, package amounts, or runtime routes."
+      ],
+      "affectedSurfaces": [
+        "Beta score diagnostics",
+        "Cost risk evidence",
+        "Google/Firebase cost guardrails"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "scripts/agent/validate-cost-owner-review-source-closure.ts",
+        "scripts/agent/validate-cost-risk-exit-pass.ts",
+        "scripts/agent/validate-score-80-cost-readiness.ts",
+        "agent/state/cost-risk-exit-pass.generated.json",
+        "agent/state/score-80-cost-readiness.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "effectiveChangeCount": 3,
+      "excludedGeneratedChangeCount": 4,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.26",
       "previousVersion": "1.5.25",

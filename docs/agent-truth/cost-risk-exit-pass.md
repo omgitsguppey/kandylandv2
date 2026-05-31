@@ -6,8 +6,8 @@ Validator: `npm run check:cost-risk-exit-pass`
 
 ## Summary
 
-- Current head: `a81cdb0b885f65dec63a582e4b9fe4cfdfeced39`
-- Cost risk: 80.5 -> 80.5
+- Current head: `9f108d980471030fe6e4e319ceac44e291b3a08e`
+- Cost risk: 42 -> 80.5
 - Source guarded lanes: 4
 - Generic owner-review lanes: 0
 - External billing reviewed: false
@@ -19,13 +19,13 @@ Validator: `npm run check:cost-risk-exit-pass`
 
 | Dimension | Before | After | Target |
 | --- | ---: | ---: | ---: |
-| sourceHealth | 100 | 100 | 80 |
+| sourceHealth | 91.7 | 91.7 | 80 |
 | runtimeHealth | 84.2 | 84.2 | 80 |
-| evidenceCompleteness | 84.6 | 84.6 | 80 |
-| freshness | 91.88 | 91.88 | 80 |
-| costRisk | 80.5 | 80.5 | 80 |
+| evidenceCompleteness | 69.6 | 69.6 | 80 |
+| freshness | 67.5 | 67.5 | 80 |
+| costRisk | 42 | 80.5 | 80 |
 | regressionRisk | 86 | 86 | 80 |
-| overallHealthScore | 89.19 | 89.19 | 80 |
+| overallHealthScore | 76.61 | 80.46 | 80 |
 
 ## Exit Lanes
 
@@ -40,11 +40,30 @@ Validator: `npm run check:cost-risk-exit-pass`
 
 | File | Classification |
 | --- | --- |
-| agent/context/optimized-task-context.generated.json | unrelated_agent_context_file_to_ignore |
-| agent/state/freshness-window-repair.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/targeted-behavior-evidence-repair.generated.json | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/freshness-window-repair.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/targeted-behavior-evidence-repair.md | stale_generated_artifact_to_regenerate |
+| CHANGELOG.md | release_artifact_expected |
+| agent/state/analytics-cost-runtime-inventory.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/cloud-sql-gemini-cost-guards.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/cost-owner-review-source-closure.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/cost-risk-exit-pass.generated.json | current_generated_artifact_to_commit |
+| agent/state/cost-risk-owner-review-closure.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/current-beta-exit-status.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/overnight-beta-readiness-lock.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
+| agent/state/score-80-cost-readiness.generated.json | current_generated_artifact_to_commit |
+| docs/agent-truth/analytics-cost-runtime-inventory.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/cloud-sql-gemini-cost-guards.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/cost-owner-review-source-closure.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/cost-risk-exit-pass.md | current_generated_artifact_to_commit |
+| docs/agent-truth/cost-risk-owner-review-closure.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/current-beta-exit-status.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/overnight-beta-readiness-lock.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/score-80-cost-readiness.md | stale_generated_artifact_to_regenerate |
+| public/kandydrops-release-notes.json | release_artifact_expected |
+| scripts/agent/validate-cost-owner-review-source-closure.ts | cost_evidence_validator |
+| scripts/agent/validate-cost-risk-exit-pass.ts | cost_evidence_validator |
+| scripts/agent/validate-score-80-cost-readiness.ts | score_model_evidence_supported |
+| src/lib/release-notes/public-release-notes.ts | release_artifact_expected |
+| src/lib/release-notes/release-version-contract.ts | release_artifact_expected |
 
 ## Stale Reference Classification
 

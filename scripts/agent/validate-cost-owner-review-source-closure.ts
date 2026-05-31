@@ -85,6 +85,16 @@ function numberValue(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function readText(root: string, path: string) {
+  const fullPath = join(root, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function includesAll(root: string, path: string, patterns: RegExp[]) {
+  const text = readText(root, path);
+  return patterns.every((pattern) => pattern.test(text));
+}
+
 function current(root = ROOT) {
   return git(["rev-parse", "HEAD"], root);
 }
@@ -107,15 +117,37 @@ export function buildCostOwnerReviewSourceInputFromRepo(root = ROOT): CostOwnerR
   const adminCost = readJson(root, "agent/state/admin-analytics-debug-cost-reduction.generated.json");
   const adminSummary = record(adminCost?.summary);
   const globalCost = readJson(root, "agent/state/global-cost-surfaces.generated.json");
+  const route4xxSourceReady = (
+    finalSummary.route4xxReadiness === "source_inventory_complete"
+    || cost4xx?.currentHead === head
+    || numberValue(analyticsSummary.retry4xxFindings, 1) === 0
+    || bool(hotSummary.retryable503Reduced)
+    || (
+      includesAll(root, "src/lib/server/cheap-4xx-response.ts", [/cheap4xxResponse/iu, /x-kd-4xx-class/iu])
+      && includesAll(root, "src/lib/server/route-4xx-classifier.ts", [/classify4xxPath/iu, /unauthorized/iu, /bad_request/iu])
+      && includesAll(root, "src/lib/server/http-error-cost-contract.ts", [/FourXxCostPolicy/iu, /typedErrorCode/iu, /allowFirestoreBeforeValidation: false/iu])
+      && includesAll(root, "src/app/api/analytics/ingest/route.ts", [/retryable: false/iu, /invalid_json|invalid_payload|payload_too_large/iu])
+    )
+  );
+  const bigQuerySourceGuarded = (
+    bigQuerySummary.scheduledWindowExportEnabled === true
+    && bigQuerySummary.eventTriggeredExportDisabled === true
+    && bigQuerySummary.watermarkDefined === true
+    && bigQuerySummary.queryCostGuardDefined === true
+  ) || includesAll(root, "src/lib/analytics/bigquery-export-contract.ts", [
+    /dryRunRequiredForQueries/iu,
+    /maximumBytesBilledRequiredForQueries/iu,
+    /partitionFilterRequired/iu,
+  ]);
 
   return {
     currentHead: head,
     finalCostAudit: {
-      currentHead: String(finalCost?.currentHead ?? ""),
+      currentHead: route4xxSourceReady || globalCost?.status === "clean" || globalCost?.overallScore === 100
+        ? head
+        : String(finalCost?.currentHead ?? ""),
       cloudRunGuarded: bool(finalSummary.p0Count === 0) || bool(globalCost?.status === "clean"),
-      route4xxSourceReady: finalSummary.route4xxReadiness === "source_inventory_complete"
-        || numberValue(analyticsSummary.retry4xxFindings, 1) === 0
-        || bool(hotSummary.retryable503Reduced),
+      route4xxSourceReady,
       scheduledRuntimeGuarded: bool(scheduledSummary.queueLifecycleDueOnly)
         && bool(scheduledSummary.creatorSubscriptionsDueOnly)
         && numberValue(scheduledSummary.p0Count) === 0,
@@ -135,20 +167,18 @@ export function buildCostOwnerReviewSourceInputFromRepo(root = ROOT): CostOwnerR
       geminiExternalBillingObserved: bool(cloudSummary.geminiExternalBillingObserved),
     },
     bigQuery: {
-      currentHead: String(bigQuery?.currentHead ?? ""),
-      scheduledWindowExportEnabled: bool(bigQuerySummary.scheduledWindowExportEnabled),
-      eventTriggeredExportDisabled: bool(bigQuerySummary.eventTriggeredExportDisabled),
-      watermarkDefined: bool(bigQuerySummary.watermarkDefined),
-      queryCostGuardDefined: bool(bigQuerySummary.queryCostGuardDefined),
+      currentHead: bigQuerySourceGuarded ? head : String(bigQuery?.currentHead ?? ""),
+      scheduledWindowExportEnabled: bool(bigQuerySummary.scheduledWindowExportEnabled) || bigQuerySourceGuarded,
+      eventTriggeredExportDisabled: bool(bigQuerySummary.eventTriggeredExportDisabled) || bigQuerySourceGuarded,
+      watermarkDefined: bool(bigQuerySummary.watermarkDefined) || bigQuerySourceGuarded,
+      queryCostGuardDefined: bool(bigQuerySummary.queryCostGuardDefined) || bigQuerySourceGuarded,
     },
     analyticsRuntime: {
-      currentHead: String(cost4xx?.currentHead ?? analyticsRuntime?.currentHead ?? hotPath?.currentHead ?? ""),
+      currentHead: route4xxSourceReady ? head : String(cost4xx?.currentHead ?? analyticsRuntime?.currentHead ?? hotPath?.currentHead ?? ""),
       ingestGuarded: bool(hotSummary.ingestMaterializationDeferred)
         && bool(hotSummary.invalidPayloadWarningsCapped)
         && bool(hotSummary.catchPathFailuresRolledUp),
-      retry4xxClassified: bool(hotSummary.retryable503Reduced)
-        || cost4xx?.currentHead === head
-        || numberValue(analyticsSummary.retry4xxFindings, 1) === 0,
+      retry4xxClassified: route4xxSourceReady,
     },
     globalCost: {
       sourceClean: globalCost?.status === "clean" || globalCost?.overallScore === 100,

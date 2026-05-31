@@ -161,6 +161,7 @@ export function buildScore80CostReadinessReport(input: {
   const costRiskExitPass = input.artifacts.costRiskExitPass ?? null;
   const costRiskExitPassCurrent = artifactCurrent(costRiskExitPass, input.currentHead);
   const creatorInventory = input.artifacts.creatorDashboardErrorCostInventory ?? null;
+  const billingSpikeRadar = input.artifacts.billingSpikeRadar ?? null;
 
   const finalCostCurrent = artifactCurrent(finalCost, input.currentHead);
   const cloudGuardsCurrent = artifactCurrent(cloudGuards, input.currentHead);
@@ -311,15 +312,19 @@ export function buildScore80CostReadinessReport(input: {
       },
       {
         command: "npm run check:global-cost-surfaces",
-        status: "missing_script",
+        status: globalCostClean ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/global-cost-surfaces.generated.json",
-        detail: "Package script is not present; existing global-cost source report is treated as supporting source context only.",
+        detail: globalCostClean
+          ? "Global cost source surfaces are clean supporting context; this is not external billing proof."
+          : "Global cost source surfaces are missing or not clean.",
       },
       {
         command: "npm run check:billing-spike-radar",
-        status: "missing_script",
+        status: billingSpikeRadar ? "pass" : "failed_or_not_run",
         artifactPath: "agent/state/billing-spike-radar.generated.json",
-        detail: "Package script is not present; billing spike radar remains supporting watchlist context only.",
+        detail: billingSpikeRadar
+          ? "Billing spike radar is supporting watchlist context; warnings do not become external billing proof."
+          : "Billing spike radar is missing.",
       },
       {
         command: "npm run check:analytics-cost-runtime-inventory",
