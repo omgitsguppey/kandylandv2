@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-05-31T04:43:42.163Z",
-  "currentHead": "c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718",
+  "generatedAtUtc": "2026-05-31T22:48:24.210Z",
+  "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -396,16 +396,12 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "analytics_panel_hydration_artifact_expected"
     },
     {
       "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/event-liveness-audit.generated.json",
@@ -416,12 +412,12 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/global-user-dedupe-normalization.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
@@ -437,7 +433,7 @@
     },
     {
       "path": "docs/agent-truth/current-beta-exit-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/event-liveness-audit.md",
@@ -448,24 +444,28 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
       "path": "scripts/agent/validate-analytics-panel-hydration.ts",
       "classification": "analytics_panel_hydration_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-current-beta-exit-status.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "scripts/agent/validate-event-liveness-audit.ts",
@@ -476,32 +476,28 @@
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/analytics/event-translation-bridge.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
+      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
+      "path": "src/lib/release-readiness/live-evidence-gate-contract.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/analytics-panel-hydration.spec.ts",
-      "classification": "analytics_panel_hydration_artifact_expected"
+      "path": "src/lib/release-readiness/live-evidence-resolver.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/current-beta-exit-status.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "nextExactSteps": [

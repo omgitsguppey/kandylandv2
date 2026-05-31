@@ -23,6 +23,18 @@ export type LiveEvidenceStatus =
 
 export type LiveEvidenceConfidence = "exact" | "linked" | "inferred" | "weak" | "unknown";
 
+export type LiveRuntimeEvidenceStatus =
+  | "live_activity_confirmed"
+  | "source_ready_waiting_for_activity"
+  | "not_observed_but_expected"
+  | "future_only_quiet"
+  | "runtime_export_required"
+  | "manual_required"
+  | "provider_required"
+  | "admin_required"
+  | "billing_required"
+  | "source_missing";
+
 export type LiveEvidenceSystemId =
   | "auth_signup_login_session_restore"
   | "wallet_payment_gumdrop_ledger"
@@ -55,6 +67,13 @@ export type LiveEvidenceSystemDecision = {
   status: LiveEvidenceStatus;
   expectedLiveEvidenceSource: string;
   evidenceSources: LiveEvidenceSource[];
+  liveRuntimeEvidenceStatus: LiveRuntimeEvidenceStatus;
+  dailyActivityImport: {
+    expectedPath: string;
+    foundPaths: string[];
+    schema: string;
+    hasRecentActivity: boolean;
+  };
   freshnessWindowHours: number;
   minimumAcceptableSignal: string;
   privacyRedactionPolicy: string[];

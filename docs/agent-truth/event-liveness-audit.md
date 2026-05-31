@@ -1,8 +1,8 @@
 # Event Liveness Audit
 
-Generated: 2026-05-31T04:44:05.671Z
+Generated: 2026-05-31T22:48:08.657Z
 Status: pass
-Current head: c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718
+Current head: 49da560fffb17b22df49df8ac8256f28e4870178
 
 ## Summary
 
@@ -56,33 +56,32 @@ Current head: c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718
 
 ## Dirty Files
 
-- CHANGELOG.md: release_artifact_expected
 - agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
 - agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/global-user-dedupe-normalization.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/evidence-capture-status.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/live-evidence-gate-replacement.generated.json: current_generated_artifact_to_commit
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
 - docs/agent-truth/current-beta-exit-status.md: documentation_artifact_expected
 - docs/agent-truth/event-liveness-audit.md: release_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/global-user-dedupe-normalization.md: documentation_artifact_expected
-- docs/agent-truth/overnight-beta-readiness-lock.md: documentation_artifact_expected
+- docs/agent-truth/evidence-capture-status.md: documentation_artifact_expected
+- docs/agent-truth/live-evidence-gate-replacement.md: documentation_artifact_expected
 - docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
-- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/score-public-beta-readiness.ts: real_source_change_needs_review
 - scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- scripts/agent/validate-current-beta-exit-status.ts: validator_artifact_expected
 - scripts/agent/validate-event-liveness-audit.ts: current_generated_artifact_to_commit
 - scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
-- scripts/agent/validate-global-user-dedupe-normalization.ts: validator_artifact_expected
-- src/lib/admin-analytics/panel-hydration-contract.ts: real_source_change_needs_review
-- src/lib/admin-analytics/panel-hydration-resolver.ts: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
-- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
-- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
+- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
+- src/lib/release-readiness/live-evidence-gate-contract.ts: real_source_change_needs_review
+- src/lib/release-readiness/live-evidence-resolver.ts: real_source_change_needs_review
+- tests/unit/current-beta-exit-status.spec.ts: test_artifact_expected
+- tests/unit/live-evidence-gate-replacement.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

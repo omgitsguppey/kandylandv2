@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import type { ReleaseReadinessContext } from "./final-release-readiness";
@@ -9,6 +9,7 @@ import {
   type LiveEvidenceGateReplacementReport,
   type LiveEvidenceSource,
   type LiveEvidenceStatus,
+  type LiveRuntimeEvidenceStatus,
   type LiveEvidenceSystemDecision,
   type LiveEvidenceSystemId,
   type ManualGateReduction,
@@ -20,6 +21,7 @@ type EvidenceSystemSeed = {
   systemId: LiveEvidenceSystemId;
   label: string;
   gateClass: LiveEvidenceGateClass;
+  liveActivityEvents: string[];
   expectedLiveEvidenceSource: string;
   artifacts: Array<Pick<LiveEvidenceSource, "artifactPath" | "sourceKind">>;
   freshnessWindowHours: number;
@@ -33,6 +35,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "auth_signup_login_session_restore",
     label: "Auth/signup/login/session restore",
     gateClass: "live_behavioral_evidence",
+    liveActivityEvents: ["auth_session_established", "auth_session_restored", "auth_sign_in_success", "auth_sign_up_success"],
     expectedLiveEvidenceSource: "recent auth event facts or redacted session restore summary",
     artifacts: [
       { artifactPath: "agent/state/event-liveness-audit.generated.json", sourceKind: "event_fact" },
@@ -47,6 +50,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "wallet_payment_gumdrop_ledger",
     label: "Wallet/payment/GumDrop ledger",
     gateClass: "live_ledger_evidence",
+    liveActivityEvents: ["wallet_opened", "purchase_package_selected", "begin_checkout", "server_purchase_verified", "gumdrops_purchase_completed"],
     expectedLiveEvidenceSource: "redacted wallet ledger summary plus provider evidence for payment proof",
     artifacts: [
       { artifactPath: "agent/state/real-usage-confidence.generated.json", sourceKind: "ledger_summary" },
@@ -61,6 +65,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "drops_open_unlock_unwrap_watch",
     label: "Drops/open/unlock/unwrap/watch",
     gateClass: "live_behavioral_evidence",
+    liveActivityEvents: ["drop_preview_opened", "drop_clicked", "drop_unwrapped", "watch_session_started", "watch_session_completed"],
     expectedLiveEvidenceSource: "drop event facts, watch summaries, and journey summaries",
     artifacts: [
       { artifactPath: "agent/state/person-metrics-hydration.generated.json", sourceKind: "event_fact" },
@@ -76,6 +81,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "creator_profile_discovery_follow",
     label: "Creator profile/discovery/follow",
     gateClass: "live_behavioral_evidence",
+    liveActivityEvents: ["creator_profile_viewed", "creator_followed", "creator_card_clicked"],
     expectedLiveEvidenceSource: "creator profile/follow/discovery event facts",
     artifacts: [
       { artifactPath: "agent/state/person-metrics-hydration.generated.json", sourceKind: "event_fact" },
@@ -90,6 +96,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "creator_monetization_fan_pass_entitlements",
     label: "Creator monetization/Fan Pass/entitlements",
     gateClass: "live_ledger_evidence",
+    liveActivityEvents: ["creator_fan_pass_viewed", "creator_fan_pass_started", "creator_entitlement_checked"],
     expectedLiveEvidenceSource: "redacted entitlement/revenue ledger summary",
     artifacts: [
       { artifactPath: "agent/state/real-usage-confidence.generated.json", sourceKind: "ledger_summary" },
@@ -104,6 +111,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "chat_open_thread_message_block_error",
     label: "Chat open/thread/message/block/error",
     gateClass: "live_behavioral_evidence",
+    liveActivityEvents: ["chat_surface_viewed", "chat_thread_opened", "chat_message_send_attempted", "chat_message_sent", "chat_message_blocked"],
     expectedLiveEvidenceSource: "chat event facts and redacted error summaries",
     artifacts: [
       { artifactPath: "agent/state/person-metrics-hydration.generated.json", sourceKind: "event_fact" },
@@ -118,6 +126,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "daily_tasks_reward_reset",
     label: "Daily tasks/reward/reset",
     gateClass: "live_ledger_evidence",
+    liveActivityEvents: ["daily_task_surface_viewed", "daily_task_started", "daily_task_completed", "daily_task_reward_granted"],
     expectedLiveEvidenceSource: "daily task event facts and reward ledger summary",
     artifacts: [
       { artifactPath: "agent/state/person-metrics-hydration.generated.json", sourceKind: "event_fact" },
@@ -132,6 +141,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "notifications_pwa_permission_token_intent",
     label: "Notifications/PWA permission/token/intent",
     gateClass: "live_behavioral_evidence",
+    liveActivityEvents: ["notification_prompt_banner_viewed", "notification_permission_prompted", "notification_opened"],
     expectedLiveEvidenceSource: "notification prompt/token/intent summaries with raw tokens redacted",
     artifacts: [
       { artifactPath: "agent/state/event-liveness-audit.generated.json", sourceKind: "event_fact" },
@@ -146,6 +156,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "account_settings_delete_export_support",
     label: "Account settings/delete/export/support",
     gateClass: "live_behavioral_evidence",
+    liveActivityEvents: ["user_settings_viewed", "setting_toggle_changed", "support_ticket_created", "data_export_requested", "account_delete_clicked"],
     expectedLiveEvidenceSource: "account/support action summaries with PII redacted",
     artifacts: [
       { artifactPath: "agent/state/person-metrics-hydration.generated.json", sourceKind: "event_fact" },
@@ -160,6 +171,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "media_upload_access",
     label: "Media upload/access",
     gateClass: "live_runtime_evidence",
+    liveActivityEvents: ["media_upload_started", "media_upload_completed", "media_access_blocked"],
     expectedLiveEvidenceSource: "media upload/access block summaries without private URLs",
     artifacts: [
       { artifactPath: "agent/state/debug-runtime-evidence.generated.json", sourceKind: "error_rate_summary" },
@@ -174,6 +186,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "search_discovery",
     label: "Search/discovery",
     gateClass: "live_behavioral_evidence",
+    liveActivityEvents: ["search_performed", "search_result_clicked", "discovery_surface_viewed"],
     expectedLiveEvidenceSource: "search/discovery event facts",
     artifacts: [
       { artifactPath: "agent/state/person-metrics-hydration.generated.json", sourceKind: "event_fact" },
@@ -188,6 +201,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "admin_debug_user_management",
     label: "Admin/debug/user management",
     gateClass: "live_admin_truth_evidence",
+    liveActivityEvents: ["admin_debug_viewed", "admin_user_summary_viewed"],
     expectedLiveEvidenceSource: "redacted admin truth summary or admin debug snapshot",
     artifacts: [
       { artifactPath: "agent/state/admin-truth-redaction-packet.generated.json", sourceKind: "admin_debug_summary" },
@@ -202,6 +216,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "route_runtime_error_health",
     label: "Route runtime/error health",
     gateClass: "live_route_health_evidence",
+    liveActivityEvents: ["route_runtime_sampled", "route_runtime_error_rate_sampled"],
     expectedLiveEvidenceSource: "deployed route health or runtime summary",
     artifacts: [
       { artifactPath: "agent/state/runtime-smoke-harness.generated.json", sourceKind: "route_health_summary" },
@@ -216,6 +231,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "cost_runtime_4xx_summaries",
     label: "Cost/runtime/4xx summaries",
     gateClass: "live_error_rate_evidence",
+    liveActivityEvents: ["route_4xx_rollup_sampled", "cost_runtime_rollup_sampled"],
     expectedLiveEvidenceSource: "cost and route 4xx rollup with external billing review separate",
     artifacts: [
       { artifactPath: "agent/state/cost-risk-exit-pass.generated.json", sourceKind: "error_rate_summary" },
@@ -228,6 +244,35 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
   },
 ];
 
+const DAILY_ACTIVITY_EXPECTED_PATH = "agent/evidence/live-runtime-activity/recent-activity.export.json";
+const DAILY_ACTIVITY_SCHEMA = [
+  "reportKey=live-runtime-activity-export",
+  "generatedAtUtc=<ISO timestamp>",
+  "sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>",
+  "privacy.piiRedacted=true",
+  "privacy.aggregateOnly=true",
+  "privacy.rawProviderIdsExcluded=true",
+  "privacy.rawPaymentDataExcluded=true",
+  "activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+].join("; ");
+
+type LiveRuntimeActivityRecord = {
+  eventName: string;
+  count: number;
+  lastSeenAtUtc?: string | null;
+  source: string;
+  identityScope: string;
+  identityConfidence: LiveEvidenceSystemDecision["confidence"] | "anonymous_aggregate";
+  countsGlobal: boolean;
+  countsForExactUser: boolean;
+};
+
+type LiveRuntimeActivityExport = {
+  artifactPath: string;
+  generatedAtUtc: string | null;
+  activity: LiveRuntimeActivityRecord[];
+};
+
 function readJson(root: string, artifactPath: string): ArtifactRecord | null {
   const fullPath = join(root, artifactPath);
   if (!existsSync(fullPath)) return null;
@@ -238,12 +283,166 @@ function readJson(root: string, artifactPath: string): ArtifactRecord | null {
   }
 }
 
-function stringValue(value: unknown): string | null {
-  return typeof value === "string" ? value : null;
+function stringValue(value: unknown, fallback: string | null = null): string | null {
+  return typeof value === "string" && value.length > 0 ? value : fallback;
 }
 
 function numberValue(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function booleanValue(value: unknown) {
+  return typeof value === "boolean" ? value : false;
+}
+
+function recordValue(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function arrayValue(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function parseUtc(value: unknown) {
+  if (typeof value !== "string") return null;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function withinHours(value: unknown, nowUtc: string, hours: number) {
+  const timestamp = parseUtc(value);
+  const now = parseUtc(nowUtc);
+  if (timestamp === null || now === null) return false;
+  return now - timestamp >= 0 && now - timestamp <= hours * 36e5;
+}
+
+function listDailyActivityArtifactPaths(root: string) {
+  const folder = join(root, "agent/evidence/live-runtime-activity");
+  const paths = new Set<string>();
+  if (existsSync(join(root, DAILY_ACTIVITY_EXPECTED_PATH))) paths.add(DAILY_ACTIVITY_EXPECTED_PATH);
+  if (!existsSync(folder)) return [...paths];
+  for (const entry of readdirSync(folder)) {
+    if (entry.endsWith(".json")) paths.add(`agent/evidence/live-runtime-activity/${entry}`);
+  }
+  return [...paths].sort();
+}
+
+function hasSafePrivacyEnvelope(artifact: ArtifactRecord) {
+  const privacy = recordValue(artifact.privacy);
+  return booleanValue(privacy.piiRedacted)
+    && booleanValue(privacy.aggregateOnly)
+    && booleanValue(privacy.rawProviderIdsExcluded)
+    && booleanValue(privacy.rawPaymentDataExcluded);
+}
+
+function normalizeActivityRecord(value: unknown): LiveRuntimeActivityRecord | null {
+  const record = recordValue(value);
+  const eventName = stringValue(record.eventName);
+  const count = numberValue(record.count);
+  const source = stringValue(record.source);
+  const identityScope = stringValue(record.identityScope, "unknown") ?? "unknown";
+  const identityConfidence = stringValue(record.identityConfidence, "unknown") as LiveRuntimeActivityRecord["identityConfidence"];
+  if (!eventName || count <= 0 || !source) return null;
+  return {
+    eventName,
+    count,
+    lastSeenAtUtc: stringValue(record.lastSeenAtUtc),
+    source,
+    identityScope,
+    identityConfidence,
+    countsGlobal: booleanValue(record.countsGlobal),
+    countsForExactUser: booleanValue(record.countsForExactUser),
+  };
+}
+
+function readDailyActivityExports(root: string): LiveRuntimeActivityExport[] {
+  return listDailyActivityArtifactPaths(root)
+    .map((artifactPath) => {
+      const artifact = readJson(root, artifactPath);
+      if (!artifact || artifact.reportKey !== "live-runtime-activity-export" || !hasSafePrivacyEnvelope(artifact)) return null;
+      const activity = arrayValue(artifact.activity)
+        .map(normalizeActivityRecord)
+        .filter((record): record is LiveRuntimeActivityRecord => Boolean(record));
+      return {
+        artifactPath,
+        generatedAtUtc: stringValue(artifact.generatedAtUtc),
+        activity,
+      };
+    })
+    .filter((artifact): artifact is LiveRuntimeActivityExport => Boolean(artifact));
+}
+
+function eventLivenessClassifications(root: string) {
+  const artifact = readJson(root, "agent/state/event-liveness-audit.generated.json");
+  return arrayValue(artifact?.classifications).map(recordValue);
+}
+
+function matchingActivity(input: {
+  root: string;
+  seed: EvidenceSystemSeed;
+  generatedAtUtc: string;
+}) {
+  const events = new Set(input.seed.liveActivityEvents);
+  const exports = readDailyActivityExports(input.root);
+  const matches = exports.flatMap((artifact) =>
+    artifact.activity
+      .filter((activity) =>
+        events.has(activity.eventName)
+        && withinHours(activity.lastSeenAtUtc ?? artifact.generatedAtUtc, input.generatedAtUtc, input.seed.freshnessWindowHours)
+        && activity.countsGlobal,
+      )
+      .map((activity) => ({ artifact, activity })),
+  );
+  return { exports, matches };
+}
+
+function livenessStatusesForSeed(root: string, seed: EvidenceSystemSeed) {
+  const events = new Set(seed.liveActivityEvents);
+  return eventLivenessClassifications(root)
+    .filter((classification) => events.has(stringValue(classification.eventName, "") ?? ""))
+    .map((classification) => stringValue(classification.livenessStatus, "") ?? "");
+}
+
+function statusFromLiveRuntimeEvidence(input: {
+  root: string;
+  seed: EvidenceSystemSeed;
+  generatedAtUtc: string;
+}): LiveRuntimeEvidenceStatus {
+  if (input.seed.gateClass === "external_provider_evidence") return "provider_required";
+  if (input.seed.gateClass === "external_billing_evidence") return "billing_required";
+  if (input.seed.gateClass === "visual_operator_evidence") return "manual_required";
+  if (input.seed.gateClass === "live_admin_truth_evidence") return "admin_required";
+  if (input.seed.systemId === "wallet_payment_gumdrop_ledger" || input.seed.systemId === "creator_monetization_fan_pass_entitlements") {
+    return "provider_required";
+  }
+  if (input.seed.systemId === "cost_runtime_4xx_summaries") return "billing_required";
+  if (input.seed.gateClass === "live_route_health_evidence" || input.seed.gateClass === "live_runtime_evidence") {
+    return matchingActivity(input).matches.length > 0 ? "live_activity_confirmed" : "runtime_export_required";
+  }
+
+  if (matchingActivity(input).matches.length > 0) return "live_activity_confirmed";
+
+  const statuses = livenessStatusesForSeed(input.root, input.seed);
+  if (statuses.includes("observed_recently")) return "live_activity_confirmed";
+  if (statuses.includes("not_observed_but_expected") || statuses.includes("observed_stale")) return "not_observed_but_expected";
+  if (statuses.includes("source_ready_waiting_for_activity")) return "source_ready_waiting_for_activity";
+  if (statuses.length > 0 && statuses.every((status) => status === "future_only_quiet" || status === "not_observed_and_not_expected")) {
+    return "future_only_quiet";
+  }
+  if (statuses.includes("source_missing")) return "source_missing";
+  return "runtime_export_required";
+}
+
+function liveStatusFromRuntimeStatus(status: LiveRuntimeEvidenceStatus, sources: LiveEvidenceSource[], gateClass: LiveEvidenceGateClass): LiveEvidenceStatus {
+  if (status === "live_activity_confirmed") return "live_evidence_replaced";
+  if (status === "source_ready_waiting_for_activity" || status === "future_only_quiet") return "source_only_evidence";
+  if (status === "provider_required") return "external_provider_required";
+  if (status === "billing_required") return "external_billing_required";
+  if (status === "manual_required") return "visual_only_manual";
+  if (status === "admin_required") return "source_only_evidence";
+  if (sources.some((source) => source.sourceStatus === "operator_confirmed")) return "current_warning";
+  if (gateClass === "live_route_health_evidence" && sources.some((source) => source.sourceStatus === "source_only")) return "source_only_evidence";
+  return "source_missing_live_evidence";
 }
 
 function statusFromArtifact(root: string, artifactPath: string): LiveEvidenceSource["sourceStatus"] {
@@ -284,6 +483,25 @@ function buildEvidenceSources(root: string, seed: EvidenceSystemSeed): LiveEvide
   });
 }
 
+function buildDailyActivityEvidenceSources(input: {
+  root: string;
+  seed: EvidenceSystemSeed;
+  generatedAtUtc: string;
+  status: LiveRuntimeEvidenceStatus;
+}): LiveEvidenceSource[] {
+  const { exports, matches } = matchingActivity(input);
+  return exports.map((artifact) => ({
+    artifactPath: artifact.artifactPath,
+    sourceKind: "event_fact" as const,
+    clearsLiveGate: input.status === "live_activity_confirmed" && matches.some((match) => match.artifact.artifactPath === artifact.artifactPath),
+    sourceStatus: input.status === "live_activity_confirmed" && matches.some((match) => match.artifact.artifactPath === artifact.artifactPath)
+      ? "present"
+      : "source_only",
+    currentHead: null,
+    generatedAtUtc: artifact.generatedAtUtc,
+  }));
+}
+
 function statusForSources(sources: LiveEvidenceSource[], gateClass: LiveEvidenceGateClass): LiveEvidenceStatus {
   if (gateClass === "external_provider_evidence") return "external_provider_required";
   if (gateClass === "external_billing_evidence") return "external_billing_required";
@@ -311,12 +529,36 @@ function confidenceForStatus(status: LiveEvidenceStatus): LiveEvidenceSystemDeci
   }
 }
 
+function confidenceForRuntimeStatus(input: {
+  status: LiveRuntimeEvidenceStatus;
+  root: string;
+  seed: EvidenceSystemSeed;
+  generatedAtUtc: string;
+}): LiveEvidenceSystemDecision["confidence"] {
+  if (input.status !== "live_activity_confirmed") return confidenceForStatus(liveStatusFromRuntimeStatus(input.status, [], input.seed.gateClass));
+  const { matches } = matchingActivity(input);
+  if (matches.some((match) => match.activity.identityConfidence === "linked")) return "linked";
+  if (matches.some((match) => match.activity.identityConfidence === "inferred" || match.activity.identityConfidence === "exact")) return "inferred";
+  return "weak";
+}
+
 function betaExitImpact(status: LiveEvidenceStatus, gateClass: LiveEvidenceGateClass): LiveEvidenceSystemDecision["betaExitImpact"] {
   if (status === "live_evidence_replaced") return "can_clear_live_gate";
   if (gateClass === "visual_operator_evidence") return "operator_visual_only";
   if (gateClass === "external_provider_evidence" || gateClass === "external_billing_evidence") return "external_required";
   if (status === "source_only_evidence" || status === "current_warning") return "source_confidence_only";
   return "blocks_until_live_source_connected";
+}
+
+function betaExitImpactForRuntimeStatus(status: LiveRuntimeEvidenceStatus, liveStatus: LiveEvidenceStatus, gateClass: LiveEvidenceGateClass): LiveEvidenceSystemDecision["betaExitImpact"] {
+  if (status === "live_activity_confirmed") return "can_clear_live_gate";
+  if (status === "provider_required" || status === "billing_required") return "external_required";
+  if (status === "manual_required") return "operator_visual_only";
+  if (status === "source_ready_waiting_for_activity" || status === "future_only_quiet") return "source_confidence_only";
+  if (status === "admin_required" || status === "runtime_export_required" || status === "not_observed_but_expected" || status === "source_missing") {
+    return "blocks_until_live_source_connected";
+  }
+  return betaExitImpact(liveStatus, gateClass);
 }
 
 export function findRecentActivityEvidence(input: { root: string; systemId?: LiveEvidenceSystemId }) {
@@ -375,8 +617,14 @@ export function classifyEvidenceFreshness(input: { generatedAtUtc?: string | nul
 export function resolveLiveEvidenceForGate(input: { root: string; currentHead: string; generatedAtUtc: string; systemId: LiveEvidenceSystemId }): LiveEvidenceSystemDecision {
   const seed = SYSTEM_SEEDS.find((entry) => entry.systemId === input.systemId);
   if (!seed) throw new Error(`Unknown live evidence system: ${input.systemId}`);
-  const evidenceSources = buildEvidenceSources(input.root, seed);
-  const status = statusForSources(evidenceSources, seed.gateClass);
+  const liveRuntimeEvidenceStatus = statusFromLiveRuntimeEvidence({ root: input.root, seed, generatedAtUtc: input.generatedAtUtc });
+  const evidenceSources = [
+    ...buildEvidenceSources(input.root, seed),
+    ...buildDailyActivityEvidenceSources({ root: input.root, seed, generatedAtUtc: input.generatedAtUtc, status: liveRuntimeEvidenceStatus }),
+  ];
+  const status = liveStatusFromRuntimeStatus(liveRuntimeEvidenceStatus, evidenceSources, seed.gateClass) ?? statusForSources(evidenceSources, seed.gateClass);
+  const dailyActivityPaths = listDailyActivityArtifactPaths(input.root);
+  const hasRecentActivity = liveRuntimeEvidenceStatus === "live_activity_confirmed";
   return {
     systemId: seed.systemId,
     label: seed.label,
@@ -384,12 +632,19 @@ export function resolveLiveEvidenceForGate(input: { root: string; currentHead: s
     status,
     expectedLiveEvidenceSource: seed.expectedLiveEvidenceSource,
     evidenceSources,
+    liveRuntimeEvidenceStatus,
+    dailyActivityImport: {
+      expectedPath: DAILY_ACTIVITY_EXPECTED_PATH,
+      foundPaths: dailyActivityPaths,
+      schema: DAILY_ACTIVITY_SCHEMA,
+      hasRecentActivity,
+    },
     freshnessWindowHours: seed.freshnessWindowHours,
     minimumAcceptableSignal: seed.minimumAcceptableSignal,
     privacyRedactionPolicy: LIVE_EVIDENCE_PRIVACY_REDACTION_POLICY,
-    confidence: confidenceForStatus(status),
+    confidence: confidenceForRuntimeStatus({ status: liveRuntimeEvidenceStatus, root: input.root, seed, generatedAtUtc: input.generatedAtUtc }),
     scoreImpact: seed.scoreImpact,
-    betaExitImpact: betaExitImpact(status, seed.gateClass),
+    betaExitImpact: betaExitImpactForRuntimeStatus(liveRuntimeEvidenceStatus, status, seed.gateClass),
     fallbackIfMissing: seed.sourceOnlyFallback,
     reason: reasonForDecision(seed, status),
     nextExactAction: nextActionForDecision(seed, status),
@@ -487,9 +742,19 @@ export function buildLiveEvidenceGateReplacementReport(context: ReleaseReadiness
     }),
   );
   const reductions = BROAD_MANUAL_GATES_BEFORE.map((gate) => classifyManualGateReducibility({ gate, liveEvidenceBySystem }));
-  const sourceMissingLiveEvidence = liveEvidenceBySystem.filter((system) => system.status === "source_missing_live_evidence");
+  const sourceMissingLiveEvidence = liveEvidenceBySystem.filter((system) =>
+    system.status === "source_missing_live_evidence"
+    || system.liveRuntimeEvidenceStatus === "not_observed_but_expected"
+    || system.liveRuntimeEvidenceStatus === "runtime_export_required"
+    || system.liveRuntimeEvidenceStatus === "admin_required"
+    || system.liveRuntimeEvidenceStatus === "source_missing");
   const remainingBlockers = [
-    ...sourceMissingLiveEvidence.map((system) => `${system.label}: source_missing_live_evidence`),
+    ...liveEvidenceBySystem
+      .filter((system) =>
+        system.betaExitImpact === "blocks_until_live_source_connected"
+        || system.betaExitImpact === "external_required"
+        || system.betaExitImpact === "operator_visual_only")
+      .map((system) => `${system.label}: ${system.liveRuntimeEvidenceStatus}`),
     "external provider proof",
     "external billing review",
     "visual-only operator QA",
@@ -535,6 +800,18 @@ export function validateLiveEvidenceGateReplacementReport(report: LiveEvidenceGa
     failures.push("source-only evidence clears live/formal gate.");
   }
   if (report.liveEvidenceBySystem.some((system) => !system.freshnessWindowHours)) failures.push("live evidence source lacks freshness window.");
+  if (report.liveEvidenceBySystem.some((system) => !system.liveRuntimeEvidenceStatus)) failures.push("live runtime evidence status missing.");
+  if (report.liveEvidenceBySystem.some((system) => !system.dailyActivityImport?.expectedPath || !system.dailyActivityImport?.schema)) {
+    failures.push("daily activity import path/schema missing.");
+  }
+  if (report.liveEvidenceBySystem.some((system) => system.liveRuntimeEvidenceStatus === "live_activity_confirmed" && system.confidence === "exact")) {
+    failures.push("anonymous or aggregate live activity must not become exact user proof.");
+  }
+  if (report.liveEvidenceBySystem.some((system) =>
+    ["provider_required", "admin_required", "billing_required", "manual_required"].includes(system.liveRuntimeEvidenceStatus)
+    && system.betaExitImpact === "can_clear_live_gate")) {
+    failures.push("provider/admin/billing/manual lanes cannot be cleared by generic live activity.");
+  }
   if (report.liveEvidenceBySystem.some((system) => system.privacyRedactionPolicy.length === 0)) failures.push("live evidence source lacks privacy redaction.");
   if (report.liveEvidenceBySystem.some((system) => system.status === "source_missing_live_evidence" && !system.reason)) {
     failures.push("real user activity lane is quiet but no liveness/source_missing classification exists.");

@@ -656,6 +656,14 @@ export function classifyEventTranslationDirtyFile(path: string): DirtyFileClassi
   if (normalized === "scripts/agent/validate-debug-tracking-simplification.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-public-beta-score.ts") return "validator_artifact_expected";
+  if (/^src\/lib\/release-readiness\/(live-evidence-gate-contract|live-evidence-resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "tests/unit/live-evidence-gate-replacement.spec.ts") return "test_artifact_expected";
+  if (normalized === "scripts/agent/validate-current-beta-exit-status.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/current-beta-exit-status.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/current-beta-exit-status.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/current-beta-exit-status.md") return "documentation_artifact_expected";
+  if (normalized === "agent/state/live-evidence-gate-replacement.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/live-evidence-gate-replacement.md") return "documentation_artifact_expected";
   if (normalized === "tests/unit/event-translation-bridge.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/final-product-integrity-lock.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/body-system-wiring-repair.spec.ts") return "test_artifact_expected";

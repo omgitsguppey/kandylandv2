@@ -58,6 +58,7 @@ export type CurrentBetaExitStatusReport = {
     route4xxReadiness: string;
     errorHandlingSourceStatus?: string;
     analyticsSemanticsSourceStatus?: string;
+    liveRuntimeEvidenceStatus?: string;
     speedSecurityStatus: string;
     releaseNotesStatus: string;
     canStartManualScreenshotQa: boolean;
@@ -233,6 +234,19 @@ export function validateCurrentBetaExitStatusReport(
     || !report.summary.analyticsSemanticsSourceStatus.includes("runtime_proof_required")
   ) {
     failures.push("analytics semantics source readiness and runtime proof requirement must be represented.");
+  }
+  if (
+    !report.summary.liveRuntimeEvidenceStatus
+    || !report.summary.liveRuntimeEvidenceStatus.includes("live_runtime_evidence_bridge=")
+    || !report.summary.liveRuntimeEvidenceStatus.includes("agent/evidence/live-runtime-activity/recent-activity.export.json")
+  ) {
+    failures.push("live runtime evidence bridge status must be represented with the daily activity import path.");
+  }
+  if (
+    report.summary.canStartBetaExitReview
+    && /\b(provider_required|admin_required|billing_required|manual_required|runtime_export_required|not_observed_but_expected)\b/u.test(report.summary.liveRuntimeEvidenceStatus ?? "")
+  ) {
+    failures.push("current beta exit cannot start while live runtime evidence bridge has formal or unobserved blockers.");
   }
   const costLaneValues = [
     report.summary.cloudRunCostReadiness,

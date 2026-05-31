@@ -122,6 +122,14 @@ function classifyDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-debug-signal-actionability.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-debug-signal-grouping.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-non-event-score-policy.ts") return "real_source_change_needs_review";
+  if (/^src\/lib\/release-readiness\/(live-evidence-gate-contract|live-evidence-resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
+  if (normalized === "tests/unit/live-evidence-gate-replacement.spec.ts") return "test_artifact_expected";
+  if (normalized === "scripts/agent/validate-current-beta-exit-status.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/current-beta-exit-status.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/live-evidence-gate-replacement.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/live-evidence-gate-replacement.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/evidence-capture-status.md") return "documentation_artifact_expected";
   if (/^docs\/agent-truth\/(debug-signal-grouping|debug-tracking-simplification|event-translation-bridge|person-metrics-hydration)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (/^docs\/agent-truth\/(debug-runtime-evidence|event-envelope-normalization)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (/^docs\/agent-truth\/(current-beta-exit-status|overnight-beta-readiness-lock|telemetry-admin-debug-truth|debug-cockpit-batch18-route-hotspots)\.md$/u.test(normalized)) return "documentation_artifact_expected";

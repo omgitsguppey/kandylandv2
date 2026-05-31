@@ -64,6 +64,17 @@ function findActiveOldLogic() {
     if (path === "tests/unit/event-liveness-audit.spec.ts") return false;
     if (path === "agent/state/analytics-panel-hydration.generated.json") return false;
     if (path === "docs/agent-truth/analytics-panel-hydration.md") return false;
+    if (path === "agent/state/live-evidence-gate-replacement.generated.json") return false;
+    if (path === "agent/state/current-beta-exit-status.generated.json") return false;
+    if (path === "agent/state/public-beta-score.generated.json") return false;
+    if (path === "docs/agent-truth/live-evidence-gate-replacement.md") return false;
+    if (path === "docs/agent-truth/current-beta-exit-status.md") return false;
+    if (path === "scripts/agent/score-public-beta-readiness.ts") return false;
+    if (path === "scripts/agent/validate-current-beta-exit-status.ts") return false;
+    if (path === "src/lib/release-readiness/live-evidence-gate-contract.ts") return false;
+    if (path === "src/lib/release-readiness/live-evidence-resolver.ts") return false;
+    if (path === "tests/unit/live-evidence-gate-replacement.spec.ts") return false;
+    if (path === "tests/unit/current-beta-exit-status.spec.ts") return false;
     if (path === "src/lib/admin-analytics/panel-hydration-contract.ts") return false;
     if (path === "src/lib/admin-analytics/panel-hydration-resolver.ts") return false;
     if (path === "tests/unit/analytics-panel-hydration.spec.ts") return false;

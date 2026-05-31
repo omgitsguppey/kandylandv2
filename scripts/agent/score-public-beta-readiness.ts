@@ -48,6 +48,7 @@ const OPERATOR_REVENUE_SMOKE_PATH = "agent/state/operator-revenue-smoke.generate
 const RUNTIME_SMOKE_EVIDENCE_PATH = "agent/state/runtime-smoke-evidence.generated.json";
 const SOURCE_BACKED_RUNTIME_CONFIDENCE_PATH = "agent/state/source-backed-runtime-confidence.generated.json";
 const RUNTIME_SMOKE_SUBSTITUTE_MATRIX_PATH = "agent/state/runtime-smoke-substitute-matrix.generated.json";
+const LIVE_EVIDENCE_GATE_REPLACEMENT_PATH = "agent/state/live-evidence-gate-replacement.generated.json";
 const REAL_USAGE_CONFIDENCE_PATH = "agent/state/real-usage-confidence.generated.json";
 const REAL_USAGE_CONFIDENCE_CALIBRATION_PATH = "agent/state/real-usage-confidence-calibration.generated.json";
 const BEHAVIOR_MATH_VERIFICATION_PATH = "agent/state/behavior-math-verification.generated.json";
@@ -506,12 +507,66 @@ function readRegressionRiskRefreshEvidence(root: string) {
 }
 
 function readSourceBackedRuntimeConfidenceEvidence(root: string): PublicBetaEvidenceArtifact {
-  return readEvidenceArtifact(
+  const sourceBacked = readEvidenceArtifact(
     root,
     SOURCE_BACKED_RUNTIME_CONFIDENCE_PATH,
     "missing_or_unknown",
     "No source-backed runtime confidence artifact was supplied.",
   );
+  const sourceBackedStatus = String(sourceBacked.status);
+  if (sourceBackedStatus.includes("source_ready")) return sourceBacked;
+  return readLiveRuntimeEvidenceBridgeEvidence(root) ?? sourceBacked;
+}
+
+function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidenceArtifact | null {
+  const parsed = readJsonFile(root, LIVE_EVIDENCE_GATE_REPLACEMENT_PATH);
+  if (!parsed) return null;
+
+  const systems = Array.isArray(parsed.liveEvidenceBySystem) ? parsed.liveEvidenceBySystem.map(readRecord) : [];
+  const statuses = systems.map((system) => readString(system.liveRuntimeEvidenceStatus) ?? "source_missing");
+  const liveActivityConfirmed = statuses.filter((status) => status === "live_activity_confirmed").length;
+  const sourceReadyWaiting = statuses.filter((status) => status === "source_ready_waiting_for_activity" || status === "future_only_quiet").length;
+  const notObservedButExpected = statuses.filter((status) => status === "not_observed_but_expected").length;
+  const runtimeExportRequired = statuses.filter((status) => status === "runtime_export_required").length;
+  const providerRequired = statuses.filter((status) => status === "provider_required").length;
+  const adminRequired = statuses.filter((status) => status === "admin_required").length;
+  const billingRequired = statuses.filter((status) => status === "billing_required").length;
+  const sourceMissing = statuses.filter((status) => status === "source_missing").length;
+  const firstDailyImport = systems.map((system) => readRecord(system.dailyActivityImport)).find((daily) => readString(daily.expectedPath));
+  const foundPaths = Array.isArray(firstDailyImport?.foundPaths)
+    ? firstDailyImport.foundPaths.filter((value): value is string => typeof value === "string")
+    : [];
+  const status = liveActivityConfirmed > 0
+    ? "source_ready_live_activity_confirmed"
+    : sourceReadyWaiting > 0 || notObservedButExpected > 0
+      ? "source_ready_waiting_for_activity"
+      : "source_missing_live_runtime_evidence";
+
+  return {
+    path: LIVE_EVIDENCE_GATE_REPLACEMENT_PATH,
+    status,
+    passed: false,
+    detail: liveActivityConfirmed > 0
+      ? "Live runtime evidence bridge found privacy-safe bounded recent activity. Formal provider, admin, billing, deployed runtime, and visual proof remain separate."
+      : "Live runtime evidence bridge is wired, but no local daily activity export currently confirms recent user activity.",
+    evidence: [
+      `liveRuntimeEvidenceArtifactStatus=${status}`,
+      `liveRuntimeEvidence.liveActivityConfirmed=${liveActivityConfirmed}`,
+      `liveRuntimeEvidence.sourceReadyWaitingForActivity=${sourceReadyWaiting}`,
+      `liveRuntimeEvidence.notObservedButExpected=${notObservedButExpected}`,
+      `liveRuntimeEvidence.runtimeExportRequired=${runtimeExportRequired}`,
+      `liveRuntimeEvidence.providerRequired=${providerRequired}`,
+      `liveRuntimeEvidence.adminRequired=${adminRequired}`,
+      `liveRuntimeEvidence.billingRequired=${billingRequired}`,
+      `liveRuntimeEvidence.sourceMissing=${sourceMissing}`,
+      `dailyActivityImport.expectedPath=${readString(firstDailyImport?.expectedPath) ?? "agent/evidence/live-runtime-activity/recent-activity.export.json"}`,
+      `dailyActivityImport.foundPaths=${foundPaths.join(",") || "none"}`,
+      `dailyActivityImport.schema=${readString(firstDailyImport?.schema) ?? "live-runtime-activity-export"}`,
+      "launchGateImpact=does_not_clear_formal_provider_deployed_runtime_admin_billing_or_visual_proof",
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
 }
 
 function readRuntimeSmokeSubstituteMatrixEvidence(root: string): PublicBetaEvidenceArtifact {

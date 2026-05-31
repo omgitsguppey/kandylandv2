@@ -47,6 +47,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       route4xxReadiness: "source_inventory_complete",
       errorHandlingSourceStatus: "error_handling_source_complete",
       analyticsSemanticsSourceStatus: "analytics_semantics_source_ready_runtime_proof_required",
+      liveRuntimeEvidenceStatus: "live_runtime_evidence_bridge=source_ready_waiting_for_activity; not_observed_but_expected=6; provider_required=2; admin_required=1; billing_required=1; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json",
       speedSecurityStatus: "51/beta-risk; findings=91; critical=0",
       releaseNotesStatus: "passed_same_commit_validator",
       canStartManualScreenshotQa: true,
@@ -215,6 +216,19 @@ describe("current beta exit status validator", () => {
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
       "analytics semantics source readiness and runtime proof requirement must be represented.",
+    );
+  });
+
+  it("requires current beta exit status to represent the live runtime evidence bridge", () => {
+    const report = reportFixture({
+      summary: {
+        ...reportFixture().summary,
+        liveRuntimeEvidenceStatus: "",
+      },
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "live runtime evidence bridge status must be represented with the daily activity import path.",
     );
   });
 

@@ -20,6 +20,7 @@ Latest code version: 9f108d980471030fe6e4e319ceac44e291b3a08e
 - Gemini/Cloud Assist cost readiness: cost_review_required
 - Route 4xx readiness: source_inventory_complete
 - Error handling source readiness: error_handling_source_complete
+- Live runtime evidence bridge: live_runtime_evidence_bridge=source_ready_waiting_for_activity; live_activity_confirmed=0; source_ready_waiting_for_activity=1; not_observed_but_expected=6; runtime_export_required=3; provider_required=2; admin_required=1; billing_required=1; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json
 - Speed/security: 51/beta-risk; findings=86; critical=0; p2BacklogVisible=true
 - Release notes: same_commit_release_note_artifacts_required
 

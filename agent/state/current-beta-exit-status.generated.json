@@ -39,6 +39,7 @@
     "route4xxReadiness": "source_inventory_complete",
     "errorHandlingSourceStatus": "error_handling_source_complete",
     "analyticsSemanticsSourceStatus": "analytics_semantics_source_ready_runtime_proof_required; runtime watch-time accuracy still needs deployed media evidence",
+    "liveRuntimeEvidenceStatus": "live_runtime_evidence_bridge=source_ready_waiting_for_activity; live_activity_confirmed=0; source_ready_waiting_for_activity=1; not_observed_but_expected=6; runtime_export_required=3; provider_required=2; admin_required=1; billing_required=1; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json",
     "speedSecurityStatus": "51/beta-risk; findings=86; critical=0; p2BacklogVisible=true",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,

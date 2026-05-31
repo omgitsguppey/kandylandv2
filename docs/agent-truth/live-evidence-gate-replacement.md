@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-05-27T02:55:53.333Z`
-- Current head: `dd4b37320ddd4e920d6633c91d90b01243089231`
+- Generated: `2026-05-31T22:49:03.769Z`
+- Current head: `49da560fffb17b22df49df8ac8256f28e4870178`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-05-27T02:55:53.333Z",
-  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+  "generatedAtUtc": "2026-05-31T22:49:03.769Z",
+  "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
   "broadManualGatesBefore": [
     "operator-final visual QA",
     "manual production smoke",
@@ -104,18 +104,25 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "auth_session_established or auth_session_restored observed in bounded live window",
       "privacyRedactionPolicy": [
@@ -141,7 +148,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "systemId": "wallet_payment_gumdrop_ledger",
       "label": "Wallet/payment/GumDrop ledger",
       "gateClass": "live_ledger_evidence",
-      "status": "current_warning",
+      "status": "external_provider_required",
       "expectedLiveEvidenceSource": "redacted wallet ledger summary plus provider evidence for payment proof",
       "evidenceSources": [
         {
@@ -157,10 +164,17 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "provider_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "wallet/payment/ledger event facts with source buckets and no raw provider IDs",
       "privacyRedactionPolicy": [
@@ -171,15 +185,15 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "linked",
+      "confidence": "unknown",
       "scoreImpact": {
         "runtimeHealth": 1,
         "evidenceCompleteness": 2
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "external_required",
       "fallbackIfMissing": "keep provider proof external and classify ledger live source as source_missing or source_only",
-      "reason": "An operator-confirmed or bounded signal exists, but it is not formal provider/deployed-runtime proof.",
-      "nextExactAction": "Connect or attach redacted wallet ledger summary plus provider evidence for payment proof; keep source-only evidence labeled as source-only."
+      "reason": "Provider/payment UI or webhook proof must come from external provider evidence.",
+      "nextExactAction": "Attach redacted provider/payment proof without exposing raw provider IDs."
     },
     {
       "systemId": "drops_open_unlock_unwrap_watch",
@@ -193,8 +207,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -209,10 +223,17 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "drop_opened/drop_unlocked/drop_unwrapped/watch_session event facts in bounded live window",
       "privacyRedactionPolicy": [
@@ -246,18 +267,25 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "creator profile or follow event fact in bounded live window",
       "privacyRedactionPolicy": [
@@ -282,7 +310,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "systemId": "creator_monetization_fan_pass_entitlements",
       "label": "Creator monetization/Fan Pass/entitlements",
       "gateClass": "live_ledger_evidence",
-      "status": "current_warning",
+      "status": "external_provider_required",
       "expectedLiveEvidenceSource": "redacted entitlement/revenue ledger summary",
       "evidenceSources": [
         {
@@ -298,10 +326,17 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "provider_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "Fan Pass/entitlement access facts with confidence split and no provider IDs",
       "privacyRedactionPolicy": [
@@ -312,21 +347,21 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "linked",
+      "confidence": "unknown",
       "scoreImpact": {
         "runtimeHealth": 1,
         "evidenceCompleteness": 1
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "external_required",
       "fallbackIfMissing": "do not let screenshots prove entitlement or revenue math",
-      "reason": "An operator-confirmed or bounded signal exists, but it is not formal provider/deployed-runtime proof.",
-      "nextExactAction": "Connect or attach redacted entitlement/revenue ledger summary; keep source-only evidence labeled as source-only."
+      "reason": "Provider/payment UI or webhook proof must come from external provider evidence.",
+      "nextExactAction": "Attach redacted provider/payment proof without exposing raw provider IDs."
     },
     {
       "systemId": "chat_open_thread_message_block_error",
       "label": "Chat open/thread/message/block/error",
       "gateClass": "live_behavioral_evidence",
-      "status": "source_only_evidence",
+      "status": "source_missing_live_evidence",
       "expectedLiveEvidenceSource": "chat event facts and redacted error summaries",
       "evidenceSources": [
         {
@@ -334,8 +369,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
@@ -346,6 +381,13 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "generatedAtUtc": "2026-05-25T05:51:35.791Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "chat open/message/block/error summary without raw chat content",
       "privacyRedactionPolicy": [
@@ -356,20 +398,20 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "inferred",
+      "confidence": "unknown",
       "scoreImpact": {
         "evidenceCompleteness": 1
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "redacted chat live evidence source is required; screenshots prove layout only",
-      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
-      "nextExactAction": "Connect or attach chat event facts and redacted error summaries; keep source-only evidence labeled as source-only."
+      "reason": "No clearing live evidence source was found. redacted chat live evidence source is required; screenshots prove layout only.",
+      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not manual screenshot blockers."
     },
     {
       "systemId": "daily_tasks_reward_reset",
       "label": "Daily tasks/reward/reset",
       "gateClass": "live_ledger_evidence",
-      "status": "source_only_evidence",
+      "status": "source_missing_live_evidence",
       "expectedLiveEvidenceSource": "daily task event facts and reward ledger summary",
       "evidenceSources": [
         {
@@ -377,8 +419,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -389,6 +431,13 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "generatedAtUtc": "2026-05-27T00:55:34.822Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "task start/complete/reward event facts with reset window",
       "privacyRedactionPolicy": [
@@ -399,20 +448,20 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "inferred",
+      "confidence": "unknown",
       "scoreImpact": {
         "evidenceCompleteness": 1
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "task reward proof stays in event/ledger summaries, not screenshots",
-      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
-      "nextExactAction": "Connect or attach daily task event facts and reward ledger summary; keep source-only evidence labeled as source-only."
+      "reason": "No clearing live evidence source was found. task reward proof stays in event/ledger summaries, not screenshots.",
+      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not manual screenshot blockers."
     },
     {
       "systemId": "notifications_pwa_permission_token_intent",
       "label": "Notifications/PWA permission/token/intent",
       "gateClass": "live_behavioral_evidence",
-      "status": "source_missing_live_evidence",
+      "status": "source_only_evidence",
       "expectedLiveEvidenceSource": "notification prompt/token/intent summaries with raw tokens redacted",
       "evidenceSources": [
         {
@@ -420,18 +469,25 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "source_ready_waiting_for_activity",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "permission/token/intent summary without raw FCM/push token",
       "privacyRedactionPolicy": [
@@ -442,20 +498,20 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "unknown",
+      "confidence": "inferred",
       "scoreImpact": {
         "freshness": 1
       },
-      "betaExitImpact": "blocks_until_live_source_connected",
+      "betaExitImpact": "source_confidence_only",
       "fallbackIfMissing": "operator visual QA only checks prompt layout, not token registration truth",
-      "reason": "No clearing live evidence source was found. operator visual QA only checks prompt layout, not token registration truth.",
-      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not manual screenshot blockers."
+      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
+      "nextExactAction": "Connect or attach notification prompt/token/intent summaries with raw tokens redacted; keep source-only evidence labeled as source-only."
     },
     {
       "systemId": "account_settings_delete_export_support",
       "label": "Account settings/delete/export/support",
       "gateClass": "live_behavioral_evidence",
-      "status": "source_only_evidence",
+      "status": "source_missing_live_evidence",
       "expectedLiveEvidenceSource": "account/support action summaries with PII redacted",
       "evidenceSources": [
         {
@@ -463,8 +519,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
@@ -475,6 +531,13 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "generatedAtUtc": "2026-05-27T00:58:45.414Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "settings/support/delete/export facts or route summaries with typed outcomes",
       "privacyRedactionPolicy": [
@@ -485,20 +548,20 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "inferred",
+      "confidence": "unknown",
       "scoreImpact": {
         "evidenceCompleteness": 1
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "screenshots do not prove support/account action backend behavior",
-      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
-      "nextExactAction": "Connect or attach account/support action summaries with PII redacted; keep source-only evidence labeled as source-only."
+      "reason": "No clearing live evidence source was found. screenshots do not prove support/account action backend behavior.",
+      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not manual screenshot blockers."
     },
     {
       "systemId": "media_upload_access",
       "label": "Media upload/access",
       "gateClass": "live_runtime_evidence",
-      "status": "source_only_evidence",
+      "status": "source_missing_live_evidence",
       "expectedLiveEvidenceSource": "media upload/access block summaries without private URLs",
       "evidenceSources": [
         {
@@ -518,6 +581,13 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "generatedAtUtc": "2026-05-27T00:58:45.414Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "runtime_export_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "redacted upload/access summary with private media URL excluded",
       "privacyRedactionPolicy": [
@@ -528,14 +598,14 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "inferred",
+      "confidence": "unknown",
       "scoreImpact": {
         "runtimeHealth": 1
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source contract can guide checks but cannot clear live media evidence",
-      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
-      "nextExactAction": "Connect or attach media upload/access block summaries without private URLs; keep source-only evidence labeled as source-only."
+      "reason": "No clearing live evidence source was found. source contract can guide checks but cannot clear live media evidence.",
+      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not manual screenshot blockers."
     },
     {
       "systemId": "search_discovery",
@@ -549,18 +619,25 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "runtime_export_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "search/discovery action event fact in bounded live window",
       "privacyRedactionPolicy": [
@@ -604,6 +681,13 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "generatedAtUtc": "2026-05-25T05:51:35.791Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "admin_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "redacted admin summary with environment/currentHead and no raw identifiers",
       "privacyRedactionPolicy": [
@@ -618,7 +702,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "scoreImpact": {
         "evidenceCompleteness": 2
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "admin truth remains source_missing/formal_missing unless a redacted summary is attached",
       "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
       "nextExactAction": "Connect or attach redacted admin truth summary or admin debug snapshot; keep source-only evidence labeled as source-only."
@@ -647,6 +731,13 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "generatedAtUtc": "2026-05-25T05:51:35.791Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "runtime_export_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 1,
       "minimumAcceptableSignal": "deployed route sample/error-rate summary; local harness is source-only",
       "privacyRedactionPolicy": [
@@ -657,12 +748,12 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "inferred",
+      "confidence": "unknown",
       "scoreImpact": {
         "runtimeHealth": 2,
         "evidenceCompleteness": 1
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "blocks_until_live_source_connected",
       "fallbackIfMissing": "source-safe route harness cannot clear deployed route runtime gate",
       "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
       "nextExactAction": "Connect or attach deployed route health or runtime summary; keep source-only evidence labeled as source-only."
@@ -671,7 +762,7 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "systemId": "cost_runtime_4xx_summaries",
       "label": "Cost/runtime/4xx summaries",
       "gateClass": "live_error_rate_evidence",
-      "status": "source_only_evidence",
+      "status": "external_billing_required",
       "expectedLiveEvidenceSource": "cost and route 4xx rollup with external billing review separate",
       "evidenceSources": [
         {
@@ -679,8 +770,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39",
-          "generatedAtUtc": "2026-05-26T04:49:08.341Z"
+          "currentHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
+          "generatedAtUtc": "2026-05-31T19:57:02.617Z"
         },
         {
           "artifactPath": "agent/state/global-cost-surfaces.generated.json",
@@ -691,6 +782,13 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "generatedAtUtc": "2026-05-12T00:57:28.083Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "billing_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "hourly route 4xx/cost summary and external billing status",
       "privacyRedactionPolicy": [
@@ -701,14 +799,14 @@ Validator: `npm run check:live-evidence-gate-replacement`
         "no tokens",
         "no storage paths"
       ],
-      "confidence": "inferred",
+      "confidence": "unknown",
       "scoreImpact": {
         "costRisk": 4
       },
-      "betaExitImpact": "source_confidence_only",
+      "betaExitImpact": "external_required",
       "fallbackIfMissing": "cost source guards do not become billing proof",
-      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
-      "nextExactAction": "Connect or attach cost and route 4xx rollup with external billing review separate; keep source-only evidence labeled as source-only."
+      "reason": "Actual spend proof must come from external billing review.",
+      "nextExactAction": "Attach external billing review for cost lanes."
     }
   ],
   "sourceMissingLiveEvidence": [
@@ -724,18 +822,25 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "admin_debug_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "auth_session_established or auth_session_restored observed in bounded live window",
       "privacyRedactionPolicy": [
@@ -769,8 +874,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
@@ -785,10 +890,17 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "drop_opened/drop_unlocked/drop_unwrapped/watch_session event facts in bounded live window",
       "privacyRedactionPolicy": [
@@ -822,18 +934,25 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "creator profile or follow event fact in bounded live window",
       "privacyRedactionPolicy": [
@@ -855,31 +974,38 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "nextExactAction": "Add or attach creator profile/follow/discovery event facts; classify missing lanes as source_missing, not manual screenshot blockers."
     },
     {
-      "systemId": "notifications_pwa_permission_token_intent",
-      "label": "Notifications/PWA permission/token/intent",
+      "systemId": "chat_open_thread_message_block_error",
+      "label": "Chat open/thread/message/block/error",
       "gateClass": "live_behavioral_evidence",
       "status": "source_missing_live_evidence",
-      "expectedLiveEvidenceSource": "notification prompt/token/intent summaries with raw tokens redacted",
+      "expectedLiveEvidenceSource": "chat event facts and redacted error summaries",
       "evidenceSources": [
         {
-          "artifactPath": "agent/state/event-liveness-audit.generated.json",
+          "artifactPath": "agent/state/person-metrics-hydration.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
-          "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "sourceStatus": "source_only",
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
-          "artifactPath": "agent/state/person-metrics-hydration.generated.json",
-          "sourceKind": "admin_debug_summary",
+          "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
+          "sourceKind": "error_rate_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+          "generatedAtUtc": "2026-05-25T05:51:35.791Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
-      "minimumAcceptableSignal": "permission/token/intent summary without raw FCM/push token",
+      "minimumAcceptableSignal": "chat open/message/block/error summary without raw chat content",
       "privacyRedactionPolicy": [
         "no raw PII",
         "no raw payment/provider IDs",
@@ -890,12 +1016,162 @@ Validator: `npm run check:live-evidence-gate-replacement`
       ],
       "confidence": "unknown",
       "scoreImpact": {
-        "freshness": 1
+        "evidenceCompleteness": 1
       },
       "betaExitImpact": "blocks_until_live_source_connected",
-      "fallbackIfMissing": "operator visual QA only checks prompt layout, not token registration truth",
-      "reason": "No clearing live evidence source was found. operator visual QA only checks prompt layout, not token registration truth.",
-      "nextExactAction": "Add or attach notification prompt/token/intent summaries with raw tokens redacted; classify missing lanes as source_missing, not manual screenshot blockers."
+      "fallbackIfMissing": "redacted chat live evidence source is required; screenshots prove layout only",
+      "reason": "No clearing live evidence source was found. redacted chat live evidence source is required; screenshots prove layout only.",
+      "nextExactAction": "Add or attach chat event facts and redacted error summaries; classify missing lanes as source_missing, not manual screenshot blockers."
+    },
+    {
+      "systemId": "daily_tasks_reward_reset",
+      "label": "Daily tasks/reward/reset",
+      "gateClass": "live_ledger_evidence",
+      "status": "source_missing_live_evidence",
+      "expectedLiveEvidenceSource": "daily task event facts and reward ledger summary",
+      "evidenceSources": [
+        {
+          "artifactPath": "agent/state/person-metrics-hydration.generated.json",
+          "sourceKind": "event_fact",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
+        },
+        {
+          "artifactPath": "agent/state/user-journey-behavioral-intelligence.generated.json",
+          "sourceKind": "journey_summary",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+          "generatedAtUtc": "2026-05-27T00:55:34.822Z"
+        }
+      ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
+      "freshnessWindowHours": 24,
+      "minimumAcceptableSignal": "task start/complete/reward event facts with reset window",
+      "privacyRedactionPolicy": [
+        "no raw PII",
+        "no raw payment/provider IDs",
+        "no raw chat/private content",
+        "no private media URLs",
+        "no tokens",
+        "no storage paths"
+      ],
+      "confidence": "unknown",
+      "scoreImpact": {
+        "evidenceCompleteness": 1
+      },
+      "betaExitImpact": "blocks_until_live_source_connected",
+      "fallbackIfMissing": "task reward proof stays in event/ledger summaries, not screenshots",
+      "reason": "No clearing live evidence source was found. task reward proof stays in event/ledger summaries, not screenshots.",
+      "nextExactAction": "Add or attach daily task event facts and reward ledger summary; classify missing lanes as source_missing, not manual screenshot blockers."
+    },
+    {
+      "systemId": "account_settings_delete_export_support",
+      "label": "Account settings/delete/export/support",
+      "gateClass": "live_behavioral_evidence",
+      "status": "source_missing_live_evidence",
+      "expectedLiveEvidenceSource": "account/support action summaries with PII redacted",
+      "evidenceSources": [
+        {
+          "artifactPath": "agent/state/person-metrics-hydration.generated.json",
+          "sourceKind": "event_fact",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
+        },
+        {
+          "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
+          "sourceKind": "source_contract",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+        }
+      ],
+      "liveRuntimeEvidenceStatus": "not_observed_but_expected",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
+      "freshnessWindowHours": 24,
+      "minimumAcceptableSignal": "settings/support/delete/export facts or route summaries with typed outcomes",
+      "privacyRedactionPolicy": [
+        "no raw PII",
+        "no raw payment/provider IDs",
+        "no raw chat/private content",
+        "no private media URLs",
+        "no tokens",
+        "no storage paths"
+      ],
+      "confidence": "unknown",
+      "scoreImpact": {
+        "evidenceCompleteness": 1
+      },
+      "betaExitImpact": "blocks_until_live_source_connected",
+      "fallbackIfMissing": "screenshots do not prove support/account action backend behavior",
+      "reason": "No clearing live evidence source was found. screenshots do not prove support/account action backend behavior.",
+      "nextExactAction": "Add or attach account/support action summaries with PII redacted; classify missing lanes as source_missing, not manual screenshot blockers."
+    },
+    {
+      "systemId": "media_upload_access",
+      "label": "Media upload/access",
+      "gateClass": "live_runtime_evidence",
+      "status": "source_missing_live_evidence",
+      "expectedLiveEvidenceSource": "media upload/access block summaries without private URLs",
+      "evidenceSources": [
+        {
+          "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
+          "sourceKind": "error_rate_summary",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+          "generatedAtUtc": "2026-05-25T05:51:35.791Z"
+        },
+        {
+          "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
+          "sourceKind": "source_contract",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+        }
+      ],
+      "liveRuntimeEvidenceStatus": "runtime_export_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
+      "freshnessWindowHours": 24,
+      "minimumAcceptableSignal": "redacted upload/access summary with private media URL excluded",
+      "privacyRedactionPolicy": [
+        "no raw PII",
+        "no raw payment/provider IDs",
+        "no raw chat/private content",
+        "no private media URLs",
+        "no tokens",
+        "no storage paths"
+      ],
+      "confidence": "unknown",
+      "scoreImpact": {
+        "runtimeHealth": 1
+      },
+      "betaExitImpact": "blocks_until_live_source_connected",
+      "fallbackIfMissing": "source contract can guide checks but cannot clear live media evidence",
+      "reason": "No clearing live evidence source was found. source contract can guide checks but cannot clear live media evidence.",
+      "nextExactAction": "Add or attach media upload/access block summaries without private URLs; classify missing lanes as source_missing, not manual screenshot blockers."
     },
     {
       "systemId": "search_discovery",
@@ -909,18 +1185,25 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:18.409Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:36.036Z"
         },
         {
           "artifactPath": "agent/state/event-liveness-audit.generated.json",
           "sourceKind": "event_fact",
           "clearsLiveGate": false,
           "sourceStatus": "missing",
-          "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-          "generatedAtUtc": "2026-05-27T02:55:29.149Z"
+          "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+          "generatedAtUtc": "2026-05-31T22:48:08.657Z"
         }
       ],
+      "liveRuntimeEvidenceStatus": "runtime_export_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
       "freshnessWindowHours": 24,
       "minimumAcceptableSignal": "search/discovery action event fact in bounded live window",
       "privacyRedactionPolicy": [
@@ -939,16 +1222,125 @@ Validator: `npm run check:live-evidence-gate-replacement`
       "fallbackIfMissing": "source_missing search liveness remains a live evidence issue",
       "reason": "No clearing live evidence source was found. source_missing search liveness remains a live evidence issue.",
       "nextExactAction": "Add or attach search/discovery event facts; classify missing lanes as source_missing, not manual screenshot blockers."
+    },
+    {
+      "systemId": "admin_debug_user_management",
+      "label": "Admin/debug/user management",
+      "gateClass": "live_admin_truth_evidence",
+      "status": "source_only_evidence",
+      "expectedLiveEvidenceSource": "redacted admin truth summary or admin debug snapshot",
+      "evidenceSources": [
+        {
+          "artifactPath": "agent/state/admin-truth-redaction-packet.generated.json",
+          "sourceKind": "admin_debug_summary",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+          "generatedAtUtc": "2026-05-27T00:58:38.424Z"
+        },
+        {
+          "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
+          "sourceKind": "admin_debug_summary",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+          "generatedAtUtc": "2026-05-25T05:51:35.791Z"
+        }
+      ],
+      "liveRuntimeEvidenceStatus": "admin_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
+      "freshnessWindowHours": 24,
+      "minimumAcceptableSignal": "redacted admin summary with environment/currentHead and no raw identifiers",
+      "privacyRedactionPolicy": [
+        "no raw PII",
+        "no raw payment/provider IDs",
+        "no raw chat/private content",
+        "no private media URLs",
+        "no tokens",
+        "no storage paths"
+      ],
+      "confidence": "inferred",
+      "scoreImpact": {
+        "evidenceCompleteness": 2
+      },
+      "betaExitImpact": "blocks_until_live_source_connected",
+      "fallbackIfMissing": "admin truth remains source_missing/formal_missing unless a redacted summary is attached",
+      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
+      "nextExactAction": "Connect or attach redacted admin truth summary or admin debug snapshot; keep source-only evidence labeled as source-only."
+    },
+    {
+      "systemId": "route_runtime_error_health",
+      "label": "Route runtime/error health",
+      "gateClass": "live_route_health_evidence",
+      "status": "source_only_evidence",
+      "expectedLiveEvidenceSource": "deployed route health or runtime summary",
+      "evidenceSources": [
+        {
+          "artifactPath": "agent/state/runtime-smoke-harness.generated.json",
+          "sourceKind": "route_health_summary",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
+          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+        },
+        {
+          "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
+          "sourceKind": "error_rate_summary",
+          "clearsLiveGate": false,
+          "sourceStatus": "source_only",
+          "currentHead": "9dc79a00f40df751841c8d8f10d98de636336397",
+          "generatedAtUtc": "2026-05-25T05:51:35.791Z"
+        }
+      ],
+      "liveRuntimeEvidenceStatus": "runtime_export_required",
+      "dailyActivityImport": {
+        "expectedPath": "agent/evidence/live-runtime-activity/recent-activity.export.json",
+        "foundPaths": [],
+        "schema": "reportKey=live-runtime-activity-export; generatedAtUtc=<ISO timestamp>; sourceWindow.fromUtc/sourceWindow.toUtc=<bounded recent window>; privacy.piiRedacted=true; privacy.aggregateOnly=true; privacy.rawProviderIdsExcluded=true; privacy.rawPaymentDataExcluded=true; activity[]=eventName,count,lastSeenAtUtc,source,identityScope,identityConfidence,countsGlobal,countsForExactUser",
+        "hasRecentActivity": false
+      },
+      "freshnessWindowHours": 1,
+      "minimumAcceptableSignal": "deployed route sample/error-rate summary; local harness is source-only",
+      "privacyRedactionPolicy": [
+        "no raw PII",
+        "no raw payment/provider IDs",
+        "no raw chat/private content",
+        "no private media URLs",
+        "no tokens",
+        "no storage paths"
+      ],
+      "confidence": "unknown",
+      "scoreImpact": {
+        "runtimeHealth": 2,
+        "evidenceCompleteness": 1
+      },
+      "betaExitImpact": "blocks_until_live_source_connected",
+      "fallbackIfMissing": "source-safe route harness cannot clear deployed route runtime gate",
+      "reason": "Only source-safe or validator-backed evidence is present; it raises confidence but cannot clear live/formal gates.",
+      "nextExactAction": "Connect or attach deployed route health or runtime summary; keep source-only evidence labeled as source-only."
     }
   ],
   "betaExitReadyBefore": false,
   "betaExitReadyAfter": false,
   "remainingBlockers": [
-    "Auth/signup/login/session restore: source_missing_live_evidence",
-    "Drops/open/unlock/unwrap/watch: source_missing_live_evidence",
-    "Creator profile/discovery/follow: source_missing_live_evidence",
-    "Notifications/PWA permission/token/intent: source_missing_live_evidence",
-    "Search/discovery: source_missing_live_evidence",
+    "Auth/signup/login/session restore: not_observed_but_expected",
+    "Wallet/payment/GumDrop ledger: provider_required",
+    "Drops/open/unlock/unwrap/watch: not_observed_but_expected",
+    "Creator profile/discovery/follow: not_observed_but_expected",
+    "Creator monetization/Fan Pass/entitlements: provider_required",
+    "Chat open/thread/message/block/error: not_observed_but_expected",
+    "Daily tasks/reward/reset: not_observed_but_expected",
+    "Account settings/delete/export/support: not_observed_but_expected",
+    "Media upload/access: runtime_export_required",
+    "Search/discovery: runtime_export_required",
+    "Admin/debug/user management: admin_required",
+    "Route runtime/error health: runtime_export_required",
+    "Cost/runtime/4xx summaries: billing_required",
     "external provider proof",
     "external billing review",
     "visual-only operator QA"
