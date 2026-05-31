@@ -44,7 +44,6 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "gumdrops_purchase_completed",
     "gumdrops_purchase_failed",
     "drop_preview_opened",
-    "drop_preview_page_viewed",
     "drop_preview_cta_clicked",
     "unlock_drop_success",
     "viewer_opened",

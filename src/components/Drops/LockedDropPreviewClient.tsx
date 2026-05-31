@@ -111,7 +111,6 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         const timer = window.setTimeout(() => {
             const payload = latestTelemetryPayloadRef.current;
             if (!payload) return;
-            trackEvent("drop_preview_page_viewed", payload);
             trackEvent("drop_preview_opened", payload);
         }, 0);
         return () => window.clearTimeout(timer);

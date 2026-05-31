@@ -173,16 +173,6 @@ export default function CreatorProfileClient() {
         }
         profileOpenTelemetryKeyRef.current = telemetryKey;
 
-        trackEvent("creator_profile_viewed", {
-            viewer_actor_type: currentUser ? "user" : "guest",
-            viewer_actor_uid: currentUser?.uid ?? "",
-            target_creator_id: creator.uid,
-            target_creator_username: creator.username || username,
-            creator_id: creator.uid,
-            creator_username: creator.username || username,
-            page_path: profileRoute,
-            source_component: "creator_profile_page",
-        });
         trackEvent("creator_profile_opened", buildCreatorRelationshipTelemetryPayload({
             eventName: "creator_profile_opened",
             viewerUserId: currentUser?.uid,
