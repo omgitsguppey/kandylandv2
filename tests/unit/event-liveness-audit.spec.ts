@@ -21,11 +21,36 @@ describe("event liveness audit", () => {
     });
 
     expect(result.expectedTrafficClass).toBe("high_daily");
-    expect(result.livenessStatus).toBe("source_missing");
+    expect(result.livenessStatus).toBe("not_observed_but_expected");
     expect(result.livenessStatus).not.toBe("future_only_quiet");
+    expect(result.sourceReadiness?.source).toBe("event_translation_bridge");
     expect(result.scoreImpact.runtimeHealth).toBeGreaterThan(0);
     expect(result.debugVisibility.defaultVisible).toBe(true);
-    expect(result.nextAction).toContain("lastSeen");
+    expect(result.nextAction).toContain("bounded recent summaries");
+  });
+
+  it("keeps source-ready occasional events out of source-missing without creating runtime proof", () => {
+    const result = classifyEventLiveness({
+      eventName: "purchase_package_selected",
+      featureId: "wallet",
+      surface: "wallet package selector",
+      visibilityStatus: "logged_in_visible",
+      expectedTrafficClass: "occasional",
+      expectedDailyVisitorsBaseline: 100,
+      translationMapped: true,
+      materializerMapped: true,
+      hydrationMapped: true,
+    });
+
+    expect(result.livenessStatus).toBe("source_ready_waiting_for_activity");
+    expect(result.sourceReadiness).toMatchObject({
+      source: "event_translation_bridge",
+      clearsRuntimeProof: false,
+      clearsProviderProof: false,
+      clearsAdminTruthProof: false,
+    });
+    expect(result.scoreImpact.runtimeHealth).toBe(0);
+    expect(result.debugVisibility.defaultVisible).toBe(false);
   });
 
   it("keeps rare or future-only events quiet without score drag", () => {
@@ -92,12 +117,13 @@ describe("event liveness audit", () => {
     });
 
     expect(summary.rawQuietFutureCount).toBe(416);
-    expect(summary.suspiciousIdleCount).toBe(1);
-    expect(summary.sourceMissingCount).toBe(1);
+    expect(summary.suspiciousIdleCount).toBe(2);
+    expect(summary.sourceReadyWaitingForActivityCount).toBe(0);
+    expect(summary.sourceMissingCount).toBe(0);
     expect(summary.trueFutureOnlyQuietCount).toBe(414);
     expect(summary.debugLane.label).toBe("Event liveness");
     expect(summary.debugLane.quietFutureCatalogDefaultOpen).toBe(false);
-    expect(summary.debugLane.suspiciousIdleEvents).toBe(1);
+    expect(summary.debugLane.suspiciousIdleEvents).toBe(2);
     expect(summary.scoreImpactByDimension.runtimeHealth.after).toBeLessThan(summary.scoreImpactByDimension.runtimeHealth.before);
   });
 });

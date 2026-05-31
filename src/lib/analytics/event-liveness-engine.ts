@@ -6,6 +6,7 @@ import {
   type EventLivenessDebugLane,
   type EventLivenessInput,
   type EventLivenessLastSeenSource,
+  type EventLivenessSourceReadiness,
   type EventLivenessScoreImpact,
   type EventLivenessStatus,
   type EventLivenessSummary,
@@ -13,6 +14,7 @@ import {
   type ExpectedRecentWindow,
   type ExpectedTrafficClass,
 } from "@/lib/analytics/event-liveness-contract";
+import { listEventTranslationBridgeCanonicalEvents } from "@/lib/analytics/event-translation-bridge";
 import type { PublicBetaHealthDimension } from "@/lib/agent-score/core";
 
 const HIGH_DAILY_EVENTS = new Set([
@@ -66,6 +68,10 @@ const ZERO_IMPACT: EventLivenessScoreImpact = {
   costRisk: 0,
   regressionRisk: 0,
 };
+
+const EVENT_TRANSLATION_SOURCE_READY_EVENTS = new Map(
+  listEventTranslationBridgeCanonicalEvents().map((event) => [event.eventName, event]),
+);
 
 export const IMPORTANT_EVENT_LIVENESS_INPUTS: EventLivenessInput[] = [
   { eventName: "page_viewed", featureId: "analytics_telemetry", surface: "page/session", visibilityStatus: "public_visible" },
@@ -153,6 +159,21 @@ export function resolveLastSeenFromAvailableSources(input: EventLivenessInput): 
   return candidates[0] ?? null;
 }
 
+export function resolveSourceReadiness(input: EventLivenessInput): EventLivenessSourceReadiness | null {
+  if (input.sourceReadiness !== undefined) return input.sourceReadiness;
+  if (input.formalProviderGated || input.operatorConfirmedRevenueSignal) return null;
+  const sourceReadyEvent = EVENT_TRANSLATION_SOURCE_READY_EVENTS.get(input.eventName);
+  if (!sourceReadyEvent) return null;
+  return {
+    status: "source_ready_waiting_for_activity",
+    source: "event_translation_bridge",
+    sourcePath: "src/lib/analytics/event-translation-bridge.ts",
+    clearsRuntimeProof: false,
+    clearsProviderProof: false,
+    clearsAdminTruthProof: false,
+  };
+}
+
 function nextActionFor(status: EventLivenessStatus, eventName: string) {
   switch (status) {
     case "observed_recently":
@@ -161,6 +182,8 @@ function nextActionFor(status: EventLivenessStatus, eventName: string) {
       return `Inspect ${eventName} producer and lastSeen materializer; expected traffic is stale for its liveness window.`;
     case "not_observed_but_expected":
       return `Verify the ${eventName} route/component trigger and event-fact materializer with bounded recent summaries.`;
+    case "source_ready_waiting_for_activity":
+      return `Keep ${eventName} wired through the event translation bridge and wait for bounded real activity; this does not clear deployed runtime proof.`;
     case "source_missing":
       return `Add or connect a safe lastSeen source for ${eventName}; do not classify it as future-only quiet.`;
     case "materializer_missing":
@@ -181,6 +204,7 @@ function nextActionFor(status: EventLivenessStatus, eventName: string) {
 function reasonFor(status: EventLivenessStatus, expectedTrafficClass: ExpectedTrafficClass, eventName: string) {
   if (status === "source_missing") return `${eventName} is ${expectedTrafficClass} but has no safe lastSeen source.`;
   if (status === "observed_stale") return `${eventName} has lastSeen evidence, but it is stale for ${expectedTrafficClass}.`;
+  if (status === "source_ready_waiting_for_activity") return `${eventName} has a canonical source mapping but no bounded recent activity yet.`;
   if (status === "future_only_quiet") return `${eventName} is not expected to produce real activity yet.`;
   if (status === "not_observed_and_not_expected") return `${eventName} is ${expectedTrafficClass}; quiet is acceptable.`;
   return `${eventName} classified as ${status}.`;
@@ -194,7 +218,7 @@ function impactForStatus(status: EventLivenessStatus): EventLivenessScoreImpact 
   return { ...ZERO_IMPACT };
 }
 
-function statusFromInput(input: EventLivenessInput, expectedTrafficClass: ExpectedTrafficClass, expectedRecentWindow: ExpectedRecentWindow, lastSeenSource: EventLivenessLastSeenSource | null): EventLivenessStatus {
+function statusFromInput(input: EventLivenessInput, expectedTrafficClass: ExpectedTrafficClass, expectedRecentWindow: ExpectedRecentWindow, lastSeenSource: EventLivenessLastSeenSource | null, sourceReadiness: EventLivenessSourceReadiness | null): EventLivenessStatus {
   if (input.visibilityStatus === "disabled") return "disabled_intentionally";
   if (expectedTrafficClass === "future_only") return "future_only_quiet";
   if (input.translationMapped === false) return "translation_missing";
@@ -204,6 +228,11 @@ function statusFromInput(input: EventLivenessInput, expectedTrafficClass: Expect
   if (!lastSeenSource) {
     if (expectedRecentWindow === "none" || expectedTrafficClass === "admin_only" || expectedTrafficClass === "rare") {
       return "not_observed_and_not_expected";
+    }
+    if (sourceReadiness) {
+      return expectedTrafficClass === "high_daily" || expectedTrafficClass === "normal_daily"
+        ? "not_observed_but_expected"
+        : "source_ready_waiting_for_activity";
     }
     return "source_missing";
   }
@@ -219,7 +248,8 @@ export function classifyEventLiveness(input: EventLivenessInput): EventLivenessC
   const expectedTrafficClass = resolveExpectedTrafficClass(input);
   const expectedRecentWindow = input.expectedRecentWindow ?? expectedWindowForTraffic(expectedTrafficClass);
   const lastSeenSource = resolveLastSeenFromAvailableSources(input);
-  const livenessStatus = statusFromInput(input, expectedTrafficClass, expectedRecentWindow, lastSeenSource);
+  const sourceReadiness = resolveSourceReadiness(input);
+  const livenessStatus = statusFromInput(input, expectedTrafficClass, expectedRecentWindow, lastSeenSource, sourceReadiness);
   const scoreImpact = impactForStatus(livenessStatus);
   const scoreDrag = Object.values(scoreImpact).some((value) => value > 0);
   const defaultVisible = scoreDrag || livenessStatus === "source_missing" || livenessStatus === "observed_stale" || livenessStatus === "not_observed_but_expected";
@@ -232,6 +262,7 @@ export function classifyEventLiveness(input: EventLivenessInput): EventLivenessC
     livenessStatus,
     lastSeenAtUtc: lastSeenSource?.lastSeenAtUtc ?? null,
     lastSeenSource,
+    sourceReadiness,
     scoreImpact,
     debugVisibility: {
       lane: "Event liveness",
@@ -278,6 +309,7 @@ function buildDebugLane(classifications: readonly EventLivenessClassification[],
     expectedLiveEvents: classifications.filter((item) => item.expectedRecentWindow !== "none").length,
     observedRecently: classifications.filter((item) => item.livenessStatus === "observed_recently").length,
     suspiciousIdleEvents: classifications.filter(detectSuspiciousIdleEvent).length,
+    sourceReadyWaitingForActivity: classifications.filter((item) => item.livenessStatus === "source_ready_waiting_for_activity").length,
     sourceMissing: classifications.filter((item) => item.livenessStatus === "source_missing").length,
     materializerMissing: classifications.filter((item) => item.livenessStatus === "materializer_missing").length,
     translationMissing: classifications.filter((item) => item.livenessStatus === "translation_missing").length,
@@ -303,12 +335,13 @@ export function buildEventLivenessSummary(input: {
       ? event
       : classifyEventLiveness({ expectedDailyVisitorsBaseline, translationMapped: true, materializerMapped: true, hydrationMapped: true, ...event }));
   const suspiciousIdleCount = classifications.filter(detectSuspiciousIdleEvent).length;
+  const sourceReadyWaitingForActivityCount = classifications.filter((item) => item.livenessStatus === "source_ready_waiting_for_activity").length;
   const sourceMissingCount = classifications.filter((item) => item.livenessStatus === "source_missing").length;
   const materializerMissingCount = classifications.filter((item) => item.livenessStatus === "materializer_missing").length;
   const translationMissingCount = classifications.filter((item) => item.livenessStatus === "translation_missing").length;
   const hydrationMissingCount = classifications.filter((item) => item.livenessStatus === "hydration_missing").length;
   const rawQuietFutureCount = input.rawQuietFutureCount ?? 416;
-  const actionableQuietReclassifications = suspiciousIdleCount + sourceMissingCount + materializerMissingCount + translationMissingCount + hydrationMissingCount;
+  const actionableQuietReclassifications = suspiciousIdleCount + sourceReadyWaitingForActivityCount + sourceMissingCount + materializerMissingCount + translationMissingCount + hydrationMissingCount;
   const trueFutureOnlyQuietCount = Math.max(0, rawQuietFutureCount - actionableQuietReclassifications);
   const scoreBefore = scoreSnapshot(input.scoreBefore);
   const scoreAfter = EVENT_LIVENESS_SCORE_DIMENSIONS.reduce<Record<PublicBetaHealthDimension, number>>((output, dimension) => {
@@ -331,6 +364,7 @@ export function buildEventLivenessSummary(input: {
     rawQuietFutureCount,
     trueFutureOnlyQuietCount,
     suspiciousIdleCount,
+    sourceReadyWaitingForActivityCount,
     sourceMissingCount,
     materializerMissingCount,
     translationMissingCount,

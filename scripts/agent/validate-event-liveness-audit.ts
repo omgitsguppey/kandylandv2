@@ -215,6 +215,7 @@ function renderDoc(report: JsonRecord) {
     `- Raw quiet future count: ${report.rawQuietFutureCount}`,
     `- True future-only quiet count: ${report.trueFutureOnlyQuietCount}`,
     `- Suspicious idle count: ${report.suspiciousIdleCount}`,
+    `- Source-ready waiting for activity count: ${report.sourceReadyWaitingForActivityCount}`,
     `- Source missing count: ${report.sourceMissingCount}`,
     `- Materializer missing count: ${report.materializerMissingCount}`,
     `- Translation missing count: ${report.translationMissingCount}`,
@@ -270,8 +271,8 @@ function main() {
   if (summary.classifications.some((event) => event.expectedTrafficClass === "high_daily" && event.visibilityStatus !== "admin_only" && event.livenessStatus === "future_only_quiet")) {
     validationFailures.push("high_daily visible events can be future_only_quiet.");
   }
-  if (summary.sourceMissingCount + summary.materializerMissingCount + summary.translationMissingCount + summary.hydrationMissingCount + summary.suspiciousIdleCount === 0) {
-    validationFailures.push("no lastSeen/sourceMissing/materializerMissing classification exists.");
+  if (summary.sourceMissingCount + summary.sourceReadyWaitingForActivityCount + summary.materializerMissingCount + summary.translationMissingCount + summary.hydrationMissingCount + summary.suspiciousIdleCount === 0) {
+    validationFailures.push("no lastSeen/sourceReady/sourceMissing/materializerMissing classification exists.");
   }
   if (summary.suspiciousIdleCount > 0 && summary.debugLane.suspiciousIdleEvents <= 0) validationFailures.push("suspicious idle events are hidden from debug.");
   if (summary.debugLane.quietFutureCatalogDefaultOpen || summary.debugLane.defaultShowsRawCatalogRows) validationFailures.push("quiet future catalog appears as actionable issue.");
@@ -299,7 +300,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`Event liveness audit passed: rawQuiet=${summary.rawQuietFutureCount}, trueFutureQuiet=${summary.trueFutureOnlyQuietCount}, suspiciousIdle=${summary.suspiciousIdleCount}, sourceMissing=${summary.sourceMissingCount}.`);
+  console.log(`Event liveness audit passed: rawQuiet=${summary.rawQuietFutureCount}, trueFutureQuiet=${summary.trueFutureOnlyQuietCount}, suspiciousIdle=${summary.suspiciousIdleCount}, sourceReady=${summary.sourceReadyWaitingForActivityCount}, sourceMissing=${summary.sourceMissingCount}.`);
 }
 
 main();

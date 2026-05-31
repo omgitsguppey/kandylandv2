@@ -28,6 +28,7 @@ export type EventLivenessStatus =
   | "observed_stale"
   | "not_observed_but_expected"
   | "not_observed_and_not_expected"
+  | "source_ready_waiting_for_activity"
   | "source_missing"
   | "materializer_missing"
   | "translation_missing"
@@ -49,6 +50,15 @@ export type EventLivenessLastSeenSource = {
   sourcePath?: string;
 };
 
+export type EventLivenessSourceReadiness = {
+  status: "source_ready_waiting_for_activity";
+  source: "event_translation_bridge";
+  sourcePath: string;
+  clearsRuntimeProof: false;
+  clearsProviderProof: false;
+  clearsAdminTruthProof: false;
+};
+
 export type EventLivenessInput = {
   eventName: string;
   featureId: FeatureRegistrationId | string;
@@ -60,6 +70,7 @@ export type EventLivenessInput = {
   lastSeenAtUtc?: string | null;
   lastSeenSource?: EventLivenessLastSeenSource | null;
   lastSeenSources?: readonly EventLivenessLastSeenSource[];
+  sourceReadiness?: EventLivenessSourceReadiness | null;
   nowUtc?: string;
   translationMapped?: boolean;
   materializerMapped?: boolean;
@@ -87,6 +98,7 @@ export type EventLivenessClassification = EventLivenessInput & {
   livenessStatus: EventLivenessStatus;
   lastSeenAtUtc: string | null;
   lastSeenSource: EventLivenessLastSeenSource | null;
+  sourceReadiness: EventLivenessSourceReadiness | null;
   scoreImpact: EventLivenessScoreImpact;
   debugVisibility: EventLivenessDebugVisibility;
   nextAction: string;
@@ -98,6 +110,7 @@ export type EventLivenessDebugLane = {
   expectedLiveEvents: number;
   observedRecently: number;
   suspiciousIdleEvents: number;
+  sourceReadyWaitingForActivity: number;
   sourceMissing: number;
   materializerMissing: number;
   translationMissing: number;
@@ -117,6 +130,7 @@ export type EventLivenessSummary = {
   rawQuietFutureCount: number;
   trueFutureOnlyQuietCount: number;
   suspiciousIdleCount: number;
+  sourceReadyWaitingForActivityCount: number;
   sourceMissingCount: number;
   materializerMissingCount: number;
   translationMissingCount: number;
