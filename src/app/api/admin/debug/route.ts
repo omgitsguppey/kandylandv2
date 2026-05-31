@@ -2528,6 +2528,8 @@ function buildRolloutRegistryPanelState(input: {
         };
     });
 
+    const rolloutItemsMap = new Map(rolloutItems.map((item) => [item.id, item]));
+
     const actorRows: RolloutActorEvaluationRow[] = input.rolloutSamples.map((sample) => {
         const assignments = Array.isArray(sample.assignments) ? sample.assignments as Array<Record<string, unknown>> : [];
         const roleRaw = toOptionalString(sample.role);
@@ -2538,7 +2540,7 @@ function buildRolloutRegistryPanelState(input: {
         const actorSource: RolloutActorEvaluationRow["actorSource"] = "representative_fixture";
         const actorId = null;
         const evaluations = assignments.map((assignment) => {
-                const match = rolloutItems.find((item) => item.id === toOptionalString(assignment.id));
+                const match = rolloutItemsMap.get(toOptionalString(assignment.id) ?? "");
                 const reasonRaw = toOptionalString(assignment.reason);
                 const assignedVariant = toOptionalString(assignment.variant) || "unknown";
                 const defaultVariant = toOptionalString(assignment.defaultVariant) || match?.defaultVariant || "unknown";
