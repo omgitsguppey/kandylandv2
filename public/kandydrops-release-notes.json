@@ -1,11 +1,67 @@
 {
-  "currentVersion": "1.5.25",
-  "betaReleaseCounter": 525,
+  "currentVersion": "1.5.26",
+  "betaReleaseCounter": 526,
   "channel": "beta",
-  "generatedAt": "2026-05-31T00:15:00.001Z",
-  "generatedAtUtc": "2026-05-31T00:15:00.001Z",
+  "generatedAt": "2026-05-31T04:05:00.001Z",
+  "generatedAtUtc": "2026-05-31T04:05:00.001Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.26",
+      "previousVersion": "1.5.25",
+      "betaReleaseCounter": 526,
+      "previousBetaReleaseCounter": 525,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "refactor(beta): consolidate analytics panel truth",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-31T04:05:00.000Z",
+      "generatedAt": "2026-05-31T04:05:00.000Z",
+      "committedAtUtc": "2026-05-31T04:05:00.000Z",
+      "generatedAtUtc": "2026-05-31T04:05:00.000Z",
+      "category": "Internal Reliability",
+      "title": "Analytics panel truth cleanup",
+      "updatedAtUtc": "2026-05-31T04:05:00.000Z",
+      "summary": "Reconnected admin analytics panel hydration to canonical event and person metric sources while keeping runtime, provider, and billing proof separate.",
+      "userFacingTitle": "Clearer Beta analytics status",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reclassified analytics panels so wired-but-unobserved metrics no longer appear as missing source.",
+        "Kept provider, runtime, billing, and payment proof separate from source-only telemetry checks.",
+        "Preserved missing data as collecting, expected-unobserved, source-ready, or manual-required instead of showing fake zeroes."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Separated wired-but-waiting panels from unobserved, manual, and provider-gated evidence states.",
+        "Connected panel hydration to the canonical event translation bridge and person metrics hydration reports.",
+        "Did not change payment, wallet, PayPal, GumDrop math, pricing, package amounts, or runtime routes."
+      ],
+      "affectedSurfaces": [
+        "Admin analytics panels",
+        "Event translation bridge",
+        "Person metrics hydration",
+        "Beta score diagnostics"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/admin-analytics/panel-hydration-contract.ts",
+        "src/lib/admin-analytics/panel-hydration-resolver.ts",
+        "scripts/agent/validate-analytics-panel-hydration.ts",
+        "tests/unit/analytics-panel-hydration.spec.ts",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "effectiveChangeCount": 6,
+      "excludedGeneratedChangeCount": 4,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.25",
       "previousVersion": "1.5.24",

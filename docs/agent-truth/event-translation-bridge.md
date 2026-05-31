@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-29T11:40:19.787Z
+Generated: 2026-05-31T04:45:12.468Z
 Status: pass
-Current head: 74c04caadffa3080b2f979f7649026b17aafdbdf
+Current head: c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718
 
 ## Contract
 
@@ -53,33 +53,33 @@ Current head: 74c04caadffa3080b2f979f7649026b17aafdbdf
 
 ## Dirty Files
 
-- agent/index/known-pitfalls.json: real_source_change_needs_review
-- agent/state/analytic-algorithm-truth-audit.generated.json: current_generated_artifact_to_commit
+- CHANGELOG.md: release_artifact_expected
+- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/guest-user-handoff-repair.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-chain-contract.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-classified-mismatch-cleanup.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/identity-handoff-4xx-policy.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-handoff-analytics-truth.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-mismatch-closure.generated.json: current_generated_artifact_to_commit
-- agent/state/identity-tracking-memory-writeback.generated.json: current_generated_artifact_to_commit
-- agent/state/individual-user-metric-truth.generated.json: current_generated_artifact_to_commit
+- agent/state/global-user-dedupe-normalization.generated.json: current_generated_artifact_to_commit
+- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/release-notes-integrity.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-tracking-live-evidence.generated.json: current_generated_artifact_to_commit
-- docs/agent-truth/analytic-algorithm-truth-audit.md: documentation_artifact_expected
+- agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
+- docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/event-liveness-audit.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/guest-user-handoff-repair.md: documentation_artifact_expected
-- docs/agent-truth/identity-chain-contract.md: documentation_artifact_expected
-- docs/agent-truth/identity-classified-mismatch-cleanup.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/identity-handoff-4xx-policy.md: documentation_artifact_expected
-- docs/agent-truth/identity-handoff-analytics-truth.md: documentation_artifact_expected
-- docs/agent-truth/identity-mismatch-closure.md: documentation_artifact_expected
-- docs/agent-truth/identity-tracking-memory-writeback.md: documentation_artifact_expected
-- docs/agent-truth/individual-user-metric-truth.md: documentation_artifact_expected
+- docs/agent-truth/global-user-dedupe-normalization.md: documentation_artifact_expected
+- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/release-notes-integrity.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/user-tracking-live-evidence.md: documentation_artifact_expected
+- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
+- scripts/agent/validate-event-liveness-audit.ts: validator_artifact_expected
+- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
+- scripts/agent/validate-global-user-dedupe-normalization.ts: validator_artifact_expected
+- src/lib/admin-analytics/panel-hydration-contract.ts: real_source_change_needs_review
+- src/lib/admin-analytics/panel-hydration-resolver.ts: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

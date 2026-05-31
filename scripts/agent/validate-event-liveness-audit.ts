@@ -84,6 +84,14 @@ function classifyDirtyFile(path: string) {
   if (/^tests\/unit\/(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui-cleanup|debug-cockpit-batch30-telemetry-parity|admin-data-validation)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (/^src\/lib\/analytics\/(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts" || normalized === "src/lib/server/admin-analytics-historical-validation.ts" || normalized === "src/app/api/admin/analytics/historical/route.ts" || normalized === "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx" || normalized === "src/types/admin-analytics.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/admin-analytics/panel-hydration-contract.ts" || normalized === "src/lib/admin-analytics/panel-hydration-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
+  if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "test_artifact_expected";
+  if (normalized === "agent/state/analytics-panel-hydration.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/analytics-panel-hydration.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/chat-cost-status-cleanup-shared.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (/^tests\/unit\/(config-runtime-sample-status-classifier|chat-gating-status-cleanup|chat-telemetry-status-cleanup|cost-4xx-status-cleanup|open-backlog-status-cleanup|future-activity-catalog-status-cleanup|debug-cockpit-batch5-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";

@@ -1,13 +1,13 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-31T01:08:07.683Z
+Generated: 2026-05-31T04:41:14.396Z
 
-Latest code version: aef5466f512fa1f91d9acc739e659a6e591bb4fe
+Latest code version: c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718
 
 ## Summary
 
-- Beta version: 1.5.25
-- Beta score: 75.39
+- Beta version: 1.5.26
+- Beta score: 76.61
 - Beta status: Stale evidence
 - Visual evidence: source_only_screenshotEvidenceAttached_false
 - Provider smoke: missing_formal_evidence
@@ -33,7 +33,7 @@ Latest code version: aef5466f512fa1f91d9acc739e659a6e591bb4fe
 ## Refresh Plan
 
 - agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
 - agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:evidence-capture-status`.
 - agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
 - agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.

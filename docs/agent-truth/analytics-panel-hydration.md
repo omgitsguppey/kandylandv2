@@ -1,18 +1,22 @@
 # Analytics Panel Hydration
 
-Generated: 2026-05-27T02:53:36.720Z
-Current head: dd4b37320ddd4e920d6633c91d90b01243089231
+Generated: 2026-05-31T04:43:42.163Z
+Current head: c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718
 
 ## Summary
 
 - Total panels: 41
-- Hydrated: 9
-- Collecting: 2
+- Hydrated: 10
+- Collecting: 0
+- Source-ready waiting for activity: 6
+- Not observed but expected: 18
 - Stale: 0
-- Source missing: 27
+- Source missing: 2
 - Materializer missing: 0
 - Bridge missing: 0
-- External required: 3
+- Manual/runtime required: 3
+- Provider gated: 2
+- External required: 5
 - Permission blocked: 0
 - Broken: 0
 
@@ -25,27 +29,27 @@ Current head: dd4b37320ddd4e920d6633c91d90b01243089231
 
 ## Live Evidence
 
-- Contributes live evidence: new_users_signups, creator_follows, drops_live, watch_time, completion_rate, auth_attempts_failures, search_queries, search_zero_results_clicks, support_account_actions
-- Collecting with source: error_rate_4xx, debug_backlog
-- Blocked: traffic_overview, active_users, returning_users, guest_to_user_handoff, creator_count, creator_profile_views, drop_opens, unlocks, unwraps, wallet_opens, package_selections, checkout_starts, gumdrop_balances, reward_gd_grants, task_starts, task_completions, task_rewards, chat_opens, chat_messages, chat_blocks_errors, notification_prompts, notification_tokens, notification_intents, session_restores, media_uploads_access_blocks, journey_funnel, realtime_health
-- External required: payment_approvals, payment_failures, cost_risk
+- Contributes live evidence: new_users_signups, creator_follows, drops_live, unlocks, watch_time, completion_rate, auth_attempts_failures, search_queries, search_zero_results_clicks, support_account_actions
+- Collecting with source: unwraps, package_selections, checkout_starts, notification_prompts, notification_tokens, notification_intents
+- Blocked: traffic_overview, active_users, returning_users, guest_to_user_handoff, creator_count, creator_profile_views, drop_opens, wallet_opens, gumdrop_balances, reward_gd_grants, task_starts, task_completions, task_rewards, chat_opens, chat_messages, chat_blocks_errors, session_restores, media_uploads_access_blocks, journey_funnel, realtime_health
+- External required: payment_approvals, payment_failures, error_rate_4xx, cost_risk, debug_backlog
 
 ## Top Hydration Failures
 
-- Traffic overview: source_missing; next=Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate.
-- Active users: source_missing; next=Repair src/app/api/admin/analytics/realtime/route.ts so Active users can hydrate.
-- Returning users: source_missing; next=Repair src/app/api/behavior so Returning users can hydrate.
-- Guest-to-user handoff: source_missing; next=Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate.
-- Creator count: source_missing; next=Repair src/lib/admin/user-management-contract.ts so Creator count can hydrate.
-- Creator profile views: source_missing; next=Repair src/app/api/behavior so Creator profile views can hydrate.
-- Drop opens: source_missing; next=Repair src/app/api/behavior so Drop opens can hydrate.
-- Unlocks: source_missing; next=Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate.
-- Unwraps: source_missing; next=Repair src/app/api/behavior so Unwraps can hydrate.
-- Wallet opens: source_missing; next=Repair src/app/api/wallet so Wallet opens can hydrate.
+- Traffic overview: not_observed_but_expected; next=Verify analytics_event_facts with bounded recent summaries before treating Traffic overview as hydrated or zero.
+- Active users: not_observed_but_expected; next=Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Active users as hydrated or zero.
+- Returning users: not_observed_but_expected; next=Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Returning users as hydrated or zero.
+- Guest-to-user handoff: not_observed_but_expected; next=Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Guest-to-user handoff as hydrated or zero.
+- Creator count: not_observed_but_expected; next=Verify settings surfaces and settings route telemetry with bounded recent summaries before treating Creator count as hydrated or zero.
+- Creator profile views: not_observed_but_expected; next=Verify analytics_event_facts and creator relationship funnel telemetry with bounded recent summaries before treating Creator profile views as hydrated or zero.
+- Drop opens: not_observed_but_expected; next=Verify analytics_event_facts with bounded recent summaries before treating Drop opens as hydrated or zero.
+- Wallet opens: not_observed_but_expected; next=Verify wallet UI telemetry with bounded recent summaries before treating Wallet opens as hydrated or zero.
+- Payment approvals: provider_gated; next=Attach redacted external evidence for server purchase verification facts; do not use screenshots as backend proof.
+- Payment failures: provider_gated; next=Attach redacted external evidence for payment failure telemetry; do not use screenshots as backend proof.
 
 ## Debug Lane
 
-- Analytics panel hydration: total=41; hydrated=9; collecting=2; sourceMissing=27; materializerMissing=0; bridgeMissing=0; externalRequired=3; broken=0
+- Analytics panel hydration: total=41; hydrated=10; collecting=0; sourceReady=6; notObservedButExpected=18; sourceMissing=2; materializerMissing=0; bridgeMissing=0; manualOrRuntimeRequired=3; providerGated=2; externalRequired=5; broken=0
 
 ## Validation Failures
 

@@ -56,6 +56,18 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/server/admin-debug/summary.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-panel-tracking-summary.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "analytics_panel_hydration_artifact_expected";
+  if (normalized === "scripts/agent/validate-event-liveness-audit.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
+  if (normalized === "src/lib/analytics/event-translation-bridge.ts") return "real_source_change_needs_review";
+  if (normalized === "agent/state/event-liveness-audit.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/global-user-dedupe-normalization.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "docs/agent-truth/event-liveness-audit.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/global-user-dedupe-normalization.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "tests/unit/analytics-hydration-consolidation.spec.ts") return "test_artifact_expected";
@@ -104,10 +116,14 @@ function renderDoc(report: ReturnType<typeof buildAnalyticsPanelHydrationReport>
     `- Total panels: ${report.totalPanels}`,
     `- Hydrated: ${report.hydratedPanels}`,
     `- Collecting: ${report.collectingPanels}`,
+    `- Source-ready waiting for activity: ${report.sourceReadyWaitingForActivityPanels}`,
+    `- Not observed but expected: ${report.notObservedButExpectedPanels}`,
     `- Stale: ${report.stalePanels}`,
     `- Source missing: ${report.sourceMissingPanels}`,
     `- Materializer missing: ${report.materializerMissingPanels}`,
     `- Bridge missing: ${report.bridgeMissingPanels}`,
+    `- Manual/runtime required: ${report.manualOrRuntimeRequiredPanels}`,
+    `- Provider gated: ${report.providerGatedPanels}`,
     `- External required: ${report.externalRequiredPanels}`,
     `- Permission blocked: ${report.permissionBlockedPanels}`,
     `- Broken: ${report.brokenPanels}`,
@@ -129,7 +145,7 @@ function renderDoc(report: ReturnType<typeof buildAnalyticsPanelHydrationReport>
     "",
     "## Debug Lane",
     "",
-    `- ${report.debugLane.label}: total=${report.debugLane.totalPanels}; hydrated=${report.debugLane.hydrated}; collecting=${report.debugLane.collecting}; sourceMissing=${report.debugLane.sourceMissing}; materializerMissing=${report.debugLane.materializerMissing}; bridgeMissing=${report.debugLane.bridgeMissing}; externalRequired=${report.debugLane.externalRequired}; broken=${report.debugLane.broken}`,
+    `- ${report.debugLane.label}: total=${report.debugLane.totalPanels}; hydrated=${report.debugLane.hydrated}; collecting=${report.debugLane.collecting}; sourceReady=${report.debugLane.sourceReadyWaitingForActivity}; notObservedButExpected=${report.debugLane.notObservedButExpected}; sourceMissing=${report.debugLane.sourceMissing}; materializerMissing=${report.debugLane.materializerMissing}; bridgeMissing=${report.debugLane.bridgeMissing}; manualOrRuntimeRequired=${report.debugLane.manualOrRuntimeRequired}; providerGated=${report.debugLane.providerGated}; externalRequired=${report.debugLane.externalRequired}; broken=${report.debugLane.broken}`,
     "",
     "## Validation Failures",
     "",
@@ -155,9 +171,13 @@ function compactReport(
     hydratedPanels: report.hydratedPanels,
     stalePanels: report.stalePanels,
     collectingPanels: report.collectingPanels,
+    sourceReadyWaitingForActivityPanels: report.sourceReadyWaitingForActivityPanels,
+    notObservedButExpectedPanels: report.notObservedButExpectedPanels,
     sourceMissingPanels: report.sourceMissingPanels,
     materializerMissingPanels: report.materializerMissingPanels,
     bridgeMissingPanels: report.bridgeMissingPanels,
+    manualOrRuntimeRequiredPanels: report.manualOrRuntimeRequiredPanels,
+    providerGatedPanels: report.providerGatedPanels,
     externalRequiredPanels: report.externalRequiredPanels,
     permissionBlockedPanels: report.permissionBlockedPanels,
     brokenPanels: report.brokenPanels,

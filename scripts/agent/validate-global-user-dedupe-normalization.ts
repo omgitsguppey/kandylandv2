@@ -97,11 +97,13 @@ function classifyDirtyFile(path: string) {
   if (normalized === "agent/state/event-envelope-normalization.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/event-translation-bridge.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/person-metrics-hydration.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/analytics-panel-hydration.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "docs/agent-truth/session-bounce-calculation.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/event-envelope-normalization.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/event-translation-bridge.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/person-metrics-hydration.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/analytics-panel-hydration.md") return "documentation_artifact_expected";
   if (normalized === "src/lib/analytics/global-user-dedupe-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/global-user-dedupe-engine.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/session-metrics-contract.ts") return "real_source_change_needs_review";
@@ -113,6 +115,8 @@ function classifyDirtyFile(path: string) {
   if (normalized === "src/lib/telemetry-catalog.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-hydration.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/analytics/person-metrics-engine.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/admin-analytics/panel-hydration-contract.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/admin-analytics/panel-hydration-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/math/global-user-counting-math.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/event-fact-contract.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/behavioral/normalize-event-fact.ts") return "real_source_change_needs_review";
@@ -121,10 +125,14 @@ function classifyDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-counting-math.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-person-metrics-hydration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-event-liveness-audit.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-session-bounce-calculation.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/global-user-dedupe-normalization.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/global-user-counting-math.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/person-metrics-hydration.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/session-bounce-calculation.spec.ts") return "test_artifact_expected";
   if (normalized === "package.json") return "real_source_change_needs_review";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";

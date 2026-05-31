@@ -1,6 +1,6 @@
 {
   "reportKey": "person-metrics-hydration",
-  "generatedAtUtc": "2026-05-29T11:40:02.755Z",
+  "generatedAtUtc": "2026-05-31T04:44:06.154Z",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -4526,14 +4526,22 @@
       "reason": "Person metrics hydrate from canonical envelopes with missing future activity reported as collecting instead of fake zero."
     }
   },
-  "currentHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
+  "currentHead": "c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718",
   "dirtyFiles": [
     {
-      "path": "agent/index/known-pitfalls.json",
-      "classification": "real_source_change_needs_review"
+      "path": "CHANGELOG.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/state/analytic-algorithm-truth-audit.generated.json",
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -4541,47 +4549,31 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/guest-user-handoff-repair.generated.json",
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/identity-chain-contract.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/identity-classified-mismatch-cleanup.generated.json",
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/identity-handoff-4xx-policy.generated.json",
+      "path": "agent/state/person-metrics-hydration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/identity-handoff-analytics-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/identity-mismatch-closure.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/identity-tracking-memory-writeback.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/individual-user-metric-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/release-notes-integrity.generated.json",
+      "path": "agent/state/public-beta-score.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/user-tracking-live-evidence.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/analytic-algorithm-truth-audit.md",
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -4589,44 +4581,60 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/guest-user-handoff-repair.md",
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/identity-chain-contract.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/identity-classified-mismatch-cleanup.md",
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/identity-handoff-4xx-policy.md",
+      "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/identity-handoff-analytics-truth.md",
-      "classification": "documentation_artifact_expected"
+      "path": "public/kandydrops-release-notes.json",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/identity-mismatch-closure.md",
-      "classification": "documentation_artifact_expected"
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/identity-tracking-memory-writeback.md",
-      "classification": "documentation_artifact_expected"
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/individual-user-metric-truth.md",
-      "classification": "documentation_artifact_expected"
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/release-notes-integrity.md",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
+      "classification": "validator_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/user-tracking-live-evidence.md",
-      "classification": "documentation_artifact_expected"
+      "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-translation-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "tests/unit/analytics-panel-hydration.spec.ts",
+      "classification": "test_artifact_expected"
     }
   ],
   "activeOldLogic": [],

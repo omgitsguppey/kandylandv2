@@ -59,6 +59,14 @@ function findActiveOldLogic() {
     if (path === "docs/agent-truth/event-translation-bridge.md") return false;
     if (path === "tests/unit/event-translation-bridge.spec.ts") return false;
     if (path === "src/lib/analytics/event-translation-bridge.ts") return false;
+    if (path === "src/lib/analytics/event-liveness-contract.ts") return false;
+    if (path === "src/lib/analytics/event-liveness-engine.ts") return false;
+    if (path === "tests/unit/event-liveness-audit.spec.ts") return false;
+    if (path === "agent/state/analytics-panel-hydration.generated.json") return false;
+    if (path === "docs/agent-truth/analytics-panel-hydration.md") return false;
+    if (path === "src/lib/admin-analytics/panel-hydration-contract.ts") return false;
+    if (path === "src/lib/admin-analytics/panel-hydration-resolver.ts") return false;
+    if (path === "tests/unit/analytics-panel-hydration.spec.ts") return false;
     if (path === "scripts/agent/validate-telemetry-trigger-test-matrix.ts") return false;
     if (path === "scripts/agent/validate-event-liveness-audit.ts") return false;
     if (path === "agent/state/event-liveness-audit.generated.json") return false;

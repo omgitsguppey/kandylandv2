@@ -1,33 +1,33 @@
 {
-  "generatedAtUtc": "2026-05-24T10:34:42.172Z",
+  "generatedAtUtc": "2026-05-31T04:44:05.831Z",
   "reportKey": "global-user-dedupe-normalization",
-  "currentHead": "7594711347e5902fd476e64b4b276d9c175429de",
+  "currentHead": "c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
   "fakeActivityUsed": false,
   "scoreBefore": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "overallHealthScore": 76.61
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 72,
-    "freshness": 83.75,
+    "freshness": 82,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "overallHealthScore": 76.61
   },
   "metrics": {
     "sourceHealth": {
-      "before": 92.5,
-      "after": 92.5,
+      "before": 91.7,
+      "after": 91.7,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No global/user dedupe score action needed for this dimension."
@@ -47,8 +47,8 @@
       "nextExactAction": "Resolve formal beta score gates outside analytics dedupe; do not fake runtime/provider evidence."
     },
     "freshness": {
-      "before": 83.75,
-      "after": 83.75,
+      "before": 67.5,
+      "after": 82,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No global/user dedupe score action needed for this dimension."
@@ -68,8 +68,8 @@
       "nextExactAction": "No global/user dedupe score action needed for this dimension."
     },
     "overallHealthScore": {
-      "before": 79.25,
-      "after": 79.25,
+      "before": 76.61,
+      "after": 76.61,
       "target": 80,
       "status": "below_target",
       "nextExactAction": "Resolve formal beta score gates outside analytics dedupe; do not fake runtime/provider evidence."
@@ -101,11 +101,11 @@
         "idempotencyKey": "drop_preview_opened:validator_drop"
       },
       "dedupeScope": "event",
-      "dedupeKey": "global:drop_preview_opened:drops:drop_preview_opened:validator_drop",
+      "dedupeKey": "global:drops_opened:event:validator_linked",
       "global": {
         "count": true,
         "policy": "count_once",
-        "dedupeKey": "global:drop_preview_opened:drops:drop_preview_opened:validator_drop",
+        "dedupeKey": "global:drops_opened:event:validator_linked",
         "reason": "linked_guest_attributed_to_user"
       },
       "guest": {
@@ -117,13 +117,13 @@
       "user": {
         "count": true,
         "policy": "best_identity_wins",
-        "dedupeKey": "user:user_validator:drop_preview_opened:drop_preview_opened:validator_drop",
+        "dedupeKey": "user:person_validator:drops_opened:event:validator_linked",
         "reason": "linked_guest_attributed_to_user"
       },
       "linkedPerson": {
         "count": true,
         "policy": "linked_user_wins",
-        "dedupeKey": "person:person_validator:drop_preview_opened:drop_preview_opened:validator_drop",
+        "dedupeKey": "user:person_validator:drops_opened:event:validator_linked",
         "reason": "linked_guest_attributed_to_user"
       },
       "sql": {
@@ -144,10 +144,23 @@
       "suppressedDuplicateKeys": [
         "guest:guest_validator"
       ],
+      "countDedupeMath": {
+        "formulaId": "count_dedupe.drop_open_count",
+        "domain": "drops_opened",
+        "canonicalKey": "event:validator_linked",
+        "globalKey": "global:drops_opened:event:validator_linked",
+        "userKey": "user:person_validator:drops_opened:event:validator_linked",
+        "creatorKey": null,
+        "legacyKey": "legacy:drops_opened:event:validator_linked",
+        "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it.",
+        "divergenceExplanation": "Global count increments once and user count is attributed to the best user identity; guest scope is suppressed to avoid double counting.",
+        "replaySuppressed": false,
+        "legacyBucket": false
+      },
       "debug": {
         "lane": "Global vs user dedupe",
         "defaultVisible": true,
-        "explanation": "A linked guest action for drop_preview_opened is counted once globally and attributed to the linked guest user identity.",
+        "explanation": "Global count increments once and user count is attributed to the best user identity; guest scope is suppressed to avoid double counting.",
         "nextAction": "Keep the raw guest fact for export, but attribute normalized user metrics to the linked user once."
       }
     },
@@ -163,11 +176,11 @@
         "legacyUnknown": true
       },
       "dedupeScope": "event",
-      "dedupeKey": "global:semantic_page_viewed:legacy:validator_legacy",
+      "dedupeKey": "global:page_session_events:event:validator_legacy",
       "global": {
         "count": false,
         "policy": "archive_only",
-        "dedupeKey": "global:semantic_page_viewed:legacy:validator_legacy",
+        "dedupeKey": "global:page_session_events:event:validator_legacy",
         "reason": "unknown_legacy_archived"
       },
       "guest": {
@@ -204,10 +217,23 @@
       },
       "duplicateRisk": "unknown_legacy_archived",
       "suppressedDuplicateKeys": [],
+      "countDedupeMath": {
+        "formulaId": "count_dedupe.page_session_count",
+        "domain": "page_session_events",
+        "canonicalKey": "event:validator_legacy",
+        "globalKey": "global:page_session_events:event:validator_legacy",
+        "userKey": null,
+        "creatorKey": null,
+        "legacyKey": "legacy:page_session_events:event:validator_legacy",
+        "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it.",
+        "divergenceExplanation": "Legacy weak or unknown confidence is counted in the legacy bucket only, not exact global or user buckets.",
+        "replaySuppressed": false,
+        "legacyBucket": true
+      },
       "debug": {
         "lane": "Global vs user dedupe",
         "defaultVisible": true,
-        "explanation": "Unknown legacy event semantic_page_viewed is kept as raw export evidence and not promoted to exact user truth.",
+        "explanation": "Legacy weak or unknown confidence is counted in the legacy bucket only, not exact global or user buckets.",
         "nextAction": "Archive legacy identity evidence without promoting it to exact user metrics."
       }
     },
@@ -225,11 +251,11 @@
         "replayOfEventId": "wallet_opened:validator"
       },
       "dedupeScope": "event",
-      "dedupeKey": "global:wallet_opened:wallet:wallet_opened:validator",
+      "dedupeKey": "global:wallet_opens:event:validator_replay",
       "global": {
         "count": false,
         "policy": "count_once",
-        "dedupeKey": "global:wallet_opened:wallet:wallet_opened:validator",
+        "dedupeKey": "global:wallet_opens:event:validator_replay",
         "reason": "retry_replay_not_counted"
       },
       "guest": {
@@ -241,7 +267,7 @@
       "user": {
         "count": false,
         "policy": "best_identity_wins",
-        "dedupeKey": "user:user_validator:wallet_opened:wallet_opened:validator",
+        "dedupeKey": "user:user_validator:wallet_opens:event:validator_replay",
         "reason": "retry_replay_not_counted"
       },
       "linkedPerson": {
@@ -266,10 +292,23 @@
       },
       "duplicateRisk": "retry_replay_suppressed",
       "suppressedDuplicateKeys": [],
+      "countDedupeMath": {
+        "formulaId": "count_dedupe.wallet_open_count",
+        "domain": "wallet_opens",
+        "canonicalKey": "event:validator_replay",
+        "globalKey": "global:wallet_opens:event:validator_replay",
+        "userKey": "user:user_validator:wallet_opens:event:validator_replay",
+        "creatorKey": null,
+        "legacyKey": "legacy:wallet_opens:event:validator_replay",
+        "zeroUnknownBehavior": "Zero means no increment in the evaluated source window; unknown or missing identity stays uncounted until source truth links it.",
+        "divergenceExplanation": "Retry or replay evidence is preserved outside standard user-facing counts unless replay is the metric itself.",
+        "replaySuppressed": true,
+        "legacyBucket": false
+      },
       "debug": {
         "lane": "Global vs user dedupe",
         "defaultVisible": true,
-        "explanation": "replay or retry event wallet_opened is preserved for export but suppressed from global and user aggregates.",
+        "explanation": "Retry or replay evidence is preserved outside standard user-facing counts unless replay is the metric itself.",
         "nextAction": "Preserve the raw replay fact for SQL/export audit and suppress aggregate counters."
       }
     }
@@ -285,7 +324,7 @@
       "identityConfidence": "linked"
     },
     "identityConfidence": "linked",
-    "dedupeDecisionExplanation": "A linked guest action for drop_preview_opened is counted once globally and attributed to the linked guest user identity."
+    "dedupeDecisionExplanation": "Global count increments once and user count is attributed to the best user identity; guest scope is suppressed to avoid double counting."
   },
   "dirtyFiles": [
     {
@@ -293,20 +332,28 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "agent/state/global-user-dedupe-normalization.generated.json",
       "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/person-metrics-hydration.generated.json",
@@ -317,11 +364,15 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/session-bounce-calculation.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -329,75 +380,47 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
       "path": "docs/agent-truth/global-user-dedupe-normalization.md",
       "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/person-metrics-hydration.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/session-bounce-calculation.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "public/kandydrops-release-notes.json",
       "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-session-bounce-calculation.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/components/Analytics/DeepTracker.tsx",
+      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/session-metrics-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/session-metrics-engine.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/event-fact-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/behavioral/normalize-event-fact.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -409,15 +432,7 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/telemetry-catalog.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/session-bounce-calculation.spec.ts",
+      "path": "tests/unit/analytics-panel-hydration.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

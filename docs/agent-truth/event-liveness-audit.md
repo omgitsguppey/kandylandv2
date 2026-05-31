@@ -1,8 +1,8 @@
 # Event Liveness Audit
 
-Generated: 2026-05-31T02:22:34.272Z
+Generated: 2026-05-31T04:44:05.671Z
 Status: pass
-Current head: 6c7a3195afa69c47cdc499b984100c8da559c461
+Current head: c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718
 
 ## Summary
 
@@ -49,17 +49,40 @@ Current head: 6c7a3195afa69c47cdc499b984100c8da559c461
 | sourceHealth | 91.7 | 91.7 | target_met | No event liveness score action needed for this dimension. |
 | runtimeHealth | 84.2 | 74.2 | below_target | 35 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
 | evidenceCompleteness | 69.6 | 59.6 | below_target | 38 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
-| freshness | 59.38 | 49.38 | below_target | 35 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
+| freshness | 67.5 | 57.5 | below_target | 35 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
 | costRisk | 42 | 42 | below_target | Quiet future-only and rare events do not reduce this dimension. |
 | regressionRisk | 86 | 76 | below_target | 16 event liveness point(s) of pressure from suspicious idle, missing source, or missing bridge/materializer/hydration classifications. |
-| overallHealthScore | 75.39 | 65.48 | below_target | Resolve liveness source gaps and formal beta score blockers before treating overall as ready. |
+| overallHealthScore | 76.61 | 66.83 | below_target | Resolve liveness source gaps and formal beta score blockers before treating overall as ready. |
 
 ## Dirty Files
 
+- CHANGELOG.md: release_artifact_expected
+- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
+- agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/global-user-dedupe-normalization.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/analytics-panel-hydration.md: documentation_artifact_expected
+- docs/agent-truth/current-beta-exit-status.md: documentation_artifact_expected
+- docs/agent-truth/event-liveness-audit.md: release_artifact_expected
+- docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
+- docs/agent-truth/global-user-dedupe-normalization.md: documentation_artifact_expected
+- docs/agent-truth/overnight-beta-readiness-lock.md: documentation_artifact_expected
+- docs/agent-truth/person-metrics-hydration.md: documentation_artifact_expected
+- public/kandydrops-release-notes.json: release_artifact_expected
+- scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
 - scripts/agent/validate-event-liveness-audit.ts: current_generated_artifact_to_commit
-- src/lib/analytics/event-liveness-contract.ts: real_source_change_needs_review
-- src/lib/analytics/event-liveness-engine.ts: real_source_change_needs_review
-- tests/unit/event-liveness-audit.spec.ts: current_generated_artifact_to_commit
+- scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
+- scripts/agent/validate-global-user-dedupe-normalization.ts: validator_artifact_expected
+- src/lib/admin-analytics/panel-hydration-contract.ts: real_source_change_needs_review
+- src/lib/admin-analytics/panel-hydration-resolver.ts: real_source_change_needs_review
+- src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
+- src/lib/release-notes/public-release-notes.ts: release_artifact_expected
+- src/lib/release-notes/release-version-contract.ts: release_artifact_expected
+- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

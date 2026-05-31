@@ -1,5 +1,6 @@
 import { ADMIN_ANALYTICS_PANEL_HYDRATION_REGISTRY } from "./panel-hydration-registry";
 import type { EventLivenessStatus } from "@/lib/analytics/event-liveness-contract";
+import { listEventTranslationBridgeCanonicalEvents } from "@/lib/analytics/event-translation-bridge";
 import type { PersonMetricHydrationStatus } from "@/lib/analytics/person-metrics-hydration";
 import type {
   AdminAnalyticsPanelFreshness,
@@ -27,6 +28,7 @@ export type ResolveAnalyticsPanelHydrationInput = {
 
 const ACTIONABLE_STATUSES = new Set<AdminAnalyticsPanelHydrationStatus>([
   "source_missing",
+  "not_observed_but_expected",
   "materializer_missing",
   "producer_missing",
   "bridge_missing",
@@ -34,6 +36,10 @@ const ACTIONABLE_STATUSES = new Set<AdminAnalyticsPanelHydrationStatus>([
   "not_configured",
   "broken",
 ]);
+
+const CANONICAL_BRIDGE_EVENT_NAMES = new Set(
+  listEventTranslationBridgeCanonicalEvents().map((event) => event.eventName),
+);
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? value as JsonRecord : {};
@@ -63,6 +69,8 @@ function eventStatusFor(panel: { expectedEvents: string[] }, eventLivenessAudit?
   for (const status of ["observed_recently", "observed_stale", "materializer_missing", "translation_missing", "hydration_missing", "source_missing"] as const) {
     if (events.some((entry) => entry.livenessStatus === status)) return status;
   }
+  if (events.some((entry) => entry.livenessStatus === "not_observed_but_expected")) return "not_observed_but_expected";
+  if (events.some((entry) => entry.livenessStatus === "source_ready_waiting_for_activity")) return "source_ready_waiting_for_activity";
   if (events.every((entry) => entry.livenessStatus === "not_observed_and_not_expected")) return "not_observed_and_not_expected";
   return events[0]?.livenessStatus as EventLivenessStatus | null;
 }
@@ -89,25 +97,37 @@ function metricStatusFor(panel: { personMetricIds: string[] }, personMetricsHydr
   return null;
 }
 
+function hasCanonicalBridgeSource(panel: { expectedEvents: string[] }) {
+  return panel.expectedEvents.some((eventName) => CANONICAL_BRIDGE_EVENT_NAMES.has(eventName));
+}
+
 function statusFromDelegatedSources(input: {
   statusFromRuntime: AdminAnalyticsPanelHydrationStatus | null;
   statusFromEvent: EventLivenessStatus | null;
   statusFromMetric: ReturnType<typeof metricStatusFor>;
   sourceType: string;
   expectedDaily: boolean;
+  panelGroup: string;
+  hasCanonicalBridgeSource: boolean;
 }): AdminAnalyticsPanelHydrationStatus {
-  if (input.sourceType === "external_required") return "external_required";
+  if (input.sourceType === "external_required") return input.panelGroup === "payments" ? "provider_gated" : "manual_or_runtime_required";
   if (input.statusFromRuntime) return input.statusFromRuntime;
   if (input.statusFromEvent === "observed_recently") return "hydrated";
   if (input.statusFromEvent === "observed_stale") return "stale";
   if (input.statusFromEvent === "materializer_missing") return "materializer_missing";
   if (input.statusFromEvent === "translation_missing" || input.statusFromEvent === "hydration_missing") return "bridge_missing";
   if (input.statusFromEvent === "source_missing") return "source_missing";
+  if (input.statusFromEvent === "not_observed_but_expected") return "not_observed_but_expected";
+  if (input.statusFromEvent === "source_ready_waiting_for_activity") return "source_ready_waiting_for_activity";
   if (input.statusFromMetric === "hydrated") return "hydrated";
   if (input.statusFromMetric === "bridge_missing") return "bridge_missing";
-  if (input.statusFromMetric === "source_missing") return input.expectedDaily ? "source_missing" : "collecting";
+  if (input.statusFromMetric === "source_missing") {
+    if (input.hasCanonicalBridgeSource) return input.expectedDaily ? "not_observed_but_expected" : "source_ready_waiting_for_activity";
+    return input.expectedDaily ? "source_missing" : "collecting";
+  }
   if (input.statusFromMetric === "collecting") return "collecting";
-  if (input.sourceType === "route_runtime_sample" || input.sourceType === "debug_runtime_evidence" || input.sourceType === "admin_summary") return "collecting";
+  if (input.sourceType === "route_runtime_sample" || input.sourceType === "debug_runtime_evidence" || input.sourceType === "admin_summary") return "manual_or_runtime_required";
+  if (input.hasCanonicalBridgeSource) return input.expectedDaily ? "not_observed_but_expected" : "source_ready_waiting_for_activity";
   return "source_missing";
 }
 
@@ -123,6 +143,7 @@ function runtimeStatus(signal?: AdminAnalyticsPanelRuntimeSignal): AdminAnalytic
 
 function freshnessFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnalyticsPanelFreshness {
   if (status === "hydrated" || status === "collecting" || status === "external_required") return "fresh";
+  if (status === "source_ready_waiting_for_activity" || status === "provider_gated" || status === "manual_or_runtime_required") return "fresh";
   if (status === "stale") return "stale";
   return "unknown";
 }
@@ -130,8 +151,10 @@ function freshnessFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnalytic
 function displayStateFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnalyticsPanelHydrationRecord["userSafeDisplayState"] {
   if (status === "hydrated") return "show_value";
   if (status === "collecting") return "show_collecting";
+  if (status === "source_ready_waiting_for_activity") return "show_collecting";
+  if (status === "not_observed_but_expected") return "show_not_connected";
   if (status === "stale") return "show_stale";
-  if (status === "external_required") return "show_external_required";
+  if (status === "external_required" || status === "manual_or_runtime_required" || status === "provider_gated") return "show_external_required";
   if (status === "hidden_by_role") return "show_hidden";
   if (status === "permission_blocked") return "show_permission_blocked";
   if (status === "broken") return "show_broken";
@@ -142,16 +165,17 @@ function confidenceFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnalyti
   if (status === "hydrated") return "exact";
   if (status === "stale") return "linked";
   if (status === "collecting") return "inferred";
-  if (status === "external_required") return "unknown";
+  if (status === "source_ready_waiting_for_activity") return "inferred";
+  if (status === "external_required" || status === "manual_or_runtime_required" || status === "provider_gated") return "unknown";
   if (ACTIONABLE_STATUSES.has(status)) return "unknown";
   return "weak";
 }
 
 function contributionFor(status: AdminAnalyticsPanelHydrationStatus): AdminAnalyticsPanelHydrationRecord["liveEvidenceContribution"] {
   if (status === "hydrated") return "clears_live_evidence";
-  if (status === "collecting") return "source_exists_collecting";
+  if (status === "collecting" || status === "source_ready_waiting_for_activity") return "source_exists_collecting";
   if (status === "stale") return "stale_not_live";
-  if (status === "external_required") return "external_or_manual";
+  if (status === "external_required" || status === "manual_or_runtime_required" || status === "provider_gated") return "external_or_manual";
   return "actionable_gap";
 }
 
@@ -167,6 +191,10 @@ export function classifyPanelEmptyReason(input: {
       return `${input.panelLabel} has source data, but freshness is outside the expected window.`;
     case "collecting":
       return `${input.panelLabel} has a connected source and is collecting; do not display zero until a bounded source proves zero.`;
+    case "source_ready_waiting_for_activity":
+      return `${input.panelLabel} has a canonical event/person metric source and is waiting for bounded real activity; this is not runtime proof.`;
+    case "not_observed_but_expected":
+      return `${input.panelLabel} has canonical source mapping but no bounded recent activity for an expected panel.`;
     case "source_missing":
       return `${input.panelLabel} has no safe recent source connected for ${input.expectedSource}.`;
     case "materializer_missing":
@@ -175,6 +203,10 @@ export function classifyPanelEmptyReason(input: {
       return `${input.panelLabel} has an event or metric bridge gap before it can hydrate the panel.`;
     case "external_required":
       return `${input.panelLabel} requires external/provider or billing evidence and cannot be proven by screenshots.`;
+    case "manual_or_runtime_required":
+      return `${input.panelLabel} requires deployed runtime, admin, or operator evidence before it can be treated as hydrated.`;
+    case "provider_gated":
+      return `${input.panelLabel} requires formal provider evidence and cannot be proven by source-only telemetry.`;
     case "permission_blocked":
       return `${input.panelLabel} is blocked by role or permission state.`;
     case "broken":
@@ -194,8 +226,9 @@ export function classifyPanelStaleness(input: { status: AdminAnalyticsPanelHydra
 
 export function findPanelSourceBreak(record: Pick<AdminAnalyticsPanelHydrationRecord, "hydrationStatus" | "sourcePath" | "materializerPath" | "expectedSource">) {
   if (record.hydrationStatus === "source_missing" || record.hydrationStatus === "producer_missing") return record.sourcePath;
+  if (record.hydrationStatus === "not_observed_but_expected" || record.hydrationStatus === "source_ready_waiting_for_activity") return record.sourcePath;
   if (record.hydrationStatus === "materializer_missing" || record.hydrationStatus === "bridge_missing") return record.materializerPath ?? record.expectedSource;
-  if (record.hydrationStatus === "external_required") return record.expectedSource;
+  if (record.hydrationStatus === "external_required" || record.hydrationStatus === "manual_or_runtime_required" || record.hydrationStatus === "provider_gated") return record.expectedSource;
   return null;
 }
 
@@ -206,12 +239,15 @@ export function resolvePanelHydration(input: ResolveAnalyticsPanelHydrationInput
   const statusFromRuntime = runtimeStatus(signal);
   const statusFromEvent = eventStatusFor(panel, input.eventLivenessAudit);
   const statusFromMetric = metricStatusFor(panel, input.personMetricsHydration);
+  const canonicalBridgeSource = hasCanonicalBridgeSource(panel);
   const hydrationStatus = statusFromDelegatedSources({
     statusFromRuntime,
     statusFromEvent,
     statusFromMetric,
     sourceType: panel.sourceType,
     expectedDaily: panel.expectedDaily,
+    panelGroup: panel.panelGroup,
+    hasCanonicalBridgeSource: canonicalBridgeSource,
   });
 
   const lastSeenAt = signal?.lastSeenAt ?? lastSeenFor(panel, input.eventLivenessAudit);
@@ -227,9 +263,13 @@ export function resolvePanelHydration(input: ResolveAnalyticsPanelHydrationInput
     ? "Keep this panel source fresh and redacted."
     : hydrationStatus === "collecting"
       ? `Keep ${panel.expectedSource} connected; display collecting until the source has recent activity or proven zero.`
+      : hydrationStatus === "source_ready_waiting_for_activity"
+        ? `Keep ${panel.expectedSource} wired through canonical event/person metric sources; wait for bounded real activity or proven zero.`
+        : hydrationStatus === "not_observed_but_expected"
+          ? `Verify ${panel.expectedSource} with bounded recent summaries before treating ${panel.panelLabel} as hydrated or zero.`
       : hydrationStatus === "stale"
         ? `Refresh ${panel.expectedSource} and verify the latest materialized timestamp.`
-        : hydrationStatus === "external_required"
+        : hydrationStatus === "external_required" || hydrationStatus === "manual_or_runtime_required" || hydrationStatus === "provider_gated"
           ? `Attach redacted external evidence for ${panel.expectedSource}; do not use screenshots as backend proof.`
           : `Repair ${sourceBreak ?? panel.expectedSource} so ${panel.panelLabel} can hydrate.`;
 
@@ -276,7 +316,10 @@ export function buildPanelHydrationDebugFinding(input: AdminAnalyticsPanelHydrat
 export function buildAnalyticsPanelHydrationDebugLane(panels: readonly AdminAnalyticsPanelHydrationRecord[]): AnalyticsPanelHydrationDebugLane {
   const count = (status: AdminAnalyticsPanelHydrationStatus) => panels.filter((panel) => panel.hydrationStatus === status).length;
   const topNextActions = panels
-    .filter((panel) => panel.hydrationStatus !== "hydrated" && panel.hydrationStatus !== "collecting")
+    .filter((panel) =>
+      panel.hydrationStatus !== "hydrated"
+      && panel.hydrationStatus !== "collecting"
+      && panel.hydrationStatus !== "source_ready_waiting_for_activity")
     .slice(0, 10)
     .map((panel) => `${panel.panelLabel}: ${panel.nextExactAction}`);
 
@@ -286,10 +329,14 @@ export function buildAnalyticsPanelHydrationDebugLane(panels: readonly AdminAnal
     hydrated: count("hydrated"),
     stale: count("stale"),
     collecting: count("collecting"),
+    sourceReadyWaitingForActivity: count("source_ready_waiting_for_activity"),
+    notObservedButExpected: count("not_observed_but_expected"),
     sourceMissing: count("source_missing") + count("producer_missing") + count("not_configured"),
     materializerMissing: count("materializer_missing"),
     bridgeMissing: count("bridge_missing"),
-    externalRequired: count("external_required"),
+    manualOrRuntimeRequired: count("manual_or_runtime_required"),
+    providerGated: count("provider_gated"),
+    externalRequired: count("external_required") + count("manual_or_runtime_required") + count("provider_gated"),
     hiddenByRole: count("hidden_by_role") + count("permission_blocked"),
     broken: count("broken"),
     topNextActions,
@@ -311,7 +358,10 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
   }, {} as AnalyticsPanelHydrationReport["panelsByGroup"]);
   const debugLane = buildAnalyticsPanelHydrationDebugLane(panels);
   const topPanelHydrationFailures = panels
-    .filter((panel) => panel.hydrationStatus !== "hydrated" && panel.hydrationStatus !== "collecting")
+    .filter((panel) =>
+      panel.hydrationStatus !== "hydrated"
+      && panel.hydrationStatus !== "collecting"
+      && panel.hydrationStatus !== "source_ready_waiting_for_activity")
     .slice(0, 10);
   const liveEvidenceContribution = {
     contributes: panels.filter((panel) => panel.liveEvidenceContribution === "clears_live_evidence").map((panel) => panel.panelId),
@@ -336,10 +386,14 @@ export function buildAnalyticsPanelHydrationReport(input: ResolveAnalyticsPanelH
     hydratedPanels: count("hydrated"),
     stalePanels: count("stale"),
     collectingPanels: count("collecting"),
+    sourceReadyWaitingForActivityPanels: count("source_ready_waiting_for_activity"),
+    notObservedButExpectedPanels: count("not_observed_but_expected"),
     sourceMissingPanels: count("source_missing") + count("producer_missing") + count("not_configured"),
     materializerMissingPanels: count("materializer_missing"),
     bridgeMissingPanels: count("bridge_missing"),
-    externalRequiredPanels: count("external_required"),
+    manualOrRuntimeRequiredPanels: count("manual_or_runtime_required"),
+    providerGatedPanels: count("provider_gated"),
+    externalRequiredPanels: count("external_required") + count("manual_or_runtime_required") + count("provider_gated"),
     permissionBlockedPanels: count("permission_blocked") + count("hidden_by_role"),
     brokenPanels: count("broken"),
     panelsByGroup: groups,

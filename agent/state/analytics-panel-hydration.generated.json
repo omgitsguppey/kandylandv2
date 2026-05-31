@@ -1,27 +1,31 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-05-27T02:53:36.720Z",
-  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+  "generatedAtUtc": "2026-05-31T04:43:42.163Z",
+  "currentHead": "c2ec29f5a6c1d75ec8652e8eba92fab43e6ff718",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
-    "sourceHealth": 100,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "evidenceCompleteness": 69.6,
+    "freshness": 67.5,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "overallHealthScore": 76.61
   },
   "totalPanels": 41,
-  "hydratedPanels": 9,
+  "hydratedPanels": 10,
   "stalePanels": 0,
-  "collectingPanels": 2,
-  "sourceMissingPanels": 27,
+  "collectingPanels": 0,
+  "sourceReadyWaitingForActivityPanels": 6,
+  "notObservedButExpectedPanels": 18,
+  "sourceMissingPanels": 2,
   "materializerMissingPanels": 0,
   "bridgeMissingPanels": 0,
-  "externalRequiredPanels": 3,
+  "manualOrRuntimeRequiredPanels": 3,
+  "providerGatedPanels": 2,
+  "externalRequiredPanels": 5,
   "permissionBlockedPanels": 0,
   "brokenPanels": 0,
   "panelsByGroup": {
@@ -57,9 +61,9 @@
     },
     "unlocks": {
       "total": 2,
-      "hydrated": 0,
+      "hydrated": 1,
       "collecting": 0,
-      "gaps": 2
+      "gaps": 0
     },
     "watch": {
       "total": 2,
@@ -71,13 +75,13 @@
       "total": 2,
       "hydrated": 0,
       "collecting": 0,
-      "gaps": 2
+      "gaps": 1
     },
     "payments": {
       "total": 3,
       "hydrated": 0,
       "collecting": 0,
-      "gaps": 1
+      "gaps": 0
     },
     "gumdrops": {
       "total": 2,
@@ -101,7 +105,7 @@
       "total": 3,
       "hydrated": 0,
       "collecting": 0,
-      "gaps": 3
+      "gaps": 0
     },
     "media": {
       "total": 1,
@@ -124,7 +128,7 @@
     "errors": {
       "total": 2,
       "hydrated": 0,
-      "collecting": 2,
+      "collecting": 0,
       "gaps": 0
     },
     "cost": {
@@ -147,108 +151,108 @@
     }
   },
   "panelStatus": {
-    "traffic_overview": "source_missing",
-    "active_users": "source_missing",
+    "traffic_overview": "not_observed_but_expected",
+    "active_users": "not_observed_but_expected",
     "new_users_signups": "hydrated",
-    "returning_users": "source_missing",
-    "guest_to_user_handoff": "source_missing",
-    "creator_count": "source_missing",
-    "creator_profile_views": "source_missing",
+    "returning_users": "not_observed_but_expected",
+    "guest_to_user_handoff": "not_observed_but_expected",
+    "creator_count": "not_observed_but_expected",
+    "creator_profile_views": "not_observed_but_expected",
     "creator_follows": "hydrated",
     "drops_live": "hydrated",
-    "drop_opens": "source_missing",
-    "unlocks": "source_missing",
-    "unwraps": "source_missing",
+    "drop_opens": "not_observed_but_expected",
+    "unlocks": "hydrated",
+    "unwraps": "source_ready_waiting_for_activity",
     "watch_time": "hydrated",
     "completion_rate": "hydrated",
-    "wallet_opens": "source_missing",
-    "package_selections": "source_missing",
-    "checkout_starts": "source_missing",
-    "payment_approvals": "external_required",
-    "payment_failures": "external_required",
+    "wallet_opens": "not_observed_but_expected",
+    "package_selections": "source_ready_waiting_for_activity",
+    "checkout_starts": "source_ready_waiting_for_activity",
+    "payment_approvals": "provider_gated",
+    "payment_failures": "provider_gated",
     "gumdrop_balances": "source_missing",
-    "reward_gd_grants": "source_missing",
-    "task_starts": "source_missing",
-    "task_completions": "source_missing",
-    "task_rewards": "source_missing",
-    "chat_opens": "source_missing",
-    "chat_messages": "source_missing",
-    "chat_blocks_errors": "source_missing",
-    "notification_prompts": "source_missing",
-    "notification_tokens": "source_missing",
-    "notification_intents": "source_missing",
+    "reward_gd_grants": "not_observed_but_expected",
+    "task_starts": "not_observed_but_expected",
+    "task_completions": "not_observed_but_expected",
+    "task_rewards": "not_observed_but_expected",
+    "chat_opens": "not_observed_but_expected",
+    "chat_messages": "not_observed_but_expected",
+    "chat_blocks_errors": "not_observed_but_expected",
+    "notification_prompts": "source_ready_waiting_for_activity",
+    "notification_tokens": "source_ready_waiting_for_activity",
+    "notification_intents": "source_ready_waiting_for_activity",
     "auth_attempts_failures": "hydrated",
-    "session_restores": "source_missing",
-    "media_uploads_access_blocks": "source_missing",
+    "session_restores": "not_observed_but_expected",
+    "media_uploads_access_blocks": "not_observed_but_expected",
     "search_queries": "hydrated",
     "search_zero_results_clicks": "hydrated",
     "support_account_actions": "hydrated",
-    "error_rate_4xx": "collecting",
-    "cost_risk": "external_required",
+    "error_rate_4xx": "manual_or_runtime_required",
+    "cost_risk": "manual_or_runtime_required",
     "journey_funnel": "source_missing",
-    "realtime_health": "source_missing",
-    "debug_backlog": "collecting"
+    "realtime_health": "not_observed_but_expected",
+    "debug_backlog": "manual_or_runtime_required"
   },
   "topPanelHydrationFailures": [
     {
       "panelId": "traffic_overview",
       "panelLabel": "Traffic overview",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_event_facts with bounded recent summaries before treating Traffic overview as hydrated or zero."
     },
     {
       "panelId": "active_users",
       "panelLabel": "Active users",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/admin/analytics/realtime/route.ts so Active users can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Active users as hydrated or zero."
     },
     {
       "panelId": "returning_users",
       "panelLabel": "Returning users",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/behavior so Returning users can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Returning users as hydrated or zero."
     },
     {
       "panelId": "guest_to_user_handoff",
       "panelLabel": "Guest-to-user handoff",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Guest-to-user handoff as hydrated or zero."
     },
     {
       "panelId": "creator_count",
       "panelLabel": "Creator count",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/lib/admin/user-management-contract.ts so Creator count can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify settings surfaces and settings route telemetry with bounded recent summaries before treating Creator count as hydrated or zero."
     },
     {
       "panelId": "creator_profile_views",
       "panelLabel": "Creator profile views",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/behavior so Creator profile views can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_event_facts and creator relationship funnel telemetry with bounded recent summaries before treating Creator profile views as hydrated or zero."
     },
     {
       "panelId": "drop_opens",
       "panelLabel": "Drop opens",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/behavior so Drop opens can hydrate."
-    },
-    {
-      "panelId": "unlocks",
-      "panelLabel": "Unlocks",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate."
-    },
-    {
-      "panelId": "unwraps",
-      "panelLabel": "Unwraps",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/behavior so Unwraps can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_event_facts with bounded recent summaries before treating Drop opens as hydrated or zero."
     },
     {
       "panelId": "wallet_opens",
       "panelLabel": "Wallet opens",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/wallet so Wallet opens can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify wallet UI telemetry with bounded recent summaries before treating Wallet opens as hydrated or zero."
+    },
+    {
+      "panelId": "payment_approvals",
+      "panelLabel": "Payment approvals",
+      "hydrationStatus": "provider_gated",
+      "nextExactAction": "Attach redacted external evidence for server purchase verification facts; do not use screenshots as backend proof."
+    },
+    {
+      "panelId": "payment_failures",
+      "panelLabel": "Payment failures",
+      "hydrationStatus": "provider_gated",
+      "nextExactAction": "Attach redacted external evidence for payment failure telemetry; do not use screenshots as backend proof."
     }
   ],
   "liveEvidenceContribution": {
@@ -256,6 +260,7 @@
       "new_users_signups",
       "creator_follows",
       "drops_live",
+      "unlocks",
       "watch_time",
       "completion_rate",
       "auth_attempts_failures",
@@ -264,8 +269,12 @@
       "support_account_actions"
     ],
     "collecting": [
-      "error_rate_4xx",
-      "debug_backlog"
+      "unwraps",
+      "package_selections",
+      "checkout_starts",
+      "notification_prompts",
+      "notification_tokens",
+      "notification_intents"
     ],
     "blocked": [
       "traffic_overview",
@@ -275,11 +284,7 @@
       "creator_count",
       "creator_profile_views",
       "drop_opens",
-      "unlocks",
-      "unwraps",
       "wallet_opens",
-      "package_selections",
-      "checkout_starts",
       "gumdrop_balances",
       "reward_gd_grants",
       "task_starts",
@@ -288,9 +293,6 @@
       "chat_opens",
       "chat_messages",
       "chat_blocks_errors",
-      "notification_prompts",
-      "notification_tokens",
-      "notification_intents",
       "session_restores",
       "media_uploads_access_blocks",
       "journey_funnel",
@@ -299,7 +301,9 @@
     "externalRequired": [
       "payment_approvals",
       "payment_failures",
-      "cost_risk"
+      "error_rate_4xx",
+      "cost_risk",
+      "debug_backlog"
     ]
   },
   "livePanelEvidenceSummary": {
@@ -307,6 +311,7 @@
       "new_users_signups",
       "creator_follows",
       "drops_live",
+      "unlocks",
       "watch_time",
       "completion_rate",
       "auth_attempts_failures",
@@ -314,11 +319,7 @@
       "search_zero_results_clicks",
       "support_account_actions"
     ],
-    "externalRequiredPanelIds": [
-      "payment_approvals",
-      "payment_failures",
-      "cost_risk"
-    ],
+    "externalRequiredPanelIds": [],
     "blockedPanelIds": [
       "traffic_overview",
       "active_users",
@@ -327,11 +328,11 @@
       "creator_count",
       "creator_profile_views",
       "drop_opens",
-      "unlocks",
       "unwraps",
-      "wallet_opens"
+      "wallet_opens",
+      "package_selections"
     ],
-    "blockedPanelCount": 27
+    "blockedPanelCount": 31
   },
   "betaGateImpact": {
     "betaExitReadyBefore": false,
@@ -344,11 +345,7 @@
       "creator_count: panel hydration gap",
       "creator_profile_views: panel hydration gap",
       "drop_opens: panel hydration gap",
-      "unlocks: panel hydration gap",
-      "unwraps: panel hydration gap",
       "wallet_opens: panel hydration gap",
-      "package_selections: panel hydration gap",
-      "checkout_starts: panel hydration gap",
       "gumdrop_balances: panel hydration gap",
       "reward_gd_grants: panel hydration gap",
       "task_starts: panel hydration gap",
@@ -357,41 +354,44 @@
       "chat_opens: panel hydration gap",
       "chat_messages: panel hydration gap",
       "chat_blocks_errors: panel hydration gap",
-      "notification_prompts: panel hydration gap",
-      "notification_tokens: panel hydration gap",
-      "notification_intents: panel hydration gap",
       "session_restores: panel hydration gap",
       "media_uploads_access_blocks: panel hydration gap",
       "journey_funnel: panel hydration gap",
       "realtime_health: panel hydration gap",
       "payment_approvals: external evidence required",
       "payment_failures: external evidence required",
-      "cost_risk: external evidence required"
+      "error_rate_4xx: external evidence required",
+      "cost_risk: external evidence required",
+      "debug_backlog: external evidence required"
     ]
   },
   "debugLane": {
     "label": "Analytics panel hydration",
     "totalPanels": 41,
-    "hydrated": 9,
+    "hydrated": 10,
     "stale": 0,
-    "collecting": 2,
-    "sourceMissing": 27,
+    "collecting": 0,
+    "sourceReadyWaitingForActivity": 6,
+    "notObservedButExpected": 18,
+    "sourceMissing": 2,
     "materializerMissing": 0,
     "bridgeMissing": 0,
-    "externalRequired": 3,
+    "manualOrRuntimeRequired": 3,
+    "providerGated": 2,
+    "externalRequired": 5,
     "hiddenByRole": 0,
     "broken": 0,
     "topNextActions": [
-      "Traffic overview: Repair src/app/api/admin/analytics/historical/route.ts so Traffic overview can hydrate.",
-      "Active users: Repair src/app/api/admin/analytics/realtime/route.ts so Active users can hydrate.",
-      "Returning users: Repair src/app/api/behavior so Returning users can hydrate.",
-      "Guest-to-user handoff: Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate.",
-      "Creator count: Repair src/lib/admin/user-management-contract.ts so Creator count can hydrate.",
-      "Creator profile views: Repair src/app/api/behavior so Creator profile views can hydrate.",
-      "Drop opens: Repair src/app/api/behavior so Drop opens can hydrate.",
-      "Unlocks: Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate.",
-      "Unwraps: Repair src/app/api/behavior so Unwraps can hydrate.",
-      "Wallet opens: Repair src/app/api/wallet so Wallet opens can hydrate."
+      "Traffic overview: Verify analytics_event_facts with bounded recent summaries before treating Traffic overview as hydrated or zero.",
+      "Active users: Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Active users as hydrated or zero.",
+      "Returning users: Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Returning users as hydrated or zero.",
+      "Guest-to-user handoff: Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Guest-to-user handoff as hydrated or zero.",
+      "Creator count: Verify settings surfaces and settings route telemetry with bounded recent summaries before treating Creator count as hydrated or zero.",
+      "Creator profile views: Verify analytics_event_facts and creator relationship funnel telemetry with bounded recent summaries before treating Creator profile views as hydrated or zero.",
+      "Drop opens: Verify analytics_event_facts with bounded recent summaries before treating Drop opens as hydrated or zero.",
+      "Wallet opens: Verify wallet UI telemetry with bounded recent summaries before treating Wallet opens as hydrated or zero.",
+      "Payment approvals: Attach redacted external evidence for server purchase verification facts; do not use screenshots as backend proof.",
+      "Payment failures: Attach redacted external evidence for payment failure telemetry; do not use screenshots as backend proof."
     ]
   },
   "dirtyFiles": [
@@ -400,59 +400,87 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/analytics-hydration-consolidation.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
       "path": "agent/state/analytics-panel-hydration.generated.json",
       "classification": "analytics_panel_hydration_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
-      "classification": "documentation_artifact_expected"
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
-      "classification": "documentation_artifact_expected"
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/global-user-dedupe-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/analytics-panel-hydration.md",
       "classification": "analytics_panel_hydration_artifact_expected"
     },
     {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/global-user-dedupe-normalization.md",
+      "classification": "documentation_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "public/kandydrops-release-notes.json",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
       "path": "scripts/agent/validate-analytics-panel-hydration.ts",
       "classification": "analytics_panel_hydration_artifact_expected"
     },
     {
-      "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "classification": "real_source_change_needs_review"
+      "path": "scripts/agent/validate-event-liveness-audit.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-event-translation-bridge.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/validate-global-user-dedupe-normalization.ts",
+      "classification": "validator_artifact_expected"
     },
     {
       "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/admin-analytics/panel-hydration-registry.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -460,7 +488,7 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
+      "path": "src/lib/analytics/event-translation-bridge.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -468,12 +496,8 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/release-readiness/live-panel-evidence-resolver.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/analytics-hydration-consolidation.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "classification": "release_artifact_expected"
     },
     {
       "path": "tests/unit/analytics-panel-hydration.spec.ts",

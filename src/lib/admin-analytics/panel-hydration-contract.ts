@@ -38,6 +38,10 @@ export type AdminAnalyticsPanelHydrationStatus =
   | "hydrated"
   | "stale"
   | "collecting"
+  | "source_ready_waiting_for_activity"
+  | "not_observed_but_expected"
+  | "manual_or_runtime_required"
+  | "provider_gated"
   | "source_missing"
   | "materializer_missing"
   | "producer_missing"
@@ -108,9 +112,13 @@ export type AnalyticsPanelHydrationDebugLane = {
   hydrated: number;
   stale: number;
   collecting: number;
+  sourceReadyWaitingForActivity: number;
+  notObservedButExpected: number;
   sourceMissing: number;
   materializerMissing: number;
   bridgeMissing: number;
+  manualOrRuntimeRequired: number;
+  providerGated: number;
   externalRequired: number;
   hiddenByRole: number;
   broken: number;
@@ -129,9 +137,13 @@ export type AnalyticsPanelHydrationReport = {
   hydratedPanels: number;
   stalePanels: number;
   collectingPanels: number;
+  sourceReadyWaitingForActivityPanels: number;
+  notObservedButExpectedPanels: number;
   sourceMissingPanels: number;
   materializerMissingPanels: number;
   bridgeMissingPanels: number;
+  manualOrRuntimeRequiredPanels: number;
+  providerGatedPanels: number;
   externalRequiredPanels: number;
   permissionBlockedPanels: number;
   brokenPanels: number;

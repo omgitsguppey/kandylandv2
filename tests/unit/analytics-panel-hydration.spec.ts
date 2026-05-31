@@ -35,10 +35,47 @@ describe("analytics panel hydration", () => {
     expect(panel.canDisplayZero).toBe(false);
   });
 
+  it("keeps source-ready panel mappings distinct from runtime proof", () => {
+    const panel = resolvePanelHydration({
+      panelId: "package_selections",
+      eventLivenessAudit: {
+        classifications: [
+          {
+            eventName: "purchase_package_selected",
+            livenessStatus: "source_ready_waiting_for_activity",
+          },
+        ],
+      },
+    });
+
+    expect(panel.hydrationStatus).toBe("source_ready_waiting_for_activity");
+    expect(panel.liveEvidenceContribution).toBe("source_exists_collecting");
+    expect(panel.reason).toContain("not runtime proof");
+    expect(panel.canDisplayZero).toBe(false);
+  });
+
+  it("keeps expected but unobserved panels actionable without calling them source-missing", () => {
+    const panel = resolvePanelHydration({
+      panelId: "drop_opens",
+      eventLivenessAudit: {
+        classifications: [
+          {
+            eventName: "drop_preview_opened",
+            livenessStatus: "not_observed_but_expected",
+          },
+        ],
+      },
+    });
+
+    expect(panel.hydrationStatus).toBe("not_observed_but_expected");
+    expect(panel.liveEvidenceContribution).toBe("actionable_gap");
+    expect(panel.userSafeDisplayState).toBe("show_not_connected");
+  });
+
   it("keeps external provider payment panels external-required", () => {
     const panel = resolvePanelHydration({ panelId: "payment_approvals" });
 
-    expect(panel.hydrationStatus).toBe("external_required");
+    expect(panel.hydrationStatus).toBe("provider_gated");
     expect(panel.liveEvidenceContribution).toBe("external_or_manual");
     expect(panel.userSafeDisplayState).toBe("show_external_required");
   });
@@ -79,6 +116,7 @@ describe("analytics panel hydration", () => {
 
     expect(report.debugLane.label).toBe("Analytics panel hydration");
     expect(report.debugLane.totalPanels).toBe(report.totalPanels);
+    expect(report.debugLane.sourceReadyWaitingForActivity).toBeGreaterThanOrEqual(0);
     expect(livePanelEvidence.decisions.length).toBe(report.totalPanels);
     expect(livePanelEvidence.liveEvidencePanelIds).toContain("traffic_overview");
   });

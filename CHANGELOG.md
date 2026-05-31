@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.26 - 2026-05-31
+- Analytics panel truth cleanup
+- Reconnected admin analytics panel hydration to canonical event and person metric sources.
+- Reclassified wired-but-unobserved metrics without treating them as fake runtime proof.
+- Kept provider, payment, billing, and runtime evidence gates separate from source-only telemetry checks.
+
 ## 1.5.25 - 2026-05-31
 - Higher build memory headroom
 - Raised Firebase/App Hosting build memory headroom from 4GB to 16GB to reduce deployment worker OOM risk.
