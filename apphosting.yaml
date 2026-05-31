@@ -6,6 +6,8 @@ runConfig:
   maxInstances: 2
 
 env:
+  - variable: NODE_OPTIONS
+    value: --max-old-space-size=16384
   - variable: NEXT_PUBLIC_SITE_ORIGIN
     value: https://kandydrops.com
   - variable: SITE_ORIGIN

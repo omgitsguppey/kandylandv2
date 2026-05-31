@@ -2,13 +2,66 @@ import type { PublicReleaseNotesDocument } from "./release-version-contract";
 // same-commit trigger comment
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.24",
-  "betaReleaseCounter": 524,
+  "currentVersion": "1.5.25",
+  "betaReleaseCounter": 525,
   "channel": "beta",
-  "generatedAt": "2026-05-30T23:23:00.001Z",
-  "generatedAtUtc": "2026-05-30T23:23:00.001Z",
+  "generatedAt": "2026-05-31T00:15:00.001Z",
+  "generatedAtUtc": "2026-05-31T00:15:00.001Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.5.25",
+      "previousVersion": "1.5.24",
+      "betaReleaseCounter": 525,
+      "previousBetaReleaseCounter": 524,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(deploy): raise build heap headroom",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-31T00:15:00.000Z",
+      "generatedAt": "2026-05-31T00:15:00.000Z",
+      "committedAtUtc": "2026-05-31T00:15:00.000Z",
+      "generatedAtUtc": "2026-05-31T00:15:00.000Z",
+      "category": "Fixed",
+      "title": "Higher build memory headroom",
+      "updatedAtUtc": "2026-05-31T00:15:00.000Z",
+      "summary": "Raised Firebase/App Hosting build memory headroom from 4GB to 16GB to reduce deployment worker OOM risk while keeping runtime behavior unchanged.",
+      "userFacingTitle": "More reliable deployment builds",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Raised Firebase/App Hosting build memory headroom from 4GB to 16GB to reduce deployment worker OOM risk.",
+        "Added NODE_OPTIONS build memory headroom to the App Hosting environment config.",
+        "Kept runtime behavior unchanged."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Changed the package build script from a 4096 MB heap to a 16384 MB heap.",
+        "Added NODE_OPTIONS=--max-old-space-size=16384 to apphosting.yaml using the existing env configuration shape.",
+        "Did not change app/API/auth/payment/GumDrop runtime source."
+      ],
+      "affectedSurfaces": [
+        "Firebase App Hosting build",
+        "Deployment build script",
+        "Release notes freshness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "apphosting.yaml",
+        "package.json",
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "agent/state/same-commit-release-head-discipline.generated.json",
+        "docs/agent-truth/same-commit-release-head-discipline.md"
+      ],
+      "effectiveChangeCount": 2,
+      "excludedGeneratedChangeCount": 3,
+      "bumpType": "patch",
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.5.24",
       "previousVersion": "1.5.23",
