@@ -176,9 +176,9 @@ runSection("Dashboard check-in stays compact and functional", () => {
   assertIncludes(dailyCheckIn, 'data-daily-checkin-variant={variant}', "Daily check-in");
   assertIncludes(dailyCheckIn, 'data-onboarding-target="daily-reward"', "Daily check-in");
   assertIncludes(dailyCheckIn, 'data-onboarding-target="daily-reward-claim"', "Daily check-in");
-  assertIncludes(dailyCheckIn, "Claimed ${reward} Gum Drops!", "Daily check-in");
-  assertIncludes(dailyCheckIn, "Come back tomorrow for", "Daily check-in");
-  assertIncludes(dailyCheckIn, "Daily Rewards", "Daily check-in");
+  assertIncludes(dailyCheckIn, "Claimed ${reward} Reward GD!", "Daily check-in");
+  assertIncludes(dailyCheckIn, "Come back after reset for", "Daily check-in");
+  assertIncludes(dailyCheckIn, "Daily Reward GD", "Daily check-in");
   assertIncludes(dailyCheckIn, "Claim", "Daily check-in");
 });
 
@@ -219,8 +219,8 @@ runSection("Wallet opens from refill gates and preserves source-aware balances",
   assertIncludes(purchaseModal, 'data-wallet-density="public-beta-compact"', "Purchase modal");
   assertIncludes(purchaseModal, 'data-wallet-balance-chip="split-source"', "Purchase modal");
   assertIncludes(purchaseModal, "resolveWalletBalanceSplit", "Purchase modal");
-  assertIncludes(purchaseModal, "formatCompactGd(walletBalanceSplit.freeGd)", "Purchase modal");
-  assertIncludes(purchaseModal, "formatCompactGd(walletBalanceSplit.paidGd)", "Purchase modal");
+  assertIncludes(purchaseModal, "formatCompactGd(freeGd)", "Purchase modal");
+  assertIncludes(purchaseModal, "formatCompactGd(paidGd)", "Purchase modal");
   assertIncludes(purchaseModal, "toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`)", "Purchase modal");
   assertIncludes(purchaseModal, "router.push(destination)", "Purchase modal");
   assertIncludes(purchaseModal, "dispatchActivitySync()", "Purchase modal");

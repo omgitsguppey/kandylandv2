@@ -10,6 +10,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { authFetch } from "@/lib/authFetch";
+import { recordClientBreadcrumb, recordClientDiagnostic } from "@/lib/client-diagnostics";
+import { resolveDropViewAccess, telemetryEventForDropViewAccess } from "@/lib/drop-view-access";
 import { formatDropCountdown } from "@/lib/drop-countdown";
 import { buildPreviewTelemetryPayload } from "@/lib/drop-preview-telemetry";
 import {
@@ -49,6 +51,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     const creatorCoverViewedKeyRef = useRef<string | null>(null);
     const trackIncompleteOnUnmountRef = useRef(true);
     const latestTelemetryPayloadRef = useRef<ReturnType<typeof buildPreviewTelemetryPayload> | null>(null);
+    const trackedAccessStatusRef = useRef<string | null>(null);
     const actorUserId = user?.uid ?? userProfile?.uid ?? null;
     const viewAsCreatorId = viewAsState?.adminViewingAsRole === "creator" ? viewAsState.adminViewingAsUserId : null;
     const profileCreatorId = userProfile?.role === "creator" ? userProfile.uid : null;
@@ -71,6 +74,23 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         }),
         [activeCreatorId, actorUserId, drop, isUnlocked, nowMs, user, userProfile?.gumDropsBalance],
     );
+    const accessProfile = useMemo(() => {
+        if (userProfile) return userProfile;
+        if (!successTransactionId || !user) return null;
+        return {
+            uid: user.uid,
+            role: "user" as const,
+            unlockedContent: [drop.id],
+            unlockedContentTimestamps: { [drop.id]: Date.now() },
+        };
+    }, [drop.id, successTransactionId, user, userProfile]);
+    const previewAccessState = useMemo(() => resolveDropViewAccess({
+        drop,
+        requestedDropId: drop.id,
+        authLoading,
+        userId: user?.uid ?? null,
+        userProfile: accessProfile,
+    }), [accessProfile, authLoading, drop, user?.uid]);
     const socialProof = useMemo(() => getLockedDropPreviewSocialProof(drop), [drop]);
     const mediaCounts = useMemo(() => getLockedDropPreviewMediaCounts(drop), [drop]);
     const countdown = useMemo(() => formatDropCountdown(drop.validUntil, nowMs), [drop.validUntil, nowMs]);
@@ -95,7 +115,9 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         hasEnoughGumDrops: truth.hasEnoughGumDrops,
         hasUnlockedDrop: truth.hasUnlockedDrop,
         shouldBlurCover: truth.shouldBlurCover,
-    }), [actorUserId, creator?.uid, drop.creatorId, drop.id, drop.submittedByCreatorId, getTelemetryPayload, truth.hasEnoughGumDrops, truth.hasUnlockedDrop, truth.isGuest, truth.isOwnerOrCreator, truth.shouldBlurCover]);
+        accessStatus: previewAccessState.status,
+        accessReason: previewAccessState.reason,
+    }), [actorUserId, creator?.uid, drop.creatorId, drop.id, drop.submittedByCreatorId, getTelemetryPayload, previewAccessState.reason, previewAccessState.status, truth.hasEnoughGumDrops, truth.hasUnlockedDrop, truth.isGuest, truth.isOwnerOrCreator, truth.shouldBlurCover]);
     const getCreatorPreviewTelemetryPayload = useCallback(() => ({
         ...getPreviewStateTelemetryPayload(),
         creatorPreviewEligible: true,
@@ -106,6 +128,37 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     useEffect(() => {
         latestTelemetryPayloadRef.current = telemetryPayload;
     }, [telemetryPayload]);
+
+    useEffect(() => {
+        const trackingKey = `${drop.id}:${previewAccessState.status}:${previewAccessState.reason}`;
+        if (trackedAccessStatusRef.current === trackingKey) return;
+        trackedAccessStatusRef.current = trackingKey;
+
+        recordClientBreadcrumb("state", "drop_preview_access_state", {
+            dropId: drop.id,
+            accessStatus: previewAccessState.status,
+            accessReason: previewAccessState.reason,
+            route: "/drops/[id]/preview",
+        });
+        if (!previewAccessState.loading) {
+            recordClientDiagnostic("ui", "Drop preview access resolved", {
+                dropId: drop.id,
+                accessStatus: previewAccessState.status,
+                accessReason: previewAccessState.reason,
+                route: "/drops/[id]/preview",
+            }, previewAccessState.allowed ? "info" : "warn");
+        }
+
+        const eventName = telemetryEventForDropViewAccess(previewAccessState);
+        if (!eventName) return;
+        trackEvent(eventName, {
+            drop_id: drop.id,
+            access_status: previewAccessState.status,
+            access_reason: previewAccessState.reason,
+            route: "/drops/[id]/preview",
+            source_component: "LockedDropPreviewClient",
+        });
+    }, [drop.id, previewAccessState]);
 
     useEffect(() => {
         const timer = window.setTimeout(() => {

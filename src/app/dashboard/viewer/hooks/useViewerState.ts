@@ -29,6 +29,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
     const [contentBlobUrl, setContentBlobUrl] = useState<string | null>(null);
     const [resolvedContent, setResolvedContent] = useState<ResolvedContent>({ kind: "unknown", mimeType: "" });
     const [contentLoading, setContentLoading] = useState(false);
+    const [contentError, setContentError] = useState<string | null>(null);
     const [thumbnailItems, setThumbnailItems] = useState<ThumbnailItem[]>([]);
 
     const assetCount = useMemo(() => drop ? getDropAssetCount(drop) : 0, [drop]);
@@ -48,6 +49,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
         contentObjectUrlRef.current = null;
         setContentBlobUrl(null);
         setResolvedContent({ kind: "unknown", mimeType: "" });
+        setContentError(null);
         setThumbnailItems([]);
         setActiveIndex(0);
     }, [drop?.id]);
@@ -78,6 +80,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
             contentObjectUrlRef.current = null;
             setContentBlobUrl(null);
             setResolvedContent({ kind: "unknown", mimeType: "" });
+            setContentError("content_index_out_of_bounds");
             setContentLoading(false);
             return;
         }
@@ -86,6 +89,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
             contentObjectUrlRef.current = cachedRecord.objectUrl;
             setContentBlobUrl(cachedRecord.objectUrl);
             setResolvedContent(cachedRecord.resolvedContent);
+            setContentError(null);
             setContentLoading(false);
             trackContentLoaded(1, true, cachedRecord.resolvedContent.kind);
 
@@ -115,6 +119,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
                 contentObjectUrlRef.current = assetRecord.objectUrl;
                 setContentBlobUrl(assetRecord.objectUrl);
                 setResolvedContent(assetRecord.resolvedContent);
+                setContentError(null);
                 trackContentLoaded(performance.now() - startedAt, false, assetRecord.resolvedContent.kind);
 
                 void buildThumbnailFromRecord(assetRecord, currentDrop.imageUrl).then((item) => {
@@ -127,6 +132,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
                     contentObjectUrlRef.current = null;
                     setContentBlobUrl(null);
                     setResolvedContent({ kind: "unknown", mimeType: "" });
+                    setContentError(err instanceof Error ? err.message : "content_load_failed");
                 }
             } finally {
                 if (!cancelled) setContentLoading(false);
@@ -205,6 +211,7 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
         contentBlobUrl,
         resolvedContent,
         contentLoading,
+        contentError,
         thumbnailItems,
     };
 }

@@ -190,6 +190,7 @@ const viewerPage = readRequired("src/app/dashboard/viewer/page.tsx");
 const viewerClient = readRequired("src/app/dashboard/viewer/ViewerClient.tsx");
 const viewerState = readRequired("src/app/dashboard/viewer/hooks/useViewerState.ts");
 const viewerHelpers = readRequired("src/app/dashboard/viewer/ViewerHelpers.ts");
+const dropViewAccess = readRequired("src/lib/drop-view-access.ts");
 const contentTests = readRequired("tests/unit/content-protection-truth.spec.ts");
 const dropsContentTests = readRequired("tests/unit/drops-content-route.spec.ts");
 const viewerTests = readRequired("tests/unit/dashboard-viewer-page.spec.tsx");
@@ -279,16 +280,18 @@ for (const expected of [
   "scopeToCaller: true",
   "const ownsDrop = creatorId === caller.uid",
   "const hasUnlockedDrop = userData.unlockedContent.includes(dropId)",
-  "if (!ownsDrop && !hasUnlockedDrop)",
-  "You do not own this content",
+  "Object.prototype.hasOwnProperty.call(userData.unlockedContentTimestamps",
+  "const accessDecision = resolveMediaAccess",
+  "if (!accessDecision.allowed)",
+  "return finalize(buildMediaAccessDeniedResponse(accessDecision))",
   "headers.set(\"Cache-Control\", \"private, no-store\")",
 ]) {
   requireIncludes(contentRoute, expected, "content proxy entitlement route");
 }
-if (contentRoute.indexOf("if (!ownsDrop && !hasUnlockedDrop)") > contentRoute.indexOf("const availableUrls = Array.isArray(dropRecord.contentUrls)")) {
+if (contentRoute.indexOf("if (!accessDecision.allowed)") > contentRoute.indexOf("const availableUrls = Array.isArray(dropRecord.contentUrls)")) {
   failures.push("content proxy must prove entitlement before selecting internal content URLs.");
 }
-if (contentRoute.indexOf("if (!ownsDrop && !hasUnlockedDrop)") > contentRoute.indexOf("fetch(targetUrl")) {
+if (contentRoute.indexOf("if (!accessDecision.allowed)") > contentRoute.indexOf("fetch(targetUrl")) {
   failures.push("content proxy must prove entitlement before fetching internal content URLs.");
 }
 
@@ -299,13 +302,21 @@ for (const expected of [
   requireIncludes(viewerPage, expected, "dashboard viewer page");
 }
 for (const expected of [
-  "const isAuthorized = useMemo",
-  "const isCreator = user.uid === drop.creatorId",
-  "const hasUnlocked = userProfile?.unlockedContentTimestamps?.[drop.id] !== undefined",
-  "return isCreator || hasUnlocked",
+  "resolveDropViewAccess",
+  "const isAuthorized = accessState.allowed",
+  "telemetryEventForDropViewAccess",
   "isAuthorized,",
 ]) {
   requireIncludes(viewerClient, expected, "dashboard viewer client");
+}
+for (const expected of [
+  "unlockedContent",
+  "unlockedContentTimestamps",
+  "allowed_unwrapped",
+  "denied_not_unwrapped",
+  "loading_entitlement",
+]) {
+  requireIncludes(dropViewAccess, expected, "dashboard viewer access resolver");
 }
 requireIncludes(viewerState, "if (!isAuthorized || !drop) return", "viewer state content loading");
 for (const expected of [

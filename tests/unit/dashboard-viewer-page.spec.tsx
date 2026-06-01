@@ -38,6 +38,7 @@ describe("dashboard viewer page", () => {
         expect(mockState.sanitizeDropForClient).toHaveBeenCalledWith(rawDrop);
         expect(element.props).toMatchObject({
             drop: safeDrop,
+            requestedDropId: "drop_1",
             initialCreatorProfile: null,
         });
     });

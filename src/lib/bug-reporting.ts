@@ -118,6 +118,18 @@ export function resolveBugReportComponentMeta(
     };
   }
 
+  if (contextId.startsWith("drop-view-access:")) {
+    const accessState = contextId.replace(/^drop-view-access:/, "") || "unknown";
+    return {
+      contextId,
+      title: `Drop viewer access ${accessState}`,
+      componentName: "ViewerClient",
+      sourcePath: "src/app/dashboard/viewer/ViewerClient.tsx",
+      routeHint: pathname || "/dashboard/viewer",
+      codeSnippet: "<ReportBugButton context=\"drop-view-access:{state}\" />",
+    };
+  }
+
   return {
     contextId,
     title: `Bug report for ${contextId}`,

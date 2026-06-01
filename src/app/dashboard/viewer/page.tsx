@@ -31,5 +31,5 @@ export default async function ViewerPage({ searchParams }: PageProps) {
         }
     }
 
-    return <ViewerClient drop={drop} initialCreatorProfile={initialCreatorProfile} />;
+    return <ViewerClient drop={drop} requestedDropId={id ?? null} initialCreatorProfile={initialCreatorProfile} />;
 }

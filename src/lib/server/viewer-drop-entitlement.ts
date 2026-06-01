@@ -8,7 +8,7 @@ export const VIEWER_DROP_ENTITLEMENT_EVIDENCE = {
   rawDropSanitized: true,
   privateMediaHiddenUntilEntitled: true,
   contentFetchRoute: "/api/drops/content",
-  entitlementSource: "ViewerClient:isCreator_or_unlockedContentTimestamps",
+  entitlementSource: "drop-view-access:creator_or_unlockedContent_or_unlockedContentTimestamps",
   mediaApiEntitlementSource: "/api/drops/content",
 } as const;
 

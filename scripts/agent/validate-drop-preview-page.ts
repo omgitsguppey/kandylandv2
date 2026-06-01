@@ -53,7 +53,7 @@ requireIncludes(previewView, "data-drop-preview-urgency-tier", "Preview urgency 
 requireIncludes(previewView, "data-drop-preview-cta-state", "Preview CTA marker");
 requireIncludes(previewView, "data-drop-preview-social-proof-type", "Preview social proof marker");
 requireIncludes(previewView, "data-safe-preview-fields-only=\"true\"", "Preview safe-fields marker");
-requireIncludes(previewView, "data-drop-preview-sticky-cta-above-bottom-nav=\"true\"", "Preview sticky CTA clearance marker");
+requireIncludes(previewView, "bottom-[calc(var(--user-mobile-bottom-nav-reserved-height,0px)+0.75rem)]", "Preview sticky CTA clearance");
 
 requireIncludes(previewTruth, "totalUnlocks > 10", "Preview social proof unwrap threshold");
 requireIncludes(previewTruth, "getDropViewCount(drop)", "Preview social proof views fallback");
@@ -75,7 +75,7 @@ requireIncludes(previewClient, "drop_preview_open_library_clicked", "Preview lib
 requireIncludes(previewClient, "drop_preview_keep_unwrapping_clicked", "Preview keep-unwrapping telemetry");
 requireIncludes(previewTelemetry, "display_mode: getClientDisplayMode()", "Preview display-mode telemetry");
 
-requireIncludes(previewView, "Need ${truth.shortfallGd.toLocaleString()} more GD", "Preview shortfall CTA copy");
+requireIncludes(previewView, "Refill to unwrap", "Preview shortfall CTA copy");
 requireIncludes(previewClient, "openPurchaseModal(Math.max(1, truth.shortfallGd))", "Preview preferred refill amount");
 requireIncludes(previewView, "Open in My KandyDrops", "Preview success primary CTA");
 requireIncludes(previewView, "Keep Unwrapping", "Preview success secondary CTA");

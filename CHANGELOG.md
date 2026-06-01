@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 5 public updates in pages of 5.
+Showing the last 6 public updates in pages of 5.
+
+## 1.5.29 - 2026-06-01
+- More reliable Drop viewing
+- Fixed a Drop viewer access race that could show Not Authorized after a Drop was already unwrapped.
+- Stabilized loading while account and unlock entitlement checks finish.
+- Added safer access-state reporting for Drop viewer bug reports.
 
 ## 1.5.28 - 2026-05-31
 - Bug fixes and general improvements

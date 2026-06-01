@@ -7,11 +7,19 @@ import { ArrowLeft, Lock, ShieldCheck } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { Drop } from "@/types/db";
+import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
+import { recordClientBreadcrumb, recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { useViewerTelemetry } from "./adapters/ViewerTelemetryAdapter";
 import { useViewerState } from "./hooks/useViewerState";
 import { useViewerSecurity } from "./hooks/useViewerSecurity";
 import { useViewerFeedback } from "./hooks/useViewerFeedback";
 import { USER_LIBRARY_ROUTE } from "@/lib/creator-profile-routing";
+import {
+    isDropViewAccessLoading,
+    resolveDropViewAccess,
+    telemetryEventForDropViewAccess,
+} from "@/lib/drop-view-access";
+import { trackEvent } from "@/lib/telemetry";
 
 import { ViewerSkeleton } from "./components/ViewerSkeleton";
 import { MediaViewer } from "./components/MediaViewer";
@@ -21,6 +29,7 @@ import { ContentSatisfactionPrompt } from "@/components/Feedback/ContentSatisfac
 
 interface ViewerClientProps {
     drop: Drop | null;
+    requestedDropId?: string | null;
     initialCreatorProfile?: {
         uid: string;
         displayName: string;
@@ -30,10 +39,14 @@ interface ViewerClientProps {
     } | null;
 }
 
-export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps) {
+const ENTITLEMENT_LOADING_TIMEOUT_MS = 10_000;
+
+export function ViewerClient({ drop, requestedDropId, initialCreatorProfile }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const router = useRouter();
     const viewerContentRef = useRef<HTMLDivElement>(null);
+    const [entitlementTimedOut, setEntitlementTimedOut] = useState(false);
+    const trackedAccessStatusRef = useRef<string | null>(null);
     const [satisfactionPrompt, setSatisfactionPrompt] = useState<{
         key: string;
         watchSeconds: number;
@@ -43,12 +56,25 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
         assetKey: string;
     } | null>(null);
 
-    const isAuthorized = useMemo(() => {
-        if (!drop || !user) return false;
-        const isCreator = user.uid === drop.creatorId;
-        const hasUnlocked = userProfile?.unlockedContentTimestamps?.[drop.id] !== undefined;
-        return isCreator || hasUnlocked;
-    }, [user, userProfile, drop]);
+    useEffect(() => {
+        if (!user || userProfile || authLoading) {
+            setEntitlementTimedOut(false);
+            return;
+        }
+
+        const timer = window.setTimeout(() => setEntitlementTimedOut(true), ENTITLEMENT_LOADING_TIMEOUT_MS);
+        return () => window.clearTimeout(timer);
+    }, [authLoading, user, userProfile]);
+
+    const accessState = useMemo(() => resolveDropViewAccess({
+        drop,
+        requestedDropId: requestedDropId ?? drop?.id ?? null,
+        authLoading,
+        userId: user?.uid ?? null,
+        userProfile,
+        entitlementTimedOut,
+    }), [authLoading, drop, entitlementTimedOut, requestedDropId, user?.uid, userProfile]);
+    const isAuthorized = accessState.allowed;
 
     // 2. Telemetry mounting happens internally within useViewerTelemetry
 
@@ -60,12 +86,44 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
         contentBlobUrl,
         resolvedContent,
         contentLoading,
+        contentError,
         thumbnailItems,
     } = useViewerState({
         drop,
         isAuthorized,
         trackContentLoaded: (ms, cached, kind) => telemetry.trackContentLoaded(ms, cached, kind)
     });
+
+    useEffect(() => {
+        const trackingKey = `${drop?.id ?? "missing"}:${accessState.status}:${accessState.reason}`;
+        if (trackedAccessStatusRef.current === trackingKey) return;
+        trackedAccessStatusRef.current = trackingKey;
+
+        recordClientBreadcrumb("state", "drop_view_access_state", {
+            dropId: drop?.id ?? requestedDropId ?? "missing",
+            accessStatus: accessState.status,
+            accessReason: accessState.reason,
+            route: "/dashboard/viewer",
+        });
+        if (!accessState.loading) {
+            recordClientDiagnostic("ui", "Drop viewer access resolved", {
+                dropId: drop?.id ?? requestedDropId ?? "missing",
+                accessStatus: accessState.status,
+                accessReason: accessState.reason,
+                route: "/dashboard/viewer",
+            }, accessState.allowed ? "info" : accessState.status === "error" ? "error" : "warn");
+        }
+
+        const eventName = telemetryEventForDropViewAccess(accessState);
+        if (!eventName) return;
+        trackEvent(eventName, {
+            drop_id: drop?.id ?? requestedDropId ?? "",
+            access_status: accessState.status,
+            access_reason: accessState.reason,
+            route: "/dashboard/viewer",
+            source_component: "ViewerClient",
+        });
+    }, [accessState, drop?.id, requestedDropId]);
 
     // 2. Telemetry mounting
     const telemetry = useViewerTelemetry({
@@ -132,11 +190,15 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
     }, [activeIndex, contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind]);
 
     // Early Returns
-    if (authLoading || (user && !userProfile) || contentLoading && !contentBlobUrl) {
+    const shouldShowStableSkeleton = isDropViewAccessLoading(accessState)
+        || (isAuthorized && !contentError && !contentBlobUrl && assetCount > 0)
+        || (contentLoading && !contentBlobUrl);
+
+    if (shouldShowStableSkeleton) {
         return <ViewerSkeleton />;
     }
 
-    if (!user) {
+    if (accessState.status === "denied_not_logged_in") {
         return (
             <div className="max-w-4xl mx-auto pt-20 px-4 text-center">
                 <Lock className="w-12 h-12 text-white/50 mx-auto mb-4" />
@@ -147,13 +209,42 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
         );
     }
 
-    if (!drop || !isAuthorized) {
+    if (accessState.status === "denied_drop_missing" || !drop) {
+        return (
+            <div className="max-w-4xl mx-auto pt-20 px-4 text-center">
+                <ShieldCheck className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <h1 className="text-2xl font-bold text-white mb-2">Drop unavailable</h1>
+                <p className="text-gray-400 mb-6">This drop could not be found.</p>
+                <button onClick={() => router.push(USER_LIBRARY_ROUTE)} className="px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20">Back to Library</button>
+            </div>
+        );
+    }
+
+    if (accessState.status === "error" || contentError) {
+        return (
+            <div className="max-w-4xl mx-auto pt-20 px-4 text-center">
+                <ShieldCheck className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <h1 className="text-2xl font-bold text-white mb-2">Drop access is still loading</h1>
+                <p className="text-gray-400 mb-6">We could not confirm access for this drop. Refresh the page or report the issue so we can inspect the access state.</p>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                    <button onClick={() => router.refresh()} className="px-6 py-3 bg-white text-black font-bold rounded-full">Refresh</button>
+                    <ReportBugButton context={`drop-view-access:${accessState.status}`} variant="pill" label="Report access issue" />
+                </div>
+            </div>
+        );
+    }
+
+    if (!isAuthorized) {
         return (
             <div className="max-w-4xl mx-auto pt-20 px-4 text-center">
                 <ShieldCheck className="w-12 h-12 text-red-500 mx-auto mb-4" />
                 <h1 className="text-2xl font-bold text-white mb-2">Not Authorized</h1>
                 <p className="text-gray-400 mb-6">You do not have access to this drop.</p>
-                <button onClick={() => router.push("/drops")} className="px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20">Go Back</button>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                    <button onClick={() => router.push("/drops")} className="px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20">Go Back</button>
+                    <button onClick={() => router.push("/dashboard/library")} className="px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20">Open Library</button>
+                    <ReportBugButton context={`drop-view-access:${accessState.status}`} variant="pill" label="Report access issue" />
+                </div>
             </div>
         );
     }
