@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-26T01:35:52.429Z",
+  "generatedAtUtc": "2026-06-01T00:19:21.581Z",
   "reportKey": "creator-settings-control-plane",
-  "currentHead": "42bdd44bf02066df05ab2b18dc351681fc93d1cf",
+  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
   "summary": {
     "settingsContractCreated": true,
     "fanPassPricingControlPresent": true,

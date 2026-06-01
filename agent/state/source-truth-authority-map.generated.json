@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-21T16:15:54.095Z",
+  "generatedAtUtc": "2026-06-01T00:19:05.748Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
+  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,19 +323,19 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
+      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359",
+      "currentHead": "a6ac6d0632b66412ba22ad6a2ff981d0f7aee3aa",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -347,25 +347,25 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "6a72b1efc5d28cfbaf9809263db7a975a53fc9e3",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+      "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "currentHead": "080ebb115fc9d917f52b2e38108634821a2712ce",
+      "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/creator-experience-simplification.generated.json",
-      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+      "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -431,7 +431,7 @@
     },
     {
       "artifact": "agent/state/debug-panel-output-triage.generated.json",
-      "currentHead": "7d9e42b90fb20bf0672ec4b9a602f183c3050b1d",
+      "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
       "status": "not_required",
       "action": "Retired/archive artifact does not block beta score."
     }

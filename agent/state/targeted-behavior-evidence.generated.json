@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-26T03:52:13.033Z",
+  "generatedAtUtc": "2026-06-01T00:29:58.017Z",
   "reportKey": "targeted-behavior-evidence",
   "status": "passed",
   "overallStatus": "passed",
   "passed": true,
-  "sourceCommit": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb",
-  "latestCodeVersion": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb",
-  "currentHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb",
+  "sourceCommit": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "latestCodeVersion": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "bigQueryCallsPerformed": false,
@@ -114,7 +114,7 @@
       "replacementFor": [
         "creator-broadcast-timeline-prep"
       ],
-      "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0"
+      "currentHead": "a81cdb0b885f65dec63a582e4b9fe4cfdfeced39"
     },
     {
       "id": "daily-task-debug-score-lock",
@@ -130,7 +130,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "e53968ae"
+      "currentHead": "a81cdb0b"
     },
     {
       "id": "chat-functionality-score-lock",
@@ -181,7 +181,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "currentHead": "4ea7fddfa516daeedc01b8e06d7d2437e2acf404"
     },
     {
       "id": "activity-verification-engine",
@@ -197,7 +197,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0"
     },
     {
       "id": "event-translation-bridge",
@@ -213,7 +213,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178"
     },
     {
       "id": "person-metrics-hydration",
@@ -229,7 +229,7 @@
       "doesNotProve": "Does not prove manual_screenshot, provider_smoke, runtime_smoke, admin_truth_sample, visual/manual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "classification": "current_lock_validator",
       "requiredForCurrentLane": true,
-      "currentHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb"
+      "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178"
     },
     {
       "id": "surface-state-parity",

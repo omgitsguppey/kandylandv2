@@ -1,12 +1,12 @@
 # Overnight Wiring Integrity
 
-Generated: 2026-05-21T16:16:24.214Z
-Current code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
+Generated: 2026-06-01T00:27:16.425Z
+Current code version: e538c41e9de8827da5103b8bcb281cab184737c9
 
 ## Summary
 
-- Lanes wired: 11
-- Lanes stale: 1
+- Lanes wired: 12
+- Lanes stale: 0
 - Lanes partial: 0
 - Missing dependencies: 0
 - Broken/orphaned lanes: 0
@@ -16,7 +16,7 @@ Current code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
 - Shared marquee preserved: yes
 - Protected chat untouched: yes
 - Beta exit marked ready: no
-- Findings: P0=0, P1=0, P2=1
+- Findings: P0=0, P1=0, P2=0
 
 ## Lane Map
 
@@ -154,7 +154,7 @@ Current code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
 
 ### beta_health_scoring
 
-- Status: stale
+- Status: wired
 - Expected UI: public beta score and current beta exit status artifacts
 - Expected route: scripts/agent/score-public-beta-readiness.ts
 - Expected contract: beta score must keep missing evidence separate from zero and never mark beta exit ready here
@@ -162,45 +162,49 @@ Current code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
 - Expected telemetry: beta evidence only
 - Expected artifact: agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json
 - Fix applied: Validated existing source wiring; no duplicate system added.
-- Next action: Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready.
+- Next action: Keep validator coverage current with future changes.
 
 ## Findings
 
-- P2 agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json: beta_health_scoring artifact is stale relative to current HEAD but has an explicit next action.
+- No blocking wiring findings.
 
 ## Dirty File Classifications
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
 - agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
 - agent/state/beta-evidence-lane-prep.generated.json: current_generated_artifact_to_commit
 - agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit
+- agent/state/beta-health-algorithm-v2.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-drop-status-metrics.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-settings-control-plane.generated.json: current_generated_artifact_to_commit
-- agent/state/final-pr-stale-cleanup.generated.json: current_generated_artifact_to_commit
+- agent/state/current-beta-exit-status.generated.json: current_generated_artifact_to_commit
+- agent/state/evidence-capture-status.generated.json: current_generated_artifact_to_commit
+- agent/state/final-current-head-score-refresh.generated.json: current_generated_artifact_to_commit
+- agent/state/final-release-exit-readiness-packet.generated.json: current_generated_artifact_to_commit
 - agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-final-integration-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/refresh-safeguards.generated.json: current_generated_artifact_to_commit
-- agent/state/self-healing-refresh-queue.generated.json: current_generated_artifact_to_commit
+- agent/state/operator-revenue-smoke.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/score-dimension-80-lock.generated.json: current_generated_artifact_to_commit
 - agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit
 - docs/agent-truth/beta-evidence-gap-map.md: current_generated_artifact_to_commit
 - docs/agent-truth/beta-evidence-lane-prep.md: current_generated_artifact_to_commit
 - docs/agent-truth/beta-freshness-language.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-drop-status-metrics.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-settings-control-plane.md: current_generated_artifact_to_commit
-- docs/agent-truth/final-pr-stale-cleanup.md: current_generated_artifact_to_commit
+- docs/agent-truth/current-beta-exit-status.md: current_generated_artifact_to_commit
+- docs/agent-truth/evidence-capture-status.md: current_generated_artifact_to_commit
+- docs/agent-truth/final-current-head-score-refresh.md: current_generated_artifact_to_commit
+- docs/agent-truth/final-release-exit-readiness-packet.md: current_generated_artifact_to_commit
 - docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
 - docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
-- docs/agent-truth/overnight-final-integration-lock.md: current_generated_artifact_to_commit
-- docs/agent-truth/refresh-safeguards.md: current_generated_artifact_to_commit
-- docs/agent-truth/self-healing-refresh-queue.md: current_generated_artifact_to_commit
+- docs/agent-truth/operator-revenue-smoke.md: current_generated_artifact_to_commit
+- docs/agent-truth/score-dimension-80-lock.md: current_generated_artifact_to_commit
 - docs/agent-truth/source-truth-authority-map.md: current_generated_artifact_to_commit
-- tests/unit/score-80-refresh-queue-execution.spec.ts: real_source_change_needs_review
 
 ## PR Cleanup Actions
 
-- PR #278 classified as unrelated_preserved.
-- PR #277 classified as unrelated_preserved.
+- No open PRs were present at start/end for overnight wiring integrity.
 
 ## Next Fix Order
 
-- beta_health_scoring: Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready.
 - Keep future telemetry claims tied to TELEMETRY_DEPENDENCY_GRAPH or analytics-event-contract before UI labels say tracked.

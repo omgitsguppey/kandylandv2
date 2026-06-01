@@ -5,17 +5,17 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 
 ## Summary
 
-- Generated: `2026-05-27T05:26:52.184Z`
-- Current head: `eb93068b1c0df79e92c921213b08923327907189`
-- Status: `fail`
+- Generated: `2026-06-01T00:24:04.319Z`
+- Current head: `e538c41e9de8827da5103b8bcb281cab184737c9`
+- Status: `pass`
 
 ## Report
 
 ```json
 {
   "reportKey": "final-release-exit-readiness-packet",
-  "generatedAtUtc": "2026-05-27T05:26:52.184Z",
-  "currentHead": "eb93068b1c0df79e92c921213b08923327907189",
+  "generatedAtUtc": "2026-06-01T00:24:04.319Z",
+  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
   "scoreBefore": 76.61,
   "scoreAfter": 76.61,
   "scoreDimensions": {
@@ -132,8 +132,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "category": "evidence bridge",
       "status": "source_confidence_only",
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
-      "currentHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
-      "generatedAtUtc": "2026-05-26T04:41:50.407Z",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+      "generatedAtUtc": "2026-06-01T00:01:19.662Z",
       "owner": "evidence bridge owner",
       "blocksBetaExit": false,
       "blocksScoreOnly": true,
@@ -218,8 +218,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "missingKillSwitches": 3
   },
   "releaseNotesIntegrity": {
-    "status": "warning",
-    "currentVersion": "1.5.18"
+    "status": "pass",
+    "currentVersion": "1.5.28"
   },
   "liveEvidenceGateReplacement": {
     "status": "split_ready",
@@ -229,7 +229,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "external billing review",
       "source_missing live evidence lanes"
     ],
-    "sourceMissingLiveEvidenceCount": 5,
+    "sourceMissingLiveEvidenceCount": 10,
     "visualOnlyManualGateCount": 1,
     "externalProviderGateCount": 1,
     "externalBillingGateCount": 1
@@ -274,9 +274,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "Keep open PR list empty or explicitly deferred before beta-exit signoff.",
     "Operator completes final visual-only QA packet for layout and responsive checks."
   ],
-  "validationFailures": [
-    "release notes stale."
-  ]
+  "validationFailures": []
 }
 ```
 
@@ -286,4 +284,4 @@ This source-generated packet does not prove deployed runtime, provider, billing,
 
 ## Validation
 
-- FAIL: release notes stale.
+- Pass.

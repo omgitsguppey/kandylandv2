@@ -1,25 +1,25 @@
 # Final Current Head Score Refresh
 
-Generated: 2026-05-27T00:30:14.530Z
-Current HEAD: 724eec6ca6984fafca5707d1dd5556f2be9e4ef2
+Generated: 2026-06-01T00:38:59.842Z
+Current HEAD: e538c41e9de8827da5103b8bcb281cab184737c9
 Validation failures: 0
 
 ```json
 {
   "reportKey": "final-current-head-score-refresh",
-  "generatedAtUtc": "2026-05-27T00:30:14.530Z",
-  "currentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-  "publicBetaScoreCurrentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-  "currentBetaExitCurrentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
-  "finalReleasePacketCurrentHead": "724eec6ca6984fafca5707d1dd5556f2be9e4ef2",
+  "generatedAtUtc": "2026-06-01T00:38:59.842Z",
+  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "publicBetaScoreCurrentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "currentBetaExitCurrentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "finalReleasePacketCurrentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
   "scoreDimensions": {
-    "sourceHealth": 100,
+    "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "evidenceCompleteness": 69.6,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "overallHealthScore": 78.03
   },
   "betaExitReady": false,
   "staleRequiredReports": [],

@@ -3,8 +3,8 @@
 Artifact: `agent/state/source-truth-authority-map.generated.json`
 Validator: `npm run check:source-truth-authority-map`
 
-Generated: 2026-05-21T16:15:54.095Z
-Current source head: `2b2e19b60aff5bd93e0a9bde735793dad18dbe52`
+Generated: 2026-06-01T00:19:05.748Z
+Current source head: `e538c41e9de8827da5103b8bcb281cab184737c9`
 
 ## Summary
 
@@ -70,14 +70,14 @@ None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4
 
 ## Current Head Inventory
 
-- agent/state/source-truth-authority-map.generated.json: `stale` (6a72b1efc5d28cfbaf9809263db7a975a53fc9e3) - Refresh through the lane validator before treating as current evidence.
-- agent/state/public-beta-score.generated.json: `stale` (f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359) - Refresh through the lane validator before treating as current evidence.
-- agent/state/current-beta-exit-status.generated.json: `stale` (f71d3b979a56020ffe4ad6f5f8dfaf2cb3fad359) - Refresh through the lane validator before treating as current evidence.
+- agent/state/source-truth-authority-map.generated.json: `stale` (2b2e19b60aff5bd93e0a9bde735793dad18dbe52) - Refresh through the lane validator before treating as current evidence.
+- agent/state/public-beta-score.generated.json: `stale` (9795630e505231581241589fe40debd01b23d9b0) - Refresh through the lane validator before treating as current evidence.
+- agent/state/current-beta-exit-status.generated.json: `stale` (a6ac6d0632b66412ba22ad6a2ff981d0f7aee3aa) - Refresh through the lane validator before treating as current evidence.
 - agent/state/final-phase-cleanup-lock.generated.json: `stale` (d0994c9ace05575a22d679cdfc37f8a5877f66d8) - Refresh through the lane validator before treating as current evidence.
-- agent/state/evidence-capture-status.generated.json: `stale` (6a72b1efc5d28cfbaf9809263db7a975a53fc9e3) - Refresh through the lane validator before treating as current evidence.
-- agent/state/user-creator-ui-parity.generated.json: `stale` (080ebb115fc9d917f52b2e38108634821a2712ce) - Refresh through the lane validator before treating as current evidence.
-- agent/state/gumdrop-economy-accuracy.generated.json: `stale` (080ebb115fc9d917f52b2e38108634821a2712ce) - Refresh through the lane validator before treating as current evidence.
-- agent/state/creator-experience-simplification.generated.json: `stale` (d8cde44345b6f0a6f0dd8710ff063356d74a5791) - Refresh through the lane validator before treating as current evidence.
+- agent/state/evidence-capture-status.generated.json: `current` (e538c41e9de8827da5103b8bcb281cab184737c9) - Artifact currentHead matches git HEAD.
+- agent/state/user-creator-ui-parity.generated.json: `stale` (e75d98523cda258032a04e11eb16e1d128bea2f9) - Refresh through the lane validator before treating as current evidence.
+- agent/state/gumdrop-economy-accuracy.generated.json: `stale` (e75d98523cda258032a04e11eb16e1d128bea2f9) - Refresh through the lane validator before treating as current evidence.
+- agent/state/creator-experience-simplification.generated.json: `stale` (e75d98523cda258032a04e11eb16e1d128bea2f9) - Refresh through the lane validator before treating as current evidence.
 - agent/state/post-economy-creator-flow-qa.generated.json: `stale` (d8cde44345b6f0a6f0dd8710ff063356d74a5791) - Refresh through the lane validator before treating as current evidence.
 - agent/state/creator-dashboard-error-cost-inventory.generated.json: `stale` (d8cde44345b6f0a6f0dd8710ff063356d74a5791) - Refresh through the lane validator before treating as current evidence.
 - agent/state/speed-security-hardening.generated.json: `missing_head`  - Active artifact must record currentHead.
@@ -88,7 +88,7 @@ None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4
 - agent/state/launch-readiness-report.generated.json: `not_required`  - Retired artifact has no required currentHead.
 - agent/state/launch-pr-triage.generated.json: `not_required`  - Retired artifact has no required currentHead.
 - agent/state/repo-spring-cleaning-rewire.generated.json: `not_required` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Retired/archive artifact does not block beta score.
-- agent/state/debug-panel-output-triage.generated.json: `not_required` (7d9e42b90fb20bf0672ec4b9a602f183c3050b1d) - Retired/archive artifact does not block beta score.
+- agent/state/debug-panel-output-triage.generated.json: `not_required` (dd4b37320ddd4e920d6633c91d90b01243089231) - Retired/archive artifact does not block beta score.
 
 ## Next Exact Steps
 

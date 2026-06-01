@@ -1,28 +1,28 @@
 {
-  "generatedAtUtc": "2026-05-24T06:00:47.075Z",
+  "generatedAtUtc": "2026-06-01T00:32:30.050Z",
   "reportKey": "score-dimension-80-lock",
-  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
   "scoreBefore": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
+    "freshness": 67.5,
+    "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "overallHealthScore": 76.61
   },
   "scoreAfter": {
     "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
+    "freshness": 75.63,
+    "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "overallHealthScore": 78.03
   },
   "dimensions": {
     "sourceHealth": {
-      "before": 92.5,
+      "before": 91.7,
       "after": 92.5,
       "target": 80,
       "status": "at_or_above_80",
@@ -46,20 +46,20 @@
       "nextAction": "Attach formal provider, deployed runtime, and production admin truth evidence before clearing beta gates. Remaining gates: formal_provider_smoke, deployed_runtime_smoke, production_admin_truth_sample."
     },
     "freshness": {
-      "before": 83.75,
-      "after": 83.75,
+      "before": 67.5,
+      "after": 75.63,
       "target": 80,
-      "status": "at_or_above_80",
-      "rootCause": "meets_target",
-      "nextAction": "No score action needed for this dimension."
+      "status": "below_80",
+      "rootCause": "stale_score_artifact",
+      "nextAction": "Refresh agent/state/final-pr-stale-cleanup.generated.json with npm run check:final-pr-stale-cleanup."
     },
     "costRisk": {
-      "before": 80.5,
-      "after": 80.5,
+      "before": 42,
+      "after": 42,
       "target": 80,
-      "status": "at_or_above_80",
-      "rootCause": "meets_target",
-      "nextAction": "No score action needed for this dimension."
+      "status": "below_80",
+      "rootCause": "cost_external_review_required",
+      "nextAction": "Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof."
     },
     "regressionRisk": {
       "before": 86,
@@ -70,27 +70,39 @@
       "nextAction": "No score action needed for this dimension."
     },
     "overallHealthScore": {
-      "before": 83.1,
-      "after": 83.1,
+      "before": 76.61,
+      "after": 78.03,
       "target": 80,
-      "status": "at_or_above_80",
-      "rootCause": "meets_target",
-      "nextAction": "No score action needed for this dimension."
+      "status": "below_80",
+      "rootCause": "formal_evidence_gate_required",
+      "nextAction": "Attach formal provider, deployed runtime, and production admin truth evidence before clearing beta gates. Remaining gates: formal_provider_smoke, deployed_runtime_smoke, production_admin_truth_sample."
     }
   },
   "dimensionsAtOrAbove80": [
     "sourceHealth",
     "runtimeHealth",
-    "freshness",
-    "costRisk",
-    "regressionRisk",
-    "overallHealthScore"
+    "regressionRisk"
   ],
   "dimensionsBelow80": [
-    "evidenceCompleteness"
+    "evidenceCompleteness",
+    "freshness",
+    "costRisk",
+    "overallHealthScore"
   ],
   "below80RootCauses": {
     "evidenceCompleteness": {
+      "rootCause": "formal_evidence_gate_required",
+      "nextAction": "Attach formal provider, deployed runtime, and production admin truth evidence before clearing beta gates. Remaining gates: formal_provider_smoke, deployed_runtime_smoke, production_admin_truth_sample."
+    },
+    "freshness": {
+      "rootCause": "stale_score_artifact",
+      "nextAction": "Refresh agent/state/final-pr-stale-cleanup.generated.json with npm run check:final-pr-stale-cleanup."
+    },
+    "costRisk": {
+      "rootCause": "cost_external_review_required",
+      "nextAction": "Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof."
+    },
+    "overallHealthScore": {
       "rootCause": "formal_evidence_gate_required",
       "nextAction": "Attach formal provider, deployed runtime, and production admin truth evidence before clearing beta gates. Remaining gates: formal_provider_smoke, deployed_runtime_smoke, production_admin_truth_sample."
     }
@@ -102,83 +114,6 @@
   ],
   "staleArtifactsRemaining": [
     {
-      "artifactPath": "agent/state/evidence-capture-status.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:evidence-capture-status",
-      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:source-truth-authority-map",
-      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:final-telemetry-closure-lock",
-      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:mobile-ui-final-lock",
-      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:overnight-final-integration-lock",
-      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:creator-settings-control-plane",
-      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:creator-drop-status-metrics",
-      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:operator-revenue-smoke",
-      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:beta-evidence-gap-map",
-      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:beta-evidence-lane-prep",
-      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/beta-freshness-language.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:beta-freshness-language",
-      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
-      "classification": "current_warning"
-    },
-    {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
       "status": "stale_source_version",
       "refreshCommand": "npm run check:final-pr-stale-cleanup",
@@ -186,31 +121,10 @@
       "classification": "current_warning"
     },
     {
-      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:overnight-wiring-integrity",
-      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
-      "classification": "current_warning"
-    },
-    {
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
       "status": "stale_source_version",
       "refreshCommand": "npm run check:existing-algorithm-refinement",
       "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement",
-      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-      "classification": "current_warning"
-    },
-    {
-      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
-      "status": "stale_source_version",
-      "refreshCommand": "npm run check:global-marquee-truncated-titles",
-      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
       "classification": "current_warning"
     }
   ],
@@ -253,15 +167,31 @@
   "futureActivityPenaltyCount": 0,
   "dirtyFilesClassified": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/activity-verification-engine.generated.json",
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/beta-freshness-language.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/beta-health-algorithm-v2.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -269,27 +199,43 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/debug-signal-actionability.generated.json",
+      "path": "agent/state/evidence-capture-status.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/debug-signal-grouping.generated.json",
+      "path": "agent/state/final-current-head-score-refresh.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/event-envelope-normalization.generated.json",
+      "path": "agent/state/final-release-exit-readiness-packet.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/feature-registration-gate.generated.json",
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -297,11 +243,11 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
+      "path": "agent/state/score-dimension-80-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/settings-connection-parity.generated.json",
+      "path": "agent/state/source-truth-authority-map.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -309,15 +255,31 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "path": "agent/state/user-creator-ui-parity.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/user-profile-api-contract.generated.json",
+      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/beta-freshness-language.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/creator-settings-control-plane.md",
       "classification": "release_artifact_expected"
     },
     {
@@ -325,31 +287,47 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/debug-signal-actionability.md",
+      "path": "docs/agent-truth/evidence-capture-status.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/debug-signal-grouping.md",
+      "path": "docs/agent-truth/final-current-head-score-refresh.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "path": "docs/agent-truth/final-release-exit-readiness-packet.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/settings-connection-parity.md",
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-wiring-integrity.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/score-dimension-80-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
       "classification": "release_artifact_expected"
     },
     {
@@ -357,94 +335,18 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "path": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
       "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/score-dimension-80-lock.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/score-dimension-80-lock.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-score-dimension-80-lock.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/agent-score/score-dimension-80-lock.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/score-dimension-80-lock.spec.ts",
-      "classification": "test_artifact_expected"
     }
   ],
-  "openPrClassifications": [
-    {
-      "number": 288,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/288",
-      "classification": "external_open_pr_not_touched_score_lock"
-    },
-    {
-      "number": 287,
-      "title": "🛡️ Sentinel: [HIGH] Fix Open Redirect via Protocol-Relative URLs",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/287",
-      "classification": "external_open_pr_not_touched_score_lock"
-    },
-    {
-      "number": 286,
-      "title": "⚡ Bolt: Replace nested array.find with Map lookups in debug route",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/286",
-      "classification": "external_open_pr_not_touched_score_lock"
-    },
-    {
-      "number": 285,
-      "title": "🎨 Palette: Add aria-busy state to CreatorProfileHeader follow button",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/285",
-      "classification": "external_open_pr_not_touched_score_lock"
-    }
-  ],
+  "openPrClassifications": [],
   "nextExactSteps": [
     "evidenceCompleteness: Attach formal provider, deployed runtime, and production admin truth evidence before clearing beta gates. Remaining gates: formal_provider_smoke, deployed_runtime_smoke, production_admin_truth_sample.",
-    "agent/state/evidence-capture-status.generated.json: Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-    "agent/state/source-truth-authority-map.generated.json: Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-    "agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-    "agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-    "agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-    "agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-    "agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-    "agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-    "agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
-    "agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
-    "agent/state/beta-freshness-language.generated.json: Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+    "freshness: Refresh agent/state/final-pr-stale-cleanup.generated.json with npm run check:final-pr-stale-cleanup.",
+    "costRisk: Review Cloud Run/App Hosting billing and deployed scheduler behavior externally before claiming full cost proof.",
+    "overallHealthScore: Attach formal provider, deployed runtime, and production admin truth evidence before clearing beta gates. Remaining gates: formal_provider_smoke, deployed_runtime_smoke, production_admin_truth_sample.",
     "agent/state/final-pr-stale-cleanup.generated.json: Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
-    "agent/state/overnight-wiring-integrity.generated.json: Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
     "agent/state/existing-algorithm-refinement.generated.json: Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
-    "agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-    "agent/state/global-marquee-truncated-titles.generated.json: Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
     "event-liveness-audit: Event liveness implementation is dirty/in-flight; keep it out of this regression refresh commit and rerun when landed."
   ]
 }

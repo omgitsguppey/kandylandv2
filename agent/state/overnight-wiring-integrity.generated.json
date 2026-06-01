@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-21T16:16:24.214Z",
+  "generatedAtUtc": "2026-06-01T00:27:16.425Z",
   "reportKey": "overnight-wiring-integrity",
-  "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
+  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
   "summary": {
-    "lanesWired": 11,
+    "lanesWired": 12,
     "lanesPartial": 0,
     "lanesMissingDependency": 0,
-    "lanesStale": 1,
+    "lanesStale": 0,
     "lanesBrokenOrOrphaned": 0,
     "orphanedTelemetryFixed": 0,
     "parityConflictsFixed": 1,
@@ -21,7 +21,7 @@
     "betaExitReadyMarked": false,
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 1
+    "p2Count": 0
   },
   "lanes": [
     {
@@ -164,26 +164,16 @@
       "expectedValidator": "scripts/agent/validate-public-beta-score.ts; scripts/agent/validate-current-beta-exit-status.ts",
       "expectedTelemetry": "beta evidence only",
       "expectedArtifact": "agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json",
-      "status": "stale",
+      "status": "wired",
       "fixApplied": "Validated existing source wiring; no duplicate system added.",
-      "nextAction": "Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready."
+      "nextAction": "Keep validator coverage current with future changes."
     }
   ],
   "orphanedTelemetryFindings": [],
   "parityFindings": [],
   "routeFindings": [],
-  "staleArtifactFindings": [
-    {
-      "severity": "p2",
-      "file": "agent/state/public-beta-score.generated.json; agent/state/current-beta-exit-status.generated.json",
-      "detail": "beta_health_scoring artifact is stale relative to current HEAD but has an explicit next action."
-    }
-  ],
+  "staleArtifactFindings": [],
   "dirtyFileClassifications": [
-    {
-      "file": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
     {
       "file": "agent/state/beta-evidence-gap-map.generated.json",
       "classification": "current_generated_artifact_to_commit"
@@ -197,11 +187,31 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "file": "agent/state/beta-health-algorithm-v2.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "file": "agent/state/creator-settings-control-plane.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/final-pr-stale-cleanup.generated.json",
+      "file": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/final-current-head-score-refresh.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "agent/state/final-release-exit-readiness-packet.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -213,15 +223,15 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/overnight-final-integration-lock.generated.json",
+      "file": "agent/state/operator-revenue-smoke.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/refresh-safeguards.generated.json",
+      "file": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "agent/state/self-healing-refresh-queue.generated.json",
+      "file": "agent/state/score-dimension-80-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -241,11 +251,27 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "file": "docs/agent-truth/creator-drop-status-metrics.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "file": "docs/agent-truth/creator-settings-control-plane.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "file": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/final-current-head-score-refresh.md",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "file": "docs/agent-truth/final-release-exit-readiness-packet.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -257,48 +283,22 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/overnight-final-integration-lock.md",
+      "file": "docs/agent-truth/operator-revenue-smoke.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "file": "docs/agent-truth/refresh-safeguards.md",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "docs/agent-truth/self-healing-refresh-queue.md",
+      "file": "docs/agent-truth/score-dimension-80-lock.md",
       "classification": "current_generated_artifact_to_commit"
     },
     {
       "file": "docs/agent-truth/source-truth-authority-map.md",
       "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "file": "tests/unit/score-80-refresh-queue-execution.spec.ts",
-      "classification": "real_source_change_needs_review"
     }
   ],
   "prCleanupActions": [
-    "PR #278 classified as unrelated_preserved.",
-    "PR #277 classified as unrelated_preserved."
+    "No open PRs were present at start/end for overnight wiring integrity."
   ],
-  "openPrs": [
-    {
-      "headRefName": "jules-11994101092319445340-c8418fdc",
-      "mergeStateStatus": "CLEAN",
-      "number": 278,
-      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/278",
-      "classification": "unrelated_preserved"
-    },
-    {
-      "headRefName": "audit-package-metadata-claims-8479328365422966163",
-      "mergeStateStatus": "CLEAN",
-      "number": 277,
-      "title": "💸 Audit package metadata and source-of-funds truth",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/277",
-      "classification": "unrelated_preserved"
-    }
-  ],
+  "openPrs": [],
   "fixesApplied": [
     "Added an overnight wiring integrity map covering creator, UI, telemetry, external analytics, BigQuery, and beta health lanes.",
     "Classified stale beta/mobile/telemetry artifacts as source-readiness evidence that must not mark beta exit ready.",
@@ -306,7 +306,6 @@
     "Kept chat and protected navigation out of this cleanup pass."
   ],
   "nextFixOrder": [
-    "beta_health_scoring: Regenerate beta score/status in the beta health lane; this pass does not mark beta exit ready.",
     "Keep future telemetry claims tied to TELEMETRY_DEPENDENCY_GRAPH or analytics-event-contract before UI labels say tracked."
   ]
 }
