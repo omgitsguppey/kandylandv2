@@ -452,13 +452,13 @@ function currentDirtyFiles(root: string) {
 
 export function classifyTruthReconciliationDirtyFile(path: string) {
   const normalized = normalizePath(path);
-  if (/^agent\/state\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|public-beta-score|current-beta-exit-status|final-release-exit-readiness-packet)\.generated\.json$/u.test(normalized)) {
+  if (/^agent\/state\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|public-beta-score|current-beta-exit-status|final-current-head-score-refresh|final-release-exit-readiness-packet|overnight-beta-readiness-lock)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
   if (/^agent\/state\/(activity-verification-engine|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
-  if (/^docs\/agent-truth\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation)\.md$/u.test(normalized)) {
+  if (/^docs\/agent-truth\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|final-current-head-score-refresh|final-release-exit-readiness-packet|overnight-beta-readiness-lock)\.md$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (/^docs\/agent-truth\/(activity-verification-engine|current-beta-exit-status|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.md$/u.test(normalized)) {

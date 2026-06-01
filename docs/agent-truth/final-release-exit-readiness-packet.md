@@ -5,8 +5,8 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 
 ## Summary
 
-- Generated: `2026-06-01T00:24:04.319Z`
-- Current head: `e538c41e9de8827da5103b8bcb281cab184737c9`
+- Generated: `2026-06-01T04:50:14.428Z`
+- Current head: `c525024240902c3f2ca716c01015c3cb6b25997b`
 - Status: `pass`
 
 ## Report
@@ -14,18 +14,18 @@ Validator: `npm run check:final-release-exit-readiness-packet`
 ```json
 {
   "reportKey": "final-release-exit-readiness-packet",
-  "generatedAtUtc": "2026-06-01T00:24:04.319Z",
-  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
-  "scoreBefore": 76.61,
-  "scoreAfter": 76.61,
+  "generatedAtUtc": "2026-06-01T04:50:14.428Z",
+  "currentHead": "c525024240902c3f2ca716c01015c3cb6b25997b",
+  "scoreBefore": 78.03,
+  "scoreAfter": 78.03,
   "scoreDimensions": {
-    "sourceHealth": 91.7,
+    "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 67.5,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 76.61
+    "overallHealthScore": 78.03
   },
   "betaExitReady": false,
   "launchGateStatus": "owner_review",
@@ -219,7 +219,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
   },
   "releaseNotesIntegrity": {
     "status": "pass",
-    "currentVersion": "1.5.28"
+    "currentVersion": "1.5.30"
   },
   "liveEvidenceGateReplacement": {
     "status": "split_ready",
@@ -229,7 +229,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
       "external billing review",
       "source_missing live evidence lanes"
     ],
-    "sourceMissingLiveEvidenceCount": 10,
+    "sourceMissingLiveEvidenceCount": 11,
     "visualOnlyManualGateCount": 1,
     "externalProviderGateCount": 1,
     "externalBillingGateCount": 1
@@ -245,7 +245,7 @@ Validator: `npm run check:final-release-exit-readiness-packet`
     "nextExactAction": "Attach missing formal runtime/provider/admin evidence."
   },
   "freshnessStatus": {
-    "score": 67.5,
+    "score": 75.63,
     "status": "below80_refresh_required",
     "nextExactAction": "Refresh stale required artifacts through their owning validators."
   },

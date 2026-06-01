@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-01T00:32:31.101Z",
+  "generatedAtUtc": "2026-06-01T04:56:06.179Z",
   "reportKey": "beta-health-algorithm-v2",
-  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "currentHead": "c525024240902c3f2ca716c01015c3cb6b25997b",
   "summary": {
     "scoreVersion": "beta_health_v2",
     "binaryEvidenceGatesRemoved": true,
