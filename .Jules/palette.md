@@ -12,3 +12,6 @@
 ## 2024-05-09 - Added aria-busy to Button component
 **Learning:** The core Button component visually indicated loading states with a spinner, but did not properly announce this asynchronous loading state to screen readers.
 **Action:** Always apply the `aria-busy={isLoading}` attribute to interactive elements like buttons when they enter a loading state to ensure screen readers are informed of the asynchronous process.
+## 2026-05-18 - AuthModal Buttons Need aria-busy
+**Learning:** Found several submit buttons in `AuthModal.tsx` and `CreatorExperiencesPanel.tsx` that show a `Loader2` spinner during `isLoading` but fail to include `aria-busy={isLoading}`.
+**Action:** Always apply the `aria-busy={isLoading}` attribute to interactive elements like buttons when they enter a loading state.

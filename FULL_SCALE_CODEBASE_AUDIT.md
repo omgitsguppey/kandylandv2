@@ -13887,3 +13887,7 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+## [2026-05-18 #palette-a11y-authmodal] PRE: Add aria-busy to AuthModal buttons
+Scope: Modifying AuthModal buttons to have proper loading states via aria-busy and aria-hidden for screen readers.
+## [2026-05-18 #palette-a11y-authmodal] POST: Add aria-busy to AuthModal buttons
+Findings/Verification: Added aria-busy={isLoading} to the interactive loading buttons and aria-hidden="true" to their Loader2 components in AuthModal.tsx to properly manage screen reader state.

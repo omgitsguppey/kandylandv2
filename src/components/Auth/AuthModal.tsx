@@ -982,10 +982,11 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                 <button
                                     onClick={handleGoogleSignIn}
                                     disabled={isLoading}
+                                    aria-busy={isLoading}
                                     className="flex w-full items-center justify-center gap-3 rounded-xl border border-brand-purple/40 bg-gradient-to-r from-brand-purple to-purple-500 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-colors disabled:opacity-50 sm:py-3 sm:text-base"
                                 >
                                     {isLoading ? (
-                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
                                     ) : (
                                         <svg className="h-5 w-5" viewBox="0 0 24 24">
                                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -1052,9 +1053,10 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     <button
                                         type="submit"
                                         disabled={isLoading}
+                                        aria-busy={isLoading}
                                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
-                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Send Reset Link"}
+                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Send Reset Link"}
                                     </button>
                                     <button
                                         type="button"
@@ -1240,9 +1242,10 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     <button
                                         type="submit"
                                         disabled={isLoading || emailSignInBlocked}
+                                        aria-busy={isLoading}
                                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
-                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Sign In"}
+                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Sign In"}
                                     </button>
                                 ) : null}
 
@@ -1250,9 +1253,10 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     <button
                                         type="submit"
                                         disabled={isLoading}
+                                        aria-busy={isLoading}
                                         className="w-full rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                     >
-                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : SECONDARY_UNWRAP_CTA}
+                                        {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : SECONDARY_UNWRAP_CTA}
                                     </button>
                                 ) : null}
 
@@ -1285,15 +1289,17 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                             <button
                                                 type="submit"
                                                 disabled={isLoading}
+                                                aria-busy={isLoading}
                                                 className="flex-[1.25] rounded-xl bg-brand-purple py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                             >
-                                                {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Submit creator application"}
+                                                {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" aria-hidden="true" /> : "Submit creator application"}
                                             </button>
                                         ) : (
                                             <button
                                                 type="button"
                                                 onClick={() => void handleAdvanceCreatorStep()}
                                                 disabled={isLoading}
+                                                aria-busy={isLoading}
                                                 className="flex-[1.25] rounded-xl bg-brand-purple py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                             >
                                                 Continue
