@@ -5,8 +5,8 @@ Validator: `npm run check:half-implementation-detector`
 
 ## Summary
 
-- Generated: `2026-05-26T22:55:41.237Z`
-- Current head: `ab170d4c0157ad2529b1e5c606d5ca65db1b3346`
+- Generated: `2026-06-01T04:30:26.027Z`
+- Current head: `3f06d1a8431e29a22ac0ea18233146084f1ff47a`
 - Validation status: `pass`
 
 ## Evidence Boundary
@@ -18,9 +18,12 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
 ```json
 {
   "reportKey": "half-implementation-detector",
-  "generatedAtUtc": "2026-05-26T22:55:41.237Z",
-  "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-  "findings": [],
+  "generatedAtUtc": "2026-06-01T04:30:26.027Z",
+  "currentHead": "3f06d1a8431e29a22ac0ea18233146084f1ff47a",
+  "reportFormat": "compact_summary_full_detail_derivable",
+  "findingsAudited": 0,
+  "releaseCriticalFindingCount": 0,
+  "severityCounts": {},
   "releaseCriticalFindings": [],
   "validationFailures": []
 }

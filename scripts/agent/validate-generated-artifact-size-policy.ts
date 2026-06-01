@@ -17,6 +17,7 @@ writeText("docs/agent-truth/generated-artifact-size-policy.md", [
   `Current head: ${report.currentHead}`,
   `Artifacts audited: ${report.generatedArtifactsAudited}`,
   `Default max lines: ${report.defaultMaxLines}`,
+  `Default max bytes: ${report.defaultMaxBytes}`,
   `Oversized classified artifacts: ${report.oversizedArtifacts.length}`,
   `Unsafe unknowns: ${report.unsafeUnknowns}`,
   "",

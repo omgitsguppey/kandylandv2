@@ -18,6 +18,7 @@ export type OversizedArtifactClassification =
 export type GeneratedArtifactSizeEntry = {
   artifactPath: string;
   lineCount: number;
+  byteCount: number;
   classification: OversizedArtifactClassification;
   justification: string;
 };
@@ -27,6 +28,7 @@ export type GeneratedArtifactSizePolicyReport = {
   generatedAtUtc: string;
   currentHead: string;
   defaultMaxLines: 500;
+  defaultMaxBytes: 250000;
   generatedArtifactsAudited: number;
   oversizedArtifacts: GeneratedArtifactSizeEntry[];
   generatedArtifactsShrunk: number;
@@ -36,8 +38,12 @@ export type GeneratedArtifactSizePolicyReport = {
   validationFailures: string[];
 };
 
-function classifyArtifact(path: string, lines: number): OversizedArtifactClassification {
-  if (lines <= 500) return "compact_artifact";
+function byteCount(path: string) {
+  return Buffer.byteLength(readText(path), "utf8");
+}
+
+function classifyArtifact(path: string, lines: number, bytes: number): OversizedArtifactClassification {
+  if (lines <= 500 && bytes <= 250000) return "compact_artifact";
   if (/test-fixture|validator-ownership|quality-guards|qa-harness|artifact-size|memory-writeback/iu.test(path)) return "unsafe_unknown";
   if (/public-beta-score|current-beta-exit-status|release|readiness|score/iu.test(path)) return "score_critical_summary";
   if (/retrieval-index|product-body-map|telemetry-dependency|ui-surface-coverage/iu.test(path)) return "drilldown_only";
@@ -49,28 +55,31 @@ export function buildGeneratedArtifactSizePolicyReport(): GeneratedArtifactSizeP
   const oversizedArtifacts = artifacts
     .map((artifactPath) => {
       const lines = lineCount(artifactPath);
-      const classification = classifyArtifact(artifactPath, lines);
+      const bytes = byteCount(artifactPath);
+      const classification = classifyArtifact(artifactPath, lines, bytes);
       return {
         artifactPath,
         lineCount: lines,
+        byteCount: bytes,
         classification,
         justification: classification === "compact_artifact"
           ? "Within default 500-line compact policy."
           : "Existing generated snapshot is classified; future edits should prefer summary plus top findings.",
       };
     })
-    .filter((entry) => entry.lineCount > 500);
+    .filter((entry) => entry.lineCount > 500 || entry.byteCount > 250000);
 
   const report: GeneratedArtifactSizePolicyReport = {
     reportKey: "generated-artifact-size-policy",
     generatedAtUtc: TEST_HARDENING_GENERATED_AT_UTC,
     currentHead: currentGitHead(),
     defaultMaxLines: 500,
+    defaultMaxBytes: 250000,
     generatedArtifactsAudited: artifacts.length,
     oversizedArtifacts,
     generatedArtifactsShrunk: 0,
     unsafeUnknowns: oversizedArtifacts.filter((artifact) => artifact.classification === "unsafe_unknown").length,
-    remainingGaps: oversizedArtifacts.slice(0, 10).map((artifact) => `${artifact.artifactPath}: ${artifact.lineCount} lines, ${artifact.classification}.`),
+    remainingGaps: oversizedArtifacts.slice(0, 10).map((artifact) => `${artifact.artifactPath}: ${artifact.lineCount} lines, ${artifact.byteCount} bytes, ${artifact.classification}.`),
     nextExactSteps: [
       "Keep new generated artifacts compact by default.",
       "Use counts, top findings, score impact, currentHead, validation failures, and next actions in default reports.",
@@ -85,6 +94,7 @@ export function buildGeneratedArtifactSizePolicyReport(): GeneratedArtifactSizeP
 export function validateGeneratedArtifactSizePolicyReport(report: GeneratedArtifactSizePolicyReport): ValidationResult {
   const failures: string[] = [];
   if (report.defaultMaxLines !== 500) failures.push("generated artifact max line policy is not 500.");
+  if (report.defaultMaxBytes !== 250000) failures.push("generated artifact max byte policy is not 250000.");
   if (report.generatedArtifactsAudited === 0) failures.push("no generated artifacts audited.");
   if (report.unsafeUnknowns > 0) failures.push("new test-hardening generated artifact exceeds compact policy.");
   for (const path of [

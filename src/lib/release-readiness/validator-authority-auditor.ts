@@ -1,5 +1,6 @@
 export {
   buildValidatorAuthorityAuditReport,
+  compactTruthReconciliationReport,
   validateValidatorAuthorityAuditReport,
   type ValidatorAuthorityAuditReport,
   type ValidatorAuthorityRecord,

@@ -202,6 +202,66 @@ export type TruthReconciliationReport =
   | ManualQaReadinessGateReport
   | AutomatedTruthReconciliationReport;
 
+export type CompactTruthReconciliationReport = {
+  reportKey: TruthReconciliationReport["reportKey"];
+  generatedAtUtc: string;
+  currentHead: string;
+  validationFailures: string[];
+  reportFormat: "compact_summary_full_detail_derivable";
+  [key: string]: unknown;
+};
+
+const VALIDATOR_AUTHORITY_DEPRECATION_MAP = [
+  {
+    id: "agent/context/validator-authority.json",
+    classification: "retired_duplicate_consumer",
+    canonicalReplacement: "agent/state/validator-authority-audit.generated.json + agent/state/validator-ownership-map.generated.json",
+    action: "check:validator-authority delegates to the canonical audit and ownership map instead of treating the stale registry as release authority.",
+  },
+  {
+    id: "agent/state/event-liveness-source-repair.generated.json",
+    classification: "deprecation_map_only",
+    canonicalReplacement: "agent/state/event-liveness-audit.generated.json",
+    action: "Keep as legacy evidence until package-script references are retired; do not score-consume it.",
+  },
+  {
+    id: "agent/state/analytics-hydration-consolidation.generated.json",
+    classification: "deprecation_map_only",
+    canonicalReplacement: "agent/state/analytics-panel-hydration.generated.json",
+    action: "Keep as legacy evidence until references are retired; analytics panel truth is canonical.",
+  },
+  {
+    id: "agent/state/analytics-hydration-consolidation-audit.generated.json",
+    classification: "deprecation_map_only",
+    canonicalReplacement: "agent/state/analytics-panel-hydration.generated.json",
+    action: "Keep as legacy evidence until references are retired; analytics panel truth is canonical.",
+  },
+  {
+    id: "agent/state/live-evidence-gate-replacement.generated.json",
+    classification: "protected_score_consumed",
+    canonicalReplacement: "src/lib/release-readiness/live-evidence-resolver.ts",
+    action: "Do not delete in this pass; public beta score consumes this live usage evidence lane.",
+  },
+  {
+    id: "agent/state/runtime-smoke-substitute-matrix.generated.json",
+    classification: "protected_score_consumed",
+    canonicalReplacement: "src/lib/release-readiness/live-evidence-resolver.ts",
+    action: "Do not delete in this pass; public beta score consumes this runtime evidence lane.",
+  },
+  {
+    id: "agent/state/real-usage-confidence.generated.json",
+    classification: "protected_score_consumed",
+    canonicalReplacement: "src/lib/release-readiness/live-evidence-resolver.ts",
+    action: "Do not delete in this pass; public beta score consumes this live usage confidence lane.",
+  },
+  {
+    id: "agent/state/cost-risk-exit-pass.generated.json",
+    classification: "protected_score_consumed",
+    canonicalReplacement: "src/lib/server/global-cost-surface-contract.ts",
+    action: "Do not delete in this pass; cost truth remains score and release-readiness evidence.",
+  },
+] as const;
+
 export type TruthReconciliationReportKind =
   | "claim-truth-audit"
   | "validator-authority-audit"
@@ -917,7 +977,113 @@ export function buildTruthReconciliationReport(kind: TruthReconciliationReportKi
   }
 }
 
-export function renderTruthReconciliationDoc(kind: TruthReconciliationReportKind, report: TruthReconciliationReport) {
+function countBy<T>(items: readonly T[], getKey: (item: T) => string) {
+  return items.reduce<Record<string, number>>((counts, item) => {
+    const key = getKey(item);
+    counts[key] = (counts[key] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+export function compactTruthReconciliationReport(
+  kind: TruthReconciliationReportKind,
+  report: TruthReconciliationReport,
+): TruthReconciliationReport | CompactTruthReconciliationReport {
+  switch (kind) {
+    case "claim-truth-audit": {
+      const claimReport = report as ClaimTruthAuditReport;
+      return {
+        reportKey: claimReport.reportKey,
+        generatedAtUtc: claimReport.generatedAtUtc,
+        currentHead: claimReport.currentHead,
+        reportFormat: "compact_summary_full_detail_derivable",
+        claimsAudited: claimReport.claims.length,
+        unprovenClaimCount: claimReport.unprovenClaims.length,
+        contradictionCount: claimReport.claims.filter((claim) => claim.contradictionFound).length,
+        proofStatusCounts: countBy(claimReport.claims, (claim) => claim.proofStatus),
+        unprovenClaims: claimReport.unprovenClaims.slice(0, 50),
+        validationFailures: claimReport.validationFailures,
+      };
+    }
+    case "validator-authority-audit": {
+      const authorityReport = report as ValidatorAuthorityAuditReport;
+      return {
+        reportKey: authorityReport.reportKey,
+        generatedAtUtc: authorityReport.generatedAtUtc,
+        currentHead: authorityReport.currentHead,
+        reportFormat: "compact_summary_full_detail_derivable",
+        validatorsAudited: authorityReport.validators.length,
+        authorityGapCount: authorityReport.authorityGaps.length,
+        scoreConsumedScriptCount: authorityReport.validators.filter((entry) => entry.packageScriptUsedByScore).length,
+        proofStatusCounts: countBy(authorityReport.validators, (entry) => entry.proofStatus),
+        missingValidatorSamples: authorityReport.validators
+          .filter((entry) => entry.proofStatus === "missing_validator")
+          .slice(0, 25),
+        retiredDuplicateTruthArtifacts: VALIDATOR_AUTHORITY_DEPRECATION_MAP,
+        authorityGaps: authorityReport.authorityGaps.slice(0, 50),
+        validationFailures: authorityReport.validationFailures,
+      };
+    }
+    case "wiring-truth-audit": {
+      const wiringReport = report as WiringTruthAuditReport;
+      return {
+        reportKey: wiringReport.reportKey,
+        generatedAtUtc: wiringReport.generatedAtUtc,
+        currentHead: wiringReport.currentHead,
+        reportFormat: "compact_summary_full_detail_derivable",
+        lanesAudited: wiringReport.lanes.length,
+        releaseCriticalGapCount: wiringReport.releaseCriticalGaps.length,
+        statusCounts: countBy(wiringReport.lanes, (lane) => lane.status),
+        releaseCriticalGaps: wiringReport.releaseCriticalGaps.slice(0, 50),
+        validationFailures: wiringReport.validationFailures,
+      };
+    }
+    case "half-implementation-detector": {
+      const halfReport = report as HalfImplementationDetectorReport;
+      return {
+        reportKey: halfReport.reportKey,
+        generatedAtUtc: halfReport.generatedAtUtc,
+        currentHead: halfReport.currentHead,
+        reportFormat: "compact_summary_full_detail_derivable",
+        findingsAudited: halfReport.findings.length,
+        releaseCriticalFindingCount: halfReport.releaseCriticalFindings.length,
+        severityCounts: countBy(halfReport.findings, (finding) => finding.severity),
+        releaseCriticalFindings: halfReport.releaseCriticalFindings.slice(0, 50),
+        validationFailures: halfReport.validationFailures,
+      };
+    }
+    case "automated-truth-reconciliation": {
+      const reconciliationReport = report as AutomatedTruthReconciliationReport;
+      return {
+        reportKey: reconciliationReport.reportKey,
+        generatedAtUtc: reconciliationReport.generatedAtUtc,
+        currentHead: reconciliationReport.currentHead,
+        reportFormat: "compact_summary_full_detail_derivable",
+        betaScore: reconciliationReport.betaScore,
+        betaScoreProofStatus: reconciliationReport.betaScoreProofStatus,
+        manualQaRecommended: reconciliationReport.manualQaRecommended,
+        releaseCriticalGapCount: reconciliationReport.releaseCriticalGaps.length,
+        halfImplementedLaneCount: reconciliationReport.halfImplementedLanes.length,
+        unprovenClaimCount: reconciliationReport.unprovenClaims.length,
+        validatorAuthorityGapCount: reconciliationReport.validatorAuthorityGaps.length,
+        costRiskGapCount: reconciliationReport.costRiskGaps.length,
+        openPrCount: reconciliationReport.openPrs.length,
+        securityPrCount: reconciliationReport.securityPrs.length,
+        unclassifiedDirtyFiles: reconciliationReport.unclassifiedDirtyFiles,
+        formalEvidenceStillMissing: reconciliationReport.formalEvidenceStillMissing,
+        releaseCriticalGaps: reconciliationReport.releaseCriticalGaps.slice(0, 50),
+        validationFailures: reconciliationReport.validationFailures,
+      };
+    }
+    default:
+      return report;
+  }
+}
+
+export function renderTruthReconciliationDoc(
+  kind: TruthReconciliationReportKind,
+  report: TruthReconciliationReport | CompactTruthReconciliationReport,
+) {
   const title = kind.split("-").map((part) => `${part[0]?.toUpperCase() ?? ""}${part.slice(1)}`).join(" ");
   const failures = "validationFailures" in report ? report.validationFailures : [];
   return `# ${title}

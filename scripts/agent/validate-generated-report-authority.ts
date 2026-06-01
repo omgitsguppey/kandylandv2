@@ -46,9 +46,12 @@ type GeneratedReportAuthorityDocument = {
   sourceCommit: string;
   status: "pass" | "fail";
   freshness: GeneratedReportFreshness;
+  reportFormat: "compact_summary";
   defaultStaleAfterHours: number;
   summary: {
     reportCount: number;
+    reportedSampleCount: number;
+    omittedReportCount: number;
     staleCount: number;
     unknownFreshnessCount: number;
     runtimeViolationCount: number;
@@ -222,6 +225,8 @@ function main() {
 
   const summary = {
     reportCount: reports.length,
+    reportedSampleCount: Math.min(reports.length, 80),
+    omittedReportCount: Math.max(0, reports.length - 80),
     staleCount: reports.filter((report) => report.freshness === "stale").length,
     unknownFreshnessCount: reports.filter((report) => report.freshness === "unknown").length,
     runtimeViolationCount: runtimeViolations.length,
@@ -233,9 +238,12 @@ function main() {
     sourceCommit: headCommit,
     status: failures.length > 0 ? "fail" : "pass",
     freshness: "fresh",
+    reportFormat: "compact_summary",
     defaultStaleAfterHours: GENERATED_REPORT_DEFAULT_STALE_HOURS,
     summary,
-    reports,
+    reports: reports
+      .filter((report) => report.freshness === "stale" || report.freshness === "unknown" || report.missingEmbeddedFields.length > 0)
+      .slice(0, 80),
     runtimeViolations,
     doctrineOverrideViolations,
     guidance: [

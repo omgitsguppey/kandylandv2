@@ -1,10 +1,11 @@
 # Generated Artifact Size Policy
 
 Generated: 2026-05-27T00:00:00.000Z
-Current head: 73bb5a8b1aa989f93c2580e04b7c1e22ff62db93
-Artifacts audited: 1250
+Current head: 3f06d1a8431e29a22ac0ea18233146084f1ff47a
+Artifacts audited: 1352
 Default max lines: 500
-Oversized classified artifacts: 85
+Default max bytes: 250000
+Oversized classified artifacts: 87
 Unsafe unknowns: 0
 
 ## Policy

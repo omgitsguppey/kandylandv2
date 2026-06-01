@@ -1,44 +1,44 @@
 {
   "reportKey": "score-truth-audit",
-  "generatedAtUtc": "2026-05-26T22:55:39.722Z",
-  "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-  "publicBetaScoreHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-  "currentBetaExitStatusHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-  "finalReleasePacketHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
+  "generatedAtUtc": "2026-06-01T04:30:22.626Z",
+  "currentHead": "3f06d1a8431e29a22ac0ea18233146084f1ff47a",
+  "publicBetaScoreHead": "3f06d1a8431e29a22ac0ea18233146084f1ff47a",
+  "currentBetaExitStatusHead": "39a5e4f484e18ff5eb78d1073c73d9d92e489ddb",
+  "finalReleasePacketHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
   "artifactHeadStatuses": [
     {
       "artifactPath": "agent/state/public-beta-score.generated.json",
-      "artifactHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "artifactHead": "3f06d1a8431e29a22ac0ea18233146084f1ff47a",
       "status": "current_head",
       "needsRefresh": false,
       "reason": "agent/state/public-beta-score.generated.json was generated for the current code version."
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "artifactHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-      "status": "current_head",
+      "artifactHead": "39a5e4f484e18ff5eb78d1073c73d9d92e489ddb",
+      "status": "same_commit_snapshot",
       "needsRefresh": false,
-      "reason": "agent/state/current-beta-exit-status.generated.json was generated for the current code version."
+      "reason": "agent/state/current-beta-exit-status.generated.json is a same commit generated artifact snapshot."
     },
     {
       "artifactPath": "agent/state/final-release-exit-readiness-packet.generated.json",
-      "artifactHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
-      "status": "same_commit_snapshot",
-      "needsRefresh": false,
-      "reason": "agent/state/final-release-exit-readiness-packet.generated.json is a same commit generated artifact snapshot."
+      "artifactHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "reason": "agent/state/final-release-exit-readiness-packet.generated.json was generated from an older code version."
     }
   ],
   "scoreDimensions": {
-    "sourceHealth": 100,
+    "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
-    "evidenceCompleteness": 84.6,
-    "freshness": 91.88,
+    "evidenceCompleteness": 69.6,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 85.34
+    "overallHealthScore": 78.03
   },
-  "weightedFormulaScore": 85.34,
-  "reportedOverallScore": 85.34,
+  "weightedFormulaScore": 78.03,
+  "reportedOverallScore": 78.03,
   "formulaMatches": true,
   "staleScoreArtifactSilentlyUsed": false,
   "sourceOnlyClearsFormalProof": false,
