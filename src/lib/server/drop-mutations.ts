@@ -106,17 +106,32 @@ function isHttpUrl(value: string) {
 }
 
 function isSafeDropActionUrl(value: string) {
-    if (!value.trim()) {
+    const trimmedUrl = value?.trim();
+    if (!trimmedUrl) {
+        return false;
+    }
+
+    if (trimmedUrl.startsWith("\\") || trimmedUrl.startsWith("//") || trimmedUrl.startsWith("/\\")) {
         return false;
     }
 
     try {
-        const parsed = new URL(value, DROP_ACTION_URL_BASE);
+        const parsed = new URL(trimmedUrl, DROP_ACTION_URL_BASE);
         if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
             return false;
         }
 
-        return !(parsed.hostname === "kandydrops.invalid" && parsed.pathname.startsWith("//"));
+        if (parsed.origin === DROP_ACTION_URL_BASE) {
+            if (
+                parsed.pathname.startsWith("//")
+                || parsed.pathname.startsWith("/\\")
+                || parsed.pathname.startsWith("\\")
+            ) {
+                return false;
+            }
+        }
+
+        return true;
     } catch {
         return false;
     }
