@@ -35,7 +35,7 @@ const NORMAL_DAILY_EVENTS = new Set([
   "auth_sign_up_success",
   "wallet_opened",
   "creator_profile_viewed",
-  "notification_prompt_banner_viewed",
+  "notification_prompt_viewed",
   "settings_surface_viewed",
   "user_settings_viewed",
   "chat_surface_viewed",
@@ -91,7 +91,7 @@ export const IMPORTANT_EVENT_LIVENESS_INPUTS: EventLivenessInput[] = [
   { eventName: "creator_fan_pass_started", featureId: "fan_pass", surface: "Fan Pass purchase", visibilityStatus: "logged_in_visible", expectedTrafficClass: "rare" },
   { eventName: "creator_broadcast_detail_viewed", featureId: "broadcasts", surface: "broadcast detail", visibilityStatus: "creator_visible", expectedTrafficClass: "occasional" },
   { eventName: "creator_broadcast_cta_clicked", featureId: "broadcasts", surface: "broadcast CTA", visibilityStatus: "creator_visible", expectedTrafficClass: "occasional" },
-  { eventName: "notification_prompt_banner_viewed", featureId: "notifications", surface: "notification prompt", visibilityStatus: "logged_in_visible" },
+  { eventName: "notification_prompt_viewed", featureId: "notifications", surface: "notification prompt", visibilityStatus: "logged_in_visible" },
   { eventName: "notification_opened", featureId: "notifications", surface: "notification inbox", visibilityStatus: "logged_in_visible", expectedTrafficClass: "occasional" },
   { eventName: "user_settings_viewed", featureId: "user_dashboard", surface: "settings", visibilityStatus: "logged_in_visible" },
   { eventName: "setting_toggle_changed", featureId: "user_dashboard", surface: "settings toggles", visibilityStatus: "logged_in_visible", expectedTrafficClass: "occasional" },
@@ -196,6 +196,10 @@ function nextActionFor(status: EventLivenessStatus, eventName: string) {
       return "No activity action; feature is intentionally disabled.";
     case "future_only_quiet":
       return "Keep this in the collapsed future activity catalog until the feature becomes live.";
+    case "provider_required":
+      return `${eventName} requires external provider evidence before it can count as observed runtime proof.`;
+    case "protected_payment_required":
+      return `${eventName} requires protected payment/provider proof and must not be promoted from generic telemetry.`;
     case "not_observed_and_not_expected":
       return "No action needed unless product expectations change.";
   }
@@ -203,6 +207,8 @@ function nextActionFor(status: EventLivenessStatus, eventName: string) {
 
 function reasonFor(status: EventLivenessStatus, expectedTrafficClass: ExpectedTrafficClass, eventName: string) {
   if (status === "source_missing") return `${eventName} is ${expectedTrafficClass} but has no safe lastSeen source.`;
+  if (status === "provider_required") return `${eventName} is provider-gated and cannot be proven by source-only readiness.`;
+  if (status === "protected_payment_required") return `${eventName} is payment/provider-gated and cannot be proven by generic activity.`;
   if (status === "observed_stale") return `${eventName} has lastSeen evidence, but it is stale for ${expectedTrafficClass}.`;
   if (status === "source_ready_waiting_for_activity") return `${eventName} has a canonical source mapping but no bounded recent activity yet.`;
   if (status === "future_only_quiet") return `${eventName} is not expected to produce real activity yet.`;
@@ -224,6 +230,11 @@ function statusFromInput(input: EventLivenessInput, expectedTrafficClass: Expect
   if (input.translationMapped === false) return "translation_missing";
   if (input.materializerMapped === false) return "materializer_missing";
   if (input.hydrationMapped === false) return "hydration_missing";
+  if (!lastSeenSource && input.formalProviderGated) {
+    return input.featureId === "wallet" || /purchase|payment|paypal|gumdrop/iu.test(input.eventName)
+      ? "protected_payment_required"
+      : "provider_required";
+  }
   if ((input.failureEvent || expectedTrafficClass === "rare") && input.successPathObserved) return "not_observed_and_not_expected";
   if (!lastSeenSource) {
     if (expectedRecentWindow === "none" || expectedTrafficClass === "admin_only" || expectedTrafficClass === "rare") {
@@ -252,7 +263,12 @@ export function classifyEventLiveness(input: EventLivenessInput): EventLivenessC
   const livenessStatus = statusFromInput(input, expectedTrafficClass, expectedRecentWindow, lastSeenSource, sourceReadiness);
   const scoreImpact = impactForStatus(livenessStatus);
   const scoreDrag = Object.values(scoreImpact).some((value) => value > 0);
-  const defaultVisible = scoreDrag || livenessStatus === "source_missing" || livenessStatus === "observed_stale" || livenessStatus === "not_observed_but_expected";
+  const defaultVisible = scoreDrag
+    || livenessStatus === "source_missing"
+    || livenessStatus === "observed_stale"
+    || livenessStatus === "not_observed_but_expected"
+    || livenessStatus === "provider_required"
+    || livenessStatus === "protected_payment_required";
 
   return {
     ...input,

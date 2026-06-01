@@ -1,8 +1,8 @@
 # Event Translation Bridge
 
-Generated: 2026-05-31T22:46:57.226Z
+Generated: 2026-06-01T03:35:29.004Z
 Status: pass
-Current head: 49da560fffb17b22df49df8ac8256f28e4870178
+Current head: 39a5e4f484e18ff5eb78d1073c73d9d92e489ddb
 
 ## Contract
 
@@ -12,10 +12,10 @@ Current head: 49da560fffb17b22df49df8ac8256f28e4870178
 
 ## Debug Lane
 
-- Producers registered: 762
-- Producers connected: 762
-- Event envelopes translated: 762
-- Materializers mapped: 762
+- Producers registered: 766
+- Producers connected: 766
+- Event envelopes translated: 766
+- Materializers mapped: 766
 - Person metrics mapped: 208
 - Gaps: 0
 
@@ -57,28 +57,29 @@ Current head: 49da560fffb17b22df49df8ac8256f28e4870178
 - agent/state/current-beta-exit-status.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
 - agent/state/event-translation-bridge.generated.json: current_generated_artifact_to_commit
-- agent/state/evidence-capture-status.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/live-evidence-gate-replacement.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/overnight-beta-readiness-lock.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/public-beta-score.generated.json: stale_generated_artifact_to_regenerate
 - docs/agent-truth/analytics-panel-hydration.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/current-beta-exit-status.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/event-liveness-audit.md: documentation_artifact_expected
 - docs/agent-truth/event-translation-bridge.md: documentation_artifact_expected
-- docs/agent-truth/evidence-capture-status.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/live-evidence-gate-replacement.md: stale_generated_artifact_to_regenerate
+- docs/agent-truth/overnight-beta-readiness-lock.md: stale_generated_artifact_to_regenerate
 - docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- scripts/agent/score-public-beta-readiness.ts: real_source_change_needs_review
 - scripts/agent/validate-analytics-panel-hydration.ts: validator_artifact_expected
-- scripts/agent/validate-current-beta-exit-status.ts: validator_artifact_expected
 - scripts/agent/validate-event-liveness-audit.ts: validator_artifact_expected
 - scripts/agent/validate-event-translation-bridge.ts: validator_artifact_expected
+- scripts/agent/validate-overnight-beta-readiness-lock.ts: validator_artifact_expected
+- src/lib/admin-analytics/panel-hydration-contract.ts: real_source_change_needs_review
+- src/lib/admin-analytics/panel-hydration-registry.ts: real_source_change_needs_review
+- src/lib/admin-analytics/panel-hydration-resolver.ts: real_source_change_needs_review
+- src/lib/analytics/event-liveness-contract.ts: real_source_change_needs_review
+- src/lib/analytics/event-liveness-engine.ts: real_source_change_needs_review
 - src/lib/analytics/event-translation-bridge.ts: real_source_change_needs_review
-- src/lib/analytics/person-metrics-hydration.ts: real_source_change_needs_review
-- src/lib/release-readiness/live-evidence-gate-contract.ts: real_source_change_needs_review
 - src/lib/release-readiness/live-evidence-resolver.ts: real_source_change_needs_review
-- tests/unit/current-beta-exit-status.spec.ts: test_artifact_expected
-- tests/unit/live-evidence-gate-replacement.spec.ts: test_artifact_expected
+- src/lib/release-readiness/live-panel-evidence-resolver.ts: real_source_change_needs_review
+- tests/unit/analytics-panel-hydration.spec.ts: test_artifact_expected
+- tests/unit/event-liveness-audit.spec.ts: test_artifact_expected
 
 ## Validation Failures
 

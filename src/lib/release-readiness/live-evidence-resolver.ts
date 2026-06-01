@@ -141,7 +141,7 @@ const SYSTEM_SEEDS: EvidenceSystemSeed[] = [
     systemId: "notifications_pwa_permission_token_intent",
     label: "Notifications/PWA permission/token/intent",
     gateClass: "live_behavioral_evidence",
-    liveActivityEvents: ["notification_prompt_banner_viewed", "notification_permission_prompted", "notification_opened"],
+    liveActivityEvents: ["notification_prompt_viewed", "notification_permission_prompted", "notification_opened"],
     expectedLiveEvidenceSource: "notification prompt/token/intent summaries with raw tokens redacted",
     artifacts: [
       { artifactPath: "agent/state/event-liveness-audit.generated.json", sourceKind: "event_fact" },

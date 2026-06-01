@@ -34,7 +34,9 @@ export type EventLivenessStatus =
   | "translation_missing"
   | "hydration_missing"
   | "disabled_intentionally"
-  | "future_only_quiet";
+  | "future_only_quiet"
+  | "provider_required"
+  | "protected_payment_required";
 
 export type EventLivenessLastSeenSource = {
   eventName: string;

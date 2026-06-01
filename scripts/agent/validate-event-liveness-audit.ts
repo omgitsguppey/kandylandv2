@@ -85,6 +85,7 @@ function classifyDirtyFile(path: string) {
   if (/^src\/lib\/analytics\/(telemetry-parity-pass-gate|refresh-diagnostics-failure-clusters|ingest-identified-parity-blocker|advanced-telemetry-parity-ui)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/lib/debug/debug-cockpit-batch30-telemetry-parity.ts" || normalized === "src/lib/server/admin-analytics-historical-validation.ts" || normalized === "src/app/api/admin/analytics/historical/route.ts" || normalized === "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx" || normalized === "src/types/admin-analytics.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/admin-analytics/panel-hydration-contract.ts" || normalized === "src/lib/admin-analytics/panel-hydration-resolver.ts") return "real_source_change_needs_review";
+  if (normalized === "src/lib/admin-analytics/panel-hydration-registry.ts" || normalized === "src/lib/release-readiness/live-panel-evidence-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "scripts/agent/validate-analytics-panel-hydration.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-event-translation-bridge.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-global-user-dedupe-normalization.ts") return "validator_artifact_expected";
@@ -126,12 +127,14 @@ function classifyDirtyFile(path: string) {
   if (normalized === "scripts/agent/score-public-beta-readiness.ts") return "real_source_change_needs_review";
   if (normalized === "tests/unit/live-evidence-gate-replacement.spec.ts") return "test_artifact_expected";
   if (normalized === "scripts/agent/validate-current-beta-exit-status.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-overnight-beta-readiness-lock.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/current-beta-exit-status.spec.ts") return "test_artifact_expected";
   if (normalized === "agent/state/live-evidence-gate-replacement.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/live-evidence-gate-replacement.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/evidence-capture-status.md") return "documentation_artifact_expected";
   if (/^docs\/agent-truth\/(debug-signal-grouping|debug-tracking-simplification|event-translation-bridge|person-metrics-hydration)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (/^docs\/agent-truth\/(debug-runtime-evidence|event-envelope-normalization)\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^agent\/state\/(overnight-beta-readiness-lock)\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
   if (/^docs\/agent-truth\/(current-beta-exit-status|overnight-beta-readiness-lock|telemetry-admin-debug-truth|debug-cockpit-batch18-route-hotspots)\.md$/u.test(normalized)) return "documentation_artifact_expected";
   if (normalized === "tests/unit/event-liveness-audit.spec.ts") return "current_generated_artifact_to_commit";
   if (normalized === "package.json") return "real_source_change_needs_review";

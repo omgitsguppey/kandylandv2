@@ -1,11 +1,11 @@
 {
-  "generatedAtUtc": "2026-06-01T00:31:43.978Z",
+  "generatedAtUtc": "2026-06-01T03:34:50.164Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "currentHead": "39a5e4f484e18ff5eb78d1073c73d9d92e489ddb",
   "summary": {
-    "betaVersion": "1.5.26",
+    "betaVersion": "1.5.29",
     "betaScore": 78.03,
-    "betaStatus": "beta-risk",
+    "betaStatus": "Stale evidence",
     "scoreVersion": "beta_health_v2",
     "healthScore": 78.03,
     "launchGateStatus": "owner_review",
@@ -71,67 +71,17 @@
     {
       "command": "npm run check:operator-revenue-smoke",
       "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
+      "evidence": "operator-confirmed $50 GumDrop payment recorded as product signal only."
     },
     {
       "command": "npm run check:evidence-capture-status",
       "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
+      "evidence": "templates only; complete evidence remains missing."
     },
     {
       "command": "npm run check:overnight-beta-readiness-lock",
       "status": "passed",
       "evidence": "agent/state/overnight-beta-readiness-lock.generated.json"
-    },
-    {
-      "command": "npm run check:current-beta-exit-status",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run score:beta && npm run check:beta-score",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run check:beta-evidence-gap-map",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run check:beta-evidence-lane-prep",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run check:source-truth-authority-map",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run check:final-telemetry-closure-lock",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run check:mobile-ui-final-lock",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run check:creator-settings-control-plane",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run check:creator-drop-status-metrics",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
-    },
-    {
-      "command": "npm run check:final-release-exit-readiness-packet",
-      "status": "passed",
-      "evidence": "refreshed current beta-exit artifact for latest local code version."
     }
   ],
   "refreshPlan": [
@@ -141,7 +91,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-01T00:31:43.978Z",
+      "generatedAtUtc": "2026-06-01T03:34:50.164Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -156,7 +106,8 @@
       "label": "Public beta score",
       "status": "current",
       "needsRefresh": false,
-      "ageHours": 0,
+      "generatedAtUtc": "2026-06-01T03:29:56.712Z",
+      "ageHours": 0.08151444444444444,
       "refreshCommand": "npm run score:beta && npm run check:beta-score",
       "owner": "beta",
       "maxAgeHours": 24,
@@ -168,144 +119,212 @@
       "artifactPath": "agent/state/evidence-capture-status.generated.json",
       "reportKey": "evidence-capture-status",
       "label": "Evidence capture status",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:32:06.662Z",
+      "ageHours": 3.0454172222222224,
       "refreshCommand": "npm run check:evidence-capture-status",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Evidence capture status is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
       "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
       "reportKey": "beta-evidence-gap-map",
       "label": "Beta evidence gap map",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:26:03.881Z",
+      "ageHours": 3.146189722222222,
       "refreshCommand": "npm run check:beta-evidence-gap-map",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Beta evidence gap map is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
       "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
       "reportKey": "beta-evidence-lane-prep",
       "label": "Beta evidence lane prep",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:26:03.989Z",
+      "ageHours": 3.1461597222222224,
       "refreshCommand": "npm run check:beta-evidence-lane-prep",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Beta evidence lane prep is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
       "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/source-truth-authority-map.generated.json",
       "reportKey": "source-truth-authority-map",
       "label": "Source truth authority map",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:19:05.748Z",
+      "ageHours": 3.262337777777778,
       "refreshCommand": "npm run check:source-truth-authority-map",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Source truth authority map is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
       "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
       "reportKey": "final-telemetry-closure-lock",
       "label": "Telemetry closure lock",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:19:21.440Z",
+      "ageHours": 3.2579788888888888,
       "refreshCommand": "npm run check:final-telemetry-closure-lock",
       "owner": "telemetry",
       "maxAgeHours": 24,
-      "message": "Telemetry closure lock is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
       "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
       "reportKey": "mobile-ui-final-lock",
       "label": "Mobile UI final lock",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:19:33.535Z",
+      "ageHours": 3.2546191666666666,
       "refreshCommand": "npm run check:mobile-ui-final-lock",
       "owner": "mobile",
       "maxAgeHours": 24,
-      "message": "Mobile UI final lock is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
       "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
       "reportKey": "creator-settings-control-plane",
       "label": "Creator settings control plane",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:19:21.581Z",
+      "ageHours": 3.2579397222222224,
       "refreshCommand": "npm run check:creator-settings-control-plane",
       "owner": "creator",
       "maxAgeHours": 24,
-      "message": "Creator settings control plane is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
       "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
       "reportKey": "creator-drop-status-metrics",
       "label": "Creator drop status metrics",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:19:21.464Z",
+      "ageHours": 3.257972222222222,
       "refreshCommand": "npm run check:creator-drop-status-metrics",
       "owner": "creator",
       "maxAgeHours": 24,
-      "message": "Creator drop status metrics is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
       "formalEvidenceGateCanClear": false
     },
     {
       "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
       "reportKey": "operator-revenue-smoke",
       "label": "Operator revenue smoke",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
+      "status": "stale_source_version",
+      "needsRefresh": true,
+      "generatedAtUtc": "2026-06-01T00:22:37.353Z",
+      "ageHours": 3.203558611111111,
       "refreshCommand": "npm run check:operator-revenue-smoke",
       "owner": "evidence",
       "maxAgeHours": 24,
-      "message": "Operator revenue smoke is current for the latest code version.",
-      "nextAction": "No refresh needed.",
+      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
       "formalEvidenceGateCanClear": false
-    },
-    {
-      "artifactPath": "agent/state/final-release-exit-readiness-packet.generated.json",
-      "reportKey": "final-release-exit-readiness-packet",
-      "label": "Final release exit readiness packet",
-      "status": "current",
-      "needsRefresh": false,
-      "ageHours": 0,
-      "refreshCommand": "npm run check:final-release-exit-readiness-packet",
-      "owner": "beta",
-      "maxAgeHours": 24,
-      "message": "Final release exit readiness packet is current for the latest code version.",
-      "nextAction": "No refresh needed.",
-      "formalEvidenceGateCanClear": true
     }
   ],
-  "staleArtifacts": [],
+  "staleArtifacts": [
+    {
+      "artifactPath": "agent/state/evidence-capture-status.generated.json",
+      "reportKey": "evidence-capture-status",
+      "status": "stale_source_version",
+      "message": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
+      "refreshCommand": "npm run check:evidence-capture-status"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-gap-map.generated.json",
+      "reportKey": "beta-evidence-gap-map",
+      "status": "stale_source_version",
+      "message": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map",
+      "refreshCommand": "npm run check:beta-evidence-gap-map"
+    },
+    {
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
+      "reportKey": "beta-evidence-lane-prep",
+      "status": "stale_source_version",
+      "message": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "refreshCommand": "npm run check:beta-evidence-lane-prep"
+    },
+    {
+      "artifactPath": "agent/state/source-truth-authority-map.generated.json",
+      "reportKey": "source-truth-authority-map",
+      "status": "stale_source_version",
+      "message": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
+      "refreshCommand": "npm run check:source-truth-authority-map"
+    },
+    {
+      "artifactPath": "agent/state/final-telemetry-closure-lock.generated.json",
+      "reportKey": "final-telemetry-closure-lock",
+      "status": "stale_source_version",
+      "message": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
+      "refreshCommand": "npm run check:final-telemetry-closure-lock"
+    },
+    {
+      "artifactPath": "agent/state/mobile-ui-final-lock.generated.json",
+      "reportKey": "mobile-ui-final-lock",
+      "status": "stale_source_version",
+      "message": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
+      "refreshCommand": "npm run check:mobile-ui-final-lock"
+    },
+    {
+      "artifactPath": "agent/state/creator-settings-control-plane.generated.json",
+      "reportKey": "creator-settings-control-plane",
+      "status": "stale_source_version",
+      "message": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
+      "refreshCommand": "npm run check:creator-settings-control-plane"
+    },
+    {
+      "artifactPath": "agent/state/creator-drop-status-metrics.generated.json",
+      "reportKey": "creator-drop-status-metrics",
+      "status": "stale_source_version",
+      "message": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
+      "refreshCommand": "npm run check:creator-drop-status-metrics"
+    },
+    {
+      "artifactPath": "agent/state/operator-revenue-smoke.generated.json",
+      "reportKey": "operator-revenue-smoke",
+      "status": "stale_source_version",
+      "message": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version.",
+      "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
+      "refreshCommand": "npm run check:operator-revenue-smoke"
+    }
+  ],
   "exactRefreshCommands": [
     "npm run check:current-beta-exit-status",
     "npm run score:beta && npm run check:beta-score",
@@ -317,8 +336,7 @@
     "npm run check:mobile-ui-final-lock",
     "npm run check:creator-settings-control-plane",
     "npm run check:creator-drop-status-metrics",
-    "npm run check:operator-revenue-smoke",
-    "npm run check:final-release-exit-readiness-packet"
+    "npm run check:operator-revenue-smoke"
   ],
   "failedChecks": [],
   "refreshedArtifacts": [
@@ -328,15 +346,7 @@
     "agent/state/operator-revenue-smoke.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/cost-4xx-reduction.generated.json",
-    "agent/state/speed-security-hardening.generated.json",
-    "agent/state/current-beta-exit-status.generated.json",
-    "agent/state/beta-evidence-gap-map.generated.json",
-    "agent/state/beta-evidence-lane-prep.generated.json",
-    "agent/state/final-telemetry-closure-lock.generated.json",
-    "agent/state/mobile-ui-final-lock.generated.json",
-    "agent/state/creator-settings-control-plane.generated.json",
-    "agent/state/creator-drop-status-metrics.generated.json",
-    "agent/state/final-release-exit-readiness-packet.generated.json"
+    "agent/state/speed-security-hardening.generated.json"
   ],
   "remainingBlockers": [
     {

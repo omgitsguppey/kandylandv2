@@ -53,6 +53,41 @@ describe("event liveness audit", () => {
     expect(result.debugVisibility.defaultVisible).toBe(false);
   });
 
+  it("classifies provider-backed purchase verification as protected payment proof, not source-ready", () => {
+    const result = classifyEventLiveness({
+      eventName: "server_purchase_verified",
+      featureId: "wallet",
+      surface: "server purchase verification",
+      visibilityStatus: "logged_in_visible",
+      expectedTrafficClass: "occasional",
+      formalProviderGated: true,
+      operatorConfirmedRevenueSignal: true,
+      expectedDailyVisitorsBaseline: 100,
+      translationMapped: true,
+      materializerMapped: true,
+      hydrationMapped: true,
+    });
+
+    expect(result.livenessStatus).toBe("protected_payment_required");
+    expect(result.sourceReadiness).toBeNull();
+    expect(result.nextAction).toContain("provider");
+    expect(result.debugVisibility.defaultVisible).toBe(true);
+  });
+
+  it("uses the canonical notification prompt event instead of the legacy banner alias", () => {
+    const summary = buildEventLivenessSummary({
+      rawQuietFutureCount: 416,
+      expectedDailyVisitorsBaseline: 100,
+    });
+    const eventNames = summary.classifications.map((event) => event.eventName);
+    const prompt = summary.classifications.find((event) => event.eventName === "notification_prompt_viewed");
+
+    expect(eventNames).toContain("notification_prompt_viewed");
+    expect(eventNames).not.toContain("notification_prompt_banner_viewed");
+    expect(prompt?.livenessStatus).toBe("not_observed_but_expected");
+    expect(prompt?.sourceReadiness?.source).toBe("event_translation_bridge");
+  });
+
   it("keeps rare or future-only events quiet without score drag", () => {
     const result = classifyEventLiveness({
       eventName: "account_delete_confirmed",

@@ -80,6 +80,24 @@ describe("analytics panel hydration", () => {
     expect(panel.userSafeDisplayState).toBe("show_external_required");
   });
 
+  it("keeps GumDrop balances in protected payment proof instead of generic source-missing", () => {
+    const panel = resolvePanelHydration({ panelId: "gumdrop_balances" });
+
+    expect(panel.hydrationStatus).toBe("protected_payment_required");
+    expect(panel.liveEvidenceContribution).toBe("external_or_manual");
+    expect(panel.userSafeDisplayState).toBe("show_external_required");
+    expect(panel.nextExactAction).toContain("payment");
+  });
+
+  it("maps journey funnel to the existing admin snapshot materializer instead of a stale source path", () => {
+    const panel = resolvePanelHydration({ panelId: "journey_funnel" });
+
+    expect(panel.hydrationStatus).toBe("source_ready_waiting_for_activity");
+    expect(panel.sourcePath).toBe("src/app/api/admin/analytics/historical/route.ts");
+    expect(panel.materializerPath).toBe("admin_analytics_materializers:journey_funnel");
+    expect(panel.reason).toContain("canonical");
+  });
+
   it("lets runtime signals hydrate panels without showing missing data as zero", () => {
     const report = buildAnalyticsPanelHydrationReport({
       currentHead: "head",

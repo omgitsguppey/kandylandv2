@@ -138,6 +138,14 @@ function latestBetaVersion() {
   return stringAt(readJson("public/kandydrops-release-notes.json"), ["currentVersion"], "unknown");
 }
 
+function liveRuntimeEvidenceStatusSummary() {
+  return stringAt(
+    readJson("agent/state/evidence-capture-status.generated.json"),
+    ["summary", "liveRuntimeEvidence", "statusSummary"],
+    "live_runtime_evidence_bridge=source_missing; aggregate_activity_confirmed=0; dailyActivityImport=missing:agent/evidence/live-runtime-activity/recent-activity.export.json",
+  );
+}
+
 function countByStatus(lanes: unknown, status: string) {
   if (!Array.isArray(lanes)) return 0;
   return lanes.filter((lane) => lane && typeof lane === "object" && (lane as JsonObject).status === status).length;
@@ -408,6 +416,7 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       route4xxReadiness: "source_inventory_complete",
       errorHandlingSourceStatus: "error_handling_source_complete",
       analyticsSemanticsSourceStatus: "analytics_semantics_source_ready_runtime_proof_required; runtime watch-time accuracy still needs deployed media evidence",
+      liveRuntimeEvidenceStatus: liveRuntimeEvidenceStatusSummary(),
       speedSecurityStatus: report.speedSecurityStatus,
       releaseNotesStatus: "same_commit_release_note_artifacts_required",
       canStartManualScreenshotQa: report.canStartScreenshots,
@@ -547,6 +556,7 @@ Latest code version: ${report.currentHead}
 - Gemini/Cloud Assist cost readiness: ${report.summary.geminiCloudAssistCostReadiness}
 - Route 4xx readiness: ${report.summary.route4xxReadiness}
 - Error handling source readiness: ${report.summary.errorHandlingSourceStatus ?? "error_handling_source_complete"}
+- Live runtime evidence bridge: ${report.summary.liveRuntimeEvidenceStatus ?? liveRuntimeEvidenceStatusSummary()}
 - Speed/security: ${report.summary.speedSecurityStatus}
 - Release notes: ${report.summary.releaseNotesStatus}
 

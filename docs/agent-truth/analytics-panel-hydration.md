@@ -1,22 +1,22 @@
 # Analytics Panel Hydration
 
-Generated: 2026-05-31T22:48:24.210Z
-Current head: 49da560fffb17b22df49df8ac8256f28e4870178
+Generated: 2026-06-01T03:35:29.007Z
+Current head: 39a5e4f484e18ff5eb78d1073c73d9d92e489ddb
 
 ## Summary
 
 - Total panels: 41
 - Hydrated: 10
 - Collecting: 0
-- Source-ready waiting for activity: 6
-- Not observed but expected: 18
+- Source-ready waiting for activity: 3
+- Not observed but expected: 22
 - Stale: 0
-- Source missing: 2
+- Source missing: 0
 - Materializer missing: 0
 - Bridge missing: 0
 - Manual/runtime required: 3
 - Provider gated: 2
-- External required: 5
+- External required: 6
 - Permission blocked: 0
 - Broken: 0
 
@@ -30,9 +30,9 @@ Current head: 49da560fffb17b22df49df8ac8256f28e4870178
 ## Live Evidence
 
 - Contributes live evidence: new_users_signups, creator_follows, drops_live, unlocks, watch_time, completion_rate, auth_attempts_failures, search_queries, search_zero_results_clicks, support_account_actions
-- Collecting with source: unwraps, package_selections, checkout_starts, notification_prompts, notification_tokens, notification_intents
-- Blocked: traffic_overview, active_users, returning_users, guest_to_user_handoff, creator_count, creator_profile_views, drop_opens, wallet_opens, gumdrop_balances, reward_gd_grants, task_starts, task_completions, task_rewards, chat_opens, chat_messages, chat_blocks_errors, session_restores, media_uploads_access_blocks, journey_funnel, realtime_health
-- External required: payment_approvals, payment_failures, error_rate_4xx, cost_risk, debug_backlog
+- Collecting with source: unwraps, package_selections, checkout_starts
+- Blocked: traffic_overview, active_users, returning_users, guest_to_user_handoff, creator_count, creator_profile_views, drop_opens, wallet_opens, reward_gd_grants, task_starts, task_completions, task_rewards, chat_opens, chat_messages, chat_blocks_errors, notification_prompts, notification_tokens, notification_intents, session_restores, media_uploads_access_blocks, journey_funnel, realtime_health
+- External required: payment_approvals, payment_failures, gumdrop_balances, error_rate_4xx, cost_risk, debug_backlog
 
 ## Top Hydration Failures
 
@@ -49,7 +49,7 @@ Current head: 49da560fffb17b22df49df8ac8256f28e4870178
 
 ## Debug Lane
 
-- Analytics panel hydration: total=41; hydrated=10; collecting=0; sourceReady=6; notObservedButExpected=18; sourceMissing=2; materializerMissing=0; bridgeMissing=0; manualOrRuntimeRequired=3; providerGated=2; externalRequired=5; broken=0
+- Analytics panel hydration: total=41; hydrated=10; collecting=0; sourceReady=3; notObservedButExpected=22; sourceMissing=0; materializerMissing=0; bridgeMissing=0; manualOrRuntimeRequired=3; providerGated=2; externalRequired=6; broken=0
 
 ## Validation Failures
 

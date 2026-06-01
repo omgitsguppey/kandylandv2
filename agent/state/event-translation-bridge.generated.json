@@ -1,7 +1,7 @@
 {
   "reportKey": "event-translation-bridge",
-  "generatedAtUtc": "2026-05-31T22:46:57.226Z",
-  "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+  "generatedAtUtc": "2026-06-01T03:35:29.004Z",
+  "currentHead": "39a5e4f484e18ff5eb78d1073c73d9d92e489ddb",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -45,14 +45,42 @@
   },
   "debugLane": {
     "label": "Event translation bridge",
-    "producersRegistered": 762,
-    "producersConnected": 762,
-    "eventEnvelopesTranslated": 762,
-    "materializersMapped": 762,
+    "producersRegistered": 766,
+    "producersConnected": 766,
+    "eventEnvelopesTranslated": 766,
+    "materializersMapped": 766,
     "personMetricsMapped": 208,
     "gaps": 0
   },
   "waitingOnActivity": [
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
+    {
+      "reason": "future_real_activity_pending",
+      "scoreDrag": false,
+      "missingProducer": null,
+      "exactMissingSurface": null,
+      "nextAction": "Bridge is wired; wait for real future activity without dragging runtime, evidence, or freshness."
+    },
     {
       "reason": "future_real_activity_pending",
       "scoreDrag": false,
@@ -5407,11 +5435,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -5439,11 +5463,7 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -5451,15 +5471,7 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "scripts/agent/validate-analytics-panel-hydration.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-current-beta-exit-status.ts",
       "classification": "validator_artifact_expected"
     },
     {
@@ -5471,15 +5483,31 @@
       "classification": "validator_artifact_expected"
     },
     {
+      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-registry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-liveness-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-liveness-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
       "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/live-evidence-gate-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -5487,11 +5515,15 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/current-beta-exit-status.spec.ts",
+      "path": "src/lib/release-readiness/live-panel-evidence-resolver.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/analytics-panel-hydration.spec.ts",
       "classification": "test_artifact_expected"
     },
     {
-      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
+      "path": "tests/unit/event-liveness-audit.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

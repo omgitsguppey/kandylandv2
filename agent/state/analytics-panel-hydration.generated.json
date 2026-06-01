@@ -1,31 +1,31 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-05-31T22:48:24.210Z",
-  "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+  "generatedAtUtc": "2026-06-01T03:35:29.007Z",
+  "currentHead": "39a5e4f484e18ff5eb78d1073c73d9d92e489ddb",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
-    "sourceHealth": 91.7,
+    "sourceHealth": 92.5,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 67.5,
+    "freshness": 75.63,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 76.61
+    "overallHealthScore": 78.03
   },
   "totalPanels": 41,
   "hydratedPanels": 10,
   "stalePanels": 0,
   "collectingPanels": 0,
-  "sourceReadyWaitingForActivityPanels": 6,
-  "notObservedButExpectedPanels": 18,
-  "sourceMissingPanels": 2,
+  "sourceReadyWaitingForActivityPanels": 3,
+  "notObservedButExpectedPanels": 22,
+  "sourceMissingPanels": 0,
   "materializerMissingPanels": 0,
   "bridgeMissingPanels": 0,
   "manualOrRuntimeRequiredPanels": 3,
   "providerGatedPanels": 2,
-  "externalRequiredPanels": 5,
+  "externalRequiredPanels": 6,
   "permissionBlockedPanels": 0,
   "brokenPanels": 0,
   "panelsByGroup": {
@@ -87,7 +87,7 @@
       "total": 2,
       "hydrated": 0,
       "collecting": 0,
-      "gaps": 2
+      "gaps": 1
     },
     "tasks": {
       "total": 3,
@@ -105,7 +105,7 @@
       "total": 3,
       "hydrated": 0,
       "collecting": 0,
-      "gaps": 0
+      "gaps": 3
     },
     "media": {
       "total": 1,
@@ -170,7 +170,7 @@
     "checkout_starts": "source_ready_waiting_for_activity",
     "payment_approvals": "provider_gated",
     "payment_failures": "provider_gated",
-    "gumdrop_balances": "source_missing",
+    "gumdrop_balances": "protected_payment_required",
     "reward_gd_grants": "not_observed_but_expected",
     "task_starts": "not_observed_but_expected",
     "task_completions": "not_observed_but_expected",
@@ -178,9 +178,9 @@
     "chat_opens": "not_observed_but_expected",
     "chat_messages": "not_observed_but_expected",
     "chat_blocks_errors": "not_observed_but_expected",
-    "notification_prompts": "source_ready_waiting_for_activity",
-    "notification_tokens": "source_ready_waiting_for_activity",
-    "notification_intents": "source_ready_waiting_for_activity",
+    "notification_prompts": "not_observed_but_expected",
+    "notification_tokens": "not_observed_but_expected",
+    "notification_intents": "not_observed_but_expected",
     "auth_attempts_failures": "hydrated",
     "session_restores": "not_observed_but_expected",
     "media_uploads_access_blocks": "not_observed_but_expected",
@@ -189,7 +189,7 @@
     "support_account_actions": "hydrated",
     "error_rate_4xx": "manual_or_runtime_required",
     "cost_risk": "manual_or_runtime_required",
-    "journey_funnel": "source_missing",
+    "journey_funnel": "not_observed_but_expected",
     "realtime_health": "not_observed_but_expected",
     "debug_backlog": "manual_or_runtime_required"
   },
@@ -271,10 +271,7 @@
     "collecting": [
       "unwraps",
       "package_selections",
-      "checkout_starts",
-      "notification_prompts",
-      "notification_tokens",
-      "notification_intents"
+      "checkout_starts"
     ],
     "blocked": [
       "traffic_overview",
@@ -285,7 +282,6 @@
       "creator_profile_views",
       "drop_opens",
       "wallet_opens",
-      "gumdrop_balances",
       "reward_gd_grants",
       "task_starts",
       "task_completions",
@@ -293,6 +289,9 @@
       "chat_opens",
       "chat_messages",
       "chat_blocks_errors",
+      "notification_prompts",
+      "notification_tokens",
+      "notification_intents",
       "session_restores",
       "media_uploads_access_blocks",
       "journey_funnel",
@@ -301,6 +300,7 @@
     "externalRequired": [
       "payment_approvals",
       "payment_failures",
+      "gumdrop_balances",
       "error_rate_4xx",
       "cost_risk",
       "debug_backlog"
@@ -319,7 +319,11 @@
       "search_zero_results_clicks",
       "support_account_actions"
     ],
-    "externalRequiredPanelIds": [],
+    "externalRequiredPanelIds": [
+      "payment_approvals",
+      "payment_failures",
+      "gumdrop_balances"
+    ],
     "blockedPanelIds": [
       "traffic_overview",
       "active_users",
@@ -332,7 +336,7 @@
       "wallet_opens",
       "package_selections"
     ],
-    "blockedPanelCount": 31
+    "blockedPanelCount": 28
   },
   "betaGateImpact": {
     "betaExitReadyBefore": false,
@@ -346,7 +350,6 @@
       "creator_profile_views: panel hydration gap",
       "drop_opens: panel hydration gap",
       "wallet_opens: panel hydration gap",
-      "gumdrop_balances: panel hydration gap",
       "reward_gd_grants: panel hydration gap",
       "task_starts: panel hydration gap",
       "task_completions: panel hydration gap",
@@ -354,12 +357,16 @@
       "chat_opens: panel hydration gap",
       "chat_messages: panel hydration gap",
       "chat_blocks_errors: panel hydration gap",
+      "notification_prompts: panel hydration gap",
+      "notification_tokens: panel hydration gap",
+      "notification_intents: panel hydration gap",
       "session_restores: panel hydration gap",
       "media_uploads_access_blocks: panel hydration gap",
       "journey_funnel: panel hydration gap",
       "realtime_health: panel hydration gap",
       "payment_approvals: external evidence required",
       "payment_failures: external evidence required",
+      "gumdrop_balances: external evidence required",
       "error_rate_4xx: external evidence required",
       "cost_risk: external evidence required",
       "debug_backlog: external evidence required"
@@ -371,14 +378,14 @@
     "hydrated": 10,
     "stale": 0,
     "collecting": 0,
-    "sourceReadyWaitingForActivity": 6,
-    "notObservedButExpected": 18,
-    "sourceMissing": 2,
+    "sourceReadyWaitingForActivity": 3,
+    "notObservedButExpected": 22,
+    "sourceMissing": 0,
     "materializerMissing": 0,
     "bridgeMissing": 0,
     "manualOrRuntimeRequired": 3,
     "providerGated": 2,
-    "externalRequired": 5,
+    "externalRequired": 6,
     "hiddenByRole": 0,
     "broken": 0,
     "topNextActions": [
@@ -412,11 +419,7 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/evidence-capture-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -444,11 +447,7 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/evidence-capture-status.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
       "classification": "documentation_artifact_expected"
     },
     {
@@ -456,16 +455,8 @@
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "scripts/agent/score-public-beta-readiness.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "scripts/agent/validate-analytics-panel-hydration.ts",
       "classification": "analytics_panel_hydration_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-current-beta-exit-status.ts",
-      "classification": "validator_artifact_expected"
     },
     {
       "path": "scripts/agent/validate-event-liveness-audit.ts",
@@ -476,15 +467,31 @@
       "classification": "validator_artifact_expected"
     },
     {
+      "path": "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+      "classification": "validator_artifact_expected"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-registry.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-liveness-contract.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/analytics/event-liveness-engine.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
       "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/live-evidence-gate-contract.ts",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -492,11 +499,15 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/current-beta-exit-status.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "src/lib/release-readiness/live-panel-evidence-resolver.ts",
+      "classification": "real_source_change_needs_review"
     },
     {
-      "path": "tests/unit/live-evidence-gate-replacement.spec.ts",
+      "path": "tests/unit/analytics-panel-hydration.spec.ts",
+      "classification": "analytics_panel_hydration_artifact_expected"
+    },
+    {
+      "path": "tests/unit/event-liveness-audit.spec.ts",
       "classification": "test_artifact_expected"
     }
   ],

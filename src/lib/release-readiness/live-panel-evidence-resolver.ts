@@ -60,7 +60,7 @@ export function mapPanelHydrationToLiveEvidence(panel: AdminAnalyticsPanelHydrat
       nextExactAction: panel.nextExactAction,
     };
   }
-  if (panel.hydrationStatus === "external_required") {
+  if (panel.hydrationStatus === "external_required" || panel.hydrationStatus === "provider_gated" || panel.hydrationStatus === "protected_payment_required") {
     return {
       panelId: panel.panelId,
       panelLabel: panel.panelLabel,

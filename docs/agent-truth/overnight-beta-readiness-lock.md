@@ -1,12 +1,12 @@
 # Overnight Beta Readiness Lock
 
-Generated: 2026-05-31T19:34:07.623Z
+Generated: 2026-06-01T03:34:50.164Z
 
-Latest code version: 9f108d980471030fe6e4e319ceac44e291b3a08e
+Latest code version: 39a5e4f484e18ff5eb78d1073c73d9d92e489ddb
 
 ## Status
 
-- Beta score: 79
+- Beta score: 78.03
 - Beta status: Stale evidence
 - Creator dashboard error status: passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2
 - Source truth status: passed; active=12; supporting=6; retiredLaunchArtifacts=3

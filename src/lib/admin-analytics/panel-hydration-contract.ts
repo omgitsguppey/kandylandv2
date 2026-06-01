@@ -42,6 +42,7 @@ export type AdminAnalyticsPanelHydrationStatus =
   | "not_observed_but_expected"
   | "manual_or_runtime_required"
   | "provider_gated"
+  | "protected_payment_required"
   | "source_missing"
   | "materializer_missing"
   | "producer_missing"
