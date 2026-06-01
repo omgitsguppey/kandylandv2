@@ -13887,3 +13887,16 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-05-28 #112] 💸 Audit package metadata and source-of-funds truth
+
+Scope started:
+- Audit read-only GumDrop package metadata and source-of-funds classification to fix double-counting and mislabeled bonus issues.
+- Do not modify protected ledger/payment internals.
+
+Scope completed:
+- Hardcoded bonus definitions in `getBundlePresentation` inside `src/lib/gumdrop-economics.ts` were removed.
+- Package definitions now rely on dynamic calculations from `deriveGumdropEconomics` and lookup `FIXED_GUMDROP_PACKAGES` to get correct labels.
+
+Verification:
+- `npx vitest run tests/unit/gumdrop-economics.spec.ts tests/unit/gumdrops-packages.spec.ts` passed correctly without hardcoded values.
