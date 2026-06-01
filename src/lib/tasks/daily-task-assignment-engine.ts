@@ -486,12 +486,38 @@ export function hydrateDailyTaskAssignment(
 }
 
 export function buildDailyTaskRewardTotals(assignments: DailyTaskAssignment[]): DailyTaskRewardTotals {
-  const assignedRewardTotalGd = assignments.reduce((sum, task) => sum + Math.max(0, task.reward || 0), 0);
-  const claimedRewardTotalGd = assignments.reduce((sum, task) => sum + ((task.status === "claimed" || task.claimed) ? Math.max(0, task.reward || 0) : 0), 0);
-  const expiredRewardTotalGd = assignments.reduce((sum, task) => sum + (task.status === "expired" ? Math.max(0, task.reward || 0) : 0), 0);
+  const {
+    assignedRewardTotalGd,
+    claimedRewardTotalGd,
+    expiredRewardTotalGd,
+    claimableRewardTotalGd,
+  } = assignments.reduce((acc, task) => {
+    const reward = Math.max(0, task.reward || 0);
+    acc.assignedRewardTotalGd += reward;
+    if (task.status === "claimed" || task.claimed) {
+      acc.claimedRewardTotalGd += reward;
+    }
+    if (task.status === "expired") {
+      acc.expiredRewardTotalGd += reward;
+    }
+    if (task.status === "completed" && !task.claimed) {
+      acc.claimableRewardTotalGd += reward;
+    }
+    return acc;
+  }, {
+    assignedRewardTotalGd: 0,
+    claimedRewardTotalGd: 0,
+    expiredRewardTotalGd: 0,
+    claimableRewardTotalGd: 0,
+  } as {
+    assignedRewardTotalGd: number;
+    claimedRewardTotalGd: number;
+    expiredRewardTotalGd: number;
+    claimableRewardTotalGd: number;
+  });
+
   const dailyCheckInTask = assignments.find((task) => task.id === "check_in_today");
   const dailyCheckInRewardGd = DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL ? Math.max(0, dailyCheckInTask?.reward ?? 0) : 0;
-  const claimableRewardTotalGd = assignments.reduce((sum, task) => sum + (task.status === "completed" && !task.claimed ? Math.max(0, task.reward || 0) : 0), 0);
 
   return {
     assignedRewardTotalGd,
@@ -515,12 +541,19 @@ export function validateDailyTaskRewardTotals(input: {
     issues.push("duplicate_task_ids");
   }
 
-  const expectedAssignedTotal = input.assignments.reduce((sum, task) => sum + Math.max(0, task.reward || 0), 0);
+  const { expectedAssignedTotal, expectedClaimedTotal } = input.assignments.reduce((acc, task) => {
+    const reward = Math.max(0, task.reward || 0);
+    acc.expectedAssignedTotal += reward;
+    if (task.status === "claimed" || task.claimed) {
+      acc.expectedClaimedTotal += reward;
+    }
+    return acc;
+  }, { expectedAssignedTotal: 0, expectedClaimedTotal: 0 } as { expectedAssignedTotal: number; expectedClaimedTotal: number });
+
   if (expectedAssignedTotal !== input.totals.assignedRewardTotalGd) {
     issues.push("assigned_total_mismatch");
   }
 
-  const expectedClaimedTotal = input.assignments.reduce((sum, task) => sum + ((task.status === "claimed" || task.claimed) ? Math.max(0, task.reward || 0) : 0), 0);
   if (expectedClaimedTotal !== input.totals.claimedRewardTotalGd) {
     issues.push("claimed_total_mismatch");
   }

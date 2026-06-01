@@ -556,14 +556,24 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
     globalActorsSet.set(session.actorId, (globalActorsSet.get(session.actorId) || 0) + 1);
   }
 
+  let returningGlobalActors = 0;
+  for (const count of globalActorsSet.values()) {
+    if (count > 1) returningGlobalActors++;
+  }
+
   const globalActors = {
     totalActors: globalActorsSet.size,
-    returningActors: Array.from(globalActorsSet.values()).filter((count) => count > 1).length,
+    returningActors: returningGlobalActors,
   };
+
+  let returningAdminActors = 0;
+  for (const count of adminActorsSet.values()) {
+    if (count > 1) returningAdminActors++;
+  }
 
   const adminActors = {
     totalActors: adminActorsSet.size,
-    returningActors: Array.from(adminActorsSet.values()).filter((count) => count > 1).length,
+    returningActors: returningAdminActors,
   };
 
   const registrations = Math.max(0, input.onboarding?.registrations || 0);
@@ -572,7 +582,10 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
   const onboardingStepCompletions = Math.max(0, input.onboarding?.stepCompletions || 0);
 
   const uniqueViewerActors = viewer.actorSessionCounts.size;
-  const repeatViewerActors = Array.from(viewer.actorSessionCounts.values()).filter((count) => count > 1).length;
+  let repeatViewerActors = 0;
+  for (const count of viewer.actorSessionCounts.values()) {
+    if (count > 1) repeatViewerActors++;
+  }
 
   const metricValues = {
     view_frequency: createResult(
@@ -811,11 +824,12 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
     version: ANALYTICS_METRIC_CATALOG_VERSION,
     metrics,
     categories,
-    overview: {
-      total: metrics.length,
-      healthy: metrics.filter((metric) => metric.status === "healthy").length,
-      partial: metrics.filter((metric) => metric.status === "partial").length,
-      empty: metrics.filter((metric) => metric.status === "empty").length,
-    },
+    overview: metrics.reduce((acc, metric) => {
+      acc.total++;
+      if (metric.status === "healthy") acc.healthy++;
+      else if (metric.status === "partial") acc.partial++;
+      else if (metric.status === "empty") acc.empty++;
+      return acc;
+    }, { total: 0, healthy: 0, partial: 0, empty: 0 } as { total: number; healthy: number; partial: number; empty: number }),
   };
 }

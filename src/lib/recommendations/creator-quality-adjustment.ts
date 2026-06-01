@@ -141,15 +141,38 @@ export function buildCreatorSupplyQualityMap(input: {
     const freshnessScores = group.intelligenceRows
       .map((row) => row.freshnessDecayScore)
       .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
-    const satisfactionSamples = group.intelligenceRows.reduce((sum, row) => sum + Math.max(0, row.satisfactionSampleCount || 0), 0);
-    const satisfactionTotal = group.intelligenceRows.reduce((sum, row) => {
-      const samples = Math.max(0, row.satisfactionSampleCount || 0);
-      return sum + ((typeof row.satisfactionScore === "number" ? row.satisfactionScore : 0.5) * samples);
-    }, 0);
-    const positiveFeedbackCount = group.intelligenceRows.reduce((sum, row) => sum + Math.max(0, row.positiveFeedbackCount || 0), 0);
-    const negativeFeedbackCount = group.intelligenceRows.reduce((sum, row) => sum + Math.max(0, row.negativeFeedbackCount || 0), 0);
+    const {
+      satisfactionSamples,
+      satisfactionTotal,
+      positiveFeedbackCount,
+      negativeFeedbackCount,
+      viewerSamples,
+    } = group.intelligenceRows.reduce(
+      (acc, row) => {
+        const samples = Math.max(0, row.satisfactionSampleCount || 0);
+        acc.satisfactionSamples += samples;
+        acc.satisfactionTotal += ((typeof row.satisfactionScore === "number" ? row.satisfactionScore : 0.5) * samples);
+        acc.positiveFeedbackCount += Math.max(0, row.positiveFeedbackCount || 0);
+        acc.negativeFeedbackCount += Math.max(0, row.negativeFeedbackCount || 0);
+        acc.viewerSamples += Math.max(0, row.viewerOpens || 0) + Math.max(0, row.previewOpens || 0);
+        return acc;
+      },
+      {
+        satisfactionSamples: 0,
+        satisfactionTotal: 0,
+        positiveFeedbackCount: 0,
+        negativeFeedbackCount: 0,
+        viewerSamples: 0,
+      } as {
+        satisfactionSamples: number;
+        satisfactionTotal: number;
+        positiveFeedbackCount: number;
+        negativeFeedbackCount: number;
+        viewerSamples: number;
+      }
+    );
+
     const totalFeedbackCount = positiveFeedbackCount + negativeFeedbackCount;
-    const viewerSamples = group.intelligenceRows.reduce((sum, row) => sum + Math.max(0, row.viewerOpens || 0) + Math.max(0, row.previewOpens || 0), 0);
     const signals: CreatorSupplyQualitySignals = {
       activeDropsCount: group.activeDrops.length,
       latestDropAtMs,
