@@ -45,7 +45,7 @@ function normalizeActionUrl(url: string | undefined): string | undefined {
     if (/^(javascript|data|vbscript):/i.test(normalizedSchemeCheck)) {
         return undefined;
     }
-    if (normalizedSchemeCheck.startsWith("//") || normalizedSchemeCheck.startsWith("\\")) {
+    if (trimmedUrl.startsWith("\\") || trimmedUrl.startsWith("//") || trimmedUrl.startsWith("/\\")) {
         return undefined;
     }
 
@@ -60,7 +60,6 @@ function normalizeActionUrl(url: string | undefined): string | undefined {
                 parsed.pathname.startsWith("//")
                 || parsed.pathname.startsWith("/\\")
                 || parsed.pathname.startsWith("\\")
-                || trimmedUrl.startsWith("\\")
             ) {
                 return undefined;
             }

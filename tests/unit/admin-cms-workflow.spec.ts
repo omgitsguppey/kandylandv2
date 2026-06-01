@@ -44,6 +44,20 @@ describe("admin CMS drop workflow guardrails", () => {
         expect(result).toEqual({ ok: true, errors: [] });
     });
 
+    it("blocks protocol-relative action URLs before publishing promo and external drops", () => {
+        for (const actionUrl of ["//evil.com/drop", "/\\evil.com/drop", "\\\\evil.com/drop", "https://kandydrops.invalid//evil.com"]) {
+            const result = validateDropPublishState({
+                ...VALID_CONTENT_DROP,
+                type: "external",
+                contentUrls: [],
+                actionUrl,
+            });
+
+            expect(result.ok).toBe(false);
+            expect(result.errors).toContain("Promo and external drops require a safe destination URL.");
+        }
+    });
+
     it("requires a creator assignment for subscriber-only and creator-submitted drops", () => {
         const subscriberOnly = validateDropPublishState({
             ...VALID_CONTENT_DROP,

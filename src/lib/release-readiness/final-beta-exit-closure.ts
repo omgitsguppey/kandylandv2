@@ -15,6 +15,11 @@ type HandledPrStatus =
   | "performance_patch_equivalent_landed"
   | "accessibility_patch_equivalent_landed"
   | "dependency_deferred_post_beta"
+  | "performance_deferred_post_beta"
+  | "accessibility_deferred_post_beta"
+  | "telemetry_deferred_post_beta"
+  | "broad_runtime_deferred_post_beta"
+  | "protected_payment_manual_review"
   | "governance_deferred_post_beta";
 
 export type FinalHandledPr = {
@@ -24,7 +29,14 @@ export type FinalHandledPr = {
   dependencyRiskClass: string;
   securityRequired: boolean;
   reason: string;
-  nextWindow: "current_beta_exit_closure" | "post_beta_dependency_window" | "post_beta_governance_window";
+  nextWindow:
+    | "current_beta_exit_closure"
+    | "post_beta_dependency_window"
+    | "post_beta_governance_window"
+    | "post_beta_performance_window"
+    | "post_beta_accessibility_window"
+    | "post_beta_telemetry_window"
+    | "protected_payment_review";
 };
 
 export type FinalOpenPrClosureReport = {
@@ -97,6 +109,33 @@ const SENSITIVE_RANDOM_FILES = [
 
 export const FINAL_HANDLED_PRS: FinalHandledPr[] = [
   {
+    number: 319,
+    title: "Sentinel HIGH: Fix open redirect via protocol-relative URLs",
+    status: "security_patch_equivalent_landed",
+    dependencyRiskClass: "security_required",
+    securityRequired: true,
+    reason: "Ported the current-source equivalent drop action URL protocol-relative and backslash redirect guards for admin and server drop publish paths.",
+    nextWindow: "current_beta_exit_closure",
+  },
+  {
+    number: 311,
+    title: "Sentinel MEDIUM: Fix insecure error logging exposing stack traces in API routes",
+    status: "security_patch_equivalent_landed",
+    dependencyRiskClass: "security_required",
+    securityRequired: true,
+    reason: "Replaced insecure API route console logging with structured recordRouteWarning diagnostics without disabling useful telemetry.",
+    nextWindow: "current_beta_exit_closure",
+  },
+  {
+    number: 306,
+    title: "Sentinel MEDIUM: Replace console.warn with secure recordRouteWarning in creator settings API",
+    status: "security_patch_equivalent_landed",
+    dependencyRiskClass: "security_required",
+    securityRequired: true,
+    reason: "Covered by the current-source creator settings route diagnostic logging replacement.",
+    nextWindow: "current_beta_exit_closure",
+  },
+  {
     number: 304,
     title: "Sentinel HIGH: Fix open redirect and weak PRNG",
     status: "security_patch_equivalent_landed",
@@ -150,6 +189,105 @@ export const FINAL_HANDLED_PRS: FinalHandledPr[] = [
     reason: "Broad dependency changes are deferred until a post-beta dependency window unless a security advisory requires them.",
     nextWindow: "post_beta_dependency_window" as const,
   })),
+  {
+    number: 318,
+    title: "Palette: Add aria-busy to AuthModal buttons",
+    status: "accessibility_deferred_post_beta" as const,
+    dependencyRiskClass: "not_dependency",
+    securityRequired: false,
+    reason: "Accessibility cleanup is useful but not a current security or beta-exit blocker; defer to a focused post-beta accessibility pass.",
+    nextWindow: "post_beta_accessibility_window" as const,
+  },
+  {
+    number: 317,
+    title: "Reduce duplicate computation in high-ROI aggregation hotspot",
+    status: "performance_deferred_post_beta" as const,
+    dependencyRiskClass: "not_dependency",
+    securityRequired: false,
+    reason: "Performance optimization is not security-required and needs a separate focused perf verification window.",
+    nextWindow: "post_beta_performance_window" as const,
+  },
+  {
+    number: 316,
+    title: "Audit package metadata and source-of-funds truth",
+    status: "protected_payment_manual_review" as const,
+    dependencyRiskClass: "protected_payment_required",
+    securityRequired: false,
+    reason: "Package metadata and source-of-funds truth overlap protected GumDrop/payment lanes and require manual protected-lane review before applying.",
+    nextWindow: "protected_payment_review" as const,
+  },
+  {
+    number: 315,
+    title: "Bolt: Replace array .find() with Map lookup in admin rollout payload generation",
+    status: "performance_deferred_post_beta" as const,
+    dependencyRiskClass: "not_dependency",
+    securityRequired: false,
+    reason: "Admin performance cleanup is non-security and should be handled in a separate post-beta performance window.",
+    nextWindow: "post_beta_performance_window" as const,
+  },
+  {
+    number: 314,
+    title: "Clean canonical event drift at source",
+    status: "telemetry_deferred_post_beta" as const,
+    dependencyRiskClass: "not_dependency",
+    securityRequired: false,
+    reason: "Telemetry source cleanup is not a current open security blocker and needs its own telemetry truth pass.",
+    nextWindow: "post_beta_telemetry_window" as const,
+  },
+  {
+    number: 313,
+    title: "Palette: Add ARIA labels to Admin Drop actions",
+    status: "accessibility_deferred_post_beta" as const,
+    dependencyRiskClass: "not_dependency",
+    securityRequired: false,
+    reason: "Admin accessibility cleanup is useful but not security-required; defer to the focused accessibility window.",
+    nextWindow: "post_beta_accessibility_window" as const,
+  },
+  {
+    number: 312,
+    title: "Harden realtime truth for user-facing runtime surfaces",
+    status: "broad_runtime_deferred_post_beta" as const,
+    dependencyRiskClass: "broad_runtime_risk",
+    securityRequired: false,
+    reason: "Broad 28-file runtime hardening must not be merged blindly into the beta-exit stack.",
+    nextWindow: "post_beta_governance_window" as const,
+  },
+  {
+    number: 309,
+    title: "Improve accessibility of loading states in creator components",
+    status: "accessibility_deferred_post_beta" as const,
+    dependencyRiskClass: "not_dependency",
+    securityRequired: false,
+    reason: "Creator loading accessibility cleanup is not security-required and should stay in a focused accessibility pass.",
+    nextWindow: "post_beta_accessibility_window" as const,
+  },
+  {
+    number: 308,
+    title: "Audit package metadata and source-of-funds truth",
+    status: "protected_payment_manual_review" as const,
+    dependencyRiskClass: "protected_payment_required",
+    securityRequired: false,
+    reason: "Source-of-funds work is explicitly protected and requires manual review outside this lane.",
+    nextWindow: "protected_payment_review" as const,
+  },
+  {
+    number: 307,
+    title: "Reduce monolith file risk and clarify responsibility boundaries",
+    status: "governance_deferred_post_beta" as const,
+    dependencyRiskClass: "not_dependency",
+    securityRequired: false,
+    reason: "Governance documentation and monolith boundary cleanup are deferred until after beta-exit source closure.",
+    nextWindow: "post_beta_governance_window" as const,
+  },
+  {
+    number: 305,
+    title: "Palette: Add aria-busy to async buttons",
+    status: "accessibility_deferred_post_beta" as const,
+    dependencyRiskClass: "not_dependency",
+    securityRequired: false,
+    reason: "Generic async-button accessibility cleanup is useful but not a current security or beta-exit blocker.",
+    nextWindow: "post_beta_accessibility_window" as const,
+  },
   ...[300, 301, 302].map((number) => ({
     number,
     title: `Governance/product PR #${number}`,
@@ -220,20 +358,31 @@ export function validateSecurityPrngRedirectClosureReport(report: SecurityPrngRe
 }
 
 export function buildFinalOpenPrClosureReport(root: string, openPrsAfter = readOpenPrs(root)): FinalOpenPrClosureReport {
-  const blockingOpenPrs = openPrsAfter.filter((pr) => pr.number === 293 || pr.number === 304);
+  const handledByNumber = new Map(FINAL_HANDLED_PRS.map((pr) => [pr.number, pr]));
+  const blockingOpenPrs = openPrsAfter.filter((pr) => {
+    const handled = handledByNumber.get(pr.number);
+    if (handled?.securityRequired && handled.status === "security_patch_equivalent_landed") return false;
+    return pr.number === 293 || pr.number === 304 || pr.number === 306 || pr.number === 311 || pr.number === 319;
+  });
   const report: FinalOpenPrClosureReport = {
     reportKey: "final-open-pr-closure",
     generatedAtUtc: new Date().toISOString(),
     currentHead: currentHead(root),
     openPrsBefore: FINAL_HANDLED_PRS,
     handledPrs: FINAL_HANDLED_PRS,
-    securityPrsResolved: !openPrsAfter.some((pr) => pr.number === 293 || pr.number === 304),
-    performancePrsResolved: !openPrsAfter.some((pr) => pr.number === 292 || pr.number === 303),
-    accessibilityPrsResolved: !openPrsAfter.some((pr) => pr.number === 291),
+    securityPrsResolved: blockingOpenPrs.length === 0,
+    performancePrsResolved: !openPrsAfter.some((pr) => {
+      const handled = handledByNumber.get(pr.number);
+      return handled?.status === "performance_patch_equivalent_landed";
+    }),
+    accessibilityPrsResolved: !openPrsAfter.some((pr) => {
+      const handled = handledByNumber.get(pr.number);
+      return handled?.status === "accessibility_patch_equivalent_landed";
+    }),
     dependencyPrsDeferred: FINAL_HANDLED_PRS.filter((pr) => pr.status === "dependency_deferred_post_beta"),
     openPrsAfter,
     blockingOpenPrCount: blockingOpenPrs.length,
-    unclassifiedOpenPrCount: openPrsAfter.filter((pr) => !FINAL_HANDLED_PRS.some((handled) => handled.number === pr.number)).length,
+    unclassifiedOpenPrCount: openPrsAfter.filter((pr) => !handledByNumber.has(pr.number)).length,
     validationFailures: [],
   };
   report.validationFailures = validateFinalOpenPrClosureReport(report);
@@ -247,6 +396,9 @@ export function validateFinalOpenPrClosureReport(report: FinalOpenPrClosureRepor
   if (!report.securityPrsResolved) failures.push("#304 or #293 unresolved.");
   if (!report.handledPrs.some((pr) => pr.number === 304 && pr.status === "security_patch_equivalent_landed")) failures.push("#304 equivalent patch missing.");
   if (!report.handledPrs.some((pr) => pr.number === 293 && pr.status === "security_patch_equivalent_landed")) failures.push("#293 equivalent patch missing.");
+  if (!report.handledPrs.some((pr) => pr.number === 319 && pr.status === "security_patch_equivalent_landed")) failures.push("#319 equivalent patch missing.");
+  if (!report.handledPrs.some((pr) => pr.number === 311 && pr.status === "security_patch_equivalent_landed")) failures.push("#311 equivalent patch missing.");
+  if (!report.handledPrs.some((pr) => pr.number === 306 && pr.status === "security_patch_equivalent_landed")) failures.push("#306 equivalent patch missing.");
   if (report.dependencyPrsDeferred.some((pr) => pr.nextWindow !== "post_beta_dependency_window" || !pr.reason)) failures.push("dependency PR lacks defer reason.");
   return failures;
 }

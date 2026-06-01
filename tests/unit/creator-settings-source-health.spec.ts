@@ -27,12 +27,14 @@ describe("creator settings source health", () => {
     expect(report.summary.rawInternalErrorsBlocked).toBe(true);
   });
 
-  it("keeps the route partial-safe for missing settings and failed source reads", () => {
-    const route = read("src/app/api/creator/settings/route.ts");
+    it("keeps the route partial-safe for missing settings and failed source reads", () => {
+        const route = read("src/app/api/creator/settings/route.ts");
 
-    expect(route).toContain("readCreatorSettingsSource");
-    expect(route).toContain('"creator_settings_not_configured"');
-    expect(route).toContain("settingsState");
+        expect(route).toContain("readCreatorSettingsSource");
+        expect(route).toContain("recordRouteWarning");
+        expect(route).not.toContain("console.warn");
+        expect(route).toContain('"creator_settings_not_configured"');
+        expect(route).toContain("settingsState");
     expect(route).toContain("DEFAULT_CREATOR_SETTINGS");
     expect(route).toContain("DEFAULT_CREATOR_RESTRICTIONS");
     expect(route).not.toContain("creatorSettings: data.creatorSettings ?? null");

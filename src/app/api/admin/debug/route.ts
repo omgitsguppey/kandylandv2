@@ -113,6 +113,7 @@ import { listAdminMetricSnapshotDebugMetadata } from "@/lib/server/admin-analyti
 import { ADMIN_ANALYTICS_MATERIALIZER_REGISTRY } from "@/lib/server/admin-analytics-materializers";
 import { buildAdminOverviewFallbackIdentity, buildAdminOverviewUserIdentityMap, shortenAdminOverviewUserId, type AdminOverviewUserIdentity } from "@/lib/server/admin-overview-users";
 import { readAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapshot";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -3801,7 +3802,7 @@ async function readInfrastructureDependencies() {
             timestamp: Date.now(),
         };
     } catch (e) {
-        console.error("Failed to read package.json for infrastructure dependencies", e);
+        recordRouteWarning("admin/debug", "Failed to read package.json for infrastructure dependencies", e, { channel: "runtime" });
     }
     return { error: "Failed to read infrastructure dependencies", timestamp: Date.now() };
 }
