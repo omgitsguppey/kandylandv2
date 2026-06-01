@@ -5,8 +5,8 @@ Validator: `npm run check:open-pr-dependency-hygiene`
 
 ## Summary
 
-- Generated: `2026-05-26T21:08:41.413Z`
-- Current head: `c00b6d90c112eb289ec1b354f92fdbbc9a793ab9`
+- Generated: `2026-06-01T18:24:26.143Z`
+- Current head: `d2f8ab1063d6f2b11387b38ca07603a59b77a12e`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:open-pr-dependency-hygiene`
 ```json
 {
   "reportKey": "open-pr-dependency-hygiene",
-  "generatedAtUtc": "2026-05-26T21:08:41.413Z",
-  "currentHead": "c00b6d90c112eb289ec1b354f92fdbbc9a793ab9",
+  "generatedAtUtc": "2026-06-01T18:24:26.143Z",
+  "currentHead": "d2f8ab1063d6f2b11387b38ca07603a59b77a12e",
   "openPrs": [
     {
       "author": {
@@ -25,17 +25,17 @@ Validator: `npm run check:open-pr-dependency-hygiene`
         "name": ""
       },
       "baseRefName": "main",
-      "headRefName": "sentinel-fix-open-redirect-prng-9331490272571705519",
+      "headRefName": "sentinel-fix-open-redirect-1347886065350832927",
       "isDraft": false,
       "mergeStateStatus": "CLEAN",
-      "number": 304,
-      "title": "🛡️ Sentinel: [HIGH] Fix open redirect and weak PRNG",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/304",
+      "number": 319,
+      "title": "🛡️ Sentinel: [High] Fix Open Redirect via Protocol-Relative URLs",
+      "updatedAt": "2026-06-01T14:58:58Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/319",
       "classification": "security_pr_to_cherry_pick",
       "dependencyRiskClass": "security_required",
       "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
-      "nextExactAction": "Review PR #304, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
+      "nextExactAction": "Review PR #319, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
       "blocksBetaExit": true
     },
     {
@@ -46,215 +46,17 @@ Validator: `npm run check:open-pr-dependency-hygiene`
         "name": ""
       },
       "baseRefName": "main",
-      "headRefName": "jules-bolt-library-perf-3411842256230391376",
+      "headRefName": "palette-a11y-authmodal-2654982951851685462",
       "isDraft": false,
       "mergeStateStatus": "CLEAN",
-      "number": 303,
-      "title": "⚡ Bolt: Consolidate useMemo iterations in LibraryClient",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/303",
-      "classification": "performance_pr_to_merge",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Small performance PR is useful, but must not supersede current source or import scratch work.",
-      "nextExactAction": "Review PR #303 against current source and cherry-pick only the isolated performance change if tests stay green.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "onboarding-friction-telemetry-3629393003427856299",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 302,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
+      "number": 318,
+      "title": "🎨 Palette: Add aria-busy to AuthModal buttons",
+      "updatedAt": "2026-06-01T14:01:48Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/318",
       "classification": "unsafe_pr_needs_manual_review",
       "dependencyRiskClass": "not_dependency",
-      "reason": "Governance/product-scope PR overlaps release readiness and needs human ordering rather than automatic merge.",
-      "nextExactAction": "Manually review PR #302; defer or close if superseded by current release-readiness and hardening artifacts.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "jules-doctrine-compliance-audit-10191427259102396052",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 301,
-      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
-      "classification": "unsafe_pr_needs_manual_review",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Governance/product-scope PR overlaps release readiness and needs human ordering rather than automatic merge.",
-      "nextExactAction": "Manually review PR #301; defer or close if superseded by current release-readiness and hardening artifacts.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "audit/monolith-file-risk-241787922391348535",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 300,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
-      "classification": "unsafe_pr_needs_manual_review",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Governance/product-scope PR overlaps release readiness and needs human ordering rather than automatic merge.",
-      "nextExactAction": "Manually review PR #300; defer or close if superseded by current release-readiness and hardening artifacts.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/functions/functions-npm-minor-patch-4a8d933f5b",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 299,
-      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "provider_sdk_risk",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #299 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/npm-check-updates-22.2.1",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 298,
-      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "test_tooling_only",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #298 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/knip-6.14.2",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 297,
-      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "test_tooling_only",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #297 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/syncpack-15.3.1",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 296,
-      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "test_tooling_only",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #296 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/puppeteer-25.0.4",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 295,
-      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "test_tooling_only",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #295 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/npm-minor-patch-f5bdc37de0",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 294,
-      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-      "updatedAt": "2026-05-26T17:55:52Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "major_risk",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #294 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "sentinel-fix-insecure-random-id-1683402257785005924",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "classification": "security_pr_to_cherry_pick",
-      "dependencyRiskClass": "security_required",
-      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
-      "nextExactAction": "Review PR #293, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #318 before beta-exit signoff.",
       "blocksBetaExit": true
     },
     {
@@ -265,17 +67,59 @@ Validator: `npm run check:open-pr-dependency-hygiene`
         "name": ""
       },
       "baseRefName": "main",
-      "headRefName": "bolt-optimization-map-lookup-11237275132598123849",
+      "headRefName": "perf-roi-reduce-consolidations-14067805062270801467",
       "isDraft": false,
       "mergeStateStatus": "CLEAN",
-      "number": 292,
-      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-      "updatedAt": "2026-05-26T17:39:34Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
+      "number": 317,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "updatedAt": "2026-06-01T06:20:22Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/317",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #317 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "audit-package-metadata-truth-1497740664267124516",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 316,
+      "title": "💸 Audit package metadata and source-of-funds truth",
+      "updatedAt": "2026-06-01T05:42:18Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/316",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #316 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "bolt/admin-debug-map-opt-213346278194803363",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 315,
+      "title": "⚡ Bolt: Replace array .find() with Map lookup in admin rollout payload generation",
+      "updatedAt": "2026-05-31T14:51:12Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/315",
       "classification": "performance_pr_to_merge",
       "dependencyRiskClass": "not_dependency",
       "reason": "Small performance PR is useful, but must not supersede current source or import scratch work.",
-      "nextExactAction": "Review PR #292 against current source and cherry-pick only the isolated performance change if tests stay green.",
+      "nextExactAction": "Review PR #315 against current source and cherry-pick only the isolated performance change if tests stay green.",
       "blocksBetaExit": false
     },
     {
@@ -286,24 +130,192 @@ Validator: `npm run check:open-pr-dependency-hygiene`
         "name": ""
       },
       "baseRefName": "main",
-      "headRefName": "palette-a11y-loading-states-517200335107814059",
+      "headRefName": "fix/telemetry-duplicate-emitters-11649125212719485327",
       "isDraft": false,
       "mergeStateStatus": "CLEAN",
-      "number": 291,
-      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
+      "number": 314,
+      "title": "🧾 Clean canonical event drift at source",
+      "updatedAt": "2026-05-31T06:23:35Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/314",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #314 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "palette-admin-drop-actions-aria-6574278176871202437",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 313,
+      "title": "🎨 Palette: Add ARIA labels to Admin Drop actions",
+      "updatedAt": "2026-05-30T14:03:52Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/313",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #313 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "jules-14704806215188152015-93bcc93b",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 312,
+      "title": "⚡ Harden realtime truth for user-facing runtime surfaces",
+      "updatedAt": "2026-05-30T05:48:15Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/312",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #312 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "sentinel-fix-insecure-logging-13242051404096887413",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 311,
+      "title": "🛡️ Sentinel: [Medium] Fix insecure error logging exposing stack traces in API routes",
+      "updatedAt": "2026-05-29T14:56:53Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/311",
+      "classification": "security_pr_to_cherry_pick",
+      "dependencyRiskClass": "security_required",
+      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
+      "nextExactAction": "Review PR #311, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "palette-a11y-loading-spinners-11159933451978649122",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 309,
+      "title": "🎨 Palette: Improve accessibility of loading states in creator components",
+      "updatedAt": "2026-05-28T14:06:27Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/309",
       "classification": "accessibility_pr_to_merge",
       "dependencyRiskClass": "not_dependency",
       "reason": "Small accessibility PR is useful, but still needs current-source review before landing.",
-      "nextExactAction": "Review PR #291 against current source and cherry-pick only the isolated accessibility improvement if it is still relevant.",
+      "nextExactAction": "Review PR #309 against current source and cherry-pick only the isolated accessibility improvement if it is still relevant.",
       "blocksBetaExit": false
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "fix-package-metadata-drift-15126715638404472047",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 308,
+      "title": "💸 Audit package metadata and source-of-funds truth",
+      "updatedAt": "2026-05-28T05:32:22Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/308",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #308 before beta-exit signoff.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "fix/audit-blocked-monoliths-4925370503856207553",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 307,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "updatedAt": "2026-05-28T05:30:58Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/307",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Governance/product-scope PR overlaps release readiness and needs human ordering rather than automatic merge.",
+      "nextExactAction": "Manually review PR #307; defer or close if superseded by current release-readiness and hardening artifacts.",
+      "blocksBetaExit": false
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "jules-3371789224141227862-63440648",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 306,
+      "title": "🛡️ Sentinel: [MEDIUM] Replace console.warn with secure recordRouteWarning in creator settings API",
+      "updatedAt": "2026-05-27T15:25:12Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/306",
+      "classification": "security_pr_to_cherry_pick",
+      "dependencyRiskClass": "security_required",
+      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
+      "nextExactAction": "Review PR #306, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
+      "blocksBetaExit": true
+    },
+    {
+      "author": {
+        "id": "MDQ6VXNlcjI5NjY2MDQ3",
+        "is_bot": false,
+        "login": "omgitsguppey",
+        "name": ""
+      },
+      "baseRefName": "main",
+      "headRefName": "palette-aria-busy-14300042610281216085",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 305,
+      "title": "🎨 Palette: Add aria-busy to async buttons",
+      "updatedAt": "2026-05-27T13:59:22Z",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/305",
+      "classification": "unsafe_pr_needs_manual_review",
+      "dependencyRiskClass": "not_dependency",
+      "reason": "Open PR lacks a safe automatic release-exit classification.",
+      "nextExactAction": "Manually classify PR #305 before beta-exit signoff.",
+      "blocksBetaExit": true
     }
   ],
   "openPrCount": 14,
   "unclassifiedOpenPrCount": 0,
-  "dependencyPrCount": 6,
-  "securityPrCount": 2,
+  "dependencyPrCount": 0,
+  "securityPrCount": 3,
   "blocksBetaExit": true,
   "validationFailures": []
 }
