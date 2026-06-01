@@ -65,7 +65,7 @@ describe("live evidence gate replacement", () => {
     expect(validateLiveEvidenceGateReplacementReport(report)).toContain("visual QA claims to prove backend/runtime/payment behavior.");
   });
 
-  it("counts privacy-safe recent aggregate activity as live evidence without exact user proof", () => {
+  it("counts privacy-safe recent aggregate activity as aggregate live evidence without exact user proof", () => {
     const root = tempRoot();
     writeJson(root, "agent/evidence/live-runtime-activity/recent-activity.export.json", {
       reportKey: "live-runtime-activity-export",
@@ -101,7 +101,7 @@ describe("live evidence gate replacement", () => {
       systemId: "drops_open_unlock_unwrap_watch",
     });
 
-    expect(decision.liveRuntimeEvidenceStatus).toBe("live_activity_confirmed");
+    expect(decision.liveRuntimeEvidenceStatus).toBe("aggregate_activity_confirmed");
     expect(decision.status).toBe("live_evidence_replaced");
     expect(decision.betaExitImpact).toBe("can_clear_live_gate");
     expect(decision.confidence).not.toBe("exact");
@@ -109,6 +109,47 @@ describe("live evidence gate replacement", () => {
       source.artifactPath === "agent/evidence/live-runtime-activity/recent-activity.export.json"
       && source.clearsLiveGate,
     )).toBe(true);
+  });
+
+  it("counts linked recent activity as live evidence without relying on generic aggregate proof", () => {
+    const root = tempRoot();
+    writeJson(root, "agent/evidence/live-runtime-activity/recent-activity.export.json", {
+      reportKey: "live-runtime-activity-export",
+      generatedAtUtc: "2026-05-31T12:00:00.000Z",
+      sourceWindow: {
+        fromUtc: "2026-05-31T00:00:00.000Z",
+        toUtc: "2026-05-31T12:00:00.000Z",
+      },
+      privacy: {
+        piiRedacted: true,
+        aggregateOnly: true,
+        rawProviderIdsExcluded: true,
+        rawPaymentDataExcluded: true,
+      },
+      activity: [
+        {
+          eventName: "creator_profile_viewed",
+          count: 4,
+          lastSeenAtUtc: "2026-05-31T11:50:00.000Z",
+          source: "analytics_event_facts",
+          identityScope: "linked_person",
+          identityConfidence: "linked",
+          countsGlobal: true,
+          countsForExactUser: false,
+        },
+      ],
+    });
+
+    const decision = resolveLiveEvidenceForGate({
+      root,
+      currentHead: "head",
+      generatedAtUtc: "2026-05-31T12:00:00.000Z",
+      systemId: "creator_profile_discovery_follow",
+    });
+
+    expect(decision.liveRuntimeEvidenceStatus).toBe("live_activity_confirmed");
+    expect(decision.status).toBe("live_evidence_replaced");
+    expect(decision.confidence).toBe("linked");
   });
 
   it("keeps source-ready lanes waiting when no recent activity artifact exists", () => {

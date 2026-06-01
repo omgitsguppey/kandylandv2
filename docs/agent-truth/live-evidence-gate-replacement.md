@@ -5,8 +5,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 
 ## Summary
 
-- Generated: `2026-05-31T22:49:03.769Z`
-- Current head: `49da560fffb17b22df49df8ac8256f28e4870178`
+- Generated: `2026-06-01T00:00:56.648Z`
+- Current head: `9795630e505231581241589fe40debd01b23d9b0`
 - Status: `pass`
 
 ## Report
@@ -14,8 +14,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
 ```json
 {
   "reportKey": "live-evidence-gate-replacement",
-  "generatedAtUtc": "2026-05-31T22:49:03.769Z",
-  "currentHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+  "generatedAtUtc": "2026-06-01T00:00:56.648Z",
+  "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
   "broadManualGatesBefore": [
     "operator-final visual QA",
     "manual production smoke",
@@ -156,8 +156,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:32.698Z"
+          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+          "generatedAtUtc": "2026-06-01T00:00:55.634Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -318,8 +318,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "ledger_summary",
           "clearsLiveGate": false,
           "sourceStatus": "operator_confirmed",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:55:32.698Z"
+          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+          "generatedAtUtc": "2026-06-01T00:00:55.634Z"
         },
         {
           "artifactPath": "agent/state/person-metrics-hydration.generated.json",
@@ -527,8 +527,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "source_contract",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -577,8 +577,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "source_contract",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -719,8 +719,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "route_health_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",
@@ -1093,8 +1093,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "source_contract",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "not_observed_but_expected",
@@ -1143,8 +1143,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "source_contract",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
         }
       ],
       "liveRuntimeEvidenceStatus": "runtime_export_required",
@@ -1285,8 +1285,8 @@ Validator: `npm run check:live-evidence-gate-replacement`
           "sourceKind": "route_health_summary",
           "clearsLiveGate": false,
           "sourceStatus": "source_only",
-          "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-          "generatedAtUtc": "2026-05-27T00:58:45.414Z"
+          "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+          "generatedAtUtc": "2026-06-01T00:00:56.708Z"
         },
         {
           "artifactPath": "agent/state/debug-runtime-evidence.generated.json",

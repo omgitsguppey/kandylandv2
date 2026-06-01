@@ -24,6 +24,12 @@ type EvidenceLaneStatuses = {
   adminTruthSampleEvidence: EvidenceStatus;
 };
 
+type LiveRuntimeEvidenceCapture = {
+  statusSummary: string;
+  expectedImportPath: string;
+  foundImportPaths: string[];
+};
+
 type OperatorRevenueSmokeSummary = {
   revenueSmokeStatus: "operator_confirmed_revenue_smoke" | "not_recorded";
   amountUsdConfirmed: number | null;
@@ -42,6 +48,7 @@ type BuildOptions = {
   completeArtifacts: number;
   currentBetaExitCanStart: boolean;
   operatorRevenueSmoke?: OperatorRevenueSmokeSummary;
+  liveRuntimeEvidence?: Partial<LiveRuntimeEvidenceCapture>;
 };
 
 export type EvidenceCaptureStatusReport = {
@@ -54,6 +61,7 @@ export type EvidenceCaptureStatusReport = {
     strictModeReady: boolean;
     canStartBetaExitReview: boolean;
     operatorRevenueSmoke: OperatorRevenueSmokeSummary;
+    liveRuntimeEvidence: LiveRuntimeEvidenceCapture;
   };
   evidenceFolders: Array<{
     lane: keyof EvidenceLaneStatuses;
@@ -81,6 +89,8 @@ const docsRelativePath = "docs/agent-truth/evidence-capture-status.md";
 const docsPath = join(repoRoot, docsRelativePath);
 const currentBetaExitPath = join(repoRoot, "agent/state/current-beta-exit-status.generated.json");
 const operatorRevenueSmokePath = join(repoRoot, "agent/state/operator-revenue-smoke.generated.json");
+const liveEvidenceGatePath = join(repoRoot, "agent/state/live-evidence-gate-replacement.generated.json");
+const expectedDailyActivityImportPath = "agent/evidence/live-runtime-activity/recent-activity.export.json";
 
 const laneLabels: Record<keyof EvidenceLaneStatuses, string> = {
   manualScreenshotEvidence: "manual screenshot evidence",
@@ -134,6 +144,68 @@ function readOperatorRevenueSmoke(): OperatorRevenueSmokeSummary {
   };
 }
 
+function readRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function readString(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function summarizeLiveRuntimeEvidenceFromArtifact(): LiveRuntimeEvidenceCapture {
+  if (!existsSync(liveEvidenceGatePath)) {
+    return {
+      statusSummary: `live_runtime_evidence_bridge=source_missing; dailyActivityImport=missing:${expectedDailyActivityImportPath}`,
+      expectedImportPath: expectedDailyActivityImportPath,
+      foundImportPaths: [],
+    };
+  }
+  const parsed = JSON.parse(readFileSync(liveEvidenceGatePath, "utf8")) as Record<string, unknown>;
+  const systems = Array.isArray(parsed.liveEvidenceBySystem) ? parsed.liveEvidenceBySystem.map(readRecord) : [];
+  const statuses = systems.map((system) => readString(system.liveRuntimeEvidenceStatus) ?? "source_missing");
+  const firstDailyImport = systems.map((system) => readRecord(system.dailyActivityImport)).find((daily) => readString(daily.expectedPath));
+  const expectedImportPath = readString(firstDailyImport?.expectedPath) ?? expectedDailyActivityImportPath;
+  const foundImportPaths = Array.isArray(firstDailyImport?.foundPaths)
+    ? firstDailyImport.foundPaths.filter((entry): entry is string => typeof entry === "string" && entry.length > 0)
+    : [];
+  const count = (status: string) => statuses.filter((entry) => entry === status).length;
+  const leadingStatus = count("live_activity_confirmed") > 0
+    ? "live_activity_confirmed"
+    : count("aggregate_activity_confirmed") > 0
+      ? "aggregate_activity_confirmed"
+      : count("source_ready_waiting_for_activity") > 0
+        ? "source_ready_waiting_for_activity"
+        : count("not_observed_but_expected") > 0
+          ? "not_observed_but_expected"
+          : "source_missing";
+  return {
+    statusSummary: [
+      `live_runtime_evidence_bridge=${leadingStatus}`,
+      `live_activity_confirmed=${count("live_activity_confirmed")}`,
+      `aggregate_activity_confirmed=${count("aggregate_activity_confirmed")}`,
+      `source_ready_waiting_for_activity=${count("source_ready_waiting_for_activity")}`,
+      `not_observed_but_expected=${count("not_observed_but_expected")}`,
+      `runtime_export_required=${count("runtime_export_required")}`,
+      `provider_required=${count("provider_required")}`,
+      `admin_required=${count("admin_required")}`,
+      `billing_required=${count("billing_required")}`,
+      `source_missing=${count("source_missing")}`,
+      `dailyActivityImport=${foundImportPaths.length > 0 ? "present" : "missing"}:${expectedImportPath}`,
+    ].join("; "),
+    expectedImportPath,
+    foundImportPaths,
+  };
+}
+
+function normalizeLiveRuntimeEvidence(input?: Partial<LiveRuntimeEvidenceCapture>): LiveRuntimeEvidenceCapture {
+  const fromArtifact = summarizeLiveRuntimeEvidenceFromArtifact();
+  return {
+    statusSummary: input?.statusSummary ?? fromArtifact.statusSummary,
+    expectedImportPath: input?.expectedImportPath ?? fromArtifact.expectedImportPath,
+    foundImportPaths: input?.foundImportPaths ?? fromArtifact.foundImportPaths,
+  };
+}
+
 function readArtifactInput(relativePath: string, head: string, generatedAtUtc: string): RefreshArtifactInput {
   if (relativePath === reportRelativePath) {
     return {
@@ -172,13 +244,18 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     .filter(([, status]) => status === "complete")
     .map(([lane]) => `${laneLabels[lane]} is complete.`);
   const operatorRevenueSmoke = options.operatorRevenueSmoke ?? defaultOperatorRevenueSmoke();
-  const sourceReadyEvidence = ["runtime watch-time source lane is source-ready but still needs deployed playback proof."];
+  const liveRuntimeEvidence = normalizeLiveRuntimeEvidence(options.liveRuntimeEvidence);
+  const sourceReadyEvidence = [
+    "runtime watch-time source lane is source-ready but still needs deployed playback proof.",
+    `live runtime evidence bridge: ${liveRuntimeEvidence.statusSummary}`,
+  ];
   const operatorConfirmedEvidence = operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
     ? ["operator-confirmed $50 GumDrop revenue smoke is recorded as product signal only."]
     : [];
   const formalMissingEvidence = [
     ...missingEvidence,
     "provider smoke remains formal-missing until a formal provider/app artifact is attached.",
+    "live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.",
   ];
   const refreshPlan = buildRefreshPlan([
     reportRelativePath,
@@ -207,6 +284,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
       strictModeReady: true,
       canStartBetaExitReview,
       operatorRevenueSmoke,
+      liveRuntimeEvidence,
     },
     evidenceFolders: [
       {
@@ -244,6 +322,7 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
       "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.",
       "Copy agent/evidence/runtime-smoke/evidence.template.json to a dated JSON artifact after deployed runtime smoke is run.",
       "Copy agent/evidence/admin-truth-sample/evidence.template.json to a dated JSON artifact after a fresh redacted admin truth sample is attached.",
+      `Drop privacy-safe daily aggregate activity export at ${liveRuntimeEvidence.expectedImportPath}.`,
       "Run EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence once manual screenshot evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence once runtime smoke evidence is expected to be complete.",
@@ -296,8 +375,21 @@ export function validateEvidenceCaptureStatusReport(
   if (!Array.isArray(report.sourceReadyEvidence) || !report.sourceReadyEvidence.some((entry) => /runtime watch-time/iu.test(entry))) {
     failures.push("sourceReadyEvidence must represent source-ready runtime watch-time proof separately.");
   }
+  if (
+    !report.summary.liveRuntimeEvidence?.expectedImportPath
+    || !report.summary.liveRuntimeEvidence.statusSummary.includes("live_runtime_evidence_bridge=")
+    || !report.summary.liveRuntimeEvidence.statusSummary.includes(report.summary.liveRuntimeEvidence.expectedImportPath)
+  ) {
+    failures.push("evidence capture status must represent the live runtime evidence bridge and daily activity import path.");
+  }
+  if (!report.sourceReadyEvidence.some((entry) => entry.includes("live runtime evidence bridge:"))) {
+    failures.push("sourceReadyEvidence must include live runtime evidence bridge status.");
+  }
   if (!Array.isArray(report.formalMissingEvidence) || !report.formalMissingEvidence.some((entry) => /provider smoke remains formal-missing/iu.test(entry))) {
     failures.push("formalMissingEvidence must keep provider smoke separate from operator confirmation.");
+  }
+  if (!report.formalMissingEvidence.some((entry) => /does not clear provider, admin, billing, manual visual, or exact-user proof/iu.test(entry))) {
+    failures.push("formalMissingEvidence must keep live activity separate from protected proof lanes.");
   }
   const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;
   if (operatorRevenueSmoke?.revenueSmokeStatus === "operator_confirmed_revenue_smoke") {
@@ -367,6 +459,7 @@ function buildFromWorkspace() {
     completeArtifacts,
     currentBetaExitCanStart: readCurrentBetaExitCanStart(),
     operatorRevenueSmoke: readOperatorRevenueSmoke(),
+    liveRuntimeEvidence: summarizeLiveRuntimeEvidenceFromArtifact(),
   });
 }
 
@@ -391,6 +484,8 @@ function writeDocs(report: EvidenceCaptureStatusReport) {
     `- Strict mode ready: ${report.summary.strictModeReady ? "yes" : "no"}.`,
     `- Beta exit review can start: ${report.summary.canStartBetaExitReview ? "yes" : "no"}.`,
     `- Operator revenue smoke: \`${report.summary.operatorRevenueSmoke.revenueSmokeStatus}\`.`,
+    `- Live runtime evidence: \`${report.summary.liveRuntimeEvidence.statusSummary}\`.`,
+    `- Daily activity import path: \`${report.summary.liveRuntimeEvidence.expectedImportPath}\`.`,
     `- Operator confirmed amount/product: ${report.summary.operatorRevenueSmoke.amountUsdConfirmed ?? "n/a"} ${report.summary.operatorRevenueSmoke.product}.`,
     `- Formal provider proof from operator smoke: ${report.summary.operatorRevenueSmoke.formalProviderSmokePassed ? "yes" : "no"}.`,
     "",

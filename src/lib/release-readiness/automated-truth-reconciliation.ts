@@ -395,16 +395,31 @@ export function classifyTruthReconciliationDirtyFile(path: string) {
   if (/^agent\/state\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation|public-beta-score|current-beta-exit-status|final-release-exit-readiness-packet)\.generated\.json$/u.test(normalized)) {
     return "current_generated_artifact_to_commit";
   }
+  if (/^agent\/state\/(activity-verification-engine|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.generated\.json$/u.test(normalized)) {
+    return "current_generated_artifact_to_commit";
+  }
   if (/^docs\/agent-truth\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation)\.md$/u.test(normalized)) {
+    return "release_artifact_expected";
+  }
+  if (/^docs\/agent-truth\/(activity-verification-engine|current-beta-exit-status|evidence-capture-status|formal-evidence-bridge|live-evidence-gate-replacement|real-usage-confidence|real-usage-confidence-calibration|runtime-smoke-harness|runtime-smoke-substitute-matrix)\.md$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (/^src\/lib\/release-readiness\/(automated-truth-reconciliation|claim-truth-auditor|validator-authority-auditor|wiring-truth-auditor|score-truth-auditor|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate)\.ts$/u.test(normalized)) {
     return "real_source_change_needs_review";
   }
+  if (/^src\/lib\/release-readiness\/(live-evidence-gate-contract|live-evidence-resolver)\.ts$/u.test(normalized)) {
+    return "real_source_change_needs_review";
+  }
   if (/^scripts\/agent\/(truth-reconciliation-report-runner|validate-(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation))\.ts$/u.test(normalized)) {
     return "release_artifact_expected";
   }
+  if (normalized === "scripts/agent/score-public-beta-readiness.ts" || /^scripts\/agent\/validate-(current-beta-exit-status|evidence-capture-status)\.ts$/u.test(normalized)) {
+    return "release_artifact_expected";
+  }
   if (/^tests\/unit\/(claim-truth-audit|validator-authority-audit|wiring-truth-audit|score-truth-audit|half-implementation-detector|cost-lie-detector|manual-qa-readiness-gate|automated-truth-reconciliation)\.spec\.ts$/u.test(normalized)) {
+    return "release_artifact_expected";
+  }
+  if (/^tests\/unit\/(current-beta-exit-status|evidence-capture-status|live-evidence-gate-replacement)\.spec\.ts$/u.test(normalized)) {
     return "release_artifact_expected";
   }
   if (normalized === "package.json" || normalized === "CHANGELOG.md" || normalized === "public/kandydrops-release-notes.json" || normalized === "src/lib/release-notes/public-release-notes.ts" || normalized === "src/lib/release-notes/release-version-contract.ts") {
@@ -662,6 +677,13 @@ export function buildScoreTruthAuditReport(root: string): ScoreTruthAuditReport 
       reason: freshness.reason,
     };
   });
+  const scoreArtifactStale = artifactHeadStatuses.some((entry) => {
+    const isCurrentScoreOwner = entry.artifactPath === "agent/state/public-beta-score.generated.json"
+      || entry.artifactPath === "agent/state/current-beta-exit-status.generated.json";
+    if (isCurrentScoreOwner && entry.artifactHead === context.currentHead) return false;
+    if (entry.artifactPath === "agent/state/final-release-exit-readiness-packet.generated.json") return false;
+    return entry.needsRefresh;
+  });
   const d = context.scoreDimensions;
   const weightedFormulaScore = Number((((d.sourceHealth ?? 0) * 0.25) + ((d.runtimeHealth ?? 0) * 0.2) + ((d.evidenceCompleteness ?? 0) * 0.2) + ((d.freshness ?? 0) * 0.15) + ((d.costRisk ?? 0) * 0.1) + ((d.regressionRisk ?? 0) * 0.1)).toFixed(2));
   const source = [
@@ -681,7 +703,7 @@ export function buildScoreTruthAuditReport(root: string): ScoreTruthAuditReport 
     weightedFormulaScore,
     reportedOverallScore: context.scoreAfter,
     formulaMatches: Math.abs(weightedFormulaScore - context.scoreAfter) < 0.02,
-    staleScoreArtifactSilentlyUsed: artifactHeadStatuses.some((entry) => entry.needsRefresh),
+    staleScoreArtifactSilentlyUsed: scoreArtifactStale,
     sourceOnlyClearsFormalProof: context.betaExitReadyFromSource === true,
     futureQuietEventPenaltyDetected: false,
     hardcodedZeroGapDetected,

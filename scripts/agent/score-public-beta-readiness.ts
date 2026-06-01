@@ -525,6 +525,7 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
   const systems = Array.isArray(parsed.liveEvidenceBySystem) ? parsed.liveEvidenceBySystem.map(readRecord) : [];
   const statuses = systems.map((system) => readString(system.liveRuntimeEvidenceStatus) ?? "source_missing");
   const liveActivityConfirmed = statuses.filter((status) => status === "live_activity_confirmed").length;
+  const aggregateActivityConfirmed = statuses.filter((status) => status === "aggregate_activity_confirmed").length;
   const sourceReadyWaiting = statuses.filter((status) => status === "source_ready_waiting_for_activity" || status === "future_only_quiet").length;
   const notObservedButExpected = statuses.filter((status) => status === "not_observed_but_expected").length;
   const runtimeExportRequired = statuses.filter((status) => status === "runtime_export_required").length;
@@ -538,7 +539,9 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
     : [];
   const status = liveActivityConfirmed > 0
     ? "source_ready_live_activity_confirmed"
-    : sourceReadyWaiting > 0 || notObservedButExpected > 0
+    : aggregateActivityConfirmed > 0
+      ? "source_ready_aggregate_activity_confirmed"
+      : sourceReadyWaiting > 0 || notObservedButExpected > 0
       ? "source_ready_waiting_for_activity"
       : "source_missing_live_runtime_evidence";
 
@@ -552,6 +555,7 @@ function readLiveRuntimeEvidenceBridgeEvidence(root: string): PublicBetaEvidence
     evidence: [
       `liveRuntimeEvidenceArtifactStatus=${status}`,
       `liveRuntimeEvidence.liveActivityConfirmed=${liveActivityConfirmed}`,
+      `liveRuntimeEvidence.aggregateActivityConfirmed=${aggregateActivityConfirmed}`,
       `liveRuntimeEvidence.sourceReadyWaitingForActivity=${sourceReadyWaiting}`,
       `liveRuntimeEvidence.notObservedButExpected=${notObservedButExpected}`,
       `liveRuntimeEvidence.runtimeExportRequired=${runtimeExportRequired}`,

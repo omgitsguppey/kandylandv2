@@ -5,8 +5,8 @@ Validator: `npm run check:automated-truth-reconciliation`
 
 ## Summary
 
-- Generated: `2026-05-26T23:04:54.687Z`
-- Current head: `ab170d4c0157ad2529b1e5c606d5ca65db1b3346`
+- Generated: `2026-06-01T00:05:29.446Z`
+- Current head: `9795630e505231581241589fe40debd01b23d9b0`
 - Validation status: `pass`
 
 ## Evidence Boundary
@@ -18,14 +18,12 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
 ```json
 {
   "reportKey": "automated-truth-reconciliation",
-  "generatedAtUtc": "2026-05-26T23:04:54.687Z",
-  "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-  "betaScore": 85.34,
+  "generatedAtUtc": "2026-06-01T00:05:29.446Z",
+  "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+  "betaScore": 76.61,
   "betaScoreProofStatus": "proven_current",
   "manualQaRecommended": false,
-  "releaseCriticalGaps": [
-    "security-prs-handled-or-blocked"
-  ],
+  "releaseCriticalGaps": [],
   "halfImplementedLanes": [],
   "unprovenClaims": [
     {
@@ -37,7 +35,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": "tests/unit/4xx-cost-guardrails.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
@@ -52,7 +50,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
@@ -67,7 +65,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
@@ -84,7 +82,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:account-settings-delete-flow",
       "referencedTest": "tests/unit/account-settings-delete-flow.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "80ff5ebbd6a11a027951de58f1c8e1e859295785",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
@@ -101,42 +99,8 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:account-settings-mobile-padding",
       "referencedTest": "tests/unit/account-settings-mobile-padding.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "41548a214020ae5be78fc5b546d61b6c5b48fb40",
-      "proofStatus": "head_mismatch",
-      "contradictionFound": false,
-      "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
-    },
-    {
-      "claimId": "activity-verification-engine:pass:6",
-      "sourceArtifact": "agent/state/activity-verification-engine.generated.json",
-      "claimText": "pass",
-      "claimedStatus": "pass",
-      "referencedValidator": "scripts/agent/validate-activity-verification-engine.ts",
-      "referencedSourceFiles": [
-        "scripts/agent/validate-activity-verification-engine.ts"
-      ],
-      "referencedPackageScript": "check:activity-verification-engine",
-      "referencedTest": "tests/unit/activity-verification-engine.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb",
-      "proofStatus": "head_mismatch",
-      "contradictionFound": false,
-      "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
-    },
-    {
-      "claimId": "activity-verification-engine:ready:7",
-      "sourceArtifact": "agent/state/activity-verification-engine.generated.json",
-      "claimText": "ready",
-      "claimedStatus": "ready",
-      "referencedValidator": "scripts/agent/validate-activity-verification-engine.ts",
-      "referencedSourceFiles": [
-        "scripts/agent/validate-activity-verification-engine.ts"
-      ],
-      "referencedPackageScript": "check:activity-verification-engine",
-      "referencedTest": "tests/unit/activity-verification-engine.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-      "artifactHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
@@ -152,7 +116,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:admin-analytics-debug-cost-reduction",
       "referencedTest": "tests/unit/admin-analytics-debug-cost-reduction.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "3878a581193dd171f69e3c0b63073ac738c14152",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
@@ -169,7 +133,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:admin-analytics-finalization",
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
@@ -186,7 +150,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:admin-analytics-finalization",
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
@@ -201,7 +165,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
@@ -216,7 +180,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
@@ -231,7 +195,7 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
@@ -246,14 +210,31 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "admin-surface-hydration:ready:15",
+      "claimId": "admin-redaction-drilldown-policy:pass:15",
+      "sourceArtifact": "agent/state/admin-redaction-drilldown-policy.generated.json",
+      "claimText": "pass",
+      "claimedStatus": "pass",
+      "referencedValidator": "scripts/agent/validate-admin-redaction-drilldown-policy.ts",
+      "referencedSourceFiles": [
+        "scripts/agent/validate-admin-redaction-drilldown-policy.ts"
+      ],
+      "referencedPackageScript": "check:admin-redaction-drilldown-policy",
+      "referencedTest": "tests/unit/admin-redaction-drilldown-policy.spec.ts",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+      "artifactHead": "c5cd5726b4c9cf20638cbc5f05d31cfc94d2a68f",
+      "proofStatus": "head_mismatch",
+      "contradictionFound": false,
+      "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
+    },
+    {
+      "claimId": "admin-surface-hydration:ready:16",
       "sourceArtifact": "agent/state/admin-surface-hydration.generated.json",
       "claimText": "ready",
       "claimedStatus": "ready",
@@ -263,14 +244,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:admin-surface-hydration",
       "referencedTest": "tests/unit/admin-surface-hydration.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "admin-truth-sample-evidence:pass:17",
+      "claimId": "admin-truth-sample-evidence:pass:18",
       "sourceArtifact": "agent/state/admin-truth-sample-evidence.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -280,14 +261,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:admin-truth-sample-evidence",
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "admin-truth-sample-evidence:current:18",
+      "claimId": "admin-truth-sample-evidence:current:19",
       "sourceArtifact": "agent/state/admin-truth-sample-evidence.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -297,14 +278,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:admin-truth-sample-evidence",
       "referencedTest": null,
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "admin-truth-source-sample:pass:19",
+      "claimId": "admin-truth-source-sample:pass:20",
       "sourceArtifact": "agent/state/admin-truth-source-sample.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -314,14 +295,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:admin-truth-source-sample",
       "referencedTest": "tests/unit/admin-truth-source-sample.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "admin-truth-source-sample:current:20",
+      "claimId": "admin-truth-source-sample:current:21",
       "sourceArtifact": "agent/state/admin-truth-source-sample.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -331,14 +312,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:admin-truth-source-sample",
       "referencedTest": "tests/unit/admin-truth-source-sample.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "d1f8e2fb4435ad131c8fc7cc85debe027a31346a",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "advanced-telemetry-parity-ui-cleanup:current:21",
+      "claimId": "advanced-telemetry-parity-ui-cleanup:current:22",
       "sourceArtifact": "agent/state/advanced-telemetry-parity-ui-cleanup.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -348,14 +329,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:advanced-telemetry-parity-ui-cleanup",
       "referencedTest": "tests/unit/advanced-telemetry-parity-ui-cleanup.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "9dc79a00f40df751841c8d8f10d98de636336397",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "ai-critic-p1-triage:pass:22",
+      "claimId": "ai-critic-p1-triage:pass:23",
       "sourceArtifact": "agent/state/ai-critic-p1-triage.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -365,14 +346,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:ai-critic-p1-triage",
       "referencedTest": "tests/unit/ai-critic-p1-triage.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "bbd8d8c7da74cf60bb978373242a76e5e0f305d7",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "ai-critic-p1-triage:ready:23",
+      "claimId": "ai-critic-p1-triage:ready:24",
       "sourceArtifact": "agent/state/ai-critic-p1-triage.generated.json",
       "claimText": "ready",
       "claimedStatus": "ready",
@@ -382,14 +363,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:ai-critic-p1-triage",
       "referencedTest": "tests/unit/ai-critic-p1-triage.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "bbd8d8c7da74cf60bb978373242a76e5e0f305d7",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "ai-critic-p1-triage:complete:24",
+      "claimId": "ai-critic-p1-triage:complete:25",
       "sourceArtifact": "agent/state/ai-critic-p1-triage.generated.json",
       "claimText": "complete",
       "claimedStatus": "complete",
@@ -399,14 +380,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:ai-critic-p1-triage",
       "referencedTest": "tests/unit/ai-critic-p1-triage.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "bbd8d8c7da74cf60bb978373242a76e5e0f305d7",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "ai-critic-p1-triage:current:25",
+      "claimId": "ai-critic-p1-triage:current:26",
       "sourceArtifact": "agent/state/ai-critic-p1-triage.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -416,14 +397,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:ai-critic-p1-triage",
       "referencedTest": "tests/unit/ai-critic-p1-triage.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "bbd8d8c7da74cf60bb978373242a76e5e0f305d7",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "ai-debug-critic:pass:26",
+      "claimId": "ai-debug-critic:pass:27",
       "sourceArtifact": "agent/state/ai-debug-critic.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -433,14 +414,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:ai-debug-critic",
       "referencedTest": "tests/unit/ai-debug-critic.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "ai-debug-critic:current:27",
+      "claimId": "ai-debug-critic:current:28",
       "sourceArtifact": "agent/state/ai-debug-critic.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -450,14 +431,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:ai-debug-critic",
       "referencedTest": "tests/unit/ai-debug-critic.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "ai-debug-planner:pass:28",
+      "claimId": "ai-debug-planner:pass:29",
       "sourceArtifact": "agent/state/ai-debug-planner.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -467,14 +448,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:ai-debug-planner",
       "referencedTest": "tests/unit/ai-debug-planner.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "ai-debug-planner:ready:29",
+      "claimId": "ai-debug-planner:ready:30",
       "sourceArtifact": "agent/state/ai-debug-planner.generated.json",
       "claimText": "ready",
       "claimedStatus": "ready",
@@ -484,14 +465,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:ai-debug-planner",
       "referencedTest": "tests/unit/ai-debug-planner.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "algorithmic-evidence-policy:ready:30",
+      "claimId": "algorithmic-evidence-policy:ready:31",
       "sourceArtifact": "agent/state/algorithmic-evidence-policy.generated.json",
       "claimText": "ready",
       "claimedStatus": "ready",
@@ -501,14 +482,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:algorithmic-evidence-policy",
       "referencedTest": "tests/unit/algorithmic-evidence-policy.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "algorithmic-evidence-policy:current:31",
+      "claimId": "algorithmic-evidence-policy:current:32",
       "sourceArtifact": "agent/state/algorithmic-evidence-policy.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -518,14 +499,31 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:algorithmic-evidence-policy",
       "referencedTest": "tests/unit/algorithmic-evidence-policy.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-cost-hot-path-reduction:pass:32",
+      "claimId": "analytic-algorithm-truth-audit:pass:33",
+      "sourceArtifact": "agent/state/analytic-algorithm-truth-audit.generated.json",
+      "claimText": "pass",
+      "claimedStatus": "pass",
+      "referencedValidator": "scripts/agent/validate-analytic-algorithm-truth-audit.ts",
+      "referencedSourceFiles": [
+        "scripts/agent/validate-analytic-algorithm-truth-audit.ts"
+      ],
+      "referencedPackageScript": "check:analytic-algorithm-truth-audit",
+      "referencedTest": "tests/unit/analytic-algorithm-truth-audit.spec.ts",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+      "artifactHead": "74c04caadffa3080b2f979f7649026b17aafdbdf",
+      "proofStatus": "head_mismatch",
+      "contradictionFound": false,
+      "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
+    },
+    {
+      "claimId": "analytics-cost-hot-path-reduction:pass:34",
       "sourceArtifact": "agent/state/analytics-cost-hot-path-reduction.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -535,14 +533,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-cost-hot-path-reduction",
       "referencedTest": "tests/unit/analytics-cost-hot-path-reduction.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "d8f818a75f5b7e195937878e15058d63a4cc40fd",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-cost-hot-path-reduction:current:33",
+      "claimId": "analytics-cost-hot-path-reduction:current:35",
       "sourceArtifact": "agent/state/analytics-cost-hot-path-reduction.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -552,14 +550,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-cost-hot-path-reduction",
       "referencedTest": "tests/unit/analytics-cost-hot-path-reduction.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "d8f818a75f5b7e195937878e15058d63a4cc40fd",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-cost-runtime-inventory:pass:34",
+      "claimId": "analytics-cost-runtime-inventory:pass:36",
       "sourceArtifact": "agent/state/analytics-cost-runtime-inventory.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -569,14 +567,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-cost-runtime-inventory",
       "referencedTest": "tests/unit/analytics-cost-runtime-inventory.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-      "artifactHead": "b375acf9361858bfb97d9e3fac8877bb230a596c",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+      "artifactHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-cost-runtime-inventory:ready:35",
+      "claimId": "analytics-cost-runtime-inventory:ready:37",
       "sourceArtifact": "agent/state/analytics-cost-runtime-inventory.generated.json",
       "claimText": "ready",
       "claimedStatus": "ready",
@@ -586,14 +584,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-cost-runtime-inventory",
       "referencedTest": "tests/unit/analytics-cost-runtime-inventory.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-      "artifactHead": "b375acf9361858bfb97d9e3fac8877bb230a596c",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+      "artifactHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-ecosystem-parity:pass:36",
+      "claimId": "analytics-ecosystem-parity:pass:38",
       "sourceArtifact": "agent/state/analytics-ecosystem-parity.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -601,14 +599,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": "tests/unit/analytics-ecosystem-parity.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-ecosystem-parity:complete:37",
+      "claimId": "analytics-ecosystem-parity:complete:39",
       "sourceArtifact": "agent/state/analytics-ecosystem-parity.generated.json",
       "claimText": "complete",
       "claimedStatus": "complete",
@@ -616,14 +614,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "referencedSourceFiles": [],
       "referencedPackageScript": null,
       "referencedTest": "tests/unit/analytics-ecosystem-parity.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-hot-path-cost-reduction:pass:38",
+      "claimId": "analytics-hot-path-cost-reduction:pass:40",
       "sourceArtifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -633,14 +631,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-hot-path-cost-reduction",
       "referencedTest": "tests/unit/analytics-hot-path-cost-reduction.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "b83c1225ffd93a16f6aecdd9b0081695613e32da",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-hot-path-cost-reduction:current:39",
+      "claimId": "analytics-hot-path-cost-reduction:current:41",
       "sourceArtifact": "agent/state/analytics-hot-path-cost-reduction.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -650,14 +648,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-hot-path-cost-reduction",
       "referencedTest": "tests/unit/analytics-hot-path-cost-reduction.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "b83c1225ffd93a16f6aecdd9b0081695613e32da",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-identity-transfer-inventory:pass:40",
+      "claimId": "analytics-identity-transfer-inventory:pass:42",
       "sourceArtifact": "agent/state/analytics-identity-transfer-inventory.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -667,14 +665,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-identity-transfer-inventory",
       "referencedTest": "tests/unit/analytics-identity-transfer-inventory.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "5804de2bee6bb7ee37b6764af26094c391d03abf",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-identity-transfer-inventory:current:41",
+      "claimId": "analytics-identity-transfer-inventory:current:43",
       "sourceArtifact": "agent/state/analytics-identity-transfer-inventory.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -684,14 +682,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-identity-transfer-inventory",
       "referencedTest": "tests/unit/analytics-identity-transfer-inventory.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "5804de2bee6bb7ee37b6764af26094c391d03abf",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-ingest-firestore-closure:pass:42",
+      "claimId": "analytics-ingest-firestore-closure:pass:44",
       "sourceArtifact": "agent/state/analytics-ingest-firestore-closure.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -701,14 +699,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-ingest-firestore-closure",
       "referencedTest": "tests/unit/analytics-ingest-firestore-closure.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "13dc614b575932b3bc589acabe8cccb675a2f614",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-ingest-identified-repair:complete:43",
+      "claimId": "analytics-ingest-identified-repair:complete:45",
       "sourceArtifact": "agent/state/analytics-ingest-identified-repair.generated.json",
       "claimText": "complete",
       "claimedStatus": "complete",
@@ -718,14 +716,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-ingest-identified-repair",
       "referencedTest": "tests/unit/analytics-ingest-identified-repair.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-ingest-identified-repair:current:44",
+      "claimId": "analytics-ingest-identified-repair:current:46",
       "sourceArtifact": "agent/state/analytics-ingest-identified-repair.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -735,14 +733,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-ingest-identified-repair",
       "referencedTest": "tests/unit/analytics-ingest-identified-repair.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": null,
       "proofStatus": "stale",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-legacy-history-reconciliation:pass:45",
+      "claimId": "analytics-legacy-history-reconciliation:pass:47",
       "sourceArtifact": "agent/state/analytics-legacy-history-reconciliation.generated.json",
       "claimText": "pass",
       "claimedStatus": "pass",
@@ -752,14 +750,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-legacy-history-reconciliation",
       "referencedTest": "tests/unit/analytics-legacy-history-reconciliation.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "c85b7c584648f4283da9a1f6795e9b9406654406",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-legacy-history-reconciliation:current:46",
+      "claimId": "analytics-legacy-history-reconciliation:current:48",
       "sourceArtifact": "agent/state/analytics-legacy-history-reconciliation.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -769,14 +767,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-legacy-history-reconciliation",
       "referencedTest": "tests/unit/analytics-legacy-history-reconciliation.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "c85b7c584648f4283da9a1f6795e9b9406654406",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-legacy-recovery-reconciliation:current:47",
+      "claimId": "analytics-legacy-recovery-reconciliation:current:49",
       "sourceArtifact": "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -786,14 +784,31 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-legacy-recovery-reconciliation",
       "referencedTest": "tests/unit/analytics-legacy-recovery-reconciliation.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "d14d5d10899b0784d0743319a45c83854443a49a",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-rewire-phase-one:current:48",
+      "claimId": "analytics-panel-hydration:current:50",
+      "sourceArtifact": "agent/state/analytics-panel-hydration.generated.json",
+      "claimText": "current",
+      "claimedStatus": "current",
+      "referencedValidator": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "referencedSourceFiles": [
+        "scripts/agent/validate-analytics-panel-hydration.ts"
+      ],
+      "referencedPackageScript": "check:analytics-panel-hydration",
+      "referencedTest": "tests/unit/analytics-panel-hydration.spec.ts",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
+      "artifactHead": "49da560fffb17b22df49df8ac8256f28e4870178",
+      "proofStatus": "head_mismatch",
+      "contradictionFound": false,
+      "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
+    },
+    {
+      "claimId": "analytics-rewire-phase-one:current:51",
       "sourceArtifact": "agent/state/analytics-rewire-phase-one.generated.json",
       "claimText": "current",
       "claimedStatus": "current",
@@ -803,14 +818,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-rewire-phase-one",
       "referencedTest": "tests/unit/analytics-rewire-phase-one.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-semantics-final-lock:ready:49",
+      "claimId": "analytics-semantics-final-lock:ready:52",
       "sourceArtifact": "agent/state/analytics-semantics-final-lock.generated.json",
       "claimText": "ready",
       "claimedStatus": "ready",
@@ -820,14 +835,14 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-semantics-final-lock",
       "referencedTest": "tests/unit/analytics-semantics-final-lock.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
     },
     {
-      "claimId": "analytics-semantics-final-lock:betaExitReady:50",
+      "claimId": "analytics-semantics-final-lock:betaExitReady:53",
       "sourceArtifact": "agent/state/analytics-semantics-final-lock.generated.json",
       "claimText": "betaExitReady",
       "claimedStatus": "betaExitReady",
@@ -837,25 +852,8 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       ],
       "referencedPackageScript": "check:analytics-semantics-final-lock",
       "referencedTest": "tests/unit/analytics-semantics-final-lock.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
+      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
       "artifactHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
-      "proofStatus": "head_mismatch",
-      "contradictionFound": false,
-      "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
-    },
-    {
-      "claimId": "analytics-validation-semantics:ready:51",
-      "sourceArtifact": "agent/state/analytics-validation-semantics.generated.json",
-      "claimText": "ready",
-      "claimedStatus": "ready",
-      "referencedValidator": "scripts/agent/validate-analytics-validation-semantics.ts",
-      "referencedSourceFiles": [
-        "scripts/agent/validate-analytics-validation-semantics.ts"
-      ],
-      "referencedPackageScript": "check:analytics-validation-semantics",
-      "referencedTest": "tests/unit/analytics-validation-semantics.spec.ts",
-      "currentHead": "ab170d4c0157ad2529b1e5c606d5ca65db1b3346",
-      "artifactHead": "5c7d0dbd153160989cd96bca6702a87b5d00eeb9",
       "proofStatus": "head_mismatch",
       "contradictionFound": false,
       "exactNextAction": "Refresh or wire the referenced validator, package script, test, source, and artifact."
@@ -882,341 +880,23 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "exactNextAction": "Attach external billing review before improving costRisk."
     }
   ],
-  "openPrs": [
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "sentinel-fix-open-redirect-prng-9331490272571705519",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 304,
-      "title": "🛡️ Sentinel: [HIGH] Fix open redirect and weak PRNG",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/304",
-      "classification": "security_pr_to_cherry_pick",
-      "dependencyRiskClass": "security_required",
-      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
-      "nextExactAction": "Review PR #304, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
-      "blocksBetaExit": true
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "jules-bolt-library-perf-3411842256230391376",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 303,
-      "title": "⚡ Bolt: Consolidate useMemo iterations in LibraryClient",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/303",
-      "classification": "performance_pr_to_merge",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Small performance PR is useful, but must not supersede current source or import scratch work.",
-      "nextExactAction": "Review PR #303 against current source and cherry-pick only the isolated performance change if tests stay green.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "onboarding-friction-telemetry-3629393003427856299",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 302,
-      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/302",
-      "classification": "unsafe_pr_needs_manual_review",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Governance/product-scope PR overlaps release readiness and needs human ordering rather than automatic merge.",
-      "nextExactAction": "Manually review PR #302; defer or close if superseded by current release-readiness and hardening artifacts.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "jules-doctrine-compliance-audit-10191427259102396052",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 301,
-      "title": "📚 Reduce doctrine drift and banned-pattern reintroduction",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/301",
-      "classification": "unsafe_pr_needs_manual_review",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Governance/product-scope PR overlaps release readiness and needs human ordering rather than automatic merge.",
-      "nextExactAction": "Manually review PR #301; defer or close if superseded by current release-readiness and hardening artifacts.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "audit/monolith-file-risk-241787922391348535",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 300,
-      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/300",
-      "classification": "unsafe_pr_needs_manual_review",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Governance/product-scope PR overlaps release readiness and needs human ordering rather than automatic merge.",
-      "nextExactAction": "Manually review PR #300; defer or close if superseded by current release-readiness and hardening artifacts.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/functions/functions-npm-minor-patch-4a8d933f5b",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 299,
-      "title": "chore(deps): bump the functions-npm-minor-patch group in /functions with 5 updates",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/299",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "provider_sdk_risk",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #299 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/npm-check-updates-22.2.1",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 298,
-      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.2.1",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/298",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "test_tooling_only",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #298 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/knip-6.14.2",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 297,
-      "title": "chore(deps): bump knip from 5.88.1 to 6.14.2",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/297",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "test_tooling_only",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #297 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/syncpack-15.3.1",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 296,
-      "title": "chore(deps): bump syncpack from 14.3.0 to 15.3.1",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/296",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "test_tooling_only",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #296 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/puppeteer-25.0.4",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 295,
-      "title": "chore(deps): bump puppeteer from 24.40.0 to 25.0.4",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/295",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "test_tooling_only",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #295 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "is_bot": true,
-        "login": "app/dependabot"
-      },
-      "baseRefName": "main",
-      "headRefName": "dependabot/npm_and_yarn/npm-minor-patch-f5bdc37de0",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 294,
-      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 48 updates",
-      "updatedAt": "2026-05-26T17:55:52Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/294",
-      "classification": "dependency_pr_to_close_or_defer",
-      "dependencyRiskClass": "major_risk",
-      "reason": "Dependency updates are not merged blindly during beta-exit finalization; broad/provider/tooling changes need a separate dependency window.",
-      "nextExactAction": "Defer PR #294 until after beta exit unless a security advisory makes it mandatory.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "sentinel-fix-insecure-random-id-1683402257785005924",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "classification": "security_pr_to_cherry_pick",
-      "dependencyRiskClass": "security_required",
-      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
-      "nextExactAction": "Review PR #293, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
-      "blocksBetaExit": true
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "bolt-optimization-map-lookup-11237275132598123849",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 292,
-      "title": "⚡ Bolt: Replace array `.find()` with Map lookup in debug route",
-      "updatedAt": "2026-05-26T17:39:34Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/292",
-      "classification": "performance_pr_to_merge",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Small performance PR is useful, but must not supersede current source or import scratch work.",
-      "nextExactAction": "Review PR #292 against current source and cherry-pick only the isolated performance change if tests stay green.",
-      "blocksBetaExit": false
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "palette-a11y-loading-states-517200335107814059",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 291,
-      "title": "🎨 Palette: Add accessible loading states to Creator Experiences Panel buttons",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/291",
-      "classification": "accessibility_pr_to_merge",
-      "dependencyRiskClass": "not_dependency",
-      "reason": "Small accessibility PR is useful, but still needs current-source review before landing.",
-      "nextExactAction": "Review PR #291 against current source and cherry-pick only the isolated accessibility improvement if it is still relevant.",
-      "blocksBetaExit": false
-    }
-  ],
-  "securityPrs": [
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "sentinel-fix-open-redirect-prng-9331490272571705519",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 304,
-      "title": "🛡️ Sentinel: [HIGH] Fix open redirect and weak PRNG",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/304",
-      "classification": "security_pr_to_cherry_pick",
-      "dependencyRiskClass": "security_required",
-      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
-      "nextExactAction": "Review PR #304, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
-      "blocksBetaExit": true
-    },
-    {
-      "author": {
-        "id": "MDQ6VXNlcjI5NjY2MDQ3",
-        "is_bot": false,
-        "login": "omgitsguppey",
-        "name": ""
-      },
-      "baseRefName": "main",
-      "headRefName": "sentinel-fix-insecure-random-id-1683402257785005924",
-      "isDraft": false,
-      "mergeStateStatus": "CLEAN",
-      "number": 293,
-      "title": "🛡️ Sentinel: [High] Fix insecure Math.random() usage for ID generation",
-      "updatedAt": "2026-05-26T17:39:33Z",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/293",
-      "classification": "security_pr_to_cherry_pick",
-      "dependencyRiskClass": "security_required",
-      "reason": "Security-labeled PR requires source review and a scoped cherry-pick or equivalent patch before beta exit; it is not merged blindly from an unknown branch state.",
-      "nextExactAction": "Review PR #293, port the isolated security fix if it applies to current source, then run targeted security/unit checks.",
-      "blocksBetaExit": true
-    }
-  ],
+  "openPrs": [],
+  "securityPrs": [],
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/current-beta-exit-status.generated.json",
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/live-evidence-gate-replacement.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -1224,183 +904,35 @@ This is an automated source/artifact/package-script/import-shape audit. It does 
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "package.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/automated-truth-reconciliation.generated.json",
+      "path": "agent/state/real-usage-confidence-calibration.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/claim-truth-audit.generated.json",
+      "path": "agent/state/real-usage-confidence.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/cost-lie-detector.generated.json",
+      "path": "agent/state/runtime-smoke-harness.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/half-implementation-detector.generated.json",
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/manual-qa-readiness-gate.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/score-truth-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/validator-authority-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/wiring-truth-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/automated-truth-reconciliation.md",
+      "path": "docs/agent-truth/evidence-capture-status.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/claim-truth-audit.md",
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/cost-lie-detector.md",
+      "path": "docs/agent-truth/live-evidence-gate-replacement.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/half-implementation-detector.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/manual-qa-readiness-gate.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/score-truth-audit.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/validator-authority-audit.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/wiring-truth-audit.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/truth-reconciliation-report-runner.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-automated-truth-reconciliation.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-claim-truth-audit.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-cost-lie-detector.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-half-implementation-detector.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-manual-qa-readiness-gate.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-score-truth-audit.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-validator-authority-audit.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-wiring-truth-audit.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-readiness/automated-truth-reconciliation.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/claim-truth-auditor.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/cost-lie-detector.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/half-implementation-detector.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/manual-qa-readiness-gate.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/score-truth-auditor.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/validator-authority-auditor.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-readiness/wiring-truth-auditor.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/automated-truth-reconciliation.spec.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/claim-truth-audit.spec.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/cost-lie-detector.spec.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/half-implementation-detector.spec.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/manual-qa-readiness-gate.spec.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/score-truth-audit.spec.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/validator-authority-audit.spec.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/wiring-truth-audit.spec.ts",
+      "path": "docs/agent-truth/runtime-smoke-harness.md",
       "classification": "release_artifact_expected"
     }
   ],

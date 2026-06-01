@@ -25,6 +25,7 @@ export type LiveEvidenceConfidence = "exact" | "linked" | "inferred" | "weak" | 
 
 export type LiveRuntimeEvidenceStatus =
   | "live_activity_confirmed"
+  | "aggregate_activity_confirmed"
   | "source_ready_waiting_for_activity"
   | "not_observed_but_expected"
   | "future_only_quiet"

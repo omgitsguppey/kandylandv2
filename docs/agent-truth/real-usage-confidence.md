@@ -1,240 +1,33 @@
 # Real Usage Confidence
 
-Artifact: `agent/state/real-usage-confidence.generated.json`
+Status: source-only confidence engine. It does not read production data, call providers, mutate runtime paths, or clear formal beta gates.
 
-- Generated: `2026-05-27T00:55:32.698Z`
-- Current head: `7747ca78ac19f78c396f9c5c50301347ce492a45`
+## Summary
 
-```json
-{
-  "reportKey": "real-usage-confidence",
-  "generatedAtUtc": "2026-05-27T00:55:32.698Z",
-  "currentHead": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-  "sourceCommit": "7747ca78ac19f78c396f9c5c50301347ce492a45",
-  "status": "source_ready_real_usage_confidence",
-  "passed": true,
-  "productionReadsRequired": false,
-  "confidenceScore": 92,
-  "confidenceSignals": [
-    "purchase_flow_seen",
-    "gumdrop_credit_flow_seen",
-    "user_dashboard_seen",
-    "creator_dashboard_seen",
-    "creator_drop_manager_seen",
-    "fan_pass_flow_seen",
-    "broadcast_flow_source_ready",
-    "wallet_flow_source_ready"
-  ],
-  "evidence": [
-    "confidenceScore=92",
-    "observedSignals=1",
-    "sourceReadySignals=7",
-    "formalGatesCleared=false",
-    "productionReadsRequired=false"
-  ],
-  "limits": [
-    "does_not_clear_formal_provider",
-    "does_not_clear_deployed_runtime",
-    "does_not_clear_manual_visual"
-  ],
-  "formalGateImpact": {
-    "clearsFormalProvider": false,
-    "clearsDeployedRuntime": false,
-    "clearsManualVisual": false
-  },
-  "ignoredUnknownUsage": [],
-  "signals": {
-    "purchase_flow_seen": {
-      "id": "purchase_flow_seen",
-      "label": "Purchase flow seen",
-      "status": "observed",
-      "telemetryLaneId": "purchase",
-      "sourcePath": "agent/state/operator-revenue-smoke.generated.json",
-      "sourcePathStatus": "validated",
-      "materializerPresent": true,
-      "operatorConfirmed": true,
-      "confidenceContribution": 30,
-      "evidence": [
-        "eventName=gumdrops_purchase_completed",
-        "confirmationSource=operator_confirmed",
-        "count=1",
-        "telemetryLane=purchase"
-      ],
-      "limitations": [
-        "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
-      ],
-      "nextAction": "Use this as bounded confidence only; attach formal provider/runtime/manual evidence separately."
-    },
-    "gumdrop_credit_flow_seen": {
-      "id": "gumdrop_credit_flow_seen",
-      "label": "GumDrop credit flow seen",
-      "status": "source_ready",
-      "telemetryLaneId": "gumdrop_balance",
-      "sourcePath": "src/lib/analytics/materialization-contract.ts",
-      "sourcePathStatus": "source_ready",
-      "materializerPresent": true,
-      "operatorConfirmed": false,
-      "confidenceContribution": 10,
-      "evidence": [
-        "telemetryLane=gumdrop_balance",
-        "laneStatus=closed",
-        "materializerPresent=true",
-        "behaviorMathConfidence=exact"
-      ],
-      "limitations": [
-        "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
-      ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
-    },
-    "user_dashboard_seen": {
-      "id": "user_dashboard_seen",
-      "label": "User dashboard seen",
-      "status": "source_ready",
-      "telemetryLaneId": "page_view",
-      "sourcePath": "src/lib/analytics/telemetry-dependency-graph.ts",
-      "sourcePathStatus": "source_ready",
-      "materializerPresent": true,
-      "operatorConfirmed": false,
-      "confidenceContribution": 8,
-      "evidence": [
-        "telemetryLane=page_view",
-        "laneStatus=closed",
-        "materializerPresent=true",
-        "behaviorMathConfidence=exact"
-      ],
-      "limitations": [
-        "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
-      ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
-    },
-    "creator_dashboard_seen": {
-      "id": "creator_dashboard_seen",
-      "label": "Creator dashboard seen",
-      "status": "source_ready",
-      "telemetryLaneId": "creator_experience",
-      "sourcePath": "agent/state/creator-drop-status-metrics.generated.json",
-      "sourcePathStatus": "source_ready",
-      "materializerPresent": true,
-      "operatorConfirmed": false,
-      "confidenceContribution": 8,
-      "evidence": [
-        "telemetryLane=creator_experience",
-        "laneStatus=closed",
-        "materializerPresent=true",
-        "behaviorMathConfidence=exact"
-      ],
-      "limitations": [
-        "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
-      ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
-    },
-    "creator_drop_manager_seen": {
-      "id": "creator_drop_manager_seen",
-      "label": "Creator drop manager seen",
-      "status": "source_ready",
-      "telemetryLaneId": "creator_drop_submission",
-      "sourcePath": "agent/state/creator-drop-status-metrics.generated.json",
-      "sourcePathStatus": "source_ready",
-      "materializerPresent": true,
-      "operatorConfirmed": false,
-      "confidenceContribution": 10,
-      "evidence": [
-        "telemetryLane=creator_drop_submission",
-        "laneStatus=closed",
-        "materializerPresent=true",
-        "behaviorMathConfidence=exact"
-      ],
-      "limitations": [
-        "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
-      ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
-    },
-    "fan_pass_flow_seen": {
-      "id": "fan_pass_flow_seen",
-      "label": "Fan Pass flow seen",
-      "status": "source_ready",
-      "telemetryLaneId": "creator_subscription",
-      "sourcePath": "src/lib/analytics/telemetry-dependency-graph.ts",
-      "sourcePathStatus": "source_ready",
-      "materializerPresent": true,
-      "operatorConfirmed": false,
-      "confidenceContribution": 8,
-      "evidence": [
-        "telemetryLane=creator_subscription",
-        "laneStatus=closed",
-        "materializerPresent=true",
-        "behaviorMathConfidence=exact"
-      ],
-      "limitations": [
-        "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
-      ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
-    },
-    "broadcast_flow_source_ready": {
-      "id": "broadcast_flow_source_ready",
-      "label": "Broadcast flow source ready",
-      "status": "source_ready",
-      "telemetryLaneId": "creator_experience",
-      "sourcePath": "src/lib/analytics/telemetry-dependency-graph.ts",
-      "sourcePathStatus": "source_ready",
-      "materializerPresent": true,
-      "operatorConfirmed": false,
-      "confidenceContribution": 8,
-      "evidence": [
-        "telemetryLane=creator_experience",
-        "laneStatus=closed",
-        "materializerPresent=true",
-        "behaviorMathConfidence=exact"
-      ],
-      "limitations": [
-        "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
-      ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
-    },
-    "wallet_flow_source_ready": {
-      "id": "wallet_flow_source_ready",
-      "label": "Wallet flow source ready",
-      "status": "source_ready",
-      "telemetryLaneId": "purchase",
-      "sourcePath": "agent/state/source-backed-runtime-confidence.generated.json",
-      "sourcePathStatus": "source_ready",
-      "materializerPresent": true,
-      "operatorConfirmed": false,
-      "confidenceContribution": 10,
-      "evidence": [
-        "telemetryLane=purchase",
-        "laneStatus=closed",
-        "materializerPresent=true",
-        "behaviorMathConfidence=exact"
-      ],
-      "limitations": [
-        "does_not_clear_formal_provider",
-        "does_not_clear_deployed_runtime",
-        "does_not_clear_manual_visual"
-      ],
-      "nextAction": "Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced."
-    }
-  },
-  "summary": {
-    "observedSignals": 1,
-    "sourceReadySignals": 7,
-    "ignoredUnknownUsage": 0,
-    "confidenceScore": 92
-  },
-  "nextAction": "Use real usage confidence as source/runtime confidence only; keep formal provider, deployed runtime, and manual visual gates separate."
-}
-```
+- Overall status: source_ready_real_usage_confidence
+- Passed: true
+- Confidence score: 92/100
+- Observed operator-confirmed signals: 1
+- Source-ready signals: 7
+- Ignored unknown usage records: 0
+
+## Limits
+
+- does_not_clear_formal_provider
+- does_not_clear_deployed_runtime
+- does_not_clear_manual_visual
+
+## Signals
+
+- purchase_flow_seen: observed; contribution=30; source=agent/state/operator-revenue-smoke.generated.json; next=Use this as bounded confidence only; attach formal provider/runtime/manual evidence separately.
+- gumdrop_credit_flow_seen: source_ready; contribution=10; source=src/lib/analytics/materialization-contract.ts; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
+- user_dashboard_seen: source_ready; contribution=8; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
+- creator_dashboard_seen: source_ready; contribution=8; source=agent/state/creator-drop-status-metrics.generated.json; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
+- creator_drop_manager_seen: source_ready; contribution=10; source=agent/state/creator-drop-status-metrics.generated.json; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
+- fan_pass_flow_seen: source_ready; contribution=8; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
+- broadcast_flow_source_ready: source_ready; contribution=8; source=src/lib/analytics/telemetry-dependency-graph.ts; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
+- wallet_flow_source_ready: source_ready; contribution=10; source=agent/state/source-backed-runtime-confidence.generated.json; next=Use source-ready status as confidence only until real observed usage is operator-confirmed or formally evidenced.
+
+## Next Action
+
+Use real usage confidence as source/runtime confidence only; keep formal provider, deployed runtime, and manual visual gates separate.

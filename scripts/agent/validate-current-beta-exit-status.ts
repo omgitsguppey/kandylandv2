@@ -238,6 +238,7 @@ export function validateCurrentBetaExitStatusReport(
   if (
     !report.summary.liveRuntimeEvidenceStatus
     || !report.summary.liveRuntimeEvidenceStatus.includes("live_runtime_evidence_bridge=")
+    || !report.summary.liveRuntimeEvidenceStatus.includes("aggregate_activity_confirmed=")
     || !report.summary.liveRuntimeEvidenceStatus.includes("agent/evidence/live-runtime-activity/recent-activity.export.json")
   ) {
     failures.push("live runtime evidence bridge status must be represented with the daily activity import path.");

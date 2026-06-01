@@ -396,6 +396,17 @@ function matchingActivity(input: {
   return { exports, matches };
 }
 
+function isAggregateActivity(match: ReturnType<typeof matchingActivity>["matches"][number]) {
+  return match.activity.identityScope === "anonymous_aggregate"
+    || match.activity.identityConfidence === "anonymous_aggregate"
+    || match.activity.identityConfidence === "weak";
+}
+
+function confirmedActivityStatus(matches: ReturnType<typeof matchingActivity>["matches"]): LiveRuntimeEvidenceStatus {
+  if (matches.length === 0) return "runtime_export_required";
+  return matches.every(isAggregateActivity) ? "aggregate_activity_confirmed" : "live_activity_confirmed";
+}
+
 function livenessStatusesForSeed(root: string, seed: EvidenceSystemSeed) {
   const events = new Set(seed.liveActivityEvents);
   return eventLivenessClassifications(root)
@@ -417,10 +428,12 @@ function statusFromLiveRuntimeEvidence(input: {
   }
   if (input.seed.systemId === "cost_runtime_4xx_summaries") return "billing_required";
   if (input.seed.gateClass === "live_route_health_evidence" || input.seed.gateClass === "live_runtime_evidence") {
-    return matchingActivity(input).matches.length > 0 ? "live_activity_confirmed" : "runtime_export_required";
+    const { matches } = matchingActivity(input);
+    return matches.length > 0 ? confirmedActivityStatus(matches) : "runtime_export_required";
   }
 
-  if (matchingActivity(input).matches.length > 0) return "live_activity_confirmed";
+  const { matches } = matchingActivity(input);
+  if (matches.length > 0) return confirmedActivityStatus(matches);
 
   const statuses = livenessStatusesForSeed(input.root, input.seed);
   if (statuses.includes("observed_recently")) return "live_activity_confirmed";
@@ -434,7 +447,7 @@ function statusFromLiveRuntimeEvidence(input: {
 }
 
 function liveStatusFromRuntimeStatus(status: LiveRuntimeEvidenceStatus, sources: LiveEvidenceSource[], gateClass: LiveEvidenceGateClass): LiveEvidenceStatus {
-  if (status === "live_activity_confirmed") return "live_evidence_replaced";
+  if (status === "live_activity_confirmed" || status === "aggregate_activity_confirmed") return "live_evidence_replaced";
   if (status === "source_ready_waiting_for_activity" || status === "future_only_quiet") return "source_only_evidence";
   if (status === "provider_required") return "external_provider_required";
   if (status === "billing_required") return "external_billing_required";
@@ -493,8 +506,8 @@ function buildDailyActivityEvidenceSources(input: {
   return exports.map((artifact) => ({
     artifactPath: artifact.artifactPath,
     sourceKind: "event_fact" as const,
-    clearsLiveGate: input.status === "live_activity_confirmed" && matches.some((match) => match.artifact.artifactPath === artifact.artifactPath),
-    sourceStatus: input.status === "live_activity_confirmed" && matches.some((match) => match.artifact.artifactPath === artifact.artifactPath)
+    clearsLiveGate: (input.status === "live_activity_confirmed" || input.status === "aggregate_activity_confirmed") && matches.some((match) => match.artifact.artifactPath === artifact.artifactPath),
+    sourceStatus: (input.status === "live_activity_confirmed" || input.status === "aggregate_activity_confirmed") && matches.some((match) => match.artifact.artifactPath === artifact.artifactPath)
       ? "present"
       : "source_only",
     currentHead: null,
@@ -535,7 +548,8 @@ function confidenceForRuntimeStatus(input: {
   seed: EvidenceSystemSeed;
   generatedAtUtc: string;
 }): LiveEvidenceSystemDecision["confidence"] {
-  if (input.status !== "live_activity_confirmed") return confidenceForStatus(liveStatusFromRuntimeStatus(input.status, [], input.seed.gateClass));
+  if (input.status !== "live_activity_confirmed" && input.status !== "aggregate_activity_confirmed") return confidenceForStatus(liveStatusFromRuntimeStatus(input.status, [], input.seed.gateClass));
+  if (input.status === "aggregate_activity_confirmed") return "weak";
   const { matches } = matchingActivity(input);
   if (matches.some((match) => match.activity.identityConfidence === "linked")) return "linked";
   if (matches.some((match) => match.activity.identityConfidence === "inferred" || match.activity.identityConfidence === "exact")) return "inferred";
@@ -551,7 +565,7 @@ function betaExitImpact(status: LiveEvidenceStatus, gateClass: LiveEvidenceGateC
 }
 
 function betaExitImpactForRuntimeStatus(status: LiveRuntimeEvidenceStatus, liveStatus: LiveEvidenceStatus, gateClass: LiveEvidenceGateClass): LiveEvidenceSystemDecision["betaExitImpact"] {
-  if (status === "live_activity_confirmed") return "can_clear_live_gate";
+  if (status === "live_activity_confirmed" || status === "aggregate_activity_confirmed") return "can_clear_live_gate";
   if (status === "provider_required" || status === "billing_required") return "external_required";
   if (status === "manual_required") return "operator_visual_only";
   if (status === "source_ready_waiting_for_activity" || status === "future_only_quiet") return "source_confidence_only";
@@ -624,7 +638,7 @@ export function resolveLiveEvidenceForGate(input: { root: string; currentHead: s
   ];
   const status = liveStatusFromRuntimeStatus(liveRuntimeEvidenceStatus, evidenceSources, seed.gateClass) ?? statusForSources(evidenceSources, seed.gateClass);
   const dailyActivityPaths = listDailyActivityArtifactPaths(input.root);
-  const hasRecentActivity = liveRuntimeEvidenceStatus === "live_activity_confirmed";
+  const hasRecentActivity = liveRuntimeEvidenceStatus === "live_activity_confirmed" || liveRuntimeEvidenceStatus === "aggregate_activity_confirmed";
   return {
     systemId: seed.systemId,
     label: seed.label,
@@ -804,7 +818,9 @@ export function validateLiveEvidenceGateReplacementReport(report: LiveEvidenceGa
   if (report.liveEvidenceBySystem.some((system) => !system.dailyActivityImport?.expectedPath || !system.dailyActivityImport?.schema)) {
     failures.push("daily activity import path/schema missing.");
   }
-  if (report.liveEvidenceBySystem.some((system) => system.liveRuntimeEvidenceStatus === "live_activity_confirmed" && system.confidence === "exact")) {
+  if (report.liveEvidenceBySystem.some((system) =>
+    (system.liveRuntimeEvidenceStatus === "live_activity_confirmed" || system.liveRuntimeEvidenceStatus === "aggregate_activity_confirmed")
+    && system.confidence === "exact")) {
     failures.push("anonymous or aggregate live activity must not become exact user proof.");
   }
   if (report.liveEvidenceBySystem.some((system) =>

@@ -1,7 +1,7 @@
 {
   "reportKey": "activity-verification-engine",
-  "generatedAtUtc": "2026-05-26T03:40:17.120Z",
-  "currentHead": "79ad1387e6438832a915bed94e0cdbd3d4a7fddb",
+  "generatedAtUtc": "2026-06-01T00:00:55.810Z",
+  "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
   "status": "pass",
   "productionReadsRequired": false,
   "legacyMutationAllowed": false,
@@ -71,7 +71,7 @@
       "verificationStatus": "verified_by_activity",
       "confidenceScore": 86,
       "evidence": [
-        "telemetryEvents=118",
+        "telemetryEvents=119",
         "materializerLanes=2",
         "debugVisible=true",
         "consentMode=full_behavioral",
@@ -116,7 +116,7 @@
       "verificationStatus": "source_ready_no_activity",
       "confidenceScore": 58,
       "evidence": [
-        "telemetryEvents=69",
+        "telemetryEvents=82",
         "materializerLanes=4",
         "debugVisible=true",
         "consentMode=full_behavioral",
@@ -160,7 +160,7 @@
       "verificationStatus": "source_ready_no_activity",
       "confidenceScore": 58,
       "evidence": [
-        "telemetryEvents=14",
+        "telemetryEvents=27",
         "materializerLanes=1",
         "debugVisible=true",
         "consentMode=full_behavioral",
@@ -317,7 +317,7 @@
       "verificationStatus": "verified_by_activity",
       "confidenceScore": 86,
       "evidence": [
-        "telemetryEvents=240",
+        "telemetryEvents=241",
         "materializerLanes=5",
         "debugVisible=true",
         "consentMode=full_behavioral",
@@ -495,16 +495,10 @@
   },
   "validationFailures": [],
   "changedFiles": [
-    "agent/state/creator-monetization-readiness-lock.generated.json",
-    "agent/state/event-translation-bridge.generated.json",
-    "agent/state/feature-registration-gate.generated.json",
-    "agent/state/targeted-behavior-evidence.generated.json",
-    "docs/agent-truth/creator-monetization-readiness-lock.md",
-    "docs/agent-truth/event-translation-bridge.md",
-    "docs/agent-truth/feature-registration-gate.md",
-    "docs/agent-truth/targeted-behavior-evidence.md",
-    "package.json",
-    "scripts/agent/validate-targeted-behavior-evidence.ts"
+    "agent/state/evidence-capture-status.generated.json",
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/real-usage-confidence.generated.json",
+    "docs/agent-truth/evidence-capture-status.md"
   ],
   "protectedChanges": []
 }
