@@ -6,7 +6,7 @@ import { ArrowRight, Sparkles, Wallet } from "lucide-react";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
-import { DailyTasksModule } from "@/components/Dashboard/DailyTasksModule";
+import { DailyTasksModule } from "@/components/Dashboard/DailyTasks/DailyTasksModule";
 import { LiveDropsForYouCarousel } from "@/components/Dashboard/LiveDropsForYouCarousel";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
