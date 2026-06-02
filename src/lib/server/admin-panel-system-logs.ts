@@ -166,10 +166,20 @@ function buildRouteRuntimeClusterLog(input: {
     items: RouteRuntimeHealthItem[];
     nowMs: number;
 }) {
-    const failCount = input.items.filter((item) => getRouteRuntimeHealthStatus(item, input.nowMs) === "fail").length;
-    const warnCount = input.items.filter((item) => getRouteRuntimeHealthStatus(item, input.nowMs) === "warn").length;
-    const staleCount = input.items.filter((item) => getRouteRuntimeHealthStatus(item, input.nowMs) === "stale").length;
-    const unseenCount = input.items.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length;
+    const { failCount, warnCount, staleCount, unseenCount } = input.items.reduce(
+        (acc, item) => {
+            const status = getRouteRuntimeHealthStatus(item, input.nowMs);
+            if (status === "fail") acc.failCount++;
+            else if (status === "warn") acc.warnCount++;
+            else if (status === "stale") acc.staleCount++;
+
+            if (getRouteRuntimeHealthCoverageState(item) === "unseen") {
+                acc.unseenCount++;
+            }
+            return acc;
+        },
+        { failCount: 0, warnCount: 0, staleCount: 0, unseenCount: 0 }
+    );
     const status: AdminPanelSystemLogStatus = input.items.length === 0
         ? "warn"
         : failCount > 0
@@ -245,8 +255,14 @@ export function buildAdminPanelSystemLogs(input: {
     routeRuntimeHealth?: RouteRuntimeHealthItem[];
 }) {
     const nowMs = input.nowMs ?? Date.now();
-    const materializerFailures = input.opsHealth.materializers.filter((item) => item.status === "fail").length;
-    const materializerWarnings = input.opsHealth.materializers.filter((item) => item.status === "warn").length;
+    const { materializerFailures, materializerWarnings } = input.opsHealth.materializers.reduce(
+        (acc, item) => {
+            if (item.status === "fail") acc.materializerFailures++;
+            else if (item.status === "warn") acc.materializerWarnings++;
+            return acc;
+        },
+        { materializerFailures: 0, materializerWarnings: 0 }
+    );
     const runtimeWarningCount = input.opsHealth.runtime.warnings.length;
     const activeDiagnosticErrorCount = input.opsHealth.diagnostics.activeErrorCount;
     const activeDiagnosticWarnCount = input.opsHealth.diagnostics.activeWarnCount;
@@ -355,13 +371,38 @@ export function buildAdminPanelSystemLogs(input: {
     const businessTruthIssueCount = adminUserTruthSnapshot.issues.length;
 
         const routeRuntimeHealth = input.routeRuntimeHealth ?? [];
-        const routeFailCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "fail").length;
-    const routeWarnCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "warn").length;
-    const routeStaleCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "stale").length;
-    const routeUnobservedCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length;
+    const routeTotals = routeRuntimeHealth.reduce(
+        (acc, item) => {
+            const status = getRouteRuntimeHealthStatus(item, nowMs);
+            if (status === "fail") acc.routeFailCount++;
+            else if (status === "warn") acc.routeWarnCount++;
+            else if (status === "stale") acc.routeStaleCount++;
+
+            if (getRouteRuntimeHealthCoverageState(item) === "unseen") {
+                acc.routeUnobservedCount++;
+            }
+
+            const cluster = getRouteRuntimeHealthCluster(item.key);
+            if (cluster === "native_chat") {
+                acc.nativeChatRouteHealth.push(item);
+            } else if (cluster === "compatibility_chat") {
+                acc.compatibilityChatRouteHealth.push(item);
+            }
+
+            return acc;
+        },
+        {
+            routeFailCount: 0,
+            routeWarnCount: 0,
+            routeStaleCount: 0,
+            routeUnobservedCount: 0,
+            nativeChatRouteHealth: [] as RouteRuntimeHealthItem[],
+            compatibilityChatRouteHealth: [] as RouteRuntimeHealthItem[],
+        }
+    );
+
+    const { routeFailCount, routeWarnCount, routeStaleCount, routeUnobservedCount, nativeChatRouteHealth, compatibilityChatRouteHealth } = routeTotals;
     const routeObservedWarnCount = Math.max(0, routeWarnCount - routeUnobservedCount);
-    const nativeChatRouteHealth = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCluster(item.key) === "native_chat");
-    const compatibilityChatRouteHealth = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCluster(item.key) === "compatibility_chat");
     const routeHealthLog = buildLog({
         id: "ops.route_runtime_health",
         panelKey: "ops.route_runtime_health",

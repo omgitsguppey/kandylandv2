@@ -98,33 +98,67 @@ export function buildAdminUserMetricsSnapshot(input: {
   const generatedAt = input.generatedAt ?? Date.now();
   const analytics = Object.values(input.analyticsByUser);
   const watchSessionRecords = Object.values(input.watchSessionsByUser ?? {}).flat();
+  const analyticsTotals = analytics.reduce(
+    (acc, entry) => {
+      const unwrapCount = Math.round(entry.unwrapCount ?? 0);
+      const watchSecondsTotalMs = Math.round((entry.watchSecondsTotal ?? 0) * 1000);
+      const purchaseCount = Math.round(entry.purchaseCount ?? 0);
+
+      acc.unwrapCountSum += unwrapCount;
+      acc.watchSecondsTotalMsSum += watchSecondsTotalMs;
+      acc.viewedFileCountSum += Math.max(0, unwrapCount);
+      acc.purchaseCountSum += purchaseCount;
+      acc.grossRevenueUsdSum += entry.grossRevenueUsd ?? 0;
+      acc.latestLastSeenAt = Math.max(acc.latestLastSeenAt, entry.lastSeenAt ?? 0);
+
+      if (generatedAt - (entry.lastSeenAt ?? 0) < SEVEN_DAYS_MS) {
+        acc.sevenDayReturners += 1;
+      }
+      if (purchaseCount > 0) {
+        acc.payingUsers += 1;
+      }
+
+      return acc;
+    },
+    {
+      unwrapCountSum: 0,
+      watchSecondsTotalMsSum: 0,
+      viewedFileCountSum: 0,
+      purchaseCountSum: 0,
+      grossRevenueUsdSum: 0,
+      latestLastSeenAt: 0,
+      sevenDayReturners: 0,
+      payingUsers: 0,
+    }
+  );
+
   const watchRollup = buildWatchTimeRollupFromRecords({
     records: watchSessionRecords as Record<string, unknown>[],
-    views: analytics.reduce((sum, entry) => sum + Math.round(entry.unwrapCount ?? 0), 0),
+    views: analyticsTotals.unwrapCountSum,
     // analytics watchSecondsTotal is diagnostic context only; it must not populate canonical watchTimeMs without valid watch sessions.
-    viewerOpenMs: analytics.reduce((sum, entry) => sum + Math.round((entry.watchSecondsTotal ?? 0) * 1000), 0),
-    pageDurationMs: analytics.reduce((sum, entry) => sum + Math.round((entry.watchSecondsTotal ?? 0) * 1000), 0),
-    viewedFileCount: analytics.reduce((sum, entry) => sum + Math.max(0, Math.round(entry.unwrapCount ?? 0)), 0),
+    viewerOpenMs: analyticsTotals.watchSecondsTotalMsSum,
+    pageDurationMs: analyticsTotals.watchSecondsTotalMsSum,
+    viewedFileCount: analyticsTotals.viewedFileCountSum,
   });
   const commerceMetrics = input.commerceSummaryExists
     ? buildCommerceMetricsFromRollup(input.commerceSummaryRaw ?? {})
     : buildEmptyCommerceMetrics();
   const trackedPurchases = Math.max(
     Math.round(readMetric(input.commerceSummaryRaw ?? {}, "purchaseCount", "purchaseTransactionCount")),
-    analytics.reduce((sum, entry) => sum + Math.round(entry.purchaseCount ?? 0), 0),
+    analyticsTotals.purchaseCountSum,
   );
   const trackedUnwraps = Math.max(
     Math.round(readMetric(input.commerceSummaryRaw ?? {}, "unlockCount", "totalUnlocks", "unwrapCount")),
-    analytics.reduce((sum, entry) => sum + Math.round(entry.unwrapCount ?? 0), 0),
+    analyticsTotals.unwrapCountSum,
   );
   const watchTimeMs = watchRollup.watchTimeMs;
   const latestMetricAt = Math.max(
-    analytics.reduce((latest, entry) => Math.max(latest, entry.lastSeenAt ?? 0), 0),
+    analyticsTotals.latestLastSeenAt,
     watchRollup.latestWatchAt,
   );
   const totalRevenueUsd = commerceMetrics.grossRevenueUsd > 0
     ? commerceMetrics.grossRevenueUsd
-    : roundCurrency(analytics.reduce((sum, entry) => sum + (entry.grossRevenueUsd ?? 0), 0));
+    : roundCurrency(analyticsTotals.grossRevenueUsdSum);
   const source = input.source ?? (input.commerceSummaryExists ? "hot_cache" : "live_fallback");
   const hasAnyValue = input.users.length > 0 || analytics.length > 0 || totalRevenueUsd > 0 || trackedPurchases > 0 || trackedUnwraps > 0;
   const truthSummary = buildBehavioralTruthSummary({
@@ -152,21 +186,37 @@ export function buildAdminUserMetricsSnapshot(input: {
     eventFactsLabel: "analytics_users_rollup+analytics_watch_sessions",
     liveFallbackLabel: "users+analytics_users_rollup_live_fallback",
   });
+  const userTotals = input.users.reduce(
+    (acc, user) => {
+      if (user.status === "active") acc.activeUsers++;
+      if (user.isVerified === true) acc.verifiedUsers++;
+      if (user.notificationSettings?.browserPushEnabled === true) acc.pushEnabledUsers++;
+      if (user.onboardingCompleted === true) acc.onboardedUsers++;
+      return acc;
+    },
+    {
+      activeUsers: 0,
+      verifiedUsers: 0,
+      pushEnabledUsers: 0,
+      onboardedUsers: 0,
+    }
+  );
+
   const snapshot: AdminUserMetricsSnapshot = {
     totalUsers: input.users.length,
-    activeUsers: input.users.filter((user) => user.status === "active").length,
-    verifiedUsers: input.users.filter((user) => user.isVerified === true).length,
-    sevenDayReturners: analytics.filter((entry) => generatedAt - (entry.lastSeenAt ?? 0) < SEVEN_DAYS_MS).length,
-    pushEnabledUsers: input.users.filter((user) => user.notificationSettings?.browserPushEnabled === true).length,
+    activeUsers: userTotals.activeUsers,
+    verifiedUsers: userTotals.verifiedUsers,
+    sevenDayReturners: analyticsTotals.sevenDayReturners,
+    pushEnabledUsers: userTotals.pushEnabledUsers,
     trackedUnwraps,
     trackedPurchases,
     watchTimeMs,
     watchTimeSource: watchRollup.source,
     watchTimeIssues: watchRollup.issues,
     watchTimeDiagnosticEstimate: watchRollup.diagnosticEstimate,
-    onboardedUsers: input.users.filter((user) => user.onboardingCompleted === true).length,
+    onboardedUsers: userTotals.onboardedUsers,
     totalRevenueUsd,
-    payingUsers: analytics.filter((entry) => (entry.purchaseCount ?? 0) > 0).length,
+    payingUsers: analyticsTotals.payingUsers,
     generatedAt,
     source,
     freshnessState: truthSummary.freshnessState as AdminUserMetricsFreshnessState,
