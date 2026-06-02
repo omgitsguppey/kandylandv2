@@ -48,6 +48,8 @@ KandyDrops layout scoring is deterministic. It detects violations of Google-styl
 
 KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first, while diagnostics and noncritical enhancements defer unless the current interaction needs them.
 
+The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
+
 ## Surface Doctrine Gateway
 
 Use [agent/context/surface-doctrine-map.json](./agent/context/surface-doctrine-map.json) before editing UI, copy, telemetry, state, admin truth, or server truth. It routes files to User UI, Creator UI, Admin UI, Server Truth, Shared Brand Primitives, or Cross-Surface Contracts so surface-specific doctrine wins over generic layout assumptions.

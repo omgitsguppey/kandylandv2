@@ -9,6 +9,7 @@ import {
 import {
   SURFACE_TELEMETRY_REGISTRY,
   buildSurfaceTelemetryParityReport,
+  classifySurfaceTelemetryDirtyFile,
   getSurfaceTelemetryEventDefinitionByName,
   listSurfaceTelemetryCatalogEvents,
 } from "@/lib/telemetry/surface-telemetry-registry";
@@ -82,5 +83,13 @@ describe("surface telemetry parity", () => {
     expect(report.scoreDimensionBeforeAfter.before).toBeTruthy();
     expect(report.scoreDimensionBeforeAfter.after).toBeTruthy();
     expect(report.oldEventNameClassification.every((entry) => entry.status !== "unsafe_unknown")).toBe(true);
+  });
+
+  it("classifies homepage hero telemetry files as reviewed source and test changes", () => {
+    expect(classifySurfaceTelemetryDirtyFile("src/components/Hero.tsx")).toBe("real_source_change_needs_review");
+    expect(classifySurfaceTelemetryDirtyFile("src/components/Landing/HomeHeroActions.tsx")).toBe("real_source_change_needs_review");
+    expect(classifySurfaceTelemetryDirtyFile("src/components/Landing/HomeHeroTelemetry.tsx")).toBe("real_source_change_needs_review");
+    expect(classifySurfaceTelemetryDirtyFile("tests/unit/home-hero.spec.tsx")).toBe("test_artifact_expected");
+    expect(classifySurfaceTelemetryDirtyFile("README.md")).toBe("documentation_artifact_expected");
   });
 });

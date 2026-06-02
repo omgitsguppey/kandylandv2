@@ -1,13 +1,130 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.31",
-  "betaReleaseCounter": 531,
+  "currentVersion": "1.5.33",
+  "betaReleaseCounter": 533,
   "channel": "beta",
-  "generatedAt": "2026-06-01T18:22:12.223Z",
-  "generatedAtUtc": "2026-06-01T18:22:12.223Z",
-  "lastCommitSha": "f63b2f63fc40856fe347c0dbc5ac94344371d0ac",
+  "generatedAt": "2026-06-02T17:11:04.560Z",
+  "generatedAtUtc": "2026-06-02T17:11:04.560Z",
+  "lastCommitSha": "8bdb4814029d9372f143f1ca606441a359ecc839",
   "notes": [
+    {
+      "version": "1.5.33",
+      "previousVersion": "1.5.32",
+      "betaReleaseCounter": 533,
+      "previousBetaReleaseCounter": 532,
+      "commitSha": "8bdb4814029d9372f143f1ca606441a359ecc839",
+      "commitTitle": "refactor(home): polish hero tracking and hydration",
+      "commitCount": 1,
+      "commitShas": [
+        "8bdb4814029d9372f143f1ca606441a359ecc839"
+      ],
+      "committedAt": "2026-06-02T17:10:32.000Z",
+      "generatedAt": "2026-06-02T17:11:04.556Z",
+      "committedAtUtc": "2026-06-02T17:10:32.000Z",
+      "generatedAtUtc": "2026-06-02T17:11:04.556Z",
+      "updatedAtUtc": "2026-06-02T17:11:04.556Z",
+      "category": "Improved",
+      "title": "Sharper home hero experience",
+      "summary": "Polished the KandyDrops home hero with stronger CTA depth, stable live status, and one-time canonical tracking.",
+      "userFacingTitle": "Sharper home hero experience",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refined the home hero glow, headline treatment, CTA depth, and live status chip.",
+        "Kept the hero shell stable while live Drop status and tracking hydrate.",
+        "Improved homepage hero telemetry so view and CTA events fire once through canonical tracking."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "homepage",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "README.md",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/surface-telemetry-parity.generated.json",
+        "docs/agent-truth/surface-telemetry-parity.md",
+        "public/kandydrops-release-notes.json",
+        "src/components/Hero.tsx",
+        "src/components/Landing/HomeHeroActions.tsx",
+        "src/components/Landing/HomeHeroTelemetry.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/telemetry/surface-telemetry-registry.ts",
+        "tests/unit/home-hero.spec.tsx",
+        "tests/unit/surface-telemetry-parity.spec.ts"
+      ],
+      "sourceCommit": "8bdb4814029d9372f143f1ca606441a359ecc839"
+    },
+    {
+      "version": "1.5.32",
+      "previousVersion": "1.5.31",
+      "betaReleaseCounter": 532,
+      "previousBetaReleaseCounter": 531,
+      "commitSha": "909832bd7b6b912762a0dd3dd1f59033fe5cf986",
+      "commitTitle": "chore(beta): refresh security closure truth",
+      "commitCount": 2,
+      "commitShas": [
+        "d2f8ab1063d6f2b11387b38ca07603a59b77a12e",
+        "909832bd7b6b912762a0dd3dd1f59033fe5cf986"
+      ],
+      "committedAt": "2026-06-01T18:51:57.000Z",
+      "generatedAt": "2026-06-02T16:33:47.124Z",
+      "committedAtUtc": "2026-06-01T18:51:57.000Z",
+      "generatedAtUtc": "2026-06-02T16:33:47.124Z",
+      "updatedAtUtc": "2026-06-02T16:33:47.124Z",
+      "category": "Security",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "creator",
+        "drops-viewer",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/final-open-pr-closure.generated.json",
+        "agent/state/open-pr-dependency-hygiene.generated.json",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/security-prng-redirect-closure.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/final-open-pr-closure.md",
+        "docs/agent-truth/open-pr-dependency-hygiene.md",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "docs/agent-truth/security-prng-redirect-closure.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/creator/settings/route.ts",
+        "src/lib/admin-drop-form.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/release-readiness/final-beta-exit-closure.ts",
+        "src/lib/server/drop-mutations.ts",
+        "tests/unit/admin-cms-workflow.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/creator-settings-source-health.spec.ts",
+        "tests/unit/final-open-pr-closure.spec.ts"
+      ],
+      "sourceCommit": "909832bd7b6b912762a0dd3dd1f59033fe5cf986"
+    },
     {
       "version": "1.5.31",
       "previousVersion": "1.5.30",

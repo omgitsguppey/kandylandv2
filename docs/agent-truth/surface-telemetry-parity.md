@@ -1,6 +1,6 @@
 # Surface Telemetry Parity
 
-Generated: 2026-05-25T21:12:39.313Z
+Generated: 2026-06-02T16:52:53.765Z
 
 Status: pass
 
@@ -72,9 +72,20 @@ Legacy names remain aliases only. New parity work should emit canonical surface 
 | creator_drop_submit_failed | creator_drop_manager_surface_action_failed | legacy_alias |
 | creator_profile_viewed | creator_profile_timeline_surface_viewed | legacy_alias |
 | creator_timeline_viewed | creator_profile_timeline_surface_viewed | legacy_alias |
+| creator_discovery_surface_viewed | creator_profile_timeline_surface_viewed | legacy_alias |
+| creator_profile_opened | creator_profile_timeline_surface_viewed | legacy_alias |
+| creator_relationship_list_loaded | creator_profile_timeline_surface_loaded | legacy_alias |
+| creator_recommendation_viewed | creator_profile_timeline_surface_empty_viewed | legacy_alias |
 | creator_follow_attempted | creator_profile_timeline_surface_action_attempted | legacy_alias |
+| creator_unfollow_attempted | creator_profile_timeline_surface_action_attempted | legacy_alias |
+| creator_card_clicked | creator_profile_timeline_surface_action_attempted | legacy_alias |
+| creator_recommendation_clicked | creator_profile_timeline_surface_action_attempted | legacy_alias |
 | creator_followed | creator_profile_timeline_surface_action_succeeded | legacy_alias |
+| creator_follow_succeeded | creator_profile_timeline_surface_action_succeeded | legacy_alias |
+| creator_unfollowed | creator_profile_timeline_surface_action_succeeded | legacy_alias |
+| creator_unfollow_succeeded | creator_profile_timeline_surface_action_succeeded | legacy_alias |
 | creator_follow_failed | creator_profile_timeline_surface_action_failed | legacy_alias |
+| creator_relationship_list_failed | creator_profile_timeline_surface_action_failed | legacy_alias |
 | chat_surface_viewed | chat_surface_viewed | legacy_alias |
 | chat_thread_list_loaded | chat_surface_loaded | legacy_alias |
 | chat_message_sent | chat_surface_action_succeeded | legacy_alias |
@@ -92,17 +103,6 @@ Legacy names remain aliases only. New parity work should emit canonical surface 
 | notification_permission_denied | notifications_pwa_prompt_surface_permission_denied | legacy_alias |
 | user_settings_viewed | account_settings_surface_viewed | legacy_alias |
 | settings_surface_viewed | account_settings_surface_viewed | legacy_alias |
-| setting_save_succeeded | account_settings_surface_action_succeeded | legacy_alias |
-| setting_save_failed | account_settings_surface_action_failed | legacy_alias |
-| admin_dashboard_viewed | admin_dashboard_surface_viewed | legacy_alias |
-| admin_overview_viewed | admin_dashboard_surface_viewed | legacy_alias |
-| admin_overview_loaded | admin_dashboard_surface_loaded | legacy_alias |
-| admin_overview_degraded | admin_dashboard_surface_degraded_viewed | legacy_alias |
-| admin_debug_viewed | admin_debug_surface_viewed | legacy_alias |
-| admin_debug_loaded | admin_debug_surface_loaded | legacy_alias |
-| admin_debug_error_viewed | admin_debug_surface_error_viewed | legacy_alias |
-| admin_user_management_viewed | user_management_surface_viewed | legacy_alias |
-| admin_user_action_started | user_management_surface_action_attempted | legacy_alias |
 
 ## Debug Lane
 

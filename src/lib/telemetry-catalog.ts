@@ -246,6 +246,8 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "avatar_uploaded", label: "Avatar uploaded", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["onboarding"] },
   { eventName: "page_viewed", label: "Page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], auditCoveredBy: ["semantic_page_viewed"] },
   { eventName: "home_page_viewed", label: "Home page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "homepage_hero_viewed", label: "Homepage hero viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "homepage_live_chip_viewed", label: "Homepage live chip viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation", "content"] },
   { eventName: "hero_cta_clicked", label: "Hero CTA clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "creator_apply_viewed", label: "Creator apply page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
   { eventName: "creator_waitlist_viewed", label: "Creator waitlist page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },

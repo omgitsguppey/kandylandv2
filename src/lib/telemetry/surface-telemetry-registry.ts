@@ -145,6 +145,13 @@ export function classifySurfaceTelemetryDirtyFile(path: string): SurfaceTelemetr
   if (normalized === "docs/agent-truth/surface-parity-doctrine.md") return "stale_generated_artifact_to_regenerate";
   if (normalized === "scripts/agent/validate-surface-telemetry-parity.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/surface-telemetry-parity.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/home-hero.spec.tsx") return "test_artifact_expected";
+  if (normalized === "README.md") return "documentation_artifact_expected";
+  if (
+    normalized === "src/components/Hero.tsx"
+    || normalized === "src/components/Landing/HomeHeroActions.tsx"
+    || normalized === "src/components/Landing/HomeHeroTelemetry.tsx"
+  ) return "real_source_change_needs_review";
   if (/^src\/lib\/telemetry\/surface-telemetry-(catalog-events|contract|registry)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts" || normalized === "src/lib/analytics/event-envelope-builder.ts" || normalized === "src/lib/analytics/event-translation-bridge.ts" || normalized === "src/lib/analytics/person-metrics-hydration.ts") {
     return "real_source_change_needs_review";

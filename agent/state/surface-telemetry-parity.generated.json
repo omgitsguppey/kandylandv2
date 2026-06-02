@@ -1,7 +1,7 @@
 {
   "reportKey": "surface-telemetry-parity",
-  "generatedAtUtc": "2026-05-25T21:12:39.313Z",
-  "currentHead": "df944f3c195a9de60bc04dd85c694a073ad74e75",
+  "generatedAtUtc": "2026-06-02T16:52:53.765Z",
+  "currentHead": "909832bd7b6b912762a0dd3dd1f59033fe5cf986",
   "status": "pass",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
@@ -388,11 +388,60 @@
       "reason": "creator_timeline_viewed remains accepted as a legacy alias for creator_profile_timeline_surface_viewed; new parity work should use the canonical surface spine name."
     },
     {
+      "eventName": "creator_discovery_surface_viewed",
+      "canonicalEventName": "creator_profile_timeline_surface_viewed",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_discovery_surface_viewed remains accepted as a legacy alias for creator_profile_timeline_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_profile_opened",
+      "canonicalEventName": "creator_profile_timeline_surface_viewed",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_profile_opened remains accepted as a legacy alias for creator_profile_timeline_surface_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_relationship_list_loaded",
+      "canonicalEventName": "creator_profile_timeline_surface_loaded",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_relationship_list_loaded remains accepted as a legacy alias for creator_profile_timeline_surface_loaded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_recommendation_viewed",
+      "canonicalEventName": "creator_profile_timeline_surface_empty_viewed",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_recommendation_viewed remains accepted as a legacy alias for creator_profile_timeline_surface_empty_viewed; new parity work should use the canonical surface spine name."
+    },
+    {
       "eventName": "creator_follow_attempted",
       "canonicalEventName": "creator_profile_timeline_surface_action_attempted",
       "surfaceId": "creator_profile_timeline",
       "status": "legacy_alias",
       "reason": "creator_follow_attempted remains accepted as a legacy alias for creator_profile_timeline_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_unfollow_attempted",
+      "canonicalEventName": "creator_profile_timeline_surface_action_attempted",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_unfollow_attempted remains accepted as a legacy alias for creator_profile_timeline_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_card_clicked",
+      "canonicalEventName": "creator_profile_timeline_surface_action_attempted",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_card_clicked remains accepted as a legacy alias for creator_profile_timeline_surface_action_attempted; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_recommendation_clicked",
+      "canonicalEventName": "creator_profile_timeline_surface_action_attempted",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_recommendation_clicked remains accepted as a legacy alias for creator_profile_timeline_surface_action_attempted; new parity work should use the canonical surface spine name."
     },
     {
       "eventName": "creator_followed",
@@ -402,11 +451,39 @@
       "reason": "creator_followed remains accepted as a legacy alias for creator_profile_timeline_surface_action_succeeded; new parity work should use the canonical surface spine name."
     },
     {
+      "eventName": "creator_follow_succeeded",
+      "canonicalEventName": "creator_profile_timeline_surface_action_succeeded",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_follow_succeeded remains accepted as a legacy alias for creator_profile_timeline_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_unfollowed",
+      "canonicalEventName": "creator_profile_timeline_surface_action_succeeded",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_unfollowed remains accepted as a legacy alias for creator_profile_timeline_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_unfollow_succeeded",
+      "canonicalEventName": "creator_profile_timeline_surface_action_succeeded",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_unfollow_succeeded remains accepted as a legacy alias for creator_profile_timeline_surface_action_succeeded; new parity work should use the canonical surface spine name."
+    },
+    {
       "eventName": "creator_follow_failed",
       "canonicalEventName": "creator_profile_timeline_surface_action_failed",
       "surfaceId": "creator_profile_timeline",
       "status": "legacy_alias",
       "reason": "creator_follow_failed remains accepted as a legacy alias for creator_profile_timeline_surface_action_failed; new parity work should use the canonical surface spine name."
+    },
+    {
+      "eventName": "creator_relationship_list_failed",
+      "canonicalEventName": "creator_profile_timeline_surface_action_failed",
+      "surfaceId": "creator_profile_timeline",
+      "status": "legacy_alias",
+      "reason": "creator_relationship_list_failed remains accepted as a legacy alias for creator_profile_timeline_surface_action_failed; new parity work should use the canonical surface spine name."
     },
     {
       "eventName": "chat_surface_viewed",
@@ -653,63 +730,31 @@
       "classification": "release_artifact_expected"
     },
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "README.md",
+      "classification": "documentation_artifact_expected"
     },
     {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/surface-parity-doctrine.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
+      "path": "agent/state/surface-telemetry-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "docs/agent-truth/event-translation-bridge.md",
+      "path": "docs/agent-truth/surface-telemetry-parity.md",
       "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/feature-registration-gate.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/surface-parity-doctrine.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review"
     },
     {
       "path": "public/kandydrops-release-notes.json",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/analytics/event-envelope-builder.ts",
+      "path": "src/components/Hero.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
+      "path": "src/components/Landing/HomeHeroActions.tsx",
       "classification": "real_source_change_needs_review"
     },
     {
@@ -725,31 +770,19 @@
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "agent/state/surface-telemetry-parity.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/surface-telemetry-parity.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-surface-telemetry-parity.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/telemetry/surface-telemetry-catalog-events.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/telemetry/surface-telemetry-contract.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
       "path": "src/lib/telemetry/surface-telemetry-registry.ts",
       "classification": "real_source_change_needs_review"
     },
     {
       "path": "tests/unit/surface-telemetry-parity.spec.ts",
+      "classification": "test_artifact_expected"
+    },
+    {
+      "path": "src/components/Landing/HomeHeroTelemetry.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/home-hero.spec.tsx",
       "classification": "test_artifact_expected"
     }
   ],
