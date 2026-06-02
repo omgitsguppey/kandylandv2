@@ -604,6 +604,7 @@ export function optimizeDoctrineContext(input: DoctrineRetrievalInput): Optimize
   };
   const maxTokenBudget = input.maxTokenBudget ?? DEFAULT_MAX_DOCTRINE_TOKENS;
   const allCards = loadDoctrineCards();
+  const allCardsMap = new Map<string, DoctrineCard>(allCards.map((c) => [c.id, c]));
   const surfaceMap = readJson<SurfaceDoctrineMap>(SURFACE_MAP_PATH) ?? { pathRules: [] };
   const highRisk = isHighRiskInput(normalizedInput.changedFiles, normalizedInput.taskSummary, normalizedInput.riskHints);
   const maxCards = input.maxCards ?? (highRisk ? HIGH_RISK_MAX_DOCTRINE_CARDS : DEFAULT_MAX_DOCTRINE_CARDS);
@@ -644,7 +645,7 @@ export function optimizeDoctrineContext(input: DoctrineRetrievalInput): Optimize
 
   function currentSelected() {
     return Array.from(selectedIds.keys())
-      .map((id) => allCards.find((card) => card.id === id))
+      .map((id) => allCardsMap.get(id))
       .filter((card): card is DoctrineCard => Boolean(card));
   }
 
@@ -675,7 +676,7 @@ export function optimizeDoctrineContext(input: DoctrineRetrievalInput): Optimize
   let conflictScore = scoreDoctrineConflicts(selectedCards, normalizedInput.changedFiles, surfaceMap.pathRules as SurfacePathRule[]);
   if (conflictScore.penalty > 0) {
     for (const resolver of ["doctrine-card-product-constitution", "doctrine-card-source-of-truth-constitution", "doctrine-card-engineering-constitution", "doctrine-card-surface-routing-map"]) {
-      const card = allCards.find((candidate) => candidate.id === resolver);
+      const card = allCardsMap.get(resolver);
       if (card && !selectedIds.has(card.id)) selectedIds.set(card.id, "Added as authority resolver for conflict safety.");
     }
     selectedCards = currentSelected();
