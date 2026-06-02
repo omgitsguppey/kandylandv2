@@ -13887,3 +13887,6 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+### GumDrop Economics Visible Truth Audit
+- **Visible value claim mismatch**: `getBundlePresentation` in `src/lib/gumdrop-economics.ts` previously relied on hardcoded bonus mappings for package representations instead of deriving them dynamically from `deriveGumdropEconomics`. Fixed to prevent mismatched claims and source-of-funds ambiguity.

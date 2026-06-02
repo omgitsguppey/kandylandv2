@@ -1,3 +1,4 @@
+import { resolveExpectedGumdropPrice } from "./gumdrops-packages";
 export const GUMDROPS_PER_USD = 100;
 export const PAYPAL_DOMESTIC_PERCENT_FEE = 0.0349;
 export const PAYPAL_FIXED_FEE_USD = 0.49;
@@ -41,59 +42,49 @@ type GumdropEconomicsOptions = {
   isInternationalSale?: boolean;
 };
 
-export function getBundlePresentation(deliveredGumDrops: number) {
-  let baseAmount = 0;
-  let bonus = 0;
+export function getBundlePresentation(deliveredGumDrops: number, explicitPriceUsd?: number) {
   let bundleLabel = "King Size Bundle";
   let bundleKey = `bundle_${deliveredGumDrops}`;
   let bundleTier: "entry" | "bonus" | "bundle" | "custom" = "custom";
 
   switch (deliveredGumDrops) {
     case 100:
-      baseAmount = 100;
-      bonus = 0;
       bundleLabel = "Sugar Rush Pack";
       bundleKey = "sugar_rush_pack";
       bundleTier = "entry";
       break;
     case 550:
-      baseAmount = 500;
-      bonus = 50;
       bundleLabel = "Sweet Pack";
       bundleKey = "sweet_pack";
       bundleTier = "bonus";
       break;
     case 1100:
-      baseAmount = 1000;
-      bonus = 100;
       bundleLabel = "Kandy Bag Pack";
       bundleKey = "kandy_bag_pack";
       bundleTier = "bonus";
       break;
     case 2500:
-      baseAmount = 2000;
-      bonus = 500;
       bundleLabel = "Kandy Land Pack";
       bundleKey = "kandy_land_pack";
       bundleTier = "bonus";
       break;
     default:
       if (deliveredGumDrops >= 5000 && deliveredGumDrops % 1000 === 0) {
-        baseAmount = deliveredGumDrops / 2;
-        bonus = deliveredGumDrops / 2;
         bundleTier = "bundle";
       } else {
-        baseAmount = deliveredGumDrops;
-        bonus = 0;
         bundleTier = "custom";
       }
       break;
   }
 
+  const expectedPriceStr = resolveExpectedGumdropPrice(deliveredGumDrops);
+  const priceUsd = explicitPriceUsd ?? (expectedPriceStr ? Number(expectedPriceStr) : deliveredGumDrops / GUMDROPS_PER_USD);
+  const eco = deriveGumdropEconomics(deliveredGumDrops, priceUsd);
+
   return {
-    baseAmount,
-    bonus,
-    hasBonus: bonus > 0,
+    baseAmount: eco.paidGumDrops,
+    bonus: eco.bonusGumDrops,
+    hasBonus: eco.bonusGumDrops > 0,
     bundleLabel,
     bundleKey,
     bundleTier,
