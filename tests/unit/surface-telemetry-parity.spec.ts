@@ -89,7 +89,13 @@ describe("surface telemetry parity", () => {
     expect(classifySurfaceTelemetryDirtyFile("src/components/Hero.tsx")).toBe("real_source_change_needs_review");
     expect(classifySurfaceTelemetryDirtyFile("src/components/Landing/HomeHeroActions.tsx")).toBe("real_source_change_needs_review");
     expect(classifySurfaceTelemetryDirtyFile("src/components/Landing/HomeHeroTelemetry.tsx")).toBe("real_source_change_needs_review");
+    expect(classifySurfaceTelemetryDirtyFile("src/components/CreatorDiscoveryRail.tsx")).toBe("real_source_change_needs_review");
+    expect(classifySurfaceTelemetryDirtyFile("src/lib/parity/surface-state-resolver.ts")).toBe("real_source_change_needs_review");
     expect(classifySurfaceTelemetryDirtyFile("tests/unit/home-hero.spec.tsx")).toBe("test_artifact_expected");
+    expect(classifySurfaceTelemetryDirtyFile("tests/unit/creator-discovery-rail.spec.tsx")).toBe("test_artifact_expected");
+    expect(classifySurfaceTelemetryDirtyFile("tests/unit/surface-state-parity.spec.ts")).toBe("test_artifact_expected");
+    expect(classifySurfaceTelemetryDirtyFile("agent/state/frontend-telemetry-consolidation.generated.json")).toBe("current_generated_artifact_to_commit");
+    expect(classifySurfaceTelemetryDirtyFile("docs/agent-truth/frontend-telemetry-consolidation.md")).toBe("documentation_artifact_expected");
     expect(classifySurfaceTelemetryDirtyFile("README.md")).toBe("documentation_artifact_expected");
   });
 });

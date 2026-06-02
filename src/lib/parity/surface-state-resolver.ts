@@ -286,10 +286,16 @@ export function classifySurfaceStateDirtyFile(path: string): SurfaceStateDirtyCl
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "agent/state/surface-state-parity.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/frontend-telemetry-consolidation.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/surface-state-parity.md") return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/frontend-telemetry-consolidation.md") return "documentation_artifact_expected";
   if (normalized === "scripts/agent/validate-surface-state-parity.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/surface-state-parity.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/surface-telemetry-parity.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/creator-discovery-rail.spec.tsx") return "test_artifact_expected";
   if (/^src\/lib\/parity\/surface-state-(contract|resolver)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/lib/telemetry/surface-telemetry-registry.ts") return "real_source_change_needs_review";
+  if (normalized === "src/components/CreatorDiscoveryRail.tsx") return "real_source_change_needs_review";
   if (normalized === "src/lib/problem-state-copy.ts" || normalized === "src/lib/errors/error-dictionary.ts") return "real_source_change_needs_review";
   if (
     normalized === "agent/state/surface-telemetry-parity.generated.json"

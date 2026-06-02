@@ -10,6 +10,7 @@ import {
   buildSurfaceStateCopy,
   buildSurfaceStateTelemetry,
   classifyRawSurfaceStateCopy,
+  classifySurfaceStateDirtyFile,
   classifySurfaceStateSeverity,
   getSurfaceStateCta,
   resolveSurfaceState,
@@ -82,6 +83,15 @@ describe("surface state parity", () => {
     expect(classifyRawSurfaceStateCopy("Something went wrong")).toBe("generic_error_copy");
     expect(classifyRawSurfaceStateCopy("Loading...")).toBe("generic_loading_copy");
     expect(classifyRawSurfaceStateCopy("Sign in first")).toBe("approved_surface_state_copy");
+  });
+
+  it("classifies Creator Spotlight state and parity artifacts for focused homepage work", () => {
+    expect(classifySurfaceStateDirtyFile("src/components/CreatorDiscoveryRail.tsx")).toBe("real_source_change_needs_review");
+    expect(classifySurfaceStateDirtyFile("src/lib/telemetry/surface-telemetry-registry.ts")).toBe("real_source_change_needs_review");
+    expect(classifySurfaceStateDirtyFile("tests/unit/creator-discovery-rail.spec.tsx")).toBe("test_artifact_expected");
+    expect(classifySurfaceStateDirtyFile("tests/unit/surface-telemetry-parity.spec.ts")).toBe("test_artifact_expected");
+    expect(classifySurfaceStateDirtyFile("agent/state/frontend-telemetry-consolidation.generated.json")).toBe("current_generated_artifact_to_commit");
+    expect(classifySurfaceStateDirtyFile("docs/agent-truth/frontend-telemetry-consolidation.md")).toBe("documentation_artifact_expected");
   });
 
   it("validates without missing telemetry, debug, role, CTA, or score evidence", () => {

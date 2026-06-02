@@ -129,6 +129,7 @@ export function classifySurfaceTelemetryDirtyFile(path: string): SurfaceTelemetr
   const normalized = path.replace(/\\/gu, "/");
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (normalized === "agent/state/surface-telemetry-parity.generated.json") return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/frontend-telemetry-consolidation.generated.json") return "current_generated_artifact_to_commit";
   if (
     normalized === "agent/state/event-translation-bridge.generated.json"
     || normalized === "agent/state/person-metrics-hydration.generated.json"
@@ -140,19 +141,24 @@ export function classifySurfaceTelemetryDirtyFile(path: string): SurfaceTelemetr
     || normalized === "docs/agent-truth/person-metrics-hydration.md"
     || normalized === "docs/agent-truth/feature-registration-gate.md"
   ) return "documentation_artifact_expected";
+  if (normalized === "docs/agent-truth/frontend-telemetry-consolidation.md") return "documentation_artifact_expected";
   if (normalized === "agent/state/surface-parity-doctrine.generated.json") return "stale_generated_artifact_to_regenerate";
   if (normalized === "docs/agent-truth/surface-telemetry-parity.md") return "documentation_artifact_expected";
   if (normalized === "docs/agent-truth/surface-parity-doctrine.md") return "stale_generated_artifact_to_regenerate";
   if (normalized === "scripts/agent/validate-surface-telemetry-parity.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/surface-telemetry-parity.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/surface-state-parity.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/home-hero.spec.tsx") return "test_artifact_expected";
+  if (normalized === "tests/unit/creator-discovery-rail.spec.tsx") return "test_artifact_expected";
   if (normalized === "README.md") return "documentation_artifact_expected";
   if (
     normalized === "src/components/Hero.tsx"
     || normalized === "src/components/Landing/HomeHeroActions.tsx"
     || normalized === "src/components/Landing/HomeHeroTelemetry.tsx"
+    || normalized === "src/components/CreatorDiscoveryRail.tsx"
   ) return "real_source_change_needs_review";
   if (/^src\/lib\/telemetry\/surface-telemetry-(catalog-events|contract|registry)\.ts$/u.test(normalized)) return "real_source_change_needs_review";
+  if (normalized === "src/lib/parity/surface-state-resolver.ts") return "real_source_change_needs_review";
   if (normalized === "src/lib/telemetry-catalog.ts" || normalized === "src/lib/analytics/event-envelope-builder.ts" || normalized === "src/lib/analytics/event-translation-bridge.ts" || normalized === "src/lib/analytics/person-metrics-hydration.ts") {
     return "real_source_change_needs_review";
   }
