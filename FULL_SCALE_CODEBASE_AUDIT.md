@@ -13887,3 +13887,11 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2024-05-18 #UX-A11Y] PRE/POST: Add missing ARIA labels to responsive Admin Panel buttons
+Scope started:
+- Adding `aria-label` attributes to the "Edit" and "Queue/Unqueue" buttons in `src/components/Admin/AdminDropsAtGlancePanel.tsx` to ensure accessibility, as their textual content is hidden on smaller viewports via the `hidden md:inline` Tailwind utility.
+
+Scope completed:
+- Added `aria-label="Edit"` to the "Edit" button and `aria-label={row.isQueued ? "Unqueue" : "Queue"}` to the "Queue/Unqueue" button in `src/components/Admin/AdminDropsAtGlancePanel.tsx`.
+- Validated modifications using `git diff`, `pnpm run typecheck` (with raised memory limit) and `npx vitest run`.
