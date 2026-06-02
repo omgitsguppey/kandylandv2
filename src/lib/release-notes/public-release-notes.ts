@@ -6,22 +6,22 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
   "channel": "beta",
   "generatedAt": "2026-06-02T17:11:04.560Z",
   "generatedAtUtc": "2026-06-02T17:11:04.560Z",
-  "lastCommitSha": "8bdb4814029d9372f143f1ca606441a359ecc839",
+  "lastCommitSha": "fa8ebb98f302fc0584a2e9fd00d25b033fce500c",
   "notes": [
     {
       "version": "1.5.33",
       "previousVersion": "1.5.32",
       "betaReleaseCounter": 533,
       "previousBetaReleaseCounter": 532,
-      "commitSha": "8bdb4814029d9372f143f1ca606441a359ecc839",
+      "commitSha": "fa8ebb98f302fc0584a2e9fd00d25b033fce500c",
       "commitTitle": "refactor(home): polish hero tracking and hydration",
       "commitCount": 1,
       "commitShas": [
-        "8bdb4814029d9372f143f1ca606441a359ecc839"
+        "fa8ebb98f302fc0584a2e9fd00d25b033fce500c"
       ],
-      "committedAt": "2026-06-02T17:10:32.000Z",
+      "committedAt": "2026-06-02T17:21:55.000Z",
       "generatedAt": "2026-06-02T17:11:04.556Z",
-      "committedAtUtc": "2026-06-02T17:10:32.000Z",
+      "committedAtUtc": "2026-06-02T17:21:55.000Z",
       "generatedAtUtc": "2026-06-02T17:11:04.556Z",
       "updatedAtUtc": "2026-06-02T17:11:04.556Z",
       "category": "Improved",
@@ -57,7 +57,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/home-hero.spec.tsx",
         "tests/unit/surface-telemetry-parity.spec.ts"
       ],
-      "sourceCommit": "8bdb4814029d9372f143f1ca606441a359ecc839"
+      "sourceCommit": "fa8ebb98f302fc0584a2e9fd00d25b033fce500c"
     },
     {
       "version": "1.5.32",
