@@ -9,6 +9,7 @@ import { DebugControlTower } from "./DebugControlTower";
 import { DebugNowDiagnostics } from "./DebugNowDiagnostics";
 import { DebugRecoveryEvidenceSummary } from "./DebugRuntimeEvidenceGroups";
 import { DebugTelemetryHealthSummary } from "./DebugTelemetryHealthSummary";
+import { DebugTrackingSummaryPanel } from "./DebugTrackingSummaryPanel";
 
 /* ─── Helpers ─── */
 function formatRelative(timestamp?: number) {
@@ -51,6 +52,7 @@ export interface DebugTabNowProps {
     sampledDiagnosticCount: number;
     panelLogWarnCount: number;
     panelLogFailCount: number;
+    trackingSummary: any;
 }
 
 /* ─── Component ─── */
@@ -66,6 +68,7 @@ export function DebugTabNow({
     sampledDiagnosticCount,
     panelLogWarnCount,
     panelLogFailCount,
+    trackingSummary,
 }: DebugTabNowProps) {
     const writerWarnCount = data?.opsHealth?.materializerSummary?.warn ?? 0;
     const writerFailCount = data?.opsHealth?.materializerSummary?.fail ?? 0;
@@ -123,6 +126,7 @@ export function DebugTabNow({
             className="space-y-3"
             data-admin-debug-now-density="single_drilldown_drawer"
             data-admin-debug-now-detail-default="collapsed"
+            data-admin-debug-source-heavy-default="collapsed"
         >
             <DebugControlTower businessSnapshot={adminUserTruthSnapshot} />
 
@@ -247,6 +251,8 @@ export function DebugTabNow({
                     </div>
 
                     <DebugTelemetryHealthSummary telemetryHealth={data?.telemetryHealth} />
+
+                    <DebugTrackingSummaryPanel trackingSummary={trackingSummary} />
 
                     <DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />
 
