@@ -3,7 +3,13 @@ import {
   Activity, AlertTriangle, CheckCircle2, Clock3, Eye, Monitor, Route, Share2, Sparkles, Users,
 } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import {
+  AnalyticsTooltip,
+  AnalyticsViewModeToggle,
+  MetricCard,
+  SectionCard,
+  type AnalyticsViewMode,
+} from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import {
@@ -66,6 +72,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
         : "Live updates";
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
+  const [eventMixViewMode, setEventMixViewMode] = React.useState<AnalyticsViewMode>("cards");
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
   const mobileVisibleLiveSurfaces = livePulseModel.surfaces.slice(0, livePulseModel.mobileSurfaceRowsLimit);
   const hiddenLiveSurfaceCount = Math.max(0, livePulseModel.surfaces.length - mobileVisibleLiveSurfaces.length);
@@ -1104,7 +1111,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               title="Event Mix"
               subtitle="Top event activity with catalog inference and verified surface-context truth."
               icon={Sparkles}
-              rightSlot={renderSectionRangeControl("eventMix")}
+              rightSlot={(
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <AnalyticsViewModeToggle
+                    value={eventMixViewMode}
+                    onChange={setEventMixViewMode}
+                    options={[
+                      { id: "cards", label: "Cards" },
+                      { id: "chart", label: "Chart" },
+                      { id: "table", label: "Table" },
+                    ]}
+                  />
+                  {renderSectionRangeControl("eventMix")}
+                </div>
+              )}
             >
               <div className="grid gap-2.5">
                 <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
@@ -1146,7 +1166,12 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       </span>
                     </div>
 
-                    <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
+                    <div
+                      className="rounded-[1rem] border border-white/10 bg-black/30 p-3"
+                      data-admin-analytics-mobile-view-mode={eventMixViewMode}
+                      data-event-mix-source-mode={eventMixModel.eventMixSourceMode}
+                      data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}
+                    >
                       <div className="mb-2 flex items-center justify-between gap-3">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                           Ranked event activity
@@ -1155,8 +1180,83 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         event count / total counted events
                       </span>
                     </div>
-                    <div className="space-y-1.5">
-                      {eventMixModel.eventRows.length > 0 ? (
+
+                    {eventMixModel.eventRows.length > 0 && eventMixViewMode === "chart" ? (
+                      <div className="h-52 rounded-[0.9rem] border border-white/10 bg-black/25 p-2">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart
+                            data={eventMixModel.eventRows}
+                            margin={{ top: 4, right: 0, left: -22, bottom: 0 }}
+                          >
+                            <defs>
+                              <linearGradient id="eventMixCountFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#c084fc" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#c084fc" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                            <XAxis
+                              dataKey="displayLabel"
+                              stroke="#6b7280"
+                              fontSize={10}
+                              tickLine={false}
+                              axisLine={false}
+                              interval={0}
+                              angle={-18}
+                              textAnchor="end"
+                              height={52}
+                            />
+                            <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                            <Tooltip content={<AnalyticsTooltip />} />
+                            <Area type="monotone" dataKey="rawCount" name="Events" stroke="#c084fc" strokeWidth={2} fill="url(#eventMixCountFill)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : null}
+
+                    {eventMixModel.eventRows.length > 0 && eventMixViewMode === "table" ? (
+                      <div
+                        className="overflow-x-auto rounded-[0.9rem] border border-white/10 bg-black/25"
+                        data-event-mix-table="compact"
+                        data-event-mix-source-mode={eventMixModel.eventMixSourceMode}
+                        data-event-mix-surface-context={eventMixModel.actualSurfaceContextState}
+                      >
+                        <table className="min-w-full text-left text-xs">
+                          <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                            <tr>
+                              <th className="px-3 py-2 font-semibold">Event</th>
+                              <th className="px-3 py-2 font-semibold">Count</th>
+                              <th className="px-3 py-2 font-semibold">Share</th>
+                              <th className="px-3 py-2 font-semibold">Category</th>
+                              <th className="px-3 py-2 font-semibold">Surface</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/10 text-gray-300">
+                            {eventMixModel.eventRows.map((item) => (
+                              <tr
+                                key={`event-mix-table-${item.eventKey}`}
+                                data-event-mix-event-key={item.eventKey}
+                                data-event-mix-mapping-state={item.mappingState}
+                                data-event-mix-actual-surface-state={item.actualSurfaceState}
+                              >
+                                <td className="max-w-[16rem] px-3 py-2">
+                                  <p className="truncate font-semibold text-white">{item.displayLabel}</p>
+                                  <p className="truncate text-[11px] text-gray-500">{item.eventKey}</p>
+                                </td>
+                                <td className="px-3 py-2">{eventMixCountLabel(item.rawCount)}</td>
+                                <td className="px-3 py-2">{eventMixShareLabel(item.share)}</td>
+                                <td className="px-3 py-2">{item.catalogCategory ?? "missing"}</td>
+                                <td className="px-3 py-2">{item.actualSurface ?? "missing"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : null}
+
+                    {eventMixViewMode === "cards" ? (
+                      <div className="space-y-1.5">
+                        {eventMixModel.eventRows.length > 0 ? (
                         eventMixModel.eventRows.map((item) => (
                           <div
                             key={item.eventKey}
@@ -1204,12 +1304,17 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             </div>
                           </div>
                         ))
-                      ) : (
+                        ) : (
                         <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                           Event mix needs verified event counts.
                         </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    ) : eventMixModel.eventRows.length === 0 ? (
+                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                        Event mix needs verified event counts.
+                      </div>
+                    ) : null}
                   </div>
 
                     <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">

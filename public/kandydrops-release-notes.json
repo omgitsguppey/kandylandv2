@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.5.44",
-  "betaReleaseCounter": 544,
+  "currentVersion": "1.5.45",
+  "betaReleaseCounter": 545,
   "channel": "beta",
-  "generatedAt": "2026-06-03T22:47:04.730Z",
-  "generatedAtUtc": "2026-06-03T22:47:04.730Z",
-  "lastCommitSha": "91ed0cb473c198b17c19b61fb096cb969cf346d4",
+  "generatedAt": "2026-06-03T22:57:15.628Z",
+  "generatedAtUtc": "2026-06-03T22:57:15.628Z",
+  "lastCommitSha": "af636c749138261bdbb899c8b54df7f77f2e3dea",
   "notes": [
+    {
+      "version": "1.5.45",
+      "previousVersion": "1.5.44",
+      "betaReleaseCounter": 545,
+      "previousBetaReleaseCounter": 544,
+      "commitSha": "af636c749138261bdbb899c8b54df7f77f2e3dea",
+      "commitTitle": "fix(admin): add compact event mix analytics modes",
+      "commitCount": 2,
+      "commitShas": [
+        "ba57a31950095eb4342a1165bee081fc34a0a94e",
+        "af636c749138261bdbb899c8b54df7f77f2e3dea"
+      ],
+      "committedAt": "2026-06-03T22:57:03.000Z",
+      "generatedAt": "2026-06-03T22:57:15.626Z",
+      "committedAtUtc": "2026-06-03T22:57:03.000Z",
+      "generatedAtUtc": "2026-06-03T22:57:15.626Z",
+      "updatedAtUtc": "2026-06-03T22:57:15.626Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-audience-mobile.spec.ts",
+        "tests/unit/admin-analytics-audience-snapshot.spec.ts",
+        "tests/unit/admin-analytics-operations-mobile.spec.ts"
+      ],
+      "sourceCommit": "af636c749138261bdbb899c8b54df7f77f2e3dea"
+    },
     {
       "version": "1.5.44",
       "previousVersion": "1.5.43",
