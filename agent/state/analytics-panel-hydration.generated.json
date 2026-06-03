@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-03T21:01:15.589Z",
-  "currentHead": "21aa13f2ace863ed8448ea70808a65bc6d6ffb54",
+  "generatedAtUtc": "2026-06-03T21:07:23.480Z",
+  "currentHead": "d1500b65c33f9a21d7f12f14f115213fc54c6fea",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -402,32 +402,19 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 4,
+    "total": 2,
     "byClassification": {
-      "current_generated_artifact_to_commit": 1,
-      "unsafe_unknown": 3
+      "stale_generated_artifact_to_regenerate": 2
     },
-    "unsafeUnknown": [
-      "src/app/admin/analytics/page.tsx",
-      "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
-      "tests/unit/admin-analytics-page.spec.tsx"
-    ],
+    "unsafeUnknown": [],
     "sample": [
       {
-        "path": "agent/context/optimized-task-context.generated.json",
-        "classification": "current_generated_artifact_to_commit"
+        "path": "agent/state/admin-analytics-source-hierarchy.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "src/app/admin/analytics/page.tsx",
-        "classification": "unsafe_unknown"
-      },
-      {
-        "path": "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
-        "classification": "unsafe_unknown"
-      },
-      {
-        "path": "tests/unit/admin-analytics-page.spec.tsx",
-        "classification": "unsafe_unknown"
+        "path": "docs/agent-truth/admin-analytics-source-hierarchy.md",
+        "classification": "stale_generated_artifact_to_regenerate"
       }
     ],
     "sampleTruncated": false
@@ -438,7 +425,5 @@
     "Keep payment/provider and billing proof external with redacted evidence.",
     "Expose this hydration lane in Admin Debug tracking summary."
   ],
-  "validationFailures": [
-    "dirty files/open PRs unclassified."
-  ]
+  "validationFailures": []
 }
