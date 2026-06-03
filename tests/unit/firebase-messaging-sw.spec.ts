@@ -42,4 +42,12 @@ describe("firebase messaging service worker notification display", () => {
         expect(serviceWorkerSource).toContain("request.cache === \"no-store\"");
         expect(serviceWorkerSource).toContain("request.cache === \"no-cache\"");
     });
+
+    it("announces cache recovery to controlled clients after activation cleanup", () => {
+        expect(serviceWorkerSource).toContain("KANDYDROPS_SERVICE_WORKER_RECOVERY");
+        expect(serviceWorkerSource).toContain("notifyClientsOfWorkerRecovery(deletedCacheNames)");
+        expect(serviceWorkerSource).toContain("clients.matchAll({ type: \"window\", includeUncontrolled: true })");
+        expect(serviceWorkerSource).toContain("client.postMessage({");
+        expect(serviceWorkerSource).toContain("deletedCacheNames,");
+    });
 });

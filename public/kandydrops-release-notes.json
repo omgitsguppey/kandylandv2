@@ -1,11 +1,70 @@
 {
-  "currentVersion": "1.5.34",
-  "betaReleaseCounter": 534,
+  "currentVersion": "1.5.35",
+  "betaReleaseCounter": 535,
   "channel": "beta",
-  "generatedAt": "2026-06-03T12:30:28.575Z",
-  "generatedAtUtc": "2026-06-03T12:30:28.575Z",
-  "lastCommitSha": "3bca035dc2f3a25f5d79e8d11dc307bcdf39f4c3",
+  "generatedAt": "2026-06-03T14:18:32.156Z",
+  "generatedAtUtc": "2026-06-03T14:18:32.156Z",
+  "lastCommitSha": "0b26fcb57a1a9ec2065816cd9cdadddb8cc12d42",
   "notes": [
+    {
+      "version": "1.5.35",
+      "previousVersion": "1.5.34",
+      "betaReleaseCounter": 535,
+      "previousBetaReleaseCounter": 534,
+      "commitSha": "0b26fcb57a1a9ec2065816cd9cdadddb8cc12d42",
+      "commitTitle": "fix(pwa): recover old service worker caches",
+      "commitCount": 2,
+      "commitShas": [
+        "c9d80a45a9b9649cd95c8d346dd8e079edf372d9",
+        "0b26fcb57a1a9ec2065816cd9cdadddb8cc12d42"
+      ],
+      "committedAt": "2026-06-03T14:18:08.000Z",
+      "generatedAt": "2026-06-03T14:18:32.151Z",
+      "committedAtUtc": "2026-06-03T14:18:08.000Z",
+      "generatedAtUtc": "2026-06-03T14:18:32.151Z",
+      "updatedAtUtc": "2026-06-03T14:18:32.151Z",
+      "category": "Fixed",
+      "title": "Improved navigation reliability",
+      "summary": "Bug fixes and quality-of-life improvements for top-level navigation and Beta update access.",
+      "userFacingTitle": "Improved navigation reliability",
+      "surfaceCategory": "Navigation",
+      "bullets": [
+        "Improved how key app navigation surfaces stay in sync with the latest Beta build.",
+        "Reduced confusing status changes when opening update notes and top-level navigation lanes."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/environment-deployment-truth-audit.generated.json",
+        "agent/state/pwa-service-worker-safety.generated.json",
+        "agent/state/repo-doctrine-reset.generated.json",
+        "docs/agent-truth/current-operator-doctrine.md",
+        "docs/agent-truth/environment-deployment-truth.md",
+        "docs/agent-truth/public-beta-release-notes.md",
+        "docs/agent-truth/pwa-service-worker-safety.md",
+        "public/firebase-messaging-sw.js",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-android-pwa-chat-and-build-banner.ts",
+        "scripts/agent/validate-environment-deployment-truth.ts",
+        "scripts/agent/validate-pwa-service-worker-safety.ts",
+        "scripts/agent/validate-pwa-service-worker.ts",
+        "scripts/agent/validate-repo-doctrine-reset.ts",
+        "src/components/PwaRuntimeBridge.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/firebase-messaging-sw.spec.ts",
+        "tests/unit/repo-doctrine-reset.spec.ts",
+        "tests/unit/source-truth-authority-map.spec.ts"
+      ],
+      "sourceCommit": "0b26fcb57a1a9ec2065816cd9cdadddb8cc12d42"
+    },
     {
       "version": "1.5.34",
       "previousVersion": "1.5.33",

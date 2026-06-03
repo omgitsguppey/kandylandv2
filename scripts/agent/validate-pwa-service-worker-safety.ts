@@ -250,6 +250,9 @@ function main() {
     "caches.match(OFFLINE_FALLBACK_URL)",
     "await self.skipWaiting()",
     "await self.clients.claim()",
+    "KANDYDROPS_SERVICE_WORKER_RECOVERY",
+    "notifyClientsOfWorkerRecovery(deletedCacheNames)",
+    "client.postMessage({",
   ]) {
     requireIncludes(serviceWorker, expected, "service worker update/offline safety", failures);
   }
@@ -264,6 +267,9 @@ function main() {
     "trackPwaServiceWorkerEvent",
     "kandydrops-release-notes.json?deployCheck=",
     "clearManagedKandyDropsCaches",
+    "readServiceWorkerRecoveryVersion",
+    "navigator.serviceWorker.addEventListener(\"message\"",
+    "WORKER_RECOVERY_SESSION_KEY",
     "window.location.reload()",
     "pwa_service_worker_registration_started",
     "pwa_service_worker_registered",

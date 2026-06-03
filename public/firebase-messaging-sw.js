@@ -9,6 +9,7 @@ const CACHE_NAME_PREFIXES = {
 };
 const NOTIFICATION_ICON = "/icon-192x192.png";
 const OFFLINE_FALLBACK_URL = "/offline";
+const WORKER_RECOVERY_MESSAGE_TYPE = "KANDYDROPS_SERVICE_WORKER_RECOVERY";
 const PRECACHE_URLS = [
     "/",
     "/drops",
@@ -134,6 +135,19 @@ function shouldBypassServiceWorkerCache(pathname) {
     return FORBIDDEN_CACHE_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
+async function notifyClientsOfWorkerRecovery(deletedCacheNames) {
+    const allClients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    allClients.forEach((client) => {
+        client.postMessage({
+            type: WORKER_RECOVERY_MESSAGE_TYPE,
+            cacheVersion: SERVICE_WORKER_CACHE_VERSION,
+            appShellCache: APP_SHELL_CACHE,
+            runtimeCache: APP_RUNTIME_CACHE,
+            deletedCacheNames,
+        });
+    });
+}
+
 firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
@@ -156,13 +170,11 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
     event.waitUntil((async () => {
         const cacheNames = await caches.keys();
-        await Promise.all(
-            cacheNames
-                .filter((cacheName) => shouldDeleteManagedCache(cacheName))
-                .map((cacheName) => caches.delete(cacheName)),
-        );
+        const deletedCacheNames = cacheNames.filter((cacheName) => shouldDeleteManagedCache(cacheName));
+        await Promise.all(deletedCacheNames.map((cacheName) => caches.delete(cacheName)));
 
         await self.clients.claim();
+        await notifyClientsOfWorkerRecovery(deletedCacheNames);
     })());
 });
 

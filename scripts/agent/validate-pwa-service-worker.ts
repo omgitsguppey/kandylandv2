@@ -147,6 +147,9 @@ for (const expected of [
   "await self.skipWaiting()",
   "await self.clients.claim()",
   "caches.delete(cacheName)",
+  "KANDYDROPS_SERVICE_WORKER_RECOVERY",
+  "notifyClientsOfWorkerRecovery(deletedCacheNames)",
+  "client.postMessage({",
   "request.cache === \"no-store\"",
   "request.cache === \"no-cache\"",
 ]) {
@@ -189,6 +192,9 @@ for (const expected of [
 requireIncludes(pwaBridge, "registerAppServiceWorker", "PWA runtime bridge");
 requireIncludes(pwaBridge, "kandydrops-release-notes.json?deployCheck=", "PWA runtime bridge release-version freshness check");
 requireIncludes(pwaBridge, "clearManagedKandyDropsCaches", "PWA runtime bridge managed cache cleanup");
+requireIncludes(pwaBridge, "readServiceWorkerRecoveryVersion", "PWA runtime bridge service worker recovery message parser");
+requireIncludes(pwaBridge, "navigator.serviceWorker.addEventListener(\"message\"", "PWA runtime bridge service worker recovery listener");
+requireIncludes(pwaBridge, "WORKER_RECOVERY_SESSION_KEY", "PWA runtime bridge one-time recovery reload guard");
 requireIncludes(pwaBridge, "window.location.reload()", "PWA runtime bridge deploy refresh");
 requireIncludes(coreLayout, "<PwaRuntimeBridge />", "Core layout PWA registration owner");
 requireIncludes(coreLayout, "shouldEnablePwaRuntime = !isAdminRoute", "Core layout admin PWA bypass");

@@ -15,6 +15,8 @@ import { trackEvent } from "@/lib/telemetry";
 const BUILD_REFRESH_SESSION_KEY = "kandydrops.build-refresh.version";
 const BUILD_REFRESH_CHECK_SESSION_KEY = "kandydrops.build-refresh.last-check";
 const BUILD_REFRESH_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+const WORKER_RECOVERY_SESSION_KEY = "kandydrops.service-worker-recovery.version";
+const WORKER_RECOVERY_MESSAGE_TYPE = "KANDYDROPS_SERVICE_WORKER_RECOVERY";
 let singletonFreshnessWatcherMounted = false;
 
 function resolveNotificationPermissionState() {
@@ -120,6 +122,19 @@ async function clearManagedKandyDropsCaches() {
     }
 }
 
+function readServiceWorkerRecoveryVersion(data: unknown) {
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+        return null;
+    }
+
+    const payload = data as { type?: unknown; cacheVersion?: unknown };
+    if (payload.type !== WORKER_RECOVERY_MESSAGE_TYPE || typeof payload.cacheVersion !== "string") {
+        return null;
+    }
+
+    return payload.cacheVersion;
+}
+
 export function PwaRuntimeBridge() {
     useEffect(() => {
         emitPwaEvent("pwa_service_worker_registration_started", {
@@ -160,6 +175,27 @@ export function PwaRuntimeBridge() {
                 // no-op in restricted storage contexts
             }
 
+            await clearManagedKandyDropsCaches();
+            window.location.reload();
+        };
+
+        const refreshForWorkerRecovery = async (cacheVersion: string) => {
+            try {
+                const refreshMarker = `${PUBLIC_APP_VERSION}:${cacheVersion}`;
+                if (window.sessionStorage.getItem(WORKER_RECOVERY_SESSION_KEY) === refreshMarker) {
+                    return;
+                }
+
+                window.sessionStorage.setItem(WORKER_RECOVERY_SESSION_KEY, refreshMarker);
+            } catch {
+                // no-op in restricted storage contexts
+            }
+
+            emitPwaEvent("pwa_update_available", {
+                registered: true,
+                updateAvailable: true,
+                staleShellRiskSignals: ["service_worker_cache_recovery"],
+            });
             await clearManagedKandyDropsCaches();
             window.location.reload();
         };
@@ -216,6 +252,15 @@ export function PwaRuntimeBridge() {
             });
         };
 
+        const handleServiceWorkerMessage = (event: MessageEvent) => {
+            const recoveryVersion = readServiceWorkerRecoveryVersion(event.data);
+            if (!recoveryVersion) {
+                return;
+            }
+
+            void refreshForWorkerRecovery(recoveryVersion);
+        };
+
         markCurrentBuildSeen();
         void fetchManifestNoStore().then(() => {
             // Deliberately silent; ensures freshness check bypasses stale cache layers.
@@ -232,12 +277,18 @@ export function PwaRuntimeBridge() {
         window.addEventListener(KANDYDROPS_APP_UPDATE_EVENT, handleUpdateAvailable);
         window.addEventListener("focus", handleFocus);
         document.addEventListener("visibilitychange", handleVisibilityChange);
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.addEventListener("message", handleServiceWorkerMessage);
+        }
         window.addEventListener("offline", handleOffline);
         window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
         return () => {
             window.removeEventListener(KANDYDROPS_APP_UPDATE_EVENT, handleUpdateAvailable);
             window.removeEventListener("focus", handleFocus);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.removeEventListener("message", handleServiceWorkerMessage);
+            }
             window.removeEventListener("offline", handleOffline);
             window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
             singletonFreshnessWatcherMounted = false;

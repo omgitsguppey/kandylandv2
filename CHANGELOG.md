@@ -2,7 +2,12 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 11 public updates in pages of 5.
+Showing the last 12 public updates in pages of 5.
+
+## 1.5.35 - 2026-06-03
+- Improved navigation reliability
+- Improved how key app navigation surfaces stay in sync with the latest Beta build.
+- Reduced confusing status changes when opening update notes and top-level navigation lanes.
 
 ## 1.5.34 - 2026-06-03
 - Bug fixes and quality-of-life improvements
