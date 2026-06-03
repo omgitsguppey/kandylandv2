@@ -1,16 +1,16 @@
 {
-  "generatedAtUtc": "2026-06-03T20:11:46.915Z",
+  "generatedAtUtc": "2026-06-03T20:15:08.489Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "8450d4ab093503ba4b72464f966321cb61fea027",
+  "currentHead": "1c7ae73b857aa3fbfbab381ff646dc0ed3e5f815",
   "summary": {
     "betaVersion": "1.5.33",
-    "betaScore": 92.96,
+    "betaScore": 92.16,
     "betaStatus": "Ready with smoke required",
     "scoreVersion": "beta_health_v2",
-    "healthScore": 92.96,
+    "healthScore": 92.16,
     "launchGateStatus": "owner_review",
     "sourceHealthScore": 100,
-    "runtimeHealthScore": 98.4,
+    "runtimeHealthScore": 94.4,
     "evidenceCompletenessScore": 98.4,
     "freshnessScore": 100,
     "costRiskScore": 42,
@@ -91,7 +91,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-03T20:11:46.915Z",
+      "generatedAtUtc": "2026-06-03T20:15:08.489Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -321,6 +321,33 @@
         "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
       "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
     },
     {
       "id": "provider-smoke",
