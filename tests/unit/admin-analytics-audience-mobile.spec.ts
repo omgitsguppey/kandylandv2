@@ -21,4 +21,17 @@ describe("Admin analytics audience mobile consolidation", () => {
     expect(source).toContain("data-top-paths-page={String(topPathsPage)}");
     expect(source).toContain("data-top-paths-page-size={String(topPathsPageSize)}");
   });
+
+  it("renders Regions as one compact mobile view mode at a time", () => {
+    expect(source).toContain("regionsViewMode");
+    expect(source).toContain("setRegionsViewMode");
+    expect(source).toContain("data-admin-analytics-mobile-view-mode={regionsViewMode}");
+    expect(source).toContain('data-regions-table="compact"');
+    expect(source).toContain("data-regions-source-truth={regionsModel.sourceTruth}");
+    expect(source).toContain("data-regions-freshness={regionsModel.freshnessState}");
+    expect(source).toContain("data-regions-filter-mode={regionsFilterMode}");
+    expect(source).toContain('regionsViewMode === "chart"');
+    expect(source).toContain('regionsViewMode === "table"');
+    expect(source).toContain('regionsViewMode === "cards"');
+  });
 });

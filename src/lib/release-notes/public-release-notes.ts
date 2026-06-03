@@ -1,13 +1,61 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.47",
-  "betaReleaseCounter": 547,
+  "currentVersion": "1.5.48",
+  "betaReleaseCounter": 548,
   "channel": "beta",
-  "generatedAt": "2026-06-03T23:18:11.327Z",
-  "generatedAtUtc": "2026-06-03T23:18:11.327Z",
-  "lastCommitSha": "bdeee1f55f187f136de67ba28d83771166543b4c",
+  "generatedAt": "2026-06-03T23:27:08.671Z",
+  "generatedAtUtc": "2026-06-03T23:27:08.671Z",
+  "lastCommitSha": "372ced8e723961e51716e3012420d571f52ec699",
   "notes": [
+    {
+      "version": "1.5.48",
+      "previousVersion": "1.5.47",
+      "betaReleaseCounter": 548,
+      "previousBetaReleaseCounter": 547,
+      "commitSha": "372ced8e723961e51716e3012420d571f52ec699",
+      "commitTitle": "fix(admin): add compact regions analytics modes",
+      "commitCount": 2,
+      "commitShas": [
+        "eb3bf037f62a7da7ade027f9993db5a507210be8",
+        "372ced8e723961e51716e3012420d571f52ec699"
+      ],
+      "committedAt": "2026-06-03T23:26:56.000Z",
+      "generatedAt": "2026-06-03T23:27:08.670Z",
+      "committedAtUtc": "2026-06-03T23:26:56.000Z",
+      "generatedAtUtc": "2026-06-03T23:27:08.670Z",
+      "updatedAtUtc": "2026-06-03T23:27:08.670Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-audience-mobile.spec.ts",
+        "tests/unit/admin-analytics-live-interaction-mobile.spec.ts"
+      ],
+      "sourceCommit": "372ced8e723961e51716e3012420d571f52ec699"
+    },
     {
       "version": "1.5.47",
       "previousVersion": "1.5.46",
