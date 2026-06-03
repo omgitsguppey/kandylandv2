@@ -1,13 +1,84 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.36",
-  "betaReleaseCounter": 536,
+  "currentVersion": "1.5.37",
+  "betaReleaseCounter": 537,
   "channel": "beta",
-  "generatedAt": "2026-06-03T18:44:40.014Z",
-  "generatedAtUtc": "2026-06-03T18:44:40.014Z",
-  "lastCommitSha": "3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4",
+  "generatedAt": "2026-06-03T20:11:18.104Z",
+  "generatedAtUtc": "2026-06-03T20:11:18.104Z",
+  "lastCommitSha": "8450d4ab093503ba4b72464f966321cb61fea027",
   "notes": [
+    {
+      "version": "1.5.37",
+      "previousVersion": "1.5.36",
+      "betaReleaseCounter": 537,
+      "previousBetaReleaseCounter": 536,
+      "commitSha": "8450d4ab093503ba4b72464f966321cb61fea027",
+      "commitTitle": "fix(admin): simplify debug control tower layout",
+      "commitCount": 2,
+      "commitShas": [
+        "2aa75e5a9ea59a7c2285758666161d2789c6be20",
+        "8450d4ab093503ba4b72464f966321cb61fea027"
+      ],
+      "committedAt": "2026-06-03T20:10:15.000Z",
+      "generatedAt": "2026-06-03T20:11:18.100Z",
+      "committedAtUtc": "2026-06-03T20:10:15.000Z",
+      "generatedAtUtc": "2026-06-03T20:11:18.100Z",
+      "updatedAtUtc": "2026-06-03T20:11:18.100Z",
+      "category": "New",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
+        "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json",
+        "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+        "agent/state/admin-truth-sample-evidence.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/debug-panel-output-triage.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/formal-evidence-bridge.generated.json",
+        "agent/state/provider-smoke-evidence.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/runtime-smoke-evidence.generated.json",
+        "docs/agent-truth/evidence-capture-status.md",
+        "docs/agent-truth/formal-evidence-bridge.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/capture-truthful-evidence.ts",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/agent/validate-admin-truth-sample-evidence.ts",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "scripts/agent/validate-evidence-capture-status.ts",
+        "scripts/agent/validate-formal-evidence-bridge.ts",
+        "scripts/agent/validate-provider-smoke-evidence.ts",
+        "scripts/agent/validate-runtime-smoke-evidence.ts",
+        "src/app/admin/debug/components/DebugControlTower.tsx",
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/formal-evidence-bridge.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/evidence-capture-status.spec.ts"
+      ],
+      "sourceCommit": "8450d4ab093503ba4b72464f966321cb61fea027"
+    },
     {
       "version": "1.5.36",
       "previousVersion": "1.5.35",
