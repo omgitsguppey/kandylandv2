@@ -1,7 +1,7 @@
 {
   "reportKey": "admin-analytics-source-hierarchy",
-  "generatedAtUtc": "2026-06-03T22:58:45.030Z",
-  "currentHead": "8d7cafaaad304fff578ab1689bfb34988f6c67bc",
+  "generatedAtUtc": "2026-06-03T23:18:42.752Z",
+  "currentHead": "eb3bf037f62a7da7ade027f9993db5a507210be8",
   "hierarchy": {
     "status": "consumer_source_mismatch",
     "sourceOrder": [
