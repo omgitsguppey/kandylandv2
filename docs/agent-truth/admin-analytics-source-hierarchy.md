@@ -1,6 +1,6 @@
 # admin-analytics-source-hierarchy
 
-Generated: 2026-06-03T22:48:41.104Z
+Generated: 2026-06-03T22:58:45.030Z
 
 Status: pass
 

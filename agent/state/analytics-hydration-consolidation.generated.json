@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-hydration-consolidation",
-  "generatedAtUtc": "2026-06-03T22:49:03.126Z",
-  "currentHead": "ba57a31950095eb4342a1165bee081fc34a0a94e",
+  "generatedAtUtc": "2026-06-03T22:58:45.221Z",
+  "currentHead": "8d7cafaaad304fff578ab1689bfb34988f6c67bc",
   "filesAudited": [
     "src/lib/admin-analytics/panel-hydration-contract.ts",
     "src/lib/admin-analytics/panel-hydration-registry.ts",
@@ -26,8 +26,8 @@
   ],
   "registryLinesBefore": 134,
   "registryLinesAfter": 135,
-  "generatedArtifactLinesBefore": 429,
-  "generatedArtifactLinesAfter": 430,
+  "generatedArtifactLinesBefore": 447,
+  "generatedArtifactLinesAfter": 448,
   "netAdditions": 3,
   "netDeletions": 3,
   "delegatedToPersonMetrics": true,
