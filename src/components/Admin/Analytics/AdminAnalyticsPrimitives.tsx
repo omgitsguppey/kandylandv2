@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Activity , Info } from "lucide-react";
+import { Activity, BarChart3, Info, ListTree, Table2 } from "lucide-react";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { resolveAdminAnalyticsBadgeLabel } from "@/lib/admin-analytics-contracts";
@@ -33,6 +33,7 @@ export interface SectionCardProps {
     defaultExpanded?: boolean;
     collapsible?: boolean;
     density?: "default" | "compact";
+    summaryLine?: string;
 }
 
 export interface MetricCardProps {
@@ -48,6 +49,32 @@ export interface MetricCardProps {
     compactPrimary?: boolean;
     badgePlacement?: "header" | "footer" | "hidden";
 }
+
+export type AnalyticsViewMode = "chart" | "table" | "cards";
+
+export interface AnalyticsViewModeOption {
+    id: AnalyticsViewMode;
+    label: string;
+}
+
+export interface AnalyticsViewModeToggleProps {
+    value: AnalyticsViewMode;
+    onChange: (value: AnalyticsViewMode) => void;
+    options?: AnalyticsViewModeOption[];
+    className?: string;
+}
+
+const DEFAULT_ANALYTICS_VIEW_MODES: AnalyticsViewModeOption[] = [
+    { id: "chart", label: "Chart" },
+    { id: "table", label: "Table" },
+    { id: "cards", label: "Cards" },
+];
+
+const ANALYTICS_VIEW_MODE_ICONS: Record<AnalyticsViewMode, LucideIcon> = {
+    chart: BarChart3,
+    table: Table2,
+    cards: ListTree,
+};
 
 export function AnalyticsTooltip({
     active,
@@ -99,6 +126,7 @@ export function SectionCard({
     defaultExpanded = false,
     collapsible = true,
     density = "default",
+    summaryLine,
 }: SectionCardProps) {
     const [expanded, setExpanded] = useState(defaultExpanded);
     const compact = density === "compact";
@@ -132,6 +160,11 @@ export function SectionCard({
                             {subtitle}
                         </p>
                     ) : null}
+                    {!expanded && summaryLine ? (
+                        <p className="mt-1 truncate text-[11px] font-semibold text-gray-300">
+                            {summaryLine}
+                        </p>
+                    ) : null}
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
                     {rightSlot}
@@ -149,6 +182,43 @@ export function SectionCard({
             </div>
             {expanded || !collapsible ? children : null}
         </section>
+    );
+}
+
+export function AnalyticsViewModeToggle({
+    value,
+    onChange,
+    options = DEFAULT_ANALYTICS_VIEW_MODES,
+    className,
+}: AnalyticsViewModeToggleProps) {
+    return (
+        <div
+            className={cn("inline-flex min-h-11 rounded-full border border-white/10 bg-black/25 p-1", className)}
+            data-admin-analytics-view-mode={value}
+            aria-label="Analytics view mode"
+        >
+            {options.map((option) => {
+                const active = option.id === value;
+                const Icon = ANALYTICS_VIEW_MODE_ICONS[option.id];
+                return (
+                    <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => onChange(option.id)}
+                        aria-pressed={active}
+                        className={cn(
+                            "inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-bold transition-colors",
+                            active
+                                ? "bg-brand-purple/20 text-white"
+                                : "text-gray-400 hover:bg-white/5 hover:text-white",
+                        )}
+                    >
+                        <Icon className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">{option.label}</span>
+                    </button>
+                );
+            })}
+        </div>
     );
 }
 
@@ -179,7 +249,7 @@ export function MetricCard({
     return (
         <div
             className={cn(
-                "overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/30 p-2.5",
+                "overflow-hidden rounded-lg border border-white/10 bg-black/30 p-2.5 md:rounded-[1.1rem]",
                 className,
             )}
             data-admin-analytics-truth-state={resolvedTruthState}

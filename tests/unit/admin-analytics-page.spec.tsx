@@ -154,6 +154,17 @@ vi.mock("@/components/Admin/AdminPageHeader", () => ({
 }));
 
 vi.mock("@/components/Admin/Analytics/AdminAnalyticsPrimitives", () => ({
+  AnalyticsViewModeToggle: ({
+    value,
+    onChange,
+  }: {
+    value: string;
+    onChange: (value: "chart" | "table" | "cards") => void;
+  }) => (
+    <button type="button" data-view-mode={value} onClick={() => onChange("table")}>
+      View mode
+    </button>
+  ),
   MetricCard: ({
     label,
     value,
@@ -185,6 +196,12 @@ vi.mock("@/lib/telemetry-catalog", () => ({
 }));
 
 vi.mock("@/app/admin/analytics/AnalyticsHelpers", () => ({
+  RANGE_OPTIONS: [
+    { value: "24h", label: "24H" },
+    { value: "7d", label: "7D" },
+    { value: "30d", label: "30D" },
+    { value: "all", label: "All" },
+  ],
   TAB_OPTIONS: mockState.tabOptions,
   formatCompactNumber: (value: unknown) => String(value),
   formatMoney: (value: unknown) => `$${String(value)}`,

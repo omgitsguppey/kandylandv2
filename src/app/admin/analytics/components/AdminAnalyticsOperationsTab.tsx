@@ -199,7 +199,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     value === null ? firstSnapshotLabel : formatCompactNumber(value);
   const eventMixShareLabel = (value: number | null) =>
     value === null ? "Share unavailable" : formatPercent(value);
-  const eventMixMissingSurfaceLabel = "Surface: missing";
+  const eventMixMissingSurfaceLabel = "Surface context unavailable";
   const eventMixMissingRouteLabel = "Route: missing";
   const eventMixInferenceCopy = "Categories are inferred from the event catalog; verified route and surface context is missing for this range.";
 

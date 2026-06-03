@@ -1,7 +1,7 @@
 # Analytics Panel Hydration
 
-Generated: 2026-06-03T04:46:39.506Z
-Current head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
+Generated: 2026-06-03T21:01:15.589Z
+Current head: 21aa13f2ace863ed8448ea70808a65bc6d6ffb54
 
 ## Summary
 
@@ -53,4 +53,4 @@ Current head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 
 ## Validation Failures
 
-- none
+- dirty files/open PRs unclassified.

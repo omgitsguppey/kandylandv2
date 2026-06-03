@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -19,7 +19,9 @@ import {
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import {
+  AnalyticsViewModeToggle,
   MetricCard,
+  type AnalyticsViewMode,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -27,6 +29,7 @@ import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
 
 import {
+  RANGE_OPTIONS,
   TAB_OPTIONS,
 } from "./AnalyticsHelpers";
 
@@ -75,7 +78,12 @@ const AdminTaskAndNotificationModules = dynamic(
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
   const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalTruthState, historicalSourceLabel, analyticsOverviewDisplayMetrics, adminAnalyticsSourceHierarchy } = state;
+  const [mobileViewMode, setMobileViewMode] = useState<AnalyticsViewMode>("chart");
   const overviewSnapshotUnavailable = isKnownOverviewSnapshotUnavailable(blockingAnalyticsError);
+  const sourceHierarchy = adminAnalyticsSourceHierarchy ?? {
+    status: "unavailable",
+    nextAction: "Analytics source hierarchy has not hydrated yet.",
+  };
   const primaryBlockingAnalyticsError = overviewSnapshotUnavailable ? null : blockingAnalyticsError;
   const visibleOverviewDegradedCopy = (visibleDegradedCopy ?? []).filter(
     (copy) =>
@@ -106,6 +114,23 @@ export default function AdminAnalyticsPage() {
     });
   });
   const handleClearViewerFilter = state.clearViewerFilter ?? handleClearAllFilters;
+  const launchRecoveryRange = RANGE_OPTIONS.find((option) => option.value === "all");
+  const activeTabLabel = TAB_OPTIONS.find((tab) => tab.id === activeTab)?.label ?? "Analytics";
+  const sourceStatusItems = useMemo(() => {
+    const items = [
+      overviewSnapshotUnavailable ? "Overview snapshot unavailable" : null,
+      ...visibleOverviewDegradedCopy,
+      showHistoricalEmptyState ? "No events observed in this selected range" : null,
+      isBackgroundSyncing ? "Background refresh running" : null,
+    ].filter((item): item is string => Boolean(item));
+
+    return Array.from(new Set(items));
+  }, [
+    isBackgroundSyncing,
+    overviewSnapshotUnavailable,
+    showHistoricalEmptyState,
+    visibleOverviewDegradedCopy,
+  ]);
 
   if (needsSetup) {
     return (
@@ -142,16 +167,16 @@ export default function AdminAnalyticsPage() {
         compact
       />
 
-      {adminAnalyticsSourceHierarchy.status !== "aligned" ? (
+      {sourceHierarchy.status !== "aligned" ? (
         <div
           className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
-          data-admin-analytics-source-hierarchy={adminAnalyticsSourceHierarchy.status}
+          data-admin-analytics-source-hierarchy={sourceHierarchy.status}
         >
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <div className="space-y-1">
-              <p className="font-semibold">Analytics source state: {adminAnalyticsSourceHierarchy.status.replaceAll("_", " ")}</p>
-              <p>{adminAnalyticsSourceHierarchy.nextAction}</p>
+              <p className="font-semibold">Analytics source state: {sourceHierarchy.status.replaceAll("_", " ")}</p>
+              <p>{sourceHierarchy.nextAction}</p>
             </div>
           </div>
         </div>
@@ -204,6 +229,58 @@ export default function AdminAnalyticsPage() {
         />
       </div>
 
+      <div
+        className="rounded-lg border border-white/10 bg-black/35 p-2.5"
+        data-admin-analytics-recovery-range="all"
+        data-admin-analytics-mobile-view-mode={mobileViewMode}
+        data-mobile-drilldown="true"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Source and recovery</p>
+            <p className="mt-1 text-xs font-semibold text-white">
+              {activeTabLabel} view · {historicalSourceLabel || "Historical source pending"}
+            </p>
+            <p className="mt-1 text-[11px] leading-4 text-gray-400">
+              Use {launchRecoveryRange?.label ?? "All"} on any section to review launch-to-now history. Missing samples stay labeled; estimated recovery is not verified zero.
+            </p>
+          </div>
+          <AnalyticsViewModeToggle value={mobileViewMode} onChange={setMobileViewMode} />
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-gray-300 md:grid-cols-4">
+          <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
+            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Live</p>
+            <p className="truncate font-semibold text-white">{liveSnapshotLabel}</p>
+          </div>
+          <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
+            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Historical</p>
+            <p className="truncate font-semibold text-white">{historicalSnapshotLabel}</p>
+          </div>
+          <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
+            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Feed</p>
+            <p className="truncate font-semibold text-white">{liveFeedStatus || "unknown"}</p>
+          </div>
+          <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
+            <p className="text-[9px] uppercase tracking-[0.12em] text-gray-500">Quality</p>
+            <p className="truncate font-semibold text-white">{historicalTruthState || "unknown"}</p>
+          </div>
+        </div>
+        {sourceStatusItems.length > 0 ? (
+          <details
+            className="mt-2 rounded-md border border-amber-400/20 bg-amber-500/10 px-2 py-1 text-xs text-amber-100"
+            title={backgroundAnalyticsIssues.join(" | ")}
+          >
+            <summary className="min-h-9 cursor-pointer pt-2 font-semibold">Source notes ({sourceStatusItems.length})</summary>
+            <ul className="mt-1 list-disc space-y-1 pl-4">
+              {sourceStatusItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            {liveFeedDetail ? <p className="mt-2 text-amber-200/80">{liveFeedDetail}</p> : null}
+          </details>
+        ) : null}
+      </div>
+
       <div className="z-20 space-y-2 rounded-[1.1rem] border border-white/10 bg-black/65 p-2 backdrop-blur-xl md:sticky md:top-24 md:space-y-2.5 md:rounded-[1.4rem] md:p-2.5" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
         
 
@@ -249,14 +326,9 @@ export default function AdminAnalyticsPage() {
         ) : null}
       </div>
 
-      {overviewSnapshotUnavailable ? (
-        <div
-          className="rounded-[1.1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-gray-300"
-          data-admin-analytics-overview-status="snapshot-unavailable"
-        >
-          Overview snapshot unavailable. Showing available confirmed metrics.
-        </div>
-      ) : null}
+      <span className="sr-only" data-admin-analytics-overview-status={overviewSnapshotUnavailable ? "snapshot-unavailable" : "connected"}>
+        {overviewSnapshotUnavailable ? "Overview snapshot unavailable. Showing available confirmed metrics." : "Overview snapshot connected."}
+      </span>
 
       {primaryBlockingAnalyticsError && (
         <div className="rounded-[1.8rem] border border-red-500/20 bg-red-500/10 p-4">
@@ -266,7 +338,7 @@ export default function AdminAnalyticsPage() {
         </div>
       )}
 
-      {backgroundAnalyticsIssues.length > 0 && !primaryBlockingAnalyticsError ? (
+      {backgroundAnalyticsIssues.length > 0 && !primaryBlockingAnalyticsError && sourceStatusItems.length === 0 ? (
         <div className="flex items-start gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
             <div
@@ -282,7 +354,7 @@ export default function AdminAnalyticsPage() {
         </div>
       ) : null}
 
-      {showHistoricalEmptyState ? (
+      {showHistoricalEmptyState && sourceStatusItems.length === 0 ? (
         <div className="rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
@@ -322,7 +394,7 @@ export default function AdminAnalyticsPage() {
         </div>
       ) : null}
 
-      <main className="space-y-4 md:space-y-5" data-mobile-drilldown="true">
+      <main className="space-y-3 md:space-y-5" data-mobile-drilldown="true" data-admin-analytics-view-mode={mobileViewMode}>
         {state.activeTab === "operations" ? <AdminAnalyticsOperationsTab {...state} /> : null}
         {state.activeTab === "audience" ? <AdminAnalyticsAudienceTab {...state} /> : null}
         {state.activeTab === "commerce" ? <AdminAnalyticsCommerceTab {...state} /> : null}

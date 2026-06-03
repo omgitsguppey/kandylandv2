@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-hydration-consolidation",
-  "generatedAtUtc": "2026-06-03T04:47:07.067Z",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "generatedAtUtc": "2026-06-03T21:02:42.114Z",
+  "currentHead": "21aa13f2ace863ed8448ea70808a65bc6d6ffb54",
   "filesAudited": [
     "src/lib/admin-analytics/panel-hydration-contract.ts",
     "src/lib/admin-analytics/panel-hydration-registry.ts",
@@ -26,10 +26,10 @@
   ],
   "registryLinesBefore": 134,
   "registryLinesAfter": 135,
-  "generatedArtifactLinesBefore": 521,
-  "generatedArtifactLinesAfter": 462,
-  "netAdditions": 21941,
-  "netDeletions": 6122,
+  "generatedArtifactLinesBefore": 461,
+  "generatedArtifactLinesAfter": 445,
+  "netAdditions": 207,
+  "netDeletions": 68,
   "delegatedToPersonMetrics": true,
   "delegatedToEventLiveness": true,
   "delegatedToDebugBrain": true,
@@ -86,8 +86,8 @@
       "nextExactAction": "Verify wallet UI telemetry with bounded recent summaries before treating Wallet opens as hydrated or zero."
     }
   ],
-  "scoreBefore": 75.39,
-  "scoreAfter": 93.99,
+  "scoreBefore": 92.16,
+  "scoreAfter": 92.16,
   "remainingGaps": [],
   "nextExactSteps": [
     "Keep panel hydration as adapter-only status mapping.",

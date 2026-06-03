@@ -1,18 +1,18 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-03T04:46:39.506Z",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "generatedAtUtc": "2026-06-03T21:01:15.589Z",
+  "currentHead": "21aa13f2ace863ed8448ea70808a65bc6d6ffb54",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
   "scoreDimensions": {
     "sourceHealth": 100,
-    "runtimeHealth": 91.4,
-    "evidenceCompleteness": 91.4,
-    "freshness": 91.88,
-    "costRisk": 92.5,
+    "runtimeHealth": 94.4,
+    "evidenceCompleteness": 98.4,
+    "freshness": 100,
+    "costRisk": 42,
     "regressionRisk": 94,
-    "overallHealthScore": 93.99
+    "overallHealthScore": 92.16
   },
   "totalPanels": 41,
   "hydratedPanels": 10,
@@ -402,54 +402,35 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 164,
+    "total": 4,
     "byClassification": {
-      "stale_generated_artifact_to_regenerate": 125,
-      "current_generated_artifact_to_commit": 7,
-      "analytics_panel_hydration_artifact_expected": 3,
-      "documentation_artifact_expected": 7,
-      "real_source_change_needs_review": 1,
-      "validator_artifact_expected": 1,
-      "beta_studio_consolidation_validator_expected": 10,
-      "beta_studio_consolidation_source_expected": 5,
-      "beta_studio_consolidation_test_expected": 5
+      "current_generated_artifact_to_commit": 1,
+      "unsafe_unknown": 3
     },
-    "unsafeUnknown": [],
+    "unsafeUnknown": [
+      "src/app/admin/analytics/page.tsx",
+      "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
+      "tests/unit/admin-analytics-page.spec.tsx"
+    ],
     "sample": [
       {
-        "path": "agent/state/activity-verification-engine.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/admin-truth-source-sample.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/algorithmic-evidence-policy.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+        "path": "agent/context/optimized-task-context.generated.json",
         "classification": "current_generated_artifact_to_commit"
       },
       {
-        "path": "agent/state/analytics-hydration-consolidation.generated.json",
-        "classification": "current_generated_artifact_to_commit"
+        "path": "src/app/admin/analytics/page.tsx",
+        "classification": "unsafe_unknown"
       },
       {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
-        "classification": "analytics_panel_hydration_artifact_expected"
+        "path": "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
+        "classification": "unsafe_unknown"
       },
       {
-        "path": "agent/state/beta-evidence-gap-map.generated.json",
-        "classification": "stale_generated_artifact_to_regenerate"
+        "path": "tests/unit/admin-analytics-page.spec.tsx",
+        "classification": "unsafe_unknown"
       }
     ],
-    "sampleTruncated": true
+    "sampleTruncated": false
   },
   "nextExactSteps": [
     "Connect safe lastSeen/materialized summaries for source-missing panels.",
@@ -457,5 +438,7 @@
     "Keep payment/provider and billing proof external with redacted evidence.",
     "Expose this hydration lane in Admin Debug tracking summary."
   ],
-  "validationFailures": []
+  "validationFailures": [
+    "dirty files/open PRs unclassified."
+  ]
 }
