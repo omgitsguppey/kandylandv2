@@ -73,6 +73,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
   const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
   const [eventMixViewMode, setEventMixViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [liveInteractionViewMode, setLiveInteractionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
   const mobileVisibleLiveSurfaces = livePulseModel.surfaces.slice(0, livePulseModel.mobileSurfaceRowsLimit);
   const hiddenLiveSurfaceCount = Math.max(0, livePulseModel.surfaces.length - mobileVisibleLiveSurfaces.length);
@@ -1338,7 +1339,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               title="Live Interaction Stream"
               subtitle="Recent telemetry snapshot with freshness, actor, and task-failure truth."
               icon={Clock3}
-              rightSlot={renderSectionRangeControl("liveInteractionStream")}
+              rightSlot={(
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <AnalyticsViewModeToggle
+                    value={liveInteractionViewMode}
+                    onChange={setLiveInteractionViewMode}
+                    options={[
+                      { id: "cards", label: "Cards" },
+                      { id: "chart", label: "Chart" },
+                      { id: "table", label: "Table" },
+                    ]}
+                  />
+                  {renderSectionRangeControl("liveInteractionStream")}
+                </div>
+              )}
             >
               <div className="grid gap-2.5">
                 <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
@@ -1375,9 +1389,100 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </div>
                 ) : null}
 
-                <div className="space-y-1.5">
-                  {liveInteractionStreamModel.eventRows.length > 0 ? (
-                    liveInteractionStreamModel.eventRows.map((event) => (
+                <div
+                  className="rounded-[1rem] border border-white/10 bg-black/30 p-3"
+                  data-admin-analytics-mobile-view-mode={liveInteractionViewMode}
+                  data-live-interaction-source-truth={liveInteractionStreamModel.sourceTruth}
+                  data-live-interaction-source-mode={liveInteractionStreamModel.streamSourceMode}
+                >
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                      Recent interaction stream
+                    </p>
+                    <span className="text-[10px] text-gray-500">
+                      source / actor / surface truth
+                    </span>
+                  </div>
+
+                  {liveInteractionStreamModel.eventRows.length > 0 && liveInteractionViewMode === "chart" ? (
+                    <div className="h-52 rounded-[0.9rem] border border-white/10 bg-black/25 p-2">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                          data={liveInteractionStreamModel.eventRows}
+                          margin={{ top: 4, right: 0, left: -22, bottom: 0 }}
+                        >
+                          <defs>
+                            <linearGradient id="liveInteractionDuplicateFill" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3} />
+                              <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                          <XAxis
+                            dataKey="compactTypeLabel"
+                            stroke="#6b7280"
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                            interval={0}
+                            angle={-18}
+                            textAnchor="end"
+                            height={52}
+                          />
+                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                          <Tooltip content={<AnalyticsTooltip />} />
+                          <Area type="monotone" dataKey="duplicateCount" name="Grouped events" stroke="#22d3ee" strokeWidth={2} fill="url(#liveInteractionDuplicateFill)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : null}
+
+                  {liveInteractionStreamModel.eventRows.length > 0 && liveInteractionViewMode === "table" ? (
+                    <div
+                      className="overflow-x-auto rounded-[0.9rem] border border-white/10 bg-black/25"
+                      data-live-interaction-table="compact"
+                      data-live-interaction-source-truth={liveInteractionStreamModel.sourceTruth}
+                      data-live-interaction-source-mode={liveInteractionStreamModel.streamSourceMode}
+                    >
+                      <table className="min-w-full text-left text-xs">
+                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                          <tr>
+                            <th className="px-3 py-2 font-semibold">Event</th>
+                            <th className="px-3 py-2 font-semibold">Actor</th>
+                            <th className="px-3 py-2 font-semibold">Surface</th>
+                            <th className="px-3 py-2 font-semibold">Age</th>
+                            <th className="px-3 py-2 font-semibold">Source</th>
+                            <th className="px-3 py-2 font-semibold">Grouped</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/10 text-gray-300">
+                          {liveInteractionStreamModel.eventRows.map((event) => (
+                            <tr
+                              key={`live-interaction-table-${event.timestamp}-${event.duplicateGroupKey}`}
+                              data-live-interaction-event-key={event.eventKey}
+                              data-live-interaction-event-type={event.eventType}
+                              data-live-interaction-surface-state={event.surfaceState}
+                            >
+                              <td className="max-w-[16rem] px-3 py-2">
+                                <p className="truncate font-semibold text-white">{event.displayLabel}</p>
+                                <p className="truncate text-[11px] text-gray-500">{event.eventKey}</p>
+                              </td>
+                              <td className="px-3 py-2">{event.actorDisplayLabel}</td>
+                              <td className="px-3 py-2">{event.surface}</td>
+                              <td className="px-3 py-2">{formatRelativeTime(event.timestamp, nowMs)}</td>
+                              <td className="px-3 py-2">{event.sourceTruth}</td>
+                              <td className="px-3 py-2">{event.duplicateCount}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+
+                  {liveInteractionViewMode === "cards" ? (
+                    <div className="space-y-1.5">
+                      {liveInteractionStreamModel.eventRows.length > 0 ? (
+                        liveInteractionStreamModel.eventRows.map((event) => (
                         <div
                           key={`${event.timestamp}-${event.duplicateGroupKey}`}
                           className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
@@ -1423,6 +1528,12 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           No user interactions available for this range.
                         </div>
                       )}
+                    </div>
+                  ) : liveInteractionStreamModel.eventRows.length === 0 ? (
+                    <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                      No user interactions available for this range.
+                    </div>
+                  ) : null}
                   </div>
                 </div>
               </SectionCard>
