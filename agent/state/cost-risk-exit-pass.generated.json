@@ -1,8 +1,8 @@
 {
-  "generatedAtUtc": "2026-05-31T19:57:02.617Z",
+  "generatedAtUtc": "2026-06-03T03:16:13.690Z",
   "reportKey": "cost-risk-exit-pass",
-  "currentHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
-  "status": "pass",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "status": "fail",
   "lanes": {
     "cloudRun": {
       "id": "cloudRun",
@@ -173,8 +173,8 @@
       "target": 80
     },
     "freshness": {
-      "before": 67.5,
-      "after": 67.5,
+      "before": 59.38,
+      "after": 59.38,
       "target": 80
     },
     "costRisk": {
@@ -188,8 +188,8 @@
       "target": 80
     },
     "overallHealthScore": {
-      "before": 76.61,
-      "after": 80.46,
+      "before": 75.39,
+      "after": 79.24,
       "target": 80
     }
   },
@@ -216,15 +216,35 @@
   ],
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "path": "agent/state/activity-verification-engine.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "path": "agent/state/algorithmic-evidence-policy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/beta-freshness-language.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -232,11 +252,19 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/cost-risk-exit-pass.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -244,7 +272,71 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-score-impact-triage.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -252,15 +344,67 @@
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/score-80-cost-readiness.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "path": "agent/state/runtime-watch-time-v2.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-80-refresh-pass.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/source-backed-runtime-confidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "docs/agent-truth/algorithmic-evidence-policy.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-freshness-language.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -268,11 +412,15 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/cost-risk-exit-pass.md",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-settings-control-plane.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -280,36 +428,164 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "docs/agent-truth/debug-runtime-evidence.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-score-impact-triage.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/existing-algorithm-refinement.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "docs/agent-truth/overnight-wiring-integrity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-cost-owner-review-source-closure.ts",
-      "classification": "cost_evidence_validator"
+      "path": "docs/agent-truth/post-economy-creator-flow-qa.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-cost-risk-exit-pass.ts",
-      "classification": "cost_evidence_validator"
+      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "scripts/agent/validate-score-80-cost-readiness.ts",
+      "path": "docs/agent-truth/runtime-watch-time-v2.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-refresh-pass.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-post-economy-creator-flow-qa.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-public-beta-score.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-refresh-pass.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
       "classification": "score_model_evidence_supported"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
+      "path": "src/lib/agent-score/evidence-quality.ts",
+      "classification": "score_model_evidence_supported"
     },
     {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-dashboard-error-cost-inventory.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/creator-experiences-panel.spec.tsx",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/post-economy-creator-flow-qa.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/public-beta-score.spec.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "tests/unit/purchase-modal.spec.tsx",
+      "classification": "unsafe_unknown"
     }
   ],
   "staleLogicClassification": [
@@ -330,7 +606,7 @@
     }
   ],
   "evidence": [
-    "currentHead=9f108d980471030fe6e4e319ceac44e291b3a08e",
+    "currentHead=225f9e53f18b60edc7399c1ea258c0b9bacfae84",
     "costRiskBefore=42",
     "costRiskAfter=80.5",
     "sourceGuardedLaneCount=4",
@@ -339,5 +615,7 @@
     "providerCallsPerformed=false",
     "deployPerformed=false"
   ],
-  "validationFailures": []
+  "validationFailures": [
+    "product runtime files changed."
+  ]
 }

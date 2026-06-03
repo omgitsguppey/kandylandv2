@@ -158,6 +158,40 @@ if (report) {
   if (!report.healthScoreBreakdown || typeof report.healthScoreBreakdown !== "object") {
     failures.push("healthScoreBreakdown must be present.");
   }
+  const healthDimensions = ["sourceHealth", "runtimeHealth", "evidenceCompleteness", "freshness", "costRisk", "regressionRisk"];
+  if (Object.keys(report.healthScoreBreakdown ?? {}).sort().join(",") !== healthDimensions.sort().join(",")) {
+    failures.push("healthScoreBreakdown must keep the existing six beta health dimensions only.");
+  }
+  if (!report.studioDashboard || !Array.isArray(report.studioDashboard.sections)) {
+    failures.push("studioDashboard.sections must summarize existing health and gate signals.");
+  } else {
+    const sectionLabels = report.studioDashboard.sections.map((section) => section.label);
+    for (const expected of ["Audience Activity", "Runtime Confidence", "Source Quality", "Debug Signal", "Admin Hydration", "Needs Proof"]) {
+      if (!sectionLabels.includes(expected)) failures.push(`studioDashboard must include ${expected}.`);
+    }
+    for (const section of report.studioDashboard.sections) {
+      requireNumber(section.score, `studioDashboard.${section.id}.score`, 0, 100);
+      if (typeof section.detail !== "string" || section.detail.trim().length === 0) {
+        failures.push(`studioDashboard.${section.id}.detail must be non-empty.`);
+      }
+      if (!["healthy", "watching", "needs_attention", "needs_proof"].includes(String(section.status))) {
+        failures.push(`studioDashboard.${section.id}.status must be a Studio display status.`);
+      }
+    }
+  }
+  if (!report.launchClearance?.formalGates) {
+    failures.push("launchClearance.formalGates must preserve formal proof gate status.");
+  } else {
+    const gates = report.launchClearance.formalGates;
+    for (const key of ["providerSmoke", "deployedRuntimeSmoke", "adminTruthSample", "manualVisualEvidence"] as const) {
+      if (typeof gates[key]?.cleared !== "boolean" || typeof gates[key]?.status !== "string" || typeof gates[key]?.source !== "string") {
+        failures.push(`launchClearance.formalGates.${key} must include cleared, status, and source.`);
+      }
+    }
+    if (gates.paymentSourceOfFunds?.cleared !== false || gates.paymentSourceOfFunds.status !== "protected_not_evaluated_in_source_model") {
+      failures.push("launchClearance must keep payment/source-of-funds protected outside the Studio source model.");
+    }
+  }
   if (!["clean", "pass", "warning", "beta-risk", "fail"].includes(report.scannerStatus)) {
     failures.push("scannerStatus must be a valid public beta status.");
   }
@@ -445,6 +479,8 @@ requireIncludes(core, "sourceHealthScore", "Public beta score core");
 requireIncludes(core, "runtimeHealthScore", "Public beta score core");
 requireIncludes(core, "evidenceCompletenessScore", "Public beta score core");
 requireIncludes(core, "launchGateStatus", "Public beta score core");
+requireIncludes(core, "studioDashboard", "Public beta score core");
+requireIncludes(core, "launchClearance", "Public beta score core");
 requireIncludes(core, "scoreCostReadiness", "Public beta score core");
 requireIncludes(core, "scoreRegressionRisk", "Public beta score core");
 requireIncludes(core + weights, "PUBLIC_BETA_HEALTH_DIMENSION_WEIGHTS", "Public beta score math core");

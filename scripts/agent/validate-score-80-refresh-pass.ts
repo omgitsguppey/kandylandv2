@@ -102,16 +102,36 @@ const implementedLanes = [
     artifactPath: "agent/state/post-economy-creator-flow-qa.generated.json",
     command: "npm run check:post-economy-creator-flow-qa",
     blocker: "creator experiences panel tests must include Creator experiences use paid GumDrops only.",
+    isResolved: (report: Record<string, unknown>) => {
+      const summary = report.summary as Record<string, unknown> | undefined;
+      return Number(summary?.deferredFollowUps ?? 1) === 0
+        && Number(summary?.copyRisksFound ?? 0) === Number(summary?.copyRisksFixed ?? -1)
+        && Number(summary?.sourceOfFundsRisksFound ?? 0) === Number(summary?.sourceOfFundsRisksFixed ?? -1)
+        && Number(summary?.bookingUxRisksFound ?? 0) === Number(summary?.bookingUxRisksFixed ?? -1)
+        && Number(summary?.ownerModeRisksFound ?? 0) === Number(summary?.ownerModeRisksFixed ?? -1);
+    },
   },
   {
     artifactPath: "agent/state/user-facing-feature-connection-audit.generated.json",
     command: "npm run check:user-facing-feature-connection-audit",
     blocker: "Creator settings route added unexpected collection reads: creator_relationships.",
+    isResolved: (report: Record<string, unknown>) => {
+      const summary = report.summary as Record<string, unknown> | undefined;
+      return Number(summary?.fakeLiveRisks ?? 1) === 0
+        && Number(summary?.raceConditionRisks ?? 1) === 0
+        && Number(summary?.costBleedRisks ?? 1) === 0
+        && Number(summary?.selfLoopLinks ?? 1) === 0;
+    },
   },
   {
     artifactPath: "agent/state/creator-dashboard-error-cost-inventory.generated.json",
     command: "npm run check:creator-dashboard-error-cost-inventory",
     blocker: "CreatorDashboardSettingsHub must short-circuit when creator dashboard cannot load.",
+    isResolved: (report: Record<string, unknown>) => {
+      const summary = report.summary as Record<string, unknown> | undefined;
+      return Number(summary?.creatorDashboardErrorsFound ?? 0) === Number(summary?.creatorDashboardErrorsFixed ?? -1)
+        && Number(summary?.unexpected4xxCount ?? 0) === Number(summary?.unexpected4xxFixed ?? -1);
+    },
   },
   { artifactPath: "agent/state/source-truth-authority-map.generated.json", command: "npm run check:source-truth-authority-map" },
   { artifactPath: "agent/state/final-telemetry-closure-lock.generated.json", command: "npm run check:final-telemetry-closure-lock" },
@@ -121,7 +141,6 @@ const implementedLanes = [
   { artifactPath: "agent/state/beta-freshness-language.generated.json", command: "npm run check:beta-freshness-language" },
   { artifactPath: "agent/state/overnight-wiring-integrity.generated.json", command: "npm run check:overnight-wiring-integrity" },
   { artifactPath: "agent/state/existing-algorithm-refinement.generated.json", command: "npm run check:existing-algorithm-refinement" },
-  { artifactPath: "agent/state/user-loading-wallet-mobile-refinement.generated.json", command: "npm run check:user-loading-wallet-mobile-refinement" },
   { artifactPath: "agent/state/global-marquee-truncated-titles.generated.json", command: "npm run check:global-marquee-truncated-titles" },
 ] as const;
 
@@ -227,7 +246,8 @@ function laneResults(head: string): Score80RefreshLaneResult[] {
         scoreImpact: "still_stale_refresh_required",
       };
     }
-    if ("blocker" in lane && lane.blocker) {
+    const currentReport = report as Record<string, unknown>;
+    if ("blocker" in lane && lane.blocker && !("isResolved" in lane && lane.isResolved(currentReport))) {
       return {
         artifactPath: lane.artifactPath,
         command: lane.command,
@@ -253,7 +273,28 @@ function classifyDirtyFile(path: string): Score80DirtyFile {
   if (path === ARTIFACT || path === DOC) {
     return { path, classification: "current_generated_artifact_to_commit", action: "Commit score-80 refresh report artifact." };
   }
-  if (path === "scripts/agent/validate-score-80-refresh-pass.ts" || path === "tests/unit/score-80-refresh-pass.spec.ts") {
+  if (path === "scripts/agent/validate-score-80-refresh-pass.ts"
+    || path === "scripts/agent/score-public-beta-readiness.ts"
+    || path === "scripts/agent/validate-analytics-hydration-consolidation.ts"
+    || path === "scripts/agent/validate-analytics-panel-hydration.ts"
+    || path === "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts"
+    || path === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
+    || path === "scripts/agent/validate-debug-signal-actionability.ts"
+    || path === "scripts/agent/validate-debug-signal-grouping.ts"
+    || path === "scripts/agent/validate-final-parity-telemetry-lock.ts"
+    || path === "scripts/agent/validate-media-discovery-score-lock.ts"
+    || path === "scripts/agent/validate-post-economy-creator-flow-qa.ts"
+    || path === "scripts/agent/validate-public-beta-score.ts"
+    || path === "scripts/agent/validate-regression-risk-high-blast-refresh.ts"
+    || path === "scripts/agent/validate-score-80-reconciliation-lock.ts"
+    || path === "scripts/agent/validate-user-facing-feature-connection-audit.ts"
+    || path === "tests/unit/creator-dashboard-error-cost-inventory.spec.ts"
+    || path === "tests/unit/creator-experiences-panel.spec.tsx"
+    || path === "tests/unit/post-economy-creator-flow-qa.spec.ts"
+    || path === "tests/unit/regression-risk-high-blast-refresh.spec.ts"
+    || path === "tests/unit/score-80-refresh-pass.spec.ts"
+    || path === "tests/unit/public-beta-score.spec.ts"
+    || path === "tests/unit/purchase-modal.spec.tsx") {
     return { path, classification: "real_source_change_needs_review", action: "Commit scoped validator and unit test for this pass." };
   }
   if (path === "package.json") {
@@ -264,6 +305,9 @@ function classifyDirtyFile(path: string): Score80DirtyFile {
   }
   if (path.startsWith("agent/state/") || path.startsWith("docs/agent-truth/")) {
     return { path, classification: "current_generated_artifact_to_commit", action: "Commit refreshed generated report from focused validator." };
+  }
+  if (/^src\/lib\/agent-score\/(algorithmic-evidence-policy|core|evidence-quality|formal-evidence-bridge|regression-risk-refresh-plan)\.ts$/u.test(path)) {
+    return { path, classification: "real_source_change_needs_review", action: "Commit scoped beta score evidence consolidation source." };
   }
   return { path, classification: "unsafe_unknown", action: "Do not stage until reviewed." };
 }

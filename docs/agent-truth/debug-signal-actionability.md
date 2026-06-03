@@ -1,8 +1,8 @@
 # Debug Signal Actionability
 
-Generated: 2026-05-24T05:47:48.430Z
+Generated: 2026-06-03T04:57:31.227Z
 Status: pass
-Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
+Current head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 
 ## Contract
 
@@ -13,9 +13,9 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Actionability Summary
 
-- Total signals: 43
-- Unique signals: 43
-- Default visible: 43
+- Total signals: 30
+- Unique signals: 30
+- Default visible: 30
 - Hidden by default: 0
 - Quiet future activity: 0
 - Duplicate signals collapsed: 0
@@ -23,19 +23,19 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Score Dimensions
 
-- sourceHealth: 91.7 -> 92.5; target=80; status=target_met; next=No score-80 action required for this dimension.
-- runtimeHealth: 67.75 -> 84.2; target=80; status=target_met; next=No score-80 action required for this dimension.
-- evidenceCompleteness: 39.25 -> 69.6; target=80; status=below_target; next=Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity.
-- freshness: 62.86 -> 83.75; target=80; status=target_met; next=No score-80 action required for this dimension.
-- costRisk: 42 -> 80.5; target=80; status=target_met; next=No score-80 action required for this dimension.
-- regressionRisk: 42 -> 86; target=80; status=target_met; next=No score-80 action required for this dimension.
-- overallHealthScore: 62.15 -> 83.1; target=80; status=target_met; next=No score-80 action required for this dimension.
+- sourceHealth: 91.7 -> 100; target=80; status=target_met; next=No score-80 action required for this dimension.
+- runtimeHealth: 67.75 -> 91.4; target=80; status=target_met; next=No score-80 action required for this dimension.
+- evidenceCompleteness: 39.25 -> 91.4; target=80; status=target_met; next=No score-80 action required for this dimension.
+- freshness: 62.86 -> 91.88; target=80; status=target_met; next=No score-80 action required for this dimension.
+- costRisk: 42 -> 92.5; target=80; status=target_met; next=No score-80 action required for this dimension.
+- regressionRisk: 42 -> 94; target=80; status=target_met; next=No score-80 action required for this dimension.
+- overallHealthScore: 62.15 -> 93.99; target=80; status=target_met; next=No score-80 action required for this dimension.
 
 ## Prioritized Default Signals
 
-- P1 formal_gate beta-cap-ready-with-smoke-required-debug-runtime-evidence-3: impact=84.2; owner=runtime_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- P1 formal_gate beta-cap-runtime-unverified-runtime-provider-smoke-0: impact=84.2; owner=provider_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
-- P1 formal_gate beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1: impact=69.6; owner=admin_debug; next=Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
+- P1 formal_gate beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1: impact=91.4; owner=admin_debug; next=Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.
+- P1 formal_gate beta-cap-ready-with-smoke-required-debug-runtime-evidence-2: impact=91.4; owner=runtime_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
+- P1 formal_gate beta-cap-runtime-unverified-runtime-provider-smoke-0: impact=91.4; owner=provider_evidence; next=Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.
 - P1 formal_gate score-drag-runtimehealthscore: impact=16.33; owner=runtime_evidence; next=Attach deployed runtime smoke evidence before treating runtime health as proven.
 - P1 score_impacting stale-artifact-runtime-provider-smoke: impact=16.33; owner=evidence; next=Attach formal evidence before clearing this beta gate.
 - P1 score_impacting score-drag-evidencecompletenessscore: impact=12; owner=beta_score; next=Work the score dimension owner lane and refresh score-80 path lock.
@@ -48,30 +48,26 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - P1 formal_gate debug-panel-runtime-evidence: impact=4; owner=admin_debug; next=Run formal deployed runtime smoke before marking runtime/provider smoke complete.
 - P1 score_impacting debug-panel-score-cap-reasons: impact=4; owner=admin_debug; next=Work the visible cap reasons in order instead of hiding them in Debug.
 - P1 score_impacting stale-artifact-agent-state-overnight-final-integration-lock-generated-json: impact=2; owner=evidence; next=Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
-- P2 score_impacting beta-cap-stale-evidence-report-freshness-and-pr-integrity-2: impact=69.6; owner=beta_score; next=Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.
 - P2 score_impacting score-drag-freshnessscore: impact=7.07; owner=beta_score; next=Work the score dimension owner lane and refresh score-80 path lock.
 - P2 score_impacting score-drag-costriskscore: impact=4; owner=cost; next=Work the score dimension owner lane and refresh score-80 path lock.
 - P2 formal_gate cost-cost-risk-0: impact=2; owner=cost; next=Keep this cost lane in owner review until external billing/provider evidence is attached.
 - P2 score_impacting stale-artifact-agent-state-beta-evidence-gap-map-generated-json: impact=1.8; owner=evidence; next=Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-gap-map
+- P2 score_impacting stale-artifact-agent-state-beta-evidence-lane-prep-generated-json: impact=1.6; owner=evidence; next=Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep
 
 ## Duplicate Parents
 
-- beta-cap-ready-with-smoke-required-debug-runtime-evidence-3: beta-cap-ready-with-smoke-required-evidence-bridge-4
+- beta-cap-ready-with-smoke-required-debug-runtime-evidence-2: beta-cap-ready-with-smoke-required-evidence-bridge-3
 - stale-artifact-runtime-provider-smoke: stale-artifact-debug-runtime-evidence, stale-artifact-visual-manual-smoke, stale-artifact-admin-truth-sample-evidence
-- stale-artifact-agent-state-overnight-final-integration-lock-generated-json: stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json
 - cost-cost-risk-0: cost-cost-risk-1, cost-cost-risk-2
-- stale-artifact-agent-state-beta-evidence-gap-map-generated-json: stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json
-- stale-artifact-agent-state-beta-evidence-lane-prep-generated-json: stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json
-- stale-artifact-agent-state-beta-freshness-language-generated-json: stale-refresh-plan-agent-state-beta-freshness-language-generated-json
-- stale-artifact-agent-state-final-pr-stale-cleanup-generated-json: stale-refresh-plan-agent-state-final-pr-stale-cleanup-generated-json
-- debug-panel-analytics-rewire: debug-panel-recovery-evidence, debug-panel-report-speed-security, debug-panel-report-codebase-hardening, debug-panel-report-device-ui, debug-panel-report-device-layout, debug-panel-report-hydration, debug-panel-report-google-cost, debug-panel-report-cloud-cost, debug-panel-report-sql-mirror, debug-panel-report-telemetry-parity, debug-panel-report-precatch-runtime, debug-panel-report-creator-lane, debug-panel-report-creator-lane-legacy, debug-panel-report-orphaned-logic
-- debug-panel-report-sitewide-image: debug-panel-report-content-protection, debug-panel-report-gumdrop-economy, debug-panel-report-event-catalog, debug-panel-report-watch-time-truth, debug-panel-report-debug-evidence, debug-panel-report-support-recovery
+- debug-panel-analytics-rewire: debug-panel-recovery-evidence, debug-panel-report-speed-security, debug-panel-report-codebase-hardening, debug-panel-report-device-ui, debug-panel-report-device-layout, debug-panel-report-hydration, debug-panel-report-sitewide-image, debug-panel-report-google-cost, debug-panel-report-cloud-cost, debug-panel-report-sql-mirror, debug-panel-report-telemetry-parity, debug-panel-report-precatch-runtime, debug-panel-report-creator-lane, debug-panel-report-creator-lane-legacy, debug-panel-report-orphaned-logic
+- debug-panel-report-content-protection: debug-panel-report-gumdrop-economy, debug-panel-report-event-catalog, debug-panel-report-watch-time-truth, debug-panel-report-debug-evidence, debug-panel-report-support-recovery
 
 ## Old Logic Classification
 
 - agent/state/activity-verification-engine.generated.json: still_required
 - agent/state/admin-analytics-debug-cost-reduction.generated.json: still_required
 - agent/state/admin-analytics-monolith-cleanup.generated.json: still_required
+- agent/state/admin-summary-lane-status-classifier.generated.json: still_required
 - agent/state/ai-critic-p1-triage.generated.json: still_required
 - agent/state/ai-debug-critic.generated.json: still_required
 - agent/state/analytics-cadence-cost-policy.generated.json: still_required
@@ -82,6 +78,10 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - agent/state/analytics-ingest-firestore-closure.generated.json: still_required
 - agent/state/analytics-legacy-recovery-reconciliation.generated.json: still_required
 - agent/state/analytics-semantics-final-lock.generated.json: still_required
+- agent/state/auth-runtime-telemetry.generated.json: still_required
+- agent/state/behavior-normalization-internals.generated.json: still_required
+- agent/state/behavior-task-telemetry-ui-cleanup.generated.json: still_required
+- agent/state/behavioral-intelligence-snapshot-truth.generated.json: still_required
 - agent/state/behavioral-tracking-semantics-closure.generated.json: still_required
 - agent/state/beta-evidence-gap-map.generated.json: still_required
 - agent/state/beta-evidence-lane-prep.generated.json: still_required
@@ -90,12 +90,20 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - agent/state/bigquery-cloud-pipeline-closure.generated.json: still_required
 - agent/state/blocked-refresh-queue-resolver.generated.json: still_required
 - agent/state/bug-report-reward-flow.generated.json: still_required
+- agent/state/canonical-math-authority-ledger.generated.json: still_required
+- agent/state/canonical-math-ledger.generated.json: still_required
 - agent/state/chat-gating-moderation.generated.json: still_required
 - agent/state/chat-presence-typing.generated.json: still_required
 - agent/state/chat-realtime-cost-control.generated.json: still_required
 - agent/state/chat-telemetry-admin-truth.generated.json: still_required
 - agent/state/cloud-sql-gemini-cost-guards.generated.json: still_required
+- agent/state/cloudrun-sql-bigquery-guardrails.generated.json: still_required
+- agent/state/codebase-organization-hardening.generated.json: still_required
+- agent/state/complete-dependency-inventory.generated.json: still_required
+- agent/state/config-runtime-sample-status-classifier.generated.json: still_required
+- agent/state/control-tower-operator-queue-cleanup.generated.json: still_required
 - agent/state/cost-4xx-reduction.generated.json: still_required
+- agent/state/cost-4xx-status-cleanup.generated.json: still_required
 - agent/state/cost-risk-owner-review-closure.generated.json: still_required
 - agent/state/creator-broadcast-timeline-prep.generated.json: still_required
 - agent/state/creator-dashboard-error-cost-inventory.generated.json: still_required
@@ -117,62 +125,98 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - agent/state/daily-task-guidance-route-audit.generated.json: still_required
 - agent/state/daily-task-reward-ledger.generated.json: still_required
 - agent/state/debug-backlog-engine.generated.json: still_required
+- agent/state/debug-cockpit-batch1-cleanup.generated.json: still_required
+- agent/state/debug-cockpit-batch15-false-positive-cleanup.generated.json: still_required
+- agent/state/debug-cockpit-batch20-stale-route-sweep.generated.json: still_required
+- agent/state/debug-cockpit-batch22-commerce-truth.generated.json: still_required
+- agent/state/debug-cockpit-batch27-ai-repair-workbench.generated.json: still_required
+- agent/state/debug-cockpit-batch3-cleanup.generated.json: still_required
+- agent/state/debug-cockpit-batch30-telemetry-parity.generated.json: still_required
+- agent/state/debug-cockpit-batch35-behavior-stack.generated.json: still_required
+- agent/state/debug-cockpit-batch4-cleanup.generated.json: still_required
+- agent/state/debug-cockpit-batch5-cleanup.generated.json: still_required
+- agent/state/debug-cockpit-batch7-control-tower-cleanup.generated.json: still_required
 - agent/state/debug-operator-cockpit.generated.json: still_required
 - agent/state/debug-panel-output-triage.generated.json: still_required
 - agent/state/debug-recovery-playbooks.generated.json: still_required
 - agent/state/debug-score-impact-triage.generated.json: still_required
 - agent/state/debug-signal-actionability.generated.json: still_required
 - agent/state/debug-signal-grouping.generated.json: still_required
+- agent/state/deep-4xx-route-map.generated.json: still_required
 - agent/state/deeptracker-telemetry-volume-reduction.generated.json: still_required
+- agent/state/dependency-panel-display-cleanup.generated.json: still_required
 - agent/state/device-layout-score.generated.json: still_required
 - agent/state/error-handling-final-readiness.generated.json: still_required
 - agent/state/error-language-contract.generated.json: still_required
 - agent/state/error-truth-debug-visibility.generated.json: still_required
 - agent/state/event-facts-materializer-closure.generated.json: still_required
 - agent/state/event-liveness-audit.generated.json: still_required
+- agent/state/event-liveness-source-repair.generated.json: still_required
 - agent/state/event-translation-bridge.generated.json: still_required
 - agent/state/existing-algorithm-refinement.generated.json: still_required
+- agent/state/experiment-rollout-registry-reconstruction.generated.json: still_required
 - agent/state/external-analytics-truth-closure.generated.json: still_required
+- agent/state/external-dependency-map.generated.json: still_required
 - agent/state/final-algorithmic-debug-lock.generated.json: still_required
 - agent/state/final-behavioral-privacy-telemetry-lock.generated.json: still_required
 - agent/state/final-cost-audit-lock.generated.json: still_required
+- agent/state/final-math-normalization-lock.generated.json: still_required
 - agent/state/final-morning-beta-lock.generated.json: still_required
 - agent/state/final-pr-stale-cleanup.generated.json: still_required
 - agent/state/final-signal-zero-lock.generated.json: still_required
 - agent/state/final-telemetry-closure-lock.generated.json: still_required
 - agent/state/final-testing-tracking-telemetry-lock.generated.json: still_required
+- agent/state/freshness-window-repair.generated.json: still_required
+- agent/state/future-activity-catalog-status-cleanup.generated.json: still_required
 - agent/state/future-activity-signal-reclassification.generated.json: still_required
 - agent/state/ga4-recovery-truth.generated.json: still_required
 - agent/state/global-cost-surfaces.generated.json: still_required
+- agent/state/global-formula-audit.generated.json: still_required
 - agent/state/global-marquee-truncated-titles.generated.json: still_required
+- agent/state/google-cost-bleed.generated.json: still_required
 - agent/state/guest-user-identity-transfer.generated.json: still_required
 - agent/state/gumdrop-economy-accuracy.generated.json: still_required
 - agent/state/human-error-surface-wiring.generated.json: still_required
 - agent/state/identity-privacy-raw-ledger-rewire.generated.json: still_required
 - agent/state/identity-transfer-telemetry-closure.generated.json: still_required
+- agent/state/interpretive-brain-debug-triage.generated.json: still_required
+- agent/state/launch-blocker-evidence-closure.generated.json: still_required
+- agent/state/legacy-pipeline-inventory.generated.json: still_required
+- agent/state/live-evidence-gate-replacement.generated.json: still_required
 - agent/state/lost-data-recovery-dry-run.generated.json: still_required
+- agent/state/manual-utility-separation.generated.json: still_required
 - agent/state/march-first-event-recovery.generated.json: still_required
 - agent/state/march-first-legacy-normalization.generated.json: still_required
+- agent/state/mega-legacy-pipeline-hardening.generated.json: still_required
 - agent/state/mobile-hardcoded-css-cleanup.generated.json: still_required
 - agent/state/mobile-loading-hydration-stability.generated.json: still_required
 - agent/state/mobile-residual-score-impact.generated.json: still_required
 - agent/state/mobile-surface-organization.generated.json: still_required
 - agent/state/mobile-ui-final-lock.generated.json: still_required
 - agent/state/mobile-ui-scaling-doctrine.generated.json: still_required
+- agent/state/no-sample-route-cohort-finalization.generated.json: still_required
+- agent/state/no-sample-status-classifier.generated.json: still_required
 - agent/state/non-event-score-policy.generated.json: still_required
+- agent/state/open-backlog-status-cleanup.generated.json: still_required
 - agent/state/orphaned-logic-score.generated.json: still_required
 - agent/state/overnight-final-integration-lock.generated.json: still_required
 - agent/state/overnight-wiring-integrity.generated.json: still_required
 - agent/state/person-metrics-hydration.generated.json: still_required
 - agent/state/phase-one-score-ui-triage.generated.json: still_required
+- agent/state/pipeline-ownership-audit.generated.json: still_required
 - agent/state/post-economy-creator-flow-qa.generated.json: still_required
 - agent/state/privacy-behavior-legacy-recovery.generated.json: still_required
+- agent/state/product-body-map.generated.json: still_required
 - agent/state/product-surface-integrity.generated.json: still_required
 - agent/state/public-beta-score.generated.json: still_required
+- agent/state/queue-metadata-gap-summary.generated.json: still_required
 - agent/state/refresh-safeguards.generated.json: still_required
 - agent/state/repo-doctrine-reset.generated.json: still_required
 - agent/state/repo-spring-cleaning-rewire.generated.json: still_required
 - agent/state/route-diagnostics-error-map.generated.json: still_required
+- agent/state/route-health-reconciliation.generated.json: still_required
+- agent/state/route-runtime-display-cleanup.generated.json: still_required
+- agent/state/runtime-debug-signal-cleanup.generated.json: still_required
 - agent/state/runtime-smoke-substitute-matrix.generated.json: still_required
 - agent/state/runtime-watch-time-v2.generated.json: still_required
 - agent/state/scheduled-runtime-cost-reduction.generated.json: still_required
@@ -180,13 +224,21 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - agent/state/score-80-reconciliation-lock.generated.json: still_required
 - agent/state/score-80-refresh-pass.generated.json: still_required
 - agent/state/score-80-refresh-queue-execution.generated.json: still_required
+- agent/state/score-dimension-80-lock.generated.json: still_required
 - agent/state/score-impact-stale-artifact-sweep.generated.json: still_required
 - agent/state/self-healing-refresh-queue.generated.json: still_required
+- agent/state/self-revealing-codebase.generated.json: still_required
 - agent/state/snapshot-admin-vendor-cost-rewire.generated.json: still_required
 - agent/state/source-truth-authority-map.generated.json: still_required
+- agent/state/source-window-zero-shell-classifier.generated.json: still_required
+- agent/state/support-route-stale-index-cleanup.generated.json: still_required
+- agent/state/support-threads-index-repair.generated.json: still_required
+- agent/state/task-catalog-runtime-reconstruction.generated.json: still_required
+- agent/state/task-telemetry-mapping-reconstruction.generated.json: still_required
 - agent/state/telemetry-admin-debug-truth.generated.json: still_required
 - agent/state/telemetry-dependency-graph.generated.json: still_required
 - agent/state/telemetry-trigger-test-matrix.generated.json: still_required
+- agent/state/tracking-summary-lane-cleanup.generated.json: still_required
 - agent/state/user-creator-logic-cleanup.generated.json: still_required
 - agent/state/user-creator-ui-parity.generated.json: still_required
 - agent/state/user-creator-visual-confirmation.generated.json: still_required
@@ -198,6 +250,8 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - docs/agent-truth/admin-revenue-trends.md: superseded
 - docs/agent-truth/analytics-truth-layer-v2.md: superseded
 - docs/agent-truth/ast-grep-rules.md: superseded
+- docs/agent-truth/debug-cockpit-batch3-cleanup.md: superseded
+- docs/agent-truth/debug-cockpit-batch7-control-tower-cleanup.md: superseded
 - docs/agent-truth/debug-evidence-pipeline.md: superseded
 - docs/agent-truth/debug-recovery-playbooks.md: superseded
 - docs/agent-truth/debug-signal-actionability.md: still_required
@@ -205,15 +259,27 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - docs/agent-truth/event-liveness-audit.md: superseded
 - docs/agent-truth/final-signal-zero-lock.md: superseded
 - docs/agent-truth/final-testing-tracking-telemetry-lock.md: superseded
+- docs/agent-truth/freshness-window-repair.md: superseded
 - docs/agent-truth/future-activity-signal-reclassification.md: superseded
+- docs/agent-truth/legacy-pipeline-inventory.md: superseded
+- docs/agent-truth/mega-legacy-pipeline-hardening.md: superseded
 - docs/agent-truth/non-event-score-policy.md: superseded
+- docs/agent-truth/pipeline-ownership-audit.md: superseded
+- docs/agent-truth/self-revealing-codebase.md: superseded
 - docs/agent-truth/snapshot-admin-vendor-cost-rewire.md: superseded
+- docs/agent-truth/tracking-summary-lane-cleanup.md: superseded
 - docs/doctrine/surfaces/admin-debug-control-tower-doctrine.md: superseded
+- scripts/agent/admin-status-lane-cleanup-shared.ts: superseded
+- scripts/agent/business-truth-recovery-shared.ts: superseded
+- scripts/agent/control-tower-cleanup-shared.ts: superseded
+- scripts/agent/debug-cockpit-batch16-shared.ts: superseded
+- scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts: superseded
 - scripts/agent/lost-data-recovery-dry-run.ts: superseded
 - scripts/agent/score-global-cost-surfaces.ts: superseded
 - scripts/agent/score-orphaned-logic.ts: superseded
 - scripts/agent/score-public-beta-readiness.ts: superseded
 - scripts/agent/snapshot-admin-vendor-cost-rewire.ts: superseded
+- scripts/agent/tracking-summary-lane-cleanup-shared.ts: superseded
 - scripts/agent/validate-admin-debug-control-tower.ts: superseded
 - scripts/agent/validate-ai-critic-p1-triage.ts: superseded
 - scripts/agent/validate-ai-debug-critic.ts: superseded
@@ -221,10 +287,12 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - scripts/agent/validate-analytics-semantics-final-lock.ts: superseded
 - scripts/agent/validate-blocked-refresh-queue-resolver.ts: superseded
 - scripts/agent/validate-bug-report-reward-flow.ts: superseded
+- scripts/agent/validate-canonical-math-authority-ledger.ts: superseded
 - scripts/agent/validate-chat-gating-moderation.ts: superseded
 - scripts/agent/validate-chat-presence-typing.ts: superseded
 - scripts/agent/validate-chat-realtime-cost-control.ts: superseded
 - scripts/agent/validate-chat-telemetry-admin-truth.ts: superseded
+- scripts/agent/validate-control-tower-operator-queue-cleanup.ts: superseded
 - scripts/agent/validate-creator-dashboard-error-cost-inventory.ts: superseded
 - scripts/agent/validate-creator-drop-manager-mobile-refinement.ts: superseded
 - scripts/agent/validate-creator-nav-role-consolidation.ts: superseded
@@ -242,15 +310,21 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - scripts/agent/validate-existing-algorithm-refinement.ts: superseded
 - scripts/agent/validate-final-behavioral-privacy-telemetry-lock.ts: superseded
 - scripts/agent/validate-final-cost-audit-lock.ts: superseded
+- scripts/agent/validate-final-math-normalization-lock.ts: superseded
 - scripts/agent/validate-final-morning-beta-lock.ts: superseded
 - scripts/agent/validate-final-pr-stale-cleanup.ts: superseded
 - scripts/agent/validate-final-signal-zero-lock.ts: superseded
 - scripts/agent/validate-final-testing-tracking-telemetry-lock.ts: superseded
 - scripts/agent/validate-final-user-tracking-handoff-lock.ts: superseded
+- scripts/agent/validate-freshness-window-repair.ts: superseded
 - scripts/agent/validate-future-activity-signal-reclassification.ts: still_required
 - scripts/agent/validate-global-cost-surfaces.ts: superseded
 - scripts/agent/validate-global-marquee-truncated-titles.ts: superseded
+- scripts/agent/validate-global-user-counting-math.ts: superseded
 - scripts/agent/validate-guest-user-identity-transfer.ts: superseded
+- scripts/agent/validate-identity-tracking-shared.ts: superseded
+- scripts/agent/validate-interpretive-brain-debug-triage.ts: superseded
+- scripts/agent/validate-launch-blocker-evidence-closure.ts: superseded
 - scripts/agent/validate-march-first-legacy-normalization.ts: superseded
 - scripts/agent/validate-mobile-loading-hydration-stability.ts: superseded
 - scripts/agent/validate-non-event-score-policy.ts: superseded
@@ -277,8 +351,10 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - src/app/admin/debug/components/DebugAdvancedTruth.tsx: superseded
 - src/app/admin/debug/components/DebugTabActions.tsx: superseded
 - src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx: superseded
+- src/app/api/admin/debug/assistant/fix/route.ts: superseded
 - src/app/api/admin/debug/route.ts: superseded
 - src/app/api/analytics/ingest-identified/route.ts: superseded
+- src/lib/admin-analytics/panel-hydration-resolver.ts: superseded
 - src/lib/admin/user-management-contract.ts: superseded
 - src/lib/agent-score/core.ts: superseded
 - src/lib/agent-score/non-event-score-policy.ts: superseded
@@ -289,23 +365,45 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - src/lib/analytics/person-metrics-contract.ts: superseded
 - src/lib/analytics/person-metrics-hydration.ts: superseded
 - src/lib/chat/chat-realtime-telemetry.ts: superseded
+- src/lib/codebase-hardening/legacy-pipeline-inventory.ts: superseded
+- src/lib/codebase-hardening/pipeline-ownership-auditor.ts: superseded
+- src/lib/codebase-hardening/pipeline-ownership-contract.ts: superseded
+- src/lib/codebase-hardening/self-revealing-codebase-contract.ts: superseded
+- src/lib/codebase-hardening/self-revealing-codebase-engine.ts: superseded
 - src/lib/debug/actionable-signal-filter.ts: still_required
 - src/lib/debug/ai-critic-p1-triage.ts: superseded
 - src/lib/debug/ai-debug-critic-contract.ts: superseded
 - src/lib/debug/ai-debug-critic-rules.ts: superseded
 - src/lib/debug/ai-debug-critic.ts: superseded
+- src/lib/debug/ai-debug-triage-engine.ts: superseded
 - src/lib/debug/debug-backlog-builder.ts: still_required
 - src/lib/debug/debug-backlog-contract.ts: still_required
+- src/lib/debug/debug-cockpit-batch16-ai-debug-orchestration.ts: superseded
+- src/lib/debug/debug-cockpit-batch19-product-routes.ts: superseded
 - src/lib/debug/debug-panel-tracking-summary.ts: still_required
 - src/lib/debug/debug-signal-actionability.ts: still_required
 - src/lib/debug/debug-signal-grouping.ts: superseded
 - src/lib/debug/future-activity-classifier.ts: still_required
 - src/lib/debug/recovery-playbooks.ts: superseded
+- src/lib/debug/repair-queue-status.ts: superseded
+- src/lib/debug/report-freshness-control-tower.ts: superseded
 - src/lib/hydration-performance-score.ts: superseded
 - src/lib/legacy/legacy-normalization-contract.ts: superseded
 - src/lib/legacy/march-first-recovery-plan.ts: superseded
 - src/lib/legacy/privacy-behavior-legacy-recovery.ts: superseded
-- src/lib/release-notes/public-release-notes.ts: superseded
+- src/lib/math/canonical-math-authority-contract.ts: superseded
+- src/lib/math/canonical-math-authority-ledger.ts: superseded
+- src/lib/parity/surface-parity-contract.ts: superseded
+- src/lib/parity/surface-parity-registry.ts: superseded
+- src/lib/product-integrity/body-system-wiring-repair.ts: superseded
+- src/lib/product-integrity/central-normalizer-contract.ts: superseded
+- src/lib/product-integrity/final-product-integrity-lock.ts: superseded
+- src/lib/product-integrity/interpretive-brain-contract.ts: superseded
+- src/lib/product-integrity/interpretive-brain.ts: superseded
+- src/lib/product-integrity/product-body-map.ts: superseded
+- src/lib/product-integrity/product-body-system-contract.ts: superseded
+- src/lib/release-readiness/automated-truth-reconciliation.ts: superseded
+- src/lib/route-hardening/route-4xx-taxonomy.ts: superseded
 - src/lib/server/admin-debug/event-envelope-summary.ts: superseded
 - src/lib/server/admin-orchestration-repairs.ts: superseded
 - src/lib/server/admin-orchestration.ts: superseded
@@ -313,10 +411,12 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - src/lib/server/global-cost-surface-contract.ts: superseded
 - src/lib/settings/settings-surface-contract.ts: superseded
 - src/lib/tasks/daily-task-guidance-contract.ts: superseded
+- src/lib/testing/canonical-test-factories.ts: superseded
 - src/lib/testing/telemetry-trigger-test-matrix.ts: superseded
 - tests/unit/admin-orchestration.spec.ts: superseded
 - tests/unit/ai-debug-assistant.spec.ts: superseded
 - tests/unit/ai-debug-critic.spec.ts: superseded
+- tests/unit/ai-debug-queue-truth.spec.ts: superseded
 - tests/unit/analytics-semantics-final-lock.spec.ts: superseded
 - tests/unit/blocked-refresh-queue-resolver.spec.ts: superseded
 - tests/unit/debug-backlog-engine.spec.ts: still_required
@@ -326,9 +426,15 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 - tests/unit/error-handling-final-readiness.spec.ts: superseded
 - tests/unit/error-truth-debug-visibility.spec.ts: superseded
 - tests/unit/final-signal-zero-lock.spec.ts: superseded
+- tests/unit/freshness-window-repair.spec.ts: superseded
+- tests/unit/future-activity-catalog-status-cleanup.spec.ts: superseded
 - tests/unit/future-activity-signal-reclassification.spec.ts: still_required
+- tests/unit/global-user-counting-math.spec.ts: superseded
+- tests/unit/interpretive-brain-debug-triage.spec.ts: superseded
 - tests/unit/march-first-legacy-normalization.spec.ts: superseded
+- tests/unit/mega-legacy-pipeline-hardening.spec.ts: superseded
 - tests/unit/non-event-score-policy.spec.ts: superseded
+- tests/unit/orphaned-logic-refresh.spec.ts: superseded
 - tests/unit/person-metrics-hydration.spec.ts: superseded
 - tests/unit/score-80-reconciliation-lock.spec.ts: superseded
 - tests/unit/score-80-refresh-queue-execution.spec.ts: superseded
@@ -338,53 +444,41 @@ Current head: b0850954013ef36f732dec9ad90f64d5bcbfd65b
 
 ## Dirty Files
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- Total: 166
+- Unsafe unknown: 0
+- Protected runtime changes: 0
+
+### Classification Counts
+
+- actionability_source_change: 5
+- current_generated_artifact_to_commit: 3
+- documentation_artifact_expected: 2
+- stale_generated_artifact_to_regenerate: 136
+- test_artifact_expected: 5
+- validator_artifact_expected: 15
+
+### Dirty File Samples
+
+- agent/state/activity-verification-engine.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/admin-truth-source-sample.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/algorithmic-evidence-policy.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-cost-runtime-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-hydration-consolidation-audit.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-hydration-consolidation.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/analytics-panel-hydration.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/beta-evidence-gap-map.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/beta-evidence-lane-prep.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/beta-freshness-language.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/chat-functionality-score-lock.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/chat-gating-moderation.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/chat-realtime-cost-control.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/chat-telemetry-admin-truth.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/cloud-sql-gemini-cost-guards.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/cost-owner-review-source-closure.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/cost-risk-exit-pass.generated.json: stale_generated_artifact_to_regenerate
 - agent/state/cost-risk-owner-review-closure.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-debug-score-lock.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-guidance-route-audit.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-lifecycle-telemetry.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-reset-truth.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/daily-task-reward-ledger.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-envelope-normalization.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/event-liveness-audit.generated.json: current_generated_artifact_to_commit
-- agent/state/event-translation-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/feature-registration-gate.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/formal-evidence-bridge.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/person-metrics-hydration.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/settings-connection-parity.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/telemetry-trigger-test-matrix.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-management-refactor.generated.json: stale_generated_artifact_to_regenerate
-- agent/state/user-profile-api-contract.generated.json: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-functionality-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-gating-moderation.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-realtime-cost-control.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/chat-telemetry-admin-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/cost-risk-owner-review-closure.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-debug-score-lock.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-guidance-route-audit.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-lifecycle-telemetry.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-reset-truth.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/daily-task-reward-ledger.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-envelope-normalization.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/event-liveness-audit.md: documentation_artifact_expected
-- docs/agent-truth/event-translation-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/formal-evidence-bridge.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/person-metrics-hydration.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/settings-connection-parity.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/telemetry-trigger-test-matrix.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/user-management-refactor.md: stale_generated_artifact_to_regenerate
-- docs/agent-truth/user-profile-api-contract.md: stale_generated_artifact_to_regenerate
-- scripts/agent/validate-event-liveness-audit.ts: validator_artifact_expected
-- src/app/api/admin/debug/route.ts: debug_panel_source_change
-- src/lib/analytics/event-liveness-contract.ts: actionability_source_change
-- src/lib/analytics/event-liveness-engine.ts: actionability_source_change
-- src/lib/debug/debug-panel-tracking-summary.ts: debug_panel_source_change
-- src/lib/server/admin-debug/summary.ts: debug_panel_source_change
-- tests/unit/event-liveness-audit.spec.ts: test_artifact_expected
+- agent/state/creator-dashboard-error-cost-inventory.generated.json: stale_generated_artifact_to_regenerate
+- agent/state/creator-drop-status-metrics.generated.json: stale_generated_artifact_to_regenerate
 
 ## Validation Failures
 

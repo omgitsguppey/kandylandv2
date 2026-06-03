@@ -118,7 +118,9 @@ function scriptName(command: string) {
 
 function isEventLivenessInFlight(files: string[]) {
   return files.some((path) =>
-    /event-liveness-audit|event-liveness-(contract|engine)|debug-panel-tracking-summary|admin-debug\/summary|api\/admin\/debug\/route/u.test(path)
+    !/^agent\/state\/event-liveness-audit\.generated\.json$/u.test(path)
+    && !/^docs\/agent-truth\/event-liveness-audit\.md$/u.test(path)
+    && /event-liveness-audit|event-liveness-(contract|engine)|debug-panel-tracking-summary|admin-debug\/summary|api\/admin\/debug\/route/u.test(path)
   );
 }
 

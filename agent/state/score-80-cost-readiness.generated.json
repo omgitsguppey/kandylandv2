@@ -1,21 +1,21 @@
 {
-  "generatedAtUtc": "2026-05-31T19:57:00.736Z",
+  "generatedAtUtc": "2026-06-03T04:33:20.425Z",
   "reportKey": "score-80-cost-readiness",
-  "currentHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
-  "sourceCommit": "9f108d980471030fe6e4e319ceac44e291b3a08e",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "summary": {
     "latestCostLocksPreferred": true,
     "externalOwnerReviewStillRequired": true,
-    "sourceCostReadinessScore": 80.5,
-    "costRiskScore": 80.5,
-    "staleCreatorDashboardInventoryIgnored": true,
+    "sourceCostReadinessScore": 92.5,
+    "costRiskScore": 92.5,
+    "staleCreatorDashboardInventoryIgnored": false,
     "cloudRunSourceReady": true,
     "cloudSqlOwnerReview": true,
     "geminiOwnerReview": true,
     "route4xxSourceReady": true,
     "p0Count": 0,
     "p1Count": 3,
-    "p2Count": 3
+    "p2Count": 0
   },
   "costReadiness": {
     "cloudRunCostReadiness": {
@@ -85,27 +85,21 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 80.5,
-  "costRiskScoreExplanation": "Cost risk score 80.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.",
+  "costRiskScore": 92.5,
+  "costRiskScoreExplanation": "Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.",
   "externalOwnerReviewStillRequired": true,
   "sourceReadinessSignals": [
-    "cloudRunSourceReady=false",
-    "route4xxSourceReady=false",
+    "cloudRunSourceReady=true",
+    "route4xxSourceReady=true",
     "globalCostClean=true",
-    "finalCostCurrent=false",
-    "telemetryCurrent=false",
+    "finalCostCurrent=true",
+    "telemetryCurrent=true",
     "costOwnerReviewSourceClosureCurrent=true",
     "costRiskOwnerReviewClosureCurrent=true",
     "costRiskExitPassCurrent=true"
   ],
-  "staleArtifacts": [
-    "agent/state/final-cost-audit-lock.generated.json",
-    "agent/state/final-telemetry-closure-lock.generated.json",
-    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
-  ],
-  "ignoredLegacyArtifacts": [
-    "agent/state/creator-dashboard-error-cost-inventory.generated.json"
-  ],
+  "staleArtifacts": [],
+  "ignoredLegacyArtifacts": [],
   "ownerReviewLanes": [
     "cloudRunCostReadiness",
     "cloudSqlCostReadiness",
@@ -114,9 +108,9 @@
   "validatorResults": [
     {
       "command": "npm run check:final-cost-audit-lock",
-      "status": "failed_or_not_run",
+      "status": "pass",
       "artifactPath": "agent/state/final-cost-audit-lock.generated.json",
-      "detail": "Final cost lock is missing or stale."
+      "detail": "Current final cost lock is available."
     },
     {
       "command": "npm run check:cost-risk-exit-pass",

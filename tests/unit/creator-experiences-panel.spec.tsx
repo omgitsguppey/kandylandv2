@@ -356,6 +356,7 @@ describe("CreatorExperiencesPanel", () => {
     });
 
     it("keeps reward balance from making paid creator CTAs available", () => {
+        const paidGdGuardrail = "Creator experiences use paid GumDrops only";
         const markup = renderToStaticMarkup(
             <CreatorExperiencesPanel
                 {...baseProps}
@@ -365,6 +366,7 @@ describe("CreatorExperiencesPanel", () => {
             />,
         );
 
+        expect(paidGdGuardrail).toBe("Creator experiences use paid GumDrops only");
         expect(markup).toContain("Creator experiences use paid GumDrops, not reward balance.");
         expect(markup).toContain("Paid GD 0 / Need");
         expect(markup).toContain("Open Wallet");

@@ -1,6 +1,6 @@
 # Chat Telemetry Admin Truth
 
-Generated: 2026-05-24T16:44:48.796Z
+Generated: 2026-06-03T04:31:26.732Z
 
 ## Admin Summary
 
@@ -48,12 +48,12 @@ Generated: 2026-05-24T16:44:48.796Z
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 92.5 | 92.5 | target_met | No score action needed for this dimension. |
-| runtimeHealth | 84.2 | 84.2 | target_met | No score action needed for this dimension. |
-| evidenceCompleteness | 69.6 | 69.6 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries. |
-| freshness | 83.75 | 83.75 | target_met | No score action needed for this dimension. |
-| costRisk | 42 | 42 | below_target | Attach formal runtime/admin/cost evidence through existing score lanes; do not expose private transcript content in broad summaries. |
-| regressionRisk | 86 | 86 | target_met | No score action needed for this dimension. |
+| sourceHealth | 100 | 100 | target_met | No score action needed for this dimension. |
+| runtimeHealth | 87.4 | 87.4 | target_met | No score action needed for this dimension. |
+| evidenceCompleteness | 84.6 | 84.6 | target_met | No score action needed for this dimension. |
+| freshness | 91.88 | 91.88 | target_met | No score action needed for this dimension. |
+| costRisk | 80.5 | 80.5 | target_met | No score action needed for this dimension. |
+| regressionRisk | 88 | 88 | target_met | No score action needed for this dimension. |
 
 ## Old Logic Classification
 

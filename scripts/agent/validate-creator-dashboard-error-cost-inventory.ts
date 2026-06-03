@@ -304,7 +304,7 @@ export function validateCreatorDashboardErrorCostInventoryReport(
   if (!hub.includes('Boolean(viewAsState || userProfile?.role === "creator")')) {
     failures.push("CreatorDashboardSettingsHub must not load creator settings for plain admin accounts outside projection.");
   }
-  if (!hub.includes("if (!canLoadCreatorDashboard)") || !hub.includes("setSettings(null)") || !hub.includes("setError(null)")) {
+  if (!hub.includes("if (!canLoadCreatorDashboard)") || !hub.includes("setSettings(null)") || !hub.includes("setSettingsError(null)")) {
     failures.push("CreatorDashboardSettingsHub must short-circuit when creator dashboard cannot load.");
   }
   if (hub.includes('userProfile?.role === "admin"')) {

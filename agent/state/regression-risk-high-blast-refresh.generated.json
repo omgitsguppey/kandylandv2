@@ -1,24 +1,24 @@
 {
-  "generatedAtUtc": "2026-05-24T05:47:55.213Z",
+  "generatedAtUtc": "2026-06-03T04:33:16.306Z",
   "reportKey": "regression-risk-high-blast-refresh",
-  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "scoreBefore": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
+    "freshness": 59.38,
+    "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "overallHealthScore": 75.39
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
-    "regressionRisk": 88,
-    "overallHealthScore": 83.3
+    "freshness": 82,
+    "costRisk": 42,
+    "regressionRisk": 94,
+    "overallHealthScore": 79.58
   },
   "highBlastLanes": [
     "event-translation-bridge",
@@ -34,24 +34,24 @@
     "event-liveness-audit"
   ],
   "highBlastCoverageCurrent": true,
-  "staleTargetedBehaviorEvidenceRetired": true,
-  "targetedBehaviorEvidenceCurrent": false,
+  "staleTargetedBehaviorEvidenceRetired": false,
+  "targetedBehaviorEvidenceCurrent": true,
   "laneResults": [
     {
       "laneId": "event-translation-bridge",
       "command": "npm run check:event-translation-bridge",
       "artifactPath": "agent/state/event-translation-bridge.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:09.626Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:30:12.226Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:event-translation-bridge could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:event-translation-bridge warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:event-translation-bridge warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -59,30 +59,32 @@
       "command": "npm run check:person-metrics-hydration",
       "artifactPath": "agent/state/person-metrics-hydration.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:15.423Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:30:37.198Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:person-metrics-hydration could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:person-metrics-hydration warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:person-metrics-hydration warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
       "laneId": "debug-signal-grouping",
       "command": "npm run check:debug-signal-grouping",
       "artifactPath": "agent/state/debug-signal-grouping.generated.json",
-      "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:51.707Z",
+      "status": "landed_artifact_reused",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:29.700Z",
       "scoreDimensionsAffected": [
         "evidenceCompleteness",
         "regressionRisk"
       ],
-      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "nextAction": "npm run check:debug-signal-grouping could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:debug-signal-grouping warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -90,16 +92,16 @@
       "command": "npm run check:chat-functionality-score-lock",
       "artifactPath": "agent/state/chat-functionality-score-lock.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:24.923Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:09.859Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "costRisk",
         "regressionRisk"
       ],
       "nextAction": "npm run check:chat-functionality-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-functionality-score-lock warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-functionality-score-lock warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -107,16 +109,16 @@
       "command": "npm run check:daily-task-debug-score-lock",
       "artifactPath": "agent/state/daily-task-debug-score-lock.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:31.659Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:30.993Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:daily-task-debug-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-debug-score-lock warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-debug-score-lock warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -124,8 +126,8 @@
       "command": "npm run check:settings-connection-parity",
       "artifactPath": "agent/state/settings-connection-parity.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:41.258Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:00.510Z",
       "scoreDimensionsAffected": [
         "sourceHealth",
         "evidenceCompleteness",
@@ -139,7 +141,7 @@
       "command": "npm run check:wallet-modal-telemetry-cleanup",
       "artifactPath": "agent/state/wallet-modal-telemetry-cleanup.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "costRisk",
@@ -154,16 +156,16 @@
       "command": "npm run check:user-management-refactor",
       "artifactPath": "agent/state/user-management-refactor.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:21.973Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:00.527Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:user-management-refactor could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:user-management-refactor warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:user-management-refactor warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -171,8 +173,8 @@
       "command": "npm run check:formal-evidence-bridge",
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:53.160Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:33:10.778Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
@@ -186,8 +188,8 @@
       "command": "npm run check:cost-risk-owner-review-closure",
       "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:54.718Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:33:15.035Z",
       "scoreDimensionsAffected": [
         "costRisk",
         "regressionRisk"
@@ -199,24 +201,27 @@
       "laneId": "event-liveness-audit",
       "command": "npm run check:event-liveness-audit",
       "artifactPath": "agent/state/event-liveness-audit.generated.json",
-      "status": "in_flight",
+      "status": "landed_artifact_reused",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:33.345Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "freshness",
         "regressionRisk"
       ],
-      "nextAction": "Event liveness implementation is dirty/in-flight; keep it out of this regression refresh commit and rerun when landed.",
-      "blocker": "event-liveness dirty files are intentionally unstaged",
-      "changedSinceEvidence": true
+      "nextAction": "npm run check:event-liveness-audit could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:event-liveness-audit warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
     },
     {
       "laneId": "event-envelope-normalization",
       "command": "npm run check:event-envelope-normalization",
       "artifactPath": "agent/state/event-envelope-normalization.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:13.144Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:30:31.064Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
@@ -229,15 +234,17 @@
       "laneId": "telemetry-trigger-test-matrix",
       "command": "npm run check:telemetry-trigger-test-matrix",
       "artifactPath": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:18.903Z",
+      "status": "landed_artifact_reused",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:30:48.009Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
-      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "nextAction": "npm run check:telemetry-trigger-test-matrix could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:telemetry-trigger-test-matrix warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -245,16 +252,16 @@
       "command": "npm run check:chat-realtime-cost-control",
       "artifactPath": "agent/state/chat-realtime-cost-control.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:26.556Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:14.479Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "costRisk",
         "regressionRisk"
       ],
       "nextAction": "npm run check:chat-realtime-cost-control could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-realtime-cost-control warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-realtime-cost-control warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -262,16 +269,16 @@
       "command": "npm run check:chat-gating-moderation",
       "artifactPath": "agent/state/chat-gating-moderation.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:28.220Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:20.510Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:chat-gating-moderation could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-gating-moderation warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-gating-moderation warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -279,16 +286,16 @@
       "command": "npm run check:chat-telemetry-admin-truth",
       "artifactPath": "agent/state/chat-telemetry-admin-truth.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:29.879Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:26.732Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:chat-telemetry-admin-truth could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-telemetry-admin-truth warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-telemetry-admin-truth warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -296,16 +303,16 @@
       "command": "npm run check:daily-task-reset-truth",
       "artifactPath": "agent/state/daily-task-reset-truth.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:33.436Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:36.857Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:daily-task-reset-truth could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reset-truth warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reset-truth warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -313,16 +320,16 @@
       "command": "npm run check:daily-task-lifecycle-telemetry",
       "artifactPath": "agent/state/daily-task-lifecycle-telemetry.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:35.357Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:43.114Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:daily-task-lifecycle-telemetry could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-lifecycle-telemetry warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-lifecycle-telemetry warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -330,16 +337,16 @@
       "command": "npm run check:daily-task-reward-ledger",
       "artifactPath": "agent/state/daily-task-reward-ledger.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:36.888Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:46.360Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:daily-task-reward-ledger could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reward-ledger warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reward-ledger warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -347,9 +354,9 @@
       "command": "npm run check:daily-task-guidance-route-audit",
       "artifactPath": "agent/state/daily-task-guidance-route-audit.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:39.094Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:55.516Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
@@ -364,8 +371,8 @@
       "command": "npm run check:user-profile-api-contract",
       "artifactPath": "agent/state/user-profile-api-contract.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:43.724Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:05.479Z",
       "scoreDimensionsAffected": [
         "sourceHealth",
         "runtimeHealth",
@@ -379,8 +386,8 @@
       "command": "npm run check:feature-registration-gate",
       "artifactPath": "agent/state/feature-registration-gate.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:45.938Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:11.440Z",
       "scoreDimensionsAffected": [
         "sourceHealth",
         "evidenceCompleteness",
@@ -393,14 +400,16 @@
       "laneId": "debug-signal-actionability",
       "command": "npm run check:debug-signal-actionability",
       "artifactPath": "agent/state/debug-signal-actionability.generated.json",
-      "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:48.430Z",
+      "status": "landed_artifact_reused",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:18.719Z",
       "scoreDimensionsAffected": [
         "evidenceCompleteness",
         "regressionRisk"
       ],
-      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "nextAction": "npm run check:debug-signal-actionability could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:debug-signal-actionability warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     }
   ],
@@ -410,16 +419,16 @@
       "command": "npm run check:event-translation-bridge",
       "artifactPath": "agent/state/event-translation-bridge.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:09.626Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:30:12.226Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:event-translation-bridge could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:event-translation-bridge warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:event-translation-bridge warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -427,30 +436,32 @@
       "command": "npm run check:person-metrics-hydration",
       "artifactPath": "agent/state/person-metrics-hydration.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:15.423Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:30:37.198Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:person-metrics-hydration could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:person-metrics-hydration warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:person-metrics-hydration warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
       "laneId": "debug-signal-grouping",
       "command": "npm run check:debug-signal-grouping",
       "artifactPath": "agent/state/debug-signal-grouping.generated.json",
-      "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:51.707Z",
+      "status": "landed_artifact_reused",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:29.700Z",
       "scoreDimensionsAffected": [
         "evidenceCompleteness",
         "regressionRisk"
       ],
-      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "nextAction": "npm run check:debug-signal-grouping could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:debug-signal-grouping warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -458,16 +469,16 @@
       "command": "npm run check:chat-functionality-score-lock",
       "artifactPath": "agent/state/chat-functionality-score-lock.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:24.923Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:09.859Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "costRisk",
         "regressionRisk"
       ],
       "nextAction": "npm run check:chat-functionality-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-functionality-score-lock warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-functionality-score-lock warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -475,16 +486,16 @@
       "command": "npm run check:daily-task-debug-score-lock",
       "artifactPath": "agent/state/daily-task-debug-score-lock.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:31.659Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:30.993Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:daily-task-debug-score-lock could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-debug-score-lock warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-debug-score-lock warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -492,8 +503,8 @@
       "command": "npm run check:settings-connection-parity",
       "artifactPath": "agent/state/settings-connection-parity.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:41.258Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:00.510Z",
       "scoreDimensionsAffected": [
         "sourceHealth",
         "evidenceCompleteness",
@@ -507,7 +518,7 @@
       "command": "npm run check:wallet-modal-telemetry-cleanup",
       "artifactPath": "agent/state/wallet-modal-telemetry-cleanup.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "costRisk",
@@ -522,16 +533,16 @@
       "command": "npm run check:user-management-refactor",
       "artifactPath": "agent/state/user-management-refactor.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:21.973Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:00.527Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:user-management-refactor could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:user-management-refactor warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:user-management-refactor warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -539,8 +550,8 @@
       "command": "npm run check:formal-evidence-bridge",
       "artifactPath": "agent/state/formal-evidence-bridge.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:53.160Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:33:10.778Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
@@ -554,8 +565,8 @@
       "command": "npm run check:cost-risk-owner-review-closure",
       "artifactPath": "agent/state/cost-risk-owner-review-closure.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:54.718Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:33:15.035Z",
       "scoreDimensionsAffected": [
         "costRisk",
         "regressionRisk"
@@ -564,12 +575,30 @@
       "changedSinceEvidence": false
     },
     {
+      "laneId": "event-liveness-audit",
+      "command": "npm run check:event-liveness-audit",
+      "artifactPath": "agent/state/event-liveness-audit.generated.json",
+      "status": "landed_artifact_reused",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:33.345Z",
+      "scoreDimensionsAffected": [
+        "runtimeHealth",
+        "evidenceCompleteness",
+        "freshness",
+        "regressionRisk"
+      ],
+      "nextAction": "npm run check:event-liveness-audit could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:event-liveness-audit warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "changedSinceEvidence": false
+    },
+    {
       "laneId": "event-envelope-normalization",
       "command": "npm run check:event-envelope-normalization",
       "artifactPath": "agent/state/event-envelope-normalization.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:13.144Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:30:31.064Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
@@ -582,15 +611,17 @@
       "laneId": "telemetry-trigger-test-matrix",
       "command": "npm run check:telemetry-trigger-test-matrix",
       "artifactPath": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:18.903Z",
+      "status": "landed_artifact_reused",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:30:48.009Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
-      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "nextAction": "npm run check:telemetry-trigger-test-matrix could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:telemetry-trigger-test-matrix warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -598,16 +629,16 @@
       "command": "npm run check:chat-realtime-cost-control",
       "artifactPath": "agent/state/chat-realtime-cost-control.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:26.556Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:14.479Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "costRisk",
         "regressionRisk"
       ],
       "nextAction": "npm run check:chat-realtime-cost-control could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-realtime-cost-control warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-realtime-cost-control warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -615,16 +646,16 @@
       "command": "npm run check:chat-gating-moderation",
       "artifactPath": "agent/state/chat-gating-moderation.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:28.220Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:20.510Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:chat-gating-moderation could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-gating-moderation warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-gating-moderation warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -632,16 +663,16 @@
       "command": "npm run check:chat-telemetry-admin-truth",
       "artifactPath": "agent/state/chat-telemetry-admin-truth.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:29.879Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:31:26.732Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:chat-telemetry-admin-truth could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:chat-telemetry-admin-truth warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:chat-telemetry-admin-truth warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -649,16 +680,16 @@
       "command": "npm run check:daily-task-reset-truth",
       "artifactPath": "agent/state/daily-task-reset-truth.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:33.436Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:36.857Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:daily-task-reset-truth could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reset-truth warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reset-truth warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -666,16 +697,16 @@
       "command": "npm run check:daily-task-lifecycle-telemetry",
       "artifactPath": "agent/state/daily-task-lifecycle-telemetry.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:35.357Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:43.114Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:daily-task-lifecycle-telemetry could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-lifecycle-telemetry warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-lifecycle-telemetry warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -683,16 +714,16 @@
       "command": "npm run check:daily-task-reward-ledger",
       "artifactPath": "agent/state/daily-task-reward-ledger.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:36.888Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:46.360Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
         "regressionRisk"
       ],
       "nextAction": "npm run check:daily-task-reward-ledger could not rerun in the dirty queue state, but owned source did not change after available evidence.",
-      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reward-ledger warning: in the working copy of 'agent/context/optimized-task-context.generated.json', LF will be replaced by CRLF the next time Git touches it",
+      "blocker": "Command failed: cmd.exe /c npm run check:daily-task-reward-ledger warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     },
     {
@@ -700,9 +731,9 @@
       "command": "npm run check:daily-task-guidance-route-audit",
       "artifactPath": "agent/state/daily-task-guidance-route-audit.generated.json",
       "status": "landed_artifact_reused",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "sourceCommit": "b0850954",
-      "generatedAtUtc": "2026-05-24T05:47:39.094Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53",
+      "generatedAtUtc": "2026-06-03T04:31:55.516Z",
       "scoreDimensionsAffected": [
         "runtimeHealth",
         "evidenceCompleteness",
@@ -717,8 +748,8 @@
       "command": "npm run check:user-profile-api-contract",
       "artifactPath": "agent/state/user-profile-api-contract.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:43.724Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:05.479Z",
       "scoreDimensionsAffected": [
         "sourceHealth",
         "runtimeHealth",
@@ -732,8 +763,8 @@
       "command": "npm run check:feature-registration-gate",
       "artifactPath": "agent/state/feature-registration-gate.generated.json",
       "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:45.938Z",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:11.440Z",
       "scoreDimensionsAffected": [
         "sourceHealth",
         "evidenceCompleteness",
@@ -746,44 +777,162 @@
       "laneId": "debug-signal-actionability",
       "command": "npm run check:debug-signal-actionability",
       "artifactPath": "agent/state/debug-signal-actionability.generated.json",
-      "status": "pass",
-      "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
-      "generatedAtUtc": "2026-05-24T05:47:48.430Z",
+      "status": "landed_artifact_reused",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "generatedAtUtc": "2026-06-03T04:32:18.719Z",
       "scoreDimensionsAffected": [
         "evidenceCompleteness",
         "regressionRisk"
       ],
-      "nextAction": "Keep this validator in the high-blast refresh set.",
+      "nextAction": "npm run check:debug-signal-actionability could not rerun in the dirty queue state, but owned source did not change after available evidence.",
+      "blocker": "Command failed: cmd.exe /c npm run check:debug-signal-actionability warning: in the working copy of 'agent/state/activity-verification-engine.generated.json', LF will be replaced by CRLF the next time Git touches it",
       "changedSinceEvidence": false
     }
   ],
   "failedLanes": [],
-  "inFlightLanes": [
-    {
-      "laneId": "event-liveness-audit",
-      "command": "npm run check:event-liveness-audit",
-      "artifactPath": "agent/state/event-liveness-audit.generated.json",
-      "status": "in_flight",
-      "scoreDimensionsAffected": [
-        "runtimeHealth",
-        "evidenceCompleteness",
-        "freshness",
-        "regressionRisk"
-      ],
-      "nextAction": "Event liveness implementation is dirty/in-flight; keep it out of this regression refresh commit and rerun when landed.",
-      "blocker": "event-liveness dirty files are intentionally unstaged",
-      "changedSinceEvidence": true
-    }
-  ],
+  "inFlightLanes": [],
   "missingLanes": [],
   "staleLanes": [],
   "dirtyFilesClassified": [
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/algorithmic-evidence-policy.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/beta-freshness-language.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/cost-owner-review-source-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
+      "classification": "current_generated_artifact_to_commit"
     },
     {
       "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-reset-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-score-impact-triage.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/debug-signal-grouping.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/event-envelope-normalization.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
@@ -791,11 +940,275 @@
       "classification": "in_flight_event_liveness"
     },
     {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/final-cost-audit-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/final-parity-telemetry-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
       "path": "agent/state/formal-evidence-bridge.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/media-discovery-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/runtime-watch-time-v2.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/score-80-refresh-pass.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/settings-connection-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/source-backed-runtime-confidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/user-creator-ui-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/user-management-refactor.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "current_generated_artifact_to_commit"
+    },
+    {
+      "path": "docs/agent-truth/admin-truth-source-sample.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/algorithmic-evidence-policy.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/beta-freshness-language.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-realtime-cost-control.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/cost-owner-review-source-closure.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
+      "classification": "release_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/creator-settings-control-plane.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/current-beta-exit-status.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reset-truth.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-runtime-evidence.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-score-impact-triage.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-actionability.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-grouping.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/event-envelope-normalization.md",
       "classification": "release_artifact_expected"
     },
     {
@@ -803,44 +1216,232 @@
       "classification": "in_flight_event_liveness"
     },
     {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/existing-algorithm-refinement.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-cost-audit-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
       "path": "docs/agent-truth/formal-evidence-bridge.md",
       "classification": "release_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
-      "classification": "in_flight_event_liveness"
+      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "src/app/api/admin/debug/route.ts",
-      "classification": "in_flight_event_liveness"
+      "path": "docs/agent-truth/media-discovery-score-lock.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/analytics/event-liveness-contract.ts",
-      "classification": "in_flight_event_liveness"
+      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/analytics/event-liveness-engine.ts",
-      "classification": "in_flight_event_liveness"
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "in_flight_event_liveness"
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "src/lib/server/admin-debug/summary.ts",
-      "classification": "in_flight_event_liveness"
+      "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "release_artifact_expected"
     },
     {
-      "path": "tests/unit/event-liveness-audit.spec.ts",
-      "classification": "in_flight_event_liveness"
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/overnight-wiring-integrity.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/post-economy-creator-flow-qa.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/runtime-watch-time-v2.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/score-80-refresh-pass.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/settings-connection-parity.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/user-management-refactor.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "release_artifact_expected"
+    },
+    {
+      "path": "scripts/agent/score-public-beta-readiness.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-post-economy-creator-flow-qa.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-public-beta-score.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-score-80-refresh-pass.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/evidence-quality.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "src/lib/agent-score/regression-risk-refresh-plan.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/creator-dashboard-error-cost-inventory.spec.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/creator-experiences-panel.spec.tsx",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/post-economy-creator-flow-qa.spec.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/public-beta-score.spec.ts",
+      "classification": "real_source_change_needs_review"
+    },
+    {
+      "path": "tests/unit/purchase-modal.spec.tsx",
+      "classification": "real_source_change_needs_review"
     }
   ],
-  "staleArtifactsRetired": [
-    "agent/state/targeted-behavior-evidence.generated.json"
-  ],
-  "remainingGaps": [
-    "event-liveness-audit: in-flight lane kept separate from stale regression drag."
-  ],
+  "staleArtifactsRetired": [],
+  "remainingGaps": [],
   "nextExactSteps": [
     "Keep high-blast regression validators current after analytics, debug, chat, task, settings, wallet, admin, score, or cost changes."
   ]

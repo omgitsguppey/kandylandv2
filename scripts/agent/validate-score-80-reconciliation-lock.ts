@@ -99,7 +99,13 @@ function classifyChangedFile(path: string): Score80ChangedFile {
   } else if (normalized === "tests/unit/score-80-reconciliation-lock.spec.ts"
     || normalized === "tests/unit/self-healing-refresh-queue.spec.ts"
     || normalized === "tests/unit/codex-visual-gate-removal.spec.ts"
-    || normalized === "tests/unit/ui-visual-smoke-minimal.spec.ts") {
+    || normalized === "tests/unit/ui-visual-smoke-minimal.spec.ts"
+    || normalized === "tests/unit/creator-dashboard-error-cost-inventory.spec.ts"
+    || normalized === "tests/unit/creator-experiences-panel.spec.tsx"
+    || normalized === "tests/unit/post-economy-creator-flow-qa.spec.ts"
+    || normalized === "tests/unit/purchase-modal.spec.tsx"
+    || normalized === "tests/unit/public-beta-score.spec.ts"
+    || normalized === "tests/unit/regression-risk-high-blast-refresh.spec.ts") {
     classification = "test_artifact_expected";
     reason = "Dedicated score/evidence unit coverage for this batch.";
   } else if (normalized === "src/lib/agent-score/score-80-reconciliation-lock.ts"
@@ -107,6 +113,9 @@ function classifyChangedFile(path: string): Score80ChangedFile {
     || normalized === "src/lib/agent-score/core.ts"
     || normalized === "src/lib/agent-score/weights.ts"
     || normalized === "src/lib/agent-score/algorithmic-evidence-policy.ts"
+    || normalized === "src/lib/agent-score/evidence-quality.ts"
+    || normalized === "src/lib/agent-score/formal-evidence-bridge.ts"
+    || normalized === "src/lib/agent-score/regression-risk-refresh-plan.ts"
     || normalized === "src/lib/evidence/ui-visual-smoke-contract.ts"
     || normalized === "package.json") {
     classification = "real_source_change_needs_review";
@@ -114,6 +123,9 @@ function classifyChangedFile(path: string): Score80ChangedFile {
   } else if (normalized.startsWith("agent/context/") || normalized.startsWith("agent/index/")) {
     classification = "unrelated_agent_context_file_to_ignore";
     reason = "Agent context output is not part of this lock unless explicitly staged.";
+  } else if (normalized === "scripts/agent/validate-regression-risk-high-blast-refresh.ts") {
+    classification = "validator_artifact_expected";
+    reason = "Regression-risk source refresh classifier updated for this score cleanup batch.";
   }
 
   return { path: normalized, classification, reason };

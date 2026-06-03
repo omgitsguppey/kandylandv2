@@ -1,8 +1,8 @@
 {
   "reportKey": "user-management-refactor",
-  "generatedAtUtc": "2026-05-24T16:27:40.108Z",
-  "currentHead": "3198b27d8499d675aa8e3ee98fe4e3368f2c77e0",
-  "status": "pass",
+  "generatedAtUtc": "2026-06-03T04:31:00.527Z",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "status": "fail",
   "productionReadsRequired": false,
   "liveDataMutationAllowed": false,
   "defaultView": "compact_user_list",
@@ -57,8 +57,8 @@
       },
       "personMetricConfidence": {
         "source": "person_metrics_hydration",
-        "mappedMetrics": 34,
-        "lowConfidenceCount": 34,
+        "mappedMetrics": 37,
+        "lowConfidenceCount": 37,
         "lowConfidenceMetrics": [
           {
             "metricId": "active_days",
@@ -113,7 +113,7 @@
             "missingProducer": "chat_surface_viewed",
             "missingBridge": "person_metrics.chat_actions",
             "missingMaterializer": "person_metrics.chat_actions",
-            "explanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
+            "explanation": "Missing producer activity for chat_actions; expected producer event(s): chat_surface_viewed, chat_thread_list_loaded, chat_thread_opened, chat_compose_sheet_opened, chat_creator_selected, chat_message_send_attempted, chat_message_sent, chat_message_failed, chat_message_blocked, chat_attachment_upload_started, chat_attachment_upload_failed, media_upload_prepare_started, media_upload_prepare_completed, media_upload_prepare_failed, media_storage_upload_started, media_storage_upload_completed, media_storage_upload_failed, media_upload_complete_started, media_upload_complete_completed, media_upload_complete_failed, media_upload_cancelled, media_upload_orphaned, media_upload_recovered, media_upload_blocked_size, media_upload_blocked_type, media_access_allowed, media_access_blocked, media_access_failed, media_asset_missing, media_expired_blocked, chat_presence_connected, chat_typing_started, chat_typing_stopped, chat_read_marked, chat_unread_updated, chat_paid_gd_gate_viewed, chat_purchase_cta_clicked, creator_message_sent, creator_media_sent, chat_send_blocked, chat_moderation_blocked."
           },
           {
             "metricId": "checkout_starts",
@@ -146,7 +146,7 @@
             "missingProducer": "creator_profile_viewed",
             "missingBridge": "person_metrics.creator_profile_views",
             "missingMaterializer": "person_metrics.creator_profile_views",
-            "explanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked."
+            "explanation": "Missing producer activity for creator_profile_views; expected producer event(s): creator_profile_viewed, creator_profile_link_clicked, creator_discovery_surface_viewed, creator_card_viewed, creator_card_clicked, creator_profile_opened, creator_recommendation_viewed, creator_recommendation_clicked, creator_relationship_list_loaded, creator_relationship_list_failed."
           },
           {
             "metricId": "daily_task_abandonments",
@@ -191,6 +191,17 @@
             "missingBridge": "person_metrics.daily_task_failures",
             "missingMaterializer": "person_metrics.daily_task_failures",
             "explanation": "Missing producer activity for daily_task_failures; expected producer event(s): daily_task_failed."
+          },
+          {
+            "metricId": "daily_task_guidance_interactions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "daily_task_guidance_opened",
+            "missingBridge": "person_metrics.daily_task_guidance_interactions",
+            "missingMaterializer": "person_metrics.daily_task_guidance_interactions",
+            "explanation": "Missing producer activity for daily_task_guidance_interactions; expected producer event(s): daily_task_guidance_opened, task_guidance_viewed, task_guidance_tapped, task_guidance_dismissed, task_guidance_completed, task_card_expanded, task_help_opened."
           },
           {
             "metricId": "daily_task_reset_locked_views",
@@ -248,6 +259,17 @@
             "explanation": "Missing producer activity for drop_opens; expected producer event(s): drop_preview_opened, drop_preview_page_viewed, view_drop_details, drop_clicked."
           },
           {
+            "metricId": "drop_unlocks",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "drop_unlocked",
+            "missingBridge": "person_metrics.drop_unlocks",
+            "missingMaterializer": "person_metrics.drop_unlocks",
+            "explanation": "Missing producer activity for drop_unlocks; expected producer event(s): drop_unlocked, entitlement_granted, unlock_drop_success."
+          },
+          {
             "metricId": "fan_pass_purchases",
             "confidence": "unknown",
             "state": "collecting",
@@ -256,7 +278,7 @@
             "missingProducer": "creator_fan_pass_started",
             "missingBridge": "person_metrics.fan_pass_purchases",
             "missingMaterializer": "person_metrics.fan_pass_purchases",
-            "explanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed."
+            "explanation": "Missing producer activity for fan_pass_purchases; expected producer event(s): creator_fan_pass_started, creator_subscription_started, creator_subscription_renewed, fan_pass_purchase_attempted, fan_pass_purchase_succeeded, fan_pass_purchase_failed, fan_pass_access_granted, fan_pass_access_denied, fan_pass_cancelled, fan_pass_expired."
           },
           {
             "metricId": "fan_pass_views",
@@ -267,7 +289,7 @@
             "missingProducer": "creator_fan_pass_viewed",
             "missingBridge": "person_metrics.fan_pass_views",
             "missingMaterializer": "person_metrics.fan_pass_views",
-            "explanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed."
+            "explanation": "Missing producer activity for fan_pass_views; expected producer event(s): creator_fan_pass_viewed, creator_subscription_viewed, fan_pass_surface_viewed, fan_pass_cta_clicked."
           },
           {
             "metricId": "follows",
@@ -278,7 +300,7 @@
             "missingProducer": "creator_followed",
             "missingBridge": "person_metrics.follows",
             "missingMaterializer": "person_metrics.follows",
-            "explanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed."
+            "explanation": "Missing producer activity for follows; expected producer event(s): creator_followed, creator_unfollowed, creator_follow_attempted, creator_follow_succeeded, creator_follow_failed, creator_unfollow_attempted, creator_unfollow_succeeded."
           },
           {
             "metricId": "notification_interactions",
@@ -358,6 +380,17 @@
             "explanation": "Missing producer activity for runtime_watch_sessions; expected producer event(s): watch_session_started, watch_session_progress, watch_session_ended, viewer_watch_checkpoint, drop_watch_started, drop_watch_progress, drop_watch_completed, drop_watch_abandoned, drop_watch_hidden, drop_watch_replayed, drop_watch_duration_unavailable."
           },
           {
+            "metricId": "search_discovery_actions",
+            "confidence": "unknown",
+            "state": "collecting",
+            "count": 0,
+            "provenZero": false,
+            "missingProducer": "search_focused",
+            "missingBridge": "person_metrics.search_discovery_actions",
+            "missingMaterializer": "person_metrics.search_discovery_actions",
+            "explanation": "Missing producer activity for search_discovery_actions; expected producer event(s): search_focused, search_query_changed, search_submitted, search_results_loaded, search_zero_results, search_result_clicked, search_failed, search_cleared, drops_searched, drops_category_selected, search_query_submitted, filter_selected, sort_changed, category_clicked, creator_search_selected."
+          },
+          {
             "metricId": "sessions",
             "confidence": "unknown",
             "state": "collecting",
@@ -377,7 +410,7 @@
             "missingProducer": "user_settings_viewed",
             "missingBridge": "person_metrics.settings_actions",
             "missingMaterializer": "person_metrics.settings_actions",
-            "explanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, cookie_consent_updated."
+            "explanation": "Missing producer activity for settings_actions; expected producer event(s): user_settings_viewed, profile_settings_viewed, settings_surface_viewed, setting_toggle_changed, setting_action_clicked, setting_save_succeeded, setting_save_failed, creator_dashboard_settings_viewed, creator_settings_section_opened, creator_setting_updated, creator_settings_updated, creator_settings_control_plane_saved, creator_settings_migrated_redirect_viewed, creator_monetization_settings_viewed, creator_monetization_setting_changed, creator_monetization_save_succeeded, creator_monetization_save_failed, creator_monetization_user_surface_applied, creator_monetization_mismatch_detected, cookie_consent_updated."
           },
           {
             "metricId": "support_account_actions",
@@ -399,7 +432,7 @@
             "missingProducer": "drop_unwrapped",
             "missingBridge": "person_metrics.unwraps",
             "missingMaterializer": "person_metrics.unwraps",
-            "explanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, unlock_drop_success, creator_drop_unwrapped."
+            "explanation": "Missing producer activity for unwraps; expected producer event(s): drop_unwrapped, creator_drop_unwrapped."
           },
           {
             "metricId": "visits",
@@ -466,7 +499,7 @@
         "source": "src/lib/admin/user-management-contract.ts"
       },
       "lastActivity": {
-        "timestampMs": 1779640002083,
+        "timestampMs": 1780461004705,
         "source": "analytics_users_rollup",
         "freshness": "recent"
       },
@@ -476,11 +509,11 @@
   "debugLane": {
     "label": "User management",
     "usersSummarized": 1,
-    "lowConfidenceMetrics": 34,
+    "lowConfidenceMetrics": 37,
     "rawDumpsBeforeSummary": false,
     "duplicateUserMetricSections": 0,
     "summaryFirstRoute": true,
-    "missingHydrationExplanations": 34
+    "missingHydrationExplanations": 37
   },
   "routePolicy": {
     "defaultMode": "summary",
@@ -530,23 +563,95 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/admin-summary-lane-status-classifier.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/algorithmic-evidence-policy.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/auth-lane-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/auth-readiness-lock.generated.json",
+      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/beta-freshness-language.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cost-owner-review-source-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -558,23 +663,103 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/daily-task-lane-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-cockpit-batch4-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/notification-lane-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/notification-pwa-score-lock.generated.json",
+      "path": "agent/state/daily-task-reset-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-score-impact-triage.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/debug-signal-grouping.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-cost-audit-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-parity-telemetry-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/media-discovery-score-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -582,43 +767,167 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
       "path": "agent/state/public-beta-score.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/settings-debug-validator-authority.generated.json",
+      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/settings-health-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/runtime-watch-time-v2.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-80-reconciliation-lock.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/score-80-refresh-pass.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/settings-connection-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/source-backed-runtime-confidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "agent/state/testing-coverage-status-cleanup.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/user-creator-ui-parity.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "agent/state/user-management-refactor.generated.json",
       "classification": "current_generated_artifact_to_commit"
     },
     {
-      "path": "agent/state/user-management-status-truth.generated.json",
-      "classification": "current_generated_artifact_to_commit"
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/admin-summary-lane-status-classifier.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/admin-truth-source-sample.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/auth-lane-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/auth-readiness-lock.md",
+      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/beta-freshness-language.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-realtime-cost-control.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-owner-review-source-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/creator-settings-control-plane.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -630,23 +939,99 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/daily-task-lane-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-cockpit-batch4-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/notification-lane-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/notification-pwa-score-lock.md",
+      "path": "docs/agent-truth/daily-task-reset-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-runtime-evidence.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-score-impact-triage.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-actionability.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-grouping.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/existing-algorithm-refinement.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-cost-audit-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/media-discovery-score-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
@@ -654,146 +1039,172 @@
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/settings-debug-validator-authority.md",
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/settings-health-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/overnight-wiring-integrity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/post-economy-creator-flow-qa.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/runtime-watch-time-v2.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-reconciliation-lock.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/score-80-refresh-pass.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/settings-connection-parity.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "stale_generated_artifact_to_regenerate"
+    },
+    {
+      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
       "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
       "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "docs/agent-truth/testing-coverage-status-cleanup.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
       "path": "docs/agent-truth/user-management-refactor.md",
       "classification": "documentation_artifact_expected"
     },
     {
-      "path": "docs/agent-truth/user-management-status-truth.md",
-      "classification": "documentation_artifact_expected"
+      "path": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "stale_generated_artifact_to_regenerate"
     },
     {
-      "path": "package.json",
+      "path": "scripts/agent/score-public-beta-readiness.ts",
       "classification": "real_source_change_needs_review"
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
+      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-post-economy-creator-flow-qa.ts",
+      "classification": "unsafe_unknown"
+    },
+    {
+      "path": "scripts/agent/validate-public-beta-score.ts",
       "classification": "validator_artifact_expected"
     },
     {
-      "path": "scripts/agent/validate-admin-summary-lane-status-classifier.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-auth-lane-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-auth-readiness-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-score-80-refresh-pass.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-daily-task-debug-score-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-daily-task-lane-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/agent-score/algorithmic-evidence-policy.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-debug-cockpit-batch4-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/agent-score/core.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-notification-lane-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/agent-score/evidence-quality.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-notification-pwa-score-lock.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-settings-health-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "src/lib/agent-score/regression-risk-refresh-plan.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-testing-coverage-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
+      "path": "tests/unit/creator-dashboard-error-cost-inventory.spec.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "scripts/agent/validate-user-management-status-truth.ts",
-      "classification": "validator_artifact_expected"
+      "path": "tests/unit/creator-experiences-panel.spec.tsx",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/app/admin/debug/components/DebugTrackingSummaryPanel.tsx",
-      "classification": "real_source_change_needs_review"
+      "path": "tests/unit/post-economy-creator-flow-qa.spec.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/admin/user-management-contract.ts",
-      "classification": "real_source_change_needs_review"
+      "path": "tests/unit/public-beta-score.spec.ts",
+      "classification": "unsafe_unknown"
     },
     {
-      "path": "src/lib/debug/admin-summary-lane-status-classifier.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
-      "classification": "real_source_change_needs_review"
-    },
-    {
-      "path": "tests/unit/admin-summary-lane-status-classifier.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/auth-lane-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/daily-task-lane-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/debug-cockpit-batch4-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/notification-lane-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/settings-health-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/testing-coverage-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/user-management-status-truth.spec.ts",
-      "classification": "test_artifact_expected"
+      "path": "tests/unit/purchase-modal.spec.tsx",
+      "classification": "unsafe_unknown"
     }
   ],
   "oldUserManagementLogic": [],
-  "validationFailures": []
+  "validationFailures": [
+    "dirty files unclassified."
+  ]
 }

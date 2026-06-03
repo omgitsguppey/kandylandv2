@@ -1,8 +1,8 @@
 # Daily Task Guidance Route Audit
 
-Generated: 2026-05-25T06:14:57.612Z
-Current HEAD: ccf36528
-Status: pass
+Generated: 2026-06-03T04:31:55.516Z
+Current HEAD: 225f9e53
+Status: fail
 
 ## Summary
 
@@ -91,4 +91,5 @@ Status: pass
 
 ## Validation Failures
 
-- none
+- dirty files are unclassified.
+- dirty files unclassified: scripts/agent/score-public-beta-readiness.ts, scripts/agent/validate-analytics-hydration-consolidation.ts, scripts/agent/validate-analytics-panel-hydration.ts, scripts/agent/validate-creator-dashboard-error-cost-inventory.ts, scripts/agent/validate-creator-monetization-readiness-lock.ts, scripts/agent/validate-final-parity-telemetry-lock.ts, scripts/agent/validate-media-discovery-score-lock.ts, scripts/agent/validate-post-economy-creator-flow-qa.ts, scripts/agent/validate-public-beta-score.ts, scripts/agent/validate-regression-risk-high-blast-refresh.ts, scripts/agent/validate-score-80-reconciliation-lock.ts, scripts/agent/validate-score-80-refresh-pass.ts, scripts/agent/validate-user-facing-feature-connection-audit.ts, src/lib/agent-score/algorithmic-evidence-policy.ts, src/lib/agent-score/core.ts, src/lib/agent-score/evidence-quality.ts, src/lib/agent-score/formal-evidence-bridge.ts, src/lib/agent-score/regression-risk-refresh-plan.ts, tests/unit/creator-dashboard-error-cost-inventory.spec.ts, tests/unit/creator-experiences-panel.spec.tsx, tests/unit/post-economy-creator-flow-qa.spec.ts, tests/unit/public-beta-score.spec.ts, tests/unit/purchase-modal.spec.tsx

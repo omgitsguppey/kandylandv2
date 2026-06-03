@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-01T00:26:03.989Z",
+  "generatedAtUtc": "2026-06-03T02:58:51.998Z",
   "reportKey": "beta-evidence-lane-prep",
-  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "summary": {
     "laneCount": 8,
     "formalMissingCount": 4,
@@ -11,7 +11,7 @@
     "providerSmokeGateCleared": false,
     "p0Count": 0,
     "p1Count": 4,
-    "p2Count": 7
+    "p2Count": 3
   },
   "lanes": [
     {
@@ -198,8 +198,8 @@
     },
     {
       "artifactPath": "agent/state/current-beta-exit-status.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
       "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
@@ -228,8 +228,8 @@
     },
     {
       "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-final-integration-lock"
     },
     {
@@ -258,14 +258,14 @@
     },
     {
       "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
-      "status": "current",
-      "nextAction": "No refresh needed.",
+      "status": "stale_source_version",
+      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
       "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/beta-freshness-language.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:beta-freshness-language"
     },
     {
@@ -276,71 +276,47 @@
     },
     {
       "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:overnight-wiring-integrity"
     },
     {
       "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:existing-algorithm-refinement"
     },
     {
       "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
     },
     {
       "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
+      "status": "current",
+      "nextAction": "No refresh needed.",
       "refreshCommand": "npm run check:global-marquee-truncated-titles"
     }
   ],
   "staleReports": [
     {
-      "artifactPath": "agent/state/overnight-final-integration-lock.generated.json",
+      "artifactPath": "agent/state/current-beta-exit-status.generated.json",
       "status": "stale_source_version",
-      "nextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
-      "refreshCommand": "npm run check:overnight-final-integration-lock"
+      "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
+      "refreshCommand": "npm run check:current-beta-exit-status"
     },
     {
-      "artifactPath": "agent/state/beta-freshness-language.generated.json",
+      "artifactPath": "agent/state/beta-evidence-lane-prep.generated.json",
       "status": "stale_source_version",
-      "nextAction": "Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language",
-      "refreshCommand": "npm run check:beta-freshness-language"
+      "nextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "refreshCommand": "npm run check:beta-evidence-lane-prep"
     },
     {
       "artifactPath": "agent/state/final-pr-stale-cleanup.generated.json",
       "status": "stale_source_version",
       "nextAction": "Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup",
       "refreshCommand": "npm run check:final-pr-stale-cleanup"
-    },
-    {
-      "artifactPath": "agent/state/overnight-wiring-integrity.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
-      "refreshCommand": "npm run check:overnight-wiring-integrity"
-    },
-    {
-      "artifactPath": "agent/state/existing-algorithm-refinement.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
-      "refreshCommand": "npm run check:existing-algorithm-refinement"
-    },
-    {
-      "artifactPath": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-      "refreshCommand": "npm run check:user-loading-wallet-mobile-refinement"
-    },
-    {
-      "artifactPath": "agent/state/global-marquee-truncated-titles.generated.json",
-      "status": "stale_source_version",
-      "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
-      "refreshCommand": "npm run check:global-marquee-truncated-titles"
     }
   ],
   "nextExactSteps": [

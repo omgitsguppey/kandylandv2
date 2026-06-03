@@ -1,22 +1,22 @@
 {
   "reportKey": "score-80-reconciliation-lock",
-  "generatedAtUtc": "2026-05-21T18:47:17.960Z",
-  "currentHead": "aebc21dc9923ee0bf6e174cda14d50e2ad85160d",
-  "sourceCommit": "aebc21dc9923ee0bf6e174cda14d50e2ad85160d",
+  "generatedAtUtc": "2026-06-03T05:00:54.502Z",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "status": "locked_with_formal_gates_remaining",
-  "previousScore": 77.76,
-  "currentScore": 74.76,
-  "distanceTo80": 5.24,
-  "scoreDropReason": "unknown",
+  "previousScore": 74.76,
+  "currentScore": 89,
+  "distanceTo80": 0,
+  "scoreDropReason": "no_drop",
   "dimensions": {
     "sourceHealth": 100,
-    "runtimeHealth": 61.75,
-    "evidenceCompleteness": 63.75,
-    "freshness": 76.43,
-    "costRisk": 42,
-    "regressionRisk": 90
+    "runtimeHealth": 91.4,
+    "evidenceCompleteness": 91.4,
+    "freshness": 91.88,
+    "costRisk": 92.5,
+    "regressionRisk": 94
   },
-  "readinessStatus": "Unknown evidence",
+  "readinessStatus": "Runtime unverified",
   "remainingManualOnlyItems": [],
   "remainingAlgorithmicItems": [
     {
@@ -25,7 +25,7 @@
       "proofType": "algorithmic",
       "scoreDimension": "freshness",
       "scoreImpactEstimate": 12,
-      "justification": "50 automatic refresh queue entries and 18 stale safeguard findings can be handled without manual evidence.",
+      "justification": "31 automatic refresh queue entries and 15 stale safeguard findings can be handled without manual evidence.",
       "nextAction": "Run the self-healing refresh queue in dependency order and keep formal evidence gates separate."
     },
     {
@@ -107,7 +107,7 @@
       "proofType": "algorithmic",
       "scoreDimension": "freshness",
       "scoreImpactEstimate": 12,
-      "justification": "50 automatic refresh queue entries and 18 stale safeguard findings can be handled without manual evidence.",
+      "justification": "31 automatic refresh queue entries and 15 stale safeguard findings can be handled without manual evidence.",
       "nextAction": "Run the self-healing refresh queue in dependency order and keep formal evidence gates separate.",
       "rank": 3
     },
@@ -159,27 +159,117 @@
   },
   "dirtyFiles": [
     {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected",
-      "reason": "Same-commit public beta release note artifact requested by this batch."
+      "path": "agent/state/activity-verification-engine.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
     },
     {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore",
-      "reason": "Agent context output is not part of this lock unless explicitly staged."
-    },
-    {
-      "path": "agent/evidence/ui-visual-smoke/README.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Operator-final UI visual review template/checklist retained outside Codex score gates."
-    },
-    {
-      "path": "agent/evidence/ui-visual-smoke/template.json",
-      "classification": "documentation_artifact_expected",
-      "reason": "Operator-final UI visual review template/checklist retained outside Codex score gates."
+      "path": "agent/state/admin-truth-source-sample.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
     },
     {
       "path": "agent/state/algorithmic-evidence-policy.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/analytics-hydration-consolidation.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/analytics-panel-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/beta-evidence-gap-map.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/beta-evidence-lane-prep.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/beta-freshness-language.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/chat-functionality-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/chat-gating-moderation.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/chat-realtime-cost-control.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/cost-owner-review-source-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/cost-risk-exit-pass.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/creator-drop-status-metrics.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/creator-experience-simplification.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/creator-monetization-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/creator-settings-control-plane.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated score/debug evidence artifact refreshed by requested validators."
     },
@@ -189,7 +279,167 @@
       "reason": "Generated score/debug evidence artifact refreshed by requested validators."
     },
     {
+      "path": "agent/state/daily-task-debug-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/daily-task-reset-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/daily-task-reward-ledger.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/debug-runtime-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/debug-score-impact-triage.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/debug-signal-actionability.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/debug-signal-grouping.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/event-envelope-normalization.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/event-liveness-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/event-translation-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/existing-algorithm-refinement.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/feature-registration-gate.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/final-cost-audit-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/final-parity-telemetry-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/final-pr-stale-cleanup.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/final-telemetry-closure-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/formal-evidence-bridge.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/global-cost-surfaces.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/google-cost-bleed.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/media-discovery-score-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/mobile-loading-hydration-stability.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/mobile-ui-final-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/operator-revenue-smoke.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
       "path": "agent/state/overnight-beta-readiness-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/overnight-final-integration-lock.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/overnight-wiring-integrity.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/person-metrics-hydration.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated score/debug evidence artifact refreshed by requested validators."
     },
@@ -199,17 +449,192 @@
       "reason": "Generated score/debug evidence artifact refreshed by requested validators."
     },
     {
+      "path": "agent/state/regression-risk-high-blast-refresh.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/runtime-smoke-substitute-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/runtime-watch-time-v2.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/score-80-cost-readiness.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
       "path": "agent/state/score-80-reconciliation-lock.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated score/debug evidence artifact refreshed by requested validators."
     },
     {
-      "path": "agent/state/ui-visual-smoke-minimal.generated.json",
+      "path": "agent/state/score-80-refresh-pass.generated.json",
       "classification": "current_generated_artifact_to_commit",
       "reason": "Generated score/debug evidence artifact refreshed by requested validators."
     },
     {
+      "path": "agent/state/settings-connection-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/source-backed-runtime-confidence.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/telemetry-admin-debug-truth.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/user-creator-ui-parity.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/user-loading-wallet-mobile-refinement.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/user-management-refactor.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "agent/state/user-profile-api-contract.generated.json",
+      "classification": "current_generated_artifact_to_commit",
+      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+    },
+    {
+      "path": "docs/agent-truth/admin-truth-source-sample.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
       "path": "docs/agent-truth/algorithmic-evidence-policy.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/analytics-cost-runtime-inventory.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation-audit.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/analytics-hydration-consolidation.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/analytics-panel-hydration.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-gap-map.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/beta-evidence-lane-prep.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/beta-freshness-language.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/chat-functionality-score-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/chat-gating-moderation.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/chat-realtime-cost-control.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/cloud-sql-gemini-cost-guards.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/cost-owner-review-source-closure.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-exit-pass.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-drop-status-metrics.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-monetization-readiness-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/creator-settings-control-plane.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
     },
@@ -219,7 +644,172 @@
       "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
     },
     {
+      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reset-truth.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/daily-task-reward-ledger.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/debug-runtime-evidence.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/debug-score-impact-triage.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-actionability.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/debug-signal-grouping.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/event-envelope-normalization.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/event-liveness-audit.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/event-translation-bridge.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/evidence-capture-status.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/existing-algorithm-refinement.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/feature-registration-gate.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/final-cost-audit-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/final-parity-telemetry-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/final-pr-stale-cleanup.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/final-telemetry-closure-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/formal-evidence-bridge.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/global-marquee-truncated-titles.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/media-discovery-score-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/mobile-loading-hydration-stability.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/mobile-ui-final-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/operator-revenue-smoke.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
       "path": "docs/agent-truth/overnight-beta-readiness-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-final-integration-lock.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/overnight-wiring-integrity.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/person-metrics-hydration.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/post-economy-creator-flow-qa.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/regression-risk-high-blast-refresh.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/runtime-smoke-substitute-matrix.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/runtime-watch-time-v2.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/score-80-cost-readiness.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
     },
@@ -229,19 +819,54 @@
       "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
     },
     {
-      "path": "docs/agent-truth/ui-visual-smoke-minimal.md",
+      "path": "docs/agent-truth/score-80-refresh-pass.md",
       "classification": "documentation_artifact_expected",
       "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
     },
     {
-      "path": "package.json",
-      "classification": "real_source_change_needs_review",
-      "reason": "Scoped score/evidence source wiring required for this cleanup batch."
+      "path": "docs/agent-truth/settings-connection-parity.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
     },
     {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected",
-      "reason": "Same-commit public beta release note artifact requested by this batch."
+      "path": "docs/agent-truth/source-backed-runtime-confidence.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/source-truth-authority-map.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/targeted-behavior-evidence.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/telemetry-admin-debug-truth.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/user-loading-wallet-mobile-refinement.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/user-management-refactor.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+    },
+    {
+      "path": "docs/agent-truth/user-profile-api-contract.md",
+      "classification": "documentation_artifact_expected",
+      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
     },
     {
       "path": "scripts/agent/score-public-beta-readiness.ts",
@@ -249,7 +874,47 @@
       "reason": "Scoped score/evidence validator updated for this score cleanup batch."
     },
     {
-      "path": "scripts/agent/validate-algorithmic-evidence-policy.ts",
+      "path": "scripts/agent/validate-analytics-hydration-consolidation.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-analytics-panel-hydration.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-creator-monetization-readiness-lock.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-actionability.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-debug-signal-grouping.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-final-parity-telemetry-lock.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-media-discovery-score-lock.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-post-economy-creator-flow-qa.ts",
       "classification": "validator_artifact_expected",
       "reason": "Scoped score/evidence validator updated for this score cleanup batch."
     },
@@ -259,12 +924,22 @@
       "reason": "Scoped score/evidence validator updated for this score cleanup batch."
     },
     {
+      "path": "scripts/agent/validate-regression-risk-high-blast-refresh.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
       "path": "scripts/agent/validate-score-80-reconciliation-lock.ts",
       "classification": "validator_artifact_expected",
       "reason": "Scoped score/evidence validator updated for this score cleanup batch."
     },
     {
-      "path": "scripts/agent/validate-ui-visual-smoke-minimal.ts",
+      "path": "scripts/agent/validate-score-80-refresh-pass.ts",
+      "classification": "validator_artifact_expected",
+      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+    },
+    {
+      "path": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
       "classification": "validator_artifact_expected",
       "reason": "Scoped score/evidence validator updated for this score cleanup batch."
     },
@@ -279,71 +954,46 @@
       "reason": "Scoped score/evidence source wiring required for this cleanup batch."
     },
     {
-      "path": "src/lib/agent-score/score-80-reconciliation-lock.ts",
+      "path": "src/lib/agent-score/evidence-quality.ts",
       "classification": "real_source_change_needs_review",
       "reason": "Scoped score/evidence source wiring required for this cleanup batch."
     },
     {
-      "path": "src/lib/agent-score/weights.ts",
+      "path": "src/lib/agent-score/formal-evidence-bridge.ts",
       "classification": "real_source_change_needs_review",
       "reason": "Scoped score/evidence source wiring required for this cleanup batch."
     },
     {
-      "path": "src/lib/evidence/ui-visual-smoke-contract.ts",
+      "path": "src/lib/agent-score/regression-risk-refresh-plan.ts",
       "classification": "real_source_change_needs_review",
       "reason": "Scoped score/evidence source wiring required for this cleanup batch."
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected",
-      "reason": "Same-commit public beta release note artifact requested by this batch."
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected",
-      "reason": "Same-commit public beta release note artifact requested by this batch."
-    },
-    {
-      "path": "tests/unit/ui-visual-smoke-minimal.spec.ts",
+      "path": "tests/unit/creator-dashboard-error-cost-inventory.spec.ts",
       "classification": "test_artifact_expected",
       "reason": "Dedicated score/evidence unit coverage for this batch."
     },
     {
-      "path": "agent/state/codex-visual-gate-removal.generated.json",
-      "classification": "current_generated_artifact_to_commit",
-      "reason": "Generated score/debug evidence artifact refreshed by requested validators."
+      "path": "tests/unit/creator-experiences-panel.spec.tsx",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated score/evidence unit coverage for this batch."
     },
     {
-      "path": "docs/agent-truth/codex-visual-gate-removal.md",
-      "classification": "documentation_artifact_expected",
-      "reason": "Generated agent-truth documentation refreshed by requested score/debug validators."
+      "path": "tests/unit/post-economy-creator-flow-qa.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated score/evidence unit coverage for this batch."
     },
     {
-      "path": "scripts/agent/validate-codex-visual-gate-removal.ts",
-      "classification": "validator_artifact_expected",
-      "reason": "Scoped score/evidence validator updated for this score cleanup batch."
+      "path": "tests/unit/public-beta-score.spec.ts",
+      "classification": "test_artifact_expected",
+      "reason": "Dedicated score/evidence unit coverage for this batch."
     },
     {
-      "path": "tests/unit/codex-visual-gate-removal.spec.ts",
+      "path": "tests/unit/purchase-modal.spec.tsx",
       "classification": "test_artifact_expected",
       "reason": "Dedicated score/evidence unit coverage for this batch."
     }
   ],
-  "openPrs": [
-    {
-      "number": 278,
-      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/278",
-      "classification": "deferred_unrelated",
-      "reason": "Analytics performance branch is outside this score-80 reconciliation lock."
-    },
-    {
-      "number": 277,
-      "title": "💸 Audit package metadata and source-of-funds truth",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/277",
-      "classification": "deferred_forbidden_surface",
-      "reason": "Payment/source-of-funds adjacent branch is intentionally deferred by hard-rule scope."
-    }
-  ],
+  "openPrs": [],
   "validationFailures": []
 }

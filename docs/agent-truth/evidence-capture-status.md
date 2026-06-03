@@ -2,9 +2,9 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-01T00:32:06.662Z
+Generated: 2026-06-03T04:49:44.389Z
 
-Latest code version: `e538c41e9de8827da5103b8bcb281cab184737c9`
+Latest code version: `225f9e53f18b60edc7399c1ea258c0b9bacfae84`
 
 ## Summary
 

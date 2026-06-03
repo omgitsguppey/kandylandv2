@@ -1,6 +1,6 @@
 # Chat Realtime Cost Control
 
-Generated: 2026-05-24T02:07:16.522Z
+Generated: 2026-06-03T04:31:14.479Z
 
 ## Listener Scope
 
@@ -37,12 +37,12 @@ Generated: 2026-05-24T02:07:16.522Z
 
 | Dimension | Before | After | Status | Next action |
 | --- | ---: | ---: | --- | --- |
-| sourceHealth | 91.7 | 91.7 | target_met | No score action needed for this dimension. |
-| runtimeHealth | 66.75 | 66.75 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat missing future chat activity as a failure. |
-| evidenceCompleteness | 38.25 | 38.25 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat missing future chat activity as a failure. |
-| freshness | 62.86 | 62.86 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat missing future chat activity as a failure. |
-| costRisk | 42 | 42 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat missing future chat activity as a failure. |
-| regressionRisk | 42 | 42 | below_target | Attach formal runtime/debug/cost evidence through existing score lanes; do not treat missing future chat activity as a failure. |
+| sourceHealth | 100 | 100 | target_met | No score action needed for this dimension. |
+| runtimeHealth | 87.4 | 87.4 | target_met | No score action needed for this dimension. |
+| evidenceCompleteness | 84.6 | 84.6 | target_met | No score action needed for this dimension. |
+| freshness | 91.88 | 91.88 | target_met | No score action needed for this dimension. |
+| costRisk | 80.5 | 80.5 | target_met | No score action needed for this dimension. |
+| regressionRisk | 88 | 88 | target_met | No score action needed for this dimension. |
 
 ## Old Logic Classification
 

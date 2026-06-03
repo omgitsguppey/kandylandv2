@@ -72,6 +72,18 @@ export type PublicBetaRegressionRiskScore = {
   reasons: string[];
 };
 
+export const NON_PASSING_EVIDENCE_STATUSES = new Set<string>([
+  "missing_formal_evidence",
+  "operator_reported_not_formal_provider_smoke",
+  "runtime_unverified",
+  "missing_or_unknown",
+  "failed",
+  "stale",
+  "unavailable",
+  "needs_review",
+  "tracked_not_passing",
+]);
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -82,6 +94,56 @@ function round(value: number) {
 
 function normalizeStatus(status: unknown) {
   return String(status ?? "").toLowerCase();
+}
+
+export function evidenceArtifactStatusText(
+  artifact: PublicBetaEvidenceArtifact | undefined,
+  fallbackStatus = "missing_formal_evidence",
+) {
+  return String(artifact?.status ?? fallbackStatus);
+}
+
+export function evidenceArtifactText(artifact: PublicBetaEvidenceArtifact | undefined) {
+  return [
+    evidenceArtifactStatusText(artifact, "missing_or_unknown"),
+    artifact?.detail ?? "",
+    ...(artifact?.evidence ?? []),
+  ].join("\n");
+}
+
+export function evidenceArtifactNumericValue(artifact: PublicBetaEvidenceArtifact | undefined, key: string) {
+  const pattern = new RegExp(`${key}=([0-9]+(?:\\.[0-9]+)?)`, "u");
+  const match = evidenceArtifactText(artifact).match(pattern);
+  if (!match?.[1]) return undefined;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? clamp(value, 0, 100) : undefined;
+}
+
+export function evidenceArtifactHasFormalPass(artifact: PublicBetaEvidenceArtifact | undefined) {
+  if (!artifact?.passed) return false;
+  const status = evidenceArtifactStatusText(artifact).toLowerCase();
+  const text = evidenceArtifactText(artifact).toLowerCase();
+  return /passed|formal_complete|formal_passed|usable/u.test(status)
+    && !/source_ready|operator_confirmed|runtime_unverified|missing|unknown|not_formal/u.test(`${status}\n${text}`);
+}
+
+export function evidenceArtifactHasSourceConfidence(artifact: PublicBetaEvidenceArtifact | undefined) {
+  const status = evidenceArtifactStatusText(artifact, "missing_or_unknown").toLowerCase();
+  const text = evidenceArtifactText(artifact).toLowerCase();
+  return Boolean(artifact)
+    && !/failed|blocked/u.test(status)
+    && /source_ready|source_backed|partial_debug|verified_local_contract|operator_confirmed|calibrated|substitute_matrix/u.test(text);
+}
+
+export function evidenceArtifactIsPassing(
+  artifact: PublicBetaEvidenceArtifact | undefined,
+  fallbackBoolean?: boolean,
+) {
+  if (!artifact) return fallbackBoolean === true;
+  const status = evidenceArtifactStatusText(artifact);
+  return artifact.passed === true
+    && !NON_PASSING_EVIDENCE_STATUSES.has(status)
+    && !/source[_-]ready|runtime_proof_required/iu.test(status);
 }
 
 function ageHours(generatedAtUtc: string | undefined, nowUtc: string | undefined) {
@@ -267,11 +329,11 @@ export function resolveEvidenceQuality(input: PublicBetaEvidenceQualityInput): P
 function laneScore(status: string) {
   const normalized = normalizeStatus(status);
   if (normalized === "source_inventory_complete") return 80;
-  if (normalized === "source_guarded_external_review_remaining") return 78;
-  if (normalized === "source_ready_no_runtime_usage_detected") return 78;
+  if (normalized === "source_guarded_external_review_remaining") return 92;
+  if (normalized === "source_ready_no_runtime_usage_detected") return 92;
   if (normalized === "source_ready_config_missing_safe") return 62;
-  if (normalized === "source_ready_retry_storm_guarded") return 88;
-  if (normalized === "source_ready_batched_or_cached") return 84;
+  if (normalized === "source_ready_retry_storm_guarded") return 94;
+  if (normalized === "source_ready_batched_or_cached") return 92;
   if (normalized === "owner_review_external_billing_required") return 48;
   if (normalized === "not_detected_in_repo") return 50;
   if (normalized === "cost_review_required" || normalized === "owner_review") return 40;

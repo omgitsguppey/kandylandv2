@@ -38,6 +38,14 @@ type DirtyFileClassification =
   | "protected_runtime_change"
   | "unsafe_unknown";
 
+type DirtyFileSummary = {
+  total: number;
+  byClassification: Partial<Record<DirtyFileClassification, number>>;
+  unsafeUnknownCount: number;
+  protectedRuntimeChangeCount: number;
+  samples: Array<{ path: string; classification: DirtyFileClassification }>;
+};
+
 export type DebugSignalActionabilityReport = {
   reportKey: "debug-signal-actionability";
   generatedAtUtc: string;
@@ -63,7 +71,7 @@ export type DebugSignalActionabilityReport = {
   prioritizedSignals: Array<Pick<DebugBacklogItem, "id" | "title" | "severity" | "actionability" | "estimatedPointImpact" | "owner" | "exactNextAction" | "scoreDimensionImpact">>;
   duplicateParents: Array<{ id: string; duplicateChildren: string[] }>;
   oldLogicClassification: Array<{ path: string; classification: "still_required" | "superseded" | "stale_logic_removed" | "unsafe_unknown" }>;
-  dirtyFiles: Array<{ path: string; classification: DirtyFileClassification }>;
+  dirtyFileSummary: DirtyFileSummary;
   validationFailures: string[];
 };
 
@@ -112,6 +120,25 @@ function changedFiles() {
   return [...files].sort();
 }
 
+function summarizeDirtyFiles(files: Array<{ path: string; classification: DirtyFileClassification }>): DirtyFileSummary {
+  const byClassification: DirtyFileSummary["byClassification"] = {};
+  for (const file of files) {
+    byClassification[file.classification] = (byClassification[file.classification] ?? 0) + 1;
+  }
+  const priority = new Set<DirtyFileClassification>(["unsafe_unknown", "protected_runtime_change"]);
+  const samples = [
+    ...files.filter((file) => priority.has(file.classification)),
+    ...files.filter((file) => !priority.has(file.classification)),
+  ].slice(0, 20);
+  return {
+    total: files.length,
+    byClassification,
+    unsafeUnknownCount: byClassification.unsafe_unknown ?? 0,
+    protectedRuntimeChangeCount: byClassification.protected_runtime_change ?? 0,
+    samples,
+  };
+}
+
 function trackedFiles() {
   return git(["ls-files", "src", "scripts", "docs", "agent", "tests"])
     .split(/\r?\n/u)
@@ -141,8 +168,31 @@ function classifyDirtyFile(path: string): DirtyFileClassification {
     || normalized === "scripts/agent/validate-event-liveness-audit.ts"
     || normalized === "scripts/agent/validate-debug-signal-grouping.ts"
     || normalized === "scripts/agent/validate-non-event-score-policy.ts"
+    || normalized === "scripts/agent/score-public-beta-readiness.ts"
+    || normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts"
+    || normalized === "scripts/agent/validate-analytics-panel-hydration.ts"
+    || normalized === "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts"
+    || normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
+    || normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts"
+    || normalized === "scripts/agent/validate-media-discovery-score-lock.ts"
+    || normalized === "scripts/agent/validate-post-economy-creator-flow-qa.ts"
+    || normalized === "scripts/agent/validate-public-beta-score.ts"
+    || normalized === "scripts/agent/validate-regression-risk-high-blast-refresh.ts"
+    || normalized === "scripts/agent/validate-score-80-reconciliation-lock.ts"
+    || normalized === "scripts/agent/validate-score-80-refresh-pass.ts"
+    || normalized === "scripts/agent/validate-user-facing-feature-connection-audit.ts"
   ) return "validator_artifact_expected";
-  if (normalized === "tests/unit/debug-signal-actionability.spec.ts" || normalized === "tests/unit/debug-backlog-engine.spec.ts" || normalized === "tests/unit/event-liveness-audit.spec.ts") return "test_artifact_expected";
+  if (/^src\/lib\/agent-score\/(algorithmic-evidence-policy|core|evidence-quality|formal-evidence-bridge|regression-risk-refresh-plan)\.ts$/u.test(normalized)) return "actionability_source_change";
+  if (
+    normalized === "tests/unit/debug-signal-actionability.spec.ts"
+    || normalized === "tests/unit/debug-backlog-engine.spec.ts"
+    || normalized === "tests/unit/event-liveness-audit.spec.ts"
+    || normalized === "tests/unit/creator-dashboard-error-cost-inventory.spec.ts"
+    || normalized === "tests/unit/creator-experiences-panel.spec.tsx"
+    || normalized === "tests/unit/post-economy-creator-flow-qa.spec.ts"
+    || normalized === "tests/unit/public-beta-score.spec.ts"
+    || normalized === "tests/unit/purchase-modal.spec.tsx"
+  ) return "test_artifact_expected";
   if (normalized === "package.json" || normalized === "package-lock.json") return "validator_artifact_expected";
   if (
     normalized === "CHANGELOG.md"
@@ -311,7 +361,7 @@ export function buildDebugSignalActionabilityReport(input: {
       .filter((item) => (item.duplicateChildren?.length ?? 0) > 0)
       .map((item) => ({ id: item.id, duplicateChildren: item.duplicateChildren ?? [] })),
     oldLogicClassification: classifyOldLogicReferences(),
-    dirtyFiles,
+    dirtyFileSummary: summarizeDirtyFiles(dirtyFiles),
     validationFailures: [],
   };
   report.validationFailures = validateDebugSignalActionabilityReport(report);
@@ -379,10 +429,10 @@ export function validateDebugSignalActionabilityReport(report: DebugSignalAction
   if (report.oldLogicClassification.some((entry) => entry.classification === "unsafe_unknown")) {
     failures.push("duplicate actionability/debug signal logic remains unclassified.");
   }
-  if (report.dirtyFiles.some((file) => file.classification === "unsafe_unknown")) {
+  if (report.dirtyFileSummary.unsafeUnknownCount > 0) {
     failures.push("dirty files are unclassified.");
   }
-  if (report.dirtyFiles.some((file) => file.classification === "protected_runtime_change")) {
+  if (report.dirtyFileSummary.protectedRuntimeChangeCount > 0) {
     failures.push("chat/nav/payment/GumDrop runtime changed.");
   }
   return [...new Set(failures)];
@@ -395,7 +445,10 @@ function renderDoc(report: DebugSignalActionabilityReport) {
   });
   const visibleRows = report.prioritizedSignals.map((signal) =>
     `- ${signal.severity.toUpperCase()} ${signal.actionability} ${signal.id}: impact=${signal.estimatedPointImpact}; owner=${signal.owner}; next=${signal.exactNextAction}`);
-  const dirtyRows = report.dirtyFiles.map((file) => `- ${file.path}: ${file.classification}`);
+  const dirtyRows = Object.entries(report.dirtyFileSummary.byClassification)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([classification, count]) => `- ${classification}: ${count}`);
+  const dirtySampleRows = report.dirtyFileSummary.samples.map((file) => `- ${file.path}: ${file.classification}`);
   const oldRows = report.oldLogicClassification.map((entry) => `- ${entry.path}: ${entry.classification}`);
   return [
     "# Debug Signal Actionability",
@@ -439,7 +492,17 @@ function renderDoc(report: DebugSignalActionabilityReport) {
     "",
     "## Dirty Files",
     "",
+    `- Total: ${report.dirtyFileSummary.total}`,
+    `- Unsafe unknown: ${report.dirtyFileSummary.unsafeUnknownCount}`,
+    `- Protected runtime changes: ${report.dirtyFileSummary.protectedRuntimeChangeCount}`,
+    "",
+    "### Classification Counts",
+    "",
     ...(dirtyRows.length ? dirtyRows : ["- none"]),
+    "",
+    "### Dirty File Samples",
+    "",
+    ...(dirtySampleRows.length ? dirtySampleRows : ["- none"]),
     "",
     "## Validation Failures",
     "",

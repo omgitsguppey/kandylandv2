@@ -144,6 +144,8 @@ export function classifyFinalParityTelemetryLockDirtyFile(pathValue: string): Fi
     || normalized === "agent/state/current-beta-exit-status.generated.json"
   ) return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/current-beta-exit-status.md") return "documentation_artifact_expected";
+  if (/^agent\/state\/.+\.generated\.json$/u.test(normalized)) return "stale_generated_artifact_to_regenerate";
+  if (/^docs\/agent-truth\/.+\.md$/u.test(normalized)) return "stale_generated_artifact_to_regenerate";
   if (
     normalized === "CHANGELOG.md"
     || normalized === "public/kandydrops-release-notes.json"
@@ -163,8 +165,13 @@ export function classifyFinalParityTelemetryLockDirtyFile(pathValue: string): Fi
     || normalized === "scripts/agent/validate-targeted-behavior-evidence-repair.ts"
     || normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts"
     || normalized === "scripts/agent/validate-media-discovery-score-lock.ts"
+    || /^scripts\/agent\/validate-(analytics-hydration-consolidation|analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)
   ) return "validator_artifact_expected";
-  if (normalized === "tests/unit/targeted-behavior-evidence-repair.spec.ts") return "test_artifact_expected";
+  if (
+    normalized === "tests/unit/targeted-behavior-evidence-repair.spec.ts"
+    || /^tests\/unit\/(creator-dashboard-error-cost-inventory|creator-experiences-panel|post-economy-creator-flow-qa|public-beta-score|purchase-modal|score-80-refresh-pass)\.spec\.tsx?$/u.test(normalized)
+  ) return "test_artifact_expected";
+  if (/^src\/lib\/agent-score\/.+\.ts$/u.test(normalized)) return "real_source_change_needs_review";
   return "unsafe_unknown";
 }
 

@@ -149,13 +149,10 @@ for (const line of purchaseModal.split(/\r?\n/u)) {
         failures.push(`Package bonus copy must not label paid bundle bonuses as free/reward: ${line.trim()}`);
     }
 }
-for (const expected of [
-    "paid bonus GD",
-    "Bundle bonus",
-    "Paid bundle bonus",
-]) {
-    requireIncludes(purchaseModal, expected, "PurchaseModal paid bundle bonus labels");
-}
+requireIncludes(purchaseModal, "Paid GD", "PurchaseModal compact paid-GD labels");
+requireIncludes(purchaseModal, "PurchasePromoBadge", "PurchaseModal compact paid-GD labels");
+requireNotIncludes(purchaseModal, "paid bonus GD", "PurchaseModal compact paid-GD labels");
+requireNotIncludes(purchaseModal, "Paid bundle bonus", "PurchaseModal compact paid-GD labels");
 
 for (const expected of [
     "Creator experiences use paid GumDrops only",
@@ -230,17 +227,17 @@ requireIncludes(ownerTest, "Manage experiences in Creator Dashboard.", "creator 
 requireIncludes(routeTest, "slot_unavailable", "creator bookings route tests");
 requireIncludes(economyTest, "attributionTruth", "GumDrop economy accuracy tests");
 requireIncludes(simplificationTest, "public_discovery", "creator experience simplification tests");
-requireIncludes(purchaseModalTest, "labels package bonuses as paid or bundle bonus", "purchase modal tests");
+requireIncludes(purchaseModalTest, "uses compact paid-GD package labels", "purchase modal tests");
 requireIncludes(creatorDashboardSettingsTest, "creator earnings summary uses the safe settings source", "creator dashboard settings tests");
 requireIncludes(creatorDashboardSettingsTest, "data-creator-earnings-attribution", "creator dashboard settings tests");
 requireIncludes(packageJson, "\"check:post-economy-creator-flow-qa\": \"tsx scripts/agent/validate-post-economy-creator-flow-qa.ts\"", "package scripts");
 
 for (const expected of [
-    "Paid bundle bonus GumDrops are purchased paid-bonus credits.",
+    "Wallet package bonuses use compact paid-GD promo labels; source-of-funds proof remains in ledger/server evidence.",
     "Creator experience CTAs use purchased GumDrops, not total balance.",
     "Booking remains generated-slot only.",
     "Creator owners do not see fan purchase/request/booking/chat controls.",
-    "Wallet package bonuses now use paid bonus or bundle bonus labels.",
+    "Wallet package bonuses stay compact and do not reintroduce paid-bonus source subcopy.",
     "Creator earnings visibility uses the existing creator settings stats source.",
 ]) {
     requireIncludes(docs, expected, "post-economy creator flow QA docs");
@@ -249,7 +246,7 @@ for (const expected of [
 addFixed("creator-paid-gd-guidance-copy", "p1", "creator-profile", "src/components/Creators/CreatorPaidGdGuidanceCard.tsx", "Low-balance guidance now says creator experiences use paid GumDrops only and distinguishes free/reward GumDrops.");
 addFixed("booking-slot-cta-copy", "p2", "creator-profile", "src/components/Creators/CreatorExperiencesPanel.tsx", "Booking slot empty state and disabled CTA copy are clearer without adding arbitrary date/time controls.");
 addFixed("creator-owner-dashboard-copy", "p2", "creator-profile", "src/components/Creators/CreatorExperiencesPanel.tsx", "Owner profile copy now points to managing experiences in Creator Dashboard while keeping fan controls hidden.");
-addFixed("wallet-paid-bonus-label-specificity", "p1", "wallet", "src/components/PurchaseModal.tsx", "Visible wallet package and success chips label paid package extras as paid bonus or bundle bonus GumDrops.");
+addFixed("wallet-paid-bonus-label-specificity", "p1", "wallet", "src/components/PurchaseModal.tsx", "Visible wallet package rows use compact paid-GD promo labels while source-of-funds proof stays in ledger/server evidence.");
 addFixedReadonlySummary("creator-accrual-dashboard-summary", "p2", "creator-dashboard", "src/components/Creators/CreatorDashboardSettingsHub.tsx", "Existing creator settings stats now surface read-only earnings source and creator experience attribution metadata.");
 
 addVerified("paid-bundle-copy-not-free-reward", "p1", "wallet", "src/components/PurchaseModal.tsx", "Package bonus copy does not label paid bundle bonuses as free or reward GumDrops.");

@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-hydration-consolidation",
-  "generatedAtUtc": "2026-05-27T03:00:34.217Z",
-  "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
+  "generatedAtUtc": "2026-06-03T04:47:07.067Z",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "filesAudited": [
     "src/lib/admin-analytics/panel-hydration-contract.ts",
     "src/lib/admin-analytics/panel-hydration-registry.ts",
@@ -24,70 +24,70 @@
     "Static panel materializer duplication",
     "Full generated panel dump in default artifact"
   ],
-  "registryLinesBefore": 620,
+  "registryLinesBefore": 134,
   "registryLinesAfter": 135,
-  "generatedArtifactLinesBefore": 2575,
-  "generatedArtifactLinesAfter": 491,
-  "netAdditions": 2641,
-  "netDeletions": 6178,
+  "generatedArtifactLinesBefore": 521,
+  "generatedArtifactLinesAfter": 462,
+  "netAdditions": 21941,
+  "netDeletions": 6122,
   "delegatedToPersonMetrics": true,
   "delegatedToEventLiveness": true,
   "delegatedToDebugBrain": true,
   "panelsStillCovered": 41,
   "topFailingPanelsStillReported": [
     {
+      "panelId": "traffic_overview",
+      "hydrationStatus": "manual_or_runtime_required",
+      "nextExactAction": "Attach redacted external evidence for analytics_event_facts; do not use screenshots as backend proof."
+    },
+    {
+      "panelId": "active_users",
+      "hydrationStatus": "manual_or_runtime_required",
+      "nextExactAction": "Attach redacted external evidence for analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time; do not use screenshots as backend proof."
+    },
+    {
       "panelId": "new_users_signups",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/lib/auth/auth-telemetry-contract.ts so New users/signups can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify first-party auth runtime telemetry event envelopes; no raw password, email, or Firebase token fields with bounded recent summaries before treating New users/signups as hydrated or zero."
     },
     {
       "panelId": "returning_users",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/behavior so Returning users can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Returning users as hydrated or zero."
     },
     {
       "panelId": "guest_to_user_handoff",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/lib/analytics/identity-handoff-engine.ts so Guest-to-user handoff can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_sessions with active/idle/hidden split; page-open duration alone is not active session time with bounded recent summaries before treating Guest-to-user handoff as hydrated or zero."
+    },
+    {
+      "panelId": "creator_count",
+      "hydrationStatus": "manual_or_runtime_required",
+      "nextExactAction": "Attach redacted external evidence for settings surfaces and settings route telemetry; do not use screenshots as backend proof."
     },
     {
       "panelId": "creator_profile_views",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/behavior so Creator profile views can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_event_facts and creator relationship funnel telemetry with bounded recent summaries before treating Creator profile views as hydrated or zero."
     },
     {
-      "panelId": "creator_follows",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/lib/discovery/creator-relationship-telemetry.ts so Creator follows can hydrate."
+      "panelId": "drops_live",
+      "hydrationStatus": "manual_or_runtime_required",
+      "nextExactAction": "Attach redacted external evidence for creator drop manager telemetry and canonical creator drop route facts; do not use screenshots as backend proof."
     },
     {
       "panelId": "drop_opens",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/behavior so Drop opens can hydrate."
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify analytics_event_facts with bounded recent summaries before treating Drop opens as hydrated or zero."
     },
     {
-      "panelId": "unlocks",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/drops/unlock/route.ts so Unlocks can hydrate."
-    },
-    {
-      "panelId": "unwraps",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/app/api/behavior so Unwraps can hydrate."
-    },
-    {
-      "panelId": "watch_time",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/lib/analytics/drop-watch-time-contract.ts so Watch time can hydrate."
-    },
-    {
-      "panelId": "completion_rate",
-      "hydrationStatus": "source_missing",
-      "nextExactAction": "Repair src/lib/math/drop-watch-unlock-math.ts so Completion rate can hydrate."
+      "panelId": "wallet_opens",
+      "hydrationStatus": "not_observed_but_expected",
+      "nextExactAction": "Verify wallet UI telemetry with bounded recent summaries before treating Wallet opens as hydrated or zero."
     }
   ],
-  "scoreBefore": 85.34,
-  "scoreAfter": 85.34,
+  "scoreBefore": 75.39,
+  "scoreAfter": 93.99,
   "remainingGaps": [],
   "nextExactSteps": [
     "Keep panel hydration as adapter-only status mapping.",

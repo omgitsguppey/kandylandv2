@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-signal-actionability",
-  "generatedAtUtc": "2026-05-24T05:47:48.430Z",
-  "currentHead": "b0850954013ef36f732dec9ad90f64d5bcbfd65b",
+  "generatedAtUtc": "2026-06-03T04:57:31.227Z",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "status": "pass",
   "productionReadsRequired": false,
   "fakeEvidenceUsed": false,
@@ -20,77 +20,77 @@
     "overallHealthScore": 62.15
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
-    "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "sourceHealth": 100,
+    "runtimeHealth": 91.4,
+    "evidenceCompleteness": 91.4,
+    "freshness": 91.88,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 93.99
   },
   "metrics": {
     "sourceHealth": {
       "before": 91.7,
-      "after": 92.5,
+      "after": 100,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "runtimeHealth": {
       "before": 67.75,
-      "after": 84.2,
+      "after": 91.4,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "evidenceCompleteness": {
       "before": 39.25,
-      "after": 69.6,
+      "after": 91.4,
       "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
     },
     "freshness": {
       "before": 62.86,
-      "after": 83.75,
+      "after": 91.88,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "costRisk": {
       "before": 42,
-      "after": 80.5,
+      "after": 92.5,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "regressionRisk": {
       "before": 42,
-      "after": 86,
+      "after": 94,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "overallHealthScore": {
       "before": 62.15,
-      "after": 83.1,
+      "after": 93.99,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     }
   },
   "backlogSummary": {
-    "total": 43,
+    "total": 30,
     "bySeverity": {
       "critical": 0,
       "p0": 0,
       "p1": 15,
-      "p2": 28,
+      "p2": 15,
       "p3": 0,
       "info": 0
     },
     "byStatus": {
-      "open": 37,
+      "open": 24,
       "fixed": 0,
       "deferred": 0,
       "not_applicable": 0,
@@ -100,18 +100,18 @@
     },
     "bySource": {
       "debug_panel": 14,
-      "beta_score": 8,
+      "beta_score": 7,
       "route_diagnostics": 0,
       "telemetry": 0,
       "admin_truth": 1,
       "mobile_ui": 0,
       "cost": 2,
-      "evidence": 18,
+      "evidence": 6,
       "runtime_warning": 0
     },
     "byFixClass": {
       "source_fix": 0,
-      "evidence_refresh": 36,
+      "evidence_refresh": 23,
       "stale_retire": 1,
       "algorithm_refine": 0,
       "route_fix": 0,
@@ -120,32 +120,32 @@
       "manual_required": 4,
       "no_action": 0
     },
-    "open": 37,
+    "open": 24,
     "fixed": 0,
     "deferred": 0,
     "blockedManual": 3,
     "blockedExternal": 2,
     "staleRetired": 1,
     "sourceFixable": 2,
-    "evidenceRefreshable": 36,
+    "evidenceRefreshable": 23,
     "manualRequired": 4,
     "p0P1Open": 15,
-    "p0P1GroupOpen": 7,
-    "p2GroupOpen": 7,
+    "p0P1GroupOpen": 8,
+    "p2GroupOpen": 6,
     "p1P2GroupOpen": 14,
-    "rawP1P2SignalCount": 43,
+    "rawP1P2SignalCount": 30,
     "groupedSignalCount": 14,
     "defaultVisibleGroups": 14,
     "hiddenByDefaultGroups": 0,
-    "defaultVisible": 43,
+    "defaultVisible": 30,
     "hiddenByDefault": 0,
     "quietFutureActivity": 0,
     "duplicateSignalsCollapsed": 0,
     "formalGates": 8,
-    "scoreImpacting": 42,
+    "scoreImpacting": 29,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 34,
+      "score_impacting": 21,
       "evidence_required": 1,
       "formal_gate": 8,
       "quiet_future_activity": 0,
@@ -156,17 +156,17 @@
     }
   },
   "actionabilitySummary": {
-    "totalSignals": 43,
-    "uniqueSignals": 43,
-    "defaultVisibleCount": 43,
+    "totalSignals": 30,
+    "uniqueSignals": 30,
+    "defaultVisibleCount": 30,
     "hiddenByDefaultCount": 0,
     "quietFutureActivityCount": 0,
     "duplicateSignalCount": 0,
     "formalGateCount": 8,
-    "scoreImpactingCount": 42,
+    "scoreImpactingCount": 29,
     "byActionability": {
       "fix_now": 0,
-      "score_impacting": 34,
+      "score_impacting": 21,
       "evidence_required": 1,
       "formal_gate": 8,
       "quiet_future_activity": 0,
@@ -279,7 +279,7 @@
         "severity": "p1",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
-          "freshness"
+          "evidenceCompleteness"
         ],
         "estimatedPointImpact": 4,
         "owner": "admin_debug",
@@ -289,7 +289,7 @@
         ],
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|use-the-canonical-beta-score-and-cap-reasons-as-the-primary-phase-1-queue-",
         "duplicateChildren": []
       },
       {
@@ -298,7 +298,7 @@
         "severity": "p1",
         "actionability": "score_impacting",
         "scoreDimensionsAffected": [
-          "freshness"
+          "evidenceCompleteness"
         ],
         "estimatedPointImpact": 4,
         "owner": "admin_debug",
@@ -308,7 +308,7 @@
         ],
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
-        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|work-the-visible-cap-reasons-in-order-instead-of-hiding-them-in-debug-",
         "duplicateChildren": []
       },
       {
@@ -327,25 +327,6 @@
         ],
         "defaultVisible": true,
         "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-final-integration-lock-was-generated-from-an-older-code-version-refres",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
-        "signalType": "beta_score",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "evidenceCompleteness"
-        ],
-        "estimatedPointImpact": 69.6,
-        "owner": "beta_score",
-        "nextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
-        "sourceFiles": [
-          "agent/state/public-beta-score.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|beta_score|beta_score|evidenceCompleteness|refresh-the-owning-evidence-artifact-and-keep-the-beta-cap-visible-until-evidenc",
         "duplicateChildren": []
       },
       {
@@ -477,6 +458,7 @@
           "agent/state/device-ui-dry-audit.generated.json",
           "agent/state/device-layout-score.generated.json",
           "agent/state/hydration-performance.generated.json",
+          "agent/state/sitewide-image-optimization.generated.json",
           "agent/state/google-cost-bleed.generated.json",
           "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
           "agent/state/sql-mirror-status.generated.json",
@@ -511,26 +493,7 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "debug-panel-report-public-beta-score",
-        "signalType": "debug_panel",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "admin_debug",
-        "nextAction": "Run npm run score:beta when this stale warning must be refreshed.",
-        "sourceFiles": [
-          "agent/state/public-beta-score.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|debug_panel|admin_debug|freshness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "debug-panel-report-sitewide-image",
+        "signalId": "debug-panel-report-content-protection",
         "signalType": "debug_panel",
         "severity": "p2",
         "actionability": "score_impacting",
@@ -541,7 +504,6 @@
         "owner": "admin_debug",
         "nextAction": "Keep missing state visible until an owning generator is identified.",
         "sourceFiles": [
-          "agent/state/sitewide-image-optimization.generated.json",
           "agent/state/content-protection.generated.json",
           "agent/state/gumdrop-economy.generated.json",
           "agent/state/event-catalog-telemetry.generated.json",
@@ -549,9 +511,28 @@
           "agent/state/debug-evidence-pipeline.generated.json",
           "agent/state/support-recovery-flows.generated.json"
         ],
-        "validator": "npm run check:sitewide-image-optimization",
+        "validator": "npm run check:content-protection",
         "defaultVisible": true,
         "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|keep-missing-state-visible-until-an-owning-generator-is-identified-",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "debug-panel-report-public-beta-score",
+        "signalType": "debug_panel",
+        "severity": "p2",
+        "actionability": "score_impacting",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 1,
+        "owner": "admin_debug",
+        "nextAction": "Run npm run score:beta when this stale warning must be refreshed.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "score_impacting|debug_panel|admin_debug|evidenceCompleteness|run-npm-run-score-beta-when-this-stale-warning-must-be-refreshed-",
         "duplicateChildren": []
       },
       {
@@ -612,222 +593,6 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "stale-refresh-plan-agent-state-creator-drop-status-metrics-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-drop-status-metrics",
-        "sourceFiles": [
-          "agent/state/creator-drop-status-metrics.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-drop-status-metrics-was-generated-from-an-older-code-version-refresh-thi",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-creator-settings-control-plane-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:creator-settings-control-plane",
-        "sourceFiles": [
-          "agent/state/creator-settings-control-plane.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|creator-settings-control-plane-was-generated-from-an-older-code-version-refresh-",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-current-beta-exit-status-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status",
-        "sourceFiles": [
-          "agent/state/current-beta-exit-status.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|current-beta-exit-status-was-generated-from-an-older-code-version-refresh-this-r",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-evidence-capture-status-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Evidence capture status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:evidence-capture-status",
-        "sourceFiles": [
-          "agent/state/evidence-capture-status.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|evidence-capture-status-was-generated-from-an-older-code-version-refresh-this-re",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-existing-algorithm-refinement-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement",
-        "sourceFiles": [
-          "agent/state/existing-algorithm-refinement.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|existing-algorithm-refinement-was-generated-from-an-older-code-version-refresh-t",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-final-telemetry-closure-lock-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-telemetry-closure-lock",
-        "sourceFiles": [
-          "agent/state/final-telemetry-closure-lock.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|telemetry-closure-lock-was-generated-from-an-older-code-version-refresh-this-rep",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-global-marquee-truncated-titles-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles",
-        "sourceFiles": [
-          "agent/state/global-marquee-truncated-titles.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|global-marquee-title-rollout-was-generated-from-an-older-code-version-refresh-th",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-mobile-ui-final-lock-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:mobile-ui-final-lock",
-        "sourceFiles": [
-          "agent/state/mobile-ui-final-lock.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|mobile-ui-final-lock-was-generated-from-an-older-code-version-refresh-this-repor",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-operator-revenue-smoke-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:operator-revenue-smoke",
-        "sourceFiles": [
-          "agent/state/operator-revenue-smoke.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|operator-revenue-smoke-was-generated-from-an-older-code-version-refresh-this-rep",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-overnight-wiring-integrity-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity",
-        "sourceFiles": [
-          "agent/state/overnight-wiring-integrity.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|overnight-wiring-integrity-was-generated-from-an-older-code-version-refresh-this",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-source-truth-authority-map-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "Source truth authority map was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:source-truth-authority-map",
-        "sourceFiles": [
-          "agent/state/source-truth-authority-map.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|source-truth-authority-map-was-generated-from-an-older-code-version-refresh-this",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "stale-refresh-plan-agent-state-user-loading-wallet-mobile-refinement-generated-json",
-        "signalType": "evidence",
-        "severity": "p2",
-        "actionability": "score_impacting",
-        "scoreDimensionsAffected": [
-          "freshness"
-        ],
-        "estimatedPointImpact": 1,
-        "owner": "evidence",
-        "nextAction": "User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement",
-        "sourceFiles": [
-          "agent/state/user-loading-wallet-mobile-refinement.generated.json"
-        ],
-        "defaultVisible": true,
-        "dedupeKey": "score_impacting|evidence|evidence|freshness|user-loading-and-wallet-mobile-refinement-was-generated-from-an-older-code-versi",
-        "duplicateChildren": []
-      },
-      {
         "signalId": "score-drag-sourcehealthscore",
         "signalType": "beta_score",
         "severity": "p2",
@@ -847,14 +612,33 @@
         "duplicateChildren": []
       },
       {
-        "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+        "signalId": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
+        "signalType": "formal_gate",
+        "severity": "p1",
+        "actionability": "formal_gate",
+        "scoreDimensionsAffected": [
+          "evidenceCompleteness"
+        ],
+        "estimatedPointImpact": 91.4,
+        "owner": "admin_debug",
+        "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+        "sourceFiles": [
+          "agent/state/public-beta-score.generated.json"
+        ],
+        "validator": "npm run check:beta-score",
+        "defaultVisible": true,
+        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
+        "duplicateChildren": []
+      },
+      {
+        "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-2",
         "signalType": "formal_gate",
         "severity": "p1",
         "actionability": "formal_gate",
         "scoreDimensionsAffected": [
           "runtimeHealth"
         ],
-        "estimatedPointImpact": 84.2,
+        "estimatedPointImpact": 91.4,
         "owner": "runtime_evidence",
         "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
         "sourceFiles": [
@@ -873,7 +657,7 @@
         "scoreDimensionsAffected": [
           "runtimeHealth"
         ],
-        "estimatedPointImpact": 84.2,
+        "estimatedPointImpact": 91.4,
         "owner": "provider_evidence",
         "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
         "sourceFiles": [
@@ -882,25 +666,6 @@
         "validator": "npm run check:beta-score",
         "defaultVisible": true,
         "dedupeKey": "formal_gate|beta_score|provider_evidence|runtimeHealth|attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta",
-        "duplicateChildren": []
-      },
-      {
-        "signalId": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
-        "signalType": "formal_gate",
-        "severity": "p1",
-        "actionability": "formal_gate",
-        "scoreDimensionsAffected": [
-          "evidenceCompleteness"
-        ],
-        "estimatedPointImpact": 69.6,
-        "owner": "admin_debug",
-        "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-        "sourceFiles": [
-          "agent/state/public-beta-score.generated.json"
-        ],
-        "validator": "npm run check:beta-score",
-        "defaultVisible": true,
-        "dedupeKey": "formal_gate|admin_truth|admin_debug|evidenceCompleteness|attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admi",
         "duplicateChildren": []
       },
       {
@@ -1020,11 +785,23 @@
   },
   "prioritizedSignals": [
     {
-      "id": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
+      "title": "Ready with smoke required: Admin truth/sample evidence",
+      "severity": "p1",
+      "actionability": "formal_gate",
+      "estimatedPointImpact": 91.4,
+      "owner": "admin_debug",
+      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+      "scoreDimensionImpact": [
+        "evidenceCompleteness"
+      ]
+    },
+    {
+      "id": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-2",
       "title": "Ready with smoke required: Debug/runtime evidence",
       "severity": "p1",
       "actionability": "formal_gate",
-      "estimatedPointImpact": 84.2,
+      "estimatedPointImpact": 91.4,
       "owner": "runtime_evidence",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "scoreDimensionImpact": [
@@ -1036,23 +813,11 @@
       "title": "Runtime unverified: Runtime/provider smoke",
       "severity": "p1",
       "actionability": "formal_gate",
-      "estimatedPointImpact": 84.2,
+      "estimatedPointImpact": 91.4,
       "owner": "provider_evidence",
       "exactNextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "scoreDimensionImpact": [
         "runtimeHealth"
-      ]
-    },
-    {
-      "id": "beta-cap-ready-with-smoke-required-admin-truth-sample-evidence-1",
-      "title": "Ready with smoke required: Admin truth/sample evidence",
-      "severity": "p1",
-      "actionability": "formal_gate",
-      "estimatedPointImpact": 69.6,
-      "owner": "admin_debug",
-      "exactNextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
       ]
     },
     {
@@ -1160,7 +925,7 @@
       "owner": "admin_debug",
       "exactNextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
       "scoreDimensionImpact": [
-        "freshness"
+        "evidenceCompleteness"
       ]
     },
     {
@@ -1184,7 +949,7 @@
       "owner": "admin_debug",
       "exactNextAction": "Work the visible cap reasons in order instead of hiding them in Debug.",
       "scoreDimensionImpact": [
-        "freshness"
+        "evidenceCompleteness"
       ]
     },
     {
@@ -1197,18 +962,6 @@
       "exactNextAction": "Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock",
       "scoreDimensionImpact": [
         "freshness"
-      ]
-    },
-    {
-      "id": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
-      "title": "Stale evidence: Report freshness and PR integrity",
-      "severity": "p2",
-      "actionability": "score_impacting",
-      "estimatedPointImpact": 69.6,
-      "owner": "beta_score",
-      "exactNextAction": "Refresh the owning evidence artifact and keep the beta cap visible until evidence is formal.",
-      "scoreDimensionImpact": [
-        "evidenceCompleteness"
       ]
     },
     {
@@ -1258,13 +1011,25 @@
       "scoreDimensionImpact": [
         "freshness"
       ]
+    },
+    {
+      "id": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
+      "title": "Stale artifact: agent/state/beta-evidence-lane-prep.generated.json",
+      "severity": "p2",
+      "actionability": "score_impacting",
+      "estimatedPointImpact": 1.6,
+      "owner": "evidence",
+      "exactNextAction": "Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep",
+      "scoreDimensionImpact": [
+        "freshness"
+      ]
     }
   ],
   "duplicateParents": [
     {
-      "id": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
+      "id": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-2",
       "duplicateChildren": [
-        "beta-cap-ready-with-smoke-required-evidence-bridge-4"
+        "beta-cap-ready-with-smoke-required-evidence-bridge-3"
       ]
     },
     {
@@ -1276,40 +1041,10 @@
       ]
     },
     {
-      "id": "stale-artifact-agent-state-overnight-final-integration-lock-generated-json",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-overnight-final-integration-lock-generated-json"
-      ]
-    },
-    {
       "id": "cost-cost-risk-0",
       "duplicateChildren": [
         "cost-cost-risk-1",
         "cost-cost-risk-2"
-      ]
-    },
-    {
-      "id": "stale-artifact-agent-state-beta-evidence-gap-map-generated-json",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-beta-evidence-gap-map-generated-json"
-      ]
-    },
-    {
-      "id": "stale-artifact-agent-state-beta-evidence-lane-prep-generated-json",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-beta-evidence-lane-prep-generated-json"
-      ]
-    },
-    {
-      "id": "stale-artifact-agent-state-beta-freshness-language-generated-json",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-beta-freshness-language-generated-json"
-      ]
-    },
-    {
-      "id": "stale-artifact-agent-state-final-pr-stale-cleanup-generated-json",
-      "duplicateChildren": [
-        "stale-refresh-plan-agent-state-final-pr-stale-cleanup-generated-json"
       ]
     },
     {
@@ -1321,6 +1056,7 @@
         "debug-panel-report-device-ui",
         "debug-panel-report-device-layout",
         "debug-panel-report-hydration",
+        "debug-panel-report-sitewide-image",
         "debug-panel-report-google-cost",
         "debug-panel-report-cloud-cost",
         "debug-panel-report-sql-mirror",
@@ -1332,9 +1068,8 @@
       ]
     },
     {
-      "id": "debug-panel-report-sitewide-image",
+      "id": "debug-panel-report-content-protection",
       "duplicateChildren": [
-        "debug-panel-report-content-protection",
         "debug-panel-report-gumdrop-economy",
         "debug-panel-report-event-catalog",
         "debug-panel-report-watch-time-truth",
@@ -1354,6 +1089,10 @@
     },
     {
       "path": "agent/state/admin-analytics-monolith-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/admin-summary-lane-status-classifier.generated.json",
       "classification": "still_required"
     },
     {
@@ -1397,6 +1136,22 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/auth-runtime-telemetry.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/behavior-normalization-internals.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/behavior-task-telemetry-ui-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/behavioral-intelligence-snapshot-truth.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/behavioral-tracking-semantics-closure.generated.json",
       "classification": "still_required"
     },
@@ -1429,6 +1184,14 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/canonical-math-authority-ledger.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/canonical-math-ledger.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/chat-gating-moderation.generated.json",
       "classification": "still_required"
     },
@@ -1449,7 +1212,31 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/codebase-organization-hardening.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/complete-dependency-inventory.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/config-runtime-sample-status-classifier.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/control-tower-operator-queue-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/cost-4xx-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/cost-4xx-status-cleanup.generated.json",
       "classification": "still_required"
     },
     {
@@ -1537,6 +1324,50 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/debug-cockpit-batch1-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch15-false-positive-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch20-stale-route-sweep.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch22-commerce-truth.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch27-ai-repair-workbench.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch3-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch30-telemetry-parity.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch35-behavior-stack.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch4-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch5-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/debug-cockpit-batch7-control-tower-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/debug-operator-cockpit.generated.json",
       "classification": "still_required"
     },
@@ -1561,7 +1392,15 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/deep-4xx-route-map.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/dependency-panel-display-cleanup.generated.json",
       "classification": "still_required"
     },
     {
@@ -1589,6 +1428,10 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/event-liveness-source-repair.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/event-translation-bridge.generated.json",
       "classification": "still_required"
     },
@@ -1597,7 +1440,15 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/experiment-rollout-registry-reconstruction.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/external-analytics-truth-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/external-dependency-map.generated.json",
       "classification": "still_required"
     },
     {
@@ -1610,6 +1461,10 @@
     },
     {
       "path": "agent/state/final-cost-audit-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/final-math-normalization-lock.generated.json",
       "classification": "still_required"
     },
     {
@@ -1633,6 +1488,14 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/freshness-window-repair.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/future-activity-catalog-status-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/future-activity-signal-reclassification.generated.json",
       "classification": "still_required"
     },
@@ -1645,7 +1508,15 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/global-formula-audit.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/global-marquee-truncated-titles.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/google-cost-bleed.generated.json",
       "classification": "still_required"
     },
     {
@@ -1669,7 +1540,27 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/interpretive-brain-debug-triage.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/launch-blocker-evidence-closure.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/legacy-pipeline-inventory.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/live-evidence-gate-replacement.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/lost-data-recovery-dry-run.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/manual-utility-separation.generated.json",
       "classification": "still_required"
     },
     {
@@ -1678,6 +1569,10 @@
     },
     {
       "path": "agent/state/march-first-legacy-normalization.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/mega-legacy-pipeline-hardening.generated.json",
       "classification": "still_required"
     },
     {
@@ -1705,7 +1600,19 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/no-sample-route-cohort-finalization.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/no-sample-status-classifier.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/non-event-score-policy.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/open-backlog-status-cleanup.generated.json",
       "classification": "still_required"
     },
     {
@@ -1729,6 +1636,10 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/pipeline-ownership-audit.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/post-economy-creator-flow-qa.generated.json",
       "classification": "still_required"
     },
@@ -1737,11 +1648,19 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/product-body-map.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/product-surface-integrity.generated.json",
       "classification": "still_required"
     },
     {
       "path": "agent/state/public-beta-score.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/queue-metadata-gap-summary.generated.json",
       "classification": "still_required"
     },
     {
@@ -1758,6 +1677,18 @@
     },
     {
       "path": "agent/state/route-diagnostics-error-map.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/route-health-reconciliation.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/route-runtime-display-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/runtime-debug-signal-cleanup.generated.json",
       "classification": "still_required"
     },
     {
@@ -1789,6 +1720,10 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/score-dimension-80-lock.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/score-impact-stale-artifact-sweep.generated.json",
       "classification": "still_required"
     },
@@ -1797,11 +1732,35 @@
       "classification": "still_required"
     },
     {
+      "path": "agent/state/self-revealing-codebase.generated.json",
+      "classification": "still_required"
+    },
+    {
       "path": "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
       "classification": "still_required"
     },
     {
       "path": "agent/state/source-truth-authority-map.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/source-window-zero-shell-classifier.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/support-route-stale-index-cleanup.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/support-threads-index-repair.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/task-catalog-runtime-reconstruction.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/task-telemetry-mapping-reconstruction.generated.json",
       "classification": "still_required"
     },
     {
@@ -1814,6 +1773,10 @@
     },
     {
       "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
+      "classification": "still_required"
+    },
+    {
+      "path": "agent/state/tracking-summary-lane-cleanup.generated.json",
       "classification": "still_required"
     },
     {
@@ -1861,6 +1824,14 @@
       "classification": "superseded"
     },
     {
+      "path": "docs/agent-truth/debug-cockpit-batch3-cleanup.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/debug-cockpit-batch7-control-tower-cleanup.md",
+      "classification": "superseded"
+    },
+    {
       "path": "docs/agent-truth/debug-evidence-pipeline.md",
       "classification": "superseded"
     },
@@ -1889,7 +1860,19 @@
       "classification": "superseded"
     },
     {
+      "path": "docs/agent-truth/freshness-window-repair.md",
+      "classification": "superseded"
+    },
+    {
       "path": "docs/agent-truth/future-activity-signal-reclassification.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/legacy-pipeline-inventory.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/mega-legacy-pipeline-hardening.md",
       "classification": "superseded"
     },
     {
@@ -1897,11 +1880,43 @@
       "classification": "superseded"
     },
     {
+      "path": "docs/agent-truth/pipeline-ownership-audit.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "docs/agent-truth/self-revealing-codebase.md",
+      "classification": "superseded"
+    },
+    {
       "path": "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
       "classification": "superseded"
     },
     {
+      "path": "docs/agent-truth/tracking-summary-lane-cleanup.md",
+      "classification": "superseded"
+    },
+    {
       "path": "docs/doctrine/surfaces/admin-debug-control-tower-doctrine.md",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/admin-status-lane-cleanup-shared.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/business-truth-recovery-shared.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/control-tower-cleanup-shared.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch16-shared.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/debug-cockpit-batch28-bug-validation-shared.ts",
       "classification": "superseded"
     },
     {
@@ -1922,6 +1937,10 @@
     },
     {
       "path": "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/tracking-summary-lane-cleanup-shared.ts",
       "classification": "superseded"
     },
     {
@@ -1953,6 +1972,10 @@
       "classification": "superseded"
     },
     {
+      "path": "scripts/agent/validate-canonical-math-authority-ledger.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "scripts/agent/validate-chat-gating-moderation.ts",
       "classification": "superseded"
     },
@@ -1966,6 +1989,10 @@
     },
     {
       "path": "scripts/agent/validate-chat-telemetry-admin-truth.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-control-tower-operator-queue-cleanup.ts",
       "classification": "superseded"
     },
     {
@@ -2037,6 +2064,10 @@
       "classification": "superseded"
     },
     {
+      "path": "scripts/agent/validate-final-math-normalization-lock.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "scripts/agent/validate-final-morning-beta-lock.ts",
       "classification": "superseded"
     },
@@ -2057,6 +2088,10 @@
       "classification": "superseded"
     },
     {
+      "path": "scripts/agent/validate-freshness-window-repair.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "scripts/agent/validate-future-activity-signal-reclassification.ts",
       "classification": "still_required"
     },
@@ -2069,7 +2104,23 @@
       "classification": "superseded"
     },
     {
+      "path": "scripts/agent/validate-global-user-counting-math.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "scripts/agent/validate-guest-user-identity-transfer.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-identity-tracking-shared.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-interpretive-brain-debug-triage.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "scripts/agent/validate-launch-blocker-evidence-closure.ts",
       "classification": "superseded"
     },
     {
@@ -2177,11 +2228,19 @@
       "classification": "superseded"
     },
     {
+      "path": "src/app/api/admin/debug/assistant/fix/route.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "src/app/api/admin/debug/route.ts",
       "classification": "superseded"
     },
     {
       "path": "src/app/api/analytics/ingest-identified/route.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/admin-analytics/panel-hydration-resolver.ts",
       "classification": "superseded"
     },
     {
@@ -2225,6 +2284,26 @@
       "classification": "superseded"
     },
     {
+      "path": "src/lib/codebase-hardening/legacy-pipeline-inventory.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/codebase-hardening/pipeline-ownership-auditor.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/codebase-hardening/pipeline-ownership-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/codebase-hardening/self-revealing-codebase-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/codebase-hardening/self-revealing-codebase-engine.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "src/lib/debug/actionable-signal-filter.ts",
       "classification": "still_required"
     },
@@ -2245,12 +2324,24 @@
       "classification": "superseded"
     },
     {
+      "path": "src/lib/debug/ai-debug-triage-engine.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "src/lib/debug/debug-backlog-builder.ts",
       "classification": "still_required"
     },
     {
       "path": "src/lib/debug/debug-backlog-contract.ts",
       "classification": "still_required"
+    },
+    {
+      "path": "src/lib/debug/debug-cockpit-batch16-ai-debug-orchestration.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/debug/debug-cockpit-batch19-product-routes.ts",
+      "classification": "superseded"
     },
     {
       "path": "src/lib/debug/debug-panel-tracking-summary.ts",
@@ -2273,6 +2364,14 @@
       "classification": "superseded"
     },
     {
+      "path": "src/lib/debug/repair-queue-status.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/debug/report-freshness-control-tower.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "src/lib/hydration-performance-score.ts",
       "classification": "superseded"
     },
@@ -2289,7 +2388,55 @@
       "classification": "superseded"
     },
     {
-      "path": "src/lib/release-notes/public-release-notes.ts",
+      "path": "src/lib/math/canonical-math-authority-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/math/canonical-math-authority-ledger.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/parity/surface-parity-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/parity/surface-parity-registry.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/product-integrity/body-system-wiring-repair.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/product-integrity/central-normalizer-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/product-integrity/final-product-integrity-lock.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/product-integrity/interpretive-brain-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/product-integrity/interpretive-brain.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/product-integrity/product-body-map.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/product-integrity/product-body-system-contract.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/release-readiness/automated-truth-reconciliation.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "src/lib/route-hardening/route-4xx-taxonomy.ts",
       "classification": "superseded"
     },
     {
@@ -2321,6 +2468,10 @@
       "classification": "superseded"
     },
     {
+      "path": "src/lib/testing/canonical-test-factories.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "src/lib/testing/telemetry-trigger-test-matrix.ts",
       "classification": "superseded"
     },
@@ -2334,6 +2485,10 @@
     },
     {
       "path": "tests/unit/ai-debug-critic.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/ai-debug-queue-truth.spec.ts",
       "classification": "superseded"
     },
     {
@@ -2373,15 +2528,39 @@
       "classification": "superseded"
     },
     {
+      "path": "tests/unit/freshness-window-repair.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/future-activity-catalog-status-cleanup.spec.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "tests/unit/future-activity-signal-reclassification.spec.ts",
       "classification": "still_required"
+    },
+    {
+      "path": "tests/unit/global-user-counting-math.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/interpretive-brain-debug-triage.spec.ts",
+      "classification": "superseded"
     },
     {
       "path": "tests/unit/march-first-legacy-normalization.spec.ts",
       "classification": "superseded"
     },
     {
+      "path": "tests/unit/mega-legacy-pipeline-hardening.spec.ts",
+      "classification": "superseded"
+    },
+    {
       "path": "tests/unit/non-event-score-policy.spec.ts",
+      "classification": "superseded"
+    },
+    {
+      "path": "tests/unit/orphaned-logic-refresh.spec.ts",
       "classification": "superseded"
     },
     {
@@ -2409,195 +2588,100 @@
       "classification": "superseded"
     }
   ],
-  "dirtyFiles": [
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
+  "dirtyFileSummary": {
+    "total": 166,
+    "byClassification": {
+      "stale_generated_artifact_to_regenerate": 136,
+      "current_generated_artifact_to_commit": 3,
+      "documentation_artifact_expected": 2,
+      "validator_artifact_expected": 15,
+      "actionability_source_change": 5,
+      "test_artifact_expected": 5
     },
-    {
-      "path": "agent/state/chat-functionality-score-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/chat-gating-moderation.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/chat-realtime-cost-control.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/chat-telemetry-admin-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/cost-risk-owner-review-closure.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-debug-score-lock.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-guidance-route-audit.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-lifecycle-telemetry.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-reset-truth.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/daily-task-reward-ledger.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-envelope-normalization.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/formal-evidence-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/settings-connection-parity.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/telemetry-trigger-test-matrix.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-management-refactor.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/user-profile-api-contract.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-functionality-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-gating-moderation.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-realtime-cost-control.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/chat-telemetry-admin-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/cost-risk-owner-review-closure.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-debug-score-lock.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-guidance-route-audit.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-lifecycle-telemetry.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reset-truth.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/daily-task-reward-ledger.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-envelope-normalization.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-liveness-audit.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/formal-evidence-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/settings-connection-parity.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/telemetry-trigger-test-matrix.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/user-management-refactor.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/user-profile-api-contract.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/app/api/admin/debug/route.ts",
-      "classification": "debug_panel_source_change"
-    },
-    {
-      "path": "src/lib/analytics/event-liveness-contract.ts",
-      "classification": "actionability_source_change"
-    },
-    {
-      "path": "src/lib/analytics/event-liveness-engine.ts",
-      "classification": "actionability_source_change"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "debug_panel_source_change"
-    },
-    {
-      "path": "src/lib/server/admin-debug/summary.ts",
-      "classification": "debug_panel_source_change"
-    },
-    {
-      "path": "tests/unit/event-liveness-audit.spec.ts",
-      "classification": "test_artifact_expected"
-    }
-  ],
+    "unsafeUnknownCount": 0,
+    "protectedRuntimeChangeCount": 0,
+    "samples": [
+      {
+        "path": "agent/state/activity-verification-engine.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/admin-truth-source-sample.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/algorithmic-evidence-policy.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-hydration-consolidation.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-panel-hydration.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/beta-evidence-gap-map.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/beta-evidence-lane-prep.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/beta-freshness-language.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/chat-functionality-score-lock.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/chat-gating-moderation.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/chat-realtime-cost-control.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/cost-owner-review-source-closure.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/cost-risk-exit-pass.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/creator-drop-status-metrics.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      }
+    ]
+  },
   "validationFailures": []
 }

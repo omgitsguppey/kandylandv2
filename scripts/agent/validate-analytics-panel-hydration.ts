@@ -87,6 +87,25 @@ function classifyDirtyFile(path: string) {
   if (normalized === "scripts/agent/validate-analytics-hydration-consolidation.ts") return "validator_artifact_expected";
   if (normalized === "tests/unit/analytics-panel-hydration.spec.ts") return "analytics_panel_hydration_artifact_expected";
   if (normalized === "tests/unit/analytics-hydration-consolidation.spec.ts") return "test_artifact_expected";
+  if (/^src\/lib\/agent-score\/(algorithmic-evidence-policy|core|evidence-quality|formal-evidence-bridge|regression-risk-refresh-plan)\.ts$/u.test(normalized)) {
+    return "beta_studio_consolidation_source_expected";
+  }
+  if (normalized === "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "scripts/agent/validate-creator-monetization-readiness-lock.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "scripts/agent/validate-final-parity-telemetry-lock.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "scripts/agent/validate-media-discovery-score-lock.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "scripts/agent/validate-post-economy-creator-flow-qa.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "scripts/agent/validate-regression-risk-high-blast-refresh.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "scripts/agent/validate-score-80-reconciliation-lock.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "scripts/agent/validate-score-80-refresh-pass.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "scripts/agent/validate-user-facing-feature-connection-audit.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "tests/unit/creator-dashboard-error-cost-inventory.spec.ts") return "beta_studio_consolidation_test_expected";
+  if (normalized === "tests/unit/creator-experiences-panel.spec.tsx") return "beta_studio_consolidation_test_expected";
+  if (normalized === "tests/unit/post-economy-creator-flow-qa.spec.ts") return "beta_studio_consolidation_test_expected";
+  if (normalized === "tests/unit/purchase-modal.spec.tsx") return "beta_studio_consolidation_test_expected";
+  if (normalized === "tests/unit/regression-risk-high-blast-refresh.spec.ts") return "beta_studio_consolidation_test_expected";
+  if (normalized === "scripts/agent/validate-public-beta-score.ts") return "beta_studio_consolidation_validator_expected";
+  if (normalized === "tests/unit/public-beta-score.spec.ts") return "beta_studio_consolidation_test_expected";
   if (normalized === "agent/state/analytics-hydration-consolidation.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/analytics-hydration-consolidation-audit.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "docs/agent-truth/analytics-hydration-consolidation.md") return "documentation_artifact_expected";
@@ -175,6 +194,13 @@ function compactReport(
   livePanelEvidence: ReturnType<typeof buildLivePanelEvidenceReport>,
   validationFailures: string[],
 ) {
+  const dirtyFilesByClassification = report.dirtyFiles.reduce<Record<string, number>>((counts, file) => {
+    counts[file.classification] = (counts[file.classification] ?? 0) + 1;
+    return counts;
+  }, {});
+  const unsafeDirtyFiles = report.dirtyFiles
+    .filter((file) => file.classification === "unsafe_unknown")
+    .map((file) => file.path);
   return {
     reportKey: report.reportKey,
     generatedAtUtc: report.generatedAtUtc,
@@ -214,7 +240,13 @@ function compactReport(
     },
     betaGateImpact: report.betaGateImpact,
     debugLane: report.debugLane,
-    dirtyFiles: report.dirtyFiles,
+    dirtyFileSummary: {
+      total: report.dirtyFiles.length,
+      byClassification: dirtyFilesByClassification,
+      unsafeUnknown: unsafeDirtyFiles,
+      sample: report.dirtyFiles.slice(0, 8),
+      sampleTruncated: report.dirtyFiles.length > 8,
+    },
     nextExactSteps: report.nextExactSteps,
     validationFailures,
   };

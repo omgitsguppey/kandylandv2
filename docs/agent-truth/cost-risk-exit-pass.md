@@ -1,12 +1,12 @@
 # Cost Risk Exit Pass
 
-Status: `pass`
+Status: `fail`
 Artifact: `agent/state/cost-risk-exit-pass.generated.json`
 Validator: `npm run check:cost-risk-exit-pass`
 
 ## Summary
 
-- Current head: `9f108d980471030fe6e4e319ceac44e291b3a08e`
+- Current head: `225f9e53f18b60edc7399c1ea258c0b9bacfae84`
 - Cost risk: 42 -> 80.5
 - Source guarded lanes: 4
 - Generic owner-review lanes: 0
@@ -22,10 +22,10 @@ Validator: `npm run check:cost-risk-exit-pass`
 | sourceHealth | 91.7 | 91.7 | 80 |
 | runtimeHealth | 84.2 | 84.2 | 80 |
 | evidenceCompleteness | 69.6 | 69.6 | 80 |
-| freshness | 67.5 | 67.5 | 80 |
+| freshness | 59.38 | 59.38 | 80 |
 | costRisk | 42 | 80.5 | 80 |
 | regressionRisk | 86 | 86 | 80 |
-| overallHealthScore | 76.61 | 80.46 | 80 |
+| overallHealthScore | 75.39 | 79.24 | 80 |
 
 ## Exit Lanes
 
@@ -40,30 +40,99 @@ Validator: `npm run check:cost-risk-exit-pass`
 
 | File | Classification |
 | --- | --- |
-| CHANGELOG.md | release_artifact_expected |
-| agent/state/analytics-cost-runtime-inventory.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/cloud-sql-gemini-cost-guards.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/activity-verification-engine.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/algorithmic-evidence-policy.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/analytics-hydration-consolidation-audit.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/analytics-hydration-consolidation.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/analytics-panel-hydration.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/beta-evidence-gap-map.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/beta-evidence-lane-prep.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/beta-freshness-language.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/cost-owner-review-source-closure.generated.json | stale_generated_artifact_to_regenerate |
-| agent/state/cost-risk-exit-pass.generated.json | current_generated_artifact_to_commit |
-| agent/state/cost-risk-owner-review-closure.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/creator-dashboard-error-cost-inventory.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/creator-drop-status-metrics.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/creator-experience-simplification.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/creator-settings-control-plane.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/current-beta-exit-status.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/debug-panel-output-triage.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/debug-runtime-evidence.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/debug-score-impact-triage.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/evidence-capture-status.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/existing-algorithm-refinement.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/final-pr-stale-cleanup.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/final-telemetry-closure-lock.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/formal-evidence-bridge.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/global-marquee-truncated-titles.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/gumdrop-economy-accuracy.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/mobile-loading-hydration-stability.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/mobile-ui-final-lock.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/operator-revenue-smoke.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/overnight-beta-readiness-lock.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/overnight-final-integration-lock.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/overnight-wiring-integrity.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/post-economy-creator-flow-qa.generated.json | stale_generated_artifact_to_regenerate |
 | agent/state/public-beta-score.generated.json | current_generated_artifact_to_commit |
-| agent/state/score-80-cost-readiness.generated.json | current_generated_artifact_to_commit |
-| docs/agent-truth/analytics-cost-runtime-inventory.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/cloud-sql-gemini-cost-guards.md | stale_generated_artifact_to_regenerate |
+| agent/state/runtime-smoke-substitute-matrix.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/runtime-watch-time-v2.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/score-80-reconciliation-lock.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/score-80-refresh-pass.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/source-backed-runtime-confidence.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/source-truth-authority-map.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/telemetry-admin-debug-truth.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/user-facing-feature-connection-audit.generated.json | stale_generated_artifact_to_regenerate |
+| agent/state/user-loading-wallet-mobile-refinement.generated.json | unsafe_unknown |
+| docs/agent-truth/algorithmic-evidence-policy.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/analytics-hydration-consolidation-audit.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/analytics-hydration-consolidation.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/analytics-panel-hydration.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/beta-evidence-gap-map.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/beta-evidence-lane-prep.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/beta-freshness-language.md | stale_generated_artifact_to_regenerate |
 | docs/agent-truth/cost-owner-review-source-closure.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/cost-risk-exit-pass.md | current_generated_artifact_to_commit |
-| docs/agent-truth/cost-risk-owner-review-closure.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/creator-dashboard-error-cost-inventory.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/creator-drop-status-metrics.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/creator-settings-control-plane.md | stale_generated_artifact_to_regenerate |
 | docs/agent-truth/current-beta-exit-status.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/debug-runtime-evidence.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/debug-score-impact-triage.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/evidence-capture-status.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/existing-algorithm-refinement.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/final-pr-stale-cleanup.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/final-telemetry-closure-lock.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/formal-evidence-bridge.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/global-marquee-truncated-titles.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/mobile-loading-hydration-stability.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/mobile-ui-final-lock.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/operator-revenue-smoke.md | stale_generated_artifact_to_regenerate |
 | docs/agent-truth/overnight-beta-readiness-lock.md | stale_generated_artifact_to_regenerate |
-| docs/agent-truth/score-80-cost-readiness.md | stale_generated_artifact_to_regenerate |
-| public/kandydrops-release-notes.json | release_artifact_expected |
-| scripts/agent/validate-cost-owner-review-source-closure.ts | cost_evidence_validator |
-| scripts/agent/validate-cost-risk-exit-pass.ts | cost_evidence_validator |
-| scripts/agent/validate-score-80-cost-readiness.ts | score_model_evidence_supported |
-| src/lib/release-notes/public-release-notes.ts | release_artifact_expected |
-| src/lib/release-notes/release-version-contract.ts | release_artifact_expected |
+| docs/agent-truth/overnight-final-integration-lock.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/overnight-wiring-integrity.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/post-economy-creator-flow-qa.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/runtime-smoke-substitute-matrix.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/runtime-watch-time-v2.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/score-80-reconciliation-lock.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/score-80-refresh-pass.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/source-backed-runtime-confidence.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/source-truth-authority-map.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/telemetry-admin-debug-truth.md | stale_generated_artifact_to_regenerate |
+| docs/agent-truth/user-loading-wallet-mobile-refinement.md | unsafe_unknown |
+| scripts/agent/validate-analytics-hydration-consolidation.ts | unsafe_unknown |
+| scripts/agent/validate-analytics-panel-hydration.ts | unsafe_unknown |
+| scripts/agent/validate-creator-dashboard-error-cost-inventory.ts | unsafe_unknown |
+| scripts/agent/validate-post-economy-creator-flow-qa.ts | unsafe_unknown |
+| scripts/agent/validate-public-beta-score.ts | unsafe_unknown |
+| scripts/agent/validate-score-80-reconciliation-lock.ts | unsafe_unknown |
+| scripts/agent/validate-score-80-refresh-pass.ts | unsafe_unknown |
+| scripts/agent/validate-user-facing-feature-connection-audit.ts | unsafe_unknown |
+| src/lib/agent-score/algorithmic-evidence-policy.ts | unsafe_unknown |
+| src/lib/agent-score/core.ts | score_model_evidence_supported |
+| src/lib/agent-score/evidence-quality.ts | score_model_evidence_supported |
+| src/lib/agent-score/formal-evidence-bridge.ts | unsafe_unknown |
+| tests/unit/creator-dashboard-error-cost-inventory.spec.ts | unsafe_unknown |
+| tests/unit/creator-experiences-panel.spec.tsx | unsafe_unknown |
+| tests/unit/post-economy-creator-flow-qa.spec.ts | unsafe_unknown |
+| tests/unit/public-beta-score.spec.ts | unsafe_unknown |
+| tests/unit/purchase-modal.spec.tsx | unsafe_unknown |
 
 ## Stale Reference Classification
 
@@ -84,4 +153,4 @@ This pass is source-only cost evidence. It does not claim dollar savings, provid
 
 ## Validation
 
-- Pass.
+- FAIL: product runtime files changed.

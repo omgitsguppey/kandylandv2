@@ -1,8 +1,8 @@
 # Formal Evidence Bridge
 
-Generated: 2026-06-01T04:50:37.486Z
+Generated: 2026-06-03T04:46:12.095Z
 
-Current head: c525024240902c3f2ca716c01015c3cb6b25997b
+Current head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 
 ## Summary
 
@@ -16,19 +16,19 @@ Current head: c525024240902c3f2ca716c01015c3cb6b25997b
 
 | Dimension | Before | After |
 | --- | ---: | ---: |
-| sourceHealth | 92.5 | 92.5 |
+| sourceHealth | 91.7 | 91.7 |
 | runtimeHealth | 84.2 | 84.2 |
 | evidenceCompleteness | 69.6 | 69.6 |
-| freshness | 75.63 | 75.63 |
+| freshness | 59.38 | 59.38 |
 | costRisk | 42 | 42 |
 | regressionRisk | 86 | 86 |
-| overallHealthScore | 78.03 | 78.03 |
+| overallHealthScore | 75.39 | 75.39 |
 
 ## Bridge Gates
 
 | Gate | Status | Evidence credit | Runtime credit | Formal cleared | Next action |
 | --- | --- | ---: | ---: | --- | --- |
-| runtimeProviderSmoke | partial_source_confidence | 78 | 92 | false | Attach formal provider and deployed runtime smoke before clearing this gate. |
+| runtimeProviderSmoke | partial_source_confidence | 78 | 100 | false | Attach formal provider and deployed runtime smoke before clearing this gate. |
 | adminTruthSamples | partial_source_confidence | 65 | 65 | false | Attach a redacted production admin truth sample before clearing the formal admin gate. |
 | debugRuntimeEvidence | partial_source_confidence | 80 | 80 | false | Use debug/source runtime evidence as current confidence only; attach deployed smoke before formal closure. |
 

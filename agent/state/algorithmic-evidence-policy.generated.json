@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-05-24T05:05:31.355Z",
+  "generatedAtUtc": "2026-06-03T04:39:26.532Z",
   "reportKey": "algorithmic-evidence-policy",
   "overallStatus": "algorithmic_evidence_policy_ready",
   "manualEvidenceScope": {
@@ -30,7 +30,7 @@
     "confidence": "partial",
     "score": 100,
     "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-    "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+    "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
     "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
     "formalGateCleared": false,
     "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
@@ -109,7 +109,7 @@
       "confidence": "partial",
       "score": 100,
       "sourcePath": "agent/state/debug-runtime-evidence.generated.json,agent/state/runtime-smoke-substitute-matrix.generated.json,agent/state/source-backed-runtime-confidence.generated.json,agent/state/real-usage-confidence.generated.json,agent/state/real-usage-confidence-calibration.generated.json",
-      "sourceStatus": "partial_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
+      "sourceStatus": "source_ready_debug_runtime_evidence;source_ready_runtime_smoke_substitute_matrix;source_ready_runtime_confidence;source_ready_real_usage_confidence;source_ready_real_usage_confidence_calibrated",
       "distinction": "source-backed runtime confidence improves runtime health but does not clear deployed runtime smoke",
       "formalGateCleared": false,
       "nextAction": "Attach deployed runtime smoke before clearing the formal runtime gate."
@@ -171,10 +171,10 @@
     }
   ],
   "validationFailures": [],
-  "currentHead": "e7d4eb198c8b9f728589fe48b41345f295a854d1",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "scoreProbe": {
-    "runtimeHealthScore": 71.4,
-    "evidenceCompletenessScore": 64.6,
+    "runtimeHealthScore": 96.8,
+    "evidenceCompletenessScore": 76.8,
     "readinessStatus": "Unknown evidence",
     "launchBlockers": [
       "Runtime/provider smoke: Runtime unverified",

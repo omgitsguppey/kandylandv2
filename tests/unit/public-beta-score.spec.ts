@@ -419,6 +419,120 @@ describe("public beta scoring math", () => {
         expect(report.readinessStatus).toBe("Ready");
     });
 
+    it("separates Studio confidence display from formal launch clearance", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: { ...missingProviderSmokeEvidence, generatedAtUtc: new Date().toISOString() },
+                runtimeSmokeEvidence: { ...runtimeUnverifiedEvidence, generatedAtUtc: new Date().toISOString() },
+                targetedBehaviorEvidence: {
+                    ...freshEvidence.targetedBehaviorEvidence,
+                    generatedAtUtc: new Date().toISOString(),
+                },
+                realUsageConfidenceEvidence: {
+                    path: "agent/state/real-usage-confidence.generated.json",
+                    status: "source_ready_real_usage_confidence",
+                    passed: true,
+                    detail: "Source-backed real usage confidence is current.",
+                    evidence: ["confidenceScore=92", "formalGatesCleared=false"],
+                    generatedAtUtc: new Date().toISOString(),
+                },
+                runtimeSmokeSubstituteMatrixEvidence: {
+                    path: "agent/state/runtime-smoke-substitute-matrix.generated.json",
+                    status: "source_ready_runtime_smoke_substitute_matrix",
+                    passed: true,
+                    detail: "Runtime smoke substitute matrix is source-ready.",
+                    evidence: ["matrixRuntimeHealthCredit=92", "deployedRuntimeSmokeStillRequired=true"],
+                    generatedAtUtc: new Date().toISOString(),
+                },
+                debugRuntimeEvidenceArtifact: {
+                    path: "agent/state/debug-runtime-evidence.generated.json",
+                    status: "source_ready_debug_runtime_evidence",
+                    passed: true,
+                    detail: "Source-backed debug runtime evidence is current.",
+                    evidence: ["sourceBackedRuntimeConfidence=100", "deployedRuntimeSmokeCleared=false"],
+                    generatedAtUtc: new Date().toISOString(),
+                },
+                adminTruthSampleEvidence: {
+                    path: "agent/state/admin-truth-source-sample.generated.json",
+                    status: "source_ready_admin_truth_sample",
+                    passed: true,
+                    detail: "Admin source truth wiring is current; production sample still required.",
+                    evidence: [
+                        "sourceTruthStatus=source_backed",
+                        "criticalAdminTruthIssueCount=0",
+                        "fakeHealthyStateDetected=false",
+                        "formalAdminTruthSamplePassed=false",
+                    ],
+                    generatedAtUtc: new Date().toISOString(),
+                },
+                costReadiness: {
+                    cloudRunCostReadiness: {
+                        status: "source_guarded_external_review_remaining",
+                        detail: "Cloud Run source guards are current; billing review remains external.",
+                        evidence: ["externalReviewRequired=true"],
+                        blocksBetaExit: false,
+                    },
+                    cloudSqlCostReadiness: {
+                        status: "source_ready_no_runtime_usage_detected",
+                        detail: "Runtime SQL usage is not detected; provider review remains external.",
+                        evidence: ["externalReviewRequired=true"],
+                        blocksBetaExit: false,
+                    },
+                    geminiCloudAssistCostReadiness: {
+                        status: "source_guarded_external_review_remaining",
+                        detail: "AI calls are guarded; provider billing review remains external.",
+                        evidence: ["externalReviewRequired=true"],
+                        blocksBetaExit: false,
+                    },
+                    route4xxReadiness: {
+                        status: "source_ready_retry_storm_guarded",
+                        detail: "Route 4xx retry storms are source-guarded.",
+                        evidence: ["externalReviewRequired=false"],
+                        blocksBetaExit: false,
+                    },
+                },
+                regressionRiskRefreshEvidence: {
+                    highBlastCoverageCurrent: true,
+                    regressionRiskScore: 94,
+                    failedLaneCount: 0,
+                    inFlightLaneCount: 0,
+                },
+            },
+        });
+
+        expect(Object.keys(report.healthScoreBreakdown)).toEqual([
+            "sourceHealth",
+            "runtimeHealth",
+            "evidenceCompleteness",
+            "freshness",
+            "costRisk",
+            "regressionRisk",
+        ]);
+        expect(report.studioDashboard.sections.map((section) => section.label)).toEqual([
+            "Audience Activity",
+            "Runtime Confidence",
+            "Source Quality",
+            "Debug Signal",
+            "Admin Hydration",
+            "Needs Proof",
+        ]);
+        expect(report.studioDashboard.sections.find((section) => section.id === "runtimeConfidence")?.score).toBe(report.runtimeHealthScore);
+        expect(report.studioDashboard.sections.find((section) => section.id === "needsProof")?.status).toBe("needs_proof");
+        expect(report.sourceHealthScore).toBeGreaterThanOrEqual(90);
+        expect(report.runtimeHealthScore).toBeGreaterThanOrEqual(90);
+        expect(report.evidenceCompletenessScore).toBeGreaterThanOrEqual(90);
+        expect(report.freshnessScore).toBeGreaterThanOrEqual(90);
+        expect(report.costRiskScore).toBeGreaterThanOrEqual(90);
+        expect(report.regressionRiskScore).toBeGreaterThanOrEqual(90);
+        expect(report.launchClearance.formalGates.providerSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.deployedRuntimeSmoke.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.adminTruthSample.cleared).toBe(false);
+        expect(report.launchClearance.formalGates.paymentSourceOfFunds.cleared).toBe(false);
+        expect(report.launchClearance.blockers).toEqual(report.launchBlockers);
+    });
+
     it("dedupes duplicate findings and keeps the strongest evidence", () => {
         const first = buildPublicBetaFinding({
             domain: "layout",

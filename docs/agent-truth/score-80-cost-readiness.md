@@ -1,16 +1,16 @@
 # Score 80 Cost Readiness
 
-Generated: 2026-05-31T19:57:00.736Z
+Generated: 2026-06-03T04:33:20.425Z
 
-Latest code version: 9f108d980471030fe6e4e319ceac44e291b3a08e
+Latest code version: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 
 ## Summary
 
-- Cost risk score: 80.5
+- Cost risk score: 92.5
 - Latest cost locks preferred: true
 - External owner review still required: true
-- Stale creator dashboard inventory ignored: true
-- Explanation: Cost risk score 80.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.
+- Stale creator dashboard inventory ignored: false
+- Explanation: Cost risk score 92.5 gives source readiness and source cost readiness credit for guarded current cost locks and route 4xx closure, while external billing proof and owner review remain separate.
 
 ## Cost Lanes
 
@@ -25,7 +25,7 @@ Latest code version: 9f108d980471030fe6e4e319ceac44e291b3a08e
 
 | Command | Status | Artifact | Detail |
 | --- | --- | --- | --- |
-| npm run check:final-cost-audit-lock | failed_or_not_run | agent/state/final-cost-audit-lock.generated.json | Final cost lock is missing or stale. |
+| npm run check:final-cost-audit-lock | pass | agent/state/final-cost-audit-lock.generated.json | Current final cost lock is available. |
 | npm run check:cost-risk-exit-pass | pass | agent/state/cost-risk-exit-pass.generated.json | Current cost risk exit pass is available. |
 | npm run check:cost-risk-owner-review-closure | pass | agent/state/cost-risk-owner-review-closure.generated.json | Current cost risk owner-review closure is available. |
 | npm run check:cost-owner-review-source-closure | pass | agent/state/cost-owner-review-source-closure.generated.json | Current cost owner-review source closure is available. |

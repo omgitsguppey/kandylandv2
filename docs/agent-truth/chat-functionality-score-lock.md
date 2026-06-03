@@ -1,7 +1,7 @@
 # Chat Functionality Score Lock
 
-Generated: 2026-05-24T16:44:51.466Z
-Current HEAD: d02b8b2da859d47d880182fe2169db1ad6a40ad6
+Generated: 2026-06-03T04:31:09.859Z
+Current HEAD: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 
 ## Status
 
@@ -24,13 +24,13 @@ Current HEAD: d02b8b2da859d47d880182fe2169db1ad6a40ad6
 
 ## Score Dimensions
 
-- sourceHealth: 92.5 -> 92.5 (target 80; at_or_above_target); next=No chat-specific score action needed.
-- runtimeHealth: 84.2 -> 84.2 (target 80; at_or_above_target); next=No chat-specific score action needed.
-- evidenceCompleteness: 69.6 -> 69.6 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
-- freshness: 83.75 -> 83.75 (target 80; at_or_above_target); next=No chat-specific score action needed.
-- costRisk: 42 -> 42 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
-- regressionRisk: 86 -> 86 (target 80; at_or_above_target); next=No chat-specific score action needed.
-- overallHealthScore: 79.25 -> 79.25 (target 80; below_target); next=Below-target score is driven by formal/runtime evidence, stale evidence, or owner-review gates; do not treat missing future chat activity as score drag.
+- sourceHealth: 100 -> 100 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- runtimeHealth: 87.4 -> 87.4 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- evidenceCompleteness: 84.6 -> 84.6 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- freshness: 91.88 -> 91.88 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- costRisk: 80.5 -> 80.5 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- regressionRisk: 88 -> 88 (target 80; at_or_above_target); next=No chat-specific score action needed.
+- overallHealthScore: 90.03 -> 90.03 (target 80; at_or_above_target); next=No chat-specific score action needed.
 
 ## Remaining Gaps
 
@@ -43,4 +43,4 @@ Current HEAD: d02b8b2da859d47d880182fe2169db1ad6a40ad6
 
 ## Validation Failures
 
-- None.
+- dirty files unclassified.

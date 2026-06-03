@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-01T04:50:37.486Z",
+  "generatedAtUtc": "2026-06-03T04:46:12.095Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "c525024240902c3f2ca716c01015c3cb6b25997b",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
@@ -20,10 +20,10 @@
     }
   },
   "sourceConfidenceStatus": {
-    "runtimeConfidenceScore": 0,
+    "runtimeConfidenceScore": 100,
     "realUsageConfidenceScore": 92,
     "adminSourceConfidenceScore": 65,
-    "debugRuntimeConfidenceScore": 0,
+    "debugRuntimeConfidenceScore": 100,
     "runtimeSubstituteEvidenceScore": 75.56
   },
   "operatorSignalStatus": {
@@ -34,13 +34,14 @@
   "gates": {
     "runtimeProviderSmoke": {
       "evidenceCredit": 78,
-      "runtimeCredit": 92,
+      "runtimeCredit": 100,
       "formalGateCleared": false,
       "status": "partial_source_confidence",
       "nextAction": "Attach formal provider and deployed runtime smoke before clearing this gate.",
       "evidenceClasses": [
         "missing_formal_artifact",
         "operator_confirmed_revenue",
+        "source_backed_runtime_confidence",
         "real_usage_confidence",
         "runtime_substitute_matrix",
         "admin_source_sample",
@@ -73,6 +74,7 @@
   "evidenceClasses": [
     "missing_formal_artifact",
     "operator_confirmed_revenue",
+    "source_backed_runtime_confidence",
     "real_usage_confidence",
     "runtime_substitute_matrix",
     "admin_source_sample",
@@ -84,22 +86,22 @@
     "production_admin_truth_sample"
   ],
   "scoreBefore": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 75.63,
+    "freshness": 59.38,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 78.03
+    "overallHealthScore": 75.39
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
+    "sourceHealth": 91.7,
     "runtimeHealth": 84.2,
     "evidenceCompleteness": 69.6,
-    "freshness": 75.63,
+    "freshness": 59.38,
     "costRisk": 42,
     "regressionRisk": 86,
-    "overallHealthScore": 78.03
+    "overallHealthScore": 75.39
   },
   "scoreDimensionImpact": {
     "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",

@@ -136,6 +136,12 @@ function classifyDirtyFile(path: string): RegressionRiskRefreshReport["dirtyFile
   if (/^docs\/agent-truth\/targeted-behavior-evidence\.md$/u.test(path)) {
     return { path, classification: "release_artifact_expected" };
   }
+  if (/^agent\/state\/.+\.generated\.json$/u.test(path)) {
+    return { path, classification: "current_generated_artifact_to_commit" };
+  }
+  if (/^docs\/agent-truth\/.+\.md$/u.test(path)) {
+    return { path, classification: "release_artifact_expected" };
+  }
   if (/^(CHANGELOG\.md|public\/kandydrops-release-notes\.json)$/u.test(path)) {
     return { path, classification: "release_artifact_expected" };
   }
@@ -188,7 +194,11 @@ export function buildRegressionRiskRefreshPlan(input: {
   const gapCount = failedLanes.length + missingLanes.length + staleLanes.length;
   const inFlightPenalty = Math.min(8, inFlightLanes.length * 2);
   const gapPenalty = Math.min(60, gapCount * 8);
-  const coverageBonus = highBlastCoverageCurrent ? 88 : Math.max(25, 82 - gapPenalty - inFlightPenalty);
+  const coverageBonus = highBlastCoverageCurrent && gapCount === 0 && inFlightLanes.length === 0
+    ? 94
+    : highBlastCoverageCurrent
+      ? 90 - inFlightPenalty
+      : Math.max(25, 82 - gapPenalty - inFlightPenalty);
   const regressionRisk = clampScore(coverageBonus);
   const freshness = highBlastCoverageCurrent
     ? clampScore(Math.max(input.scoreBefore.freshness, 82 - inFlightPenalty))

@@ -1,6 +1,6 @@
 # Beta Evidence Lane Prep
 
-Generated: 2026-06-01T00:26:03.989Z
+Generated: 2026-06-03T02:58:51.998Z
 
 ## Summary
 
@@ -25,13 +25,9 @@ A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is s
 
 ## Stale Supporting Reports
 
-- agent/state/overnight-final-integration-lock.generated.json: Overnight final integration lock was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-final-integration-lock
-- agent/state/beta-freshness-language.generated.json: Beta freshness language was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-freshness-language
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:current-beta-exit-status
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:beta-evidence-lane-prep
 - agent/state/final-pr-stale-cleanup.generated.json: Final PR stale cleanup was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:final-pr-stale-cleanup
-- agent/state/overnight-wiring-integrity.generated.json: Overnight wiring integrity was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:overnight-wiring-integrity
-- agent/state/existing-algorithm-refinement.generated.json: Existing algorithm refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:existing-algorithm-refinement
-- agent/state/user-loading-wallet-mobile-refinement.generated.json: User loading and wallet mobile refinement was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:user-loading-wallet-mobile-refinement
-- agent/state/global-marquee-truncated-titles.generated.json: Global marquee title rollout was generated from an older code version. Refresh this report from the latest code version. Run: npm run check:global-marquee-truncated-titles
 
 ## Next Exact Steps
 

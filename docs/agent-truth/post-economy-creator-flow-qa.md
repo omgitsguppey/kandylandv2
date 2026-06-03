@@ -1,8 +1,8 @@
 # Post-Economy Creator Flow QA
 
-Paid bundle bonus GumDrops are purchased paid-bonus credits. User-facing copy must not call paid bundle bonuses free or reward GumDrops.
+Wallet package bonuses use compact paid-GD promo labels; source-of-funds proof remains in ledger/server evidence. User-facing copy must not call paid bundle bonuses free or reward GumDrops.
 
-Wallet package bonuses now use paid bonus or bundle bonus labels. Purchase UI copy must stay simple while making clear that package extras are paid bundle value, not reward/free balance.
+Wallet package bonuses stay compact and do not reintroduce paid-bonus source subcopy. Purchase UI copy stays simple while source-of-funds truth remains in ledger/server evidence.
 
 Creator experience CTAs use purchased GumDrops, not total balance. Reward/free GumDrops cannot make Fan Pass, requests, bookings, paid chat, or paid creator media appear eligible.
 

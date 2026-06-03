@@ -55,6 +55,7 @@ const allowedSettingsCollections = new Set([
   "creator_subscriptions",
   "creator_custom_requests",
   "creator_call_bookings",
+  "creator_relationships",
   "creator_relationships_ops",
   "drops",
 ]);

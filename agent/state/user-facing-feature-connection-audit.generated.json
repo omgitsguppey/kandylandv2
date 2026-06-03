@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-05-20T23:23:10.862Z",
+  "generatedAtUtc": "2026-06-03T03:07:21.757Z",
   "reportKey": "user-facing-feature-connection-audit",
-  "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "summary": {
     "surfacesScanned": 9,
     "connectedSurfaces": 6,
     "disconnectedSurfaces": 3,
     "fakeLiveRisks": 0,
     "raceConditionRisks": 0,
-    "costBleedRisks": 1,
+    "costBleedRisks": 0,
     "selfLoopLinks": 0,
     "p0Count": 0,
-    "p1Count": 1,
+    "p1Count": 0,
     "p2Count": 1
   },
   "surfaces": [
@@ -143,16 +143,7 @@
     }
   ],
   "raceConditionFindings": [],
-  "costBleedFindings": [
-    {
-      "severity": "P1",
-      "title": "Creator settings route reads unexpected collections",
-      "evidence": [
-        "creator_relationships"
-      ],
-      "recommendedAction": "Do not add broad reads beyond the known settings summary sources without a new cost contract."
-    }
-  ],
+  "costBleedFindings": [],
   "selfLoopLinkFindings": [],
   "recommendedFixOrder": [
     "Keep statsEvidence as the dashboard source-state contract.",

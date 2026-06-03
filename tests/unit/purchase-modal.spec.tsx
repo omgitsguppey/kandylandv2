@@ -7,13 +7,14 @@ function readSource(path: string) {
     return readFileSync(join(process.cwd(), path), "utf8");
 }
 
-describe("PurchaseModal paid bundle bonus labels", () => {
-    it("labels package bonuses as paid or bundle bonus", () => {
+describe("PurchaseModal compact paid-GD labels", () => {
+    it("uses compact paid-GD package labels", () => {
         const source = readSource("src/components/PurchaseModal.tsx");
 
-        expect(source).toContain("paid bonus GD");
-        expect(source).toContain("Bundle bonus");
-        expect(source).toContain("Paid bundle bonus");
+        expect(source).toContain("Paid GD");
+        expect(source).toContain("PurchasePromoBadge");
+        expect(source).not.toContain("paid bonus GD");
+        expect(source).not.toContain("Paid bundle bonus");
     });
 
     it("does not label package bonuses as free or reward", () => {

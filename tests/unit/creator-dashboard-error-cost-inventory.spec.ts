@@ -9,7 +9,7 @@ import {
 const sources = {
   "src/components/Creators/CreatorDashboardSettingsHub.tsx": `
     const isCreatorOrProjection = Boolean(viewAsState || userProfile?.role === "creator");
-    if (!canLoadCreatorDashboard) { setSettings(null); setError(null); }
+    if (!canLoadCreatorDashboard) { setSettings(null); setSettingsError(null); }
   `,
   "src/components/Creators/CreatorRequestsManager.tsx": `
     const canLoadRequests = Boolean(creatorId && enabled && !restricted);
@@ -107,7 +107,7 @@ describe("creator dashboard error and cost inventory", () => {
       ...sources,
       "src/components/Creators/CreatorDashboardSettingsHub.tsx": `
         const isCreatorOrProjection = Boolean(viewAsState || userProfile?.role === "creator" || userProfile?.role === "admin");
-        if (!canLoadCreatorDashboard) { setSettings(null); setError(null); }
+        if (!canLoadCreatorDashboard) { setSettings(null); setSettingsError(null); }
       `,
     };
 

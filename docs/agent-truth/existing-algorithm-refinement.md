@@ -1,7 +1,7 @@
 # Existing Algorithm Refinement
 
-Generated: 2026-05-21T16:16:32.982Z
-Current code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
+Generated: 2026-06-03T02:39:58.327Z
+Current code version: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 
 ## Summary
 
@@ -149,37 +149,79 @@ Current code version: 2b2e19b60aff5bd93e0a9bde735793dad18dbe52
 
 ## Dirty File Classifications
 
-- agent/context/optimized-task-context.generated.json: unrelated_agent_context_file_to_ignore
+- agent/state/activity-verification-engine.generated.json: current_generated_artifact_to_commit
+- agent/state/algorithmic-evidence-policy.generated.json: current_generated_artifact_to_commit
+- agent/state/analytics-hydration-consolidation-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/analytics-hydration-consolidation.generated.json: current_generated_artifact_to_commit
+- agent/state/analytics-panel-hydration.generated.json: current_generated_artifact_to_commit
 - agent/state/beta-evidence-gap-map.generated.json: current_generated_artifact_to_commit
-- agent/state/beta-evidence-lane-prep.generated.json: current_generated_artifact_to_commit
 - agent/state/beta-freshness-language.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-dashboard-error-cost-inventory.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-drop-status-metrics.generated.json: current_generated_artifact_to_commit
+- agent/state/creator-experience-simplification.generated.json: current_generated_artifact_to_commit
 - agent/state/creator-settings-control-plane.generated.json: current_generated_artifact_to_commit
-- agent/state/final-pr-stale-cleanup.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-panel-output-triage.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-runtime-evidence.generated.json: current_generated_artifact_to_commit
+- agent/state/debug-score-impact-triage.generated.json: current_generated_artifact_to_commit
+- agent/state/evidence-capture-status.generated.json: current_generated_artifact_to_commit
 - agent/state/final-telemetry-closure-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/formal-evidence-bridge.generated.json: current_generated_artifact_to_commit
+- agent/state/gumdrop-economy-accuracy.generated.json: current_generated_artifact_to_commit
+- agent/state/mobile-loading-hydration-stability.generated.json: current_generated_artifact_to_commit
 - agent/state/mobile-ui-final-lock.generated.json: current_generated_artifact_to_commit
-- agent/state/overnight-final-integration-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/operator-revenue-smoke.generated.json: current_generated_artifact_to_commit
 - agent/state/overnight-wiring-integrity.generated.json: current_generated_artifact_to_commit
-- agent/state/refresh-safeguards.generated.json: current_generated_artifact_to_commit
-- agent/state/self-healing-refresh-queue.generated.json: current_generated_artifact_to_commit
+- agent/state/post-economy-creator-flow-qa.generated.json: current_generated_artifact_to_commit
+- agent/state/public-beta-score.generated.json: current_generated_artifact_to_commit
+- agent/state/runtime-smoke-substitute-matrix.generated.json: current_generated_artifact_to_commit
+- agent/state/runtime-watch-time-v2.generated.json: current_generated_artifact_to_commit
+- agent/state/score-80-reconciliation-lock.generated.json: current_generated_artifact_to_commit
+- agent/state/score-80-refresh-pass.generated.json: current_generated_artifact_to_commit
+- agent/state/source-backed-runtime-confidence.generated.json: current_generated_artifact_to_commit
 - agent/state/source-truth-authority-map.generated.json: current_generated_artifact_to_commit
+- agent/state/telemetry-admin-debug-truth.generated.json: current_generated_artifact_to_commit
+- agent/state/user-facing-feature-connection-audit.generated.json: current_generated_artifact_to_commit
+- agent/state/user-loading-wallet-mobile-refinement.generated.json: current_generated_artifact_to_commit
+- docs/agent-truth/algorithmic-evidence-policy.md: current_generated_artifact_to_commit
+- docs/agent-truth/analytics-hydration-consolidation-audit.md: current_generated_artifact_to_commit
+- docs/agent-truth/analytics-hydration-consolidation.md: current_generated_artifact_to_commit
+- docs/agent-truth/analytics-panel-hydration.md: current_generated_artifact_to_commit
 - docs/agent-truth/beta-evidence-gap-map.md: current_generated_artifact_to_commit
-- docs/agent-truth/beta-evidence-lane-prep.md: current_generated_artifact_to_commit
 - docs/agent-truth/beta-freshness-language.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-dashboard-error-cost-inventory.md: current_generated_artifact_to_commit
+- docs/agent-truth/creator-drop-status-metrics.md: current_generated_artifact_to_commit
 - docs/agent-truth/creator-settings-control-plane.md: current_generated_artifact_to_commit
-- docs/agent-truth/final-pr-stale-cleanup.md: current_generated_artifact_to_commit
+- docs/agent-truth/debug-runtime-evidence.md: current_generated_artifact_to_commit
+- docs/agent-truth/debug-score-impact-triage.md: current_generated_artifact_to_commit
+- docs/agent-truth/evidence-capture-status.md: current_generated_artifact_to_commit
 - docs/agent-truth/final-telemetry-closure-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/formal-evidence-bridge.md: current_generated_artifact_to_commit
+- docs/agent-truth/mobile-loading-hydration-stability.md: current_generated_artifact_to_commit
 - docs/agent-truth/mobile-ui-final-lock.md: current_generated_artifact_to_commit
-- docs/agent-truth/overnight-final-integration-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/operator-revenue-smoke.md: current_generated_artifact_to_commit
 - docs/agent-truth/overnight-wiring-integrity.md: current_generated_artifact_to_commit
-- docs/agent-truth/refresh-safeguards.md: current_generated_artifact_to_commit
-- docs/agent-truth/self-healing-refresh-queue.md: current_generated_artifact_to_commit
+- docs/agent-truth/runtime-smoke-substitute-matrix.md: current_generated_artifact_to_commit
+- docs/agent-truth/runtime-watch-time-v2.md: current_generated_artifact_to_commit
+- docs/agent-truth/score-80-reconciliation-lock.md: current_generated_artifact_to_commit
+- docs/agent-truth/score-80-refresh-pass.md: current_generated_artifact_to_commit
+- docs/agent-truth/source-backed-runtime-confidence.md: current_generated_artifact_to_commit
 - docs/agent-truth/source-truth-authority-map.md: current_generated_artifact_to_commit
-- tests/unit/score-80-refresh-queue-execution.spec.ts: real_source_change_needs_review
+- docs/agent-truth/telemetry-admin-debug-truth.md: current_generated_artifact_to_commit
+- docs/agent-truth/user-loading-wallet-mobile-refinement.md: current_generated_artifact_to_commit
+- scripts/agent/validate-analytics-hydration-consolidation.ts: real_source_change_needs_review
+- scripts/agent/validate-analytics-panel-hydration.ts: real_source_change_needs_review
+- scripts/agent/validate-public-beta-score.ts: real_source_change_needs_review
+- scripts/agent/validate-score-80-reconciliation-lock.ts: real_source_change_needs_review
+- scripts/agent/validate-score-80-refresh-pass.ts: real_source_change_needs_review
+- src/lib/agent-score/algorithmic-evidence-policy.ts: real_source_change_needs_review
+- src/lib/agent-score/core.ts: real_source_change_needs_review
+- src/lib/agent-score/evidence-quality.ts: real_source_change_needs_review
+- src/lib/agent-score/formal-evidence-bridge.ts: real_source_change_needs_review
+- tests/unit/public-beta-score.spec.ts: real_source_change_needs_review
 
 ## PR Cleanup Actions
 
-- PR #278 classified as unrelated_preserved.
-- PR #277 classified as unrelated_preserved.
+- No open PRs were present for algorithm refinement.
 
 ## Next Fix Order
 

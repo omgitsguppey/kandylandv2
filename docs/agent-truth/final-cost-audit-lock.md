@@ -1,7 +1,7 @@
 # Final Cost Audit Lock
 
-Generated: 2026-05-21T16:43:15.433Z
-Current head: 3878a581193dd171f69e3c0b63073ac738c14152
+Generated: 2026-06-03T04:22:36.029Z
+Current head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 
 ## Summary
 
@@ -17,9 +17,9 @@ Current head: 3878a581193dd171f69e3c0b63073ac738c14152
 - Gemini/Vertex/Cloud Assist: gemini_vertex_admin_ai_runtime_detected; gemini_cloud_assist_external_billing_observed_owner_review_required
 - Firestore read/write: source_ready_batched_cached_due_only_no_dollar_claim
 - Route 4xx: source_inventory_complete
-- Open PR count: 2
+- Open PR count: 0
 - Working tree clean at report generation: false
-- Beta score/status: 73.13/Unknown evidence
+- Beta score/status: 89/Runtime unverified
 - Beta exit review ready: false
 
 ## Audit Item Coverage

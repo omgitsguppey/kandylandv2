@@ -2,6 +2,12 @@ import type {
   PublicBetaCostReadiness,
   PublicBetaEvidenceArtifact,
 } from "./core";
+import {
+  evidenceArtifactHasFormalPass,
+  evidenceArtifactHasSourceConfidence,
+  evidenceArtifactNumericValue,
+  evidenceArtifactStatusText,
+} from "./evidence-quality";
 
 export type AlgorithmicEvidenceGateCategory =
   | "visual_ui_gate"
@@ -84,42 +90,8 @@ export type AlgorithmicEvidencePolicyReport = {
 
 const MISSING_ARTIFACT_PATH = "missing";
 
-function statusOf(artifact?: PublicBetaEvidenceArtifact) {
-  return String(artifact?.status ?? "missing_or_unknown");
-}
-
 function pathOf(artifact?: PublicBetaEvidenceArtifact, fallback = MISSING_ARTIFACT_PATH) {
   return artifact?.path || fallback;
-}
-
-function evidenceText(artifact?: PublicBetaEvidenceArtifact) {
-  return [
-    statusOf(artifact),
-    artifact?.detail ?? "",
-    ...(artifact?.evidence ?? []),
-  ].join("\n");
-}
-
-function hasFormalPassed(artifact?: PublicBetaEvidenceArtifact) {
-  if (!artifact?.passed) return false;
-  const status = statusOf(artifact).toLowerCase();
-  return /passed|formal_complete|formal_passed|usable/u.test(status)
-    && !/source_ready|operator_confirmed|runtime_unverified|missing|unknown/u.test(status);
-}
-
-function hasSourceReady(artifact?: PublicBetaEvidenceArtifact) {
-  if (!artifact) return false;
-  const text = evidenceText(artifact).toLowerCase();
-  return (artifact.passed || /source_ready|source_backed|verified_local_contract|operator_confirmed/u.test(text))
-    && !/failed|blocked/u.test(statusOf(artifact).toLowerCase());
-}
-
-function numberFromEvidence(artifact: PublicBetaEvidenceArtifact | undefined, key: string) {
-  const pattern = new RegExp(`${key}=([0-9]+(?:\\.[0-9]+)?)`, "u");
-  const match = evidenceText(artifact).match(pattern);
-  if (!match?.[1]) return undefined;
-  const value = Number(match[1]);
-  return Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : undefined;
 }
 
 function confidenceFromScore(score: number, formalGateCleared = false): AlgorithmicEvidenceConfidence {
@@ -169,21 +141,21 @@ function scoreCostReadinessSource(costReadiness?: PublicBetaCostReadiness) {
 export function buildAlgorithmicEvidencePolicyReport(
   input: AlgorithmicEvidencePolicyInput,
 ): AlgorithmicEvidencePolicyReport {
-  const uiVisualGateCleared = hasFormalPassed(input.visualManualEvidence);
-  const deployedRuntimeSmokeCleared = hasFormalPassed(input.runtimeSmokeEvidence);
-  const formalProviderGateCleared = hasFormalPassed(input.providerSmokeEvidence);
-  const formalAdminRuntimeSampleCleared = hasFormalPassed(input.adminTruthSampleEvidence);
+  const uiVisualGateCleared = evidenceArtifactHasFormalPass(input.visualManualEvidence);
+  const deployedRuntimeSmokeCleared = evidenceArtifactHasFormalPass(input.runtimeSmokeEvidence);
+  const formalProviderGateCleared = evidenceArtifactHasFormalPass(input.providerSmokeEvidence);
+  const formalAdminRuntimeSampleCleared = evidenceArtifactHasFormalPass(input.adminTruthSampleEvidence);
 
-  const sourceBackedRuntimeScore = numberFromEvidence(input.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
-    ?? numberFromEvidence(input.sourceBackedRuntimeConfidenceEvidence, "sourceBackedRuntimeConfidence")
-    ?? (hasSourceReady(input.sourceBackedRuntimeConfidenceEvidence) ? 55 : 0);
-  const runtimeSmokeSubstituteMatrixScore = numberFromEvidence(input.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeHealthCredit")
-    ?? (hasSourceReady(input.runtimeSmokeSubstituteMatrixEvidence) ? 55 : 0);
-  const realUsageScore = numberFromEvidence(input.realUsageConfidenceEvidence, "confidenceScore")
-    ?? (hasSourceReady(input.realUsageConfidenceEvidence) ? 55 : 0);
-  const realUsageCalibrationScore = numberFromEvidence(input.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit")
-    ?? numberFromEvidence(input.realUsageConfidenceCalibrationEvidence, "calibratedConfidenceScore")
-    ?? (hasSourceReady(input.realUsageConfidenceCalibrationEvidence) ? 55 : 0);
+  const sourceBackedRuntimeScore = evidenceArtifactNumericValue(input.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
+    ?? evidenceArtifactNumericValue(input.sourceBackedRuntimeConfidenceEvidence, "sourceBackedRuntimeConfidence")
+    ?? (evidenceArtifactHasSourceConfidence(input.sourceBackedRuntimeConfidenceEvidence) ? 55 : 0);
+  const runtimeSmokeSubstituteMatrixScore = evidenceArtifactNumericValue(input.runtimeSmokeSubstituteMatrixEvidence, "matrixRuntimeHealthCredit")
+    ?? (evidenceArtifactHasSourceConfidence(input.runtimeSmokeSubstituteMatrixEvidence) ? 55 : 0);
+  const realUsageScore = evidenceArtifactNumericValue(input.realUsageConfidenceEvidence, "confidenceScore")
+    ?? (evidenceArtifactHasSourceConfidence(input.realUsageConfidenceEvidence) ? 55 : 0);
+  const realUsageCalibrationScore = evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "runtimeHealthCredit")
+    ?? evidenceArtifactNumericValue(input.realUsageConfidenceCalibrationEvidence, "calibratedConfidenceScore")
+    ?? (evidenceArtifactHasSourceConfidence(input.realUsageConfidenceCalibrationEvidence) ? 55 : 0);
   const runtimeSourceScore = deployedRuntimeSmokeCleared
     ? 100
     : Math.max(
@@ -191,21 +163,21 @@ export function buildAlgorithmicEvidencePolicyReport(
         runtimeSmokeSubstituteMatrixScore,
         realUsageScore,
         realUsageCalibrationScore,
-        hasSourceReady(input.debugRuntimeEvidence) ? 55 : 0,
+        evidenceArtifactHasSourceConfidence(input.debugRuntimeEvidence) ? 55 : 0,
       );
 
-  const behaviorMathScore = hasSourceReady(input.behaviorMathEvidence) ? 85 : 0;
+  const behaviorMathScore = evidenceArtifactHasSourceConfidence(input.behaviorMathEvidence) ? 85 : 0;
   const telemetryScore = Math.max(behaviorMathScore, realUsageScore, realUsageCalibrationScore);
   const adminTruthScore = formalAdminRuntimeSampleCleared
     ? 100
-    : hasSourceReady(input.adminTruthSampleEvidence) ? 55 : 0;
+    : evidenceArtifactHasSourceConfidence(input.adminTruthSampleEvidence) ? 55 : 0;
   const providerScore = formalProviderGateCleared
     ? 100
-    : hasSourceReady(input.operatorRevenueSmokeEvidence) || hasSourceReady(input.providerSmokeEvidence) ? 40 : 0;
+    : evidenceArtifactHasSourceConfidence(input.operatorRevenueSmokeEvidence) || evidenceArtifactHasSourceConfidence(input.providerSmokeEvidence) ? 40 : 0;
   const costScore = input.costReadinessSourcePath && !input.costReadiness
     ? 75
     : scoreCostReadinessSource(input.costReadiness);
-  const refreshScore = hasSourceReady(input.refreshQueueEvidence) || input.refreshQueueSourcePath ? 75 : 0;
+  const refreshScore = evidenceArtifactHasSourceConfidence(input.refreshQueueEvidence) || input.refreshQueueSourcePath ? 75 : 0;
 
   const runtimeSourceConfidence = buildCoverageItem({
     category: "runtime_source_gate",
@@ -219,11 +191,11 @@ export function buildAlgorithmicEvidencePolicyReport(
       pathOf(input.realUsageConfidenceCalibrationEvidence),
     ].filter((path) => path !== MISSING_ARTIFACT_PATH).join(",") || MISSING_ARTIFACT_PATH,
     sourceStatus: [
-      statusOf(input.debugRuntimeEvidence),
-      statusOf(input.runtimeSmokeSubstituteMatrixEvidence),
-      statusOf(input.sourceBackedRuntimeConfidenceEvidence),
-      statusOf(input.realUsageConfidenceEvidence),
-      statusOf(input.realUsageConfidenceCalibrationEvidence),
+      evidenceArtifactStatusText(input.debugRuntimeEvidence, "missing_or_unknown"),
+      evidenceArtifactStatusText(input.runtimeSmokeSubstituteMatrixEvidence, "missing_or_unknown"),
+      evidenceArtifactStatusText(input.sourceBackedRuntimeConfidenceEvidence, "missing_or_unknown"),
+      evidenceArtifactStatusText(input.realUsageConfidenceEvidence, "missing_or_unknown"),
+      evidenceArtifactStatusText(input.realUsageConfidenceCalibrationEvidence, "missing_or_unknown"),
     ].join(";"),
     distinction: deployedRuntimeSmokeCleared
       ? "formal deployed runtime smoke is attached"
@@ -244,9 +216,9 @@ export function buildAlgorithmicEvidencePolicyReport(
       pathOf(input.realUsageConfidenceCalibrationEvidence),
     ].filter((path) => path !== MISSING_ARTIFACT_PATH).join(",") || MISSING_ARTIFACT_PATH,
     sourceStatus: [
-      statusOf(input.behaviorMathEvidence),
-      statusOf(input.realUsageConfidenceEvidence),
-      statusOf(input.realUsageConfidenceCalibrationEvidence),
+      evidenceArtifactStatusText(input.behaviorMathEvidence, "missing_or_unknown"),
+      evidenceArtifactStatusText(input.realUsageConfidenceEvidence, "missing_or_unknown"),
+      evidenceArtifactStatusText(input.realUsageConfidenceCalibrationEvidence, "missing_or_unknown"),
     ].join(";"),
     distinction: "telemetry and behavior math can satisfy non-UI confidence without becoming visual proof",
     nextAction: "Keep behavior math and real usage confidence artifacts current.",
@@ -257,7 +229,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     label: "Admin truth source confidence",
     score: adminTruthScore,
     sourcePath: pathOf(input.adminTruthSampleEvidence),
-    sourceStatus: statusOf(input.adminTruthSampleEvidence),
+    sourceStatus: evidenceArtifactStatusText(input.adminTruthSampleEvidence, "missing_or_unknown"),
     distinction: formalAdminRuntimeSampleCleared
       ? "formal admin truth runtime sample is attached"
       : "admin source sample earns partial confidence but does not clear formal admin runtime sample",
@@ -275,8 +247,8 @@ export function buildAlgorithmicEvidencePolicyReport(
       ? pathOf(input.providerSmokeEvidence)
       : pathOf(input.operatorRevenueSmokeEvidence, pathOf(input.providerSmokeEvidence)),
     sourceStatus: formalProviderGateCleared
-      ? statusOf(input.providerSmokeEvidence)
-      : statusOf(input.operatorRevenueSmokeEvidence),
+      ? evidenceArtifactStatusText(input.providerSmokeEvidence, "missing_or_unknown")
+      : evidenceArtifactStatusText(input.operatorRevenueSmokeEvidence, "missing_or_unknown"),
     distinction: formalProviderGateCleared
       ? "formal provider smoke is attached"
       : "operator-confirmed revenue smoke is partial product confidence only",
@@ -301,7 +273,7 @@ export function buildAlgorithmicEvidencePolicyReport(
     label: "Refresh queue confidence",
     score: refreshScore,
     sourcePath: input.refreshQueueSourcePath ?? pathOf(input.refreshQueueEvidence, "agent/state/self-healing-refresh-queue.generated.json"),
-    sourceStatus: input.refreshQueueEvidence ? statusOf(input.refreshQueueEvidence) : input.refreshQueueSourcePath ? "source_path_available" : "missing_or_unknown",
+    sourceStatus: input.refreshQueueEvidence ? evidenceArtifactStatusText(input.refreshQueueEvidence, "missing_or_unknown") : input.refreshQueueSourcePath ? "source_path_available" : "missing_or_unknown",
     distinction: "current refresh queue can satisfy source freshness ordering without creating runtime proof",
     nextAction: "Run the self-healing refresh queue when stale score-impact artifacts are detected.",
   });

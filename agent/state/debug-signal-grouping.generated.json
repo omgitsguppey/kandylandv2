@@ -1,7 +1,7 @@
 {
   "reportKey": "debug-signal-grouping",
-  "generatedAtUtc": "2026-05-24T15:32:42.936Z",
-  "currentHead": "4214aa6fca1f18201e8f09ed9197f38316b035c9",
+  "generatedAtUtc": "2026-06-03T04:57:54.953Z",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "status": "pass",
   "productionReadsRequired": false,
   "fakeActivityUsed": false,
@@ -11,82 +11,82 @@
     "clearsFormalAdminTruth": false
   },
   "scoreBefore": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 80.5,
-    "regressionRisk": 86,
-    "overallHealthScore": 83.1
+    "sourceHealth": 100,
+    "runtimeHealth": 91.4,
+    "evidenceCompleteness": 91.4,
+    "freshness": 91.88,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 93.99
   },
   "scoreAfter": {
-    "sourceHealth": 92.5,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 83.75,
-    "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 79.25
+    "sourceHealth": 100,
+    "runtimeHealth": 91.4,
+    "evidenceCompleteness": 91.4,
+    "freshness": 91.88,
+    "costRisk": 92.5,
+    "regressionRisk": 94,
+    "overallHealthScore": 93.99
   },
   "metrics": {
     "sourceHealth": {
+      "before": 100,
+      "after": 100,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
+    },
+    "runtimeHealth": {
+      "before": 91.4,
+      "after": 91.4,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
+    },
+    "evidenceCompleteness": {
+      "before": 91.4,
+      "after": 91.4,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
+    },
+    "freshness": {
+      "before": 91.88,
+      "after": 91.88,
+      "target": 80,
+      "status": "target_met",
+      "nextExactAction": "No score-80 action required for this dimension."
+    },
+    "costRisk": {
       "before": 92.5,
       "after": 92.5,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
-    "runtimeHealth": {
-      "before": 84.2,
-      "after": 84.2,
-      "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No score-80 action required for this dimension."
-    },
-    "evidenceCompleteness": {
-      "before": 69.6,
-      "after": 69.6,
-      "target": 80,
-      "status": "below_target",
-      "nextExactAction": "Attach or refresh formal provider, runtime, admin-truth, and stale report evidence without faking activity."
-    },
-    "freshness": {
-      "before": 83.75,
-      "after": 83.75,
-      "target": 80,
-      "status": "target_met",
-      "nextExactAction": "No score-80 action required for this dimension."
-    },
-    "costRisk": {
-      "before": 80.5,
-      "after": 42,
-      "target": 80,
-      "status": "below_target",
-      "nextExactAction": "No score-80 action required for this dimension."
-    },
     "regressionRisk": {
-      "before": 86,
-      "after": 86,
+      "before": 94,
+      "after": 94,
       "target": 80,
       "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     },
     "overallHealthScore": {
-      "before": 83.1,
-      "after": 79.25,
+      "before": 93.99,
+      "after": 93.99,
       "target": 80,
-      "status": "below_target",
+      "status": "target_met",
       "nextExactAction": "No score-80 action required for this dimension."
     }
   },
-  "rawSignalCount": 459,
+  "rawSignalCount": 446,
   "groupedSignalCount": 17,
-  "rawP1P2SignalCount": 43,
+  "rawP1P2SignalCount": 30,
   "p1P2GroupCount": 16,
   "quietFutureActivityRawCount": 416,
   "quietFutureActivityGroupCount": 1,
   "actionableFutureActivitySignalCount": 0,
-  "duplicateSignalsCollapsed": 442,
+  "duplicateSignalsCollapsed": 429,
   "defaultDebugPanel": {
     "showsGroupedSignals": true,
     "rawRowsDefaultVisible": false,
@@ -96,63 +96,9 @@
   },
   "groups": [
     {
-      "groupId": "beta-score-beta-score-beta-score-beta-score-evidencecompleteness-evidencecompleteness-beta-score-score-impacting",
-      "groupLabel": "Beta score",
-      "count": 2,
-      "examples": [
-        {
-          "signalId": "score-drag-evidencecompletenessscore",
-          "signalType": "beta_score",
-          "severity": "p1",
-          "featureId": "beta_score",
-          "eventFamily": "beta_score",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 12,
-          "sourceFiles": [
-            "agent/state/score-80-path-lock.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        },
-        {
-          "signalId": "beta-cap-stale-evidence-report-freshness-and-pr-integrity-2",
-          "signalType": "beta_score",
-          "severity": "p2",
-          "featureId": "beta_score",
-          "eventFamily": "beta_score",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 69.6,
-          "sourceFiles": [
-            "agent/state/public-beta-score.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        }
-      ],
-      "rootCause": "beta_score",
-      "actionability": "score_impacting",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "evidenceCompleteness"
-      ],
-      "estimatedPointImpact": 69.6,
-      "owner": "beta_score",
-      "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/score-80-path-lock.generated.json",
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "validator": "npm run check:beta-score"
-    },
-    {
       "groupId": "evidence-evidence-evidence-evidence-freshness-freshness-evidence-score-impacting",
       "groupLabel": "Evidence",
-      "count": 18,
+      "count": 6,
       "examples": [
         {
           "signalId": "stale-artifact-runtime-provider-smoke",
@@ -252,25 +198,163 @@
         "agent/state/beta-evidence-gap-map.generated.json",
         "agent/state/beta-evidence-lane-prep.generated.json",
         "agent/state/beta-freshness-language.generated.json",
-        "agent/state/final-pr-stale-cleanup.generated.json",
-        "agent/state/creator-drop-status-metrics.generated.json",
-        "agent/state/creator-settings-control-plane.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/existing-algorithm-refinement.generated.json",
-        "agent/state/final-telemetry-closure-lock.generated.json",
-        "agent/state/global-marquee-truncated-titles.generated.json",
-        "agent/state/mobile-ui-final-lock.generated.json",
-        "agent/state/operator-revenue-smoke.generated.json",
-        "agent/state/overnight-wiring-integrity.generated.json",
-        "agent/state/source-truth-authority-map.generated.json",
-        "agent/state/user-loading-wallet-mobile-refinement.generated.json"
+        "agent/state/final-pr-stale-cleanup.generated.json"
       ]
+    },
+    {
+      "groupId": "beta-score-beta-score-beta-score-beta-score-evidencecompleteness-evidencecompleteness-beta-score-score-impacting",
+      "groupLabel": "Beta score",
+      "count": 1,
+      "examples": [
+        {
+          "signalId": "score-drag-evidencecompletenessscore",
+          "signalType": "beta_score",
+          "severity": "p1",
+          "featureId": "beta_score",
+          "eventFamily": "beta_score",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 12,
+          "sourceFiles": [
+            "agent/state/score-80-path-lock.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        }
+      ],
+      "rootCause": "beta_score",
+      "actionability": "score_impacting",
+      "severity": "p1",
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness"
+      ],
+      "estimatedPointImpact": 12,
+      "owner": "beta_score",
+      "nextAction": "Work the score dimension owner lane and refresh score-80 path lock.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/score-80-path-lock.generated.json"
+      ],
+      "validator": "npm run check:beta-score"
+    },
+    {
+      "groupId": "debug-panel-debug-panel-debug-panel-debug-panel-evidencecompleteness-evidencecompleteness-admin-debug-score-impacting",
+      "groupLabel": "Debug panel",
+      "count": 5,
+      "examples": [
+        {
+          "signalId": "debug-panel-public-beta-score",
+          "signalType": "debug_panel",
+          "severity": "p1",
+          "featureId": "debug_panel",
+          "eventFamily": "debug_panel",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 4,
+          "sourceFiles": [
+            "agent/state/public-beta-score.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        },
+        {
+          "signalId": "debug-panel-score-cap-reasons",
+          "signalType": "debug_panel",
+          "severity": "p1",
+          "featureId": "debug_panel",
+          "eventFamily": "debug_panel",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 4,
+          "sourceFiles": [
+            "agent/state/public-beta-score.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        },
+        {
+          "signalId": "debug-panel-report-content-protection",
+          "signalType": "debug_panel",
+          "severity": "p2",
+          "featureId": "debug_panel",
+          "eventFamily": "debug_panel",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 1,
+          "sourceFiles": [
+            "agent/state/content-protection.generated.json",
+            "agent/state/gumdrop-economy.generated.json",
+            "agent/state/event-catalog-telemetry.generated.json",
+            "agent/state/watch-time-rollup-truth.generated.json",
+            "agent/state/debug-evidence-pipeline.generated.json",
+            "agent/state/support-recovery-flows.generated.json"
+          ],
+          "validator": "npm run check:content-protection"
+        },
+        {
+          "signalId": "debug-panel-report-public-beta-score",
+          "signalType": "debug_panel",
+          "severity": "p2",
+          "featureId": "debug_panel",
+          "eventFamily": "debug_panel",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 1,
+          "sourceFiles": [
+            "agent/state/public-beta-score.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        },
+        {
+          "signalId": "debug-panel-system-health",
+          "signalType": "debug_panel",
+          "severity": "p2",
+          "featureId": "debug_panel",
+          "eventFamily": "debug_panel",
+          "metricFamily": "evidenceCompleteness",
+          "scoreDimensionsAffected": [
+            "evidenceCompleteness"
+          ],
+          "estimatedPointImpact": 1,
+          "sourceFiles": [
+            "agent/state/admin-truth.generated.json"
+          ],
+          "validator": "npm run check:admin-truth"
+        }
+      ],
+      "rootCause": "debug_panel",
+      "actionability": "score_impacting",
+      "severity": "p1",
+      "scoreDimensionsAffected": [
+        "evidenceCompleteness"
+      ],
+      "estimatedPointImpact": 4,
+      "owner": "admin_debug",
+      "nextAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/content-protection.generated.json",
+        "agent/state/gumdrop-economy.generated.json",
+        "agent/state/event-catalog-telemetry.generated.json",
+        "agent/state/watch-time-rollup-truth.generated.json",
+        "agent/state/debug-evidence-pipeline.generated.json",
+        "agent/state/support-recovery-flows.generated.json",
+        "agent/state/admin-truth.generated.json"
+      ],
+      "validator": "npm run check:beta-score"
     },
     {
       "groupId": "debug-panel-debug-panel-debug-panel-debug-panel-freshness-freshness-admin-debug-score-impacting",
       "groupLabel": "Debug panel",
-      "count": 9,
+      "count": 6,
       "examples": [
         {
           "signalId": "debug-panel-final-launch-readiness",
@@ -321,36 +405,51 @@
           "validator": "npm run check:launch-readiness-final"
         },
         {
-          "signalId": "debug-panel-public-beta-score",
+          "signalId": "debug-panel-analytics-rewire",
           "signalType": "debug_panel",
-          "severity": "p1",
+          "severity": "p2",
           "featureId": "debug_panel",
           "eventFamily": "debug_panel",
           "metricFamily": "freshness",
           "scoreDimensionsAffected": [
             "freshness"
           ],
-          "estimatedPointImpact": 4,
+          "estimatedPointImpact": 1,
           "sourceFiles": [
-            "agent/state/public-beta-score.generated.json"
+            "agent/state/analytics-rewire-phase-one.generated.json",
+            "agent/state/lost-data-recovery-dry-run.generated.json",
+            "agent/state/speed-security-hardening.generated.json",
+            "agent/state/codebase-hardening.generated.json",
+            "agent/state/device-ui-dry-audit.generated.json",
+            "agent/state/device-layout-score.generated.json",
+            "agent/state/hydration-performance.generated.json",
+            "agent/state/sitewide-image-optimization.generated.json",
+            "agent/state/google-cost-bleed.generated.json",
+            "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+            "agent/state/sql-mirror-status.generated.json",
+            "agent/state/telemetry-parity-score.generated.json",
+            "agent/state/precatch-runtime-issues.generated.json",
+            "agent/state/creator-lane-debug-parity.generated.json",
+            "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+            "agent/state/orphaned-logic-score.generated.json"
           ],
-          "validator": "npm run check:beta-score"
+          "validator": "npm run check:analytics-rewire-phase-one"
         },
         {
-          "signalId": "debug-panel-score-cap-reasons",
+          "signalId": "debug-panel-creator-connection-audit",
           "signalType": "debug_panel",
-          "severity": "p1",
+          "severity": "p2",
           "featureId": "debug_panel",
           "eventFamily": "debug_panel",
           "metricFamily": "freshness",
           "scoreDimensionsAffected": [
             "freshness"
           ],
-          "estimatedPointImpact": 4,
+          "estimatedPointImpact": 1,
           "sourceFiles": [
-            "agent/state/public-beta-score.generated.json"
+            "agent/state/user-facing-feature-connection-audit.generated.json"
           ],
-          "validator": "npm run check:beta-score"
+          "validator": "npm run check:user-facing-feature-connection-audit"
         }
       ],
       "rootCause": "debug_panel",
@@ -367,7 +466,6 @@
         "agent/state/final-launch-readiness-report.generated.json",
         "agent/state/launch-pr-triage.generated.json",
         "agent/state/launch-readiness-report.generated.json",
-        "agent/state/public-beta-score.generated.json",
         "agent/state/analytics-rewire-phase-one.generated.json",
         "agent/state/lost-data-recovery-dry-run.generated.json",
         "agent/state/speed-security-hardening.generated.json",
@@ -375,6 +473,7 @@
         "agent/state/device-ui-dry-audit.generated.json",
         "agent/state/device-layout-score.generated.json",
         "agent/state/hydration-performance.generated.json",
+        "agent/state/sitewide-image-optimization.generated.json",
         "agent/state/google-cost-bleed.generated.json",
         "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
         "agent/state/sql-mirror-status.generated.json",
@@ -500,72 +599,6 @@
       "validator": "npm run check:beta-score"
     },
     {
-      "groupId": "debug-panel-debug-panel-debug-panel-debug-panel-evidencecompleteness-evidencecompleteness-admin-debug-score-impacting",
-      "groupLabel": "Debug panel",
-      "count": 2,
-      "examples": [
-        {
-          "signalId": "debug-panel-report-sitewide-image",
-          "signalType": "debug_panel",
-          "severity": "p2",
-          "featureId": "debug_panel",
-          "eventFamily": "debug_panel",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 1,
-          "sourceFiles": [
-            "agent/state/sitewide-image-optimization.generated.json",
-            "agent/state/content-protection.generated.json",
-            "agent/state/gumdrop-economy.generated.json",
-            "agent/state/event-catalog-telemetry.generated.json",
-            "agent/state/watch-time-rollup-truth.generated.json",
-            "agent/state/debug-evidence-pipeline.generated.json",
-            "agent/state/support-recovery-flows.generated.json"
-          ],
-          "validator": "npm run check:sitewide-image-optimization"
-        },
-        {
-          "signalId": "debug-panel-system-health",
-          "signalType": "debug_panel",
-          "severity": "p2",
-          "featureId": "debug_panel",
-          "eventFamily": "debug_panel",
-          "metricFamily": "evidenceCompleteness",
-          "scoreDimensionsAffected": [
-            "evidenceCompleteness"
-          ],
-          "estimatedPointImpact": 1,
-          "sourceFiles": [
-            "agent/state/admin-truth.generated.json"
-          ],
-          "validator": "npm run check:admin-truth"
-        }
-      ],
-      "rootCause": "debug_panel",
-      "actionability": "score_impacting",
-      "severity": "p2",
-      "scoreDimensionsAffected": [
-        "evidenceCompleteness"
-      ],
-      "estimatedPointImpact": 1,
-      "owner": "admin_debug",
-      "nextAction": "Keep missing state visible until an owning generator is identified.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/sitewide-image-optimization.generated.json",
-        "agent/state/content-protection.generated.json",
-        "agent/state/gumdrop-economy.generated.json",
-        "agent/state/event-catalog-telemetry.generated.json",
-        "agent/state/watch-time-rollup-truth.generated.json",
-        "agent/state/debug-evidence-pipeline.generated.json",
-        "agent/state/support-recovery-flows.generated.json",
-        "agent/state/admin-truth.generated.json"
-      ],
-      "validator": "npm run check:sitewide-image-optimization"
-    },
-    {
       "groupId": "beta-score-beta-score-beta-score-beta-score-sourcehealth-sourcehealth-beta-score-evidence-required",
       "groupLabel": "Beta score",
       "count": 1,
@@ -603,80 +636,6 @@
       "validator": "npm run check:beta-score"
     },
     {
-      "groupId": "formal-gate-attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta-gate-provider-evidence",
-      "groupLabel": "Formal evidence gate: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
-          "signalType": "formal_gate",
-          "severity": "p1",
-          "featureId": "formal_gate",
-          "eventFamily": "formal_gate",
-          "metricFamily": "runtimeHealth",
-          "scoreDimensionsAffected": [
-            "runtimeHealth"
-          ],
-          "estimatedPointImpact": 84.2,
-          "sourceFiles": [
-            "agent/state/public-beta-score.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        }
-      ],
-      "rootCause": "blocked_formal_evidence",
-      "actionability": "formal_gate",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "runtimeHealth"
-      ],
-      "estimatedPointImpact": 84.2,
-      "owner": "provider_evidence",
-      "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "validator": "npm run check:beta-score"
-    },
-    {
-      "groupId": "formal-gate-attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta-gate-runtime-evidence",
-      "groupLabel": "Formal evidence gate: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "count": 1,
-      "examples": [
-        {
-          "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-3",
-          "signalType": "formal_gate",
-          "severity": "p1",
-          "featureId": "formal_gate",
-          "eventFamily": "formal_gate",
-          "metricFamily": "runtimeHealth",
-          "scoreDimensionsAffected": [
-            "runtimeHealth"
-          ],
-          "estimatedPointImpact": 84.2,
-          "sourceFiles": [
-            "agent/state/public-beta-score.generated.json"
-          ],
-          "validator": "npm run check:beta-score"
-        }
-      ],
-      "rootCause": "blocked_formal_evidence",
-      "actionability": "formal_gate",
-      "severity": "p1",
-      "scoreDimensionsAffected": [
-        "runtimeHealth"
-      ],
-      "estimatedPointImpact": 84.2,
-      "owner": "runtime_evidence",
-      "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
-      "hiddenByDefault": false,
-      "sourceFiles": [
-        "agent/state/public-beta-score.generated.json"
-      ],
-      "validator": "npm run check:beta-score"
-    },
-    {
       "groupId": "formal-gate-attach-a-redacted-first-party-admin-truth-sample-before-clearing-the-formal-admin-truth-evidence-gate-admin-",
       "groupLabel": "Formal evidence gate: Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
       "count": 1,
@@ -691,7 +650,7 @@
           "scoreDimensionsAffected": [
             "evidenceCompleteness"
           ],
-          "estimatedPointImpact": 69.6,
+          "estimatedPointImpact": 91.4,
           "sourceFiles": [
             "agent/state/public-beta-score.generated.json"
           ],
@@ -704,9 +663,83 @@
       "scoreDimensionsAffected": [
         "evidenceCompleteness"
       ],
-      "estimatedPointImpact": 69.6,
+      "estimatedPointImpact": 91.4,
       "owner": "admin_debug",
       "nextAction": "Attach a redacted first-party admin truth sample before clearing the formal admin truth evidence gate.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "validator": "npm run check:beta-score"
+    },
+    {
+      "groupId": "formal-gate-attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta-gate-provider-evidence",
+      "groupLabel": "Formal evidence gate: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "count": 1,
+      "examples": [
+        {
+          "signalId": "beta-cap-runtime-unverified-runtime-provider-smoke-0",
+          "signalType": "formal_gate",
+          "severity": "p1",
+          "featureId": "formal_gate",
+          "eventFamily": "formal_gate",
+          "metricFamily": "runtimeHealth",
+          "scoreDimensionsAffected": [
+            "runtimeHealth"
+          ],
+          "estimatedPointImpact": 91.4,
+          "sourceFiles": [
+            "agent/state/public-beta-score.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        }
+      ],
+      "rootCause": "blocked_formal_evidence",
+      "actionability": "formal_gate",
+      "severity": "p1",
+      "scoreDimensionsAffected": [
+        "runtimeHealth"
+      ],
+      "estimatedPointImpact": 91.4,
+      "owner": "provider_evidence",
+      "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "hiddenByDefault": false,
+      "sourceFiles": [
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "validator": "npm run check:beta-score"
+    },
+    {
+      "groupId": "formal-gate-attach-formal-deployed-runtime-provider-smoke-evidence-before-clearing-this-beta-gate-runtime-evidence",
+      "groupLabel": "Formal evidence gate: Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
+      "count": 1,
+      "examples": [
+        {
+          "signalId": "beta-cap-ready-with-smoke-required-debug-runtime-evidence-2",
+          "signalType": "formal_gate",
+          "severity": "p1",
+          "featureId": "formal_gate",
+          "eventFamily": "formal_gate",
+          "metricFamily": "runtimeHealth",
+          "scoreDimensionsAffected": [
+            "runtimeHealth"
+          ],
+          "estimatedPointImpact": 91.4,
+          "sourceFiles": [
+            "agent/state/public-beta-score.generated.json"
+          ],
+          "validator": "npm run check:beta-score"
+        }
+      ],
+      "rootCause": "blocked_formal_evidence",
+      "actionability": "formal_gate",
+      "severity": "p1",
+      "scoreDimensionsAffected": [
+        "runtimeHealth"
+      ],
+      "estimatedPointImpact": 91.4,
+      "owner": "runtime_evidence",
+      "nextAction": "Attach formal deployed runtime/provider smoke evidence before clearing this beta gate.",
       "hiddenByDefault": false,
       "sourceFiles": [
         "agent/state/public-beta-score.generated.json"
@@ -1024,223 +1057,100 @@
       "classification": "still_required"
     }
   ],
-  "dirtyFiles": [
-    {
-      "path": "CHANGELOG.md",
-      "classification": "release_artifact_expected"
+  "dirtyFileSummary": {
+    "total": 166,
+    "byClassification": {
+      "stale_generated_artifact_to_regenerate": 136,
+      "current_generated_artifact_to_commit": 3,
+      "documentation_artifact_expected": 2,
+      "validator_artifact_expected": 15,
+      "debug_grouping_source_change": 5,
+      "test_artifact_expected": 5
     },
-    {
-      "path": "agent/context/optimized-task-context.generated.json",
-      "classification": "unrelated_agent_context_file_to_ignore"
-    },
-    {
-      "path": "agent/state/behavior-math-status-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/consent-tracking-mode-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/current-beta-exit-status.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/debug-signal-grouping.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/debug-tracking-simplification.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-liveness-audit.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/event-liveness-source-repair.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/event-translation-bridge.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/feature-registration-gate.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/feature-telemetry-coverage-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/legacy-recovery-status-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/person-metrics-hydration.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/public-beta-score.generated.json",
-      "classification": "current_generated_artifact_to_commit"
-    },
-    {
-      "path": "agent/state/runtime-debug-signal-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "agent/state/tracking-summary-lane-cleanup.generated.json",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/behavior-math-status-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/consent-tracking-mode-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/debug-signal-grouping.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/debug-tracking-simplification.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-liveness-audit.md",
-      "classification": "documentation_artifact_expected"
-    },
-    {
-      "path": "docs/agent-truth/event-liveness-source-repair.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/event-translation-bridge.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/feature-telemetry-coverage-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/legacy-recovery-status-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/person-metrics-hydration.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/runtime-debug-signal-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "docs/agent-truth/tracking-summary-lane-cleanup.md",
-      "classification": "stale_generated_artifact_to_regenerate"
-    },
-    {
-      "path": "package.json",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "public/kandydrops-release-notes.json",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/tracking-summary-lane-cleanup-shared.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-behavior-math-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-consent-tracking-mode-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-debug-signal-grouping.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-event-liveness-audit.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-event-liveness-source-repair.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-feature-telemetry-coverage-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-legacy-recovery-status-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-runtime-debug-signal-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "scripts/agent/validate-tracking-summary-lane-cleanup.ts",
-      "classification": "validator_artifact_expected"
-    },
-    {
-      "path": "src/lib/analytics/event-translation-bridge.ts",
-      "classification": "debug_grouping_source_change"
-    },
-    {
-      "path": "src/lib/analytics/person-metrics-hydration.ts",
-      "classification": "debug_grouping_source_change"
-    },
-    {
-      "path": "src/lib/debug/debug-panel-tracking-summary.ts",
-      "classification": "debug_panel_source_change"
-    },
-    {
-      "path": "src/lib/privacy/consent-tracking-policy.ts",
-      "classification": "debug_grouping_source_change"
-    },
-    {
-      "path": "src/lib/release-notes/public-release-notes.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "src/lib/release-notes/release-version-contract.ts",
-      "classification": "release_artifact_expected"
-    },
-    {
-      "path": "tests/unit/behavior-math-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/consent-tracking-mode-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/event-liveness-source-repair.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/feature-telemetry-coverage-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/legacy-recovery-status-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/runtime-debug-signal-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    },
-    {
-      "path": "tests/unit/tracking-summary-lane-cleanup.spec.ts",
-      "classification": "test_artifact_expected"
-    }
-  ],
+    "unsafeUnknownCount": 0,
+    "protectedRuntimeChangeCount": 0,
+    "samples": [
+      {
+        "path": "agent/state/activity-verification-engine.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/admin-truth-source-sample.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/algorithmic-evidence-policy.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-cost-runtime-inventory.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-hydration-consolidation-audit.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-hydration-consolidation.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/analytics-panel-hydration.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/beta-evidence-gap-map.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/beta-evidence-lane-prep.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/beta-freshness-language.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/chat-functionality-score-lock.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/chat-gating-moderation.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/chat-realtime-cost-control.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/chat-telemetry-admin-truth.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/cloud-sql-gemini-cost-guards.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/cost-owner-review-source-closure.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/cost-risk-exit-pass.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/cost-risk-owner-review-closure.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      },
+      {
+        "path": "agent/state/creator-drop-status-metrics.generated.json",
+        "classification": "stale_generated_artifact_to_regenerate"
+      }
+    ]
+  },
   "validationFailures": []
 }

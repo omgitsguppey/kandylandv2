@@ -8,7 +8,7 @@ function readSource(path: string) {
 }
 
 describe("post-economy creator flow QA guardrails", () => {
-    it("keeps paid bundle bonus copy away from free or reward labels", () => {
+    it("keeps wallet package promo copy compact and away from free or reward labels", () => {
         const purchaseModal = readSource("src/components/PurchaseModal.tsx");
         const bonusLines = purchaseModal
             .split(/\r?\n/u)
@@ -16,9 +16,10 @@ describe("post-economy creator flow QA guardrails", () => {
 
         expect(bonusLines.length).toBeGreaterThan(0);
         expect(bonusLines.some((line) => /(free|reward)/i.test(line))).toBe(false);
-        expect(purchaseModal).toContain("paid bonus GD");
-        expect(purchaseModal).toContain("Bundle bonus");
-        expect(purchaseModal).toContain("Paid bundle bonus");
+        expect(purchaseModal).toContain("Paid GD");
+        expect(purchaseModal).toContain("PurchasePromoBadge");
+        expect(purchaseModal).not.toContain("paid bonus GD");
+        expect(purchaseModal).not.toContain("Paid bundle bonus");
     });
 
     it("uses purchased GD guidance and keeps reward balance from enabling creator CTAs", () => {

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-31T19:57:00.647Z",
+  "generatedAtUtc": "2026-06-03T03:16:10.457Z",
   "reportKey": "cost-owner-review-source-closure",
-  "currentHead": "9f108d980471030fe6e4e319ceac44e291b3a08e",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "status": "pass",
   "lanes": {
     "cloudRun": {
@@ -30,8 +30,8 @@
       "id": "cloudSqlDataConnect",
       "label": "Cloud SQL/Data Connect",
       "owner": "agent-context-mirror",
-      "status": "source_ready_no_runtime_usage_detected",
-      "sourceGuarded": true,
+      "status": "owner_review_external_billing_required",
+      "sourceGuarded": false,
       "externalBillingReviewed": false,
       "externalReviewRequired": true,
       "sourceFiles": [
@@ -40,22 +40,22 @@
         "dataconnect/dataconnect.yaml"
       ],
       "evidence": [
-        "cloudSqlGuardReportCurrent=true",
+        "cloudSqlGuardReportCurrent=false",
         "cloudSqlRuntimeDetected=false",
         "sqlMirrorScriptsGuarded=true",
         "sqlMirrorRequiresExplicitApproval=true",
         "notDetectedIsNotPass=true",
         "externalBillingReviewed=false"
       ],
-      "reason": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
+      "reason": "Cloud SQL/Data Connect source or external billing state still needs owner review.",
       "nextAction": "Map Cloud SQL/Data Connect instance state, backups, HA, and billing owner in provider console."
     },
     "geminiCloudAssistVertex": {
       "id": "geminiCloudAssistVertex",
       "label": "Gemini/Cloud Assist/Vertex AI",
       "owner": "admin-ai",
-      "status": "source_guarded_external_review_remaining",
-      "sourceGuarded": true,
+      "status": "cost_review_required",
+      "sourceGuarded": false,
       "externalBillingReviewed": false,
       "externalReviewRequired": true,
       "sourceFiles": [
@@ -65,14 +65,14 @@
         "src/app/api/admin/debug/assistant/route.ts"
       ],
       "evidence": [
-        "cloudSqlGeminiGuardCurrent=true",
+        "cloudSqlGeminiGuardCurrent=false",
         "geminiRuntimeDetected=true",
         "aiCallsRequireExplicitAction=true",
         "aiCallsHaveRateOrCacheGuard=true",
         "geminiExternalBillingObserved=true",
         "externalBillingReviewed=false"
       ],
-      "reason": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
+      "reason": "AI cost lane lacks enough source guard evidence for refinement.",
       "nextAction": "Review Gemini/Vertex billing externally and keep future AI calls explicit, cached/idempotent, and rate-limited."
     },
     "route4xx": {
@@ -202,10 +202,10 @@
       "blocksBetaExit": false
     },
     "cloudSqlCostReadiness": {
-      "status": "source_ready_no_runtime_usage_detected",
-      "detail": "Runtime SQL/Data Connect usage is not detected and mirror sync is manually guarded; provider instance billing still needs owner review.",
+      "status": "owner_review_external_billing_required",
+      "detail": "Cloud SQL/Data Connect source or external billing state still needs owner review.",
       "evidence": [
-        "cloudSqlGuardReportCurrent=true",
+        "cloudSqlGuardReportCurrent=false",
         "cloudSqlRuntimeDetected=false",
         "sqlMirrorScriptsGuarded=true",
         "sqlMirrorRequiresExplicitApproval=true",
@@ -219,10 +219,10 @@
       "blocksBetaExit": false
     },
     "geminiCloudAssistCostReadiness": {
-      "status": "source_guarded_external_review_remaining",
-      "detail": "AI routes are explicit admin-action guarded with rate/cache protection; external Gemini/Vertex billing remains owner-review.",
+      "status": "cost_review_required",
+      "detail": "AI cost lane lacks enough source guard evidence for refinement.",
       "evidence": [
-        "cloudSqlGeminiGuardCurrent=true",
+        "cloudSqlGeminiGuardCurrent=false",
         "geminiRuntimeDetected=true",
         "aiCallsRequireExplicitAction=true",
         "aiCallsHaveRateOrCacheGuard=true",
@@ -253,9 +253,9 @@
       "blocksBetaExit": false
     }
   },
-  "costRiskScore": 80.5,
-  "costRiskScoreExplanation": "Cost risk score 80.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.",
-  "sourceGuardedLaneCount": 7,
+  "costRiskScore": 63.5,
+  "costRiskScoreExplanation": "Cost risk score 63.5 reflects source cost readiness from guarded lanes; external billing review remains separate and no dollar savings are claimed.",
+  "sourceGuardedLaneCount": 5,
   "externalBillingReview": {
     "reviewed": false,
     "requiredLanes": [
@@ -271,7 +271,7 @@
   "route4xxUsesLatestDiagnostics": true,
   "scoreInputImpact": {
     "previousGenericOwnerReviewScore": 40,
-    "refinedSourceScore": 80.5,
+    "refinedSourceScore": 63.5,
     "externalProofClaimed": false
   },
   "openPrs": [

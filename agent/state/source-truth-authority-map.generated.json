@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-01T00:19:05.748Z",
+  "generatedAtUtc": "2026-06-03T02:39:17.434Z",
   "reportKey": "source-truth-authority-map",
-  "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "summary": {
     "activeLanes": 12,
     "supportingLanes": 6,
@@ -323,19 +323,19 @@
   "currentHeadChecks": [
     {
       "artifact": "agent/state/source-truth-authority-map.generated.json",
-      "currentHead": "2b2e19b60aff5bd93e0a9bde735793dad18dbe52",
+      "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/public-beta-score.generated.json",
-      "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/current-beta-exit-status.generated.json",
-      "currentHead": "a6ac6d0632b66412ba22ad6a2ff981d0f7aee3aa",
+      "currentHead": "b43d0551abc2035a1b413d58dff68e10f4e82074",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
@@ -347,39 +347,39 @@
     },
     {
       "artifact": "agent/state/evidence-capture-status.generated.json",
-      "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
       "status": "current",
       "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/user-creator-ui-parity.generated.json",
-      "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
+      "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
       "status": "stale",
       "action": "Refresh through the lane validator before treating as current evidence."
     },
     {
       "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
-      "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/creator-experience-simplification.generated.json",
-      "currentHead": "e75d98523cda258032a04e11eb16e1d128bea2f9",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/post-economy-creator-flow-qa.generated.json",
-      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
-      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
-      "status": "stale",
-      "action": "Refresh through the lane validator before treating as current evidence."
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     },
     {
       "artifact": "agent/state/speed-security-hardening.generated.json",
@@ -431,9 +431,9 @@
     },
     {
       "artifact": "agent/state/debug-panel-output-triage.generated.json",
-      "currentHead": "dd4b37320ddd4e920d6633c91d90b01243089231",
-      "status": "not_required",
-      "action": "Retired/archive artifact does not block beta score."
+      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
     }
   ],
   "fixesApplied": [

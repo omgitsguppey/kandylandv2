@@ -1,3 +1,10 @@
+import {
+  evidenceArtifactHasFormalPass,
+  evidenceArtifactHasSourceConfidence,
+  evidenceArtifactNumericValue,
+  evidenceArtifactText,
+} from "./evidence-quality";
+
 export type FormalEvidenceClass =
   | "formal_provider_artifact"
   | "deployed_runtime_artifact"
@@ -111,38 +118,8 @@ function scoreDimensions(input?: Partial<FormalEvidenceBridgeScoreDimensions>): 
   };
 }
 
-function evidenceText(artifact?: FormalEvidenceBridgeArtifact) {
-  return [
-    artifact?.status ?? "",
-    artifact?.detail ?? "",
-    ...(artifact?.evidence ?? []),
-  ].join("\n");
-}
-
-function numberFromEvidence(artifact: FormalEvidenceBridgeArtifact | undefined, key: string) {
-  const match = evidenceText(artifact).match(new RegExp(`${key}=([0-9]+(?:\\.[0-9]+)?)`, "iu"));
-  if (!match?.[1]) return undefined;
-  const value = Number(match[1]);
-  return Number.isFinite(value) ? clampScore(value) : undefined;
-}
-
-function hasFormalArtifact(artifact: FormalEvidenceBridgeArtifact | undefined) {
-  if (!artifact?.passed) return false;
-  const status = String(artifact.status).toLowerCase();
-  const text = evidenceText(artifact).toLowerCase();
-  return /formal_passed|formal_complete|passed|usable/u.test(status)
-    && !/source_ready|operator_confirmed|runtime_unverified|missing|unknown|not_formal/u.test(`${status}\n${text}`);
-}
-
-function hasSourceConfidence(artifact: FormalEvidenceBridgeArtifact | undefined) {
-  const text = evidenceText(artifact).toLowerCase();
-  return Boolean(artifact)
-    && !/failed|blocked/u.test(String(artifact?.status ?? "").toLowerCase())
-    && /source_ready|source_backed|partial_debug|operator_confirmed|calibrated|substitute_matrix/u.test(text);
-}
-
 function includesOperatorRevenue(artifact: FormalEvidenceBridgeArtifact | undefined) {
-  return /operator_confirmed|operatorRevenueSmoke|amountUsdConfirmed=50/iu.test(evidenceText(artifact));
+  return /operator_confirmed|operatorRevenueSmoke|amountUsdConfirmed=50/iu.test(evidenceArtifactText(artifact));
 }
 
 function unique<T>(items: T[]) {
@@ -184,27 +161,27 @@ function estimatedAfter(before: FormalEvidenceBridgeScoreDimensions, gates: Form
 
 export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput): FormalEvidenceBridgeReport {
   const artifacts = input.artifacts ?? {};
-  const providerFormal = hasFormalArtifact(artifacts.providerSmoke);
-  const runtimeFormal = hasFormalArtifact(artifacts.runtimeSmoke);
-  const adminFormal = hasFormalArtifact(artifacts.adminSourceSample)
-    && /productionSampleAttached=true|formalAdminTruthSamplePassed=true/iu.test(evidenceText(artifacts.adminSourceSample));
+  const providerFormal = evidenceArtifactHasFormalPass(artifacts.providerSmoke);
+  const runtimeFormal = evidenceArtifactHasFormalPass(artifacts.runtimeSmoke);
+  const adminFormal = evidenceArtifactHasFormalPass(artifacts.adminSourceSample)
+    && /productionSampleAttached=true|formalAdminTruthSamplePassed=true/iu.test(evidenceArtifactText(artifacts.adminSourceSample));
   const operatorRevenue = includesOperatorRevenue(artifacts.operatorRevenueSmoke) || includesOperatorRevenue(artifacts.providerSmoke);
   const runtimeConfidenceScore = Math.max(
-    numberFromEvidence(artifacts.sourceBackedRuntimeConfidence, "runtimeConfidenceScore") ?? 0,
-    numberFromEvidence(artifacts.sourceBackedRuntimeConfidence, "sourceBackedRuntimeConfidence") ?? 0,
+    evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "runtimeConfidenceScore") ?? 0,
+    evidenceArtifactNumericValue(artifacts.sourceBackedRuntimeConfidence, "sourceBackedRuntimeConfidence") ?? 0,
   );
   const realUsageConfidenceScore = Math.max(
-    numberFromEvidence(artifacts.realUsageConfidence, "confidenceScore") ?? 0,
-    numberFromEvidence(artifacts.realUsageConfidenceCalibration, "runtimeHealthCredit") ?? 0,
-    numberFromEvidence(artifacts.realUsageConfidenceCalibration, "calibratedConfidenceScore") ?? 0,
+    evidenceArtifactNumericValue(artifacts.realUsageConfidence, "confidenceScore") ?? 0,
+    evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "runtimeHealthCredit") ?? 0,
+    evidenceArtifactNumericValue(artifacts.realUsageConfidenceCalibration, "calibratedConfidenceScore") ?? 0,
   );
   const runtimeSubstituteEvidenceScore = Math.max(
-    numberFromEvidence(artifacts.runtimeSubstituteMatrix, "matrixEvidenceCompletenessCredit") ?? 0,
-    numberFromEvidence(artifacts.runtimeSubstituteMatrix, "matrixRuntimeHealthCredit") ?? 0,
+    evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixEvidenceCompletenessCredit") ?? 0,
+    evidenceArtifactNumericValue(artifacts.runtimeSubstituteMatrix, "matrixRuntimeHealthCredit") ?? 0,
   );
-  const debugRuntimeConfidenceScore = numberFromEvidence(artifacts.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
-    ?? (hasSourceConfidence(artifacts.debugRuntimeEvidence) ? 55 : 0);
-  const adminSourceConfidenceScore = hasSourceConfidence(artifacts.adminSourceSample) ? 65 : 0;
+  const debugRuntimeConfidenceScore = evidenceArtifactNumericValue(artifacts.debugRuntimeEvidence, "sourceBackedRuntimeConfidence")
+    ?? (evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? 55 : 0);
+  const adminSourceConfidenceScore = evidenceArtifactHasSourceConfidence(artifacts.adminSourceSample) ? 65 : 0;
   const runtimeSourceConfidence = Math.max(
     runtimeConfidenceScore,
     realUsageConfidenceScore,
@@ -223,11 +200,11 @@ export function buildFormalEvidenceBridgeReport(input: FormalEvidenceBridgeInput
     ...(runtimeFormal ? ["deployed_runtime_artifact" as const] : ["missing_formal_artifact" as const]),
     ...(adminFormal ? ["production_admin_truth_artifact" as const] : ["missing_formal_artifact" as const]),
     ...(operatorRevenue ? ["operator_confirmed_revenue" as const] : []),
-    ...(hasSourceConfidence(artifacts.sourceBackedRuntimeConfidence) ? ["source_backed_runtime_confidence" as const] : []),
-    ...(hasSourceConfidence(artifacts.realUsageConfidence) || hasSourceConfidence(artifacts.realUsageConfidenceCalibration) ? ["real_usage_confidence" as const] : []),
-    ...(hasSourceConfidence(artifacts.runtimeSubstituteMatrix) ? ["runtime_substitute_matrix" as const] : []),
-    ...(hasSourceConfidence(artifacts.adminSourceSample) ? ["admin_source_sample" as const] : []),
-    ...(hasSourceConfidence(artifacts.debugRuntimeEvidence) ? ["debug_runtime_source_evidence" as const] : []),
+    ...(evidenceArtifactHasSourceConfidence(artifacts.sourceBackedRuntimeConfidence) ? ["source_backed_runtime_confidence" as const] : []),
+    ...(evidenceArtifactHasSourceConfidence(artifacts.realUsageConfidence) || evidenceArtifactHasSourceConfidence(artifacts.realUsageConfidenceCalibration) ? ["real_usage_confidence" as const] : []),
+    ...(evidenceArtifactHasSourceConfidence(artifacts.runtimeSubstituteMatrix) ? ["runtime_substitute_matrix" as const] : []),
+    ...(evidenceArtifactHasSourceConfidence(artifacts.adminSourceSample) ? ["admin_source_sample" as const] : []),
+    ...(evidenceArtifactHasSourceConfidence(artifacts.debugRuntimeEvidence) ? ["debug_runtime_source_evidence" as const] : []),
   ];
   const gates = {
     runtimeProviderSmoke: gateCredit({

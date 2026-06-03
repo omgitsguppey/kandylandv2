@@ -102,6 +102,10 @@ function includesAll(source: string, required: readonly string[]) {
   return required.filter((item) => !source.includes(item));
 }
 
+function isRuntimeSourcePath(filePath: string) {
+  return /^(src|functions)\//u.test(filePath) && !/\.spec\./u.test(filePath);
+}
+
 export function classifyCreatorMonetizationReadinessLockDirtyFile(filePath: string): CreatorMonetizationReadinessLockDirtyFileClassification {
   const normalized = filePath.replace(/\\/gu, "/");
   if (normalized === STATE_PATH || normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
@@ -125,6 +129,11 @@ export function classifyCreatorMonetizationReadinessLockDirtyFile(filePath: stri
   if (
     /^docs\/agent-truth\/(targeted-behavior-evidence|targeted-behavior-evidence-repair|feature-registration-gate|event-translation-bridge|person-metrics-hydration|final-parity-telemetry-lock|media-discovery-score-lock)\.md$/u.test(normalized)
   ) return "documentation_artifact_expected";
+  if (/^agent\/state\/.+\.generated\.json$/u.test(normalized)) return "current_generated_artifact_to_commit";
+  if (/^docs\/agent-truth\/.+\.md$/u.test(normalized)) return "documentation_artifact_expected";
+  if (/^scripts\/agent\/validate-(analytics-hydration-consolidation|analytics-panel-hydration|creator-dashboard-error-cost-inventory|post-economy-creator-flow-qa|public-beta-score|score-80-reconciliation-lock|score-80-refresh-pass|score-80-cost-readiness|user-facing-feature-connection-audit)\.ts$/u.test(normalized)) return "validator_artifact_expected";
+  if (/^tests\/unit\/(creator-dashboard-error-cost-inventory|creator-experiences-panel|post-economy-creator-flow-qa|public-beta-score|purchase-modal|score-80-refresh-pass)\.spec\.tsx?$/u.test(normalized)) return "test_artifact_expected";
+  if (/^src\/lib\/agent-score\/.+\.ts$/u.test(normalized)) return "current_source_change";
   if (normalized === "package.json") return "validator_artifact_expected";
   if (normalized === "agent/context/optimized-task-context.generated.json") return "unrelated_agent_context_file_to_ignore";
   if (
@@ -218,8 +227,8 @@ export function buildCreatorMonetizationReadinessLockReport(input: {
     path: dirtyPath,
     classification: classifyCreatorMonetizationReadinessLockDirtyFile(dirtyPath),
   }));
-  const paymentRuntimeChanged = dirtyFiles.some((file) => /paypal|payment|wallet|payout/iu.test(file.path));
-  const gumdropMathChanged = dirtyFiles.some((file) => /gumdrop-ledger|source-of-funds/iu.test(file.path));
+  const paymentRuntimeChanged = dirtyFiles.some((file) => isRuntimeSourcePath(file.path) && /paypal|payment|wallet|payout/iu.test(file.path));
+  const gumdropMathChanged = dirtyFiles.some((file) => isRuntimeSourcePath(file.path) && /gumdrop-ledger|source-of-funds/iu.test(file.path));
   const dirtyFailures = dirtyFiles
     .filter((file) => file.classification === "unsafe_unknown")
     .map((file) => `${file.path} is unclassified for creator monetization readiness lock.`);

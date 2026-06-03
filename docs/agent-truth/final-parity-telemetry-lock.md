@@ -1,7 +1,7 @@
 # Final Parity Telemetry Lock
 
-Generated: 2026-05-26T03:42:53.753Z
-Head: 79ad1387e6438832a915bed94e0cdbd3d4a7fddb
+Generated: 2026-06-03T03:20:56.883Z
+Head: 225f9e53f18b60edc7399c1ea258c0b9bacfae84
 Status: pass
 
 ## Summary
@@ -14,7 +14,7 @@ Status: pass
 - Stale parity logic removed: true
 - Surfaces covered: 17
 - Surfaces missing: 0
-- Score: 77.83 -> 77.83
+- Score: 81.1 -> 81.1
 - Score dimensions: sourceHealth, runtimeHealth, evidenceCompleteness, costRisk, freshness, regressionRisk
 
 ## Surface Locks

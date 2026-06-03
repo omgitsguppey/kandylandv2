@@ -1,8 +1,8 @@
 {
   "reportKey": "daily-task-guidance-route-audit",
-  "generatedAtUtc": "2026-05-25T06:14:57.612Z",
-  "currentHead": "ccf36528",
-  "status": "pass",
+  "generatedAtUtc": "2026-06-03T04:31:55.516Z",
+  "currentHead": "225f9e53",
+  "status": "fail",
   "rows": [
     {
       "taskId": "enable_notifications",
@@ -1303,7 +1303,7 @@
     "regressionRisk": "Unsupported task guidance is hidden by contract before users can act on it.",
     "overallHealthScore": "Improves task guidance evidence without clearing formal gates falsely."
   },
-  "dirtyFilesClassified": true,
+  "dirtyFilesClassified": false,
   "oldLogicClassification": [
     {
       "reference": "src/lib/task-guidance.ts route strings",
@@ -1316,5 +1316,8 @@
       "reason": "Rendering no longer treats every assigned task as claimable guidance; unsupported rows are filtered by the contract."
     }
   ],
-  "validationFailures": []
+  "validationFailures": [
+    "dirty files are unclassified.",
+    "dirty files unclassified: scripts/agent/score-public-beta-readiness.ts, scripts/agent/validate-analytics-hydration-consolidation.ts, scripts/agent/validate-analytics-panel-hydration.ts, scripts/agent/validate-creator-dashboard-error-cost-inventory.ts, scripts/agent/validate-creator-monetization-readiness-lock.ts, scripts/agent/validate-final-parity-telemetry-lock.ts, scripts/agent/validate-media-discovery-score-lock.ts, scripts/agent/validate-post-economy-creator-flow-qa.ts, scripts/agent/validate-public-beta-score.ts, scripts/agent/validate-regression-risk-high-blast-refresh.ts, scripts/agent/validate-score-80-reconciliation-lock.ts, scripts/agent/validate-score-80-refresh-pass.ts, scripts/agent/validate-user-facing-feature-connection-audit.ts, src/lib/agent-score/algorithmic-evidence-policy.ts, src/lib/agent-score/core.ts, src/lib/agent-score/evidence-quality.ts, src/lib/agent-score/formal-evidence-bridge.ts, src/lib/agent-score/regression-risk-refresh-plan.ts, tests/unit/creator-dashboard-error-cost-inventory.spec.ts, tests/unit/creator-experiences-panel.spec.tsx, tests/unit/post-economy-creator-flow-qa.spec.ts, tests/unit/public-beta-score.spec.ts, tests/unit/purchase-modal.spec.tsx"
+  ]
 }

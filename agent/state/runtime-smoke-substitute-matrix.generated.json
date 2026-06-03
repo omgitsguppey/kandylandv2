@@ -1,8 +1,8 @@
 {
   "reportKey": "runtime-smoke-substitute-matrix",
-  "generatedAtUtc": "2026-06-01T00:01:19.708Z",
-  "currentHead": "9795630e505231581241589fe40debd01b23d9b0",
-  "sourceCommit": "9795630e505231581241589fe40debd01b23d9b0",
+  "generatedAtUtc": "2026-06-03T04:45:43.621Z",
+  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "sourceCommit": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
   "status": "source_ready_runtime_smoke_substitute_matrix",
   "productionReadsRequired": false,
   "deployRequired": false,
@@ -33,7 +33,7 @@
       "sourceRoute": "src/app/api/admin/debug/route.ts",
       "sourceCredit": 84,
       "nextAction": "Attach deployed runtime route-load smoke before clearing the formal deployed runtime gate.",
-      "currentProofLevel": "source_proven",
+      "currentProofLevel": "debug_proven",
       "proofTypes": [
         "source",
         "debug",
@@ -62,7 +62,7 @@
       "lane": "identity_link",
       "sourceCredit": 80,
       "nextAction": "Attach deployed runtime auth-state smoke before clearing the formal deployed runtime gate.",
-      "currentProofLevel": "source_proven",
+      "currentProofLevel": "debug_proven",
       "proofTypes": [
         "source",
         "telemetry",
@@ -446,7 +446,7 @@
       ],
       "sourceCredit": 85,
       "nextAction": "Keep admin debug control tower source evidence fresh and do not show unknown as healthy.",
-      "currentProofLevel": "source_proven",
+      "currentProofLevel": "debug_proven",
       "proofTypes": [
         "source",
         "debug"
@@ -528,7 +528,7 @@
       ],
       "sourceCredit": 88,
       "nextAction": "Keep route diagnostics and error dictionary mapped before runtime smoke triage.",
-      "currentProofLevel": "source_proven",
+      "currentProofLevel": "debug_proven",
       "proofTypes": [
         "source",
         "debug"
@@ -552,9 +552,9 @@
     "watch_time_runtime_source"
   ],
   "currentProofSummary": {
-    "sourceProvenRows": 10,
+    "sourceProvenRows": 6,
     "telemetryProvenRows": 7,
-    "debugProvenRows": 0,
+    "debugProvenRows": 4,
     "manualUiRows": 1,
     "formalRuntimeRequiredRows": 10
   },

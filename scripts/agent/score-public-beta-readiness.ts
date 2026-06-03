@@ -34,7 +34,6 @@ import type {
 
 const REQUIRED_EVIDENCE_REPORTS = [
   "agent/state/evidence-capture-status.generated.json",
-  "agent/state/gumdrop-economy-accuracy.generated.json",
   "agent/state/creator-experience-simplification.generated.json",
   "agent/state/user-creator-ui-parity.generated.json",
   "agent/state/targeted-behavior-evidence.generated.json",

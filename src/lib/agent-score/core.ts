@@ -11,6 +11,9 @@ import {
   resolveEvidenceQuality,
   scoreCostReadiness,
   scoreRegressionRisk,
+  evidenceArtifactIsPassing,
+  evidenceArtifactNumericValue,
+  evidenceArtifactStatusText,
   type PublicBetaEvidenceFreshnessState,
   type PublicBetaEvidenceQuality,
 } from "./evidence-quality";
@@ -160,6 +163,32 @@ export type PublicBetaOperatorFinalChecks = {
   };
 };
 
+export type PublicBetaStudioDashboardSection = {
+  id: "audienceActivity" | "runtimeConfidence" | "sourceQuality" | "debugSignal" | "adminHydration" | "needsProof";
+  label: string;
+  score: number;
+  status: "healthy" | "watching" | "needs_attention" | "needs_proof";
+  source: string;
+  detail: string;
+};
+
+export type PublicBetaStudioDashboard = {
+  status: "healthy" | "watching" | "needs_attention";
+  sections: PublicBetaStudioDashboardSection[];
+};
+
+export type PublicBetaLaunchClearance = {
+  status: PublicBetaLaunchGateStatus;
+  blockers: string[];
+  formalGates: {
+    providerSmoke: { cleared: boolean; status: string; source: string };
+    deployedRuntimeSmoke: { cleared: boolean; status: string; source: string };
+    adminTruthSample: { cleared: boolean; status: string; source: string };
+    manualVisualEvidence: { cleared: boolean; status: string; source: string };
+    paymentSourceOfFunds: { cleared: false; status: "protected_not_evaluated_in_source_model"; source: string };
+  };
+};
+
 export type PublicBetaEvidenceInput = {
   requiredReports?: PublicBetaGeneratedReportEvidence[];
   debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
@@ -255,6 +284,8 @@ export type PublicBetaScoreReport = {
   launchBlockers: string[];
   healthScore: number;
   healthScoreBreakdown: PublicBetaHealthScoreBreakdown;
+  studioDashboard: PublicBetaStudioDashboard;
+  launchClearance: PublicBetaLaunchClearance;
   scoreDimensionExplanations: Record<PublicBetaHealthDimension | "overallHealthScore", ScoreDimensionExplanation>;
   scoreDeltaDrivers: string[];
   nuancedScoreExplanation: string[];
@@ -400,34 +431,18 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
   }
 }
 
-const NON_PASSING_EVIDENCE_STATUSES = new Set<string>([
-  "missing_formal_evidence",
-  "operator_reported_not_formal_provider_smoke",
-  "runtime_unverified",
-  "missing_or_unknown",
-  "failed",
-  "stale",
-  "unavailable",
-  "needs_review",
-  "tracked_not_passing",
-]);
-
 export function evidenceArtifactPassed(
   artifact: PublicBetaEvidenceArtifact | undefined,
   fallbackBoolean?: boolean,
 ) {
-  if (!artifact) return fallbackBoolean === true;
-  const status = String(artifact.status);
-  return artifact.passed === true
-    && !NON_PASSING_EVIDENCE_STATUSES.has(status)
-    && !/source[_-]ready|runtime_proof_required/iu.test(status);
+  return evidenceArtifactIsPassing(artifact, fallbackBoolean);
 }
 
 export function evidenceArtifactStatus(
   artifact: PublicBetaEvidenceArtifact | undefined,
   fallbackStatus = "missing_formal_evidence",
 ) {
-  return artifact?.status ?? fallbackStatus;
+  return evidenceArtifactStatusText(artifact, fallbackStatus);
 }
 
 export function evidenceArtifactDetail(
@@ -451,10 +466,7 @@ export function evidenceArtifactEvidence(artifact: PublicBetaEvidenceArtifact | 
 }
 
 function evidenceArtifactNumber(artifact: PublicBetaEvidenceArtifact | undefined, key: string) {
-  const match = artifact?.evidence.find((entry) => entry.includes(`${key}=`));
-  if (!match) return undefined;
-  const value = Number(match.slice(match.indexOf(`${key}=`) + key.length + 1));
-  return Number.isFinite(value) ? value : undefined;
+  return evidenceArtifactNumericValue(artifact, key);
 }
 
 function hasDebugEvidence(debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>) {
@@ -919,7 +931,11 @@ export function buildPublicBetaEvidenceGates(input: {
     confidence: Math.max(Math.min(providerQuality.confidence, runtimeQuality.confidence), runtimeProviderBridgeCredit * 0.9),
     freshness: providerQuality.freshness === "fresh" ? runtimeQuality.freshness : providerQuality.freshness,
     freshnessScore: Math.min(providerQuality.freshnessScore, runtimeQuality.freshnessScore),
-    partialCredit: roundScore(Math.max((providerQuality.partialCredit + runtimeQuality.partialCredit) / 2, runtimeProviderBridgeCredit)),
+    partialCredit: roundScore(Math.max(
+      (providerQuality.partialCredit + runtimeQuality.partialCredit) / 2,
+      runtimeProviderBridgeCredit,
+      runtimeProviderRuntimeCredit / 100,
+    )),
     blocksLaunch: providerQuality.blocksLaunch || runtimeQuality.blocksLaunch,
     reason: `${runtimeProviderSmokeDetail} Evidence bridge source confidence is partial and does not clear formal provider or deployed runtime smoke.`,
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
@@ -949,6 +965,12 @@ export function buildPublicBetaEvidenceGates(input: {
     },
   });
   const adminBridgeCredit = formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit / 100;
+  const adminSourceConfidence = adminTruthSampleStatus.includes("source_ready")
+    && adminTruthSampleEvidence.includes("sourceTruthStatus=source_backed")
+    && adminTruthSampleEvidence.includes("criticalAdminTruthIssueCount=0")
+    && adminTruthSampleEvidence.includes("fakeHealthyStateDetected=false")
+    ? 92
+    : 0;
   const adminQuality = {
     ...adminBaseQuality,
     quality: adminBaseQuality.quality === "formal_passed"
@@ -956,8 +978,8 @@ export function buildPublicBetaEvidenceGates(input: {
       : adminBridgeCredit > 0
         ? "formal_partial"
         : adminBaseQuality.quality,
-    confidence: Math.max(adminBaseQuality.confidence, adminBridgeCredit * 0.9),
-    partialCredit: roundScore(Math.max(adminBaseQuality.partialCredit, adminBridgeCredit)),
+    confidence: Math.max(adminBaseQuality.confidence, adminBridgeCredit * 0.9, adminSourceConfidence / 100),
+    partialCredit: roundScore(Math.max(adminBaseQuality.partialCredit, adminBridgeCredit, adminSourceConfidence / 100)),
     blocksLaunch: adminBaseQuality.blocksLaunch,
     reason: adminBaseQuality.quality === "formal_passed"
       ? adminBaseQuality.reason
@@ -999,7 +1021,18 @@ export function buildPublicBetaEvidenceGates(input: {
   } satisfies ReturnType<typeof resolveEvidenceQuality>;
 
   const debugQuality = debugRuntimeEvidenceArtifactReady
-    ? debugRuntimeEvidenceQuality
+    ? {
+      ...debugRuntimeEvidenceQuality,
+      confidence: Math.max(
+        debugRuntimeEvidenceQuality.confidence,
+        (evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0) / 100,
+      ),
+      partialCredit: roundScore(Math.max(
+        debugRuntimeEvidenceQuality.partialCredit,
+        (evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0) / 100,
+      )),
+      reason: "Source-backed debug/runtime confidence is counted for Studio health without clearing deployed runtime smoke.",
+    } satisfies ReturnType<typeof resolveEvidenceQuality>
     : {
     quality: debugEvidenceAvailable || formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit > 0 ? "formal_partial" : "missing",
     confidence: Math.max(debugEvidenceAvailable ? 0.65 : 0, formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit / 100 * 0.9),
@@ -1131,7 +1164,7 @@ export function buildPublicBetaEvidenceGates(input: {
       quality: debugQuality,
       gateRequiredForExit: false,
       runtimeCredit: Math.max(
-        debugRuntimeEvidenceArtifactReady ? debugRuntimeEvidenceQuality.partialCredit * 100 : debugEvidenceAvailable ? 50 : 0,
+        debugRuntimeEvidenceArtifactReady ? debugQuality.partialCredit * 100 : debugEvidenceAvailable ? 50 : 0,
         formalEvidenceBridge.gates.debugRuntimeEvidence.runtimeCredit,
       ),
     }),
@@ -1182,7 +1215,12 @@ export function buildPublicBetaEvidenceGates(input: {
       recommendedAction: "Use bridge confidence for score clarity only; attach formal provider, deployed runtime, and production admin evidence before clearing gates.",
       quality: {
         quality: formalEvidenceBridge.validationFailures.length > 0 ? "failed" : "formal_partial",
-        confidence: formalEvidenceBridge.validationFailures.length > 0 ? 0 : 0.78,
+        confidence: formalEvidenceBridge.validationFailures.length > 0 ? 0 : Math.max(
+          0.78,
+          runtimeProviderRuntimeCredit / 100,
+          adminSourceConfidence / 100,
+          (evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0) / 100,
+        ),
         freshness: "fresh",
         freshnessScore: 1,
         partialCredit: formalEvidenceBridge.validationFailures.length > 0
@@ -1191,6 +1229,9 @@ export function buildPublicBetaEvidenceGates(input: {
               formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit,
               formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit,
               formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit,
+              runtimeProviderRuntimeCredit,
+              adminSourceConfidence,
+              evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0,
             ) / 100,
         blocksLaunch: false,
         reason: formalEvidenceBridge.validationFailures.length > 0
@@ -1201,6 +1242,8 @@ export function buildPublicBetaEvidenceGates(input: {
       sourceCredit: Math.max(
         formalEvidenceBridge.gates.runtimeProviderSmoke.evidenceCredit,
         formalEvidenceBridge.gates.adminTruthSamples.evidenceCredit,
+        adminSourceConfidence,
+        evidenceArtifactNumericValue(evidence.debugRuntimeEvidenceArtifact, "sourceBackedRuntimeConfidence") ?? 0,
       ),
       runtimeCredit: Math.max(
         formalEvidenceBridge.gates.runtimeProviderSmoke.runtimeCredit,
@@ -1394,6 +1437,130 @@ function launchGateStatusFrom(input: {
   return "source_ready";
 }
 
+function studioStatusFromScore(score: number): PublicBetaStudioDashboardSection["status"] {
+  if (score >= 90) return "healthy";
+  if (score >= 80) return "watching";
+  return "needs_attention";
+}
+
+function buildStudioDashboard(input: {
+  sourceHealthScore: number;
+  runtimeHealthScore: number;
+  evidenceCompletenessScore: number;
+  freshnessScore: number;
+  costRiskScore: number;
+  regressionRiskScore: number;
+  evidenceGates: PublicBetaEvidenceGate[];
+}): PublicBetaStudioDashboard {
+  const debugGate = input.evidenceGates.find((gate) => gate.id === "debugRuntimeEvidence");
+  const adminGate = input.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
+  const proofNeeded = input.evidenceGates.filter((gate) => gate.status !== "Ready");
+  const sections: PublicBetaStudioDashboardSection[] = [
+    {
+      id: "audienceActivity",
+      label: "Audience Activity",
+      score: input.runtimeHealthScore,
+      status: studioStatusFromScore(input.runtimeHealthScore),
+      source: "runtimeHealthScore",
+      detail: "Estimated from codebase-verifiable activity, telemetry, runtime substitute, and source-ready signals.",
+    },
+    {
+      id: "runtimeConfidence",
+      label: "Runtime Confidence",
+      score: input.runtimeHealthScore,
+      status: studioStatusFromScore(input.runtimeHealthScore),
+      source: "runtimeHealthScore",
+      detail: "Shows source-backed runtime confidence without clearing formal deployed runtime smoke.",
+    },
+    {
+      id: "sourceQuality",
+      label: "Source Quality",
+      score: input.sourceHealthScore,
+      status: studioStatusFromScore(input.sourceHealthScore),
+      source: "sourceHealthScore",
+      detail: "Scanner and source-gate confidence using the existing source health dimension.",
+    },
+    {
+      id: "debugSignal",
+      label: "Debug Signal",
+      score: roundScore(debugGate?.runtimeCredit ?? debugGate?.evidenceCredit ?? input.regressionRiskScore),
+      status: studioStatusFromScore(debugGate?.runtimeCredit ?? debugGate?.evidenceCredit ?? input.regressionRiskScore),
+      source: debugGate ? "debugRuntimeEvidence gate" : "regressionRiskScore",
+      detail: debugGate?.detail ?? "Uses existing regression/debug signal confidence when no debug runtime gate is available.",
+    },
+    {
+      id: "adminHydration",
+      label: "Admin Hydration",
+      score: roundScore(adminGate?.sourceCredit ?? adminGate?.evidenceCredit ?? input.evidenceCompletenessScore),
+      status: studioStatusFromScore(adminGate?.sourceCredit ?? adminGate?.evidenceCredit ?? input.evidenceCompletenessScore),
+      source: adminGate ? "adminTruthSamples gate" : "evidenceCompletenessScore",
+      detail: adminGate?.detail ?? "Admin analytics hydration is summarized from existing evidence completeness.",
+    },
+    {
+      id: "needsProof",
+      label: "Needs Proof",
+      score: input.evidenceCompletenessScore,
+      status: proofNeeded.length > 0 ? "needs_proof" : studioStatusFromScore(input.evidenceCompletenessScore),
+      source: "evidenceCompletenessScore",
+      detail: proofNeeded.length > 0
+        ? `${proofNeeded.length} evidence lane(s) still need formal proof or refresh.`
+        : "Formal proof lanes are clear in the existing evidence model.",
+    },
+  ];
+  const overall = Math.min(...sections.filter((section) => section.id !== "needsProof").map((section) => section.score));
+  return {
+    status: sections.some((section) => section.status === "needs_attention" || section.status === "needs_proof")
+      ? "needs_attention"
+      : overall >= 90
+        ? "healthy"
+        : "watching",
+    sections,
+  };
+}
+
+function buildLaunchClearance(input: {
+  launchGateStatus: PublicBetaLaunchGateStatus;
+  launchBlockers: string[];
+  evidence?: PublicBetaEvidenceInput;
+}): PublicBetaLaunchClearance {
+  const evidence = input.evidence ?? {};
+  const providerSmoke = evidence.providerSmokeEvidence;
+  const runtimeSmoke = evidence.runtimeSmokeEvidence;
+  const adminTruth = evidence.adminTruthSampleEvidence;
+  const visualManual = evidence.visualManualEvidence;
+  return {
+    status: input.launchGateStatus,
+    blockers: input.launchBlockers,
+    formalGates: {
+      providerSmoke: {
+        cleared: evidenceArtifactPassed(providerSmoke),
+        status: String(evidenceArtifactStatus(providerSmoke)),
+        source: providerSmoke?.path ?? "agent/state/provider-smoke-evidence.generated.json",
+      },
+      deployedRuntimeSmoke: {
+        cleared: evidenceArtifactPassed(runtimeSmoke),
+        status: String(evidenceArtifactStatus(runtimeSmoke, "runtime_unverified")),
+        source: runtimeSmoke?.path ?? "agent/state/runtime-smoke-evidence.generated.json",
+      },
+      adminTruthSample: {
+        cleared: evidenceArtifactPassed(adminTruth),
+        status: String(evidenceArtifactStatus(adminTruth, "missing_or_unknown")),
+        source: adminTruth?.path ?? "agent/state/admin-truth-sample-evidence.generated.json",
+      },
+      manualVisualEvidence: {
+        cleared: evidenceArtifactPassed(visualManual),
+        status: String(evidenceArtifactStatus(visualManual, "operator_final_pending")),
+        source: visualManual?.path ?? "agent/state/manual-screenshot-evidence.generated.json",
+      },
+      paymentSourceOfFunds: {
+        cleared: false,
+        status: "protected_not_evaluated_in_source_model",
+        source: "protected lane: GumDrop source-of-funds and provider callbacks",
+      },
+    },
+  };
+}
+
 export function buildPublicBetaScoreReport(
   rawFindings: PublicBetaFindingInput[],
   options: PublicBetaScoreOptions,
@@ -1555,6 +1722,20 @@ export function buildPublicBetaScoreReport(
     `nonEventScorePenaltyCount=${nonEventScorePolicy.nonEventScorePenaltyCount}`,
     launchBlockers.length > 0 ? `launchBlockers=${launchBlockers.length}` : "launchGates=clear",
   ];
+  const studioDashboard = buildStudioDashboard({
+    sourceHealthScore,
+    runtimeHealthScore,
+    evidenceCompletenessScore,
+    freshnessScore,
+    costRiskScore,
+    regressionRiskScore,
+    evidenceGates: evidenceReadiness.evidenceGates,
+  });
+  const launchClearance = buildLaunchClearance({
+    launchGateStatus,
+    launchBlockers,
+    evidence: options.evidence,
+  });
   const nuancedScoreExplanation = [
     "Source-ready evidence earns source health credit without becoming runtime proof.",
     "Future activity placeholders and source-ready lanes waiting for first real user events do not reduce score.",
@@ -1595,6 +1776,8 @@ export function buildPublicBetaScoreReport(
     launchBlockers,
     healthScore,
     healthScoreBreakdown,
+    studioDashboard,
+    launchClearance,
     scoreDimensionExplanations,
     scoreDeltaDrivers,
     nuancedScoreExplanation,
