@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.5.49 - 2026-06-03
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
+
 ## 1.5.48 - 2026-06-03
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -145,9 +151,3 @@ Showing the last 25 public updates in pages of 5.
 - Raised Firebase/App Hosting build memory headroom from 4GB to 16GB to reduce deployment worker OOM risk.
 - Added NODE_OPTIONS build memory headroom to the App Hosting environment config.
 - Kept runtime behavior unchanged.
-
-## 1.5.24 - 2026-05-30
-- Deployment build stability
-- Raised the production Next build Node heap to prevent OOM during TypeScript/build phase.
-- Kept runtime behavior unchanged.
-- Refreshed release-note freshness for deployment gates.

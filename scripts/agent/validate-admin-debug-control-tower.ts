@@ -2464,6 +2464,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugPrimitives\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,
+    /^tests\/unit\/admin-debug-compact-layout\.spec\.ts$/u,
     /^src\/components\/Dashboard\/DailyTasksModule\.tsx$/u,
     /^src\/components\/AdminErrorCatcher\.tsx$/u,
     /^src\/components\/Admin\/Analytics\/AdminTaskAndNotificationModules\.tsx$/u,

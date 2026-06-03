@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.5.48",
-  "betaReleaseCounter": 548,
+  "currentVersion": "1.5.49",
+  "betaReleaseCounter": 549,
   "channel": "beta",
-  "generatedAt": "2026-06-03T23:27:08.671Z",
-  "generatedAtUtc": "2026-06-03T23:27:08.671Z",
-  "lastCommitSha": "372ced8e723961e51716e3012420d571f52ec699",
+  "generatedAt": "2026-06-03T23:41:36.791Z",
+  "generatedAtUtc": "2026-06-03T23:41:36.791Z",
+  "lastCommitSha": "53355223290248fe5d06ab6706fafc064801b90c",
   "notes": [
+    {
+      "version": "1.5.49",
+      "previousVersion": "1.5.48",
+      "betaReleaseCounter": 549,
+      "previousBetaReleaseCounter": 548,
+      "commitSha": "53355223290248fe5d06ab6706fafc064801b90c",
+      "commitTitle": "fix(admin): compact debug system health panel",
+      "commitCount": 2,
+      "commitShas": [
+        "7a5bd39e4c2163d5daa61d1f324ff0e94dee7c08",
+        "53355223290248fe5d06ab6706fafc064801b90c"
+      ],
+      "committedAt": "2026-06-03T23:41:23.000Z",
+      "generatedAt": "2026-06-03T23:41:36.790Z",
+      "committedAtUtc": "2026-06-03T23:41:23.000Z",
+      "generatedAtUtc": "2026-06-03T23:41:36.790Z",
+      "updatedAtUtc": "2026-06-03T23:41:36.790Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-audience-mobile.spec.ts",
+        "tests/unit/admin-debug-compact-layout.spec.ts"
+      ],
+      "sourceCommit": "53355223290248fe5d06ab6706fafc064801b90c"
+    },
     {
       "version": "1.5.48",
       "previousVersion": "1.5.47",
@@ -1470,58 +1519,6 @@
       ],
       "effectiveChangeCount": 2,
       "excludedGeneratedChangeCount": 3,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.5.24",
-      "previousVersion": "1.5.23",
-      "betaReleaseCounter": 524,
-      "previousBetaReleaseCounter": 523,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(deploy): keep release freshness with build",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-30T23:23:00.000Z",
-      "generatedAt": "2026-05-30T23:23:00.000Z",
-      "committedAtUtc": "2026-05-30T23:23:00.000Z",
-      "generatedAtUtc": "2026-05-30T23:23:00.000Z",
-      "category": "Fixed",
-      "title": "Deployment build stability",
-      "updatedAtUtc": "2026-05-30T23:23:00.000Z",
-      "summary": "Improved internal beta reliability by raising the production Next build heap while keeping runtime behavior unchanged.",
-      "userFacingTitle": "More reliable Beta deployment builds",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Raised the production Next build Node heap to prevent OOM during TypeScript/build phase.",
-        "Kept runtime behavior unchanged.",
-        "Refreshed release-note freshness for deployment gates."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Changed the package build script from next build to node --max-old-space-size=4096 ./node_modules/next/dist/bin/next build.",
-        "Added a same-commit release/head discipline validator for build and deploy script changes.",
-        "Kept product runtime, payment, wallet, PayPal, GumDrop, and auth source files unchanged."
-      ],
-      "affectedSurfaces": [
-        "Deployment build",
-        "Release notes freshness",
-        "Deploy gate validation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "package.json",
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "scripts/agent/validate-same-commit-release-head-discipline.ts",
-        "tests/unit/same-commit-release-head-discipline.spec.ts"
-      ],
-      "effectiveChangeCount": 3,
-      "excludedGeneratedChangeCount": 2,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }
