@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.49",
-  "betaReleaseCounter": 549,
+  "currentVersion": "1.5.50",
+  "betaReleaseCounter": 550,
   "channel": "beta",
-  "generatedAt": "2026-06-03T23:41:36.791Z",
-  "generatedAtUtc": "2026-06-03T23:41:36.791Z",
-  "lastCommitSha": "53355223290248fe5d06ab6706fafc064801b90c",
+  "generatedAt": "2026-06-03T23:52:29.434Z",
+  "generatedAtUtc": "2026-06-03T23:52:29.434Z",
+  "lastCommitSha": "89f8ee2b07fdb057f8ecefb96d2140c35e7e071c",
   "notes": [
+    {
+      "version": "1.5.50",
+      "previousVersion": "1.5.49",
+      "betaReleaseCounter": 550,
+      "previousBetaReleaseCounter": 549,
+      "commitSha": "89f8ee2b07fdb057f8ecefb96d2140c35e7e071c",
+      "commitTitle": "fix(admin): add compact content conversion analytics modes",
+      "commitCount": 2,
+      "commitShas": [
+        "6d3b27084fa70afc7cb3ab2c5453c03fb8182f90",
+        "89f8ee2b07fdb057f8ecefb96d2140c35e7e071c"
+      ],
+      "committedAt": "2026-06-03T23:52:06.000Z",
+      "generatedAt": "2026-06-03T23:52:29.432Z",
+      "committedAtUtc": "2026-06-03T23:52:06.000Z",
+      "generatedAtUtc": "2026-06-03T23:52:29.432Z",
+      "updatedAtUtc": "2026-06-03T23:52:29.432Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-commerce-mobile.spec.ts",
+        "tests/unit/admin-debug-compact-layout.spec.ts"
+      ],
+      "sourceCommit": "89f8ee2b07fdb057f8ecefb96d2140c35e7e071c"
+    },
     {
       "version": "1.5.49",
       "previousVersion": "1.5.48",
@@ -1468,59 +1517,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "effectiveChangeCount": 6,
       "excludedGeneratedChangeCount": 4,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.5.25",
-      "previousVersion": "1.5.24",
-      "betaReleaseCounter": 525,
-      "previousBetaReleaseCounter": 524,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "fix(deploy): raise build heap headroom",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-31T00:15:00.000Z",
-      "generatedAt": "2026-05-31T00:15:00.000Z",
-      "committedAtUtc": "2026-05-31T00:15:00.000Z",
-      "generatedAtUtc": "2026-05-31T00:15:00.000Z",
-      "category": "Fixed",
-      "title": "Higher build memory headroom",
-      "updatedAtUtc": "2026-05-31T00:15:00.000Z",
-      "summary": "Raised Firebase/App Hosting build memory headroom from 4GB to 16GB to reduce deployment worker OOM risk while keeping runtime behavior unchanged.",
-      "userFacingTitle": "More reliable deployment builds",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Raised Firebase/App Hosting build memory headroom from 4GB to 16GB to reduce deployment worker OOM risk.",
-        "Added NODE_OPTIONS build memory headroom to the App Hosting environment config.",
-        "Kept runtime behavior unchanged."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Changed the package build script from a 4096 MB heap to a 16384 MB heap.",
-        "Added NODE_OPTIONS=--max-old-space-size=16384 to apphosting.yaml using the existing env configuration shape.",
-        "Did not change app/API/auth/payment/GumDrop runtime source."
-      ],
-      "affectedSurfaces": [
-        "Firebase App Hosting build",
-        "Deployment build script",
-        "Release notes freshness"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "apphosting.yaml",
-        "package.json",
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "agent/state/same-commit-release-head-discipline.generated.json",
-        "docs/agent-truth/same-commit-release-head-discipline.md"
-      ],
-      "effectiveChangeCount": 2,
-      "excludedGeneratedChangeCount": 3,
       "bumpType": "patch",
       "sourceCommit": "pending-same-commit"
     }

@@ -99,10 +99,18 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     checkoutConversionLabel: commerceConversionLabel,
   });
   const [contentConversionGrouping, setContentConversionGrouping] = React.useState<"contentType" | "flavor" | "creator" | "priceBand">("contentType");
+  const [contentConversionViewMode, setContentConversionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [topDropConversionViewMode, setTopDropConversionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [viewerDropViewMode, setViewerDropViewMode] = React.useState<AnalyticsViewMode>("cards");
   const contentConversionRows = contentConversionModel.rowsByDimension[contentConversionGrouping] ?? [];
   const contentConversionVisibleRows = contentConversionRows.slice(0, 8);
+  const contentConversionChartRows = contentConversionVisibleRows.map((row) => ({
+    ...row,
+    chartLabel:
+      row.groupLabel && row.groupLabel.length > 14
+        ? `${row.groupLabel.slice(0, 14)}...`
+        : row.groupLabel || row.groupKey,
+  }));
   const [viewerDropPage, setViewerDropPage] = React.useState(1);
   const viewerDropPageSize = 5;
   const viewerDropTotalRows = viewerDrilldownInsights.length;
@@ -439,10 +447,24 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 title="Content Conversion"
                 subtitle="Which content types get previews and unwraps."
                 icon={Candy}
-                rightSlot={renderSectionRangeControl("contentConversion")}
+                rightSlot={(
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={contentConversionViewMode}
+                      onChange={setContentConversionViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("contentConversion")}
+                  </div>
+                )}
               >
                 <div
                   className="space-y-3"
+                  data-admin-analytics-mobile-view-mode={contentConversionViewMode}
                   data-content-conversion-source-truth={contentConversionModel.sourceTruth}
                   data-content-conversion-source-state={contentConversionModel.sourceState}
                   data-content-conversion-generated-at-utc={contentConversionModel.generatedAtUtc}
@@ -508,71 +530,113 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
 
                   {contentConversionVisibleRows.length > 0 ? (
                     <div className="space-y-2">
-                      <div className="hidden grid-cols-[minmax(0,1.4fr)_0.7fr_0.75fr_0.75fr_0.8fr_0.8fr_0.8fr_0.8fr] gap-2 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
-                        <div>Group</div>
-                        <div>Drops</div>
-                        <div>Previews</div>
-                        <div>Unwraps</div>
-                        <div>Rate</div>
-                        <div>Viewer</div>
-                        <div>Watch</div>
-                        <div>State</div>
-                      </div>
-                      {contentConversionVisibleRows.map((row) => (
-                        <div
-                          key={row.groupKey}
-                          className="rounded-[1rem] border border-white/10 bg-black/30 px-3 py-3"
-                          data-content-conversion-group-key={row.groupKey}
-                          data-content-conversion-grouping={row.groupingDimension}
-                          data-content-conversion-state={row.conversionState}
-                        >
-                          <div className="md:hidden">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-white">{row.groupLabel}</p>
-                                <p className="mt-1 text-[11px] text-gray-500">{`${row.dropCount} drops | ${row.previewCount.toLocaleString()} previews | ${row.unlockCount.toLocaleString()} ${row.unlockCount === 1 ? "unwrap" : "unwraps"}`}</p>
-                              </div>
-                              <AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} />
-                            </div>
-                            <div
-                              className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400"
-                              data-product-surface-integrity-debug-detail
-                              title={`Source: ${row.sourceTruth}; Freshness: ${row.freshnessState}`}
+                      {contentConversionViewMode === "chart" ? (
+                        <div className="h-72 w-full rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                              data={contentConversionChartRows}
+                              margin={{ top: 8, right: 8, left: -18, bottom: 36 }}
                             >
-                              <span>
-                                Rate: {row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : "Unavailable"}
-                              </span>
-                              <span>
-                                Viewer: {(row.viewerOpenCount ?? 0).toLocaleString()}
-                              </span>
-                              <span>
-                                Watch: {row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : "Unavailable"}
-                              </span>
-                            </div>
-                            <p className="mt-2 text-[11px] leading-5 text-gray-400">{row.explanation}</p>
-                          </div>
-
-                          <div className="hidden items-start gap-2 md:grid md:grid-cols-[minmax(0,1.4fr)_0.7fr_0.75fr_0.75fr_0.8fr_0.8fr_0.8fr_0.8fr]">
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-white">{row.groupLabel}</p>
-                              <p className="mt-1 text-[11px] leading-5 text-gray-500" data-product-surface-integrity-debug-detail title={`Source: ${row.sourceTruth}; Freshness: ${row.freshnessState}`}>{row.explanation}</p>
-                            </div>
-                            <div className="text-sm font-semibold text-white">{row.dropCount}</div>
-                            <div className="text-sm font-semibold text-white">{row.previewCount.toLocaleString()}</div>
-                            <div className="text-sm font-semibold text-white">{row.unlockCount.toLocaleString()}</div>
-                            <div className="text-sm font-semibold text-brand-purple">
-                              {row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : "Unavailable"}
-                            </div>
-                            <div className="text-sm text-gray-300">{(row.viewerOpenCount ?? 0).toLocaleString()}</div>
-                            <div className="text-sm text-gray-300">
-                              {row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : "Unavailable"}
-                            </div>
-                            <div>
-                              <AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} />
-                            </div>
-                          </div>
+                              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                              <XAxis
+                                dataKey="chartLabel"
+                                stroke="#6b7280"
+                                fontSize={10}
+                                tickLine={false}
+                                axisLine={false}
+                                interval={0}
+                                angle={-18}
+                                textAnchor="end"
+                                height={58}
+                              />
+                              <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                              <Tooltip content={<AnalyticsTooltip />} />
+                              <Bar dataKey="previewCount" name="Previews" fill="#22d3ee" radius={[10, 10, 0, 0]} />
+                              <Bar dataKey="unlockCount" name="Unwraps" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
                         </div>
-                      ))}
+                      ) : null}
+
+                      {contentConversionViewMode === "table" ? (
+                        <div
+                          className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                          data-content-conversion-table="compact"
+                        >
+                          <table className="min-w-full text-left text-xs">
+                            <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.14em] text-gray-500">
+                              <tr>
+                                <th className="px-3 py-2 font-semibold">Group</th>
+                                <th className="px-3 py-2 font-semibold">Drops</th>
+                                <th className="px-3 py-2 font-semibold">Previews</th>
+                                <th className="px-3 py-2 font-semibold">Unwraps</th>
+                                <th className="px-3 py-2 font-semibold">Rate</th>
+                                <th className="px-3 py-2 font-semibold">Viewer</th>
+                                <th className="px-3 py-2 font-semibold">Watch</th>
+                                <th className="px-3 py-2 font-semibold">State</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/10 text-gray-300">
+                              {contentConversionVisibleRows.map((row) => (
+                                <tr
+                                  key={`content-conversion-table-${row.groupKey}`}
+                                  data-content-conversion-group-key={row.groupKey}
+                                  data-content-conversion-grouping={row.groupingDimension}
+                                  data-content-conversion-state={row.conversionState}
+                                  title={`Source: ${row.sourceTruth}; Freshness: ${row.freshnessState}`}
+                                >
+                                  <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">{row.groupLabel}</td>
+                                  <td className="px-3 py-2">{row.dropCount}</td>
+                                  <td className="px-3 py-2">{row.previewCount.toLocaleString()}</td>
+                                  <td className="px-3 py-2">{row.unlockCount.toLocaleString()}</td>
+                                  <td className="px-3 py-2 text-brand-purple">{row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : "Unavailable"}</td>
+                                  <td className="px-3 py-2">{(row.viewerOpenCount ?? 0).toLocaleString()}</td>
+                                  <td className="px-3 py-2">{row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : "Unavailable"}</td>
+                                  <td className="px-3 py-2"><AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} /></td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : null}
+
+                      {contentConversionViewMode === "cards" ? (
+                        <div className="space-y-2">
+                          {contentConversionVisibleRows.map((row) => (
+                            <div
+                              key={row.groupKey}
+                              className="rounded-[1rem] border border-white/10 bg-black/30 px-3 py-3"
+                              data-content-conversion-group-key={row.groupKey}
+                              data-content-conversion-grouping={row.groupingDimension}
+                              data-content-conversion-state={row.conversionState}
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-semibold text-white">{row.groupLabel}</p>
+                                  <p className="mt-1 text-[11px] text-gray-500">{`${row.dropCount} drops | ${row.previewCount.toLocaleString()} previews | ${row.unlockCount.toLocaleString()} ${row.unlockCount === 1 ? "unwrap" : "unwraps"}`}</p>
+                                </div>
+                                <AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} />
+                              </div>
+                              <div
+                                className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400"
+                                data-product-surface-integrity-debug-detail
+                                title={`Source: ${row.sourceTruth}; Freshness: ${row.freshnessState}`}
+                              >
+                                <span>
+                                  Rate: {row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : "Unavailable"}
+                                </span>
+                                <span>
+                                  Viewer: {(row.viewerOpenCount ?? 0).toLocaleString()}
+                                </span>
+                                <span>
+                                  Watch: {row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : "Unavailable"}
+                                </span>
+                              </div>
+                              <p className="mt-2 text-[11px] leading-5 text-gray-400">{row.explanation}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/20 px-4 py-5 text-sm text-gray-500">

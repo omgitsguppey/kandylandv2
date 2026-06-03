@@ -9,6 +9,18 @@ const source = readFileSync(
 );
 
 describe("Admin analytics commerce mobile consolidation", () => {
+  it("renders Content Conversion as one compact mobile view mode at a time", () => {
+    expect(source).toContain("contentConversionViewMode");
+    expect(source).toContain("setContentConversionViewMode");
+    expect(source).toContain('data-admin-analytics-mobile-view-mode={contentConversionViewMode}');
+    expect(source).toContain('data-content-conversion-table="compact"');
+    expect(source).toContain('contentConversionViewMode === "chart"');
+    expect(source).toContain('contentConversionViewMode === "table"');
+    expect(source).toContain('contentConversionViewMode === "cards"');
+    expect(source).toContain("data-content-conversion-source-truth={contentConversionModel.sourceTruth}");
+    expect(source).toContain("data-content-conversion-source-state={contentConversionModel.sourceState}");
+  });
+
   it("renders Library Viewer Drilldown as one compact mobile view mode at a time", () => {
     expect(source).toContain("viewerDropViewMode");
     expect(source).toContain("setViewerDropViewMode");
