@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -18,6 +18,7 @@ type LaneEvaluation = {
   templateExists: boolean;
   evidenceFiles: string[];
   completeArtifacts: string[];
+  passingArtifacts: string[];
   failures: string[];
 };
 
@@ -149,6 +150,7 @@ export function evaluateRuntimeSmokeEvidence(): LaneEvaluation {
   const files = listEvidenceFiles();
   const failures: string[] = [];
   const completeArtifacts: string[] = [];
+  const passingArtifacts: string[] = [];
 
   for (const file of files) {
     try {
@@ -156,6 +158,10 @@ export function evaluateRuntimeSmokeEvidence(): LaneEvaluation {
       const validationFailures = validateRuntimeSmokeEvidenceDocument(document, { requireComplete: true });
       if (validationFailures.length === 0) {
         completeArtifacts.push(file);
+        const checks = array(record(document).checks).map(record);
+        if (checks.length > 0 && checks.every((check) => check.status === "pass")) {
+          passingArtifacts.push(file);
+        }
       } else if (containsRawSecret(document)) {
         failures.push(...validationFailures);
       }
@@ -178,14 +184,54 @@ export function evaluateRuntimeSmokeEvidence(): LaneEvaluation {
     templateExists: existsSync(join(repoRoot, templatePath)),
     evidenceFiles: files,
     completeArtifacts,
+    passingArtifacts,
     failures,
   };
+}
+
+function currentHead() {
+  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+}
+
+function writeGeneratedState(result: LaneEvaluation) {
+  const head = currentHead();
+  const generatedAtUtc = new Date().toISOString();
+  const passed = result.passingArtifacts.length > 0;
+  const report = {
+    generatedAtUtc,
+    reportKey: "runtime-smoke-evidence",
+    currentHead: head,
+    sourceCommit: head,
+    overallStatus: passed ? "formal_runtime_smoke_passed" : result.status === "incomplete" ? "failed" : "runtime_unverified",
+    status: passed ? "formal_runtime_smoke_passed" : result.status === "incomplete" ? "failed" : "runtime_unverified",
+    runtimeDeploymentSmokePassed: passed,
+    passed,
+    evidenceFiles: result.evidenceFiles,
+    completeArtifacts: result.completeArtifacts,
+    passingArtifacts: result.passingArtifacts,
+    readinessImpact: {
+      runtimeGatePassed: passed,
+      phaseOneStatusCap: passed ? "Ready" : "Runtime unverified",
+      recommendedAction: passed
+        ? "Keep automated deployed runtime smoke evidence fresh."
+        : "Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence; do not treat local source validators as deployed runtime proof.",
+    },
+    evidenceItems: [
+      `runtimeEvidence.status=${result.status}`,
+      `runtimeEvidence.completeArtifacts=${result.completeArtifacts.length}`,
+      `runtimeEvidence.passingArtifacts=${result.passingArtifacts.length}`,
+      ...result.passingArtifacts.map((artifact) => `runtimeEvidence.passingArtifact=${artifact}`),
+    ],
+  };
+  mkdirSync(join(repoRoot, "agent/state"), { recursive: true });
+  writeFileSync(join(repoRoot, "agent/state/runtime-smoke-evidence.generated.json"), `${JSON.stringify(report, null, 2)}\n`);
 }
 
 function main() {
   const result = evaluateRuntimeSmokeEvidence();
   const strict = process.env.EVIDENCE_STRICT === "1";
   const failures = [...result.failures];
+  writeGeneratedState(result);
 
   if (strict && result.status !== "complete") {
     failures.push("runtime smoke evidence is missing or incomplete in strict mode.");
@@ -200,6 +246,7 @@ function main() {
   console.log(
     `Runtime smoke evidence status: ${result.status}; ` +
       `templates are not evidence; completeArtifacts=${result.completeArtifacts.length}; ` +
+      `passingArtifacts=${result.passingArtifacts.length}; ` +
       `head=${execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim()}`,
   );
 }

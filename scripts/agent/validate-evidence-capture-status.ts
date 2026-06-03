@@ -113,6 +113,11 @@ function allLanesComplete(laneStatuses: EvidenceLaneStatuses) {
   return Object.values(laneStatuses).every((status) => status === "complete");
 }
 
+function formatOrList(items: string[]) {
+  if (items.length <= 1) return items[0] ?? "";
+  return `${items.slice(0, -1).join(", ")}, or ${items[items.length - 1]}`;
+}
+
 function defaultOperatorRevenueSmoke(): OperatorRevenueSmokeSummary {
   return {
     revenueSmokeStatus: "not_recorded",
@@ -252,10 +257,17 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
   const operatorConfirmedEvidence = operatorRevenueSmoke.revenueSmokeStatus === "operator_confirmed_revenue_smoke"
     ? ["operator-confirmed $50 GumDrop revenue smoke is recorded as product signal only."]
     : [];
+  const protectedProofLanes = [
+    "provider",
+    ...(options.laneStatuses.adminTruthSampleEvidence === "complete" ? [] : ["admin"]),
+    "billing",
+    "manual visual",
+    "exact-user",
+  ];
   const formalMissingEvidence = [
     ...missingEvidence,
     "provider smoke remains formal-missing until a formal provider/app artifact is attached.",
-    "live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.",
+    `live runtime evidence does not clear ${formatOrList(protectedProofLanes)} proof lanes.`,
   ];
   const refreshPlan = buildRefreshPlan([
     reportRelativePath,
@@ -320,8 +332,8 @@ export function buildEvidenceCaptureStatusReport(options: BuildOptions): Evidenc
     nextExactSteps: [
       "Copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated JSON artifact and attach screenshots under agent/evidence/manual-screenshot-qa/screenshots/.",
       "Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.",
-      "Copy agent/evidence/runtime-smoke/evidence.template.json to a dated JSON artifact after deployed runtime smoke is run.",
-      "Copy agent/evidence/admin-truth-sample/evidence.template.json to a dated JSON artifact after a fresh redacted admin truth sample is attached.",
+      "Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence without provider/payment calls.",
+      "Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.",
       `Drop privacy-safe daily aggregate activity export at ${liveRuntimeEvidence.expectedImportPath}.`,
       "Run EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence once manual screenshot evidence is expected to be complete.",
       "Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.",
@@ -388,7 +400,7 @@ export function validateEvidenceCaptureStatusReport(
   if (!Array.isArray(report.formalMissingEvidence) || !report.formalMissingEvidence.some((entry) => /provider smoke remains formal-missing/iu.test(entry))) {
     failures.push("formalMissingEvidence must keep provider smoke separate from operator confirmation.");
   }
-  if (!report.formalMissingEvidence.some((entry) => /does not clear provider, admin, billing, manual visual, or exact-user proof/iu.test(entry))) {
+  if (!report.formalMissingEvidence.some((entry) => /does not clear provider, .*billing, manual visual, .*exact-user proof/iu.test(entry))) {
     failures.push("formalMissingEvidence must keep live activity separate from protected proof lanes.");
   }
   const operatorRevenueSmoke = report.summary.operatorRevenueSmoke;

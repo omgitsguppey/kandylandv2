@@ -1,20 +1,20 @@
 {
-  "generatedAtUtc": "2026-06-03T03:46:13.747Z",
+  "generatedAtUtc": "2026-06-03T18:49:47.037Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
   "summary": {
     "betaVersion": "1.5.33",
-    "betaScore": 89,
-    "betaStatus": "Runtime unverified",
+    "betaScore": 92.16,
+    "betaStatus": "Ready with smoke required",
     "scoreVersion": "beta_health_v2",
-    "healthScore": 90.03,
+    "healthScore": 92.16,
     "launchGateStatus": "owner_review",
     "sourceHealthScore": 100,
-    "runtimeHealthScore": 87.4,
-    "evidenceCompletenessScore": 84.6,
-    "freshnessScore": 91.88,
-    "costRiskScore": 80.5,
-    "regressionRiskScore": 88,
+    "runtimeHealthScore": 94.4,
+    "evidenceCompletenessScore": 98.4,
+    "freshnessScore": 100,
+    "costRiskScore": 42,
+    "regressionRiskScore": 94,
     "sourceCleanupP0": 0,
     "sourceCleanupP1": 0,
     "userCreatorP0": 0,
@@ -22,7 +22,7 @@
     "economyP0": 0,
     "economyP1": 0,
     "visualEvidenceStatus": "source_only_screenshotEvidenceAttached_false",
-    "providerSmokeStatus": "missing_formal_evidence",
+    "providerSmokeStatus": "operator_reported_not_formal_provider_smoke",
     "operatorRevenueSmokeStatus": "operator_confirmed_revenue_smoke",
     "operatorRevenueSmokeAmountUsd": 50,
     "operatorRevenueSmokeProduct": "GumDrops",
@@ -31,8 +31,8 @@
     "operatorRevenueSmokeFormalProviderSmokePassed": false,
     "operatorRevenueSmokeBetaGateImpact": "product_signal_only",
     "operatorRevenueSmokeNote": "A real $50 GumDrop payment was operator-confirmed. Formal provider evidence is still separate.",
-    "runtimeSmokeStatus": "runtime_unverified",
-    "adminTruthSampleStatus": "missing_or_unknown",
+    "runtimeSmokeStatus": "formal_runtime_smoke_passed",
+    "adminTruthSampleStatus": "formal_admin_truth_sample_passed",
     "cloudRunCostReadiness": "cost_review_required",
     "cloudSqlCostReadiness": "not_detected_in_repo",
     "geminiCloudAssistCostReadiness": "cost_review_required",
@@ -44,7 +44,7 @@
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,
     "canStartProviderSmoke": true,
-    "canStartRuntimeSmoke": true,
+    "canStartRuntimeSmoke": false,
     "canStartBetaExitReview": false
   },
   "checksRun": [
@@ -76,7 +76,7 @@
     {
       "command": "npm run check:evidence-capture-status",
       "status": "passed",
-      "evidence": "templates only; complete evidence remains missing."
+      "evidence": "runtime/admin evidence complete; provider evidence remains missing."
     },
     {
       "command": "npm run check:overnight-beta-readiness-lock",
@@ -91,7 +91,7 @@
       "label": "Current beta exit status",
       "status": "current",
       "needsRefresh": false,
-      "generatedAtUtc": "2026-06-03T03:46:13.747Z",
+      "generatedAtUtc": "2026-06-03T18:49:47.037Z",
       "ageHours": 0,
       "refreshCommand": "npm run check:current-beta-exit-status",
       "owner": "beta",
@@ -273,7 +273,8 @@
     "agent/state/operator-revenue-smoke.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/cost-4xx-reduction.generated.json",
-    "agent/state/speed-security-hardening.generated.json"
+    "agent/state/speed-security-hardening.generated.json",
+    "agent/state/current-beta-exit-status.generated.json"
   ],
   "remainingBlockers": [
     {
@@ -320,6 +321,60 @@
         "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
       "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
+    },
+    {
+      "id": "provider-smoke",
+      "severity": "P1",
+      "status": "operator_reported_not_formal_provider_smoke",
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "nextAction": "Attach real redacted provider smoke evidence; operator confirmation alone cannot clear provider proof."
     }
   ],
   "deferredOwnerReview": [

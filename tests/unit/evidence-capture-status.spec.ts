@@ -56,6 +56,30 @@ describe("evidence capture status", () => {
     expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
   });
 
+  it("removes admin from protected proof wording once admin truth evidence is complete", () => {
+    const report = buildEvidenceCaptureStatusReport({
+      currentHead: "head",
+      generatedAtUtc: "2026-05-17T05:30:00.000Z",
+      laneStatuses: {
+        manualScreenshotEvidence: "missing",
+        providerSmokeEvidence: "missing",
+        runtimeSmokeEvidence: "complete",
+        adminTruthSampleEvidence: "complete",
+      },
+      templatesCreated: 4,
+      completeArtifacts: 2,
+      currentBetaExitCanStart: false,
+    });
+
+    expect(report.formalMissingEvidence).toContain(
+      "live runtime evidence does not clear provider, billing, manual visual, or exact-user proof lanes.",
+    );
+    expect(report.formalMissingEvidence).not.toContain(
+      "live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.",
+    );
+    expect(validateEvidenceCaptureStatusReport(report, "head")).toEqual([]);
+  });
+
   it("fails validation if beta exit is ready while any evidence lane is missing", () => {
     const report = buildEvidenceCaptureStatusReport({
       currentHead: "head",

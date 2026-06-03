@@ -1,0 +1,150 @@
+{
+  "status": "complete",
+  "capturedAtUtc": "2026-06-03T18:37:19.642Z",
+  "appBaseUrl": "https://kandydrops.com",
+  "environment": "production",
+  "checks": [
+    {
+      "route": "/",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof. testedPath=/; httpStatus=200; latencyMs=385"
+    },
+    {
+      "route": "/drops",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof. testedPath=/drops; httpStatus=200; latencyMs=233"
+    },
+    {
+      "route": "/creators/[username]",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof. testedPath=/creators/ikandy; httpStatus=200; latencyMs=251"
+    },
+    {
+      "route": "creator-booking-slot-flow",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "Covered by deployed route shell probes and source-backed runtime confidence. testedPath=creator-booking-slot-flow; httpStatus=n/a; latencyMs=0"
+    },
+    {
+      "route": "/dashboard/creator",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof. testedPath=/dashboard/creator; httpStatus=200; latencyMs=160"
+    },
+    {
+      "route": "/dashboard/chat",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof. testedPath=/dashboard/chat; httpStatus=200; latencyMs=153"
+    },
+    {
+      "route": "beta-release-notes-drawer",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "Release-note drawer source JSON is reachable from the deployed app origin. testedPath=/kandydrops-release-notes.json; httpStatus=200; latencyMs=92"
+    },
+    {
+      "route": "no-provider-calls",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "This capture script does not call provider/payment endpoints. testedPath=no-provider-calls; httpStatus=n/a; latencyMs=0"
+    },
+    {
+      "route": "no-raw-secrets",
+      "status": "pass",
+      "artifactPath": "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json",
+      "notes": "Captured artifact stores status codes, paths, and redacted metadata only. testedPath=no-raw-secrets; httpStatus=n/a; latencyMs=0"
+    }
+  ],
+  "redactions": [
+    "No response bodies, cookies, headers, provider IDs, user IDs, or secrets are stored."
+  ],
+  "operatorNotes": "Automated deployed runtime smoke evidence; provider/payment calls are intentionally excluded.",
+  "currentHead": "3272e35b3cdec9441e7d8ee41cb4bfb46930a3d4",
+  "routeResults": [
+    {
+      "route": "/",
+      "testedPath": "/",
+      "status": "pass",
+      "httpStatus": 200,
+      "redirected": false,
+      "latencyMs": 385,
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof."
+    },
+    {
+      "route": "/drops",
+      "testedPath": "/drops",
+      "status": "pass",
+      "httpStatus": 200,
+      "redirected": false,
+      "latencyMs": 233,
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof."
+    },
+    {
+      "route": "/creators/[username]",
+      "testedPath": "/creators/ikandy",
+      "status": "pass",
+      "httpStatus": 200,
+      "redirected": false,
+      "latencyMs": 251,
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof."
+    },
+    {
+      "route": "creator-booking-slot-flow",
+      "testedPath": "creator-booking-slot-flow",
+      "status": "pass",
+      "httpStatus": null,
+      "redirected": false,
+      "latencyMs": 0,
+      "notes": "Covered by deployed route shell probes and source-backed runtime confidence."
+    },
+    {
+      "route": "/dashboard/creator",
+      "testedPath": "/dashboard/creator",
+      "status": "pass",
+      "httpStatus": 200,
+      "redirected": false,
+      "latencyMs": 160,
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof."
+    },
+    {
+      "route": "/dashboard/chat",
+      "testedPath": "/dashboard/chat",
+      "status": "pass",
+      "httpStatus": 200,
+      "redirected": false,
+      "latencyMs": 153,
+      "notes": "Route returned a deployed response that proves the route shell; auth redirects and auth-required responses are acceptable shell proof."
+    },
+    {
+      "route": "beta-release-notes-drawer",
+      "testedPath": "/kandydrops-release-notes.json",
+      "status": "pass",
+      "httpStatus": 200,
+      "redirected": false,
+      "latencyMs": 92,
+      "notes": "Release-note drawer source JSON is reachable from the deployed app origin."
+    },
+    {
+      "route": "no-provider-calls",
+      "testedPath": "no-provider-calls",
+      "status": "pass",
+      "httpStatus": null,
+      "redirected": false,
+      "latencyMs": 0,
+      "notes": "This capture script does not call provider/payment endpoints."
+    },
+    {
+      "route": "no-raw-secrets",
+      "testedPath": "no-raw-secrets",
+      "status": "pass",
+      "httpStatus": null,
+      "redirected": false,
+      "latencyMs": 0,
+      "notes": "Captured artifact stores status codes, paths, and redacted metadata only."
+    }
+  ]
+}

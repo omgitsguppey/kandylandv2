@@ -1,36 +1,36 @@
 {
-  "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+  "generatedAtUtc": "2026-06-03T18:49:43.945Z",
   "reportKey": "admin-truth-sample-evidence",
-  "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
-  "scope": "local_static_evidence_recording",
-  "productionReadsPerformed": false,
-  "providerCallsPerformed": false,
-  "bigQueryCallsPerformed": false,
-  "deploymentPerformed": false,
-  "overallStatus": "missing_or_unknown",
-  "sampleCount": 0,
-  "freshAdminTruthSampleAttached": false,
-  "sampleEvidenceFiles": [],
-  "adminTruthCommandEvidence": [
-    {
-      "command": "npm run check:admin-truth",
-      "status": "pass",
-      "proves": "Static admin truth contract validation only; does not prove current production sample values."
-    }
+  "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+  "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+  "overallStatus": "formal_admin_truth_sample_passed",
+  "status": "formal_admin_truth_sample_passed",
+  "freshAdminTruthSampleAttached": true,
+  "productionSampleAttached": true,
+  "formalAdminTruthSamplePassed": true,
+  "sampleCount": 1,
+  "passed": true,
+  "evidenceFiles": [
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json",
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.redacted.json"
   ],
-  "requiredNextArtifact": {
-    "description": "Admin truth screenshot or JSON sample with source freshness and sample count.",
-    "requiredFields": [
-      "source freshness",
-      "sample count",
-      "unavailable/stale/needs_review states when no data exists",
-      "redacted source payload or screenshot",
-      "timestamp"
-    ]
-  },
+  "completeArtifacts": [
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json"
+  ],
+  "passingArtifacts": [
+    "agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json"
+  ],
   "readinessImpact": {
-    "adminTruthSampleGatePassed": false,
-    "phaseOneStatusCap": "Unknown evidence",
-    "recommendedAction": "Record a fresh admin truth screenshot or JSON sample before upgrading readiness."
-  }
+    "adminTruthSampleGatePassed": true,
+    "phaseOneStatusCap": "Ready",
+    "recommendedAction": "Keep redacted first-party admin truth JSON sample fresh."
+  },
+  "adminTruthCommandEvidence": [
+    "adminTruthSample.status=complete",
+    "adminTruthSample.completeArtifacts=1",
+    "adminTruthSample.passingArtifacts=1",
+    "productionSampleAttached=true",
+    "formalAdminTruthSamplePassed=true",
+    "adminTruthSample.passingArtifact=agent/evidence/admin-truth-sample/automated-admin-truth-sample.20260603T183719Z.json"
+  ]
 }

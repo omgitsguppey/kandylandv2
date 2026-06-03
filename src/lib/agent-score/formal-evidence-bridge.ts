@@ -293,10 +293,18 @@ export function validateFormalEvidenceBridgeReport(report: FormalEvidenceBridgeR
   if (report.operatorSignalStatus.operatorConfirmedRevenue && report.formalGateStatus.providerSmoke.cleared && report.operatorSignalStatus.status !== "formal_provider_artifact") {
     failures.push("operator revenue must not clear the formal provider gate.");
   }
-  if (report.gates.runtimeProviderSmoke.status === "partial_source_confidence" && report.formalGateStatus.deployedRuntimeSmoke.cleared) {
+  if (
+    report.gates.runtimeProviderSmoke.status === "partial_source_confidence"
+    && report.formalGateStatus.deployedRuntimeSmoke.cleared
+    && !report.evidenceClasses.includes("deployed_runtime_artifact")
+  ) {
     failures.push("source runtime must not clear deployed runtime gate.");
   }
-  if (report.gates.adminTruthSamples.status === "partial_source_confidence" && report.formalGateStatus.adminProductionSample.cleared) {
+  if (
+    report.gates.adminTruthSamples.status === "partial_source_confidence"
+    && report.formalGateStatus.adminProductionSample.cleared
+    && !report.evidenceClasses.includes("production_admin_truth_artifact")
+  ) {
     failures.push("admin source sample must not clear production admin gate.");
   }
   if (report.gates.runtimeProviderSmoke.evidenceCredit === 0 && report.evidenceClasses.some((entry) => entry !== "missing_formal_artifact")) {

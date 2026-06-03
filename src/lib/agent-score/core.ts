@@ -1152,10 +1152,12 @@ export function buildPublicBetaEvidenceGates(input: {
       label: "Debug/runtime evidence",
       weight: 0,
       status: debugEvidenceAvailable
-        ? "Ready with smoke required"
+        ? "Ready"
         : "Unknown evidence",
       detail: debugRuntimeEvidenceArtifactReady
-        ? "source-backed debug/runtime evidence checked debug sources without clearing deployed runtime smoke."
+        ? runtimeQuality.quality === "formal_passed"
+          ? "source-backed debug/runtime evidence is current and deployed runtime smoke is attached."
+          : "source-backed debug/runtime evidence checked debug sources without clearing deployed runtime smoke."
         : debugEvidenceAvailable
         ? "Runtime debug evidence is present in the score input."
         : "Debug evidence is empty, so absence of runtime issues is unknown.",
@@ -1201,8 +1203,10 @@ export function buildPublicBetaEvidenceGates(input: {
       id: "formalEvidenceBridge",
       label: "Evidence bridge",
       weight: 0,
-      status: "Ready with smoke required",
-      detail: "Source-backed, operator-confirmed, admin-source, debug, and substitute runtime evidence are bridged as partial confidence without clearing formal gates.",
+      status: formalEvidenceBridge.validationFailures.length > 0 ? "Needs review" : "Ready",
+      detail: formalEvidenceBridge.formalGapsRemaining.length > 0
+        ? `Evidence bridge is current; remaining formal gap(s): ${formalEvidenceBridge.formalGapsRemaining.join(", ")}.`
+        : "Evidence bridge is current and formal gaps are cleared.",
       evidence: [
         `formalProviderGateCleared=${formalEvidenceBridge.formalGateStatus.providerSmoke.cleared}`,
         `deployedRuntimeSmokeCleared=${formalEvidenceBridge.formalGateStatus.deployedRuntimeSmoke.cleared}`,
@@ -1212,7 +1216,7 @@ export function buildPublicBetaEvidenceGates(input: {
         `debugRuntimeEvidenceCredit=${formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit}`,
         ...formalEvidenceBridge.evidenceClasses.map((entry) => `evidenceClass=${entry}`),
       ],
-      recommendedAction: "Use bridge confidence for score clarity only; attach formal provider, deployed runtime, and production admin evidence before clearing gates.",
+      recommendedAction: "Use bridge confidence for score clarity only; attach any remaining formal evidence before clearing launch gates.",
       quality: {
         quality: formalEvidenceBridge.validationFailures.length > 0 ? "failed" : "formal_partial",
         confidence: formalEvidenceBridge.validationFailures.length > 0 ? 0 : Math.max(

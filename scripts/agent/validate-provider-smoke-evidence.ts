@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -18,6 +18,7 @@ type LaneEvaluation = {
   templateExists: boolean;
   evidenceFiles: string[];
   completeArtifacts: string[];
+  passingArtifacts: string[];
   failures: string[];
 };
 
@@ -147,6 +148,7 @@ export function evaluateProviderSmokeEvidence(): LaneEvaluation {
   const files = listEvidenceFiles();
   const failures: string[] = [];
   const completeArtifacts: string[] = [];
+  const passingArtifacts: string[] = [];
 
   for (const file of files) {
     try {
@@ -154,6 +156,10 @@ export function evaluateProviderSmokeEvidence(): LaneEvaluation {
       const validationFailures = validateProviderSmokeEvidenceDocument(document, { requireComplete: true });
       if (validationFailures.length === 0) {
         completeArtifacts.push(file);
+        const checks = array(record(document).checks).map(record);
+        if (checks.length > 0 && checks.every((check) => check.status === "pass")) {
+          passingArtifacts.push(file);
+        }
       } else if (containsRawSecret(document)) {
         failures.push(...validationFailures);
       }
@@ -176,14 +182,85 @@ export function evaluateProviderSmokeEvidence(): LaneEvaluation {
     templateExists: existsSync(join(repoRoot, templatePath)),
     evidenceFiles: files,
     completeArtifacts,
+    passingArtifacts,
     failures,
   };
+}
+
+function currentHead() {
+  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+}
+
+function readOptionalJson(relativePath: string) {
+  const fullPath = join(repoRoot, relativePath);
+  if (!existsSync(fullPath)) return null;
+  try {
+    return JSON.parse(readFileSync(fullPath, "utf8")) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+function writeGeneratedState(result: LaneEvaluation) {
+  const head = currentHead();
+  const generatedAtUtc = new Date().toISOString();
+  const passed = result.passingArtifacts.length > 0;
+  const operatorRevenue = record(record(readOptionalJson("agent/state/operator-revenue-smoke.generated.json")).summary);
+  const operatorConfirmed = operatorRevenue.revenueSmokeStatus === "operator_confirmed_revenue_smoke";
+  const operatorNote = operatorConfirmed
+    ? "Operator-confirmed PayPal activity is tracked as product context only; it does not clear formal provider smoke."
+    : "No operator-confirmed PayPal activity is attached.";
+  const report = {
+    generatedAtUtc,
+    reportKey: "provider-smoke-evidence",
+    currentHead: head,
+    sourceCommit: head,
+    overallStatus: passed ? "formal_provider_smoke_passed" : operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
+    status: passed ? "formal_provider_smoke_passed" : operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
+    providerSmoke: {
+      status: passed ? "formal_provider_smoke_passed" : "missing_formal_evidence",
+      passed,
+      recommendedAction: passed
+        ? "Keep redacted provider smoke evidence fresh."
+        : "Attach real redacted provider smoke evidence; operator confirmation alone is not formal provider proof.",
+    },
+    paypalRefillSmoke: {
+      status: operatorConfirmed ? "operator_reported_not_formal_provider_smoke" : "missing_formal_evidence",
+      note: operatorNote,
+      formalRepoArtifactAttached: passed,
+    },
+    readinessImpact: {
+      providerSmokeGatePassed: passed,
+      paypalSmokeGatePassed: passed,
+      phaseOneStatusCap: passed ? "Ready" : "Ready with smoke required",
+      notes: [
+        operatorNote,
+        passed
+          ? "A complete redacted provider artifact cleared the provider smoke gate."
+          : "Provider/payment proof remains external until a complete redacted provider artifact exists.",
+      ],
+    },
+    evidenceFiles: result.evidenceFiles,
+    completeArtifacts: result.completeArtifacts,
+    passingArtifacts: result.passingArtifacts,
+    evidence: [
+      `providerSmoke.status=${result.status}`,
+      `providerSmoke.completeArtifacts=${result.completeArtifacts.length}`,
+      `providerSmoke.passingArtifacts=${result.passingArtifacts.length}`,
+      `operatorConfirmedRevenueSmoke=${operatorConfirmed}`,
+      `providerSmokeGatePassed=${passed}`,
+      ...result.passingArtifacts.map((artifact) => `providerSmoke.passingArtifact=${artifact}`),
+    ],
+  };
+  mkdirSync(join(repoRoot, "agent/state"), { recursive: true });
+  writeFileSync(join(repoRoot, "agent/state/provider-smoke-evidence.generated.json"), `${JSON.stringify(report, null, 2)}\n`);
 }
 
 function main() {
   const result = evaluateProviderSmokeEvidence();
   const strict = process.env.EVIDENCE_STRICT === "1";
   const failures = [...result.failures];
+  writeGeneratedState(result);
 
   if (strict && result.status !== "complete") {
     failures.push("provider smoke evidence is missing or incomplete in strict mode.");
@@ -198,6 +275,7 @@ function main() {
   console.log(
     `Provider smoke evidence status: ${result.status}; ` +
       `templates are not evidence; completeArtifacts=${result.completeArtifacts.length}; ` +
+      `passingArtifacts=${result.passingArtifacts.length}; ` +
       `head=${execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim()}`,
   );
 }

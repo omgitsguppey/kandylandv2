@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-06-03T04:46:12.095Z",
+  "generatedAtUtc": "2026-06-03T18:49:48.720Z",
   "reportKey": "formal-evidence-bridge",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
   "formalGateStatus": {
     "providerSmoke": {
       "cleared": false,
@@ -22,7 +22,7 @@
   "sourceConfidenceStatus": {
     "runtimeConfidenceScore": 100,
     "realUsageConfidenceScore": 92,
-    "adminSourceConfidenceScore": 65,
+    "adminSourceConfidenceScore": 0,
     "debugRuntimeConfidenceScore": 100,
     "runtimeSubstituteEvidenceScore": 75.56
   },
@@ -44,15 +44,14 @@
         "source_backed_runtime_confidence",
         "real_usage_confidence",
         "runtime_substitute_matrix",
-        "admin_source_sample",
         "debug_runtime_source_evidence"
       ]
     },
     "adminTruthSamples": {
-      "evidenceCredit": 65,
-      "runtimeCredit": 65,
+      "evidenceCredit": 0,
+      "runtimeCredit": 0,
       "formalGateCleared": false,
-      "status": "partial_source_confidence",
+      "status": "missing_formal_artifact",
       "nextAction": "Attach a redacted production admin truth sample before clearing the formal admin gate.",
       "evidenceClasses": [
         "admin_source_sample",
@@ -77,7 +76,6 @@
     "source_backed_runtime_confidence",
     "real_usage_confidence",
     "runtime_substitute_matrix",
-    "admin_source_sample",
     "debug_runtime_source_evidence"
   ],
   "formalGapsRemaining": [
@@ -86,22 +84,22 @@
     "production_admin_truth_sample"
   ],
   "scoreBefore": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 59.38,
+    "sourceHealth": 100,
+    "runtimeHealth": 94.4,
+    "evidenceCompleteness": 98.4,
+    "freshness": 100,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 75.39
+    "regressionRisk": 94,
+    "overallHealthScore": 92.16
   },
   "scoreAfter": {
-    "sourceHealth": 91.7,
-    "runtimeHealth": 84.2,
-    "evidenceCompleteness": 69.6,
-    "freshness": 59.38,
+    "sourceHealth": 100,
+    "runtimeHealth": 94.4,
+    "evidenceCompleteness": 98.4,
+    "freshness": 100,
     "costRisk": 42,
-    "regressionRisk": 86,
-    "overallHealthScore": 75.39
+    "regressionRisk": 94,
+    "overallHealthScore": 92.16
   },
   "scoreDimensionImpact": {
     "runtimeHealth": "Source-backed runtime/debug/admin confidence can improve runtimeHealth without clearing deployed runtime smoke.",

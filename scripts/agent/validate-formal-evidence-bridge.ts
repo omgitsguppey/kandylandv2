@@ -169,7 +169,7 @@ function main() {
     artifacts: {
       providerSmoke: artifact("agent/state/provider-smoke-evidence.generated.json", "missing_formal_evidence", "Formal provider smoke evidence is missing."),
       runtimeSmoke: artifact("agent/state/runtime-smoke-evidence.generated.json", "runtime_unverified", "Formal deployed runtime smoke evidence is missing."),
-      adminSourceSample: artifact("agent/state/admin-truth-source-sample.generated.json", "source_ready_admin_truth_sample", "Admin source sample is partial only."),
+      adminSourceSample: artifact("agent/state/admin-truth-sample-evidence.generated.json", "missing_or_unknown", "Formal admin truth sample evidence is missing."),
       operatorRevenueSmoke: artifact("agent/state/operator-revenue-smoke.generated.json", "operator_confirmed_revenue_smoke", "Operator revenue signal is partial only."),
       sourceBackedRuntimeConfidence: artifact("agent/state/source-backed-runtime-confidence.generated.json", "missing_or_unknown", "Source-backed runtime confidence is missing."),
       realUsageConfidence: artifact("agent/state/real-usage-confidence.generated.json", "missing_or_unknown", "Real usage confidence is missing."),

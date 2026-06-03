@@ -1,42 +1,30 @@
 {
-  "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+  "generatedAtUtc": "2026-06-03T18:49:41.280Z",
   "reportKey": "runtime-smoke-evidence",
-  "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
-  "scope": "local_static_evidence_recording",
-  "productionReadsPerformed": false,
-  "providerCallsPerformed": false,
-  "bigQueryCallsPerformed": false,
-  "ga4PosthogCallsPerformed": false,
-  "deploymentPerformed": false,
-  "overallStatus": "runtime_unverified",
-  "localEvidenceStatus": "local_static_validators_recorded",
-  "runtimeDeploymentSmokePassed": false,
-  "evidenceItems": [
-    {
-      "key": "typecheck",
-      "source": "local_command",
-      "command": "npm run typecheck",
-      "status": "pass",
-      "proves": "TypeScript compile safety only; does not prove deployed runtime behavior."
-    },
-    {
-      "key": "release_notes",
-      "source": "local_command",
-      "command": "npm run check:release-notes",
-      "status": "pass",
-      "proves": "Beta badge evidence consistency only; does not prove deployed runtime behavior."
-    }
+  "currentHead": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+  "sourceCommit": "e4ff8fc598ad5b523a9955b5e4377a537282c029",
+  "overallStatus": "formal_runtime_smoke_passed",
+  "status": "formal_runtime_smoke_passed",
+  "runtimeDeploymentSmokePassed": true,
+  "passed": true,
+  "evidenceFiles": [
+    "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
   ],
-  "requiredFormalEvidence": [
-    "deployed app smoke timestamp",
-    "target environment",
-    "admin/runtime route health evidence",
-    "real-device/PWA smoke evidence",
-    "provider smoke evidence where applicable"
+  "completeArtifacts": [
+    "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+  ],
+  "passingArtifacts": [
+    "agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
   ],
   "readinessImpact": {
-    "runtimeGatePassed": false,
-    "phaseOneStatusCap": "Runtime unverified",
-    "recommendedAction": "Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke."
-  }
+    "runtimeGatePassed": true,
+    "phaseOneStatusCap": "Ready",
+    "recommendedAction": "Keep automated deployed runtime smoke evidence fresh."
+  },
+  "evidenceItems": [
+    "runtimeEvidence.status=complete",
+    "runtimeEvidence.completeArtifacts=1",
+    "runtimeEvidence.passingArtifacts=1",
+    "runtimeEvidence.passingArtifact=agent/evidence/runtime-smoke/automated-runtime-smoke.20260603T183719Z.json"
+  ]
 }

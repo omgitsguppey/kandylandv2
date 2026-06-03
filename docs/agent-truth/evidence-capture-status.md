@@ -2,18 +2,18 @@
 
 Artifact: `agent/state/evidence-capture-status.generated.json`
 
-Generated: 2026-06-03T04:49:44.389Z
+Generated: 2026-06-03T18:49:41.389Z
 
-Latest code version: `225f9e53f18b60edc7399c1ea258c0b9bacfae84`
+Latest code version: `e4ff8fc598ad5b523a9955b5e4377a537282c029`
 
 ## Summary
 
 - Manual screenshot evidence: `missing`.
 - Provider smoke evidence: `missing`.
-- Runtime smoke evidence: `missing`.
-- Admin truth sample evidence: `missing`.
+- Runtime smoke evidence: `complete`.
+- Admin truth sample evidence: `complete`.
 - Templates created: 4.
-- Complete artifacts: 0.
+- Complete artifacts: 2.
 - Strict mode ready: yes.
 - Beta exit review can start: no.
 - Operator revenue smoke: `operator_confirmed_revenue_smoke`.
@@ -30,15 +30,13 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 - `agent/evidence/manual-screenshot-qa` - missing; template `agent/evidence/manual-screenshot-qa/evidence.template.json`.
 - `agent/evidence/provider-smoke` - missing; template `agent/evidence/provider-smoke/evidence.template.json`.
-- `agent/evidence/runtime-smoke` - missing; template `agent/evidence/runtime-smoke/evidence.template.json`.
-- `agent/evidence/admin-truth-sample` - missing; template `agent/evidence/admin-truth-sample/evidence.template.json`.
+- `agent/evidence/runtime-smoke` - complete; template `agent/evidence/runtime-smoke/evidence.template.json`.
+- `agent/evidence/admin-truth-sample` - complete; template `agent/evidence/admin-truth-sample/evidence.template.json`.
 
 ## Missing Evidence
 
 - manual screenshot evidence is missing.
 - provider smoke evidence is missing.
-- runtime smoke evidence is missing.
-- admin truth sample evidence is missing.
 
 ## Source-Ready Evidence
 
@@ -53,30 +51,28 @@ Templates are scaffolding only. They use `template_not_evidence` and do not coun
 
 - manual screenshot evidence is missing.
 - provider smoke evidence is missing.
-- runtime smoke evidence is missing.
-- admin truth sample evidence is missing.
 - provider smoke remains formal-missing until a formal provider/app artifact is attached.
-- live runtime evidence does not clear provider, admin, billing, manual visual, or exact-user proof lanes.
+- live runtime evidence does not clear provider, billing, manual visual, or exact-user proof lanes.
 
 ## Refresh Plan
 
 - agent/state/evidence-capture-status.generated.json: Evidence capture status is current for the latest code version. Command: `npm run check:evidence-capture-status`.
-- agent/state/current-beta-exit-status.generated.json: Current beta exit status is current for the latest code version. Command: `npm run check:current-beta-exit-status`.
-- agent/state/public-beta-score.generated.json: Public beta score is current for the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
-- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map is current for the latest code version. Command: `npm run check:beta-evidence-gap-map`.
-- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep is current for the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
-- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke is current for the latest code version. Command: `npm run check:operator-revenue-smoke`.
-- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock is current for the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
-- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock is current for the latest code version. Command: `npm run check:mobile-ui-final-lock`.
-- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane is current for the latest code version. Command: `npm run check:creator-settings-control-plane`.
-- agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics is current for the latest code version. Command: `npm run check:creator-drop-status-metrics`.
+- agent/state/current-beta-exit-status.generated.json: Current beta exit status was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:current-beta-exit-status`.
+- agent/state/public-beta-score.generated.json: Public beta score was generated from an older code version. Refresh this report from the latest code version. Command: `npm run score:beta && npm run check:beta-score`.
+- agent/state/beta-evidence-gap-map.generated.json: Beta evidence gap map was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-gap-map`.
+- agent/state/beta-evidence-lane-prep.generated.json: Beta evidence lane prep was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:beta-evidence-lane-prep`.
+- agent/state/operator-revenue-smoke.generated.json: Operator revenue smoke was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:operator-revenue-smoke`.
+- agent/state/final-telemetry-closure-lock.generated.json: Telemetry closure lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:final-telemetry-closure-lock`.
+- agent/state/mobile-ui-final-lock.generated.json: Mobile UI final lock was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:mobile-ui-final-lock`.
+- agent/state/creator-settings-control-plane.generated.json: Creator settings control plane was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-settings-control-plane`.
+- agent/state/creator-drop-status-metrics.generated.json: Creator drop status metrics was generated from an older code version. Refresh this report from the latest code version. Command: `npm run check:creator-drop-status-metrics`.
 
 ## Next Exact Steps
 
 1. Copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated JSON artifact and attach screenshots under agent/evidence/manual-screenshot-qa/screenshots/.
 2. Copy agent/evidence/provider-smoke/evidence.template.json to a dated JSON artifact after provider smoke is run; redact provider tokens and secrets.
-3. Copy agent/evidence/runtime-smoke/evidence.template.json to a dated JSON artifact after deployed runtime smoke is run.
-4. Copy agent/evidence/admin-truth-sample/evidence.template.json to a dated JSON artifact after a fresh redacted admin truth sample is attached.
+3. Run npm run capture:truthful-evidence to generate deployed runtime smoke evidence without provider/payment calls.
+4. Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.
 5. Drop privacy-safe daily aggregate activity export at agent/evidence/live-runtime-activity/recent-activity.export.json.
 6. Run EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence once manual screenshot evidence is expected to be complete.
 7. Run EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence once provider smoke evidence is expected to be complete.

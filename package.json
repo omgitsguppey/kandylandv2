@@ -622,6 +622,7 @@
         "check:launch-finalization-baseline": "tsx scripts/agent/validate-launch-finalization-baseline.ts",
         "check:launch-pr-triage": "tsx scripts/agent/validate-launch-pr-triage.ts",
         "check:launch-readiness-final": "tsx scripts/agent/validate-launch-readiness-final.ts",
+        "capture:truthful-evidence": "tsx scripts/agent/capture-truthful-evidence.ts",
         "check:provider-smoke-evidence": "tsx scripts/agent/validate-provider-smoke-evidence.ts",
         "check:runtime-smoke-evidence": "tsx scripts/agent/validate-runtime-smoke-evidence.ts",
         "check:admin-truth-sample-evidence": "tsx scripts/agent/validate-admin-truth-sample-evidence.ts",

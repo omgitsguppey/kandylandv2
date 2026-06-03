@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -18,6 +18,7 @@ type LaneEvaluation = {
   templateExists: boolean;
   evidenceFiles: string[];
   completeArtifacts: string[];
+  passingArtifacts: string[];
   failures: string[];
 };
 
@@ -139,6 +140,7 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
   const files = listEvidenceFiles();
   const failures: string[] = [];
   const completeArtifacts: string[] = [];
+  const passingArtifacts: string[] = [];
 
   for (const file of files) {
     try {
@@ -146,6 +148,10 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
       const validationFailures = validateAdminTruthSampleEvidenceDocument(document, { requireComplete: true });
       if (validationFailures.length === 0) {
         completeArtifacts.push(file);
+        const checks = array(record(document).checks).map(record);
+        if (checks.length > 0 && checks.every((check) => check.status === "pass")) {
+          passingArtifacts.push(file);
+        }
       } else if (containsRawSecret(document)) {
         failures.push(...validationFailures);
       }
@@ -168,14 +174,59 @@ export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
     templateExists: existsSync(join(repoRoot, templatePath)),
     evidenceFiles: files,
     completeArtifacts,
+    passingArtifacts,
     failures,
   };
+}
+
+function currentHead() {
+  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+}
+
+function writeGeneratedState(result: LaneEvaluation) {
+  const head = currentHead();
+  const generatedAtUtc = new Date().toISOString();
+  const passed = result.passingArtifacts.length > 0;
+  const report = {
+    generatedAtUtc,
+    reportKey: "admin-truth-sample-evidence",
+    currentHead: head,
+    sourceCommit: head,
+    overallStatus: passed ? "formal_admin_truth_sample_passed" : result.status === "incomplete" ? "failed" : "missing_or_unknown",
+    status: passed ? "formal_admin_truth_sample_passed" : result.status === "incomplete" ? "failed" : "missing_or_unknown",
+    freshAdminTruthSampleAttached: passed,
+    productionSampleAttached: passed,
+    formalAdminTruthSamplePassed: passed,
+    sampleCount: result.passingArtifacts.length,
+    passed,
+    evidenceFiles: result.evidenceFiles,
+    completeArtifacts: result.completeArtifacts,
+    passingArtifacts: result.passingArtifacts,
+    readinessImpact: {
+      adminTruthSampleGatePassed: passed,
+      phaseOneStatusCap: passed ? "Ready" : "Unknown evidence",
+      recommendedAction: passed
+        ? "Keep redacted first-party admin truth JSON sample fresh."
+        : "Run npm run capture:truthful-evidence to generate a bounded redacted admin truth JSON sample.",
+    },
+    adminTruthCommandEvidence: [
+      `adminTruthSample.status=${result.status}`,
+      `adminTruthSample.completeArtifacts=${result.completeArtifacts.length}`,
+      `adminTruthSample.passingArtifacts=${result.passingArtifacts.length}`,
+      `productionSampleAttached=${passed}`,
+      `formalAdminTruthSamplePassed=${passed}`,
+      ...result.passingArtifacts.map((artifact) => `adminTruthSample.passingArtifact=${artifact}`),
+    ],
+  };
+  mkdirSync(join(repoRoot, "agent/state"), { recursive: true });
+  writeFileSync(join(repoRoot, "agent/state/admin-truth-sample-evidence.generated.json"), `${JSON.stringify(report, null, 2)}\n`);
 }
 
 function main() {
   const result = evaluateAdminTruthSampleEvidence();
   const strict = process.env.EVIDENCE_STRICT === "1";
   const failures = [...result.failures];
+  writeGeneratedState(result);
 
   if (strict && result.status !== "complete") {
     failures.push("admin truth sample evidence is missing or incomplete in strict mode.");
@@ -190,6 +241,7 @@ function main() {
   console.log(
     `Admin truth sample evidence status: ${result.status}; ` +
       `templates are not evidence; completeArtifacts=${result.completeArtifacts.length}; ` +
+      `passingArtifacts=${result.passingArtifacts.length}; ` +
       `head=${execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim()}`,
   );
 }
