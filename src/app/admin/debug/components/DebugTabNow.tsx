@@ -100,28 +100,56 @@ export function DebugTabNow({
         : systemHealthNow.pipeline.truthState === "degraded" || systemHealthNow.diagnostics.truthState === "degraded" || systemHealthNow.writers.truthState === "degraded"
             ? "degraded"
             : healthFreshnessState;
+    const currentSourceSummary = (
+        <>
+            <Pill label="Health" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} />
+            <Pill label="Diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} />
+            <Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} />
+            <Pill label="Freshest signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} />
+        </>
+    );
+    const systemHealthSummary = (
+        <>
+            <Pill label="Penalties" value={systemHealthNow.score.penaltyCount} tone={systemHealthNow.score.penaltyCount > 0 ? "warn" : "good"} truthState={systemHealthNow.score.penaltyCount > 0 ? "degraded" : "live"} />
+            <Pill label="Pipeline sample" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} />
+            <Pill label="Active diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} />
+            <Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} />
+            <Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} />
+        </>
+    );
 
     return (
-        <div className="space-y-4">
+        <div
+            className="space-y-3"
+            data-admin-debug-now-density="single_drilldown_drawer"
+            data-admin-debug-now-detail-default="collapsed"
+        >
             <DebugControlTower businessSnapshot={adminUserTruthSnapshot} />
 
-            <div
-                data-debug-health-freshness={healthFreshnessState}
-                data-debug-health-generated-at-utc={healthGeneratedAtUtc}
-                data-debug-route-failure-count={systemHealthNow.routeFailures.value}
-                data-debug-diagnostics-cluster-count={systemHealthNow.diagnostics.clusterCount}
-                data-debug-writer-count={writerSampleCount}
-                data-debug-score-penalty-count={systemHealthNow.score.penaltyCount}
-                data-debug-truth-state={systemHealthTruthState}
-                data-debug-business-truth-state={controlTowerBusinessTruthState}
-            >
             <Section
-                        title="System health now"
-                        subtitle="Current admin health, open diagnostics, and recent route checks."
-                        defaultOpen={false}
-                        summary={<><Pill label="Penalties" value={systemHealthNow.score.penaltyCount} tone={systemHealthNow.score.penaltyCount > 0 ? "warn" : "good"} truthState={systemHealthNow.score.penaltyCount > 0 ? "degraded" : "live"} /><Pill label="Pipeline sample" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} /><Pill label="Active diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} /><Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
+                title="Current source drilldowns"
+                subtitle="Detailed health, telemetry, recovery, creator, and diagnostics panels stay collapsed until review."
+                defaultOpen={false}
+                summary={currentSourceSummary}
+            >
+                <div className="space-y-3">
+                    <div
+                        data-debug-health-freshness={healthFreshnessState}
+                        data-debug-health-generated-at-utc={healthGeneratedAtUtc}
+                        data-debug-route-failure-count={systemHealthNow.routeFailures.value}
+                        data-debug-diagnostics-cluster-count={systemHealthNow.diagnostics.clusterCount}
+                        data-debug-writer-count={writerSampleCount}
+                        data-debug-score-penalty-count={systemHealthNow.score.penaltyCount}
+                        data-debug-truth-state={systemHealthTruthState}
+                        data-debug-business-truth-state={controlTowerBusinessTruthState}
                     >
-                        <div className="grid gap-4 lg:grid-cols-1">
+                        <Section
+                            title="System health now"
+                            subtitle="Current admin health, open diagnostics, and recent route checks."
+                            defaultOpen={false}
+                            summary={systemHealthSummary}
+                        >
+                            <div className="grid gap-4 lg:grid-cols-1">
                             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Route pipeline sample</p>
@@ -214,13 +242,13 @@ export function DebugTabNow({
                                     )}
                                 </div>
                             </div>
-                        </div>
-                    </Section>
-            </div>
+                            </div>
+                        </Section>
+                    </div>
 
-            <DebugTelemetryHealthSummary telemetryHealth={data?.telemetryHealth} />
+                    <DebugTelemetryHealthSummary telemetryHealth={data?.telemetryHealth} />
 
-            <DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />
+                    <DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />
 
                     <DebugCreatorLane data={data} />
 
@@ -231,5 +259,7 @@ export function DebugTabNow({
                         panelLogFailCount={panelLogFailCount}
                     />
                 </div>
+            </Section>
+        </div>
     );
 }
