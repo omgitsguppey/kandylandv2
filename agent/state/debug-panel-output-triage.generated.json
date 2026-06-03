@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-06-03T02:25:44.224Z",
+  "generatedAtUtc": "2026-06-03T16:34:56.439Z",
   "reportKey": "debug-panel-output-triage",
-  "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+  "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
   "summary": {
     "debugItemsScanned": 35,
-    "staleItems": 25,
+    "staleItems": 21,
     "missingItems": 7,
     "falseLiveRisks": 0,
-    "refreshableItems": 13,
+    "refreshableItems": 10,
     "nonBlockingArchiveItems": 5,
-    "blockingItems": 8,
+    "blockingItems": 3,
     "p0Count": 0,
-    "p1Count": 27,
+    "p1Count": 21,
     "p2Count": 5
   },
   "debugItems": [
@@ -19,32 +19,32 @@
       "key": "public_beta_score",
       "label": "Public beta score",
       "sourceArtifact": "agent/state/public-beta-score.generated.json",
-      "sourceGeneratedAt": "2026-06-03T01:59:52.858Z",
+      "sourceGeneratedAt": "2026-06-03T16:32:06.372Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "fresh",
       "canonicality": "canonical",
       "owningValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta",
-      "blocksPhaseOne": true,
+      "blocksPhaseOne": false,
       "uiTruthState": "needs_review",
-      "issue": "Debug source status is beta-risk.",
+      "issue": "Debug source status is warning.",
       "recommendedAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue."
     },
     {
       "key": "score_cap_reasons",
       "label": "Score cap reasons",
       "sourceArtifact": "agent/state/public-beta-score.generated.json",
-      "sourceGeneratedAt": "2026-06-03T01:59:52.858Z",
+      "sourceGeneratedAt": "2026-06-03T16:32:06.372Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "fresh",
       "canonicality": "canonical",
       "owningValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta",
-      "blocksPhaseOne": true,
-      "uiTruthState": "blocked",
-      "issue": "5 beta score cap reason(s) remain visible.",
+      "blocksPhaseOne": false,
+      "uiTruthState": "needs_review",
+      "issue": "4 formal proof cap reason(s) remain visible without adding a separate debug-panel blocker.",
       "recommendedAction": "Work the visible cap reasons in order instead of hiding them in Debug."
     },
     {
@@ -55,11 +55,11 @@
       "sourceCommit": null,
       "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
       "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "canonicality": "formal_proof_required",
       "owningValidator": "npm run check:provider-smoke-evidence",
       "refreshCommand": "npm run check:provider-smoke-evidence",
       "blocksPhaseOne": true,
-      "uiTruthState": "stale",
+      "uiTruthState": "formal_proof_required",
       "issue": "Operator-reported PayPal smoke is tracked but is not formal provider smoke evidence.",
       "recommendedAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass."
     },
@@ -71,11 +71,11 @@
       "sourceCommit": null,
       "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
       "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "canonicality": "formal_proof_required",
       "owningValidator": "npm run check:runtime-smoke-evidence",
       "refreshCommand": "npm run check:runtime-smoke-evidence",
       "blocksPhaseOne": true,
-      "uiTruthState": "stale",
+      "uiTruthState": "formal_proof_required",
       "issue": "Runtime smoke is unverified; local validators remain diagnostic only.",
       "recommendedAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete."
     },
@@ -87,11 +87,11 @@
       "sourceCommit": null,
       "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
       "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "canonicality": "formal_proof_required",
       "owningValidator": "npm run check:admin-truth-sample-evidence",
       "refreshCommand": "npm run check:admin-truth-sample-evidence",
       "blocksPhaseOne": true,
-      "uiTruthState": "stale",
+      "uiTruthState": "formal_proof_required",
       "issue": "Admin truth sample evidence is missing or unknown; Debug must not render it healthy.",
       "recommendedAction": "Attach a fresh first-party admin truth sample before upgrading this gate."
     },
@@ -99,15 +99,15 @@
       "key": "targeted_behavior_evidence",
       "label": "Targeted behavior evidence",
       "sourceArtifact": "agent/state/targeted-behavior-evidence.generated.json",
-      "sourceGeneratedAt": "2026-06-01T00:29:58.017Z",
-      "sourceCommit": "e538c41e9de8827da5103b8bcb281cab184737c9",
-      "currentHead": "e538c41e9de8827da5103b8bcb281cab184737c9",
-      "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "sourceGeneratedAt": "2026-06-03T16:31:44.960Z",
+      "sourceCommit": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+      "freshness": "fresh",
+      "canonicality": "evidence_only",
       "owningValidator": "npm run check:targeted-behavior-evidence",
       "refreshCommand": "npm run check:targeted-behavior-evidence",
       "blocksPhaseOne": false,
-      "uiTruthState": "stale",
+      "uiTruthState": "live",
       "issue": "Targeted behavior evidence only proves focused validators; it does not prove visual/provider/runtime/admin sample evidence.",
       "recommendedAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate."
     },
@@ -115,32 +115,32 @@
       "key": "creator_connection_audit",
       "label": "Creator connection audit",
       "sourceArtifact": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "sourceGeneratedAt": "2026-05-20T23:23:10.862Z",
+      "sourceGeneratedAt": "2026-06-03T16:09:23.535Z",
       "sourceCommit": null,
-      "currentHead": "d8cde44345b6f0a6f0dd8710ff063356d74a5791",
-      "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+      "freshness": "fresh",
+      "canonicality": "evidence_only",
       "owningValidator": "npm run check:user-facing-feature-connection-audit",
       "refreshCommand": "npm run check:user-facing-feature-connection-audit",
       "blocksPhaseOne": false,
-      "uiTruthState": "stale",
-      "issue": "Source drift: currentHead d8cde44345b6f0a6f0dd8710ff063356d74a5791 does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
+      "uiTruthState": "evidence",
+      "issue": "Debug source status is unknown.",
       "recommendedAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed."
     },
     {
       "key": "repo_spring_cleaning",
       "label": "Repo spring cleaning",
       "sourceArtifact": "agent/state/repo-spring-cleaning-rewire.generated.json",
-      "sourceGeneratedAt": "2026-05-17T06:13:36.630Z",
+      "sourceGeneratedAt": "2026-06-03T16:09:25.709Z",
       "sourceCommit": null,
-      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
-      "freshness": "stale",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+      "freshness": "fresh",
       "canonicality": "archive_candidate",
       "owningValidator": "npm run check:repo-spring-cleaning-rewire",
       "refreshCommand": "npm run check:repo-spring-cleaning-rewire",
       "blocksPhaseOne": false,
-      "uiTruthState": "archive",
-      "issue": "Source drift: currentHead 09bb153c99aeec141c2a4f2d2c8867e0fdf7e801 does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
+      "uiTruthState": "evidence",
+      "issue": "Debug source status is unknown.",
       "recommendedAction": "Run npm run check:repo-spring-cleaning-rewire when this stale warning must be refreshed."
     },
     {
@@ -156,7 +156,7 @@
       "refreshCommand": null,
       "blocksPhaseOne": false,
       "uiTruthState": "stale",
-      "issue": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
+      "issue": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d.",
       "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
     },
     {
@@ -172,7 +172,7 @@
       "refreshCommand": null,
       "blocksPhaseOne": false,
       "uiTruthState": "stale",
-      "issue": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
+      "issue": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d.",
       "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
     },
     {
@@ -181,7 +181,7 @@
       "sourceArtifact": "agent/state/admin-truth.generated.json",
       "sourceGeneratedAt": null,
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "missing",
       "canonicality": "missing",
       "owningValidator": "npm run check:admin-truth",
@@ -197,15 +197,15 @@
       "sourceArtifact": "agent/state/final-launch-readiness-report.generated.json",
       "sourceGeneratedAt": "2026-05-12T19:42:22.634Z",
       "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "canonicality": "archive_evidence",
       "owningValidator": "npm run check:final-launch-readiness-report",
-      "refreshCommand": "npm run check:final-launch-readiness-report",
-      "blocksPhaseOne": true,
-      "uiTruthState": "stale",
-      "issue": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
-      "recommendedAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed."
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "archive",
+      "issue": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d.",
+      "recommendedAction": "Keep this stale launch artifact as archive evidence; use the current beta score and formal proof gates for live launch clearance."
     },
     {
       "key": "launch_readiness",
@@ -213,15 +213,15 @@
       "sourceArtifact": "agent/state/launch-readiness-report.generated.json",
       "sourceGeneratedAt": "2026-05-12T19:42:22.634Z",
       "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "canonicality": "archive_evidence",
       "owningValidator": "npm run check:launch-readiness-final",
-      "refreshCommand": "npm run check:launch-readiness-final",
-      "blocksPhaseOne": true,
-      "uiTruthState": "stale",
-      "issue": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
-      "recommendedAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed."
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "archive",
+      "issue": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d.",
+      "recommendedAction": "Keep this stale launch artifact as archive evidence; use the current beta score and formal proof gates for live launch clearance."
     },
     {
       "key": "launch_pr_triage",
@@ -231,28 +231,28 @@
       "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
       "currentHead": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
       "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "canonicality": "archive_evidence",
       "owningValidator": "npm run check:launch-pr-triage",
-      "refreshCommand": "npm run check:launch-pr-triage",
-      "blocksPhaseOne": true,
-      "uiTruthState": "stale",
-      "issue": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
-      "recommendedAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed."
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "archive",
+      "issue": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d.",
+      "recommendedAction": "Keep this stale launch artifact as archive evidence; use the current beta score and formal proof gates for live launch clearance."
     },
     {
       "key": "report_public_beta_score",
       "label": "Generated report freshness: public beta score",
       "sourceArtifact": "agent/state/public-beta-score.generated.json",
-      "sourceGeneratedAt": "2026-06-03T01:59:52.858Z",
+      "sourceGeneratedAt": "2026-06-03T16:32:06.372Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "fresh",
       "canonicality": "evidence_only",
       "owningValidator": "npm run check:beta-score",
       "refreshCommand": "npm run score:beta",
       "blocksPhaseOne": false,
       "uiTruthState": "needs_review",
-      "issue": "Debug source status is beta-risk.",
+      "issue": "Debug source status is warning.",
       "recommendedAction": "Run npm run score:beta when this stale warning must be refreshed."
     },
     {
@@ -261,7 +261,7 @@
       "sourceArtifact": "agent/state/speed-security-hardening.generated.json",
       "sourceGeneratedAt": "2026-05-24T18:38:26.973Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "stale_evidence",
       "owningValidator": "npm run check:speed-security",
@@ -277,7 +277,7 @@
       "sourceArtifact": "agent/state/codebase-hardening.generated.json",
       "sourceGeneratedAt": "2026-05-24T18:38:57.872Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "stale_evidence",
       "owningValidator": "npm run check:hardening",
@@ -293,7 +293,7 @@
       "sourceArtifact": "agent/state/device-ui-dry-audit.generated.json",
       "sourceGeneratedAt": "2026-05-24T19:13:43.693Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "stale_evidence",
       "owningValidator": "npm run check:device-ui",
@@ -309,7 +309,7 @@
       "sourceArtifact": "agent/state/device-layout-score.generated.json",
       "sourceGeneratedAt": "2026-05-24T19:13:46.041Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "stale_evidence",
       "owningValidator": "npm run check:device-layout-score",
@@ -325,7 +325,7 @@
       "sourceArtifact": "agent/state/hydration-performance.generated.json",
       "sourceGeneratedAt": "2026-05-24T19:13:44.848Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "stale_evidence",
       "owningValidator": "npm run check:hydration-performance",
@@ -341,7 +341,7 @@
       "sourceArtifact": "agent/state/sitewide-image-optimization.generated.json",
       "sourceGeneratedAt": "2026-05-24T19:14:41.359Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "stale_evidence",
       "owningValidator": "npm run check:sitewide-image-optimization",
@@ -357,7 +357,7 @@
       "sourceArtifact": "agent/state/content-protection.generated.json",
       "sourceGeneratedAt": null,
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "missing",
       "canonicality": "missing",
       "owningValidator": "npm run check:content-protection",
@@ -373,7 +373,7 @@
       "sourceArtifact": "agent/state/gumdrop-economy.generated.json",
       "sourceGeneratedAt": null,
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "missing",
       "canonicality": "missing",
       "owningValidator": "npm run check:gumdrop-economy",
@@ -387,16 +387,16 @@
       "key": "report_google_cost",
       "label": "Generated report freshness: Google cost",
       "sourceArtifact": "agent/state/google-cost-bleed.generated.json",
-      "sourceGeneratedAt": "2026-05-24T19:37:38.785Z",
+      "sourceGeneratedAt": "2026-06-03T04:38:48.972Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
-      "freshness": "stale",
-      "canonicality": "stale_evidence",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
+      "freshness": "fresh",
+      "canonicality": "evidence_only",
       "owningValidator": "npm run check:google-cost",
       "refreshCommand": null,
       "blocksPhaseOne": false,
-      "uiTruthState": "stale",
-      "issue": "Generated report is older than the 24 hour freshness window.",
+      "uiTruthState": "live",
+      "issue": "Current Debug source is available.",
       "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
     },
     {
@@ -405,7 +405,7 @@
       "sourceArtifact": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
       "sourceGeneratedAt": "2026-05-24T18:57:42.437Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "stale_evidence",
       "owningValidator": "npm run check:cloud-cost",
@@ -421,7 +421,7 @@
       "sourceArtifact": "agent/state/sql-mirror-status.generated.json",
       "sourceGeneratedAt": "2026-05-07T22:51:20.973Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "archive_candidate",
       "owningValidator": "npm run check:generated-report-authority",
@@ -437,7 +437,7 @@
       "sourceArtifact": "agent/state/telemetry-parity-score.generated.json",
       "sourceGeneratedAt": "2026-05-25T08:23:24.097Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "stale_evidence",
       "owningValidator": "npm run check:telemetry-parity-score",
@@ -453,7 +453,7 @@
       "sourceArtifact": "agent/state/event-catalog-telemetry.generated.json",
       "sourceGeneratedAt": null,
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "missing",
       "canonicality": "missing",
       "owningValidator": "npm run check:event-catalog-telemetry",
@@ -469,7 +469,7 @@
       "sourceArtifact": "agent/state/watch-time-rollup-truth.generated.json",
       "sourceGeneratedAt": null,
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "missing",
       "canonicality": "missing",
       "owningValidator": "npm run check:watch-time-rollup-truth",
@@ -485,7 +485,7 @@
       "sourceArtifact": "agent/state/debug-evidence-pipeline.generated.json",
       "sourceGeneratedAt": null,
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "missing",
       "canonicality": "missing",
       "owningValidator": "npm run check:debug-evidence-pipeline",
@@ -501,7 +501,7 @@
       "sourceArtifact": "agent/state/precatch-runtime-issues.generated.json",
       "sourceGeneratedAt": "2026-05-24T19:14:57.994Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "archive_candidate",
       "owningValidator": "npm run precheck:runtime-issues",
@@ -517,7 +517,7 @@
       "sourceArtifact": "agent/state/support-recovery-flows.generated.json",
       "sourceGeneratedAt": null,
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "missing",
       "canonicality": "missing",
       "owningValidator": "npm run check:support-recovery-flows",
@@ -533,7 +533,7 @@
       "sourceArtifact": "agent/state/creator-lane-debug-parity.generated.json",
       "sourceGeneratedAt": "2026-05-24T19:58:17.911Z",
       "sourceCommit": null,
-      "currentHead": "225f9e53f18b60edc7399c1ea258c0b9bacfae84",
+      "currentHead": "8aa6201b66ffda8c5ad9e9150e56615990547f6d",
       "freshness": "stale",
       "canonicality": "archive_candidate",
       "owningValidator": "npm run check:creator-lane-debug-parity",
@@ -556,7 +556,7 @@
       "refreshCommand": null,
       "blocksPhaseOne": false,
       "uiTruthState": "stale",
-      "issue": "Source drift: currentHead afdc394d07b0dd0ea93aae14ae32bc47886165d9 does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84; sourceCommit afdc394d07b0dd0ea93aae14ae32bc47886165d9 does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
+      "issue": "Source drift: currentHead afdc394d07b0dd0ea93aae14ae32bc47886165d9 does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d; sourceCommit afdc394d07b0dd0ea93aae14ae32bc47886165d9 does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d.",
       "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
     },
     {
@@ -572,7 +572,7 @@
       "refreshCommand": null,
       "blocksPhaseOne": false,
       "uiTruthState": "stale",
-      "issue": "Source drift: currentHead 93000a572a2968f72f0e3f3f400ee9a82acc78c9 does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84; sourceCommit 93000a572a2968f72f0e3f3f400ee9a82acc78c9 does not match repo HEAD 225f9e53f18b60edc7399c1ea258c0b9bacfae84.",
+      "issue": "Source drift: currentHead 93000a572a2968f72f0e3f3f400ee9a82acc78c9 does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d; sourceCommit 93000a572a2968f72f0e3f3f400ee9a82acc78c9 does not match repo HEAD 8aa6201b66ffda8c5ad9e9150e56615990547f6d.",
       "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
     }
   ],
@@ -581,8 +581,8 @@
       "command": "npm run score:beta",
       "status": "pass",
       "artifact": "agent/state/public-beta-score.generated.json",
-      "effect": "Refreshed the canonical beta score locally; score stayed 45/100 with the same evidence caps.",
-      "note": "Generated artifact diff was not staged because this Debug triage patch only allows the triage artifact."
+      "effect": "Refreshed canonical beta score locally; use public-beta-score.generated.json for the current value.",
+      "note": "No beta readiness cap is cleared unless the formal proof gates pass."
     },
     {
       "command": "npm run check:beta-score",
@@ -624,20 +624,20 @@
       "status": "pass",
       "artifact": "agent/state/user-facing-feature-connection-audit.generated.json",
       "effect": "Validated creator-facing feature connection audit.",
-      "note": "Generated artifact diff was not staged because this Debug triage patch only allows the triage artifact."
+      "note": "Generated artifact is included only when it is current source evidence for this debug-panel pass."
     },
     {
       "command": "npm run check:repo-spring-cleaning-rewire",
       "status": "pass",
       "artifact": "agent/state/repo-spring-cleaning-rewire.generated.json",
       "effect": "Validated repo spring-cleaning rewire inventory.",
-      "note": "Generated artifact diff was not staged because this Debug triage patch only allows the triage artifact."
+      "note": "Generated artifact is included only when it is current source evidence for this debug-panel pass."
     },
     {
       "command": "npm run check:admin-debug-control-tower",
       "status": "pass",
       "artifact": "src/lib/admin-debug-control-tower.ts",
-      "effect": "Validated canonical Debug score connection after generated refresh diffs were restored.",
+      "effect": "Validated canonical Debug score connection with the current scoped evidence set.",
       "note": "The first run correctly failed on unrelated generated artifact diffs; the rerun passed."
     },
     {
@@ -672,16 +672,6 @@
   "fixQueue": [
     {
       "priority": "P1",
-      "itemKey": "public_beta_score",
-      "action": "Use the canonical beta score and cap reasons as the primary Phase 1 queue."
-    },
-    {
-      "priority": "P1",
-      "itemKey": "score_cap_reasons",
-      "action": "Work the visible cap reasons in order instead of hiding them in Debug."
-    },
-    {
-      "priority": "P1",
       "itemKey": "provider_smoke",
       "action": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass."
     },
@@ -697,21 +687,6 @@
     },
     {
       "priority": "P1",
-      "itemKey": "targeted_behavior_evidence",
-      "action": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate."
-    },
-    {
-      "priority": "P1",
-      "itemKey": "creator_connection_audit",
-      "action": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed."
-    },
-    {
-      "priority": "P1",
-      "itemKey": "repo_spring_cleaning",
-      "action": "Run npm run check:repo-spring-cleaning-rewire when this stale warning must be refreshed."
-    },
-    {
-      "priority": "P1",
       "itemKey": "analytics_rewire",
       "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
     },
@@ -723,17 +698,17 @@
     {
       "priority": "P1",
       "itemKey": "final_launch_readiness",
-      "action": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed."
+      "action": "Keep this stale launch artifact as archive evidence; use the current beta score and formal proof gates for live launch clearance."
     },
     {
       "priority": "P1",
       "itemKey": "launch_readiness",
-      "action": "Run npm run check:launch-readiness-final when this stale warning must be refreshed."
+      "action": "Keep this stale launch artifact as archive evidence; use the current beta score and formal proof gates for live launch clearance."
     },
     {
       "priority": "P1",
       "itemKey": "launch_pr_triage",
-      "action": "Run npm run check:launch-pr-triage when this stale warning must be refreshed."
+      "action": "Keep this stale launch artifact as archive evidence; use the current beta score and formal proof gates for live launch clearance."
     },
     {
       "priority": "P1",
@@ -763,11 +738,6 @@
     {
       "priority": "P1",
       "itemKey": "report_sitewide_image",
-      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
-    },
-    {
-      "priority": "P1",
-      "itemKey": "report_google_cost",
       "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
     },
     {

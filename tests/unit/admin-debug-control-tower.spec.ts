@@ -119,10 +119,10 @@ describe("admin debug control tower model", () => {
 
         expect(component).toContain("canonicalPublicBetaScore");
         expect(component).toContain("canonicalPublicBetaReadinessReason");
-        expect(component).toContain("canonicalPublicBetaEvidenceScore");
         expect(component).toContain("canonicalPublicBetaCapDetails.slice(0, 3)");
-        expect(component).toContain("Report evidence summary");
-        expect(component).toContain("reportAggregateScore");
+        expect(component).toContain("Needs proof");
+        expect(component).toContain("Source detail");
+        expect(component).not.toContain("model.reportAggregateScore");
         expect(component).not.toContain("model?.overallScore ?? \"--\"");
     });
 

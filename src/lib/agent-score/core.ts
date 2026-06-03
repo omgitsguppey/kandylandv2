@@ -1151,7 +1151,7 @@ export function buildPublicBetaEvidenceGates(input: {
       id: "debugRuntimeEvidence",
       label: "Debug/runtime evidence",
       weight: 0,
-      status: debugEvidenceAvailable || formalEvidenceBridge.gates.debugRuntimeEvidence.evidenceCredit > 0
+      status: debugEvidenceAvailable
         ? "Ready with smoke required"
         : "Unknown evidence",
       detail: debugRuntimeEvidenceArtifactReady

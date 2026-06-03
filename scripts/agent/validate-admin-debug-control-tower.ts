@@ -210,18 +210,18 @@ for (const expected of [
 }
 requireNotIncludes(helper, "const overallScore = scoreValues", "Admin debug control tower model helper must not compute the primary score from report averages");
 for (const expected of [
-  "model?.canonicalPublicBetaScore ?? \"--\"",
   "canonicalPublicBetaReadinessReason",
-  "canonicalPublicBetaEvidenceScore",
   "canonicalPublicBetaCapDetails.slice(0, 3)",
-  "Report evidence summary",
+  "Needs proof",
+  "Source detail",
   "reportAggregateSummary",
-  "reportAggregateScore",
   "data-debug-canonical-public-beta-score",
 ]) {
   requireIncludes(controlTower, expected, "Admin Debug Control Tower canonical beta score card");
 }
 requireNotIncludes(controlTower, "model?.overallScore ?? \"--\"", "Admin Debug Control Tower primary score must not render report aggregate overallScore");
+requireNotIncludes(controlTower, "model?.canonicalPublicBetaScore ?? \"--\"", "Admin Debug Control Tower primary view must not render the raw beta score as the hero value");
+requireNotIncludes(controlTower, "model.reportAggregateScore", "Admin Debug Control Tower primary view must keep report aggregate scores collapsed/out of the main view");
 requireNotIncludes(controlTower, "reportAggregateScore ?? \"clean\"", "Admin Debug Control Tower report aggregate must not be labeled clean/ready");
 for (const expected of [
   "\"browser_security_boundary\"",
@@ -2494,6 +2494,7 @@ try {
     /^src\/lib\/debug\/route-error-history-classifier\.ts$/u,
     /^src\/lib\/debug\/route-hotspot-targeted-fixes\.ts$/u,
     /^src\/lib\/debug\/route-latency-review-engine\.ts$/u,
+    /^src\/lib\/agent-score\/core\.ts$/u,
     /^src\/lib\/agent-score\/formal-gate-display\.ts$/u,
     /^src\/lib\/admin\/synthetic-creators-view-as\.ts$/u,
     /^src\/lib\/admin-moderation\.ts$/u,
@@ -2599,6 +2600,7 @@ try {
     /^scripts\/agent\/validate-bug-report-truth-terminal-state\.ts$/u,
     /^scripts\/agent\/validate-data-validation-ui-semantic-cleanup\.ts$/u,
     /^scripts\/agent\/validate-debug-cockpit-batch28-bug-validation\.ts$/u,
+    /^scripts\/agent\/validate-debug-panel-output-triage\.ts$/u,
     /^scripts\/agent\/validate-debug-operator-cockpit\.ts$/u,
     /^scripts\/agent\/control-tower-cleanup-shared\.ts$/u,
     /^scripts\/agent\/validate-control-tower-canonical-source\.ts$/u,
@@ -2661,6 +2663,7 @@ try {
     /^src\/lib\/release-notes\/public-release-notes\.ts$/u,
     /^src\/lib\/release-notes\/release-version-contract\.ts$/u,
     /^tests\/unit\/admin-debug-control-tower(?:-component)?\.spec\.tsx?$/u,
+    /^tests\/unit\/debug-panel-output-triage\.spec\.ts$/u,
     /^tests\/unit\/debug-operator-cockpit\.spec\.ts$/u,
     /^tests\/unit\/control-tower-canonical-source\.spec\.ts$/u,
     /^tests\/unit\/control-tower-report-freshness-cleanup\.spec\.ts$/u,
@@ -2716,6 +2719,9 @@ try {
     /^agent\/state\/debug-evidence-index\.generated\.json$/u,
     /^agent\/state\/debug-backlog-engine\.generated\.json$/u,
     /^agent\/state\/public-beta-score\.generated\.json$/u,
+    /^agent\/state\/repo-spring-cleaning-rewire\.generated\.json$/u,
+    /^agent\/state\/targeted-behavior-evidence\.generated\.json$/u,
+    /^agent\/state\/user-facing-feature-connection-audit\.generated\.json$/u,
     /^agent\/state\/analytics-rewire-phase-one\.generated\.json$/u,
     /^agent\/state\/identity-privacy-raw-ledger-rewire\.generated\.json$/u,
     /^agent\/state\/lost-data-recovery-dry-run\.generated\.json$/u,
@@ -2768,6 +2774,7 @@ try {
     /^agent\/state\/current-beta-exit-status\.generated\.json$/u,
     /^agent\/state\/overnight-beta-readiness-lock\.generated\.json$/u,
     /^docs\/agent-truth\/admin-debug-control-tower\.md$/u,
+    /^docs\/agent-truth\/targeted-behavior-evidence\.md$/u,
     /^docs\/agent-truth\/debug-backlog-engine\.md$/u,
     /^docs\/agent-truth\/debug-operator-cockpit\.md$/u,
     /^docs\/agent-truth\/control-tower-canonical-source\.md$/u,

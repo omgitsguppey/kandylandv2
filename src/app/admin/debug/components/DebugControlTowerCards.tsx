@@ -142,7 +142,7 @@ export function FindingCard({ finding, compact = false }: { finding: AdminDebugF
 export function ReportCard({ report }: { report: AdminDebugReportCard }) {
     return (
         <article
-            className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-3"
+            className="rounded-xl border border-white/10 bg-white/[0.035] p-3"
             data-debug-report-source={report.filePath}
             data-debug-report-freshness={report.freshness}
             data-debug-truth-state={report.truthState}
@@ -154,29 +154,26 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
                 </div>
                 <AdminStatusBadge state={toBadgeState(report.truthState)} className="shrink-0 py-0 text-[8px]" />
             </div>
-            <div className="mt-3 flex items-end justify-between gap-3">
-                <div>
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Score</p>
-                    <p className="text-2xl font-black text-white">{report.score ?? "--"}</p>
-                </div>
-                <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Findings</p>
-                    <p className="text-sm font-bold text-gray-200">{report.findingCount}</p>
-                </div>
-            </div>
             <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
                     {report.status}
                 </span>
-                <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
                     {report.ageHours === null ? "No timestamp" : `${report.ageHours}h old`}
                 </span>
+                <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                    {report.findingCount} finding{report.findingCount === 1 ? "" : "s"}
+                </span>
                 {report.criticalCount > 0 ? (
-                    <span className="rounded-full border border-red-400/30 bg-red-500/10 px-2.5 py-1 text-[11px] font-bold text-red-100">
+                    <span className="rounded-md border border-red-400/30 bg-red-500/10 px-2.5 py-1 text-[11px] font-bold text-red-100">
                         {report.criticalCount} critical
                     </span>
                 ) : null}
             </div>
+            <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-[11px] text-gray-300">
+                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Source detail</summary>
+                <p className="mt-1">Source score {report.score ?? "unavailable"}; freshness {report.freshness}; truth {report.truthState}.</p>
+            </details>
             {report.topFindings.length > 0 ? (
                 <details className="mt-3 rounded-xl border border-white/10 bg-black/25 p-2 text-xs text-gray-300">
                     <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 font-semibold text-gray-100">

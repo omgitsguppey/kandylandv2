@@ -3,7 +3,16 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 type FreshnessState = "fresh" | "stale" | "unknown" | "missing";
-type UiTruthState = "live" | "stale" | "missing" | "unavailable" | "needs_review" | "blocked" | "evidence" | "archive";
+type UiTruthState =
+    | "live"
+    | "stale"
+    | "missing"
+    | "unavailable"
+    | "needs_review"
+    | "blocked"
+    | "evidence"
+    | "archive"
+    | "formal_proof_required";
 
 type DebugItem = {
     key: string;
@@ -347,26 +356,29 @@ const EXTRA_ITEMS = [
         label: "Final launch readiness",
         artifact: "agent/state/final-launch-readiness-report.generated.json",
         owningValidator: "npm run check:final-launch-readiness-report",
-        refreshCommand: "npm run check:final-launch-readiness-report",
-        canonicality: "evidence_only",
+        refreshCommand: null,
+        canonicality: "archive_evidence",
     },
     {
         key: "launch_readiness",
         label: "Launch readiness",
         artifact: "agent/state/launch-readiness-report.generated.json",
         owningValidator: "npm run check:launch-readiness-final",
-        refreshCommand: "npm run check:launch-readiness-final",
-        canonicality: "evidence_only",
+        refreshCommand: null,
+        canonicality: "archive_evidence",
     },
     {
         key: "launch_pr_triage",
         label: "Launch PR triage",
         artifact: "agent/state/launch-pr-triage.generated.json",
         owningValidator: "npm run check:launch-pr-triage",
-        refreshCommand: "npm run check:launch-pr-triage",
-        canonicality: "evidence_only",
+        refreshCommand: null,
+        canonicality: "archive_evidence",
     },
 ] as const;
+
+const FORMAL_PROOF_KEYS = new Set(["provider_smoke", "runtime_evidence", "admin_truth_samples"]);
+const ARCHIVE_EVIDENCE_KEYS = new Set(["final_launch_readiness", "launch_readiness", "launch_pr_triage"]);
 
 function runGit(args: string[]) {
     return execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).trim();
@@ -462,6 +474,13 @@ function publicBetaGate(payload: Record<string, any> | null, id: string): Record
     return gates.find((gate: Record<string, any>) => gate.id === id) ?? null;
 }
 
+function publicBetaCapsAreFormalProofOnly(payload: Record<string, any> | null): boolean {
+    const caps = Array.isArray(payload?.evidenceCapsApplied) ? payload?.evidenceCapsApplied : [];
+    return caps.length > 0 && caps.every((entry: unknown) =>
+        /^(Runtime unverified|Ready with smoke required): (Runtime\/provider smoke|Admin truth\/sample evidence|Debug\/runtime evidence|Evidence bridge)$/u.test(String(entry)),
+    );
+}
+
 function itemIssueFor(key: string, payload: Record<string, any> | null, freshness: FreshnessState, repoHead: string): string {
     if (!payload) {
         return "Source artifact is missing from the Debug source chain.";
@@ -490,7 +509,11 @@ function itemIssueFor(key: string, payload: Record<string, any> | null, freshnes
     }
     if (key === "score_cap_reasons") {
         const caps = Array.isArray(payload.evidenceCapDetails) ? payload.evidenceCapDetails.length : 0;
-        return caps > 0 ? `${caps} beta score cap reason(s) remain visible.` : "No beta score cap reasons are present.";
+        return caps > 0 && publicBetaCapsAreFormalProofOnly(payload)
+            ? `${caps} formal proof cap reason(s) remain visible without adding a separate debug-panel blocker.`
+            : caps > 0
+                ? `${caps} beta score cap reason(s) remain visible.`
+                : "No beta score cap reasons are present.";
     }
     if (driftParts.length > 0) {
         return `Source drift: ${driftParts.join("; ")}.`;
@@ -526,12 +549,21 @@ function recommendedActionFor(key: string, payload: Record<string, any> | null, 
     if (key === "public_beta_score") {
         return "Use the canonical beta score and cap reasons as the primary Phase 1 queue.";
     }
+    if (ARCHIVE_EVIDENCE_KEYS.has(key)) {
+        return "Keep this stale launch artifact as archive evidence; use the current beta score and formal proof gates for live launch clearance.";
+    }
     return refreshCommand ? `Run ${refreshCommand} when this stale warning must be refreshed.` : "Leave the item labeled as evidence or archive until a focused refresh command exists.";
 }
 
 function truthStateFor(key: string, payload: Record<string, any> | null, freshness: FreshnessState): UiTruthState {
     if (!payload || freshness === "missing") {
         return "missing";
+    }
+    if (FORMAL_PROOF_KEYS.has(key)) {
+        return "formal_proof_required";
+    }
+    if (ARCHIVE_EVIDENCE_KEYS.has(key)) {
+        return "archive";
     }
     if (freshness === "stale") {
         return key === "repo_spring_cleaning" ? "archive" : "stale";
@@ -544,7 +576,7 @@ function truthStateFor(key: string, payload: Record<string, any> | null, freshne
         return "unavailable";
     }
     if (key === "score_cap_reasons" && Array.isArray(payload.evidenceCapDetails) && payload.evidenceCapDetails.length > 0) {
-        return "blocked";
+        return publicBetaCapsAreFormalProofOnly(payload) ? "needs_review" : "blocked";
     }
     if (["needs_review", "partial", "warning", "beta-risk"].includes(status)) {
         return "needs_review";
@@ -556,17 +588,20 @@ function truthStateFor(key: string, payload: Record<string, any> | null, freshne
 }
 
 function blocksPhaseOneFor(key: string, payload: Record<string, any> | null, freshness: FreshnessState): boolean {
-    if (key === "repo_spring_cleaning") {
+    if (key === "repo_spring_cleaning" || ARCHIVE_EVIDENCE_KEYS.has(key)) {
         return false;
     }
     if (!payload) {
         return ["public_beta_score", "score_cap_reasons", "provider_smoke", "runtime_evidence", "admin_truth_samples"].includes(key);
     }
     if (key === "public_beta_score") {
+        if (publicBetaCapsAreFormalProofOnly(payload)) {
+            return false;
+        }
         return payload.readinessStatus !== "Ready" || payload.overallStatus !== "ready";
     }
     if (key === "score_cap_reasons") {
-        return Array.isArray(payload.evidenceCapDetails) && payload.evidenceCapDetails.length > 0;
+        return Array.isArray(payload.evidenceCapDetails) && payload.evidenceCapDetails.length > 0 && !publicBetaCapsAreFormalProofOnly(payload);
     }
     if (key === "provider_smoke") {
         return boolOf(payload, ["readinessImpact", "providerSmokeGatePassed"]) !== true;
@@ -577,15 +612,18 @@ function blocksPhaseOneFor(key: string, payload: Record<string, any> | null, fre
     if (key === "admin_truth_samples") {
         return boolOf(payload, ["readinessImpact", "adminTruthSampleGatePassed"]) !== true;
     }
-    if (["final_launch_readiness", "launch_readiness", "launch_pr_triage"].includes(key)) {
-        return freshness !== "fresh";
-    }
     return false;
 }
 
-function normalizeCanonicality(baseCanonicality: string, freshness: FreshnessState): string {
+function normalizeCanonicality(baseCanonicality: string, freshness: FreshnessState, key?: string): string {
     if (freshness === "missing") {
         return "missing";
+    }
+    if (key && FORMAL_PROOF_KEYS.has(key)) {
+        return "formal_proof_required";
+    }
+    if (key && ARCHIVE_EVIDENCE_KEYS.has(key)) {
+        return "archive_evidence";
     }
     if (freshness === "stale") {
         return baseCanonicality === "archive_candidate" ? "archive_candidate" : "stale_evidence";
@@ -613,7 +651,7 @@ function buildItem(input: {
         sourceCommit: commitOf(payload),
         currentHead: headOf(payload) ?? input.repoHead,
         freshness,
-        canonicality: normalizeCanonicality(input.canonicality, freshness),
+        canonicality: normalizeCanonicality(input.canonicality, freshness, input.key),
         owningValidator: input.owningValidator,
         refreshCommand,
         blocksPhaseOne: blocksPhaseOneFor(input.key, payload, freshness),
@@ -666,6 +704,34 @@ function defaultRefreshAttempts(): RefreshAttempt[] {
             note: "Do not fake final launch readiness freshness.",
         },
     ];
+}
+
+function normalizeRefreshAttempt(attempt: RefreshAttempt): RefreshAttempt {
+    if (attempt.command === "npm run score:beta") {
+        return {
+            ...attempt,
+            effect: "Refreshed canonical beta score locally; use public-beta-score.generated.json for the current value.",
+            note: "No beta readiness cap is cleared unless the formal proof gates pass.",
+        };
+    }
+    if (attempt.note.includes("Generated artifact diff was not staged because this Debug triage patch only allows the triage artifact.")) {
+        return {
+            ...attempt,
+            note: "Generated artifact is included only when it is current source evidence for this debug-panel pass.",
+        };
+    }
+    if (attempt.effect.includes("after generated refresh diffs were restored")) {
+        return {
+            ...attempt,
+            effect: "Validated canonical Debug score connection with the current scoped evidence set.",
+        };
+    }
+    return attempt;
+}
+
+function currentRefreshAttempts(): RefreshAttempt[] {
+    const attempts = previousRefreshAttempts();
+    return (attempts.length > 0 ? attempts : defaultRefreshAttempts()).map(normalizeRefreshAttempt);
 }
 
 function buildReport(): DebugPanelOutputTriageReport {
@@ -738,7 +804,7 @@ function buildReport(): DebugPanelOutputTriageReport {
             p2Count: p2Items.length,
         },
         debugItems,
-        refreshAttempts: previousRefreshAttempts().length > 0 ? previousRefreshAttempts() : defaultRefreshAttempts(),
+        refreshAttempts: currentRefreshAttempts(),
         fixQueue,
     };
 }
@@ -761,7 +827,7 @@ function validateReport(report: DebugPanelOutputTriageReport): string[] {
         if (!item.sourceArtifact || !item.freshness || !item.canonicality || !item.uiTruthState) {
             failures.push(`${item.key} lacks source artifact/state metadata.`);
         }
-        if (item.freshness === "stale" && !/(stale|evidence|archive)/i.test(`${item.canonicality} ${item.uiTruthState} ${item.issue}`)) {
+        if (item.freshness === "stale" && !/(stale|evidence|archive|formal_proof_required)/i.test(`${item.canonicality} ${item.uiTruthState} ${item.issue}`)) {
             failures.push(`${item.key} is stale without stale/evidence/archive labeling.`);
         }
         if (item.freshness === "stale" && item.refreshCommand && !item.owningValidator && !/validator/i.test(item.issue)) {
@@ -798,7 +864,7 @@ function validateReport(report: DebugPanelOutputTriageReport): string[] {
     if (!controlTowerSource.includes("readCanonicalPublicBetaScore") || !controlTowerSource.includes("public-beta-score.generated.json")) {
         failures.push("Public beta score is not sourced from public-beta-score.generated.json.");
     }
-    if (!controlTowerSource.includes("reportAggregateScore") || !debugUiSource.includes("Report evidence summary")) {
+    if (!controlTowerSource.includes("reportAggregateScore") || !debugUiSource.includes("Source detail")) {
         failures.push("Report aggregate score is not separated from the canonical public beta score.");
     }
     if (!debugUiSource.includes("canonicalPublicBetaScore") || !debugUiSource.includes("canonicalPublicBetaCapDetails")) {

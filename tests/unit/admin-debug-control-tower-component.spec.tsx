@@ -162,10 +162,10 @@ describe("DebugControlTower", () => {
         expect(container.querySelector("[data-debug-mobile-layout='compact-card-stack']")).toBeTruthy();
         expect(container.textContent).toContain("Control Tower");
         expect(container.textContent).toContain("Public Beta");
-        expect(container.textContent).toContain("Device + UI");
         expect(container.textContent).toContain("Money + Cost");
         expect(container.textContent).toContain("Support message detail route returned forbidden.");
         expect(container.textContent).toContain("Recommended Next Actions");
+        expect(container.textContent).not.toContain("Device + UI");
         expect(container.textContent).not.toContain("secret support body");
     });
 

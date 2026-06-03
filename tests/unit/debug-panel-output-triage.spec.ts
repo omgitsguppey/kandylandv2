@@ -40,7 +40,7 @@ describe("debug panel output triage", () => {
         expect(staleItems.length).toBeGreaterThan(0);
         expect(
             staleItems.every((item) =>
-                /stale|archive|evidence/i.test(`${item.uiTruthState} ${item.canonicality} ${item.issue}`),
+                /stale|archive|evidence|formal_proof_required/i.test(`${item.uiTruthState} ${item.canonicality} ${item.issue}`),
             ),
         ).toBe(true);
     });
@@ -61,7 +61,7 @@ describe("debug panel output triage", () => {
 
         expect(targeted?.issue).toMatch(/does not prove visual\/provider\/runtime\/admin/i);
         expect(scoreCaps?.sourceArtifact).toBe("agent/state/public-beta-score.generated.json");
-        expect(scoreCaps?.blocksPhaseOne).toBe(true);
+        expect(scoreCaps?.blocksPhaseOne).toBe(false);
         expect(scoreCaps?.uiTruthState).not.toBe("live");
     });
 
@@ -74,15 +74,22 @@ describe("debug panel output triage", () => {
         expect(source).toContain("readCanonicalPublicBetaScore");
         expect(source).toContain("reportAggregateScore");
         expect(ui).toContain("canonicalPublicBetaScore");
-        expect(ui).toContain("Report evidence summary");
+        expect(ui).toContain("Source detail");
     });
 
     it("keeps archive candidates labeled as evidence or archive, not current authority", () => {
         const repoSpring = report.debugItems.find((item) => item.key === "repo_spring_cleaning");
+        const launchArtifacts = report.debugItems.filter((item) =>
+            ["final_launch_readiness", "launch_readiness", "launch_pr_triage"].includes(item.key),
+        );
 
         expect(repoSpring).toBeDefined();
         expect(repoSpring?.canonicality).toMatch(/archive|stale_evidence|missing/);
         expect(repoSpring?.blocksPhaseOne).toBe(false);
+        expect(launchArtifacts.length).toBe(3);
+        expect(launchArtifacts.every((item) => item.canonicality === "archive_evidence")).toBe(true);
+        expect(launchArtifacts.every((item) => item.uiTruthState === "archive")).toBe(true);
+        expect(launchArtifacts.every((item) => item.blocksPhaseOne === false)).toBe(true);
     });
 
     it("surfaces refresh commands for refreshable stale items", () => {

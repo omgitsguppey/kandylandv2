@@ -81,7 +81,11 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
         }
         return Object.entries(model.sections).map(([sectionId, reports]) => ({
             sectionId: sectionId as AdminDebugControlTowerSection,
-            reports: reports.filter((report) => filterReport(report, activeFilter)),
+            reports: reports.filter((report) => (
+                activeFilter === "all"
+                    ? report.truthState !== "live" || report.findingCount > 0 || report.topFindings.length > 0
+                    : filterReport(report, activeFilter)
+            )),
         }));
     }, [activeFilter, model]);
 
@@ -116,11 +120,11 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
             data-debug-next-action-count={model?.nextActions.length ?? 0}
             data-debug-canonical-public-beta-score={model?.canonicalPublicBetaScore ?? "unavailable"}
         >
-            <div className="rounded-[1.35rem] border border-white/10 bg-black/35 p-4 shadow-xl shadow-black/20 backdrop-blur-xl">
+            <div className="rounded-[1.1rem] border border-white/10 bg-black/30 p-4 shadow-lg shadow-black/15 backdrop-blur-xl">
                 <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/30 bg-brand-purple/15">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand-purple/30 bg-brand-purple/15">
                                 <Icon className="h-5 w-5 text-white" />
                             </div>
                             <div>
@@ -134,20 +138,19 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                     </div>
                     <div className="shrink-0 text-right">
                         <AdminTruthBadge state={controlTowerBadgeState} className="mb-2" />
-                        <p className="text-3xl font-black text-white">{model?.canonicalPublicBetaScore ?? "--"}</p>
                         <p className="text-[11px] font-semibold text-gray-300">{model?.canonicalPublicBetaReadinessStatus ?? "Score unavailable"}</p>
                         <p className="text-[11px] text-gray-400">{loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>
                 {model ? (
-                    <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3" data-debug-report-source="agent/state/public-beta-score.generated.json">
+                    <div className="mt-4 border-t border-white/10 pt-3" data-debug-report-source="agent/state/public-beta-score.generated.json">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                             <div className="min-w-0">
-                                <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Canonical public beta score</p>
+                                <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Needs proof</p>
                                 <p className="mt-1 text-sm font-semibold text-white">{model.canonicalPublicBetaReadinessReason}</p>
-                                <p className="mt-1 text-xs text-gray-400">Status {model.canonicalPublicBetaStatus} | evidence {model.canonicalPublicBetaEvidenceScore ?? "--"}/100</p>
+                                <p className="mt-1 text-xs text-gray-400">Status {model.canonicalPublicBetaStatus}; formal launch gates stay separate.</p>
                             </div>
-                            <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                            <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
                                 {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"}
                             </span>
                         </div>
@@ -158,31 +161,13 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                                 ))}
                             </ul>
                         ) : null}
-                        <details className="mt-2 rounded-xl border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300">
-                            <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Report evidence summary</summary>
+                        <details className="mt-2 rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300">
+                            <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Source detail</summary>
                             <p className="mt-1 text-gray-300">{model.reportAggregateSummary}</p>
-                            <p className="mt-1 text-gray-500">Report average {model.reportAggregateScore ?? "--"} | {model.reportAggregateTruthState}</p>
+                            <p className="mt-1 text-gray-500">{model.reportAggregateTruthState}</p>
                         </details>
                     </div>
                 ) : null}
-                <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Critical</p>
-                        <p className="mt-1 text-xl font-black text-white">{model?.criticalCount ?? "--"}</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Stale</p>
-                        <p className="mt-1 text-xl font-black text-white">{model?.staleReportCount ?? "--"}</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Missing</p>
-                        <p className="mt-1 text-xl font-black text-white">{model?.missingReportCount ?? "--"}</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Live issues</p>
-                        <p className="mt-1 text-xl font-black text-white">{model?.liveIssueCount ?? "--"}</p>
-                    </div>
-                </div>
             </div>
 
             <DebugOperatorCockpit cockpit={model?.operatorCockpit} />
