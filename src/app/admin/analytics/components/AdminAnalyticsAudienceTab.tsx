@@ -87,6 +87,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const [topPathsPage, setTopPathsPage] = React.useState(1);
   const [topPathsPageSize, setTopPathsPageSize] = React.useState(10);
   const [deviceMixViewMode, setDeviceMixViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [topPathsViewMode, setTopPathsViewMode] = React.useState<AnalyticsViewMode>("cards");
   const filteredTopPathRows = React.useMemo(() => {
     const search = topPathsSearch.trim().toLowerCase();
     return topPathsModel.rows.filter((row) => {
@@ -926,7 +927,20 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 title="Top Paths"
                 subtitle="Paginated path analytics with source truth and engagement context."
                 icon={FileText}
-                rightSlot={renderSectionRangeControl("topPaths")}
+                rightSlot={(
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={topPathsViewMode}
+                      onChange={setTopPathsViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("topPaths")}
+                  </div>
+                )}
               >
                 <div
                   className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
@@ -1011,16 +1025,98 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     </p>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="hidden grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr] gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
-                    <span>Path / label</span>
-                    <span>Group</span>
-                    <span>Views</span>
-                    <span>Share</span>
-                    <span>Avg time</span>
-                    <span>Engagement</span>
-                  </div>
-                  {pagedTopPathRows.length > 0 ? (
+                <div
+                  className="space-y-2"
+                  data-admin-analytics-mobile-view-mode={topPathsViewMode}
+                >
+                  {pagedTopPathRows.length > 0 && topPathsViewMode === "chart" ? (
+                    <div className="h-56 rounded-[1.35rem] border border-white/10 bg-black/25 p-3">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={pagedTopPathRows}
+                          margin={{ top: 4, right: 0, left: -22, bottom: 0 }}
+                        >
+                          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                          <XAxis
+                            dataKey="label"
+                            stroke="#6b7280"
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                            interval={0}
+                            angle={-18}
+                            textAnchor="end"
+                            height={52}
+                          />
+                          <YAxis
+                            stroke="#6b7280"
+                            fontSize={10}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <Tooltip content={<AnalyticsTooltip />} />
+                          <Bar dataKey="views" name="Views" fill="#c084fc" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="engagementRatePct" name="Engagement" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : null}
+
+                  {pagedTopPathRows.length > 0 && topPathsViewMode === "table" ? (
+                    <div
+                      className="overflow-x-auto rounded-[1.35rem] border border-white/10 bg-black/25"
+                      data-top-paths-table="compact"
+                      data-top-paths-source-truth={topPathsModel.sourceTruth}
+                      data-top-paths-page={String(topPathsPage)}
+                      data-top-paths-page-size={String(topPathsPageSize)}
+                    >
+                      <table className="min-w-full text-left text-xs">
+                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                          <tr>
+                            <th className="px-3 py-2 font-semibold">Path</th>
+                            <th className="px-3 py-2 font-semibold">Group</th>
+                            <th className="px-3 py-2 font-semibold">Views</th>
+                            <th className="px-3 py-2 font-semibold">Share</th>
+                            <th className="px-3 py-2 font-semibold">Avg time</th>
+                            <th className="px-3 py-2 font-semibold">Engagement</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/10 text-gray-300">
+                          {pagedTopPathRows.map((row) => (
+                            <tr
+                              key={`top-path-table-${row.path}`}
+                              data-top-paths-path={row.path}
+                              data-top-paths-route-group={row.routeGroup}
+                              data-top-paths-views={String(row.views)}
+                              data-top-paths-issue-state={row.issueState}
+                            >
+                              <td className="max-w-[18rem] px-3 py-2">
+                                <p className="truncate font-semibold text-white">{row.path}</p>
+                                <p className="truncate text-[11px] text-gray-500">{row.label}</p>
+                              </td>
+                              <td className="px-3 py-2">{row.routeGroup}</td>
+                              <td className="px-3 py-2">{row.views.toLocaleString()}</td>
+                              <td className="px-3 py-2">{formatPercent(row.viewSharePct)}</td>
+                              <td className="px-3 py-2">{row.avgTimeDisplay}</td>
+                              <td className="px-3 py-2">{row.engagementRatePct === null ? "Unavailable" : formatPercent(row.engagementRatePct)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+
+                  {topPathsViewMode === "cards" ? (
+                    <>
+                      <div className="hidden grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr] gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
+                        <span>Path / label</span>
+                        <span>Group</span>
+                        <span>Views</span>
+                        <span>Share</span>
+                        <span>Avg time</span>
+                        <span>Engagement</span>
+                      </div>
+                      {pagedTopPathRows.length > 0 ? (
                     pagedTopPathRows.map((row) => (
                       <div
                         key={row.path}
@@ -1066,13 +1162,21 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                         </p>
                       </div>
                     ))
-                  ) : (
+                      ) : (
                     <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
                       {topPathsModel.rows.length > 0
                         ? "No paths match the current search/filter selection."
                         : "No page-path data available for this range."}
                     </div>
-                  )}
+                      )}
+                    </>
+                  ) : pagedTopPathRows.length === 0 ? (
+                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                      {topPathsModel.rows.length > 0
+                        ? "No paths match the current search/filter selection."
+                        : "No page-path data available for this range."}
+                    </div>
+                  ) : null}
                 </div>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
                   <p>

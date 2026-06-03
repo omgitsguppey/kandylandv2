@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.43",
-  "betaReleaseCounter": 543,
+  "currentVersion": "1.5.44",
+  "betaReleaseCounter": 544,
   "channel": "beta",
-  "generatedAt": "2026-06-03T22:35:49.771Z",
-  "generatedAtUtc": "2026-06-03T22:35:49.771Z",
-  "lastCommitSha": "84e368bfa3e81bbd2e611ba017e3676ce022ba69",
+  "generatedAt": "2026-06-03T22:47:04.730Z",
+  "generatedAtUtc": "2026-06-03T22:47:04.730Z",
+  "lastCommitSha": "91ed0cb473c198b17c19b61fb096cb969cf346d4",
   "notes": [
+    {
+      "version": "1.5.44",
+      "previousVersion": "1.5.43",
+      "betaReleaseCounter": 544,
+      "previousBetaReleaseCounter": 543,
+      "commitSha": "91ed0cb473c198b17c19b61fb096cb969cf346d4",
+      "commitTitle": "fix(admin): add compact top paths analytics modes",
+      "commitCount": 2,
+      "commitShas": [
+        "815177718fc1610590762fdae5d76b3ae390a2ae",
+        "91ed0cb473c198b17c19b61fb096cb969cf346d4"
+      ],
+      "committedAt": "2026-06-03T22:46:51.000Z",
+      "generatedAt": "2026-06-03T22:47:04.728Z",
+      "committedAtUtc": "2026-06-03T22:46:51.000Z",
+      "generatedAtUtc": "2026-06-03T22:47:04.728Z",
+      "updatedAtUtc": "2026-06-03T22:47:04.728Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-audience-mobile.spec.ts",
+        "tests/unit/admin-analytics-audience-snapshot.spec.ts",
+        "tests/unit/admin-debug-compact-layout.spec.ts"
+      ],
+      "sourceCommit": "91ed0cb473c198b17c19b61fb096cb969cf346d4"
+    },
     {
       "version": "1.5.43",
       "previousVersion": "1.5.42",
