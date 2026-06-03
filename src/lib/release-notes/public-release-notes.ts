@@ -1,13 +1,75 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.38",
-  "betaReleaseCounter": 538,
+  "currentVersion": "1.5.39",
+  "betaReleaseCounter": 539,
   "channel": "beta",
-  "generatedAt": "2026-06-03T21:06:13.928Z",
-  "generatedAtUtc": "2026-06-03T21:06:13.928Z",
-  "lastCommitSha": "19604704a1a8b87b28d6da8c13b6e833925004e7",
+  "generatedAt": "2026-06-03T21:36:39.767Z",
+  "generatedAtUtc": "2026-06-03T21:36:39.767Z",
+  "lastCommitSha": "ce406145d6e36051dd979da2e0a8b8cadb271473",
   "notes": [
+    {
+      "version": "1.5.39",
+      "previousVersion": "1.5.38",
+      "betaReleaseCounter": 539,
+      "previousBetaReleaseCounter": 538,
+      "commitSha": "ce406145d6e36051dd979da2e0a8b8cadb271473",
+      "commitTitle": "fix(admin): compact debug control panel",
+      "commitCount": 2,
+      "commitShas": [
+        "d1500b65c33f9a21d7f12f14f115213fc54c6fea",
+        "ce406145d6e36051dd979da2e0a8b8cadb271473"
+      ],
+      "committedAt": "2026-06-03T21:36:03.000Z",
+      "generatedAt": "2026-06-03T21:36:39.765Z",
+      "committedAtUtc": "2026-06-03T21:36:03.000Z",
+      "generatedAtUtc": "2026-06-03T21:36:39.765Z",
+      "updatedAtUtc": "2026-06-03T21:36:39.765Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/admin-analytics-source-hierarchy.generated.json",
+        "agent/state/analytics-hydration-consolidation-audit.generated.json",
+        "agent/state/analytics-hydration-consolidation.generated.json",
+        "agent/state/analytics-panel-hydration.generated.json",
+        "docs/agent-truth/admin-analytics-source-hierarchy.md",
+        "docs/agent-truth/analytics-hydration-consolidation-audit.md",
+        "docs/agent-truth/analytics-hydration-consolidation.md",
+        "docs/agent-truth/analytics-panel-hydration.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/components/DebugPrimitives.tsx",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/app/admin/debug/page.tsx",
+        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
+        "src/hooks/useAdminOverviewRealtime.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
+        "tests/unit/admin-debug-summary-cards.spec.ts"
+      ],
+      "sourceCommit": "ce406145d6e36051dd979da2e0a8b8cadb271473"
+    },
     {
       "version": "1.5.38",
       "previousVersion": "1.5.37",

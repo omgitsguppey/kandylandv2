@@ -71,8 +71,8 @@ describe("admin debug summary cards", () => {
             hasError: false,
         });
 
-        expect(card.meta).toContain("Live route checks are showing.");
-        expect(card.technicalEvidence).toContain("[live] API snapshot + route listener");
+        expect(card.meta).toContain("Route checks are loaded with stale or unseen route entries separated from current health.");
+        expect(card.technicalEvidence).toContain("[partial] API snapshot + route listener; stale or unseen routes present");
         expect(card.technicalEvidence).toContain("158 tracked, 38 observed, 120 unseen");
         expect(card.truthState).toBe("live");
     });

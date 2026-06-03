@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
     Activity,
     Database,
@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 
 import { useAuth } from "@/context/AuthContext";
@@ -56,6 +57,8 @@ import {
 } from "@/lib/route-runtime-health";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { resolveAdminInputTruthState, type AdminTruthState } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
 
 type DebugTabId = AdminDebugTabOption;
@@ -83,6 +86,61 @@ function formatRelative(timestamp?: number) {
 function formatWindowHours(windowMs?: number) {
     if (!windowMs) return "current";
     return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
+}
+
+type CompactDebugSummaryItem = {
+    label: string;
+    value: string | number;
+    meta: string;
+    truthState: AdminTruthState | AdminSurfaceState | "loading";
+};
+
+function CompactDebugStatusRail({
+    items,
+    children,
+}: {
+    items: CompactDebugSummaryItem[];
+    children: ReactNode;
+}) {
+    return (
+        <section
+            className="rounded-lg border border-white/10 bg-black/25 p-2.5"
+            data-admin-debug-summary="compact"
+            data-mobile-organization="summary-first"
+        >
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                {items.map((item) => {
+                    const resolvedTruth = resolveAdminInputTruthState({
+                        truthState: item.truthState,
+                        value: item.value,
+                        pendingInitialLoad: item.truthState === "loading",
+                    });
+
+                    return (
+                        <div key={item.label} className="min-w-0 rounded-md border border-white/10 bg-white/[0.035] px-2.5 py-2">
+                            <div className="flex items-center justify-between gap-2">
+                                <p className="truncate text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">{item.label}</p>
+                                <AdminTruthBadge
+                                    state={resolvedTruth.truthState}
+                                    className="py-0 text-[8px]"
+                                    pendingInitialLoad={resolvedTruth.pendingInitialLoad}
+                                    hasUsableValue={resolvedTruth.hasUsableValue}
+                                />
+                            </div>
+                            <p className="mt-1 truncate text-sm font-black text-white">{item.value}</p>
+                            <p className="mt-0.5 truncate text-[11px] text-gray-400">{item.meta}</p>
+                        </div>
+                    );
+                })}
+            </div>
+            <details className="mt-2 rounded-md border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
+                <summary className="min-h-8 cursor-pointer pt-1.5 font-semibold text-gray-100">Source detail cards</summary>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                    {children}
+                </div>
+            </details>
+        </section>
+    );
 }
 
 export default function DebugConsole() {
@@ -509,6 +567,46 @@ export default function DebugConsole() {
         routeName: "/api/admin/debug",
         debugDetails: { freshestLoadedSignalAt },
     }), [freshestLoadedSignalAt]);
+    const compactSummaryItems = useMemo<CompactDebugSummaryItem[]>(() => [
+        {
+            label: "System",
+            value: systemStateStatus,
+            meta: systemStateMeta,
+            truthState: !data && isLoading ? "loading" : error ? "failed" : systemStateHealthy ? "live" : "degraded",
+        },
+        {
+            label: "Actions",
+            value: openActionsCard.count,
+            meta: openActionsCard.meta,
+            truthState: openActionsCard.truthState,
+        },
+        {
+            label: "Routes",
+            value: routeHealthCard.value,
+            meta: routeHealthCard.meta,
+            truthState: routeHealthCard.truthState,
+        },
+        {
+            label: "Newest sample",
+            value: freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--",
+            meta: freshestLoadedSignalAt ? "Recent admin evidence loaded." : "No loaded sample verified.",
+            truthState: !data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable",
+        },
+    ], [
+        data,
+        error,
+        freshestLoadedSignalAt,
+        isLoading,
+        openActionsCard.count,
+        openActionsCard.meta,
+        openActionsCard.truthState,
+        routeHealthCard.meta,
+        routeHealthCard.truthState,
+        routeHealthCard.value,
+        systemStateHealthy,
+        systemStateMeta,
+        systemStateStatus,
+    ]);
 
     const refreshAll = async () => {
         await Promise.all([mutate(), mutateDebugPreferences(), mutateOverview(), mutateAiDebug()]);
@@ -694,9 +792,7 @@ export default function DebugConsole() {
                 )}
             />
 
-            <DebugTrackingSummaryPanel trackingSummary={data?.trackingSummary} />
-
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-1" data-mobile-organization="summary-first" data-admin-debug-summary="primary">
+            <CompactDebugStatusRail items={compactSummaryItems}>
                 <StatCard label="System state" truthState={!data && isLoading ? "loading" : error ? "failed" : systemStateHealthy ? "live" : "degraded"} value={systemStateStatus} meta={systemStateMeta} copy={systemStateCopy} />
                 <StatCard label="Route checks" truthState={!data && isLoading ? "loading" : error ? "failed" : activePipelineFailureCount > 0 ? "failed" : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "degraded" : "live"} value={activePipelineFailureCount} meta={activePipelineFailureCount > 0 ? "Route checks need attention." : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "Recent route checks need review." : "No route failures are active."} copy={pipelineCardCopy} />
                 <StatCard label="Task users" truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.usersWithTaskIssues ?? 0) > 0 || (data?.stats?.runtimeUsersWithRefreshIssues ?? 0) > 0 ? "degraded" : "live"} value={data?.stats?.usersWithTaskIssues ?? "--"} meta={(data?.stats?.usersWithTaskIssues ?? 0) > 0 ? "Some users have task issues." : "No task-user issues are active."} copy={taskIssueCopy} />
@@ -705,7 +801,9 @@ export default function DebugConsole() {
                 <StatCard label="Route health" truthState={routeHealthCard.truthState} value={routeHealthCard.value} meta={routeHealthCard.meta} copy={routeHealthCard.copy} />
                 <StatCard label="Newest sample" truthState={!data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable"} value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta={freshestLoadedSignalAt ? "Debug has a recent loaded sample." : "No loaded sample has been verified yet."} copy={freshestSampleCopy} />
                 <StatCard label="AI assistant" truthState={aiAssistantCard.truthState} value={aiAssistantCard.value} meta={aiAssistantCard.meta} copy={aiAssistantCard.copy} />
-            </div>
+            </CompactDebugStatusRail>
+
+            <DebugTrackingSummaryPanel trackingSummary={data?.trackingSummary} />
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
             {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300 sm:p-4" data-mobile-residual-cleanup="score-impact"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}

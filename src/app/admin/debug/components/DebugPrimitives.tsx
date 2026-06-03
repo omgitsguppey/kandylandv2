@@ -7,7 +7,7 @@ import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminDebugCardCopy } from "@/lib/admin-debug-summary-cards";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
-    resolveAdminInputTruthState,
+    resolveAdminInputTruthState as resolveAdminTruthState,
     type AdminTruthState,
 } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
@@ -54,7 +54,7 @@ export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }:
                 ? "border-red-400/20 bg-red-500/10 text-red-100"
                 : "border-white/10 bg-white/5 text-gray-200";
 
-    const resolvedTruth = resolveAdminInputTruthState({
+    const resolvedTruth = resolveAdminTruthState ({
         truthState,
         value,
         pendingInitialLoad: truthState === "loading",
@@ -89,7 +89,7 @@ export function StatCard({
     truthState: AdminTruthState | AdminSurfaceState | "loading";
     copy?: AdminDebugCardCopy;
 }) {
-    const resolvedTruth = resolveAdminInputTruthState({
+    const resolvedTruth = resolveAdminTruthState ({
         truthState,
         value,
         pendingInitialLoad: truthState === "loading",
@@ -141,23 +141,23 @@ export function Section({
     const [open, setOpen] = useState(defaultOpen);
 
     return (
-        <section className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/25">
+        <section className="overflow-hidden rounded-lg border border-white/10 bg-black/25">
             <button
                 type="button"
                 onClick={() => setOpen((current) => !current)}
-                className="flex w-full items-start justify-between gap-3 px-3 py-2.5 text-left"
+                className="flex w-full items-start justify-between gap-3 px-3 py-2 text-left"
                 aria-expanded={open}
             >
                 <div className="min-w-0">
                     <h2 className="text-[15px] font-bold text-white md:text-base">{title}</h2>
-                    {subtitle ? <p className="mt-0.5 text-[11px] leading-5 text-gray-400 md:text-xs">{subtitle}</p> : null}
-                    {summary ? <div className="mt-2.5 flex flex-wrap gap-2">{summary}</div> : null}
+                    {subtitle ? <p className="mt-0.5 text-[11px] leading-4 text-gray-400 md:text-xs">{subtitle}</p> : null}
+                    {summary ? <div className="mt-2 flex flex-wrap gap-1.5">{summary}</div> : null}
                 </div>
-                <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/5 text-gray-300">
                     {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
             </button>
-            {open ? <div className="border-t border-white/10 px-3 py-2.5">{children}</div> : null}
+            {open ? <div className="border-t border-white/10 px-3 py-2">{children}</div> : null}
         </section>
     );
 }

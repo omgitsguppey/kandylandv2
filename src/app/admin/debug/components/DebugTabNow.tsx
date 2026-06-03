@@ -1,6 +1,7 @@
 "use client";
 
 import { buildAdminDebugSystemHealthNowModel } from "@/lib/admin-debug-summary-cards";
+import { resolveControlTowerBusinessTruthState } from "@/lib/admin-debug/control-tower-truth";
 import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
 import { Pill, Section } from "./DebugPrimitives";
 import { DebugCreatorLane } from "./DebugCreatorLane";
@@ -93,6 +94,7 @@ export function DebugTabNow({
         runtimeWarningCount: (data?.opsHealth?.runtime?.warnings || []).length,
     });
     const adminUserTruthSnapshot = data?.adminUserTruthSnapshot;
+    const controlTowerBusinessTruthState = resolveControlTowerBusinessTruthState(adminUserTruthSnapshot);
     const systemHealthTruthState = systemHealthNow.pipeline.truthState === "failed" || systemHealthNow.writers.truthState === "failed"
         ? "failed"
         : systemHealthNow.pipeline.truthState === "degraded" || systemHealthNow.diagnostics.truthState === "degraded" || systemHealthNow.writers.truthState === "degraded"
@@ -111,12 +113,13 @@ export function DebugTabNow({
                 data-debug-writer-count={writerSampleCount}
                 data-debug-score-penalty-count={systemHealthNow.score.penaltyCount}
                 data-debug-truth-state={systemHealthTruthState}
+                data-debug-business-truth-state={controlTowerBusinessTruthState}
             >
             <Section
                         title="System health now"
                         subtitle="Current admin health, open diagnostics, and recent route checks."
-                        defaultOpen
-                        summary={<><Pill label="Score" value={`${systemHealthNow.score.value ?? 0}%`} tone={(systemHealthNow.score.value ?? 0) >= 90 ? "good" : (systemHealthNow.score.value ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Penalties" value={systemHealthNow.score.penaltyCount} tone={systemHealthNow.score.penaltyCount > 0 ? "warn" : "good"} truthState={systemHealthNow.score.penaltyCount > 0 ? "degraded" : "live"} /><Pill label="Pipeline sample" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} /><Pill label="Active diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} /><Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
+                        defaultOpen={false}
+                        summary={<><Pill label="Penalties" value={systemHealthNow.score.penaltyCount} tone={systemHealthNow.score.penaltyCount > 0 ? "warn" : "good"} truthState={systemHealthNow.score.penaltyCount > 0 ? "degraded" : "live"} /><Pill label="Pipeline sample" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} /><Pill label="Active diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} /><Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
                     >
                         <div className="grid gap-4 lg:grid-cols-1">
                             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
