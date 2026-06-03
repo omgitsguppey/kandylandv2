@@ -45,11 +45,11 @@ describe("buildAdminAnalyticsCommerceSnapshotModel", () => {
     });
 
     expect(model.revenueValue).toBe(337);
-    expect(model.revenueSource).toBe("validated_backend_cache");
+    expect(model.revenueSource).toBe("completed_purchase_records");
     expect(model.purchaseCompletionsSource).toBe("completed_purchase_records");
     expect(model.checkoutConversionValue).toBeCloseTo(47 / 69);
-    expect(model.adjustedProfitFormula).toContain("payment fees");
-    expect(model.yieldPer100GdFormula).toBe("revenue / (deliveredGumDrops / 100)");
+    expect(model.adjustedProfitFormula).toContain("paymentFees");
+    expect(model.yieldPer100GdFormula).toBe("revenue / (deliveredGd / 100)");
     expect(model.visibleCopy.join(" ")).toContain("Promo and bonus GD are excluded from revenue.");
     expect(model.fakeZeroPrevented.revenue).toBe(false);
   });
@@ -91,7 +91,7 @@ describe("buildAdminAnalyticsCommerceSnapshotModel", () => {
     });
 
     expect(waiting.revenueValue).toBeNull();
-    expect(waiting.metrics.revenue.label).toBe("Revenue");
+    expect(waiting.metrics.revenue.label).toBe("Revenue (selected range)");
     expect(waiting.fakeZeroPrevented.revenue).toBe(true);
     expect(confirmedZero.revenueValue).toBe(0);
     expect(confirmedZero.checkoutConversionValue).toBeNull();

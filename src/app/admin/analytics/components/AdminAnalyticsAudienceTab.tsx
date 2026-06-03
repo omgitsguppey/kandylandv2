@@ -3,7 +3,13 @@ import {
   Activity, Clock3, FileText, MapPin, Route, Smartphone, Users,
 } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
-import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import {
+  AnalyticsTooltip,
+  AnalyticsViewModeToggle,
+  MetricCard,
+  SectionCard,
+  type AnalyticsViewMode,
+} from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import {
   buildAdminAnalyticsReturnCadenceBuckets,
   resolveAdminAnalyticsGuestEstimateBadgeLabel,
@@ -80,6 +86,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   >("all");
   const [topPathsPage, setTopPathsPage] = React.useState(1);
   const [topPathsPageSize, setTopPathsPageSize] = React.useState(10);
+  const [deviceMixViewMode, setDeviceMixViewMode] = React.useState<AnalyticsViewMode>("cards");
   const filteredTopPathRows = React.useMemo(() => {
     const search = topPathsSearch.trim().toLowerCase();
     return topPathsModel.rows.filter((row) => {
@@ -691,7 +698,22 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 title="Device Mix"
                 subtitle="Compact device intelligence with source truth and mobile-first implications."
                 icon={Smartphone}
-                rightSlot={renderSectionRangeControl("deviceMix")}
+                density="compact"
+                summaryLine={`${deviceMixModel.totalSessions.toLocaleString()} sessions | ${deviceMixModel.classifiedSessions.toLocaleString()} classified | source ${deviceMixModel.sourceLabel}`}
+                rightSlot={(
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={deviceMixViewMode}
+                      onChange={setDeviceMixViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("deviceMix")}
+                  </div>
+                )}
               >
                 <div
                   className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
@@ -732,18 +754,97 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     </div>
                   ))}
                 </div>
-                <div className="space-y-3">
-                  {deviceMixModel.rows.length > 0 ? (
+                <div
+                  className="space-y-3"
+                  data-admin-analytics-mobile-view-mode={deviceMixViewMode}
+                >
+                  {deviceMixModel.rows.length > 0 && deviceMixViewMode === "chart" ? (
+                    <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                      <div className="h-56 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={deviceMixModel.rows.map((item) => ({
+                                name: item.deviceCategory,
+                                value: item.sessions,
+                              }))}
+                              dataKey="value"
+                              nameKey="name"
+                              innerRadius={42}
+                              outerRadius={78}
+                              paddingAngle={2}
+                            >
+                              {deviceMixModel.rows.map((item, index) => (
+                                <Cell
+                                  key={`device-mix-${item.deviceCategory}`}
+                                  fill={PIE_COLORS[index % PIE_COLORS.length]}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              content={
+                                <AnalyticsTooltip
+                                  valueFormatter={(value) => `${Number(value).toLocaleString()} sessions`}
+                                />
+                              }
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="mt-3 grid gap-2 text-[11px] text-gray-300 sm:grid-cols-2">
+                        {deviceMixModel.rows.map((item, index) => (
+                          <div key={`legend-${item.deviceCategory}`} className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                            <span className="flex min-w-0 items-center gap-2">
+                              <span
+                                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                                style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                              />
+                              <span className="truncate capitalize">{item.deviceCategory}</span>
+                            </span>
+                            <span className="font-semibold text-white">{formatPercent(item.sessionSharePct)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {deviceMixModel.rows.length > 0 && deviceMixViewMode === "table" ? (
+                    <div className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/25">
+                      <div className="hidden grid-cols-[1.1fr_0.8fr_0.7fr_0.8fr_0.8fr] gap-2 border-b border-white/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
+                        <span>Device</span>
+                        <span>Sessions</span>
+                        <span>Share</span>
+                        <span>Engaged</span>
+                        <span>Truth</span>
+                      </div>
+                      <div className="divide-y divide-white/10">
+                        {deviceMixModel.rows.map((item) => (
+                          <div
+                            key={`table-${item.deviceCategory}`}
+                            className="grid gap-2 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-[1.1fr_0.8fr_0.7fr_0.8fr_0.8fr]"
+                          >
+                            <p className="font-semibold capitalize text-white">{item.deviceCategory}</p>
+                            <p><span className="text-gray-500 md:hidden">Sessions: </span>{item.sessions.toLocaleString()}</p>
+                            <p><span className="text-gray-500 md:hidden">Share: </span>{formatPercent(item.sessionSharePct)}</p>
+                            <p><span className="text-gray-500 md:hidden">Engaged: </span>{item.engagedSessions === null ? "Unavailable" : item.engagedSessions.toLocaleString()}</p>
+                            <p className="truncate"><span className="text-gray-500 md:hidden">Truth: </span>{item.sourceTruth}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {deviceMixModel.rows.length > 0 && deviceMixViewMode === "cards" ? (
                     deviceMixModel.rows.map((item) => {
                       const Icon = getDeviceIcon(item.deviceCategory);
                       return (
                         <div
                           key={item.deviceCategory}
-                          className="rounded-[1.6rem] border border-white/10 bg-black/30 p-3"
+                          className="rounded-[1rem] border border-white/10 bg-black/30 p-3"
                         >
                           <div className="mb-2 flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 text-brand-purple">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-brand-purple">
                                 <Icon className="h-4 w-4" />
                               </div>
                               <div className="min-w-0">
@@ -804,12 +905,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                         </div>
                       );
                     })
-                  ) : (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                  ) : null}
+
+                  {deviceMixModel.rows.length === 0 ? (
+                    <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
                       Device data will appear after GA has enough sessions for
                       this range.
                     </div>
-                  )}
+                  ) : null}
                 </div>
                 <div className="mt-3 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                   <p className="font-semibold text-white">Optional device metrics</p>

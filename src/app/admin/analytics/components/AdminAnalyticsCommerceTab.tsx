@@ -3,7 +3,13 @@ import {
   Activity, AlertTriangle, Candy, CheckCircle2, Clock3, DollarSign, Eye, Funnel, PlayCircle, Route, ShoppingBag, Sparkles, Users, Wallet,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Line, LineChart } from "recharts";
-import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import {
+  AnalyticsTooltip,
+  AnalyticsViewModeToggle,
+  MetricCard,
+  SectionCard,
+  type AnalyticsViewMode,
+} from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import {
   buildAdminAnalyticsViewerDrilldownContract,
@@ -93,6 +99,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     checkoutConversionLabel: commerceConversionLabel,
   });
   const [contentConversionGrouping, setContentConversionGrouping] = React.useState<"contentType" | "flavor" | "creator" | "priceBand">("contentType");
+  const [topDropConversionViewMode, setTopDropConversionViewMode] = React.useState<AnalyticsViewMode>("cards");
   const contentConversionRows = contentConversionModel.rowsByDimension[contentConversionGrouping] ?? [];
   const contentConversionVisibleRows = contentConversionRows.slice(0, 8);
   const [viewerDropPage, setViewerDropPage] = React.useState(1);
@@ -584,10 +591,26 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 title="Top Drop Conversion"
                 subtitle="Drops with enough views to evaluate unwrap conversion."
                 icon={ShoppingBag}
-                rightSlot={renderSectionRangeControl("topDropConversion")}
+                density="compact"
+                summaryLine={`${topDropConversionModel.visibleRows.length} visible | ${topDropConversionModel.totalRows} total | source ${topDropConversionModel.sourceTruth}`}
+                rightSlot={(
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <AnalyticsViewModeToggle
+                      value={topDropConversionViewMode}
+                      onChange={setTopDropConversionViewMode}
+                      options={[
+                        { id: "cards", label: "Cards" },
+                        { id: "chart", label: "Chart" },
+                        { id: "table", label: "Table" },
+                      ]}
+                    />
+                    {renderSectionRangeControl("topDropConversion")}
+                  </div>
+                )}
               >
                 <div
                   className="space-y-3"
+                  data-admin-analytics-mobile-view-mode={topDropConversionViewMode}
                   data-top-drop-conversion-source-truth={topDropConversionModel.sourceTruth}
                   data-top-drop-conversion-freshness={topDropConversionModel.freshnessState}
                   data-top-drop-conversion-generated-at-utc={topDropConversionModel.generatedAtUtc}
@@ -622,12 +645,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                     ))}
                   </div>
 
-                  {topDropConversionModel.chartRows.length > 0 ? (
-                    <details className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
-                      <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
-                        Chart
-                      </summary>
-                      <div className="mt-3 h-56 w-full">
+                  {topDropConversionModel.chartRows.length > 0 && topDropConversionViewMode === "chart" ? (
+                    <div className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                      <div className="h-56 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={topDropConversionModel.chartRows} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                             <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -649,9 +669,60 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
-                    </details>
+                      <div className="mt-3 grid gap-2 text-[11px] text-gray-300 sm:grid-cols-2">
+                        {topDropConversionModel.visibleRows.slice(0, 6).map((drop) => (
+                          <div key={`chart-legend-${drop.dropId}`} className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                            <span className="min-w-0 truncate text-white">{drop.dropTitle}</span>
+                            <span className="shrink-0 font-semibold text-brand-purple">{drop.unwrapRateDisplay}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ) : null}
 
+                  {topDropConversionViewMode === "table" ? (
+                    <div className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/25">
+                      <div className="hidden grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.9fr] gap-2 border-b border-white/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
+                        <div>Drop</div>
+                        <div>Views</div>
+                        <div>Unwraps</div>
+                        <div>Rate</div>
+                        <div>State</div>
+                      </div>
+                      <div className="divide-y divide-white/10">
+                        {topDropConversionModel.visibleRows.length > 0 ? (
+                          topDropConversionModel.visibleRows.map((drop) => (
+                            <div
+                              key={`table-${drop.dropId}`}
+                              className="grid gap-2 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.9fr]"
+                              data-top-drop-conversion-drop-id={drop.dropId}
+                              data-top-drop-conversion-identity-state={drop.dropIdentityState}
+                              data-top-drop-conversion-views={drop.views}
+                              data-top-drop-conversion-unwraps={drop.unwraps}
+                              data-top-drop-conversion-rate={drop.unwrapRateDisplay}
+                            >
+                              <div className="min-w-0">
+                                <p className="truncate font-semibold text-white">{drop.dropTitle}</p>
+                                <p className="truncate text-gray-500">{drop.creatorName ? `${drop.creatorName} | ` : ""}{drop.shortDropId}</p>
+                              </div>
+                              <p><span className="text-gray-500 md:hidden">Views: </span>{drop.views.toLocaleString()}</p>
+                              <p><span className="text-gray-500 md:hidden">Unwraps: </span>{drop.unwraps.toLocaleString()}</p>
+                              <p className="font-semibold text-brand-purple"><span className="text-gray-500 md:hidden">Rate: </span>{drop.unwrapRateDisplay}</p>
+                              <div>
+                                <AdminStatusBadge state={resolveAdminAnalyticsTopDropIdentityTruthState(drop.dropIdentityState)} />
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-4 py-5 text-sm text-gray-500">
+                            No drop conversion rows were available for this range.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {topDropConversionViewMode === "cards" ? (
                   <div className="space-y-2">
                     <div className="hidden grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.8fr] gap-2 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
                       <div>Drop</div>
@@ -723,6 +794,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                       </div>
                     )}
                   </div>
+                  ) : null}
 
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2 text-[11px] text-gray-300">
                     <div>
