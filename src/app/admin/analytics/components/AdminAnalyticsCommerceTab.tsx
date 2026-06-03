@@ -100,6 +100,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   });
   const [contentConversionGrouping, setContentConversionGrouping] = React.useState<"contentType" | "flavor" | "creator" | "priceBand">("contentType");
   const [topDropConversionViewMode, setTopDropConversionViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [viewerDropViewMode, setViewerDropViewMode] = React.useState<AnalyticsViewMode>("cards");
   const contentConversionRows = contentConversionModel.rowsByDimension[contentConversionGrouping] ?? [];
   const contentConversionVisibleRows = contentConversionRows.slice(0, 8);
   const [viewerDropPage, setViewerDropPage] = React.useState(1);
@@ -1470,7 +1471,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                         </div>
                       </div>
 
-                      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+                      <div
+                        className="space-y-3 rounded-[1.5rem] border border-white/10 bg-black/30 p-3 sm:p-4"
+                        data-admin-analytics-mobile-view-mode={viewerDropViewMode}
+                      >
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                           <div className="mb-4 flex items-center justify-between gap-3">
                             <div>
@@ -1481,7 +1485,16 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 Page {boundedViewerDropPage} of {viewerDropPageCount}; source {viewerSourceTruth.replace(/_/g, " ")}
                               </p>
                             </div>
-                            <div className="flex shrink-0 gap-2">
+                            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                              <AnalyticsViewModeToggle
+                                value={viewerDropViewMode}
+                                onChange={setViewerDropViewMode}
+                                options={[
+                                  { id: "cards", label: "Cards" },
+                                  { id: "chart", label: "Chart" },
+                                  { id: "table", label: "Table" },
+                                ]}
+                              />
                               <button
                                 type="button"
                                 onClick={() => setViewerDropPage((page) => Math.max(1, page - 1))}
@@ -1500,7 +1513,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               </button>
                             </div>
                           </div>
-                          {viewerDropVisibleChartData.length > 0 ? (
+                          {viewerDropVisibleChartData.length > 0 && viewerDropViewMode === "chart" ? (
                             <div className="h-72 w-full">
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
@@ -1562,20 +1575,59 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 </BarChart>
                               </ResponsiveContainer>
                             </div>
-                          ) : (
+                          ) : viewerDropVisibleRows.length === 0 ? (
                             <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
                               Viewer drilldown data will populate once
                               collectors start watching library content in the
                               selected range.
                             </div>
-                          )}
+                          ) : null}
                         </div>
 
-                        <div className="space-y-3">
+                        {viewerDropViewMode === "table" && viewerDropVisibleRows.length > 0 ? (
+                          <div
+                            className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                            data-library-viewer-drop-table="compact"
+                            data-library-viewer-drop-source-truth={viewerSourceTruth}
+                            data-library-viewer-drop-freshness={viewerFreshnessState}
+                          >
+                            <table className="min-w-full text-left text-xs">
+                              <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.14em] text-gray-500">
+                                <tr>
+                                  <th className="px-3 py-2 font-semibold">Drop</th>
+                                  <th className="px-3 py-2 font-semibold">Watch</th>
+                                  <th className="px-3 py-2 font-semibold">Sessions</th>
+                                  <th className="px-3 py-2 font-semibold">Viewers</th>
+                                  <th className="px-3 py-2 font-semibold">Meaningful</th>
+                                  <th className="px-3 py-2 font-semibold">State</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-white/10 text-gray-300">
+                                {viewerDropVisibleRows.map((item: any) => (
+                                  <tr
+                                    key={`viewer-drop-table-${item.dropId}`}
+                                    data-library-viewer-drop-source-truth={viewerSourceTruth}
+                                    data-library-viewer-drop-freshness={viewerFreshnessState}
+                                  >
+                                    <td className="max-w-[14rem] truncate px-3 py-2 font-semibold text-white">{item.dropTitle}</td>
+                                    <td className="px-3 py-2 text-brand-purple">{formatDuration(item.totalWatchSeconds)}</td>
+                                    <td className="px-3 py-2">{item.sessionCount.toLocaleString()}</td>
+                                    <td className="px-3 py-2">{item.uniqueViewerCount.toLocaleString()}</td>
+                                    <td className="px-3 py-2">{item.meaningfulSessionCount.toLocaleString()}</td>
+                                    <td className="px-3 py-2">{item.openedWithoutDepthCount > 0 ? "Needs depth" : "Depth observed"}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : null}
+
+                        {viewerDropViewMode === "cards" ? (
+                          <div className="grid gap-2 lg:grid-cols-2">
                           {viewerDropVisibleRows.map((item: any) => (
                             <div
                               key={item.dropId}
-                              className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
+                              className="rounded-[1rem] border border-white/10 bg-white/[0.035] p-3"
                               data-library-viewer-drop-source-truth={viewerSourceTruth}
                               data-library-viewer-drop-freshness={viewerFreshnessState}
                             >
@@ -1625,7 +1677,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               </div>
                             </div>
                           ))}
-                        </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   );
