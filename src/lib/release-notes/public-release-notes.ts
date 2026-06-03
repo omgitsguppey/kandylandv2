@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.5.40",
-  "betaReleaseCounter": 540,
+  "currentVersion": "1.5.41",
+  "betaReleaseCounter": 541,
   "channel": "beta",
-  "generatedAt": "2026-06-03T21:49:24.978Z",
-  "generatedAtUtc": "2026-06-03T21:49:24.978Z",
-  "lastCommitSha": "8d387848990aa76d5f8a5b9c2d9a5a1af0beb2c4",
+  "generatedAt": "2026-06-03T22:03:07.223Z",
+  "generatedAtUtc": "2026-06-03T22:03:07.223Z",
+  "lastCommitSha": "685b745736e905f807c23cc97e1b112b18018acb",
   "notes": [
+    {
+      "version": "1.5.41",
+      "previousVersion": "1.5.40",
+      "betaReleaseCounter": 541,
+      "previousBetaReleaseCounter": 540,
+      "commitSha": "685b745736e905f807c23cc97e1b112b18018acb",
+      "commitTitle": "fix(admin): simplify debug control tower",
+      "commitCount": 2,
+      "commitShas": [
+        "0fd3c3ca0b891878622fc45514b78e9aecdca93f",
+        "685b745736e905f807c23cc97e1b112b18018acb"
+      ],
+      "committedAt": "2026-06-03T22:02:53.000Z",
+      "generatedAt": "2026-06-03T22:03:07.221Z",
+      "committedAtUtc": "2026-06-03T22:02:53.000Z",
+      "generatedAtUtc": "2026-06-03T22:03:07.221Z",
+      "updatedAtUtc": "2026-06-03T22:03:07.221Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/debug/components/DebugControlTower.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-commerce-snapshot.spec.ts"
+      ],
+      "sourceCommit": "685b745736e905f807c23cc97e1b112b18018acb"
+    },
     {
       "version": "1.5.40",
       "previousVersion": "1.5.39",

@@ -120,6 +120,7 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
             className="space-y-3"
             data-admin-debug-v2="control-tower"
             data-debug-mobile-layout="compact-card-stack"
+            data-debug-default-density="summary-plus-evidence-drawer"
             data-debug-report-source={model?.reportSource ?? "agent_state"}
             data-debug-report-freshness={model?.reportFreshnessState ?? "unknown"}
             data-debug-truth-state={controlTruthState}
@@ -145,23 +146,23 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                     </div>
                     <div className="shrink-0 text-left sm:text-right">
                         <AdminTruthBadge state={controlTowerBadgeState} className="mb-1" />
-                        <p className="text-[11px] font-semibold text-gray-300">{model?.canonicalPublicBetaReadinessStatus ?? "Score unavailable"}</p>
+                        <p className="text-[11px] font-semibold text-gray-300">{model?.canonicalPublicBetaReadinessStatus ?? "Readiness unavailable"}</p>
                         <p className="text-[11px] text-gray-400">{loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>
                 {model ? (
                     <div className="mt-3 border-t border-white/10 pt-3" data-debug-report-source="agent/state/public-beta-score.generated.json">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                             <div className="min-w-0">
                                 <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Needs proof</p>
-                                <p className="mt-1 text-sm font-semibold text-white">{model.canonicalPublicBetaReadinessReason}</p>
+                                <p className="mt-1 line-clamp-2 text-sm font-semibold leading-5 text-white">{model.canonicalPublicBetaReadinessReason}</p>
                             </div>
-                            <div className="flex flex-wrap gap-2 text-[11px] text-gray-300">
+                            <div className="flex flex-wrap gap-1.5 text-[11px] text-gray-300 md:justify-end">
                                 <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">Status {model.canonicalPublicBetaStatus}</span>
                                 <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1">{model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"}</span>
                             </div>
                         </div>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                        <div className="mt-2 grid gap-1.5 sm:grid-cols-3" data-debug-visible-summary="launch-live-source">
                             <div className="rounded-md border border-white/10 bg-black/20 px-3 py-2">
                                 <p className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Launch blockers</p>
                                 <p className="mt-1 text-sm font-bold text-white">{canonicalBetaCapDetails.length || blockerReports.length}</p>
@@ -192,80 +193,89 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
             ) : null}
 
             {model ? (
-                <section className="rounded-lg border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                            <h3 className="font-bold text-white">Launch blockers</h3>
-                            <p className="text-xs text-gray-400">Only formal proof and current source issues stay visible by default.</p>
-                        </div>
-                        <AdminTruthBadge state={canonicalBetaCapDetails.length || blockerReports.length ? "failed" : "live"} />
-                    </div>
-                    {canonicalBetaCapDetails.length > 0 ? (
-                        <ul className="mt-2 space-y-1 text-xs text-gray-300">
-                            {canonicalBetaCapDetails.map((capDetail, index) => (
-                                <li key={`canonical-beta-cap-${index}`} className="rounded-md border border-white/10 bg-black/20 px-2 py-1">
-                                    {capDetail}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : null}
-                    {blockerReports.length > 0 ? (
-                        <div className="mt-2 grid gap-1">
-                            {blockerReports.map((report) => (
-                                <div
-                                    key={`blocker-${report.id}`}
-                                    className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-white/10 bg-white/[0.035] px-2 py-1.5 text-xs"
-                                    data-debug-report-source={report.filePath}
-                                    data-debug-report-freshness={report.freshness}
-                                    data-debug-truth-state={report.truthState}
-                                >
-                                    <span className="font-semibold text-white">{report.label}</span>
-                                    <span className="text-gray-400">{report.findingCount} finding{report.findingCount === 1 ? "" : "s"}</span>
-                                    <AdminStatusBadge state={toBadgeState(report.truthState)} className="py-0 text-[8px]" />
-                                </div>
-                            ))}
-                        </div>
-                    ) : null}
-                    {topFindings.length > 0 ? (
-                        <details className="mt-2 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source="top-findings">
-                            <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Top findings</summary>
-                            <div className="mt-2 grid gap-2">
-                                {topFindings.map((finding) => (
-                                    <FindingCard key={`top-${finding.id}`} finding={finding} compact />
-                                ))}
-                            </div>
-                        </details>
-                    ) : null}
-                    {model.liveIssues.length > 0 ? (
-                        <details className="mt-2 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source={model.debugEvidenceSource}>
-                            <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Live Issues ({model.liveIssues.length})</summary>
-                            <div className="mt-2 grid gap-2">
-                                {model.liveIssues.slice(0, 10).map((issue) => (
-                                    <LiveIssueCard key={issue.id} issue={issue} />
-                                ))}
-                            </div>
-                        </details>
-                    ) : null}
-                    {visibleNextActions.length > 0 ? (
-                        <details className="mt-2 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source="next-actions">
-                            <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Recommended Next Actions ({model.nextActions.length})</summary>
-                            <div className="mt-2 grid gap-2">
-                                {visibleNextActions.map((action) => (
-                                    <NextActionCard key={action.id} action={action} />
-                                ))}
-                            </div>
-                        </details>
-                    ) : null}
-                </section>
-            ) : null}
-
-            {model ? (
-                <details className="rounded-lg border border-white/10 bg-black/20 p-3 text-sm text-gray-300" data-debug-report-source="source-detail">
-                    <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">Source detail</summary>
-                    <p className="mt-2 text-xs text-gray-300">{model.reportAggregateSummary}</p>
-                    <p className="mt-1 text-xs text-gray-500">{model.reportAggregateTruthState}</p>
-
+                <details
+                    className="rounded-lg border border-white/10 bg-black/20 p-3 text-sm text-gray-300"
+                    data-debug-report-source="source-detail"
+                    data-debug-default-details="collapsed"
+                >
+                    <summary className="min-h-9 cursor-pointer font-semibold text-gray-100">
+                        Source detail evidence drawer: launch blockers, live issues, next actions, and source reports
+                    </summary>
                     <div className="mt-3 space-y-3">
+                        <section className="rounded-md border border-white/10 bg-black/25 p-3" data-debug-report-source="triage-summary">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <h3 className="font-bold text-white">Launch blockers</h3>
+                                    <p className="text-xs text-gray-400">Formal proof and current source issues stay here for review.</p>
+                                </div>
+                                <AdminTruthBadge state={canonicalBetaCapDetails.length || blockerReports.length ? "failed" : "live"} />
+                            </div>
+                            {canonicalBetaCapDetails.length > 0 ? (
+                                <ul className="mt-2 space-y-1 text-xs text-gray-300">
+                                    {canonicalBetaCapDetails.map((capDetail, index) => (
+                                        <li key={`canonical-beta-cap-${index}`} className="rounded-md border border-white/10 bg-black/20 px-2 py-1">
+                                            {capDetail}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : null}
+                            {blockerReports.length > 0 ? (
+                                <div className="mt-2 grid gap-1">
+                                    {blockerReports.map((report) => (
+                                        <div
+                                            key={`blocker-${report.id}`}
+                                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-white/10 bg-white/[0.035] px-2 py-1.5 text-xs"
+                                            data-debug-report-source={report.filePath}
+                                            data-debug-report-freshness={report.freshness}
+                                            data-debug-truth-state={report.truthState}
+                                        >
+                                            <span className="font-semibold text-white">{report.label}</span>
+                                            <span className="text-gray-400">{report.findingCount} finding{report.findingCount === 1 ? "" : "s"}</span>
+                                            <AdminStatusBadge state={toBadgeState(report.truthState)} className="py-0 text-[8px]" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : null}
+                        </section>
+
+                        <div className="rounded-md border border-white/10 bg-black/20 p-3">
+                            <p className="text-xs text-gray-300">{model.reportAggregateSummary}</p>
+                            <p className="mt-1 text-xs text-gray-500">{model.reportAggregateTruthState}</p>
+                        </div>
+
+                        {topFindings.length > 0 ? (
+                            <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source="top-findings">
+                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Top findings</summary>
+                                <div className="mt-2 grid gap-2">
+                                    {topFindings.map((finding) => (
+                                        <FindingCard key={`top-${finding.id}`} finding={finding} compact />
+                                    ))}
+                                </div>
+                            </details>
+                        ) : null}
+
+                        {model.liveIssues.length > 0 ? (
+                            <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source={model.debugEvidenceSource}>
+                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Live Issues ({model.liveIssues.length})</summary>
+                                <div className="mt-2 grid gap-2">
+                                    {model.liveIssues.slice(0, 10).map((issue) => (
+                                        <LiveIssueCard key={issue.id} issue={issue} />
+                                    ))}
+                                </div>
+                            </details>
+                        ) : null}
+
+                        {visibleNextActions.length > 0 ? (
+                            <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300" data-debug-report-source="next-actions">
+                                <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Recommended Next Actions ({model.nextActions.length})</summary>
+                                <div className="mt-2 grid gap-2">
+                                    {visibleNextActions.map((action) => (
+                                        <NextActionCard key={action.id} action={action} />
+                                    ))}
+                                </div>
+                            </details>
+                        ) : null}
+
                         <DebugOperatorCockpit cockpit={model.operatorCockpit} />
 
                         {resolvedBusinessSnapshot ? (
