@@ -134,6 +134,7 @@ for (const oldAsset of ["next.svg", "vercel.svg", "file.svg", "globe.svg", "wind
 for (const expected of [
   "const APP_SHELL_CACHE",
   "const APP_RUNTIME_CACHE",
+  "SERVICE_WORKER_CACHE_VERSION",
   "PRECACHE_URLS",
   "\"/offline\"",
   "\"/manifest.json\"",
@@ -146,6 +147,8 @@ for (const expected of [
   "await self.skipWaiting()",
   "await self.clients.claim()",
   "caches.delete(cacheName)",
+  "request.cache === \"no-store\"",
+  "request.cache === \"no-cache\"",
 ]) {
   requireIncludes(serviceWorker, expected, "service worker cache/update contract");
 }
@@ -184,6 +187,9 @@ for (const expected of [
 }
 
 requireIncludes(pwaBridge, "registerAppServiceWorker", "PWA runtime bridge");
+requireIncludes(pwaBridge, "kandydrops-release-notes.json?deployCheck=", "PWA runtime bridge release-version freshness check");
+requireIncludes(pwaBridge, "clearManagedKandyDropsCaches", "PWA runtime bridge managed cache cleanup");
+requireIncludes(pwaBridge, "window.location.reload()", "PWA runtime bridge deploy refresh");
 requireIncludes(coreLayout, "<PwaRuntimeBridge />", "Core layout PWA registration owner");
 requireIncludes(coreLayout, "shouldEnablePwaRuntime = !isAdminRoute", "Core layout admin PWA bypass");
 

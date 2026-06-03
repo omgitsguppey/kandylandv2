@@ -32,4 +32,14 @@ describe("firebase messaging service worker notification display", () => {
         expect(serviceWorkerSource).toContain("clients.matchAll({ type: \"window\", includeUncontrolled: true })");
         expect(serviceWorkerSource).toContain("clients.openWindow(targetUrl.toString())");
     });
+
+    it("versions caches from the release query and bypasses stale cache modes", () => {
+        expect(serviceWorkerSource).toContain("resolveServiceWorkerCacheVersion(SEARCH_PARAMS.get(\"v\"))");
+        expect(serviceWorkerSource).toContain("const APP_SHELL_CACHE = `${CACHE_NAME_PREFIXES.appShell}${SERVICE_WORKER_CACHE_VERSION}`");
+        expect(serviceWorkerSource).toContain("const APP_RUNTIME_CACHE = `${CACHE_NAME_PREFIXES.runtime}${SERVICE_WORKER_CACHE_VERSION}`");
+        expect(serviceWorkerSource).not.toContain("kandydrops-app-shell-v3");
+        expect(serviceWorkerSource).not.toContain("kandydrops-runtime-v3");
+        expect(serviceWorkerSource).toContain("request.cache === \"no-store\"");
+        expect(serviceWorkerSource).toContain("request.cache === \"no-cache\"");
+    });
 });

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-14T17:39:25.526Z",
+  "generatedAtUtc": "2026-06-03T12:31:38.676Z",
   "reportKey": "repo-doctrine-reset",
-  "currentHead": "d315c420f128a39f452f823217ea5fdda294b5f6",
+  "currentHead": "c8b5656174078a4dc980aeab686ff5ad72bafae8",
   "summary": {
     "docsScanned": 16,
     "docsUpdated": 16,
@@ -134,7 +134,7 @@
       "severity": "P1",
       "file": "AGENTS.md, README.md, docs/agent-truth/public-beta-release-notes.md",
       "oldText": "release-note skip behavior lived in workflow/docs but not in the main operator gateway.",
-      "action": "Added release-note-only [skip release-notes] and no-second-badge-loop language to active gateways.",
+      "action": "Added same-commit release-note and release-note-only recovery [skip release-notes] language to active gateways.",
       "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
     },
     {

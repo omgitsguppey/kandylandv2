@@ -7,8 +7,6 @@ const CACHE_NAME_PREFIXES = {
     appShell: "kandydrops-app-shell-",
     runtime: "kandydrops-runtime-",
 };
-const APP_SHELL_CACHE = "kandydrops-app-shell-v3";
-const APP_RUNTIME_CACHE = "kandydrops-runtime-v3";
 const NOTIFICATION_ICON = "/icon-192x192.png";
 const OFFLINE_FALLBACK_URL = "/offline";
 const PRECACHE_URLS = [
@@ -42,6 +40,9 @@ const FORBIDDEN_CACHE_PATH_PREFIXES = [
     "/creator/private",
 ];
 const SEARCH_PARAMS = new URL(self.location).searchParams;
+const SERVICE_WORKER_CACHE_VERSION = resolveServiceWorkerCacheVersion(SEARCH_PARAMS.get("v"));
+const APP_SHELL_CACHE = `${CACHE_NAME_PREFIXES.appShell}${SERVICE_WORKER_CACHE_VERSION}`;
+const APP_RUNTIME_CACHE = `${CACHE_NAME_PREFIXES.runtime}${SERVICE_WORKER_CACHE_VERSION}`;
 
 const firebaseConfig = {
     apiKey: SEARCH_PARAMS.get("apiKey"),
@@ -49,6 +50,17 @@ const firebaseConfig = {
     messagingSenderId: SEARCH_PARAMS.get("messagingSenderId"),
     appId: SEARCH_PARAMS.get("appId"),
 };
+
+function resolveServiceWorkerCacheVersion(rawVersion) {
+    const normalized = String(rawVersion || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+    return normalized || "unversioned";
+}
 
 function resolveSafeNotificationUrl(rawUrl) {
     try {
@@ -185,17 +197,17 @@ async function handleNavigationRequest(request) {
 }
 
 async function handleStaticRequest(request) {
-    const cachedResponse = await caches.match(request, { ignoreSearch: true });
     const networkRequest = fetch(request)
         .then((response) => cacheRuntimeResponse(request, response))
         .catch(() => null);
 
-    if (cachedResponse) {
-        void networkRequest;
-        return cachedResponse;
+    const networkResponse = await networkRequest;
+    if (networkResponse) {
+        return networkResponse;
     }
 
-    return networkRequest || fetch(request);
+    const cachedResponse = await caches.match(request, { ignoreSearch: true });
+    return cachedResponse || fetch(request);
 }
 
 self.addEventListener("fetch", (event) => {
@@ -207,6 +219,9 @@ self.addEventListener("fetch", (event) => {
     const requestUrl = new URL(request.url);
     if (
         requestUrl.origin !== self.location.origin
+        || request.cache === "reload"
+        || request.cache === "no-store"
+        || request.cache === "no-cache"
         || shouldBypassServiceWorkerCache(requestUrl.pathname)
         || requestUrl.pathname.startsWith("/api/")
         || requestUrl.pathname.startsWith("/__/")

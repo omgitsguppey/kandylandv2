@@ -46,7 +46,7 @@ for (const needle of [
   requireIncludes(chatRouteShell, needle, "Android PWA chat shell branch");
 }
 
-requireIncludes(chatExperience, "data-platform-shell={isAndroidPwaChatShell ? \"android-pwa\" : \"default\"}", "Android PWA chat marker");
+requireIncludes(chatExperience, "data-platform-shell={isIosPwaChatShell ? \"ios-pwa\" : isAndroidPwaChatShell ? \"android-pwa\" : \"default\"}", "Platform PWA chat marker");
 requireIncludes(chatExperience, "isAndroidStandalonePwa()", "Android PWA chat detection use");
 requireIncludes(chatExperience, "var(--kd-android-pwa-bottom-nav-height", "Android PWA chat bottom spacing");
 
@@ -62,6 +62,8 @@ requireNotIncludes(pwaRuntimeBridge, "toast(\"New version available\"", "Visible
 requireNotIncludes(pwaRuntimeBridge, "Refresh to load the latest KandyDrops build.", "Visible build refresh banner");
 requireIncludes(pwaRuntimeBridge, "singletonFreshnessWatcherMounted", "Build freshness singleton");
 requireIncludes(pwaRuntimeBridge, "cache: \"no-store\"", "Manifest freshness fetch");
+requireIncludes(pwaRuntimeBridge, "kandydrops-release-notes.json?deployCheck=", "Release-version freshness fetch");
+requireIncludes(pwaRuntimeBridge, "clearManagedKandyDropsCaches", "Managed cache cleanup");
 requireIncludes(pwaRuntimeBridge, "window.addEventListener(KANDYDROPS_APP_UPDATE_EVENT", "PWA update event handling");
 
 requireIncludes(firebaseMessaging, "KANDYDROPS_APP_UPDATE_EVENT", "PWA update event source");

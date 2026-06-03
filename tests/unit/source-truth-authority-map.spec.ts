@@ -194,7 +194,7 @@ describe("source truth authority map validator", () => {
         ...reportFixture().summary,
         sameCommitReleaseNotes: false,
       },
-      memoryRules: ["Release-note-only commits must use [skip release-notes]."],
+      memoryRules: ["Release-note-only recovery commits must use [skip release-notes]."],
     });
 
     expect(validateSourceTruthAuthorityMapReport(report, "head")).toContain(

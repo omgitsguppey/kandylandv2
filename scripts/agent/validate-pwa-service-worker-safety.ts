@@ -76,16 +76,24 @@ function classifyDirtyFile(path: string): DirtyClassification {
   if (/^scripts\/agent\/validate-(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (/^tests\/unit\/(pwa-service-worker-status-cleanup|identity-handoff-status-cleanup|wallet-funnel-sample-cleanup|empty-live-lane-status-cleanup|tracking-lane-freshness-display-cleanup|debug-cockpit-batch3-cleanup)\.spec\.ts$/u.test(normalized)) return "test_artifact_expected";
   if (normalized === REPORT_PATH) return "current_generated_artifact_to_commit";
+  if (normalized === "agent/state/environment-deployment-truth-audit.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/feature-registration-gate.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === "agent/state/public-beta-score.generated.json") return "current_generated_artifact_to_commit";
   if (normalized === DOC_PATH) return "release_artifact_expected";
   if (normalized === "scripts/agent/validate-pwa-service-worker-safety.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-pwa-service-worker.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-environment-deployment-truth.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-android-pwa-chat-and-build-banner.ts") return "validator_artifact_expected";
+  if (normalized === "scripts/agent/validate-repo-doctrine-reset.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-pwa-score-lock.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-permission-lifecycle.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-notification-targeting-intent.ts") return "validator_artifact_expected";
   if (normalized === "scripts/agent/validate-push-token-registration.ts") return "validator_artifact_expected";
   if (/^scripts\/agent\/validate-(drop-watch-time-accuracy|session-bounce-calculation|user-journey-behavioral-intelligence|sql-database-parity-cost-lock|event-translation-bridge|person-metrics-hydration)\.ts$/u.test(normalized)) return "validator_artifact_expected";
   if (normalized === "tests/unit/pwa-service-worker-safety.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/firebase-messaging-sw.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/repo-doctrine-reset.spec.ts") return "test_artifact_expected";
+  if (normalized === "tests/unit/source-truth-authority-map.spec.ts") return "test_artifact_expected";
   if (normalized === "tests/unit/notification-pwa-score-lock.spec.ts") return "test_artifact_expected";
   if (
     normalized === "src/lib/pwa/pwa-service-worker-contract.ts"
@@ -233,6 +241,9 @@ function main() {
   }
   for (const expected of [
     "shouldBypassServiceWorkerCache(requestUrl.pathname)",
+    "request.cache === \"no-store\"",
+    "request.cache === \"no-cache\"",
+    "SERVICE_WORKER_CACHE_VERSION",
     "OFFLINE_FALLBACK_URL",
     "handleNavigationRequest(request)",
     "fetch(request)",
@@ -251,6 +262,9 @@ function main() {
   }
   for (const expected of [
     "trackPwaServiceWorkerEvent",
+    "kandydrops-release-notes.json?deployCheck=",
+    "clearManagedKandyDropsCaches",
+    "window.location.reload()",
     "pwa_service_worker_registration_started",
     "pwa_service_worker_registered",
     "pwa_service_worker_registration_failed",

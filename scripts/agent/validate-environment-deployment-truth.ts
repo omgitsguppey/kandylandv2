@@ -172,7 +172,14 @@ requireContains("functions/src/analytics-bigquery-export.ts", bigQueryExport, EX
 requireContains("src/lib/firebase-runtime.ts", firebaseRuntime, "NEXT_PUBLIC_FIREBASE_VAPID_KEY", "FCM VAPID key must be read from public runtime env");
 requireContains("src/lib/firebase-messaging.ts", firebaseMessaging, "vapidKey: FIREBASE_VAPID_KEY", "FCM token registration must pass VAPID key");
 requireContains("src/lib/firebase-messaging.ts", firebaseMessaging, 'navigator.serviceWorker.register(getAppServiceWorkerUrl(), { scope: "/" })', "service worker registration must use root scope");
-requireContains("public/firebase-messaging-sw.js", serviceWorker, 'const APP_SHELL_CACHE = "kandydrops-app-shell-v3"', "service worker cache version must be explicit");
+requireContains("src/lib/firebase-messaging.ts", firebaseMessaging, "v: PUBLIC_APP_VERSION", "service worker registration must include the public app version");
+requireContains("public/firebase-messaging-sw.js", serviceWorker, "resolveServiceWorkerCacheVersion", "service worker cache version must be sanitized from the registration URL");
+requireContains("public/firebase-messaging-sw.js", serviceWorker, "const SERVICE_WORKER_CACHE_VERSION = resolveServiceWorkerCacheVersion(SEARCH_PARAMS.get(\"v\"))", "service worker cache version must come from the release-version query");
+requireContains("public/firebase-messaging-sw.js", serviceWorker, "const APP_SHELL_CACHE = `${CACHE_NAME_PREFIXES.appShell}${SERVICE_WORKER_CACHE_VERSION}`", "service worker app-shell cache must be release-versioned");
+requireContains("public/firebase-messaging-sw.js", serviceWorker, "const APP_RUNTIME_CACHE = `${CACHE_NAME_PREFIXES.runtime}${SERVICE_WORKER_CACHE_VERSION}`", "service worker runtime cache must be release-versioned");
+if (serviceWorker.includes('const APP_SHELL_CACHE = "kandydrops-app-shell-v3"') || serviceWorker.includes('const APP_RUNTIME_CACHE = "kandydrops-runtime-v3"')) {
+  failures.push("public/firebase-messaging-sw.js: static v3 cache names must not return");
+}
 if (serviceWorker.includes("requestUrl.pathname.startsWith(\"/api/\")") === false) {
   failures.push("public/firebase-messaging-sw.js: service worker must not cache API data routes");
 }

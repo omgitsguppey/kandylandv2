@@ -1,11 +1,71 @@
 {
-  "currentVersion": "1.5.33",
-  "betaReleaseCounter": 533,
+  "currentVersion": "1.5.34",
+  "betaReleaseCounter": 534,
   "channel": "beta",
-  "generatedAt": "2026-06-02T17:11:04.560Z",
-  "generatedAtUtc": "2026-06-02T17:11:04.560Z",
-  "lastCommitSha": "fa8ebb98f302fc0584a2e9fd00d25b033fce500c",
+  "generatedAt": "2026-06-03T12:30:28.575Z",
+  "generatedAtUtc": "2026-06-03T12:30:28.575Z",
+  "lastCommitSha": "3bca035dc2f3a25f5d79e8d11dc307bcdf39f4c3",
   "notes": [
+    {
+      "version": "1.5.34",
+      "previousVersion": "1.5.33",
+      "betaReleaseCounter": 534,
+      "previousBetaReleaseCounter": 533,
+      "commitSha": "3bca035dc2f3a25f5d79e8d11dc307bcdf39f4c3",
+      "commitTitle": "fix(pwa): consolidate stale cache refresh",
+      "commitCount": 2,
+      "commitShas": [
+        "b43d0551abc2035a1b413d58dff68e10f4e82074",
+        "3bca035dc2f3a25f5d79e8d11dc307bcdf39f4c3"
+      ],
+      "committedAt": "2026-06-03T12:30:17.000Z",
+      "generatedAt": "2026-06-03T12:30:28.574Z",
+      "committedAtUtc": "2026-06-03T12:30:17.000Z",
+      "generatedAtUtc": "2026-06-03T12:30:28.574Z",
+      "updatedAtUtc": "2026-06-03T12:30:28.574Z",
+      "category": "Improved",
+      "title": "Bug fixes and quality-of-life improvements",
+      "summary": "Bug fixes and quality-of-life improvements.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Fixed beta issues to make KandyDrops smoother to use.",
+        "Improved reliability for the latest Beta build."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/environment-deployment-truth-audit.generated.json",
+        "agent/state/pwa-service-worker-safety.generated.json",
+        "docs/agent-truth/current-operator-doctrine.md",
+        "docs/agent-truth/environment-deployment-truth.md",
+        "docs/agent-truth/public-beta-release-notes.md",
+        "docs/agent-truth/pwa-service-worker-safety.md",
+        "public/firebase-messaging-sw.js",
+        "scripts/agent/validate-android-pwa-chat-and-build-banner.ts",
+        "scripts/agent/validate-environment-deployment-truth.ts",
+        "scripts/agent/validate-pwa-service-worker-safety.ts",
+        "scripts/agent/validate-pwa-service-worker.ts",
+        "scripts/agent/validate-repo-doctrine-reset.ts",
+        "src/components/CreatorDiscoveryRail.tsx",
+        "src/components/PwaRuntimeBridge.tsx",
+        "src/lib/parity/surface-state-resolver.ts",
+        "src/lib/telemetry/surface-telemetry-registry.ts",
+        "tests/unit/creator-discovery-rail.spec.tsx",
+        "tests/unit/firebase-messaging-sw.spec.ts",
+        "tests/unit/repo-doctrine-reset.spec.ts",
+        "tests/unit/source-truth-authority-map.spec.ts",
+        "tests/unit/surface-state-parity.spec.ts",
+        "tests/unit/surface-telemetry-parity.spec.ts"
+      ],
+      "sourceCommit": "3bca035dc2f3a25f5d79e8d11dc307bcdf39f4c3"
+    },
     {
       "version": "1.5.33",
       "previousVersion": "1.5.32",

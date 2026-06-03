@@ -131,7 +131,7 @@ Public beta score must read formal evidence artifacts directly. Provider smoke d
 
 Every accepted non-release-artifact patch must update the Beta badge through the canonical release-note flow.
 
-Release-note-only commits must not trigger another release-note loop. Release-note-only commits must use `[skip release-notes]`. Do not create another Beta badge commit for a release-note-only commit. A skipped Public Beta Release Notes workflow is not a failure when the commit only touches release-note artifacts.
+Accepted source/config/UI patches must ship release-note artifacts in the same commit, not as a separate follow-up. Release-note-only commits are manual recovery only, must not trigger another release-note loop, and must use `[skip release-notes]`. Do not create another Beta badge commit for a release-note-only recovery commit. A skipped Public Beta Release Notes workflow is not a failure when the commit only touches release-note artifacts.
 
 GitHub Actions hosted-runner billing lock is external and not app failure. Firebase App Hosting rollout status and GitHub Actions billing status are separate.
 

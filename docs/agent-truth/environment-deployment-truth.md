@@ -95,7 +95,9 @@ Notification service worker truth:
 - API routes are excluded from service-worker caching.
 - Browser notification icons use `/icon-192x192.png`.
 
-Service-worker cache names must stay explicitly versioned. Increment the version if precached shell assets or offline behavior change.
+Service-worker cache names must stay explicitly release-versioned from the root-scope registration URL. Static cache names such as `kandydrops-app-shell-v3` and `kandydrops-runtime-v3` are stale-cache regressions.
+
+The PWA runtime must use the consolidated public release-note artifact as the no-store deployed-version freshness probe so an already-open tab can clear managed KandyDrops caches and reload once when the accepted Beta version advances.
 
 ## Manifest And Assets
 

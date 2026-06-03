@@ -2,7 +2,12 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 10 public updates in pages of 5.
+Showing the last 11 public updates in pages of 5.
+
+## 1.5.34 - 2026-06-03
+- Bug fixes and quality-of-life improvements
+- Fixed beta issues to make KandyDrops smoother to use.
+- Improved reliability for the latest Beta build.
 
 ## 1.5.33 - 2026-06-02
 - Sharper home hero experience

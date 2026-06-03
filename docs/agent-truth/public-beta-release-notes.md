@@ -51,7 +51,7 @@ KandyDrops Beta release notes are user-facing and track accepted public beta rel
 
 - `npm run release:notes` may normalize the public changelog without creating a new accepted release.
 - `npm run release:notes:accept` prepares the next accepted public beta patch batch locally and increments `betaReleaseCounter` by exactly 1 before the real patch is committed.
-- Patch notes are same-commit artifacts.
+- Patch notes are same-commit artifacts. Accepted source/config/UI patches must ship their Beta badge release-note artifacts in the same commit.
 - Automation validates; it does not create follow-up commits.
 - Codex must run release-note generation before committing a real patch, then stage code/docs and release artifacts together.
 - Separate docs(release) commits are legacy/forbidden except explicit manual recovery.
@@ -60,8 +60,8 @@ KandyDrops Beta release notes are user-facing and track accepted public beta rel
 - Push events must resolve as skipped before runner allocation.
 - GitHub release-note automation must not run for commits that only touch `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, `docs/agent-truth/public-beta-release-notes.md`, and `CHANGELOG.md`.
 - GitHub release-note automation must skip commits containing `[skip release-notes]`; this avoids failed no-op runs and release-note recursion while hosted-runner billing is unavailable.
-- `[skip release-notes]` is only for workflow/release-artifact-only commits.
-- Release-note-only commits must include `[skip release-notes]` and must not create another Beta badge commit.
+- `[skip release-notes]` is only for explicit manual recovery or workflow/release-artifact-only commits, never for accepted source/config/UI patches.
+- Release-note-only recovery commits must include `[skip release-notes]` and must not create another Beta badge commit.
 - A skipped Public Beta Release Notes workflow is not a failure when the commit only touches release-note artifacts.
 - GitHub Actions hosted-runner billing lock is external infrastructure status, not app failure. Firebase App Hosting rollout status, local validators, and GitHub runner billing status are separate signals.
 - `.github/workflows/ci.yml` runs `npm run check:release-notes` so stale or invalid release notes fail lightweight CI.

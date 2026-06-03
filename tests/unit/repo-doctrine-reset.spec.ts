@@ -41,8 +41,8 @@ describe("repo doctrine reset", () => {
     const doctrine = read("docs/agent-truth/current-operator-doctrine.md");
     const releaseNotes = read("docs/agent-truth/public-beta-release-notes.md");
 
-    expect(doctrine).toContain("Release-note-only commits must not trigger another release-note loop");
-    expect(releaseNotes).toContain("Release-note-only commits must include `[skip release-notes]`");
+    expect(doctrine).toContain("Release-note-only commits are manual recovery only");
+    expect(releaseNotes).toContain("Release-note-only recovery commits must include `[skip release-notes]`");
     expect(releaseNotes).toMatch(/skipped Public Beta Release Notes workflow is not a failure/i);
   });
 

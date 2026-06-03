@@ -185,7 +185,7 @@ export function buildRepoDoctrineResetReport(now = new Date()): RepoDoctrineRese
       severity: "P1",
       file: "AGENTS.md, README.md, docs/agent-truth/public-beta-release-notes.md",
       oldText: "release-note skip behavior lived in workflow/docs but not in the main operator gateway.",
-      action: "Added release-note-only [skip release-notes] and no-second-badge-loop language to active gateways.",
+      action: "Added same-commit release-note and release-note-only recovery [skip release-notes] language to active gateways.",
       replacementOrReference: "docs/agent-truth/current-operator-doctrine.md",
     },
     {
@@ -333,7 +333,7 @@ export function validateRepoDoctrineResetReport(report: RepoDoctrineResetReport)
   }
 
   requireIncludes(releaseNotes, "[skip release-notes]", "release-note doctrine", failures);
-  requireMatch(releaseNotes, /Release-note-only commits must include `\[skip release-notes\]`/u, "release-note doctrine", failures);
+  requireMatch(releaseNotes, /Release-note-only recovery commits must include `\[skip release-notes\]`/u, "release-note doctrine", failures);
   requireMatch(releaseNotes, /skipped Public Beta Release Notes workflow is not a failure/iu, "release-note doctrine", failures);
 
   requireIncludes(watchTime, "analytics_watch_sessions.validWatchMs", "watch-time doctrine", failures);

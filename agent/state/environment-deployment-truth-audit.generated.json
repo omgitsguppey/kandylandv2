@@ -294,12 +294,12 @@
     {
       "key": "service-worker-cache-version",
       "filePath": "public/firebase-messaging-sw.js",
-      "expectedProductionValueDescription": "Service worker has explicit cache names and excludes API routes from app-data caching.",
-      "currentValueRedacted": "kandydrops-app-shell-v3; kandydrops-runtime-v3; /api excluded",
+      "expectedProductionValueDescription": "Service worker derives explicit cache names from the release-version registration query and excludes API routes from app-data caching.",
+      "currentValueRedacted": "kandydrops-app-shell-<release-version>; kandydrops-runtime-<release-version>; /api excluded",
       "source": "Service worker source",
       "productionSafe": true,
       "mismatchRisk": "low",
-      "userImpact": "Offline shell caching should not stale-cache private data routes.",
+      "userImpact": "Offline shell caching should not stale-cache private data routes or preserve static cache buckets across accepted Beta versions.",
       "fixNeeded": "None.",
       "secretExposureRisk": false
     },

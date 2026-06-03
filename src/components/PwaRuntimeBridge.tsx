@@ -13,6 +13,8 @@ import { PUBLIC_APP_VERSION } from "@/lib/release-notes/public-release-notes";
 import { trackEvent } from "@/lib/telemetry";
 
 const BUILD_REFRESH_SESSION_KEY = "kandydrops.build-refresh.version";
+const BUILD_REFRESH_CHECK_SESSION_KEY = "kandydrops.build-refresh.last-check";
+const BUILD_REFRESH_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 let singletonFreshnessWatcherMounted = false;
 
 function resolveNotificationPermissionState() {
@@ -74,6 +76,50 @@ async function fetchManifestNoStore() {
     }
 }
 
+async function fetchCurrentReleaseVersionNoStore() {
+    if (typeof window === "undefined") {
+        return null;
+    }
+
+    try {
+        const response = await fetch(`/kandydrops-release-notes.json?deployCheck=${Date.now()}`, {
+            cache: "no-store",
+            headers: {
+                "cache-control": "no-cache",
+                pragma: "no-cache",
+            },
+        });
+        if (!response.ok) {
+            return null;
+        }
+
+        const payload = await response.json() as { currentVersion?: unknown };
+        return typeof payload.currentVersion === "string" ? payload.currentVersion : null;
+    } catch {
+        return null;
+    }
+}
+
+async function clearManagedKandyDropsCaches() {
+    if (typeof window === "undefined" || !("caches" in window)) {
+        return;
+    }
+
+    try {
+        const cacheNames = await window.caches.keys();
+        await Promise.all(
+            cacheNames
+                .filter((cacheName) => (
+                    cacheName.startsWith("kandydrops-app-shell-")
+                    || cacheName.startsWith("kandydrops-runtime-")
+                ))
+                .map((cacheName) => window.caches.delete(cacheName)),
+        );
+    } catch {
+        // Cache cleanup is best-effort; the no-store reload still moves the tab forward.
+    }
+}
+
 export function PwaRuntimeBridge() {
     useEffect(() => {
         emitPwaEvent("pwa_service_worker_registration_started", {
@@ -102,14 +148,59 @@ export function PwaRuntimeBridge() {
             }
         };
 
-        const handleUpdateAvailable = () => {
-            // Keep this update flow silent for public user surfaces.
-            markCurrentBuildSeen();
+        const refreshForVersion = async (nextVersion: string) => {
+            try {
+                const refreshMarker = `${PUBLIC_APP_VERSION}->${nextVersion}`;
+                if (window.sessionStorage.getItem(BUILD_REFRESH_SESSION_KEY) === refreshMarker) {
+                    return;
+                }
+
+                window.sessionStorage.setItem(BUILD_REFRESH_SESSION_KEY, refreshMarker);
+            } catch {
+                // no-op in restricted storage contexts
+            }
+
+            await clearManagedKandyDropsCaches();
+            window.location.reload();
+        };
+
+        const checkForNewerBuild = async (force = false) => {
+            try {
+                const lastCheckedAt = Number(window.sessionStorage.getItem(BUILD_REFRESH_CHECK_SESSION_KEY) || "0");
+                const now = Date.now();
+                if (!force && Number.isFinite(lastCheckedAt) && now - lastCheckedAt < BUILD_REFRESH_CHECK_INTERVAL_MS) {
+                    return;
+                }
+                window.sessionStorage.setItem(BUILD_REFRESH_CHECK_SESSION_KEY, String(now));
+            } catch {
+                // no-op in restricted storage contexts
+            }
+
+            const nextVersion = await fetchCurrentReleaseVersionNoStore();
+            if (nextVersion && nextVersion !== PUBLIC_APP_VERSION) {
+                emitPwaEvent("pwa_update_available", {
+                    registered: true,
+                    updateAvailable: true,
+                    staleShellRiskSignals: ["release_version_mismatch"],
+                });
+                await refreshForVersion(nextVersion);
+            }
+        };
+
+        const handleUpdateAvailable = (event: Event) => {
+            const nextVersion = event instanceof CustomEvent && typeof event.detail?.nextVersion === "string"
+                ? event.detail.nextVersion
+                : PUBLIC_APP_VERSION;
             emitPwaEvent("pwa_update_available", {
                 registered: true,
                 updateAvailable: true,
                 staleShellRiskSignals: ["service_worker_update_available"],
             });
+            if (nextVersion !== PUBLIC_APP_VERSION) {
+                void refreshForVersion(nextVersion);
+                return;
+            }
+            void checkForNewerBuild(true);
         };
 
         const handleOffline = () => {
@@ -129,12 +220,24 @@ export function PwaRuntimeBridge() {
         void fetchManifestNoStore().then(() => {
             // Deliberately silent; ensures freshness check bypasses stale cache layers.
         });
+        void checkForNewerBuild(true);
+
+        const handleFocus = () => void checkForNewerBuild();
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                void checkForNewerBuild();
+            }
+        };
 
         window.addEventListener(KANDYDROPS_APP_UPDATE_EVENT, handleUpdateAvailable);
+        window.addEventListener("focus", handleFocus);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
         window.addEventListener("offline", handleOffline);
         window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
         return () => {
             window.removeEventListener(KANDYDROPS_APP_UPDATE_EVENT, handleUpdateAvailable);
+            window.removeEventListener("focus", handleFocus);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
             window.removeEventListener("offline", handleOffline);
             window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
             singletonFreshnessWatcherMounted = false;
