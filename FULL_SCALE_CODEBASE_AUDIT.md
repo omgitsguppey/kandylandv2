@@ -13887,3 +13887,11 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+### 2026-04-22 follow-up
+- `src/lib/gumdrop-economics.ts`
+  - [x] Package definition helper `getBundlePresentation` no longer uses hardcoded base/bonus amounts; it now accepts an optional `priceUsd` and dynamically resolves source-of-funds values via `deriveGumdropEconomics` to ensure a single source of truth and prevent UI double-counting.
+- `src/lib/server/platform-economy.ts`
+  - [x] `buildDefaultPackageRecord` now passes the expected package price to `getBundlePresentation` to accurately split base and bonus GumDrops for the admin catalog.
+- `src/app/api/paypal/capture/route.ts`
+  - [x] PayPal capture logic now correctly passes the `paidUsd` when deriving presentation formatting to avoid mixing purchased and non-purchased visible value claims.

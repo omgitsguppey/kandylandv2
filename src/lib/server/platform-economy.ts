@@ -80,7 +80,7 @@ function buildDefaultPackageRecord(input: {
     label: string;
     sortOrder: number;
 }): PlatformEconomyPackageRecord {
-    const bundle = getBundlePresentation(input.drops);
+    const bundle = getBundlePresentation(input.drops, input.priceUsd);
     const effectiveUsdPer100Gd = computeEffectiveUsdPer100Gd(input.priceUsd, input.drops);
 
     return {

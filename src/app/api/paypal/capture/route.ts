@@ -160,7 +160,7 @@ async function POST_handler(request: NextRequest) {
       paypalFeeUsd,
       netRevenueUsd,
     });
-    const bundlePresentation = getBundlePresentation(dropsToCredit);
+    const bundlePresentation = getBundlePresentation(dropsToCredit, paidUsd);
 
     const customId = capture.custom_id || parsed.purchase_units[0]?.custom_id;
     const [capturedUserId, capturedDropsRaw] = typeof customId === "string" ? customId.split(":") : [];

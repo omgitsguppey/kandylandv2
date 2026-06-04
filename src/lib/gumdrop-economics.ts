@@ -41,59 +41,54 @@ type GumdropEconomicsOptions = {
   isInternationalSale?: boolean;
 };
 
-export function getBundlePresentation(deliveredGumDrops: number) {
-  let baseAmount = 0;
-  let bonus = 0;
+export function getBundlePresentation(deliveredGumDrops: number, priceUsd?: number) {
   let bundleLabel = "King Size Bundle";
   let bundleKey = `bundle_${deliveredGumDrops}`;
   let bundleTier: "entry" | "bonus" | "bundle" | "custom" = "custom";
+  let defaultPriceUsd = deliveredGumDrops / 100;
 
   switch (deliveredGumDrops) {
     case 100:
-      baseAmount = 100;
-      bonus = 0;
       bundleLabel = "Sugar Rush Pack";
       bundleKey = "sugar_rush_pack";
       bundleTier = "entry";
+      defaultPriceUsd = 1;
       break;
     case 550:
-      baseAmount = 500;
-      bonus = 50;
       bundleLabel = "Sweet Pack";
       bundleKey = "sweet_pack";
       bundleTier = "bonus";
+      defaultPriceUsd = 5;
       break;
     case 1100:
-      baseAmount = 1000;
-      bonus = 100;
       bundleLabel = "Kandy Bag Pack";
       bundleKey = "kandy_bag_pack";
       bundleTier = "bonus";
+      defaultPriceUsd = 10;
       break;
     case 2500:
-      baseAmount = 2000;
-      bonus = 500;
       bundleLabel = "Kandy Land Pack";
       bundleKey = "kandy_land_pack";
       bundleTier = "bonus";
+      defaultPriceUsd = 20;
       break;
     default:
       if (deliveredGumDrops >= 5000 && deliveredGumDrops % 1000 === 0) {
-        baseAmount = deliveredGumDrops / 2;
-        bonus = deliveredGumDrops / 2;
         bundleTier = "bundle";
+        defaultPriceUsd = (deliveredGumDrops / 1000) * 5;
       } else {
-        baseAmount = deliveredGumDrops;
-        bonus = 0;
         bundleTier = "custom";
       }
       break;
   }
 
+  const effectivePriceUsd = priceUsd ?? defaultPriceUsd;
+  const economics = deriveGumdropEconomics(deliveredGumDrops, effectivePriceUsd);
+
   return {
-    baseAmount,
-    bonus,
-    hasBonus: bonus > 0,
+    baseAmount: economics.paidGumDrops,
+    bonus: economics.bonusGumDrops,
+    hasBonus: economics.bonusGumDrops > 0,
     bundleLabel,
     bundleKey,
     bundleTier,
