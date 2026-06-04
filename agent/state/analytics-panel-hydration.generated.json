@@ -1,7 +1,7 @@
 {
   "reportKey": "analytics-panel-hydration",
-  "generatedAtUtc": "2026-06-04T02:05:30.861Z",
-  "currentHead": "afbe76f5757d2abd6b78202bcd03698743777682",
+  "generatedAtUtc": "2026-06-04T02:06:53.548Z",
+  "currentHead": "068a97098ea53f5e415e57ba0498a8a091e3c15a",
   "productionReadsPerformed": false,
   "providerCallsPerformed": false,
   "rawSensitiveDataAllowed": false,
@@ -402,10 +402,9 @@
     ]
   },
   "dirtyFileSummary": {
-    "total": 4,
+    "total": 2,
     "byClassification": {
-      "stale_generated_artifact_to_regenerate": 2,
-      "analytics_panel_hydration_artifact_expected": 2
+      "stale_generated_artifact_to_regenerate": 2
     },
     "unsafeUnknown": [],
     "sample": [
@@ -414,16 +413,8 @@
         "classification": "stale_generated_artifact_to_regenerate"
       },
       {
-        "path": "agent/state/analytics-panel-hydration.generated.json",
-        "classification": "analytics_panel_hydration_artifact_expected"
-      },
-      {
         "path": "docs/agent-truth/admin-analytics-source-hierarchy.md",
         "classification": "stale_generated_artifact_to_regenerate"
-      },
-      {
-        "path": "docs/agent-truth/analytics-panel-hydration.md",
-        "classification": "analytics_panel_hydration_artifact_expected"
       }
     ],
     "sampleTruncated": false
