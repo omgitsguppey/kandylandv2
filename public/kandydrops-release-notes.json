@@ -1,11 +1,59 @@
 {
-  "currentVersion": "1.5.51",
-  "betaReleaseCounter": 551,
+  "currentVersion": "1.5.52",
+  "betaReleaseCounter": 552,
   "channel": "beta",
-  "generatedAt": "2026-06-04T00:02:17.223Z",
-  "generatedAtUtc": "2026-06-04T00:02:17.223Z",
-  "lastCommitSha": "2a2375c01b0d3f570b793a5cba98a651eb7b3633",
+  "generatedAt": "2026-06-04T00:17:36.538Z",
+  "generatedAtUtc": "2026-06-04T00:17:36.538Z",
+  "lastCommitSha": "1bd77282b535b0b2e847ff08c198dc854f8efa22",
   "notes": [
+    {
+      "version": "1.5.52",
+      "previousVersion": "1.5.51",
+      "betaReleaseCounter": 552,
+      "previousBetaReleaseCounter": 551,
+      "commitSha": "1bd77282b535b0b2e847ff08c198dc854f8efa22",
+      "commitTitle": "fix(admin): simplify debug panel evidence drawer",
+      "commitCount": 2,
+      "commitShas": [
+        "7ecb60bf1826e04e063d83dcdbc13cddf75490db",
+        "1bd77282b535b0b2e847ff08c198dc854f8efa22"
+      ],
+      "committedAt": "2026-06-04T00:17:22.000Z",
+      "generatedAt": "2026-06-04T00:17:36.536Z",
+      "committedAtUtc": "2026-06-04T00:17:22.000Z",
+      "generatedAtUtc": "2026-06-04T00:17:36.536Z",
+      "updatedAtUtc": "2026-06-04T00:17:36.536Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/debug/page.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-commerce-mobile.spec.ts",
+        "tests/unit/admin-debug-compact-panel.spec.ts"
+      ],
+      "sourceCommit": "1bd77282b535b0b2e847ff08c198dc854f8efa22"
+    },
     {
       "version": "1.5.51",
       "previousVersion": "1.5.50",
@@ -1452,61 +1500,6 @@
         "tests/unit/live-evidence-gate-replacement.spec.ts"
       ],
       "sourceCommit": "a6ac6d0632b66412ba22ad6a2ff981d0f7aee3aa"
-    },
-    {
-      "version": "1.5.27",
-      "previousVersion": "1.5.26",
-      "betaReleaseCounter": 527,
-      "previousBetaReleaseCounter": 526,
-      "commitSha": "pending-same-commit",
-      "commitTitle": "refactor(beta): consolidate cost risk truth",
-      "commitCount": 1,
-      "commitShas": [
-        "pending-same-commit"
-      ],
-      "committedAt": "2026-05-31T19:35:00.000Z",
-      "generatedAt": "2026-05-31T19:35:00.000Z",
-      "committedAtUtc": "2026-05-31T19:35:00.000Z",
-      "generatedAtUtc": "2026-05-31T19:35:00.000Z",
-      "category": "Internal Reliability",
-      "title": "Cost risk truth cleanup",
-      "updatedAtUtc": "2026-05-31T19:35:00.000Z",
-      "summary": "Reconnected beta cost scoring to current source cost guard artifacts while keeping external billing proof as owner-review evidence.",
-      "userFacingTitle": "Clearer Beta cost readiness",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Updated Beta cost readiness so current source cost guard checks are counted accurately.",
-        "Kept Cloud Run, Cloud SQL/Data Connect, Gemini/Vertex, and billing proof as owner-review requirements.",
-        "Preserved the rule that source cost guards do not prove external billing savings."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Reconnected score-80 cost readiness to current cost risk exit and owner-review source closure artifacts.",
-        "Classified Data Connect mirror tables as source guarded but still requiring provider billing review.",
-        "Did not change payment, wallet, PayPal, GumDrop math, pricing, package amounts, or runtime routes."
-      ],
-      "affectedSurfaces": [
-        "Beta score diagnostics",
-        "Cost risk evidence",
-        "Google/Firebase cost guardrails"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "scripts/agent/validate-cost-owner-review-source-closure.ts",
-        "scripts/agent/validate-cost-risk-exit-pass.ts",
-        "scripts/agent/validate-score-80-cost-readiness.ts",
-        "agent/state/cost-risk-exit-pass.generated.json",
-        "agent/state/score-80-cost-readiness.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "effectiveChangeCount": 3,
-      "excludedGeneratedChangeCount": 4,
-      "bumpType": "patch",
-      "sourceCommit": "pending-same-commit"
     }
   ]
 }

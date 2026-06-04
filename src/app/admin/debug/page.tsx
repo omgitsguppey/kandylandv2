@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     Activity,
     Database,
@@ -23,7 +23,6 @@ import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 
-import { StatCard } from "./components/DebugPrimitives";
 import { DebugTabNow } from "./components/DebugTabNow";
 import { DebugTabActions } from "./components/DebugTabActions";
 import { DebugTabMonitoring } from "./components/DebugTabMonitoring";
@@ -41,6 +40,7 @@ import {
     buildAdminDebugOpenActionsCard,
     buildAdminDebugRouteHealthCard,
     createAdminDebugCardCopy,
+    type AdminDebugCardCopy,
 } from "@/lib/admin-debug-summary-cards";
 import { deriveOpsHealthCanonicalState } from "@/lib/debug/ops-health-canonical-state";
 import {
@@ -94,18 +94,28 @@ type CompactDebugSummaryItem = {
     truthState: AdminTruthState | AdminSurfaceState | "loading";
 };
 
+type CompactDebugDetailItem = {
+    label: string;
+    value: string | number;
+    meta: string;
+    truthState: AdminTruthState | AdminSurfaceState | "loading";
+    copy: AdminDebugCardCopy;
+};
+
 function CompactDebugStatusRail({
     items,
-    children,
+    detailItems,
 }: {
     items: CompactDebugSummaryItem[];
-    children: ReactNode;
+    detailItems: CompactDebugDetailItem[];
 }) {
     return (
         <section
             className="rounded-lg border border-white/10 bg-black/25 p-2.5"
             data-admin-debug-summary="compact"
             data-mobile-organization="summary-first"
+            data-admin-debug-detail-density="single_evidence_drawer"
+            data-admin-debug-detail-card-count={detailItems.length}
         >
             <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
                 {items.map((item) => {
@@ -133,9 +143,38 @@ function CompactDebugStatusRail({
                 })}
             </div>
             <details className="mt-2 rounded-md border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
-                <summary className="min-h-8 cursor-pointer pt-1.5 font-semibold text-gray-100">Source detail cards</summary>
-                <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                    {children}
+                <summary className="min-h-8 cursor-pointer pt-1.5 font-semibold text-gray-100">Evidence details</summary>
+                <div className="mt-2 divide-y divide-white/10">
+                    {detailItems.map((item) => {
+                        const resolvedTruth = resolveAdminInputTruthState({
+                            truthState: item.truthState,
+                            value: item.value,
+                            pendingInitialLoad: item.truthState === "loading",
+                        });
+
+                        return (
+                            <div key={item.label} className="grid gap-2 py-2 md:grid-cols-[minmax(0,0.75fr)_minmax(0,1.4fr)_minmax(0,1fr)]">
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <AdminTruthBadge
+                                            state={resolvedTruth.truthState}
+                                            className="py-0 text-[8px]"
+                                            pendingInitialLoad={resolvedTruth.pendingInitialLoad}
+                                            hasUsableValue={resolvedTruth.hasUsableValue}
+                                        />
+                                        <p className="truncate font-semibold text-white">{item.label}</p>
+                                    </div>
+                                    <p className="mt-1 truncate text-sm font-black text-white">{item.value}</p>
+                                    <p className="truncate text-[11px] text-gray-500">{item.meta}</p>
+                                </div>
+                                <p className="text-[11px] leading-4 text-gray-300">{item.copy.operatorSummary}</p>
+                                <div className="min-w-0 text-[11px] leading-4 text-gray-400">
+                                    <p className="truncate"><span className="text-gray-500">Next:</span> {item.copy.recommendedNextCheck}</p>
+                                    <p className="truncate"><span className="text-gray-500">Source:</span> {item.copy.sourceDetails}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </details>
         </section>
@@ -607,6 +646,115 @@ export default function DebugConsole() {
         systemStateStatus,
     ]);
 
+    const detailItems = useMemo<CompactDebugDetailItem[]>(() => [
+        {
+            label: "System state",
+            truthState: !data && isLoading ? "loading" : error ? "failed" : systemStateHealthy ? "live" : "degraded",
+            value: systemStateStatus,
+            meta: systemStateMeta,
+            copy: systemStateCopy,
+        },
+        {
+            label: "Route checks",
+            truthState: !data && isLoading ? "loading" : error ? "failed" : activePipelineFailureCount > 0 ? "failed" : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "degraded" : "live",
+            value: activePipelineFailureCount,
+            meta: activePipelineFailureCount > 0 ? "Route checks need attention." : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "Recent route checks need review." : "No route failures are active.",
+            copy: pipelineCardCopy,
+        },
+        {
+            label: "Task users",
+            truthState: !data && isLoading ? "loading" : error ? "failed" : (data?.stats?.usersWithTaskIssues ?? 0) > 0 || (data?.stats?.runtimeUsersWithRefreshIssues ?? 0) > 0 ? "degraded" : "live",
+            value: data?.stats?.usersWithTaskIssues ?? "--",
+            meta: (data?.stats?.usersWithTaskIssues ?? 0) > 0 ? "Some users have task issues." : "No task-user issues are active.",
+            copy: taskIssueCopy,
+        },
+        {
+            label: "Creator intake",
+            truthState: !data && isLoading ? "loading" : error ? "failed" : (data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "degraded" : "live",
+            value: data?.stats?.creatorOnboardingIssues ?? "--",
+            meta: (data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "Creator intake needs review." : "No creator intake issues are active.",
+            copy: creatorIssueCopy,
+        },
+        {
+            label: "Open actions",
+            truthState: openActionsCard.truthState,
+            value: openActionsCard.count,
+            meta: openActionsCard.meta,
+            copy: openActionsCard.copy,
+        },
+        {
+            label: "Route health",
+            truthState: routeHealthCard.truthState,
+            value: routeHealthCard.value,
+            meta: routeHealthCard.meta,
+            copy: routeHealthCard.copy,
+        },
+        {
+            label: "Newest sample",
+            truthState: !data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable",
+            value: freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--",
+            meta: freshestLoadedSignalAt ? "Debug has a recent loaded sample." : "No loaded sample has been verified yet.",
+            copy: freshestSampleCopy,
+        },
+        {
+            label: "AI assistant",
+            truthState: aiAssistantCard.truthState,
+            value: aiAssistantCard.value,
+            meta: aiAssistantCard.meta,
+            copy: aiAssistantCard.copy,
+        },
+    ], [
+        activePipelineFailureCount,
+        aiAssistantCard.copy,
+        aiAssistantCard.meta,
+        aiAssistantCard.truthState,
+        aiAssistantCard.value,
+        creatorIssueCopy,
+        data,
+        error,
+        freshestLoadedSignalAt,
+        freshestSampleCopy,
+        isLoading,
+        openActionsCard.copy,
+        openActionsCard.count,
+        openActionsCard.meta,
+        openActionsCard.truthState,
+        pipelineCardCopy,
+        recentPipelineFailureCount,
+        routeHealthCard.copy,
+        routeHealthCard.meta,
+        routeHealthCard.truthState,
+        routeHealthCard.value,
+        sampledPipelineFailureCount,
+        systemStateCopy,
+        systemStateHealthy,
+        systemStateMeta,
+        systemStateStatus,
+        taskIssueCopy,
+    ]);
+
+    const sourceStateLabel = error
+        ? "Failed"
+        : !data && isLoading
+            ? "Loading"
+            : systemStateHealthy
+                ? "Live"
+                : "Needs review";
+    const sourceStateTone = error
+        ? "bg-red-500"
+        : !data && isLoading
+            ? "bg-amber-400"
+            : systemStateHealthy
+                ? "bg-emerald-500"
+                : "bg-amber-400";
+    const sourceStateTextClass = error
+        ? "text-red-300"
+        : !data && isLoading
+            ? "text-amber-200"
+            : systemStateHealthy
+                ? "text-emerald-500"
+                : "text-amber-200";
+
     const refreshAll = async () => {
         await Promise.all([mutate(), mutateDebugPreferences(), mutateOverview(), mutateAiDebug()]);
         toast.success("Debug console refreshed");
@@ -786,22 +934,13 @@ export default function DebugConsole() {
                 compact
                 actions={(
                     <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-xs font-semibold text-emerald-500 uppercase tracking-widest">Live</span>
+                        <div className={cn("h-2 w-2 rounded-full", sourceStateTone, sourceStateLabel === "Live" ? "animate-pulse" : "")} />
+                        <span className={cn("text-xs font-semibold uppercase tracking-widest", sourceStateTextClass)}>{sourceStateLabel}</span>
                     </div>
                 )}
             />
 
-            <CompactDebugStatusRail items={compactSummaryItems}>
-                <StatCard label="System state" truthState={!data && isLoading ? "loading" : error ? "failed" : systemStateHealthy ? "live" : "degraded"} value={systemStateStatus} meta={systemStateMeta} copy={systemStateCopy} />
-                <StatCard label="Route checks" truthState={!data && isLoading ? "loading" : error ? "failed" : activePipelineFailureCount > 0 ? "failed" : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "degraded" : "live"} value={activePipelineFailureCount} meta={activePipelineFailureCount > 0 ? "Route checks need attention." : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "Recent route checks need review." : "No route failures are active."} copy={pipelineCardCopy} />
-                <StatCard label="Task users" truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.usersWithTaskIssues ?? 0) > 0 || (data?.stats?.runtimeUsersWithRefreshIssues ?? 0) > 0 ? "degraded" : "live"} value={data?.stats?.usersWithTaskIssues ?? "--"} meta={(data?.stats?.usersWithTaskIssues ?? 0) > 0 ? "Some users have task issues." : "No task-user issues are active."} copy={taskIssueCopy} />
-                <StatCard label="Creator intake" truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "degraded" : "live"} value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={(data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "Creator intake needs review." : "No creator intake issues are active."} copy={creatorIssueCopy} />
-                <StatCard label="Open actions" truthState={openActionsCard.truthState} value={openActionsCard.count} meta={openActionsCard.meta} copy={openActionsCard.copy} />
-                <StatCard label="Route health" truthState={routeHealthCard.truthState} value={routeHealthCard.value} meta={routeHealthCard.meta} copy={routeHealthCard.copy} />
-                <StatCard label="Newest sample" truthState={!data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable"} value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta={freshestLoadedSignalAt ? "Debug has a recent loaded sample." : "No loaded sample has been verified yet."} copy={freshestSampleCopy} />
-                <StatCard label="AI assistant" truthState={aiAssistantCard.truthState} value={aiAssistantCard.value} meta={aiAssistantCard.meta} copy={aiAssistantCard.copy} />
-            </CompactDebugStatusRail>
+            <CompactDebugStatusRail items={compactSummaryItems} detailItems={detailItems} />
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
             {(isLoading || overviewLoading) && !data ? <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-3 text-sm text-gray-300 sm:p-4" data-mobile-residual-cleanup="score-impact"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading debug surfaces...</div> : null}

@@ -10,6 +10,18 @@ function read(relativePath: string) {
 }
 
 describe("admin debug compact panel", () => {
+  it("keeps the top debug console to one status strip and one collapsed evidence drawer", () => {
+    const page = read("src/app/admin/debug/page.tsx");
+
+    expect(page).toContain('data-admin-debug-summary="compact"');
+    expect(page).toContain('data-admin-debug-detail-density="single_evidence_drawer"');
+    expect(page).toContain("detailItems");
+    expect(page).toContain("sourceStateLabel");
+    expect(page).not.toContain("import { StatCard }");
+    expect(page).not.toContain("<StatCard");
+    expect(page).not.toContain(">Live</span>");
+  });
+
   it("keeps tracking and source-heavy debug lanes behind the collapsed Now drilldown", () => {
     const page = read("src/app/admin/debug/page.tsx");
     const nowTab = read("src/app/admin/debug/components/DebugTabNow.tsx");
