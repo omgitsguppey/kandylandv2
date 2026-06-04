@@ -1,11 +1,58 @@
 {
-  "currentVersion": "1.5.54",
-  "betaReleaseCounter": 554,
+  "currentVersion": "1.5.55",
+  "betaReleaseCounter": 555,
   "channel": "beta",
-  "generatedAt": "2026-06-04T00:42:45.702Z",
-  "generatedAtUtc": "2026-06-04T00:42:45.702Z",
-  "lastCommitSha": "03fcb3339f8258ffadcacb2d1d3069025cedc7f1",
+  "generatedAt": "2026-06-04T00:54:20.097Z",
+  "generatedAtUtc": "2026-06-04T00:54:20.097Z",
+  "lastCommitSha": "01b03cb4c3aedf644f96f5dd7a8d54e492d33195",
   "notes": [
+    {
+      "version": "1.5.55",
+      "previousVersion": "1.5.54",
+      "betaReleaseCounter": 555,
+      "previousBetaReleaseCounter": 554,
+      "commitSha": "01b03cb4c3aedf644f96f5dd7a8d54e492d33195",
+      "commitTitle": "fix(admin): add compact recent commerce feed modes",
+      "commitCount": 2,
+      "commitShas": [
+        "3391e742fbe8f3fe0d2164d899875339c3ef93a1",
+        "01b03cb4c3aedf644f96f5dd7a8d54e492d33195"
+      ],
+      "committedAt": "2026-06-04T00:54:06.000Z",
+      "generatedAt": "2026-06-04T00:54:20.096Z",
+      "committedAtUtc": "2026-06-04T00:54:06.000Z",
+      "generatedAtUtc": "2026-06-04T00:54:20.096Z",
+      "updatedAtUtc": "2026-06-04T00:54:20.096Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "public/kandydrops-release-notes.json",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/admin-analytics-commerce-mobile.spec.ts"
+      ],
+      "sourceCommit": "01b03cb4c3aedf644f96f5dd7a8d54e492d33195"
+    },
     {
       "version": "1.5.54",
       "previousVersion": "1.5.53",
@@ -1315,92 +1362,6 @@
         "tests/unit/validator-authority-audit.spec.ts"
       ],
       "sourceCommit": "f63b2f63fc40856fe347c0dbc5ac94344371d0ac"
-    },
-    {
-      "version": "1.5.30",
-      "previousVersion": "1.5.29",
-      "betaReleaseCounter": 530,
-      "previousBetaReleaseCounter": 529,
-      "commitSha": "3f06d1a8431e29a22ac0ea18233146084f1ff47a",
-      "commitTitle": "refactor(beta): classify remaining telemetry gaps",
-      "commitCount": 2,
-      "commitShas": [
-        "39a5e4f484e18ff5eb78d1073c73d9d92e489ddb",
-        "3f06d1a8431e29a22ac0ea18233146084f1ff47a"
-      ],
-      "committedAt": "2026-06-01T03:51:48.000Z",
-      "generatedAt": "2026-06-01T04:24:12.544Z",
-      "committedAtUtc": "2026-06-01T03:51:48.000Z",
-      "generatedAtUtc": "2026-06-01T04:24:12.544Z",
-      "updatedAtUtc": "2026-06-01T04:24:12.544Z",
-      "category": "Improved",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved chat media sizing and message-thread scrolling.",
-        "Improved guest analytics and admin truth checks behind the scenes.",
-        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 2 commits into one accepted patch batch."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "drops-viewer",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/analytics-panel-hydration.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "agent/state/event-liveness-audit.generated.json",
-        "agent/state/event-translation-bridge.generated.json",
-        "agent/state/overnight-beta-readiness-lock.generated.json",
-        "agent/state/person-metrics-hydration.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/analytics-panel-hydration.md",
-        "docs/agent-truth/current-beta-exit-status.md",
-        "docs/agent-truth/event-liveness-audit.md",
-        "docs/agent-truth/event-translation-bridge.md",
-        "docs/agent-truth/overnight-beta-readiness-lock.md",
-        "docs/agent-truth/person-metrics-hydration.md",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-analytics-panel-hydration.ts",
-        "scripts/agent/validate-content-protection.ts",
-        "scripts/agent/validate-drop-preview-page.ts",
-        "scripts/agent/validate-event-liveness-audit.ts",
-        "scripts/agent/validate-event-translation-bridge.ts",
-        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
-        "scripts/agent/validate-user-critical-path-lock.ts",
-        "src/app/dashboard/viewer/ViewerClient.tsx",
-        "src/app/dashboard/viewer/hooks/useViewerState.ts",
-        "src/app/dashboard/viewer/page.tsx",
-        "src/components/Drops/LockedDropPreviewClient.tsx",
-        "src/lib/admin-analytics/panel-hydration-contract.ts",
-        "src/lib/admin-analytics/panel-hydration-registry.ts",
-        "src/lib/admin-analytics/panel-hydration-resolver.ts",
-        "src/lib/analytics/event-liveness-contract.ts",
-        "src/lib/analytics/event-liveness-engine.ts",
-        "src/lib/analytics/event-translation-bridge.ts",
-        "src/lib/analytics/person-metrics-hydration.ts",
-        "src/lib/bug-reporting.ts",
-        "src/lib/drop-view-access.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/release-readiness/live-evidence-resolver.ts",
-        "src/lib/release-readiness/live-panel-evidence-resolver.ts",
-        "src/lib/server/viewer-drop-entitlement.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/analytics-panel-hydration.spec.ts",
-        "tests/unit/dashboard-viewer-page.spec.tsx",
-        "tests/unit/drop-view-access.spec.ts",
-        "tests/unit/event-liveness-audit.spec.ts"
-      ],
-      "sourceCommit": "3f06d1a8431e29a22ac0ea18233146084f1ff47a"
     }
   ]
 }

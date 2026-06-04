@@ -9,6 +9,19 @@ const source = readFileSync(
 );
 
 describe("Admin analytics commerce mobile consolidation", () => {
+  it("renders Recent Commerce Feed as one compact mobile view mode at a time", () => {
+    expect(source).toContain("recentCommerceFeedViewMode");
+    expect(source).toContain("setRecentCommerceFeedViewMode");
+    expect(source).toContain('data-admin-analytics-mobile-view-mode={recentCommerceFeedViewMode}');
+    expect(source).toContain('data-recent-commerce-feed-table="compact"');
+    expect(source).toContain('data-recent-commerce-feed-timeline="compact"');
+    expect(source).toContain('recentCommerceFeedViewMode === "timeline"');
+    expect(source).toContain('recentCommerceFeedViewMode === "table"');
+    expect(source).toContain('recentCommerceFeedViewMode === "cards"');
+    expect(source).toContain("data-recent-commerce-feed-range={recentCommerceFeedRange}");
+    expect(source).toContain("data-recent-commerce-feed-source-state={recentCommerceFeedModel.rows.length > 0 ? \"loaded\" : \"no_sample\"}");
+  });
+
   it("renders Viewer Journey as one compact mobile view mode at a time", () => {
     expect(source).toContain("viewerJourneyViewMode");
     expect(source).toContain("setViewerJourneyViewMode");

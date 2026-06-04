@@ -24,6 +24,17 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
+type RecentCommerceFeedViewMode = "cards" | "table" | "timeline";
+
+const RECENT_COMMERCE_FEED_VIEW_MODES: Array<{
+  id: RecentCommerceFeedViewMode;
+  label: string;
+}> = [
+  { id: "cards", label: "Cards" },
+  { id: "table", label: "Table" },
+  { id: "timeline", label: "Timeline" },
+];
+
 export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
@@ -49,7 +60,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     contentConversionModel,
     contentConversionRange,
     topDropConversionRange, topDropConversionModel, topDropConversionPage, setTopDropConversionPage, topDropConversionPageSize, setTopDropConversionPageSize,
-    recentCommerceFeedModel, describeEvent, formatAbsoluteDateTime,
+    recentCommerceFeedRange, recentCommerceFeedModel, describeEvent, formatAbsoluteDateTime,
     
     // Viewer drilldown
     viewerDrilldownRange, viewerDrilldownGeneratedAtMs, viewerDrilldownFilter, viewerDrilldownOverview, viewerUserDraft, setViewerUserDraft, applyViewerFilter,
@@ -105,6 +116,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const [viewerDropViewMode, setViewerDropViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [viewerJourneyViewMode, setViewerJourneyViewMode] = React.useState<AnalyticsViewMode>("cards");
   const [watchDepthTagsViewMode, setWatchDepthTagsViewMode] = React.useState<AnalyticsViewMode>("cards");
+  const [recentCommerceFeedViewMode, setRecentCommerceFeedViewMode] =
+    React.useState<RecentCommerceFeedViewMode>("cards");
   const packagePerformanceRows = packagePerformancePanelState?.rows ?? [];
   const packagePerformanceChartRows = packagePerformanceRows.map((row: any) => ({
     ...row,
@@ -985,12 +998,44 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
 
               <SectionCard
                 title="Recent Commerce Feed"
-                subtitle="Recent transactions condensed into mobile cards."
+                subtitle="Recent transactions condensed into one mobile view at a time."
                 icon={Wallet}
-                rightSlot={renderSectionRangeControl("recentCommerceFeed")}
+                rightSlot={
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <div
+                      className="inline-flex min-h-11 rounded-full border border-white/10 bg-black/25 p-1"
+                      data-recent-commerce-feed-view-mode={recentCommerceFeedViewMode}
+                      aria-label="Recent commerce feed view mode"
+                    >
+                      {RECENT_COMMERCE_FEED_VIEW_MODES.map((option) => {
+                        const active = option.id === recentCommerceFeedViewMode;
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => setRecentCommerceFeedViewMode(option.id)}
+                            aria-pressed={active}
+                            className={cn(
+                              "inline-flex min-h-9 items-center rounded-full px-2.5 text-[11px] font-bold transition-colors",
+                              active
+                                ? "bg-brand-purple/20 text-white"
+                                : "text-gray-400 hover:bg-white/5 hover:text-white",
+                            )}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {renderSectionRangeControl("recentCommerceFeed")}
+                  </div>
+                }
               >
                 <div
                   className="w-full max-w-full space-y-3 overflow-x-hidden"
+                  data-admin-analytics-mobile-view-mode={recentCommerceFeedViewMode}
+                  data-recent-commerce-feed-range={recentCommerceFeedRange}
+                  data-recent-commerce-feed-source-state={recentCommerceFeedModel.rows.length > 0 ? "loaded" : "no_sample"}
                   data-recent-commerce-feed-source-truth={recentCommerceFeedModel.sourceTruth}
                   data-recent-commerce-feed-freshness={recentCommerceFeedModel.freshnessState}
                   data-recent-commerce-feed-generated-at-utc={recentCommerceFeedModel.generatedAtUtc}
@@ -1011,7 +1056,112 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                     </div>
                   </div>
 
-                  {recentCommerceFeedModel.rows.length > 0 ? (
+                  {recentCommerceFeedModel.rows.length > 0 && recentCommerceFeedViewMode === "table" ? (
+                    <div
+                      className="overflow-x-auto rounded-[1rem] border border-white/10 bg-black/25"
+                      data-recent-commerce-feed-table="compact"
+                      data-recent-commerce-feed-range={recentCommerceFeedRange}
+                      data-recent-commerce-feed-source-state={recentCommerceFeedModel.rows.length > 0 ? "loaded" : "no_sample"}
+                    >
+                      <table className="min-w-full text-left text-xs">
+                        <thead className="border-b border-white/10 text-[10px] uppercase tracking-[0.14em] text-gray-500">
+                          <tr>
+                            <th className="px-3 py-2 font-semibold">Transaction</th>
+                            <th className="px-3 py-2 font-semibold">Actor</th>
+                            <th className="px-3 py-2 font-semibold">Amount</th>
+                            <th className="px-3 py-2 font-semibold">Source</th>
+                            <th className="px-3 py-2 font-semibold">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/10 text-gray-300">
+                          {recentCommerceFeedModel.rows.map((item) => (
+                            <tr
+                              key={`recent-commerce-feed-table-${item.transactionId}`}
+                              data-recent-commerce-feed-row
+                              data-recent-commerce-feed-created-at-utc={item.createdAtUtc}
+                              data-recent-commerce-feed-source-truth={item.sourceTruth}
+                              data-recent-commerce-feed-direction={item.direction}
+                              data-recent-commerce-feed-source-of-funds={item.sourceOfFunds}
+                            >
+                              <td className="max-w-[14rem] px-3 py-2">
+                                <div className="truncate font-semibold text-white">{item.displayTitle}</div>
+                                <div className="truncate text-[11px] text-gray-500">{item.transactionId}</div>
+                              </td>
+                              <td className="max-w-[10rem] truncate px-3 py-2">{item.actorDisplayName}</td>
+                              <td
+                                className={cn(
+                                  "px-3 py-2 font-semibold",
+                                  item.direction === "debit" ? "text-rose-300" : item.direction === "credit" ? "text-emerald-300" : "text-gray-300",
+                                )}
+                              >
+                                {item.amountDisplay}
+                              </td>
+                              <td className="max-w-[10rem] px-3 py-2">
+                                <div className="truncate text-white">{item.sourceLabel}</div>
+                                <div className="truncate text-[11px] text-gray-500">{item.sourceTruth}</div>
+                              </td>
+                              <td className="px-3 py-2">
+                                <div className="truncate text-white">{item.status}</div>
+                                <div className="truncate text-[11px] text-gray-500">{item.ageLabel}</div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+
+                  {recentCommerceFeedModel.rows.length > 0 && recentCommerceFeedViewMode === "timeline" ? (
+                    <div
+                      className="space-y-2 rounded-[1rem] border border-white/10 bg-black/25 p-3"
+                      data-recent-commerce-feed-timeline="compact"
+                      data-recent-commerce-feed-range={recentCommerceFeedRange}
+                      data-recent-commerce-feed-source-state={recentCommerceFeedModel.rows.length > 0 ? "loaded" : "no_sample"}
+                    >
+                      {recentCommerceFeedModel.rows.map((item, index) => (
+                        <div
+                          key={`recent-commerce-feed-timeline-${item.transactionId}`}
+                          className="grid grid-cols-[auto_minmax(0,1fr)_auto] gap-3"
+                          data-recent-commerce-feed-row
+                          data-recent-commerce-feed-created-at-utc={item.createdAtUtc}
+                          data-recent-commerce-feed-source-truth={item.sourceTruth}
+                          data-recent-commerce-feed-direction={item.direction}
+                          data-recent-commerce-feed-source-of-funds={item.sourceOfFunds}
+                        >
+                          <div className="flex flex-col items-center">
+                            <span className="mt-1 h-2.5 w-2.5 rounded-full bg-brand-purple" />
+                            {index < recentCommerceFeedModel.rows.length - 1 ? (
+                              <span className="mt-1 h-full min-h-8 w-px bg-white/10" />
+                            ) : null}
+                          </div>
+                          <div className="min-w-0 pb-2">
+                            <p className="truncate text-sm font-semibold text-white">{item.displayTitle}</p>
+                            <p className="mt-1 truncate text-xs text-gray-500">
+                              {item.actorDisplayName} | {item.ageLabel} | {item.status}
+                            </p>
+                            <p className="mt-1 truncate text-[11px] text-gray-400">
+                              {item.sourceLabel} | {item.sourceTruth}
+                            </p>
+                          </div>
+                          <div className="max-w-[6.75rem] shrink-0 text-right">
+                            <p
+                              className={cn(
+                                "truncate text-sm font-bold",
+                                item.direction === "debit" ? "text-rose-300" : item.direction === "credit" ? "text-emerald-300" : "text-gray-300",
+                              )}
+                            >
+                              {item.amountDisplay}
+                            </p>
+                            <p className="mt-1 truncate text-[10px] uppercase tracking-[0.14em] text-gray-500">
+                              {item.sourceOfFunds}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {recentCommerceFeedModel.rows.length > 0 && recentCommerceFeedViewMode === "cards" ? (
                     recentCommerceFeedModel.rows.map((item) => (
                       <div
                         key={item.transactionId}
